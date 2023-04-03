@@ -2,49 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68DD06D4886
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 419796D498F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233404AbjDCO30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60102 "EHLO
+        id S233741AbjDCOjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbjDCO3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108013500E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:20 -0700 (PDT)
+        with ESMTP id S233736AbjDCOjK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6588E1BF50
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C8C61DDB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6575C433EF;
-        Mon,  3 Apr 2023 14:29:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEFAAB81CA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D48BC433EF;
+        Mon,  3 Apr 2023 14:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532159;
-        bh=L0ppsVkM3L1IhzDIY/wbSoHkSWthJizIcAiKa9RNvfk=;
+        s=korg; t=1680532740;
+        bh=8xbVRTF9ZztDD4+eufl19RlMg14b2/KeL98vGIONwmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abTJ23rvtMrGr0cPXOAvfNwiJTa/Mk1Jg9/28KALi246Nym6KkZYgD1toaeMO0Fzm
-         XITe566pih3XtsH1hYIhWDkM/emAEKCGulKVVaKwnmXTJi06mqjCFntuDjUTsOtvlZ
-         ggexuj60gFQMOQFpilDG3t7b9hctheHiX0u9Eo3g=
+        b=a3s2Fg4iupiFVaxK2NOwq/5nfc3XK2qSP0klRTsf6Zu+8dW40+ykW4/U09wZ0Mf/M
+         xSRTcvl0xxE/V283bEK7F23qL2NNGShoFpcbXCL/7e0fKcG2rxivVp9NtHGvFqLV7T
+         WybcyHbzv33MiUxNZD1noAGUiYX1W7wglTx0COOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 119/173] fbdev: nvidia: Fix potential divide by zero
+        patches@lists.linux.dev,
+        syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com,
+        Ivan Orlov <ivan.orlov0322@gmail.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 099/181] can: bcm: bcm_tx_setup(): fix KMSAN uninit-value in vfs_write
 Date:   Mon,  3 Apr 2023 16:08:54 +0200
-Message-Id: <20230403140418.315234213@linuxfoundation.org>
+Message-Id: <20230403140418.324801817@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,38 +56,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Ivan Orlov <ivan.orlov0322@gmail.com>
 
-[ Upstream commit 92e2a00f2987483e1f9253625828622edd442e61 ]
+[ Upstream commit 2b4c99f7d9a57ecd644eda9b1fb0a1072414959f ]
 
-variable var->pixclock can be set by user. In case it
-equals to zero, divide by zero would occur in nvidiafb_set_par.
+Syzkaller reported the following issue:
 
-Similar crashes have happened in other fbdev drivers. There
-is no check and modification on var->pixclock along the call
-chain to nvidia_check_var and nvidiafb_set_par. We believe it
-could also be triggered in driver nvidia from user site.
+=====================================================
+BUG: KMSAN: uninit-value in aio_rw_done fs/aio.c:1520 [inline]
+BUG: KMSAN: uninit-value in aio_write+0x899/0x950 fs/aio.c:1600
+ aio_rw_done fs/aio.c:1520 [inline]
+ aio_write+0x899/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc+0x11d/0x3b0 mm/slab_common.c:981
+ kmalloc_array include/linux/slab.h:636 [inline]
+ bcm_tx_setup+0x80e/0x29d0 net/can/bcm.c:930
+ bcm_sendmsg+0x3a2/0xce0 net/can/bcm.c:1351
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ sock_write_iter+0x495/0x5e0 net/socket.c:1108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+CPU: 1 PID: 5034 Comm: syz-executor350 Not tainted 6.2.0-rc6-syzkaller-80422-geda666ff2276 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
+=====================================================
+
+We can follow the call chain and find that 'bcm_tx_setup' function
+calls 'memcpy_from_msg' to copy some content to the newly allocated
+frame of 'op->frames'. After that the 'len' field of copied structure
+being compared with some constant value (64 or 8). However, if
+'memcpy_from_msg' returns an error, we will compare some uninitialized
+memory. This triggers 'uninit-value' issue.
+
+This patch will add 'memcpy_from_msg' possible errors processing to
+avoid uninit-value issue.
+
+Tested via syzkaller
+
+Reported-by: syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=47f897f8ad958bbde5790ebf389b5e7e0a345089
+Signed-off-by: Ivan Orlov <ivan.orlov0322@gmail.com>
+Fixes: 6f3b911d5f29b ("can: bcm: add support for CAN FD frames")
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Link: https://lore.kernel.org/all/20230314120445.12407-1-ivan.orlov0322@gmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/nvidia/nvidia.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/can/bcm.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/video/fbdev/nvidia/nvidia.c b/drivers/video/fbdev/nvidia/nvidia.c
-index a372a183c1f01..f9c388a8c10e3 100644
---- a/drivers/video/fbdev/nvidia/nvidia.c
-+++ b/drivers/video/fbdev/nvidia/nvidia.c
-@@ -763,6 +763,8 @@ static int nvidiafb_check_var(struct fb_var_screeninfo *var,
- 	int pitch, err = 0;
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 27706f6ace34a..a962ec2b8ba5b 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -941,6 +941,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
  
- 	NVTRACE_ENTER();
-+	if (!var->pixclock)
-+		return -EINVAL;
+ 			cf = op->frames + op->cfsiz * i;
+ 			err = memcpy_from_msg((u8 *)cf, msg, op->cfsiz);
++			if (err < 0)
++				goto free_op;
  
- 	var->transp.offset = 0;
- 	var->transp.length = 0;
+ 			if (op->flags & CAN_FD_FRAME) {
+ 				if (cf->len > 64)
+@@ -950,12 +952,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
+ 					err = -EINVAL;
+ 			}
+ 
+-			if (err < 0) {
+-				if (op->frames != &op->sframe)
+-					kfree(op->frames);
+-				kfree(op);
+-				return err;
+-			}
++			if (err < 0)
++				goto free_op;
+ 
+ 			if (msg_head->flags & TX_CP_CAN_ID) {
+ 				/* copy can_id into frame */
+@@ -1026,6 +1024,12 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
+ 		bcm_tx_start_timer(op);
+ 
+ 	return msg_head->nframes * op->cfsiz + MHSIZ;
++
++free_op:
++	if (op->frames != &op->sframe)
++		kfree(op->frames);
++	kfree(op);
++	return err;
+ }
+ 
+ /*
 -- 
 2.39.2
 
