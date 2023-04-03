@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF5D6D48DC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A096D49A1
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233546AbjDCOcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
+        id S233755AbjDCOjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233523AbjDCOca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFC7E4C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:24 -0700 (PDT)
+        with ESMTP id S233759AbjDCOju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B15236A4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F9F861E20
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 863A0C4339B;
-        Mon,  3 Apr 2023 14:32:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22C05B81CDB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9057CC433EF;
+        Mon,  3 Apr 2023 14:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532343;
-        bh=qVv16XJlJUdUh86UNWrHUdVERYqczPcQGgUz3nmoEFw=;
+        s=korg; t=1680532781;
+        bh=7ndKNZWViU2f84b78ppPFmwaLXby3ksYxtK1B8Y+UM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2uByiXsAVhQAgmPsQFKqVJnnpw0/Oqglg5idrlQr7JNhG7DwqHb40JrSccWyeeBK
-         TXcFocCFAjWJ2Z6rgS+Zkr48aLhmhtxYKj7kuzk0KSlIJYzpU/tyiKMq4CsvXZJykj
-         jbQRTTmqghs74PNmKPZdzrI/l5mAk179K07sY6Ok=
+        b=U6cAde0yh3wlQjbjqtXipSdTv0gZyIZB8DKAVm3Ryhcy2WgpKTQv/fopabX9qSQtz
+         1VFiwrfmptENnbHe3uU+1ym8HRslZaCBYbYevx3A/Ohz4eAi/PuCBG9tLdYMFwovhv
+         HLSAHLakzqe+FrLGZHvhWwnHx+2iQ6rjyNRqXHUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Krowiak <akrowiak@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 45/99] s390/vfio-ap: fix memory leak in vfio_ap device driver
+        patches@lists.linux.dev, Radoslaw Tyl <radoslawx.tyl@intel.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 6.1 113/181] i40e: fix registers dump after run ethtool adapter self test
 Date:   Mon,  3 Apr 2023 16:09:08 +0200
-Message-Id: <20230403140404.968838785@linuxfoundation.org>
+Message-Id: <20230403140418.766076975@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,46 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+From: Radoslaw Tyl <radoslawx.tyl@intel.com>
 
-[ Upstream commit 8f8cf767589f2131ae5d40f3758429095c701c84 ]
+[ Upstream commit c5cff16f461a4a434a9915a7be7ac9ced861a8a4 ]
 
-The device release callback function invoked to release the matrix device
-uses the dev_get_drvdata(device *dev) function to retrieve the
-pointer to the vfio_matrix_dev object in order to free its storage. The
-problem is, this object is not stored as drvdata with the device; since the
-kfree function will accept a NULL pointer, the memory for the
-vfio_matrix_dev object is never freed.
+Fix invalid registers dump from ethtool -d ethX after adapter self test
+by ethtool -t ethY. It causes invalid data display.
 
-Since the device being released is contained within the vfio_matrix_dev
-object, the container_of macro will be used to retrieve its pointer.
+The problem was caused by overwriting i40e_reg_list[].elements
+which is common for ethtool self test and dump.
 
-Fixes: 1fde573413b5 ("s390: vfio-ap: base implementation of VFIO AP device driver")
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230320150447.34557-1-akrowiak@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 22dd9ae8afcc ("i40e: Rework register diagnostic")
+Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230328172659.3906413-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_diag.c | 11 ++++++-----
+ drivers/net/ethernet/intel/i40e/i40e_diag.h |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 4d2556bc7fe58..5196c9ac5a81f 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -86,8 +86,9 @@ static struct ap_driver vfio_ap_drv = {
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
- {
--	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
-+	struct ap_matrix_dev *matrix_dev;
- 
-+	matrix_dev = container_of(dev, struct ap_matrix_dev, device);
- 	kfree(matrix_dev);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.c b/drivers/net/ethernet/intel/i40e/i40e_diag.c
+index ef4d3762bf371..ca229b0efeb65 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_diag.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_diag.c
+@@ -44,7 +44,7 @@ static i40e_status i40e_diag_reg_pattern_test(struct i40e_hw *hw,
+ 	return 0;
  }
  
+-struct i40e_diag_reg_test_info i40e_reg_list[] = {
++const struct i40e_diag_reg_test_info i40e_reg_list[] = {
+ 	/* offset               mask         elements   stride */
+ 	{I40E_QTX_CTL(0),       0x0000FFBF, 1,
+ 		I40E_QTX_CTL(1) - I40E_QTX_CTL(0)},
+@@ -78,27 +78,28 @@ i40e_status i40e_diag_reg_test(struct i40e_hw *hw)
+ {
+ 	i40e_status ret_code = 0;
+ 	u32 reg, mask;
++	u32 elements;
+ 	u32 i, j;
+ 
+ 	for (i = 0; i40e_reg_list[i].offset != 0 &&
+ 					     !ret_code; i++) {
+ 
++		elements = i40e_reg_list[i].elements;
+ 		/* set actual reg range for dynamically allocated resources */
+ 		if (i40e_reg_list[i].offset == I40E_QTX_CTL(0) &&
+ 		    hw->func_caps.num_tx_qp != 0)
+-			i40e_reg_list[i].elements = hw->func_caps.num_tx_qp;
++			elements = hw->func_caps.num_tx_qp;
+ 		if ((i40e_reg_list[i].offset == I40E_PFINT_ITRN(0, 0) ||
+ 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(1, 0) ||
+ 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(2, 0) ||
+ 		     i40e_reg_list[i].offset == I40E_QINT_TQCTL(0) ||
+ 		     i40e_reg_list[i].offset == I40E_QINT_RQCTL(0)) &&
+ 		    hw->func_caps.num_msix_vectors != 0)
+-			i40e_reg_list[i].elements =
+-				hw->func_caps.num_msix_vectors - 1;
++			elements = hw->func_caps.num_msix_vectors - 1;
+ 
+ 		/* test register access */
+ 		mask = i40e_reg_list[i].mask;
+-		for (j = 0; j < i40e_reg_list[i].elements && !ret_code; j++) {
++		for (j = 0; j < elements && !ret_code; j++) {
+ 			reg = i40e_reg_list[i].offset +
+ 			      (j * i40e_reg_list[i].stride);
+ 			ret_code = i40e_diag_reg_pattern_test(hw, reg, mask);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.h b/drivers/net/ethernet/intel/i40e/i40e_diag.h
+index c3340f320a18c..1db7c6d572311 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_diag.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_diag.h
+@@ -20,7 +20,7 @@ struct i40e_diag_reg_test_info {
+ 	u32 stride;	/* bytes between each element */
+ };
+ 
+-extern struct i40e_diag_reg_test_info i40e_reg_list[];
++extern const struct i40e_diag_reg_test_info i40e_reg_list[];
+ 
+ i40e_status i40e_diag_reg_test(struct i40e_hw *hw);
+ i40e_status i40e_diag_eeprom_test(struct i40e_hw *hw);
 -- 
 2.39.2
 
