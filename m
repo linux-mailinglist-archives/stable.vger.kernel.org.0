@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD536D4B00
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECF666D4AF8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234169AbjDCOvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
+        id S233980AbjDCOve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234076AbjDCOvh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:37 -0400
+        with ESMTP id S234161AbjDCOvV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99DF2E5C6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:51:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AF128E86
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33D4A61FB5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:51:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46D94C4339C;
-        Mon,  3 Apr 2023 14:51:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91AE761FB3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64E7C433EF;
+        Mon,  3 Apr 2023 14:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533470;
-        bh=UbEOEZOw+Pd11kABU9ae3sbvJt2aj0ekYtFj/AFPBuM=;
+        s=korg; t=1680533449;
+        bh=gJ016sqzJQxqEjvfTMBfOhvk6EinTxxMh5BJM1UUeJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9pP0AL8BXLJcri+oS2CVsXJEa1t+8po9B53YHYAWzco1iQZOTVWmOwzTIzehF5E+
-         XmH2v8plzRVNxAfHw8N7x1LcoW6ar2wMhkBDXCFcdl34webcAphO9lBZw5/e1Z8S8n
-         YXila01u4KJ2NyI5dWLSPDS+h1LgYfs6Lz3eqZME=
+        b=ofX5NGaeuuKYjxFo5h1m5cWDwRerUyACdk0oR9YMn7Xl1KffX999kLpIElXoya7Hi
+         5g2s6uFLjdAUeDryXwD2Po04kHQdPqSbfZE/+6lyX43PaUaYytZ4ke+D6Sh4381PQB
+         n7LFxo3ZdSIfLhfkxrAIXQlZ4t3dtfQT/V2UaV+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
         Oliver Upton <oliver.upton@linux.dev>
-Subject: [PATCH 6.2 179/187] KVM: arm64: Disable interrupts while walking userspace PTs
-Date:   Mon,  3 Apr 2023 16:10:24 +0200
-Message-Id: <20230403140422.194131272@linuxfoundation.org>
+Subject: [PATCH 6.2 180/187] KVM: arm64: Check for kvm_vma_mte_allowed in the critical section
+Date:   Mon,  3 Apr 2023 16:10:25 +0200
+Message-Id: <20230403140422.230511109@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -54,117 +54,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <maz@kernel.org>
 
-commit e86fc1a3a3e9b4850fe74d738e3cfcf4297d8bba upstream.
+commit 8c2e8ac8ad4be68409e806ce1cc78fc7a04539f3 upstream.
 
-We walk the userspace PTs to discover what mapping size was
-used there. However, this can race against the userspace tables
-being freed, and we end-up in the weeds.
+On page fault, we find about the VMA that backs the page fault
+early on, and quickly release the mmap_read_lock. However, using
+the VMA pointer after the critical section is pretty dangerous,
+as a teardown may happen in the meantime and the VMA be long gone.
 
-Thankfully, the mm code is being generous and will IPI us when
-doing so. So let's implement our part of the bargain and disable
-interrupts around the walk. This ensures that nothing terrible
-happens during that time.
-
-We still need to handle the removal of the page tables before
-the walk. For that, allow get_user_mapping_size() to return an
-error, and make sure this error can be propagated all the way
-to the the exit handler.
+Move the sampling of the MTE permission early, and NULL-ify the
+VMA pointer after that, just to be on the safe side.
 
 Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230316174546.3777507-2-maz@kernel.org
+Link: https://lore.kernel.org/r/20230316174546.3777507-3-maz@kernel.org
 Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/mmu.c |   45 ++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 38 insertions(+), 7 deletions(-)
+ arch/arm64/kvm/mmu.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 --- a/arch/arm64/kvm/mmu.c
 +++ b/arch/arm64/kvm/mmu.c
-@@ -665,14 +665,33 @@ static int get_user_mapping_size(struct
- 				   CONFIG_PGTABLE_LEVELS),
- 		.mm_ops		= &kvm_user_mm_ops,
- 	};
-+	unsigned long flags;
- 	kvm_pte_t pte = 0;	/* Keep GCC quiet... */
- 	u32 level = ~0;
- 	int ret;
+@@ -1218,7 +1218,7 @@ static int user_mem_abort(struct kvm_vcp
+ {
+ 	int ret = 0;
+ 	bool write_fault, writable, force_pte = false;
+-	bool exec_fault;
++	bool exec_fault, mte_allowed;
+ 	bool device = false;
+ 	unsigned long mmu_seq;
+ 	struct kvm *kvm = vcpu->kvm;
+@@ -1309,6 +1309,10 @@ static int user_mem_abort(struct kvm_vcp
+ 		fault_ipa &= ~(vma_pagesize - 1);
  
-+	/*
-+	 * Disable IRQs so that we hazard against a concurrent
-+	 * teardown of the userspace page tables (which relies on
-+	 * IPI-ing threads).
-+	 */
-+	local_irq_save(flags);
- 	ret = kvm_pgtable_get_leaf(&pgt, addr, &pte, &level);
--	VM_BUG_ON(ret);
--	VM_BUG_ON(level >= KVM_PGTABLE_MAX_LEVELS);
--	VM_BUG_ON(!(pte & PTE_VALID));
-+	local_irq_restore(flags);
+ 	gfn = fault_ipa >> PAGE_SHIFT;
++	mte_allowed = kvm_vma_mte_allowed(vma);
 +
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Not seeing an error, but not updating level? Something went
-+	 * deeply wrong...
-+	 */
-+	if (WARN_ON(level >= KVM_PGTABLE_MAX_LEVELS))
-+		return -EFAULT;
-+
-+	/* Oops, the userspace PTs are gone... Replay the fault */
-+	if (!kvm_pte_valid(pte))
-+		return -EAGAIN;
++	/* Don't use the VMA after the unlock -- it may have vanished */
++	vma = NULL;
  
- 	return BIT(ARM64_HW_PGTABLE_LEVEL_SHIFT(level));
- }
-@@ -1079,7 +1098,7 @@ static bool fault_supports_stage2_huge_m
-  *
-  * Returns the size of the mapping.
-  */
--static unsigned long
-+static long
- transparent_hugepage_adjust(struct kvm *kvm, struct kvm_memory_slot *memslot,
- 			    unsigned long hva, kvm_pfn_t *pfnp,
- 			    phys_addr_t *ipap)
-@@ -1091,8 +1110,15 @@ transparent_hugepage_adjust(struct kvm *
- 	 * sure that the HVA and IPA are sufficiently aligned and that the
- 	 * block map is contained within the memslot.
- 	 */
--	if (fault_supports_stage2_huge_mapping(memslot, hva, PMD_SIZE) &&
--	    get_user_mapping_size(kvm, hva) >= PMD_SIZE) {
-+	if (fault_supports_stage2_huge_mapping(memslot, hva, PMD_SIZE)) {
-+		int sz = get_user_mapping_size(kvm, hva);
-+
-+		if (sz < 0)
-+			return sz;
-+
-+		if (sz < PMD_SIZE)
-+			return PAGE_SIZE;
-+
- 		/*
- 		 * The address we faulted on is backed by a transparent huge
- 		 * page.  However, because we map the compound huge page and
-@@ -1203,7 +1229,7 @@ static int user_mem_abort(struct kvm_vcp
- 	kvm_pfn_t pfn;
- 	bool logging_active = memslot_is_logging(memslot);
- 	unsigned long fault_level = kvm_vcpu_trap_get_fault_level(vcpu);
--	unsigned long vma_pagesize, fault_granule;
-+	long vma_pagesize, fault_granule;
- 	enum kvm_pgtable_prot prot = KVM_PGTABLE_PROT_R;
- 	struct kvm_pgtable *pgt;
- 
-@@ -1344,6 +1370,11 @@ static int user_mem_abort(struct kvm_vcp
- 			vma_pagesize = transparent_hugepage_adjust(kvm, memslot,
- 								   hva, &pfn,
- 								   &fault_ipa);
-+
-+		if (vma_pagesize < 0) {
-+			ret = vma_pagesize;
-+			goto out_unlock;
-+		}
- 	}
+ 	/*
+ 	 * Read mmu_invalidate_seq so that KVM can detect if the results of
+@@ -1379,7 +1383,7 @@ static int user_mem_abort(struct kvm_vcp
  
  	if (fault_status != ESR_ELx_FSC_PERM && !device && kvm_has_mte(kvm)) {
+ 		/* Check the VMM hasn't introduced a new disallowed VMA */
+-		if (kvm_vma_mte_allowed(vma)) {
++		if (mte_allowed) {
+ 			sanitise_mte_tags(kvm, pfn, vma_pagesize);
+ 		} else {
+ 			ret = -EFAULT;
 
 
