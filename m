@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5E76D46C4
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFDCD6D4799
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232858AbjDCONQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:13:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
+        id S233160AbjDCOVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232786AbjDCONP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:13:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3CA172C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:13:14 -0700 (PDT)
+        with ESMTP id S233134AbjDCOVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511942D7C0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39BE4B81B2F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:13:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95115C433EF;
-        Mon,  3 Apr 2023 14:13:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C5AF61D15
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05003C433EF;
+        Mon,  3 Apr 2023 14:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531191;
-        bh=zjEk9E6e7qe1JmkTXMOwfLHd9Pot19JP8A+Cy+lz/Eo=;
+        s=korg; t=1680531680;
+        bh=Rvm8MkTCfvQMj+/IMIhTuphIpWKmMir1YqZ8kkLHBS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwy4brekZgpA5mHKTP5wvT1OZ589LzBpHCMZ1Mtm1S8PhATHEqZ+uJRjUrMF4KbkM
-         ZmeAe7UUtikwLhp8ZQ1NvywQZMxPuThqbvRxPP24QUAhhW61iDPQQeau27SH6d8kRn
-         tJozYmDw1HWkzPmtZXIhua7HXB91q49OEm33v+KQ=
+        b=MLo90JcV1cFkmN949qdekDdROpn+JQPLMPM8lXZODykXOM9ikc6QevtDqViERogK/
+         /F0FP/6F3Tu9R59sVPsy/YIDbDoihB/x4m6Frf7YPykDvSQ2cqAjEhGDB4dfpPyfmq
+         VO/BDqpBUkJDwLzBjmrxkeiSTTGvuhWoqOqPXfIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 55/66] Input: focaltech - use explicitly signed char type
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 071/104] ca8210: Fix unsigned mac_len comparison with zero in ca8210_skb_tx()
 Date:   Mon,  3 Apr 2023 16:09:03 +0200
-Message-Id: <20230403140353.728767819@linuxfoundation.org>
+Message-Id: <20230403140406.954978802@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,50 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-commit 8980f190947ba29f23110408e712444884b74251 upstream.
+[ Upstream commit 748b2f5e82d17480404b3e2895388fc2925f7caf ]
 
-The recent change of -funsigned-char causes additions of negative
-numbers to become additions of large positive numbers, leading to wrong
-calculations of mouse movement. Change these casts to be explicitly
-signed, to take into account negative offsets.
+mac_len is of type unsigned, which can never be less than zero.
 
-Fixes: 3bc753c06dd0 ("kbuild: treat char as always unsigned")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217211
-Link: https://lore.kernel.org/r/20230318133010.1285202-1-Jason@zx2c4.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	mac_len = ieee802154_hdr_peek_addrs(skb, &header);
+	if (mac_len < 0)
+		return mac_len;
+
+Change this to type int as ieee802154_hdr_peek_addrs() can return negative
+integers, this is found by static analysis with smatch.
+
+Fixes: 6c993779ea1d ("ca8210: fix mac_len negative array access")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230306191824.4115839-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/focaltech.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ieee802154/ca8210.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -206,8 +206,8 @@ static void focaltech_process_rel_packet
- 	state->pressed = packet[0] >> 7;
- 	finger1 = ((packet[0] >> 4) & 0x7) - 1;
- 	if (finger1 < FOC_MAX_FINGERS) {
--		state->fingers[finger1].x += (char)packet[1];
--		state->fingers[finger1].y += (char)packet[2];
-+		state->fingers[finger1].x += (s8)packet[1];
-+		state->fingers[finger1].y += (s8)packet[2];
- 	} else {
- 		psmouse_err(psmouse, "First finger in rel packet invalid: %d\n",
- 			    finger1);
-@@ -222,8 +222,8 @@ static void focaltech_process_rel_packet
- 	 */
- 	finger2 = ((packet[3] >> 4) & 0x7) - 1;
- 	if (finger2 < FOC_MAX_FINGERS) {
--		state->fingers[finger2].x += (char)packet[4];
--		state->fingers[finger2].y += (char)packet[5];
-+		state->fingers[finger2].x += (s8)packet[4];
-+		state->fingers[finger2].y += (s8)packet[5];
- 	}
- }
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index 498a82ab4eaf4..fb57e561d3e61 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -1944,10 +1944,9 @@ static int ca8210_skb_tx(
+ 	struct ca8210_priv  *priv
+ )
+ {
+-	int status;
+ 	struct ieee802154_hdr header = { };
+ 	struct secspec secspec;
+-	unsigned int mac_len;
++	int mac_len, status;
  
+ 	dev_dbg(&priv->spi->dev, "%s called\n", __func__);
+ 
+-- 
+2.39.2
+
 
 
