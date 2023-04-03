@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B66936D4963
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D7F6D474B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233698AbjDCOht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:37:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47856 "EHLO
+        id S233027AbjDCOS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233689AbjDCOhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:48 -0400
+        with ESMTP id S233023AbjDCOS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8788E3502A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BE42C9EE;
+        Mon,  3 Apr 2023 07:18:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3904EB81CB6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B94C433EF;
-        Mon,  3 Apr 2023 14:37:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5B37B81BA8;
+        Mon,  3 Apr 2023 14:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC28C433D2;
+        Mon,  3 Apr 2023 14:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532636;
-        bh=Y6BakBa9UYvIosItyVbs2S3E425ilpf74VGBxIVElVE=;
+        s=korg; t=1680531533;
+        bh=23ce0YqyjdydrJ6eTt5+gYdCKYYGWRIVlyFT2GNleRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MxQkvgA0727NWknyrKfxLQNvs4Vyg+G4m3VmT4xV+57I2NJjcOB9StbkV2SF6/uT8
-         L3d7z/nUNo5vhQuzCATdNbynWTbc9dmV1SSrAnFL7G1LyNprTysHl4wCbffWdAY3su
-         mG4TO6OOLBaVORtXKfu6VTJMcL0N+zGvEQCeVlJ0=
+        b=BmOxiF05ScxRzqaXDUd/GCgBHbSxr0M1z+t9RP37cEPd7j8e9P0rMeP9G8co6M2G4
+         AQxRkDOIH/K+GAQ3rnQs9BJQlNpHKlmU2p7OvCNaRr0u/64vIhK1F6ZYpv/MbNUksG
+         nhVHBfPsOT7lHFaD5JSXCnPrR+NvQuqoRzXFLKhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 051/181] fbdev: tgafb: Fix potential divide by zero
-Date:   Mon,  3 Apr 2023 16:08:06 +0200
-Message-Id: <20230403140416.821175342@linuxfoundation.org>
+        patches@lists.linux.dev, Bharath SM <bharathsm@microsoft.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
+        Steve French <smfrench@gmail.com>, keyrings@vger.kernel.org,
+        linux-cifs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 015/104] keys: Do not cache key in task struct if key is requested from kernel thread
+Date:   Mon,  3 Apr 2023 16:08:07 +0200
+Message-Id: <20230403140404.785142940@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit f90bd245de82c095187d8c2cabb8b488a39eaecc ]
+[ Upstream commit 47f9e4c924025c5be87959d3335e66fcbb7f6b5c ]
 
-fb_set_var would by called when user invokes ioctl with cmd
-FBIOPUT_VSCREENINFO. User-provided data would finally reach
-tgafb_check_var. In case var->pixclock is assigned to zero,
-divide by zero would occur when checking whether reciprocal
-of var->pixclock is too high.
+The key which gets cached in task structure from a kernel thread does not
+get invalidated even after expiry.  Due to which, a new key request from
+kernel thread will be served with the cached key if it's present in task
+struct irrespective of the key validity.  The change is to not cache key in
+task_struct when key requested from kernel thread so that kernel thread
+gets a valid key on every key request.
 
-Similar crashes have happened in other fbdev drivers. There
-is no check and modification on var->pixclock along the call
-chain to tgafb_check_var. We believe it could also be triggered
-in driver tgafb from user site.
+The problem has been seen with the cifs module doing DNS lookups from a
+kernel thread and the results getting pinned by being attached to that
+kernel thread's cache - and thus not something that can be easily got rid
+of.  The cache would ordinarily be cleared by notify-resume, but kernel
+threads don't do that.
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+This isn't seen with AFS because AFS is doing request_key() within the
+kernel half of a user thread - which will do notify-resume.
+
+Fixes: 7743c48e54ee ("keys: Cache result of request_key*() temporarily in task_struct")
+Signed-off-by: Bharath SM <bharathsm@microsoft.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+cc: Shyam Prasad N <nspmangalore@gmail.com>
+cc: Steve French <smfrench@gmail.com>
+cc: keyrings@vger.kernel.org
+cc: linux-cifs@vger.kernel.org
+cc: linux-fsdevel@vger.kernel.org
+Link: https://lore.kernel.org/r/CAGypqWw951d=zYRbdgNR4snUDvJhWL=q3=WOyh7HhSJupjz2vA@mail.gmail.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/tgafb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ security/keys/request_key.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/video/fbdev/tgafb.c b/drivers/video/fbdev/tgafb.c
-index 251dbd282f5ed..84d5daef97666 100644
---- a/drivers/video/fbdev/tgafb.c
-+++ b/drivers/video/fbdev/tgafb.c
-@@ -173,6 +173,9 @@ tgafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- {
- 	struct tga_par *par = (struct tga_par *)info->par;
+diff --git a/security/keys/request_key.c b/security/keys/request_key.c
+index 957b9e3e14924..17c9c0cfb6f59 100644
+--- a/security/keys/request_key.c
++++ b/security/keys/request_key.c
+@@ -38,9 +38,12 @@ static void cache_requested_key(struct key *key)
+ #ifdef CONFIG_KEYS_REQUEST_CACHE
+ 	struct task_struct *t = current;
  
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	if (par->tga_type == TGA_TYPE_8PLANE) {
- 		if (var->bits_per_pixel != 8)
- 			return -EINVAL;
+-	key_put(t->cached_requested_key);
+-	t->cached_requested_key = key_get(key);
+-	set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
++	/* Do not cache key if it is a kernel thread */
++	if (!(t->flags & PF_KTHREAD)) {
++		key_put(t->cached_requested_key);
++		t->cached_requested_key = key_get(key);
++		set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
++	}
+ #endif
+ }
+ 
 -- 
 2.39.2
 
