@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACD2F6D4842
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A88116D48B8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233331AbjDCO1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56196 "EHLO
+        id S233467AbjDCObU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233324AbjDCO1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0B12D7C2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:02 -0700 (PDT)
+        with ESMTP id S233406AbjDCObT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD284EF4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C7A661DB5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE51C433EF;
-        Mon,  3 Apr 2023 14:27:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64A91B81C64
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A31C433EF;
+        Mon,  3 Apr 2023 14:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532021;
-        bh=D/UTRZhKFn+vcJzsLCi2v4Capo16NLAE3GDCVTn/3HA=;
+        s=korg; t=1680532276;
+        bh=A6pt0fBfN/Zyrl5nc6/78At8qWhXZtk4cMhzsh+ULBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCnJogb3asWhAhA4gsbBYHsKr6OyvDNDNVIChQ76pyM2D5/hnh+UIB65KqcF5WK07
-         +k6f07ajR/ICCkKtqi593Ti//3JpeAxyNrITCoh8Z9hdK9h2xQSaLUMQP3xOZQcBHS
-         jXswycBnJbcW8al5F8KKJe/hq/whMNBEoEQvD83Q=
+        b=ga0lTrZf60eh1SB29HyOy1+KeskK7g1XMNHohfXZK9+y1ZibgIOsMxTvdmzR9fYIp
+         vxgpi4kr3aaRP8Ow0O6VYruVUmxwL2GqurQznYPnHGkoy9CpyRqfZ+trkjjO/Xyt9x
+         h753311SA8Tm5SD/i++ppw5AKSGUIKDCuHOOeswY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qiao <zhangqiao22@huawei.com>,
-        Roman Kagan <rkagan@amazon.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 097/173] sched/fair: sanitize vruntime of entity being placed
+        patches@lists.linux.dev,
+        Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 09/99] ASoC: codecs: tx-macro: Fix for KASAN: slab-out-of-bounds
 Date:   Mon,  3 Apr 2023 16:08:32 +0200
-Message-Id: <20230403140417.569977360@linuxfoundation.org>
+Message-Id: <20230403140356.412368336@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,65 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiao <zhangqiao22@huawei.com>
+From: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
 
-commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc upstream.
+[ Upstream commit e5e7e398f6bb7918dab0612eb6991f7bae95520d ]
 
-When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
-to the base level (around cfs_rq->min_vruntime), so that the entity
-doesn't gain extra boost when placed backwards.
+When we run syzkaller we get below Out of Bound.
+    "KASAN: slab-out-of-bounds Read in regcache_flat_read"
 
-However, if the entity being placed wasn't executed for a long time, its
-vruntime may get too far behind (e.g. while cfs_rq was executing a
-low-weight hog), which can inverse the vruntime comparison due to s64
-overflow.  This results in the entity being placed with its original
-vruntime way forwards, so that it will effectively never get to the cpu.
+    Below is the backtrace of the issue:
 
-To prevent that, ignore the vruntime of the entity being placed if it
-didn't execute for much longer than the characteristic sheduler time
-scale.
+    dump_backtrace+0x0/0x4c8
+    show_stack+0x34/0x44
+    dump_stack_lvl+0xd8/0x118
+    print_address_description+0x30/0x2d8
+    kasan_report+0x158/0x198
+    __asan_report_load4_noabort+0x44/0x50
+    regcache_flat_read+0x10c/0x110
+    regcache_read+0xf4/0x180
+    _regmap_read+0xc4/0x278
+    _regmap_update_bits+0x130/0x290
+    regmap_update_bits_base+0xc0/0x15c
+    snd_soc_component_update_bits+0xa8/0x22c
+    snd_soc_component_write_field+0x68/0xd4
+    tx_macro_digital_mute+0xec/0x140
 
-[rkagan: formatted, adjusted commit log, comments, cutoff value]
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Co-developed-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Actually There is no need to have decimator with 32 bits.
+    By limiting the variable with short type u8 issue is resolved.
+
+Signed-off-by: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
+Link: https://lore.kernel.org/r/20230304080702.609-1-quic_visr@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ sound/soc/codecs/lpass-tx-macro.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4278,6 +4278,7 @@ static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
- {
- 	u64 vruntime = cfs_rq->min_vruntime;
-+	u64 sleep_time;
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 2b7ba78551fab..35d148e60c334 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -239,7 +239,7 @@ enum {
  
- 	/*
- 	 * The 'current' period is already promised to the current tasks,
-@@ -4302,8 +4303,18 @@ place_entity(struct cfs_rq *cfs_rq, stru
- 		vruntime -= thresh;
- 	}
+ struct tx_mute_work {
+ 	struct tx_macro *tx;
+-	u32 decimator;
++	u8 decimator;
+ 	struct delayed_work dwork;
+ };
  
--	/* ensure we never gain time by being placed backwards. */
--	se->vruntime = max_vruntime(se->vruntime, vruntime);
-+	/*
-+	 * Pull vruntime of the entity being placed to the base level of
-+	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
-+	 * slept for a long time, don't even try to compare its vruntime with
-+	 * the base as it may be too far off and the comparison may get
-+	 * inversed due to s64 overflow.
-+	 */
-+	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
-+	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-+		se->vruntime = vruntime;
-+	else
-+		se->vruntime = max_vruntime(se->vruntime, vruntime);
+@@ -632,7 +632,7 @@ static int tx_macro_mclk_enable(struct tx_macro *tx,
+ 	return 0;
  }
  
- static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
+-static bool is_amic_enabled(struct snd_soc_component *component, int decimator)
++static bool is_amic_enabled(struct snd_soc_component *component, u8 decimator)
+ {
+ 	u16 adc_mux_reg, adc_reg, adc_n;
+ 
+@@ -843,7 +843,7 @@ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
+ 			       struct snd_kcontrol *kcontrol, int event)
+ {
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+-	unsigned int decimator;
++	u8 decimator;
+ 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg, tx_gain_ctl_reg;
+ 	u8 hpf_cut_off_freq;
+ 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
+@@ -1058,7 +1058,8 @@ static int tx_macro_hw_params(struct snd_pcm_substream *substream,
+ 			      struct snd_soc_dai *dai)
+ {
+ 	struct snd_soc_component *component = dai->component;
+-	u32 decimator, sample_rate;
++	u32 sample_rate;
++	u8 decimator;
+ 	int tx_fs_rate;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+ 
+@@ -1122,7 +1123,7 @@ static int tx_macro_digital_mute(struct snd_soc_dai *dai, int mute, int stream)
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+-	u16 decimator;
++	u8 decimator;
+ 
+ 	decimator = tx->active_decimator[dai->id];
+ 
+-- 
+2.39.2
+
 
 
