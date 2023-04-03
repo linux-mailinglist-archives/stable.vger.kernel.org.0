@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F6C6D48A8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735276D48FA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233451AbjDCOam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33902 "EHLO
+        id S233522AbjDCOdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233445AbjDCOam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C39C31999
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:39 -0700 (PDT)
+        with ESMTP id S233615AbjDCOda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B855CCC1B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49D33B81C55
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7098C433D2;
-        Mon,  3 Apr 2023 14:30:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1520861B41
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A17C433EF;
+        Mon,  3 Apr 2023 14:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532237;
-        bh=A2ihg6NCvTo57pbj+EXLYojVOlUt6a/yGPGu9qzuYYE=;
+        s=korg; t=1680532398;
+        bh=2HnkMK+6+8F4sG73bK5zwXhszATQOJJP/fQBYmjmR54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1K761sJHoyC6+SkLP6ktzI+2Fmi9nzX4qy/Q94O7aKfqBK2Kvtgf1hhXOkLeBQQkf
-         z2K0ZAyYxcwRa3pUQJpi0p2kBcXW8jbJiNgLpL6j4zH08Xe0OpMDmlZCMwMtFGOv4M
-         3eBS3ZrSPPpOGKXzPlaVBLUyMg8scRZh4DiXPguw=
+        b=dIHFBGEGHa/4pmIuH0a17I3THeA9qDcTL76NjO1v6QTwDlUvl8YFKtGdl2tx0j7Z2
+         Xvx28BVm+uKGmYN9V4D41Mt+l9At0Tjng6/OLVm5Z1991F4I2XhNampHa0bOWt/p8o
+         fLyqkG9GkhhEw/5BuYdGtD5HeTE4GBrjJD2yA8mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 155/173] powerpc: Dont try to copy PPR for task with NULL pt_regs
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 67/99] cifs: prevent infinite recursion in CIFSGetDFSRefer()
 Date:   Mon,  3 Apr 2023 16:09:30 +0200
-Message-Id: <20230403140419.458180987@linuxfoundation.org>
+Message-Id: <20230403140405.994461103@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,81 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Paulo Alcantara <pc@manguebit.com>
 
-commit fd7276189450110ed835eb0a334e62d2f1c4e3be upstream.
+commit 09ba47b44d26b475bbdf9c80db9e0193d2b58956 upstream.
 
-powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
-from my (arguably very short) checking is not commonly done for other
-archs. This is fine, except when PF_IO_WORKER's have been created and
-the task does something that causes a coredump to be generated. Then we
-get this crash:
+We can't call smb_init() in CIFSGetDFSRefer() as cifs_reconnect_tcon()
+may end up calling CIFSGetDFSRefer() again to get new DFS referrals
+and thus causing an infinite recursion.
 
-  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
-  BUG: Kernel NULL pointer dereference on read at 0x00000160
-  Faulting instruction address: 0xc0000000000c3a60
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
-  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
-  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
-  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
-  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
-  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
-  ...
-  NIP memcpy_power7+0x200/0x7d0
-  LR  ppr_get+0x64/0xb0
-  Call Trace:
-    ppr_get+0x40/0xb0 (unreliable)
-    __regset_get+0x180/0x1f0
-    regset_get_alloc+0x64/0x90
-    elf_core_dump+0xb98/0x1b60
-    do_coredump+0x1c34/0x24a0
-    get_signal+0x71c/0x1410
-    do_notify_resume+0x140/0x6f0
-    interrupt_exit_user_prepare_main+0x29c/0x320
-    interrupt_exit_user_prepare+0x6c/0xa0
-    interrupt_return_srr_user+0x8/0x138
-
-Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
-pt_regs.
-
-Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
-if not set. The actual error value doesn't seem to be important here, so
-just pick -EINVAL.
-
-Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[mpe: Trim oops in change log, add Fixes & Cc stable]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Cc: stable@vger.kernel.org # 6.2
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/ptrace/ptrace-view.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/cifs/cifssmb.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/ptrace/ptrace-view.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
-@@ -298,6 +298,9 @@ static int gpr_set(struct task_struct *t
- static int ppr_get(struct task_struct *target, const struct user_regset *regset,
- 		   struct membuf to)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
- }
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -4751,8 +4751,13 @@ CIFSGetDFSRefer(const unsigned int xid,
+ 		return -ENODEV;
  
-@@ -305,6 +308,9 @@ static int ppr_set(struct task_struct *t
- 		   unsigned int pos, unsigned int count, const void *kbuf,
- 		   const void __user *ubuf)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
- 				  &target->thread.regs->ppr, 0, sizeof(u64));
- }
+ getDFSRetry:
+-	rc = smb_init(SMB_COM_TRANSACTION2, 15, ses->tcon_ipc, (void **) &pSMB,
+-		      (void **) &pSMBr);
++	/*
++	 * Use smb_init_no_reconnect() instead of smb_init() as
++	 * CIFSGetDFSRefer() may be called from cifs_reconnect_tcon() and thus
++	 * causing an infinite recursion.
++	 */
++	rc = smb_init_no_reconnect(SMB_COM_TRANSACTION2, 15, ses->tcon_ipc,
++				   (void **)&pSMB, (void **)&pSMBr);
+ 	if (rc)
+ 		return rc;
+ 
 
 
