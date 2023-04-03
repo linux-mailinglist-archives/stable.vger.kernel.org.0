@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580D96D47BF
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F596D4900
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233158AbjDCOXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:23:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
+        id S233555AbjDCOdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233172AbjDCOXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E9A2CAFF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:45 -0700 (PDT)
+        with ESMTP id S233562AbjDCOds (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38E51765C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB89361705
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC142C433D2;
-        Mon,  3 Apr 2023 14:22:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C6B6B81C77
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10932C4339B;
+        Mon,  3 Apr 2023 14:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531764;
-        bh=7MwOPIwCOWhEf739GR0HghGHVyH0l7FR0tvy9Yx/Bvc=;
+        s=korg; t=1680532411;
+        bh=SmcftsvKCxIdYP4tVoqBlQNnERCk8DK4sxTkUc/xlvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osk/UUzvXNkddIKs8cK7hn5J9fA2fPtp25ubFY7UVARty/0j1gNOo9kDLGChrtuu1
-         ODB9teyfLw7ufMupx4a5OyWuR3VFEP0HAXW0rB5V9cbH2eviw76t5C+XZ29623Uzeo
-         gP+nHfJcsSvCXvQV9z12jTY5bMdu43Z2+WgEjYhc=
+        b=w1uTalXuinv0m/iebr0Ev5SctiEikiRsRH090GlaP5iD4genBom+vdJvvkDNQh8u7
+         3KYEYUnzL8x6NHfbblGduiCsLXD4ZIZWdWTwjE926Qkkr6nflp+YrHxVSqDOIlbrw6
+         JigcY/nQc38o3QgzwctP+2Rzl6EUwqDxZh9xDArQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 5.4 103/104] firmware: arm_scmi: Fix device node validation for mailbox transport
+        patches@lists.linux.dev, Hans Holmberg <Hans.Holmberg@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Hans Holmberg <hans.holmberg@wdc.com>
+Subject: [PATCH 5.15 72/99] zonefs: Always invalidate last cached page on append write
 Date:   Mon,  3 Apr 2023 16:09:35 +0200
-Message-Id: <20230403140408.201075747@linuxfoundation.org>
+Message-Id: <20230403140406.192229761@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,81 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 2ab4f4018cb6b8010ca5002c3bdc37783b5d28c2 upstream.
+commit c1976bd8f23016d8706973908f2bb0ac0d852a8f upstream.
 
-When mailboxes are used as a transport it is possible to setup the SCMI
-transport layer, depending on the underlying channels configuration, to use
-one or two mailboxes, associated, respectively, to one or two, distinct,
-shared memory areas: any other combination should be treated as invalid.
+When a direct append write is executed, the append offset may correspond
+to the last page of a sequential file inode which might have been cached
+already by buffered reads, page faults with mmap-read or non-direct
+readahead. To ensure that the on-disk and cached data is consistant for
+such last cached page, make sure to always invalidate it in
+zonefs_file_dio_append(). If the invalidation fails, return -EBUSY to
+userspace to differentiate from IO errors.
 
-Add more strict checking of SCMI mailbox transport device node descriptors.
+This invalidation will always be a no-op when the FS block size (device
+zone write granularity) is equal to the page size (e.g. 4K).
 
-Fixes: 5c8a47a5a91d ("firmware: arm_scmi: Make scmi core independent of the transport type")
-Cc: <stable@vger.kernel.org> # 4.19
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20230307162324.891866-1-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-[Cristian: backported to v5.4]
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Reported-by: Hans Holmberg <Hans.Holmberg@wdc.com>
+Fixes: 02ef12a663c7 ("zonefs: use REQ_OP_ZONE_APPEND for sync DIO")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Tested-by: Hans Holmberg <hans.holmberg@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/driver.c |   37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ fs/zonefs/super.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -737,6 +737,39 @@ static int scmi_mailbox_check(struct dev
- 					  idx, NULL);
- }
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -736,6 +736,7 @@ static ssize_t zonefs_file_dio_append(st
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
+ 	struct block_device *bdev = inode->i_sb->s_bdev;
+ 	unsigned int max = bdev_max_zone_append_sectors(bdev);
++	pgoff_t start, end;
+ 	struct bio *bio;
+ 	ssize_t size;
+ 	int nr_pages;
+@@ -744,6 +745,19 @@ static ssize_t zonefs_file_dio_append(st
+ 	max = ALIGN_DOWN(max << SECTOR_SHIFT, inode->i_sb->s_blocksize);
+ 	iov_iter_truncate(from, max);
  
-+static int scmi_mailbox_chan_validate(struct device *cdev)
-+{
-+	int num_mb, num_sh, ret = 0;
-+	struct device_node *np = cdev->of_node;
++	/*
++	 * If the inode block size (zone write granularity) is smaller than the
++	 * page size, we may be appending data belonging to the last page of the
++	 * inode straddling inode->i_size, with that page already cached due to
++	 * a buffered read or readahead. So make sure to invalidate that page.
++	 * This will always be a no-op for the case where the block size is
++	 * equal to the page size.
++	 */
++	start = iocb->ki_pos >> PAGE_SHIFT;
++	end = (iocb->ki_pos + iov_iter_count(from) - 1) >> PAGE_SHIFT;
++	if (invalidate_inode_pages2_range(inode->i_mapping, start, end))
++		return -EBUSY;
 +
-+	num_mb = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
-+	num_sh = of_count_phandle_with_args(np, "shmem", NULL);
-+	/* Bail out if mboxes and shmem descriptors are inconsistent */
-+	if (num_mb <= 0 || num_sh > 2 || num_mb != num_sh) {
-+		dev_warn(cdev, "Invalid channel descriptor for '%s'\n",
-+			 of_node_full_name(np));
-+		return -EINVAL;
-+	}
-+
-+	if (num_sh > 1) {
-+		struct device_node *np_tx, *np_rx;
-+
-+		np_tx = of_parse_phandle(np, "shmem", 0);
-+		np_rx = of_parse_phandle(np, "shmem", 1);
-+		/* SCMI Tx and Rx shared mem areas have to be distinct */
-+		if (!np_tx || !np_rx || np_tx == np_rx) {
-+			dev_warn(cdev, "Invalid shmem descriptor for '%s'\n",
-+				 of_node_full_name(np));
-+			ret = -EINVAL;
-+		}
-+
-+		of_node_put(np_tx);
-+		of_node_put(np_rx);
-+	}
-+
-+	return ret;
-+}
-+
- static int scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev,
- 				int prot_id, bool tx)
- {
-@@ -760,6 +793,10 @@ static int scmi_mbox_chan_setup(struct s
- 		goto idr_alloc;
- 	}
- 
-+	ret = scmi_mailbox_chan_validate(dev);
-+	if (ret)
-+		return ret;
-+
- 	cinfo = devm_kzalloc(info->dev, sizeof(*cinfo), GFP_KERNEL);
- 	if (!cinfo)
- 		return -ENOMEM;
+ 	nr_pages = iov_iter_npages(from, BIO_MAX_VECS);
+ 	if (!nr_pages)
+ 		return 0;
 
 
