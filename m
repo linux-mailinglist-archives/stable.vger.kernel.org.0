@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9FA06D46A8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885D56D479C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232683AbjDCOMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52642 "EHLO
+        id S233068AbjDCOVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232806AbjDCOMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:13 -0400
+        with ESMTP id S233162AbjDCOVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD362D7D2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3F82D7F3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCAB8B81B1B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FFABC433EF;
-        Mon,  3 Apr 2023 14:12:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26831B801BE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99879C433D2;
+        Mon,  3 Apr 2023 14:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531121;
-        bh=u8ZrTZQM2AJ6iKQXhVIxLpGjMM9TJWzOm3JEepdBDdc=;
+        s=korg; t=1680531669;
+        bh=AfG34DsN1616X0x9ZR2N96lwTwgm9iUcT8fle88h2+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1qJ0m0SAcUszNfGAZPbRVh19lbXRPuo/Ndw2wtHlN/6SvXcbIANTPWmH4zpcTdzw
-         Y9iCxNwzrDTL8R+573BwMdQc9BU3XbYBoW0RPmh7sU9UAYl0mGq2PAwHZGZEDHhf9H
-         bduN0nGLuANORbtU7Cgm8pbr4bmNVEXnkWC7W++U=
+        b=GJEwkEkdO4acHnghv04lDVdRQCLBboO+DtFkQXwrtcEZ5pKEGBYg6dztRaSKfCjLO
+         ceIvWETf5lg8vEirKHz83dx99bC21BS/T4Hpq6Tg3QUahRF4UOag/nw8naug0cuZfc
+         JkXFKUBwE4C4+7DzUK4T7BtdLiLh0EMD7XtQcics=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/66] net: qcom/emac: Fix use after free bug in emac_remove due to race condition
+Subject: [PATCH 5.4 026/104] Bluetooth: btsdio: fix use after free bug in btsdio_remove due to unfinished work
 Date:   Mon,  3 Apr 2023 16:08:18 +0200
-Message-Id: <20230403140352.178677353@linuxfoundation.org>
+Message-Id: <20230403140405.296074433@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 6b6bc5b8bd2d4ca9e1efa9ae0f98a0b0687ace75 ]
+[ Upstream commit 1e9ac114c4428fdb7ff4635b45d4f46017e8916f ]
 
-In emac_probe, &adpt->work_thread is bound with
-emac_work_thread. Then it will be started by timeout
-handler emac_tx_timeout or a IRQ handler emac_isr.
+In btsdio_probe, &data->work was bound with btsdio_work.In
+btsdio_send_frame, it was started by schedule_work.
 
-If we remove the driver which will call emac_remove
-  to make cleanup, there may be a unfinished work.
+If we call btsdio_remove with an unfinished job, there may
+be a race condition and cause UAF bug on hdev.
 
-The possible sequence is as follows:
-
-Fix it by finishing the work before cleanup in the emac_remove
-and disable timeout response.
-
-CPU0                  CPU1
-
-                    |emac_work_thread
-emac_remove         |
-free_netdev         |
-kfree(netdev);      |
-                    |emac_reinit_locked
-                    |emac_mac_down
-                    |//use netdev
-Fixes: b9b17debc69d ("net: emac: emac gigabit ethernet controller driver")
+Fixes: ddbaf13e3609 ("[Bluetooth] Add generic driver for Bluetooth SDIO devices")
 Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/emac/emac.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/bluetooth/btsdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qualcomm/emac/emac.c b/drivers/net/ethernet/qualcomm/emac/emac.c
-index cae570f1d7e12..527c4dd250833 100644
---- a/drivers/net/ethernet/qualcomm/emac/emac.c
-+++ b/drivers/net/ethernet/qualcomm/emac/emac.c
-@@ -758,9 +758,15 @@ static int emac_remove(struct platform_device *pdev)
- 	struct net_device *netdev = dev_get_drvdata(&pdev->dev);
- 	struct emac_adapter *adpt = netdev_priv(netdev);
+diff --git a/drivers/bluetooth/btsdio.c b/drivers/bluetooth/btsdio.c
+index fd9571d5fdac9..81125fb180351 100644
+--- a/drivers/bluetooth/btsdio.c
++++ b/drivers/bluetooth/btsdio.c
+@@ -343,6 +343,7 @@ static void btsdio_remove(struct sdio_func *func)
  
-+	netif_carrier_off(netdev);
-+	netif_tx_disable(netdev);
-+
- 	unregister_netdev(netdev);
- 	netif_napi_del(&adpt->rx_q.napi);
+ 	BT_DBG("func %p", func);
  
-+	free_irq(adpt->irq.irq, &adpt->irq);
-+	cancel_work_sync(&adpt->work_thread);
-+
- 	emac_clks_teardown(adpt);
++	cancel_work_sync(&data->work);
+ 	if (!data)
+ 		return;
  
- 	put_device(&adpt->phydev->mdio.dev);
 -- 
 2.39.2
 
