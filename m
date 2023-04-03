@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5186D46BA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF206D4A43
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230269AbjDCOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54358 "EHLO
+        id S233860AbjDCOpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232824AbjDCOMw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4D62126
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:51 -0700 (PDT)
+        with ESMTP id S233899AbjDCOpk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C31A17AF4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6F86B81B2E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405EFC433EF;
-        Mon,  3 Apr 2023 14:12:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 982ECB81D44
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBB45C433D2;
+        Mon,  3 Apr 2023 14:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531168;
-        bh=lVbpf/oCDD/vbSZnxLEH3CE6DYqm9uznXUotJc3kOow=;
+        s=korg; t=1680533108;
+        bh=jiBHGv/Qc37ebIMDLVhnDSbtaYWP9xZ76vBBWTmM94I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pYwsBzQ62W2DbzwiCz8NGV17t2useI8hX9hpa2e4aJzoFK646RGUJUFErRZeEDH89
-         g2DU0GAwZiALIKM8ps2G0BMsgP+81EpexRfm0bdc8QZfMzjpnr8wnVnQvGyAuO6k11
-         t0sMuJiLKBbELayxpwIj1YEgULrzg3vrRmaWRLKU=
+        b=fSm79IEM3iZVVHuZVZq+gEtH7wP67vPLo9UEeU2eqW4GQIwS11kRvD3UbYP0ghCr1
+         y98vo4N25LOB6vPd55ykf+Lt3INKMWxwI6StQFJzZV6a+11/xm6+3q5zsTwe/hmSpy
+         DPplKZ0KuRTVbpn8csVRFLzP8RRs1WGPGPnzhfNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Francois Romieu <romieu@fr.zoreil.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Antti Laakso <antti.laakso@intel.com>,
+        Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/66] atm: idt77252: fix kmemleak when rmmod idt77252
+Subject: [PATCH 6.2 058/187] tools/power turbostat: fix decoding of HWP_STATUS
 Date:   Mon,  3 Apr 2023 16:08:23 +0200
-Message-Id: <20230403140352.411068604@linuxfoundation.org>
+Message-Id: <20230403140417.867335171@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,90 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Antti Laakso <antti.laakso@intel.com>
 
-[ Upstream commit 4fe3c88552a3fbe1944426a4506a18cdeb457b5a ]
+[ Upstream commit 92c25393586ac799b9b7d9e50434f3c44a7622c4 ]
 
-There are memory leaks reported by kmemleak:
+The "excursion to minimum" information is in bit2
+in HWP_STATUS MSR. Fix the bitmask used for
+decoding the register.
 
-  unreferenced object 0xffff888106500800 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<000000000e947e2a>] idt77252_init_one+0x2847/0x3c90 [idt77252]
-      [<000000006efb048e>] local_pci_probe+0xeb/0x1a0
-    ...
-
-  unreferenced object 0xffff888106500b00 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 20 3d 01 80 88 ff ff 00 20 3d 01 80 88 ff ff  . =...... =.....
-      f0 23 3d 01 80 88 ff ff 00 20 3d 01 00 00 00 00  .#=...... =.....
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<00000000f451c5be>] alloc_scq.constprop.0+0x4a/0x400 [idt77252]
-      [<00000000e6313849>] idt77252_init_one+0x28cf/0x3c90 [idt77252]
-
-The root cause is traced to the vc_maps which alloced in open_card_oam()
-are not freed in close_card_oam(). The vc_maps are used to record
-open connections, so when close a vc_map in close_card_oam(), the memory
-should be freed. Moreover, the ubr0 is not closed when close a idt77252
-device, leading to the memory leak of vc_map and scq_info.
-
-Fix them by adding kfree in close_card_oam() and implementing new
-close_card_ubr0() to close ubr0.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
-Link: https://lore.kernel.org/r/20230320143318.2644630-1-lizetao1@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Antti Laakso <antti.laakso@intel.com>
+Reviewed-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/idt77252.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
-index 18f386466f943..e7a6b4903f9c7 100644
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -2912,6 +2912,7 @@ close_card_oam(struct idt77252_dev *card)
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index c24054e3ef7ad..c61c6c704fbe6 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4426,7 +4426,7 @@ int print_hwp(struct thread_data *t, struct core_data *c, struct pkg_data *p)
  
- 				recycle_rx_pool_skb(card, &vc->rcv.rx_pool);
- 			}
-+			kfree(vc);
- 		}
- 	}
- }
-@@ -2955,6 +2956,15 @@ open_card_ubr0(struct idt77252_dev *card)
+ 	fprintf(outf, "cpu%d: MSR_HWP_STATUS: 0x%08llx "
+ 		"(%sGuaranteed_Perf_Change, %sExcursion_Min)\n",
+-		cpu, msr, ((msr) & 0x1) ? "" : "No-", ((msr) & 0x2) ? "" : "No-");
++		cpu, msr, ((msr) & 0x1) ? "" : "No-", ((msr) & 0x4) ? "" : "No-");
+ 
  	return 0;
  }
- 
-+static void
-+close_card_ubr0(struct idt77252_dev *card)
-+{
-+	struct vc_map *vc = card->vcs[0];
-+
-+	free_scq(card, vc->scq);
-+	kfree(vc);
-+}
-+
- static int
- idt77252_dev_open(struct idt77252_dev *card)
- {
-@@ -3004,6 +3014,7 @@ static void idt77252_dev_close(struct atm_dev *dev)
- 	struct idt77252_dev *card = dev->dev_data;
- 	u32 conf;
- 
-+	close_card_ubr0(card);
- 	close_card_oam(card);
- 
- 	conf = SAR_CFG_RXPTH |	/* enable receive path           */
 -- 
 2.39.2
 
