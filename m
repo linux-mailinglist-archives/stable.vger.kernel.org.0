@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3EFF6D4732
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89D456D47AE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbjDCOSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
+        id S233112AbjDCOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:22:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbjDCOSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:03 -0400
+        with ESMTP id S233128AbjDCOWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F365A3580
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C152C9EE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6677B81B94
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ADEAC433A4;
-        Mon,  3 Apr 2023 14:17:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E90A4B81BCE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D11FC433EF;
+        Mon,  3 Apr 2023 14:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531478;
-        bh=sSU9XvZ09P806JnsvzQ+NQuxr5xjRZAphV+fuvT+dDQ=;
+        s=korg; t=1680531727;
+        bh=XTDuqyjgti2NWC470q43ZVMqGzKewYj4dalnHhFmmH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5NdAyjxZWocIoxnL7JMTwRem1JPDyAh/XpfBAG6BZjcnhyXKnOn2hhe49PJkDKAA
-         31oggEiY0iLiJmNLvhzpJd/pGWnds8VPp0986IltQCzNz4FTQJ7hUYcgeUcrLebhA1
-         1hSNMABCxNQAIEbCZ1QiO/hFHNXpdIRlA0kI1rAA=
+        b=uQl6UgSKdmAg4r/3IkJNO+FDL9XppF8y4rEHfOLm8gIzoZ3Zi9z6blCMdWYZEM47+
+         X90CRBC4MPWY0xbWH2km16i5jS2Qu85r2wAYmQdOoUzQx6GK2ua98WmVkPI424AO/q
+         08Qvsb4fBQufjmjLgGuqNVXK4FuhmJvshsEP2wYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 4.19 79/84] firmware: arm_scmi: Fix device node validation for mailbox transport
+        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 088/104] Input: focaltech - use explicitly signed char type
 Date:   Mon,  3 Apr 2023 16:09:20 +0200
-Message-Id: <20230403140356.135257966@linuxfoundation.org>
+Message-Id: <20230403140407.603872516@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 2ab4f4018cb6b8010ca5002c3bdc37783b5d28c2 upstream.
+commit 8980f190947ba29f23110408e712444884b74251 upstream.
 
-When mailboxes are used as a transport it is possible to setup the SCMI
-transport layer, depending on the underlying channels configuration, to use
-one or two mailboxes, associated, respectively, to one or two, distinct,
-shared memory areas: any other combination should be treated as invalid.
+The recent change of -funsigned-char causes additions of negative
+numbers to become additions of large positive numbers, leading to wrong
+calculations of mouse movement. Change these casts to be explicitly
+signed, to take into account negative offsets.
 
-Add more strict checking of SCMI mailbox transport device node descriptors.
-
-Fixes: 5c8a47a5a91d ("firmware: arm_scmi: Make scmi core independent of the transport type")
-Cc: <stable@vger.kernel.org> # 4.19
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20230307162324.891866-1-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-[Cristian: backported to v4.19]
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Fixes: 3bc753c06dd0 ("kbuild: treat char as always unsigned")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217211
+Link: https://lore.kernel.org/r/20230318133010.1285202-1-Jason@zx2c4.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/driver.c |   37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ drivers/input/mouse/focaltech.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -705,6 +705,39 @@ static int scmi_remove(struct platform_d
- 	return ret;
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -202,8 +202,8 @@ static void focaltech_process_rel_packet
+ 	state->pressed = packet[0] >> 7;
+ 	finger1 = ((packet[0] >> 4) & 0x7) - 1;
+ 	if (finger1 < FOC_MAX_FINGERS) {
+-		state->fingers[finger1].x += (char)packet[1];
+-		state->fingers[finger1].y += (char)packet[2];
++		state->fingers[finger1].x += (s8)packet[1];
++		state->fingers[finger1].y += (s8)packet[2];
+ 	} else {
+ 		psmouse_err(psmouse, "First finger in rel packet invalid: %d\n",
+ 			    finger1);
+@@ -218,8 +218,8 @@ static void focaltech_process_rel_packet
+ 	 */
+ 	finger2 = ((packet[3] >> 4) & 0x7) - 1;
+ 	if (finger2 < FOC_MAX_FINGERS) {
+-		state->fingers[finger2].x += (char)packet[4];
+-		state->fingers[finger2].y += (char)packet[5];
++		state->fingers[finger2].x += (s8)packet[4];
++		state->fingers[finger2].y += (s8)packet[5];
+ 	}
  }
  
-+static int scmi_mailbox_chan_validate(struct device *cdev)
-+{
-+	int num_mb, num_sh, ret = 0;
-+	struct device_node *np = cdev->of_node;
-+
-+	num_mb = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
-+	num_sh = of_count_phandle_with_args(np, "shmem", NULL);
-+	/* Bail out if mboxes and shmem descriptors are inconsistent */
-+	if (num_mb <= 0 || num_sh > 2 || num_mb != num_sh) {
-+		dev_warn(cdev, "Invalid channel descriptor for '%s'\n",
-+			 of_node_full_name(np));
-+		return -EINVAL;
-+	}
-+
-+	if (num_sh > 1) {
-+		struct device_node *np_tx, *np_rx;
-+
-+		np_tx = of_parse_phandle(np, "shmem", 0);
-+		np_rx = of_parse_phandle(np, "shmem", 1);
-+		/* SCMI Tx and Rx shared mem areas have to be distinct */
-+		if (!np_tx || !np_rx || np_tx == np_rx) {
-+			dev_warn(cdev, "Invalid shmem descriptor for '%s'\n",
-+				 of_node_full_name(np));
-+			ret = -EINVAL;
-+		}
-+
-+		of_node_put(np_tx);
-+		of_node_put(np_rx);
-+	}
-+
-+	return ret;
-+}
-+
- static inline int
- scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev, int prot_id)
- {
-@@ -720,6 +753,10 @@ scmi_mbox_chan_setup(struct scmi_info *i
- 		goto idr_alloc;
- 	}
- 
-+	ret = scmi_mailbox_chan_validate(dev);
-+	if (ret)
-+		return ret;
-+
- 	cinfo = devm_kzalloc(info->dev, sizeof(*cinfo), GFP_KERNEL);
- 	if (!cinfo)
- 		return -ENOMEM;
 
 
