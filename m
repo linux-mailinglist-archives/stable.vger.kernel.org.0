@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD626D4973
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C41F86D46F6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233723AbjDCOiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48196 "EHLO
+        id S232937AbjDCOPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233709AbjDCOiC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155682123
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:58 -0700 (PDT)
+        with ESMTP id S232922AbjDCOPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C6A26256
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1E928CE12E8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B085C433D2;
-        Mon,  3 Apr 2023 14:37:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D496BB81B5D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35FF1C4339C;
+        Mon,  3 Apr 2023 14:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532675;
-        bh=Sq6EyJ89k30liJXZj/iji5UKTuBj2qIgu1GpiNL4H3Q=;
+        s=korg; t=1680531344;
+        bh=elm+YIuYB1h0vRw9Tw6xtnf3/u3yo11apVUZqf9lJVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZZcFXxDDAgA46BUQAMdx+gubyiEhghNzC/iEDywmuVnbuJpyO9Qj6gCvyv8j/jok
-         Asee503GwWETXUnhriP0L0rP8DaR7upOLikpa00NUfQ213Sj3M4wiQDPDZMsD0nZDN
-         LkZqrxvr4egrmyHUpd65VJKcc0tVjyFmfEGhVlZo=
+        b=eOJb0siH1P7OOdxmxTFG5r7sDwqPsAfkWGNh1NzZjMGXGFEQPLaxjs0UwhYfq7lh1
+         NNKR/g2KL6ypCTqcvrjeBzMclrZfoAVERWJ/KDtLe49yDogdHqbjXMgADQSNj9wmAv
+         VTVr14T2c64yoJBLlWDZG8SE5Kjph932y25V0Wc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 073/181] PCI: dwc: Fix PORT_LINK_CONTROL update when CDM check enabled
+        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 4.19 27/84] thunderbolt: Use const qualifier for `ring_interrupt_index`
 Date:   Mon,  3 Apr 2023 16:08:28 +0200
-Message-Id: <20230403140417.506764370@linuxfoundation.org>
+Message-Id: <20230403140354.298984248@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,60 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit cdce67099117ece371582f706c6eff7d3a65326d ]
+commit 1716efdb07938bd6510e1127d02012799112c433 upstream.
 
-If CDM_CHECK is enabled (by the DT "snps,enable-cdm-check" property), 'val'
-is overwritten by PCIE_PL_CHK_REG_CONTROL_STATUS initialization.  Commit
-ec7b952f453c ("PCI: dwc: Always enable CDM check if "snps,enable-cdm-check"
-exists") did not account for further usage of 'val', so we wrote improper
-values to PCIE_PORT_LINK_CONTROL when the CDM check is enabled.
+`ring_interrupt_index` doesn't change the data for `ring` so mark it as
+const. This is needed by the following patch that disables interrupt
+auto clear for rings.
 
-Move the PCIE_PORT_LINK_CONTROL update to be completely after the
-PCIE_PL_CHK_REG_CONTROL_STATUS register initialization.
-
-[bhelgaas: commit log adapted from Serge's version]
-Fixes: ec7b952f453c ("PCI: dwc: Always enable CDM check if "snps,enable-cdm-check" exists")
-Link: https://lore.kernel.org/r/20230310123510.675685-2-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Sanju Mehta <Sanju.Mehta@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-designware.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/thunderbolt/nhi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
-index 9e4d96e5a3f5a..575834cae3b9e 100644
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -645,11 +645,6 @@ void dw_pcie_setup(struct dw_pcie *pci)
- 		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
- 	}
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -38,7 +38,7 @@
  
--	val = dw_pcie_readl_dbi(pci, PCIE_PORT_LINK_CONTROL);
--	val &= ~PORT_LINK_FAST_LINK_MODE;
--	val |= PORT_LINK_DLL_LINK_EN;
--	dw_pcie_writel_dbi(pci, PCIE_PORT_LINK_CONTROL, val);
--
- 	if (of_property_read_bool(np, "snps,enable-cdm-check")) {
- 		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
- 		val |= PCIE_PL_CHK_REG_CHK_REG_CONTINUOUS |
-@@ -657,6 +652,11 @@ void dw_pcie_setup(struct dw_pcie *pci)
- 		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, val);
- 	}
+ #define NHI_MAILBOX_TIMEOUT	500 /* ms */
  
-+	val = dw_pcie_readl_dbi(pci, PCIE_PORT_LINK_CONTROL);
-+	val &= ~PORT_LINK_FAST_LINK_MODE;
-+	val |= PORT_LINK_DLL_LINK_EN;
-+	dw_pcie_writel_dbi(pci, PCIE_PORT_LINK_CONTROL, val);
-+
- 	of_property_read_u32(np, "num-lanes", &pci->num_lanes);
- 	if (!pci->num_lanes) {
- 		dev_dbg(pci->dev, "Using h/w default number of lanes\n");
--- 
-2.39.2
-
+-static int ring_interrupt_index(struct tb_ring *ring)
++static int ring_interrupt_index(const struct tb_ring *ring)
+ {
+ 	int bit = ring->hop;
+ 	if (!ring->is_tx)
 
 
