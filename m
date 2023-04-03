@@ -2,156 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1040F6D41B3
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 12:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C37406D41CB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 12:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231886AbjDCKR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 06:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35046 "EHLO
+        id S232270AbjDCKTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 06:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231571AbjDCKR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 06:17:28 -0400
-Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D756E85
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 03:17:24 -0700 (PDT)
-Received: by mail-vs1-xe36.google.com with SMTP id i10so24864637vss.5
-        for <stable@vger.kernel.org>; Mon, 03 Apr 2023 03:17:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680517043;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=OoLKLYoRAGeWSs8hPWLefekC4bfs3Ci1BnBoichOSh4=;
-        b=GVzeFcvnxSIL3fDUzm/9SDNAQs7He4Pn8pK98GIMcC+g9S/d0NFAChwCMeAC877wFR
-         TsHlwV8ojaVC4TkjBMJqV1KPWXUfDWN86auQYR5vv8hgBLrWiTewy58m6dFsJLMgCd3W
-         V2E2bDk8hyT9ripLQJuYN/C0OGZR5H4TxJW2u1VMkXTFHeon4hOOyQccwg0/bETWIZ9j
-         jJCSDuALjWqzCuK9BBfw5Xi/wf0hctj1mSXjGpHpdqD+M/xGD2GiLYsBDybTyFjjazpR
-         UQbPttjPU4MaRf4M43NZ22qn2AksvtPhXqgMdLwMOcAZBZX1vI8CIaYdHmR77xvOfW/Z
-         LeBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680517043;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=OoLKLYoRAGeWSs8hPWLefekC4bfs3Ci1BnBoichOSh4=;
-        b=YKPqlGO2G49mSNi2Zu54CzRJKtbwsmrozdy8bx6J2HYFQFvFa8yrBpZj5x9D6eDLE6
-         r7xfwFMFo1ZUEtasm2/xep7yZKUppJXFwxBoG3fn20oVSpPfTE6HGId9bt0JpuQLNKEh
-         xH8b65q71DwVni1FqKxPiropuzStPXaUe957mdS0M11fRrtTn/mz3CoW5Rn/GyD16mdC
-         8q4ZQCUs74t6NCvXcN2ckzbHSKoA98oU039ykGxEaF73/cCvQI2i3JgyxL7Wd0eCdJrL
-         epKqteP1gfLm9mjlC6s4D2v1nWX1H+CvfUdvgQm38s8u8u8DLJdIkBa4bjAoNuJUVD4s
-         +Y3w==
-X-Gm-Message-State: AAQBX9cZ/6wEiyhfVo8oRhv+25fp+XR0guBuEyFdNG7VOSJ69YQf/zoK
-        u5QyHI44G+IFWI1Ad45I/Wjp+CTBw9RctVK7OPdz2Z5gM8kCtcOpm2g=
-X-Google-Smtp-Source: AKy350b1Cr336Py6dU22c2MIRN9LqoyAmD1dJZrkE6sV03Jxz6FWW4TSRC8RO4VffWKYgAlGo5EYToQ660d1rHuy3eM=
-X-Received: by 2002:a67:e04d:0:b0:425:e623:360a with SMTP id
- n13-20020a67e04d000000b00425e623360amr19127570vsl.1.1680517042889; Mon, 03
- Apr 2023 03:17:22 -0700 (PDT)
+        with ESMTP id S232278AbjDCKTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 06:19:14 -0400
+Received: from lelv0143.ext.ti.com (lelv0143.ext.ti.com [198.47.23.248])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0899E12BE2;
+        Mon,  3 Apr 2023 03:19:04 -0700 (PDT)
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 333AIxRv066487;
+        Mon, 3 Apr 2023 05:18:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1680517139;
+        bh=lz60oJMNNApxne8XKp/602Q9lIfj7nEOb+EHhaiTYjs=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To;
+        b=ut/O3TJrZ7cYB2UFtQbBxbcm4N+UKk8glOPyb4oXyWveZeXmoqxUgCuSEQjiNPYpm
+         DCATvGnpEYcOwS90pUs4+RPCrYmtPeKUCxGYELON/Oz2vmiNCvU5/MyQq8+lDEIMi9
+         H9JTQoKGXHhj7rSM3SOxESkIN8HBTmvBwcHObg9w=
+Received: from DLEE113.ent.ti.com (dlee113.ent.ti.com [157.170.170.24])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 333AIxUh006403
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 3 Apr 2023 05:18:59 -0500
+Received: from DLEE114.ent.ti.com (157.170.170.25) by DLEE113.ent.ti.com
+ (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16; Mon, 3
+ Apr 2023 05:18:58 -0500
+Received: from DLEE114.ent.ti.com ([fe80::bdc7:eccc:cd13:af84]) by
+ DLEE114.ent.ti.com ([fe80::bdc7:eccc:cd13:af84%17]) with mapi id
+ 15.01.2507.016; Mon, 3 Apr 2023 05:18:58 -0500
+From:   "Purohit, Kaushal" <kaushal.purohit@ti.com>
+To:     Oliver Neukum <oneukum@suse.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: RE: [EXTERNAL] Re: issues with cdc ncm host class driver
+Thread-Topic: [EXTERNAL] Re: issues with cdc ncm host class driver
+Thread-Index: Adll85tYAc+Cq2MlRoaUYHp7CXh/XQASqSKAAAo4+VA=
+Date:   Mon, 3 Apr 2023 10:18:58 +0000
+Message-ID: <6a8da52391f349ffbdaf2ab6d81e5cff@ti.com>
+References: <da37bb0d43de465185c10aad9924f265@ti.com>
+ <28ec4e65-647f-2567-fb7d-f656940d4e43@suse.com>
+In-Reply-To: <28ec4e65-647f-2567-fb7d-f656940d4e43@suse.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.249.138.33]
+x-exclaimer-md-config: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 3 Apr 2023 15:47:11 +0530
-Message-ID: <CA+G9fYsF4D7o1iNW6fMNMdX9fKqqrvJw5GHcbW5yGr9PLSWcrw@mail.gmail.com>
-Subject: stable-rc / queue : 5.15: arm64 build failed
-To:     linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Reiji Watanabe <reijiw@google.com>,
-        Oliver Upton <oliver.upton@linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Following build warning noticed on arm64,
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-suspecting commit:
-KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the current value
-commit 9228b26194d1cc00449f12f306f53ef2e234a55b upstream.
-
-
-Build log:
-----------
-arch/arm64/kvm/sys_regs.c:1671:43: error: initialization of 'int
-(*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct
-kvm_one_reg *, void *)' from incompatible pointer type 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, u64 *)' {aka 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, long long unsigned int *)'}
-[-Werror=incompatible-pointer-types]
- 1671 |           .reg = PMCCNTR_EL0, .get_user = get_pmu_evcntr},
-      |                                           ^~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:1671:43: note: (near initialization for
-'sys_reg_descs[224].__get_user')
-arch/arm64/kvm/sys_regs.c:999:48: error: initialization of 'int
-(*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct
-kvm_one_reg *, void *)' from incompatible pointer type 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, u64 *)' {aka 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, long long unsigned int *)'}
-[-Werror=incompatible-pointer-types]
-  999 |           .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,
-         \
-      |                                                ^~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:1768:9: note: in expansion of macro 'PMU_PMEVCNTR_EL0'
- 1768 |         PMU_PMEVCNTR_EL0(0),
-      |         ^~~~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:999:48: note: (near initialization for
-'sys_reg_descs[307].__get_user')
-  999 |           .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,
-         \
-      |                                                ^~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:1768:9: note: in expansion of macro 'PMU_PMEVCNTR_EL0'
- 1768 |         PMU_PMEVCNTR_EL0(0),
-      |         ^~~~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:999:48: error: initialization of 'int
-(*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct
-kvm_one_reg *, void *)' from incompatible pointer type 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, u64 *)' {aka 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, long long unsigned int *)'}
-[-Werror=incompatible-pointer-types]
-  999 |           .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,
-         \
-      |                                                ^~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:1769:9: note: in expansion of macro 'PMU_PMEVCNTR_EL0'
- 1769 |         PMU_PMEVCNTR_EL0(1),
-      |         ^~~~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:999:48: note: (near initialization for
-'sys_reg_descs[308].__get_user')
-  999 |           .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,
-         \
-      |                                                ^~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:1769:9: note: in expansion of macro 'PMU_PMEVCNTR_EL0'
- 1769 |         PMU_PMEVCNTR_EL0(1),
-      |         ^~~~~~~~~~~~~~~~
-arch/arm64/kvm/sys_regs.c:999:48: error: initialization of 'int
-(*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct
-kvm_one_reg *, void *)' from incompatible pointer type 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, u64 *)' {aka 'int (*)(struct
-kvm_vcpu *, const struct sys_reg_desc *, long long unsigned int *)'}
-[-Werror=incompatible-pointer-types]
-  999 |           .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,
-         \
-      |                                                ^~~~~~~~~~~~~~
-
-Test history:
-
-https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_5.15/build/v5.15.105-89-gcc2d591a5bc2/testrun/16027152/suite/build/test/gcc-11-defconfig-lkftconfig/history/
-
-
-build_name : gcc-11-defconfig-lkftconfig
-config : https://storage.tuxsuite.com/public/linaro/lkft/builds/2NuUVvMlXSgSoQEcLJRppFfOniR/config
-download_url : https://storage.tuxsuite.com/public/linaro/lkft/builds/2NuUVvMlXSgSoQEcLJRppFfOniR/
-git_describe : v5.15.105-89-gcc2d591a5bc2
-git_repo : https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
-git_sha : cc2d591a5bc25e770c332a191509830e883b1a28
-git_short_log : cc2d591a5bc2 ("KVM: arm64: Disable interrupts while
-walking userspace PTs")
-
-
-
---
-Linaro LKFT
-https://lkft.linaro.org
+T2xpdmVyLCBUaGFua3MgZm9yIHRoZSBxdWljayBjb25maXJtYXRpb24uIFRyYWNrZWQgaW4ga2Vy
+bmVsIEJ1Z3ppbGxhIGJ5ICJCdWcgMjE3MjkwIi4NCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
+LS0NCkZyb206IE9saXZlciBOZXVrdW0gPG9uZXVrdW1Ac3VzZS5jb20+IA0KU2VudDogTW9uZGF5
+LCBBcHJpbCAzLCAyMDIzIDM6MzkgUE0NClRvOiBQdXJvaGl0LCBLYXVzaGFsIDxrYXVzaGFsLnB1
+cm9oaXRAdGkuY29tPjsgc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KQ2M6IHJlZ3Jlc3Npb25zQGxp
+c3RzLmxpbnV4LmRldjsgbGludXgtdXNiQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogW0VYVEVS
+TkFMXSBSZTogaXNzdWVzIHdpdGggY2RjIG5jbSBob3N0IGNsYXNzIGRyaXZlcg0KDQpPbiAwMy4w
+NC4yMyAwODoxNCwgUHVyb2hpdCwgS2F1c2hhbCB3cm90ZToNCj4gSGksDQo+IA0KDQpIaSwNCg0K
+PiBSZWZlcnJpbmcgdG8gcGF0Y2ggd2l0aCBjb21taXQgSUQgKCplMTBkY2IxYjZiYTcxNDI0M2Fk
+NWEzNWExMWI5MWNjMTQxMDNhOWE5KikuDQo+IA0KPiBUaGlzIGlzIGEgc3BlYyB2aW9sYXRpb24g
+Zm9ywqBDREMgTkNNIGNsYXNzIGRyaXZlci4gRHJpdmVyIGNsZWFybHkgc2F5cyANCj4gdGhlIHNp
+Z25pZmljYW5jZSBvZiBuZXR3b3JrIGNhcGFiaWxpdGllcy4gKHNuYXBzaG90IGJlbG93KQ0KPiAN
+Cj4gSG93ZXZlciwgd2l0aCB0aGUgbWVudGlvbmVkIHBhdGNoIHRoZXNlIHZhbHVlcyBhcmUgZGlz
+cmVzcGVjdGVkIGFuZCBjb21tYW5kcyBzcGVjaWZpYyB0byB0aGVzZSBjYXBhYmlsaXRpZXMgYXJl
+IHNlbnQgZnJvbSB0aGUgaG9zdCByZWdhcmRsZXNzIG9mIGRldmljZScgY2FwYWJpbGl0aWVzIHRv
+IGhhbmRsZSB0aGVtLg0KDQpSaWdodC4gU28gZm9yIHlvdXIgZGV2aWNlLCB0aGUgY29ycmVjdCBi
+ZWhhdmlvciB3b3VsZCBiZSB0byBkbyBub3RoaW5nLCB3b3VsZG4ndCBpdD8gVGhlIHBhY2tldHMg
+d291bGQgYmUgZGVsaXZlcmVkIGFuZCB0aGUgaG9zdCBuZWVkcyB0byBmaWx0ZXIgYW5kIGRpc2Nh
+cmQgdW5yZXF1ZXN0ZWQgcGFja2V0cy4NCg0KPiBDdXJyZW50bHkgd2UgYXJlIHNldHRpbmcgdGhl
+c2UgYml0cyB0byAwIGluZGljYXRpbmcgbm8gY2FwYWJpbGl0aWVzIG9uIG91ciBkZXZpY2UgYW5k
+IHN0aWxsIHdlIG9ic2VydmUgdGhhdCBIb3N0IChMaW51eCBrZXJuZWwgaG9zdCBjZGMgZHJpdmVy
+KSBoYXMgYmVlbiBzZW5kaW5nIHJlcXVlc3RzIHNwZWNpZmljIHRvIHRoZXNlIGNhcGFiaWxpdGll
+cy4NCj4gDQo+IFBsZWFzZSBsZXQgbWUga25vdyBpZiB0aGVyZSBpcyBhIGJldHRlciB3YXkgdG8g
+aW5kaWNhdGUgaG9zdCB0aGF0IGRldmljZSBkb2VzIG5vdCBoYXZlIHRoZXNlIGNhcGFiaWxpdGll
+cy4NCg0Kbm8geW91IGFyZSBkb2luZyB0aGluZ3MgYXMgdGhleSBhcmUgc3VwcG9zZWQgdG8gYmUg
+ZG9uZSBhbmQgdGhlIGhvc3QgaXMgYXQgZmF1bHQuIFRoaXMga2VybmVsIGJ1ZyBuZWVkcyB0byBi
+ZSBmaXhlZC4NCg0KCVJlZ2FyZHMNCgkJT2xpdmVyDQoNCg==
