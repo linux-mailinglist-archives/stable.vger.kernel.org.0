@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F556D487D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72A726D472E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233399AbjDCO3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
+        id S232989AbjDCORy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:17:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233411AbjDCO3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C9A35005
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:03 -0700 (PDT)
+        with ESMTP id S232983AbjDCORw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B47B92C9DF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70B67B81C35
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08ADC433EF;
-        Mon,  3 Apr 2023 14:29:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53A2161CE6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 614E8C433EF;
+        Mon,  3 Apr 2023 14:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532141;
-        bh=yRiw3o0/+sfsy1f3urFEAfzg3WhQdZrlqKCrqyY2xGE=;
+        s=korg; t=1680531470;
+        bh=Cs99oUpa9z7eVb4echWlvv/QYQMGoWYfLDwzNBgj2gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVmXEFkkfsv4RqyRLnQFbDJQGqxjNE/ATFFqUxumOFtTXLst/YBM25Zr9Lz8oBRkm
-         GedWjQ9Di+K+3b9d3m9dkJ/iZQNYTSFhHWL1ThUP2VAL61iE5zF6VxlS+xztJNyUF4
-         4K7a1vqeY0lGOFkK1PHpDnyMKg/SvsV1qSvhaZ54=
+        b=Y8/hyv4xlXG0aztbiuT3VwEK1JFUxbeZWBx1uOAXKa9P96z9PdS+E6p83F9/Zz79g
+         xFxd2sqj2YrIR0pD1US6ikKOOkSU95LNwvYbE6jGTqYufpoxuz9PcRW8mrco1v1JUa
+         HEK1OACu7mUJVsJy9j2oJu82FE/LnXFj/HtAb8nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Chan <michael.chan@broadcom.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 142/173] bnxt_en: Add missing 200G link speed reporting
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 76/84] s390/uaccess: add missing earlyclobber annotations to __clear_user()
 Date:   Mon,  3 Apr 2023 16:09:17 +0200
-Message-Id: <20230403140419.056411295@linuxfoundation.org>
+Message-Id: <20230403140356.030662390@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 581bce7bcb7e7f100908728e7b292e266c76895b ]
+commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
 
-bnxt_fw_to_ethtool_speed() is missing the case statement for 200G
-link speed reported by firmware.  As a result, ethtool will report
-unknown speed when the firmware reports 200G link speed.
+Add missing earlyclobber annotation to size, to, and tmp2 operands of the
+__clear_user() inline assembly since they are modified or written to before
+the last usage of all input operands. This can lead to incorrect register
+allocation for the inline assembly.
 
-Fixes: 532262ba3b84 ("bnxt_en: ethtool: support PAM4 link speeds up to 200G")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
+Cc: stable@vger.kernel.org
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 1 +
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 ++
- 2 files changed, 3 insertions(+)
+ arch/s390/lib/uaccess.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index 34affd1de91da..b7b07beb17ffb 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1198,6 +1198,7 @@ struct bnxt_link_info {
- #define BNXT_LINK_SPEED_40GB	PORT_PHY_QCFG_RESP_LINK_SPEED_40GB
- #define BNXT_LINK_SPEED_50GB	PORT_PHY_QCFG_RESP_LINK_SPEED_50GB
- #define BNXT_LINK_SPEED_100GB	PORT_PHY_QCFG_RESP_LINK_SPEED_100GB
-+#define BNXT_LINK_SPEED_200GB	PORT_PHY_QCFG_RESP_LINK_SPEED_200GB
- 	u16			support_speeds;
- 	u16			support_pam4_speeds;
- 	u16			auto_link_speeds;	/* fw adv setting */
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 81b63d1c2391f..1e67e86fc3344 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1653,6 +1653,8 @@ u32 bnxt_fw_to_ethtool_speed(u16 fw_link_speed)
- 		return SPEED_50000;
- 	case BNXT_LINK_SPEED_100GB:
- 		return SPEED_100000;
-+	case BNXT_LINK_SPEED_200GB:
-+		return SPEED_200000;
- 	default:
- 		return SPEED_UNKNOWN;
- 	}
--- 
-2.39.2
-
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -339,7 +339,7 @@ static inline unsigned long clear_user_m
+ 		"4: slgr  %0,%0\n"
+ 		"5:\n"
+ 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
+-		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
++		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
+ 		: "a" (empty_zero_page), "d" (reg0) : "cc", "memory");
+ 	return size;
+ }
 
 
