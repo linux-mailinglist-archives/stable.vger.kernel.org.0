@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD36D6D4A3E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9226D4940
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbjDCOp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
+        id S233640AbjDCOgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:36:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233900AbjDCOpT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 225B81695C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:56 -0700 (PDT)
+        with ESMTP id S233639AbjDCOgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD7116F31
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0203D61EFC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1928CC433D2;
-        Mon,  3 Apr 2023 14:44:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8B637CE12E2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 692CCC433EF;
+        Mon,  3 Apr 2023 14:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533095;
-        bh=KVqki8tsn49REbsHK0b0ypCAE+hBI7NJt3mxjxZxeqE=;
+        s=korg; t=1680532565;
+        bh=8uAfPanuz/OzQylChCvYETt3kEKVswS+MP8NmyFmloQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vmgWD8TaEXbiRV18TjeewUyzpSTrZ2s0wPJW3SEAdhx93LBfF2Rpts5GQ0OShhVs
-         fxIEXcPThnTi6LM7uAE2WvwNquAkiIUTKrX4br+WiAP7ZXH9dXB33Zksx2Ka8578GW
-         AlMKed13IDoXKJwVtu5BSQB3PS7sGx2XBUwaVVZw=
+        b=sa2QKb3hC41pzYNQYxziYzt0fzZaeMiN+asSsW609w3FMfYDJztS1QJKLVSj9gFuW
+         iyv++x4WrAJWnnjcbMxC9Ou8N8PL53AfmuXPGPMZ9sovPiJM6x94n+xiD02xTwrWFS
+         VfpNudVl0f7KxBtcEUj8qMTbb6XF//XDzL6AEBy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, Yann Collet <cyan@fb.com>,
-        Nick Terrell <terrelln@fb.com>
-Subject: [PATCH 6.2 022/187] lib: zstd: Backport fix for in-place decompression
+        patches@lists.linux.dev,
+        Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 032/181] ASoC: codecs: tx-macro: Fix for KASAN: slab-out-of-bounds
 Date:   Mon,  3 Apr 2023 16:07:47 +0200
-Message-Id: <20230403140416.757630764@linuxfoundation.org>
+Message-Id: <20230403140416.208969912@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,116 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Terrell <terrelln@fb.com>
+From: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
 
-[ Upstream commit 038505c41f0aad26ef101f4f7f6e111531c3914f ]
+[ Upstream commit e5e7e398f6bb7918dab0612eb6991f7bae95520d ]
 
-Backport the relevant part of upstream commit 5b266196 [0].
+When we run syzkaller we get below Out of Bound.
+    "KASAN: slab-out-of-bounds Read in regcache_flat_read"
 
-This fixes in-place decompression for x86-64 kernel decompression. It
-uses a bound of 131072 + (uncompressed_size >> 8), which can be violated
-after upstream commit 6a7ede3d [1], as zstd can use part of the output
-buffer as temporary storage, and without this patch needs a bound of
-~262144.
+    Below is the backtrace of the issue:
 
-The fix is for zstd to detect that the input and output buffers overlap,
-so that zstd knows it can't use the overlapping portion of the output
-buffer as tempoary storage. If the margin is not large enough, this will
-ensure that zstd will fail the decompression, rather than overwriting
-part of the input data, and causing corruption.
+    dump_backtrace+0x0/0x4c8
+    show_stack+0x34/0x44
+    dump_stack_lvl+0xd8/0x118
+    print_address_description+0x30/0x2d8
+    kasan_report+0x158/0x198
+    __asan_report_load4_noabort+0x44/0x50
+    regcache_flat_read+0x10c/0x110
+    regcache_read+0xf4/0x180
+    _regmap_read+0xc4/0x278
+    _regmap_update_bits+0x130/0x290
+    regmap_update_bits_base+0xc0/0x15c
+    snd_soc_component_update_bits+0xa8/0x22c
+    snd_soc_component_write_field+0x68/0xd4
+    tx_macro_digital_mute+0xec/0x140
 
-This fix has been landed upstream and is in release v1.5.4. That commit
-also adds unit and fuzz tests to verify that the margin we use is
-respected, and correct. That means that the fix is well tested upstream.
+    Actually There is no need to have decimator with 32 bits.
+    By limiting the variable with short type u8 issue is resolved.
 
-I have not been able to reproduce the potential bug in x86-64 kernel
-decompression locally, nor have I recieved reports of failures to
-decompress the kernel. It is possible that compression saves enough
-space to make it very hard for the issue to appear.
-
-I've boot tested the zstd compressed kernel on x86-64 and i386 with this
-patch, which uses in-place decompression, and sanity tested zstd compression
-in btrfs / squashfs to make sure that we don't see any issues, but other
-uses of zstd shouldn't be affected, because they don't use in-place
-decompression.
-
-Thanks to Vasily Gorbik <gor@linux.ibm.com> for debugging a related issue
-on s390, which was triggered by the same commit, but was a bug in how
-__decompress() was called [2]. And to Sasha Levin <sashal@kernel.org>
-for the CC alerting me of the issue.
-
-[0] https://github.com/facebook/zstd/commit/5b266196a41e6a15e21bd4f0eeab43b938db1d90
-[1] https://github.com/facebook/zstd/commit/6a7ede3dfccbf3e0a5928b4224a039c260dcff72
-[2] https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
-
-CC: Vasily Gorbik <gor@linux.ibm.com>
-CC: Heiko Carstens <hca@linux.ibm.com>
-CC: Sasha Levin <sashal@kernel.org>
-CC: Yann Collet <cyan@fb.com>
-Signed-off-by: Nick Terrell <terrelln@fb.com>
+Signed-off-by: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
+Link: https://lore.kernel.org/r/20230304080702.609-1-quic_visr@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/zstd/decompress/zstd_decompress.c | 25 ++++++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
+ sound/soc/codecs/lpass-tx-macro.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/lib/zstd/decompress/zstd_decompress.c b/lib/zstd/decompress/zstd_decompress.c
-index b9b935a9f5c0d..6b3177c947114 100644
---- a/lib/zstd/decompress/zstd_decompress.c
-+++ b/lib/zstd/decompress/zstd_decompress.c
-@@ -798,7 +798,7 @@ static size_t ZSTD_copyRawBlock(void* dst, size_t dstCapacity,
-         if (srcSize == 0) return 0;
-         RETURN_ERROR(dstBuffer_null, "");
-     }
--    ZSTD_memcpy(dst, src, srcSize);
-+    ZSTD_memmove(dst, src, srcSize);
-     return srcSize;
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 5d1c58df081ac..e5611f655beda 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -241,7 +241,7 @@ enum {
+ 
+ struct tx_mute_work {
+ 	struct tx_macro *tx;
+-	u32 decimator;
++	u8 decimator;
+ 	struct delayed_work dwork;
+ };
+ 
+@@ -634,7 +634,7 @@ static int tx_macro_mclk_enable(struct tx_macro *tx,
+ 	return 0;
  }
  
-@@ -858,6 +858,7 @@ static size_t ZSTD_decompressFrame(ZSTD_DCtx* dctx,
+-static bool is_amic_enabled(struct snd_soc_component *component, int decimator)
++static bool is_amic_enabled(struct snd_soc_component *component, u8 decimator)
+ {
+ 	u16 adc_mux_reg, adc_reg, adc_n;
  
-     /* Loop on each block */
-     while (1) {
-+        BYTE* oBlockEnd = oend;
-         size_t decodedSize;
-         blockProperties_t blockProperties;
-         size_t const cBlockSize = ZSTD_getcBlockSize(ip, remainingSrcSize, &blockProperties);
-@@ -867,16 +868,34 @@ static size_t ZSTD_decompressFrame(ZSTD_DCtx* dctx,
-         remainingSrcSize -= ZSTD_blockHeaderSize;
-         RETURN_ERROR_IF(cBlockSize > remainingSrcSize, srcSize_wrong, "");
+@@ -845,7 +845,7 @@ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
+ 			       struct snd_kcontrol *kcontrol, int event)
+ {
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+-	unsigned int decimator;
++	u8 decimator;
+ 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg, tx_gain_ctl_reg;
+ 	u8 hpf_cut_off_freq;
+ 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
+@@ -1060,7 +1060,8 @@ static int tx_macro_hw_params(struct snd_pcm_substream *substream,
+ 			      struct snd_soc_dai *dai)
+ {
+ 	struct snd_soc_component *component = dai->component;
+-	u32 decimator, sample_rate;
++	u32 sample_rate;
++	u8 decimator;
+ 	int tx_fs_rate;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
  
-+        if (ip >= op && ip < oBlockEnd) {
-+            /* We are decompressing in-place. Limit the output pointer so that we
-+             * don't overwrite the block that we are currently reading. This will
-+             * fail decompression if the input & output pointers aren't spaced
-+             * far enough apart.
-+             *
-+             * This is important to set, even when the pointers are far enough
-+             * apart, because ZSTD_decompressBlock_internal() can decide to store
-+             * literals in the output buffer, after the block it is decompressing.
-+             * Since we don't want anything to overwrite our input, we have to tell
-+             * ZSTD_decompressBlock_internal to never write past ip.
-+             *
-+             * See ZSTD_allocateLiteralsBuffer() for reference.
-+             */
-+            oBlockEnd = op + (ip - op);
-+        }
-+
-         switch(blockProperties.blockType)
-         {
-         case bt_compressed:
--            decodedSize = ZSTD_decompressBlock_internal(dctx, op, (size_t)(oend-op), ip, cBlockSize, /* frame */ 1, not_streaming);
-+            decodedSize = ZSTD_decompressBlock_internal(dctx, op, (size_t)(oBlockEnd-op), ip, cBlockSize, /* frame */ 1, not_streaming);
-             break;
-         case bt_raw :
-+            /* Use oend instead of oBlockEnd because this function is safe to overlap. It uses memmove. */
-             decodedSize = ZSTD_copyRawBlock(op, (size_t)(oend-op), ip, cBlockSize);
-             break;
-         case bt_rle :
--            decodedSize = ZSTD_setRleBlock(op, (size_t)(oend-op), *ip, blockProperties.origSize);
-+            decodedSize = ZSTD_setRleBlock(op, (size_t)(oBlockEnd-op), *ip, blockProperties.origSize);
-             break;
-         case bt_reserved :
-         default:
+@@ -1124,7 +1125,7 @@ static int tx_macro_digital_mute(struct snd_soc_dai *dai, int mute, int stream)
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+-	u16 decimator;
++	u8 decimator;
+ 
+ 	/* active decimator not set yet */
+ 	if (tx->active_decimator[dai->id] == -1)
 -- 
 2.39.2
 
