@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F686D46D7
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF416D498E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232876AbjDCOOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59152 "EHLO
+        id S233657AbjDCOjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232870AbjDCOOh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D5F7EDC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:37 -0700 (PDT)
+        with ESMTP id S233739AbjDCOjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A902BEE0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B3B61C9C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BACD1C4339B;
-        Mon,  3 Apr 2023 14:14:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35B70B81CA5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A55A4C433EF;
+        Mon,  3 Apr 2023 14:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531276;
-        bh=2yJDhlgtT2RyRVOjfRfz4bd8Xvh8tCq8cDWSbB+IWv4=;
+        s=korg; t=1680532738;
+        bh=kzLXTTkJJ7Z3jt5XvXdnW1zQoy1TCpTl2yXgW1xDFB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQr1eKrUlF/0ibeAbgxKqmvfiX3jHeDEdomz+BYcbvuUxRraKWgSXVwg7kk0N022Y
-         SNqTyzB/CWUYzfbLVQ8foygEJlrZW2VdYtbfDCktBXZ10VVXj11KWShtuOlUN3suwc
-         +dKRnO/FczeYirQkRHpADQIA2QcckJsTfLOXHOos=
+        b=lhri2ItYrERR/BT220XtOjZWV1khVnN5G1QgB53IlthfIFG6lFcNPoXM5tXPfR0yu
+         dwVIhpUQm76pve7OQ8zvxmQGfAkbCFIN9PTXMWXUKczgdTqvdIf+eekgR0EFh19Nxm
+         rwiTaqspBxAcXm7ymZ8M5bRvV0MvkrW6kdf4cn3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 45/66] ALSA: hda/ca0132: fixup buffer overrun at tuning_ctl_set()
+        Rajvi Jingar <rajvi.jingar@linux.intel.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 098/181] platform/x86/intel/pmc: Alder Lake PCH slp_s0_residency fix
 Date:   Mon,  3 Apr 2023 16:08:53 +0200
-Message-Id: <20230403140353.426975109@linuxfoundation.org>
+Message-Id: <20230403140418.295008544@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Rajvi Jingar <rajvi.jingar@linux.intel.com>
 
-[ Upstream commit 98e5eb110095ec77cb6d775051d181edbf9cd3cf ]
+[ Upstream commit fb5755100a0a5aa5957bdb204fd1e249684557fc ]
 
-tuning_ctl_set() might have buffer overrun at (X) if it didn't break
-from loop by matching (A).
+For platforms with Alder Lake PCH (Alder Lake S and Raptor Lake S) the
+slp_s0_residency attribute has been reporting the wrong value. Unlike other
+platforms, ADL PCH does not have a counter for the time that the SLP_S0
+signal was asserted. Instead, firmware uses the aggregate of the Low Power
+Mode (LPM) substate counters as the S0ix value.  Since the LPM counters run
+at a different frequency, this lead to misreporting of the S0ix time.
 
-	static int tuning_ctl_set(...)
-	{
-		for (i = 0; i < TUNING_CTLS_COUNT; i++)
-(A)			if (nid == ca0132_tuning_ctls[i].nid)
-				break;
+Add a check for Alder Lake PCH and adjust the frequency accordingly when
+display slp_s0_residency.
 
-		snd_hda_power_up(...);
-(X)		dspio_set_param(..., ca0132_tuning_ctls[i].mid, ...);
-		snd_hda_power_down(...);                ^
-
-		return 1;
-	}
-
-We will get below error by cppcheck
-
-	sound/pci/hda/patch_ca0132.c:4229:2: note: After for loop, i has value 12
-	 for (i = 0; i < TUNING_CTLS_COUNT; i++)
-	 ^
-	sound/pci/hda/patch_ca0132.c:4234:43: note: Array index out of bounds
-	 dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
-	                                           ^
-This patch cares non match case.
-
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87sfe9eap7.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: bbab31101f44 ("platform/x86/intel: pmc/core: Add Alderlake support to pmc core driver")
+Signed-off-by: Rajvi Jingar <rajvi.jingar@linux.intel.com>
+Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20230320212029.3154407-1-david.e.box@linux.intel.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/intel/pmc/core.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 280643f72c6e2..13c32f3414d2f 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -2943,8 +2943,10 @@ static int tuning_ctl_set(struct hda_codec *codec, hda_nid_t nid,
+diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
+index 17ec5825d13d7..be0fb9401202a 100644
+--- a/drivers/platform/x86/intel/pmc/core.c
++++ b/drivers/platform/x86/intel/pmc/core.c
+@@ -958,7 +958,18 @@ static inline void pmc_core_reg_write(struct pmc_dev *pmcdev, int reg_offset,
  
- 	for (i = 0; i < TUNING_CTLS_COUNT; i++)
- 		if (nid == ca0132_tuning_ctls[i].nid)
--			break;
-+			goto found;
+ static inline u64 pmc_core_adjust_slp_s0_step(struct pmc_dev *pmcdev, u32 value)
+ {
+-	return (u64)value * pmcdev->map->slp_s0_res_counter_step;
++	/*
++	 * ADL PCH does not have the SLP_S0 counter and LPM Residency counters are
++	 * used as a workaround which uses 30.5 usec tick. All other client
++	 * programs have the legacy SLP_S0 residency counter that is using the 122
++	 * usec tick.
++	 */
++	const int lpm_adj_x2 = pmcdev->map->lpm_res_counter_step_x2;
++
++	if (pmcdev->map == &adl_reg_map)
++		return (u64)value * GET_X2_COUNTER((u64)lpm_adj_x2);
++	else
++		return (u64)value * pmcdev->map->slp_s0_res_counter_step;
+ }
  
-+	return -EINVAL;
-+found:
- 	snd_hda_power_up(codec);
- 	dspio_set_param(codec, ca0132_tuning_ctls[i].mid,
- 			ca0132_tuning_ctls[i].req,
+ static int set_etr3(struct pmc_dev *pmcdev)
 -- 
 2.39.2
 
