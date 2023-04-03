@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE6F6D4793
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0503A6D4862
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbjDCOVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
+        id S233357AbjDCO2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233112AbjDCOV3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8688E2D7C5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:09 -0700 (PDT)
+        with ESMTP id S233360AbjDCO2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C9F59D2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0823CB80688
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62FD7C433EF;
-        Mon,  3 Apr 2023 14:20:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2C0A61DC8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22DCC433EF;
+        Mon,  3 Apr 2023 14:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531651;
-        bh=RI4FPB1DKV/B/YpGWBOOOenfAVNZs71y7SH5hiC4Sno=;
+        s=korg; t=1680532089;
+        bh=I86NJCPu1+KiO59bQFYOpha356Tl4KQfy3wuYdiGe9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+W1MhRYH+Vn+/0TjVsz/0pXJoWb1jFryjZMKdnnzPrcicdB8pFji8RjxG4MaRe3M
-         na1WhS8VhsK7oi7Z0qtKEgxVceaczQbcT2cFtUNcwmEPDTFmxCQcOKTydkU9VOdHcL
-         TN+2bbpQkgbtD6YkjYO8MCoLfFxzXbubLhVl1Hio=
+        b=stTfSbaXzQYacZEiw45lZe9+upT0QmDQ2uKTIwBpok4xi8VabqMlk053Rg2Q1/cik
+         GvsR0gpLTShwkA24evvVtH6mW4BVblovGS4LCPKWSIJy8ymd1K+cYV7aabyrloRJD8
+         3UxEmPMFCfR6W0epTVPvDrNHV0IwCBDxEZFqtA7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>
-Subject: [PATCH 5.4 058/104] tun: avoid double free in tun_free_netdev
+        patches@lists.linux.dev,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 115/173] ALSA: asihpi: check pao in control_message()
 Date:   Mon,  3 Apr 2023 16:08:50 +0200
-Message-Id: <20230403140406.563603661@linuxfoundation.org>
+Message-Id: <20230403140418.172114350@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,237 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-commit 158b515f703e75e7d68289bf4d98c664e1d632df upstream.
+[ Upstream commit 9026c0bf233db53b86f74f4c620715e94eb32a09 ]
 
-Avoid double free in tun_free_netdev() by moving the
-dev->tstats and tun->security allocs to a new ndo_init routine
-(tun_net_init()) that will be called by register_netdevice().
-ndo_init is paired with the desctructor (tun_free_netdev()),
-so if there's an error in register_netdevice() the destructor
-will handle the frees.
+control_message() might be called with pao = NULL.
+Here indicates control_message() as sample.
 
-BUG: KASAN: double-free or invalid-free in selinux_tun_dev_free_security+0x1a/0x20 security/selinux/hooks.c:5605
+(B)	static void control_message(struct hpi_adapter_obj *pao, ...)
+	{                                                   ^^^
+		struct hpi_hw_obj *phw = pao->priv;
+		...                      ^^^
+	}
 
-CPU: 0 PID: 25750 Comm: syz-executor416 Not tainted 5.16.0-rc2-syzk #1
-Hardware name: Red Hat KVM, BIOS
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:106
-print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:247
-kasan_report_invalid_free+0x55/0x80 mm/kasan/report.c:372
-____kasan_slab_free mm/kasan/common.c:346 [inline]
-__kasan_slab_free+0x107/0x120 mm/kasan/common.c:374
-kasan_slab_free include/linux/kasan.h:235 [inline]
-slab_free_hook mm/slub.c:1723 [inline]
-slab_free_freelist_hook mm/slub.c:1749 [inline]
-slab_free mm/slub.c:3513 [inline]
-kfree+0xac/0x2d0 mm/slub.c:4561
-selinux_tun_dev_free_security+0x1a/0x20 security/selinux/hooks.c:5605
-security_tun_dev_free_security+0x4f/0x90 security/security.c:2342
-tun_free_netdev+0xe6/0x150 drivers/net/tun.c:2215
-netdev_run_todo+0x4df/0x840 net/core/dev.c:10627
-rtnl_unlock+0x13/0x20 net/core/rtnetlink.c:112
-__tun_chr_ioctl+0x80c/0x2870 drivers/net/tun.c:3302
-tun_chr_ioctl+0x2f/0x40 drivers/net/tun.c:3311
-vfs_ioctl fs/ioctl.c:51 [inline]
-__do_sys_ioctl fs/ioctl.c:874 [inline]
-__se_sys_ioctl fs/ioctl.c:860 [inline]
-__x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:860
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x44/0xae
+(A)	void _HPI_6205(struct hpi_adapter_obj *pao, ...)
+	{                                      ^^^
+		...
+		case HPI_OBJ_CONTROL:
+(B)			control_message(pao, phm, phr);
+			break;          ^^^
+		...
+	}
 
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Link: https://lore.kernel.org/r/1639679132-19884-1-git-send-email-george.kennedy@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[DP: adjusted context for 5.4 stable]
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	void HPI_6205(...)
+	{
+		...
+(A)		_HPI_6205(NULL, phm, phr);
+		...       ^^^^
+	}
+
+Therefore, We will get too many warning via cppcheck, like below
+
+	sound/pci/asihpi/hpi6205.c:238:27: warning: Possible null pointer dereference: pao [nullPointer]
+		 struct hpi_hw_obj *phw = pao->priv;
+		                          ^
+	sound/pci/asihpi/hpi6205.c:433:13: note: Calling function '_HPI_6205', 1st argument 'NULL' value is 0
+		  _HPI_6205(NULL, phm, phr);
+		            ^
+	sound/pci/asihpi/hpi6205.c:401:20: note: Calling function 'control_message', 1st argument 'pao' value is 0
+	   control_message(pao, phm, phr);
+	                   ^
+Set phr->error like many functions doing, and don't call _HPI_6205()
+with NULL.
+
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87ttypeaqz.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c |  109 +++++++++++++++++++++++++++++-------------------------
- 1 file changed, 59 insertions(+), 50 deletions(-)
+ sound/pci/asihpi/hpi6205.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -250,6 +250,9 @@ struct tun_struct {
- 	struct tun_prog __rcu *steering_prog;
- 	struct tun_prog __rcu *filter_prog;
- 	struct ethtool_link_ksettings link_ksettings;
-+	/* init args */
-+	struct file *file;
-+	struct ifreq *ifr;
- };
+diff --git a/sound/pci/asihpi/hpi6205.c b/sound/pci/asihpi/hpi6205.c
+index 3d6914c64c4a8..4cdaeefeb6885 100644
+--- a/sound/pci/asihpi/hpi6205.c
++++ b/sound/pci/asihpi/hpi6205.c
+@@ -430,7 +430,7 @@ void HPI_6205(struct hpi_message *phm, struct hpi_response *phr)
+ 		pao = hpi_find_adapter(phm->adapter_index);
+ 	} else {
+ 		/* subsys messages don't address an adapter */
+-		_HPI_6205(NULL, phm, phr);
++		phr->error = HPI_ERROR_INVALID_OBJ_INDEX;
+ 		return;
+ 	}
  
- struct veth {
-@@ -275,6 +278,9 @@ void *tun_ptr_to_xdp(void *ptr)
- }
- EXPORT_SYMBOL(tun_ptr_to_xdp);
- 
-+static void tun_flow_init(struct tun_struct *tun);
-+static void tun_flow_uninit(struct tun_struct *tun);
-+
- static int tun_napi_receive(struct napi_struct *napi, int budget)
- {
- 	struct tun_file *tfile = container_of(napi, struct tun_file, napi);
-@@ -1027,6 +1033,49 @@ static int check_filter(struct tap_filte
- 
- static const struct ethtool_ops tun_ethtool_ops;
- 
-+static int tun_net_init(struct net_device *dev)
-+{
-+	struct tun_struct *tun = netdev_priv(dev);
-+	struct ifreq *ifr = tun->ifr;
-+	int err;
-+
-+	tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
-+	if (!tun->pcpu_stats)
-+		return -ENOMEM;
-+
-+	spin_lock_init(&tun->lock);
-+
-+	err = security_tun_dev_alloc_security(&tun->security);
-+	if (err < 0) {
-+		free_percpu(tun->pcpu_stats);
-+		return err;
-+	}
-+
-+	tun_flow_init(tun);
-+
-+	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
-+			   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
-+			   NETIF_F_HW_VLAN_STAG_TX;
-+	dev->features = dev->hw_features | NETIF_F_LLTX;
-+	dev->vlan_features = dev->features &
-+			     ~(NETIF_F_HW_VLAN_CTAG_TX |
-+			       NETIF_F_HW_VLAN_STAG_TX);
-+
-+	tun->flags = (tun->flags & ~TUN_FEATURES) |
-+		      (ifr->ifr_flags & TUN_FEATURES);
-+
-+	INIT_LIST_HEAD(&tun->disabled);
-+	err = tun_attach(tun, tun->file, false, ifr->ifr_flags & IFF_NAPI,
-+			 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
-+	if (err < 0) {
-+		tun_flow_uninit(tun);
-+		security_tun_dev_free_security(tun->security);
-+		free_percpu(tun->pcpu_stats);
-+		return err;
-+	}
-+	return 0;
-+}
-+
- /* Net device detach from fd. */
- static void tun_net_uninit(struct net_device *dev)
- {
-@@ -1285,6 +1334,7 @@ static int tun_net_change_carrier(struct
- }
- 
- static const struct net_device_ops tun_netdev_ops = {
-+	.ndo_init		= tun_net_init,
- 	.ndo_uninit		= tun_net_uninit,
- 	.ndo_open		= tun_net_open,
- 	.ndo_stop		= tun_net_close,
-@@ -1365,6 +1415,7 @@ static int tun_xdp_tx(struct net_device
- }
- 
- static const struct net_device_ops tap_netdev_ops = {
-+	.ndo_init		= tun_net_init,
- 	.ndo_uninit		= tun_net_uninit,
- 	.ndo_open		= tun_net_open,
- 	.ndo_stop		= tun_net_close,
-@@ -1405,7 +1456,7 @@ static void tun_flow_uninit(struct tun_s
- #define MAX_MTU 65535
- 
- /* Initialize net device. */
--static void tun_net_init(struct net_device *dev)
-+static void tun_net_initialize(struct net_device *dev)
- {
- 	struct tun_struct *tun = netdev_priv(dev);
- 
-@@ -2839,9 +2890,6 @@ static int tun_set_iff(struct net *net,
- 
- 		if (!dev)
- 			return -ENOMEM;
--		err = dev_get_valid_name(net, dev, name);
--		if (err < 0)
--			goto err_free_dev;
- 
- 		dev_net_set(dev, net);
- 		dev->rtnl_link_ops = &tun_link_ops;
-@@ -2860,41 +2908,16 @@ static int tun_set_iff(struct net *net,
- 		tun->rx_batched = 0;
- 		RCU_INIT_POINTER(tun->steering_prog, NULL);
- 
--		tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
--		if (!tun->pcpu_stats) {
--			err = -ENOMEM;
--			goto err_free_dev;
--		}
--
--		spin_lock_init(&tun->lock);
--
--		err = security_tun_dev_alloc_security(&tun->security);
--		if (err < 0)
--			goto err_free_stat;
--
--		tun_net_init(dev);
--		tun_flow_init(tun);
-+		tun->ifr = ifr;
-+		tun->file = file;
- 
--		dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
--				   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
--				   NETIF_F_HW_VLAN_STAG_TX;
--		dev->features = dev->hw_features | NETIF_F_LLTX;
--		dev->vlan_features = dev->features &
--				     ~(NETIF_F_HW_VLAN_CTAG_TX |
--				       NETIF_F_HW_VLAN_STAG_TX);
--
--		tun->flags = (tun->flags & ~TUN_FEATURES) |
--			      (ifr->ifr_flags & TUN_FEATURES);
--
--		INIT_LIST_HEAD(&tun->disabled);
--		err = tun_attach(tun, file, false, ifr->ifr_flags & IFF_NAPI,
--				 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
--		if (err < 0)
--			goto err_free_flow;
-+		tun_net_initialize(dev);
- 
- 		err = register_netdevice(tun->dev);
--		if (err < 0)
--			goto err_detach;
-+		if (err < 0) {
-+			free_netdev(dev);
-+			return err;
-+		}
- 		/* free_netdev() won't check refcnt, to aovid race
- 		 * with dev_put() we need publish tun after registration.
- 		 */
-@@ -2913,20 +2936,6 @@ static int tun_set_iff(struct net *net,
- 
- 	strcpy(ifr->ifr_name, tun->dev->name);
- 	return 0;
--
--err_detach:
--	tun_detach_all(dev);
--	/* register_netdevice() already called tun_free_netdev() */
--	goto err_free_dev;
--
--err_free_flow:
--	tun_flow_uninit(tun);
--	security_tun_dev_free_security(tun->security);
--err_free_stat:
--	free_percpu(tun->pcpu_stats);
--err_free_dev:
--	free_netdev(dev);
--	return err;
- }
- 
- static void tun_get_iff(struct tun_struct *tun, struct ifreq *ifr)
+-- 
+2.39.2
+
 
 
