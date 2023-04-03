@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF316D4890
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861946D4AB1
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233414AbjDCO3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
+        id S234191AbjDCOta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233417AbjDCO3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:46 -0400
+        with ESMTP id S234061AbjDCOtN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4AAE319BB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5E0280FD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61EC761DE1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78CFAC433A0;
-        Mon,  3 Apr 2023 14:29:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD50D61F3D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FF0C433EF;
+        Mon,  3 Apr 2023 14:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532179;
-        bh=LGxED/n1YkWwhiEoXO7dPNsBXTGMmhf3fHFvcpDd4ew=;
+        s=korg; t=1680533292;
+        bh=b433K2IxkgY2T+vFMSNzzrQicmbc2Ss7MekLP91B3c8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0avCZc+mENSGfRmYiDqb8YYFirEygjChDjH1FrPDj4Y9U+Ig5QLEZHk9ORhZoDxe
-         RwTFJmtstl2vdlDMy+t1wu0YOVssuYVfofBmgxEPSPOyd1e8gLg1r+99RUug4CTcmW
-         9pbVG2g9JGN4SG6/zODSVwXcIcej6X2HRVB9fCqQ=
+        b=Dcoe1AZ5vG6MHIn9xsGivXfQsm0hatMCPNNbZP0VAjhZJjxoPc8H/XDj17lRsPEeU
+         Y4RmurNVK1yvPYZZQPGYs2RF5zbFkRFnonvZiKTLJnouM30t0RQV9k8x6lDYSF/ESj
+         nlSRtOQGzBxHFugNxd++759qYDPsu2Q02Pc2cO9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 158/173] ALSA: usb-audio: Fix regression on detection of Roland VS-100
+        patches@lists.linux.dev, Werner Sembach <wse@tuxedocomputers.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 6.2 128/187] Input: i8042 - add TUXEDO devices to i8042 quirk tables for partial fix
 Date:   Mon,  3 Apr 2023 16:09:33 +0200
-Message-Id: <20230403140419.562331332@linuxfoundation.org>
+Message-Id: <20230403140420.199630345@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,46 +52,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit fa4e7a6fa12b1132340785e14bd439cbe95b7a5a upstream.
+commit cbedf1a33970c9b825ae75b81fbd3e88e224a418 upstream.
 
-It's been reported that the recent kernel can't probe the PCM devices
-on Roland VS-100 properly, and it turned out to be a regression by the
-recent addition of the bit shift range check for the format bits.
-In the old code, we just did bit-shift and it resulted in zero, which
-is then corrected to the standard PCM format, while the new code
-explicitly returns an error in such a case.
+A lot of modern Clevo barebones have touchpad and/or keyboard issues after
+suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
+have an external PS/2 port so this can safely be set for all of them.
 
-For addressing the regression, relax the check and fallback to the
-standard PCM type (with the info output).
+I'm not entirely sure if every device listed really needs all four quirks,
+but after testing and production use, no negative effects could be
+observed when setting all four.
 
-Fixes: 43d5ca88dfcd ("ALSA: usb-audio: Fix potential out-of-bounds shift")
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217084
-Link: https://lore.kernel.org/r/20230324075005.19403-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Setting SERIO_QUIRK_NOMUX or SERIO_QUIRK_RESET_ALWAYS on the Clevo N150CU
+and the Clevo NHxxRZQ makes the keyboard very laggy for ~5 seconds after
+boot and sometimes also after resume. However both are required for the
+keyboard to not fail completely sometimes after boot or resume.
+
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230321191619.647911-1-wse@tuxedocomputers.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/format.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042-acpipnpio.h |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -40,8 +40,12 @@ static u64 parse_audio_format_i_type(str
- 	case UAC_VERSION_1:
- 	default: {
- 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
--		if (format >= 64)
--			return 0; /* invalid format */
-+		if (format >= 64) {
-+			usb_audio_info(chip,
-+				       "%u:%d: invalid format type 0x%llx is detected, processed as PCM\n",
-+				       fp->iface, fp->altsetting, format);
-+			format = UAC_FORMAT_TYPE_I_PCM;
-+		}
- 		sample_width = fmt->bBitResolution;
- 		sample_bytes = fmt->bSubframeSize;
- 		format = 1ULL << format;
+--- a/drivers/input/serio/i8042-acpipnpio.h
++++ b/drivers/input/serio/i8042-acpipnpio.h
+@@ -1117,11 +1117,39 @@ static const struct dmi_system_id i8042_
+ 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
+ 	},
+ 	{
++		/*
++		 * Setting SERIO_QUIRK_NOMUX or SERIO_QUIRK_RESET_ALWAYS makes
++		 * the keyboard very laggy for ~5 seconds after boot and
++		 * sometimes also after resume.
++		 * However both are required for the keyboard to not fail
++		 * completely sometimes after boot or resume.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "N150CU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "NH5xAx"),
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
+ 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		/*
++		 * Setting SERIO_QUIRK_NOMUX or SERIO_QUIRK_RESET_ALWAYS makes
++		 * the keyboard very laggy for ~5 seconds after boot and
++		 * sometimes also after resume.
++		 * However both are required for the keyboard to not fail
++		 * completely sometimes after boot or resume.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NHxxRZQ"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
+ 	},
+ 	{
+ 		.matches = {
 
 
