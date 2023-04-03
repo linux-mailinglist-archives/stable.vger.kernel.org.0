@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C0D6D46F2
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E5A6D48AB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232805AbjDCOPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:15:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33106 "EHLO
+        id S233371AbjDCOat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232926AbjDCOPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:47 -0400
+        with ESMTP id S233449AbjDCOas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE28C22E90
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59106319BB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6467BB81B55
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7EF4C433EF;
-        Mon,  3 Apr 2023 14:15:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1668CB81C52
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A11AC4339B;
+        Mon,  3 Apr 2023 14:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531334;
-        bh=cSZ2CMxAzuYl385bbqsRbIRs9Kr65hAfW1k72HmVRwI=;
+        s=korg; t=1680532244;
+        bh=fUBiPi3iGIPQx/IykMMUmf0Tt6mBx/Ci0M9FUu01ke0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJnyOGHfbaiLO4yZFy37TVYAV5RcnfARy02hgLU5b/S9oEdO2t0XtzGm+qkn5GNs6
-         BCBX64oh0kE6+B7P+5vfAgBHCg1qEn79IczMmi/40mcV56+b651tpmtv8lSLRDj2LL
-         HwOSXJFaYBKQYJcRO4PhVskSXTIzSbgBFbCwc+oQ=
+        b=t6vXy/UO1vNAgol0lXPYaqX9zs++pRrPkZjGzVWYPiMuwBaFIvy6L/haPvmy4rB+C
+         obRJvJbVNOxOIaM/FMNw5t2+/xmsp34Qem2RqefSj297u12gzqeOmSnSHROv569T6Q
+         tEf8dHe/YqXB2YJ4PcP7ApXNFx1rV7GEaNWKvt+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Victor Hsieh <victorhsieh@google.com>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/84] Bluetooth: btqcomsmd: Fix command timeout after setting BD address
+Subject: [PATCH 5.15 01/99] fsverity: dont drop pagecache at end of FS_IOC_ENABLE_VERITY
 Date:   Mon,  3 Apr 2023 16:08:24 +0200
-Message-Id: <20230403140354.163258699@linuxfoundation.org>
+Message-Id: <20230403140356.127512159@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,72 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 5d44ab9e204200a78ad55cdf185aa2bb109b5950 ]
+[ Upstream commit a075bacde257f755bea0e53400c9f1cdd1b8e8e6 ]
 
-On most devices using the btqcomsmd driver (e.g. the DragonBoard 410c
-and other devices based on the Qualcomm MSM8916/MSM8909/... SoCs)
-the Bluetooth firmware seems to become unresponsive for a while after
-setting the BD address. On recent kernel versions (at least 5.17+)
-this often causes timeouts for subsequent commands, e.g. the HCI reset
-sent by the Bluetooth core during initialization:
+The full pagecache drop at the end of FS_IOC_ENABLE_VERITY is causing
+performance problems and is hindering adoption of fsverity.  It was
+intended to solve a race condition where unverified pages might be left
+in the pagecache.  But actually it doesn't solve it fully.
 
-    Bluetooth: hci0: Opcode 0x c03 failed: -110
+Since the incomplete solution for this race condition has too much
+performance impact for it to be worth it, let's remove it for now.
 
-Unfortunately this behavior does not seem to be documented anywhere.
-Experimentation suggests that the minimum necessary delay to avoid
-the problem is ~150us. However, to be sure add a sleep for > 1ms
-in case it is a bit longer on other firmware versions.
-
-Older kernel versions are likely also affected, although perhaps with
-slightly different errors or less probability. Side effects can easily
-hide the issue in most cases, e.g. unrelated incoming interrupts that
-cause the necessary delay.
-
-Fixes: 1511cc750c3d ("Bluetooth: Introduce Qualcomm WCNSS SMD based HCI driver")
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
+Cc: stable@vger.kernel.org
+Reviewed-by: Victor Hsieh <victorhsieh@google.com>
+Link: https://lore.kernel.org/r/20230314235332.50270-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btqcomsmd.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ fs/verity/enable.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/bluetooth/btqcomsmd.c b/drivers/bluetooth/btqcomsmd.c
-index 874172aa8e417..a698b1f6394b2 100644
---- a/drivers/bluetooth/btqcomsmd.c
-+++ b/drivers/bluetooth/btqcomsmd.c
-@@ -146,6 +146,21 @@ static int btqcomsmd_setup(struct hci_dev *hdev)
- 	return 0;
- }
+diff --git a/fs/verity/enable.c b/fs/verity/enable.c
+index 60a4372aa4d75..dfe8acc32df66 100644
+--- a/fs/verity/enable.c
++++ b/fs/verity/enable.c
+@@ -391,25 +391,27 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
+ 		goto out_drop_write;
  
-+static int btqcomsmd_set_bdaddr(struct hci_dev *hdev, const bdaddr_t *bdaddr)
-+{
-+	int ret;
-+
-+	ret = qca_set_bdaddr_rome(hdev, bdaddr);
-+	if (ret)
-+		return ret;
-+
-+	/* The firmware stops responding for a while after setting the bdaddr,
-+	 * causing timeouts for subsequent commands. Sleep a bit to avoid this.
-+	 */
-+	usleep_range(1000, 10000);
-+	return 0;
-+}
-+
- static int btqcomsmd_probe(struct platform_device *pdev)
- {
- 	struct btqcomsmd *btq;
-@@ -195,7 +210,7 @@ static int btqcomsmd_probe(struct platform_device *pdev)
- 	hdev->close = btqcomsmd_close;
- 	hdev->send = btqcomsmd_send;
- 	hdev->setup = btqcomsmd_setup;
--	hdev->set_bdaddr = qca_set_bdaddr_rome;
-+	hdev->set_bdaddr = btqcomsmd_set_bdaddr;
+ 	err = enable_verity(filp, &arg);
+-	if (err)
+-		goto out_allow_write_access;
  
- 	ret = hci_register_dev(hdev);
- 	if (ret < 0)
+ 	/*
+-	 * Some pages of the file may have been evicted from pagecache after
+-	 * being used in the Merkle tree construction, then read into pagecache
+-	 * again by another process reading from the file concurrently.  Since
+-	 * these pages didn't undergo verification against the file digest which
+-	 * fs-verity now claims to be enforcing, we have to wipe the pagecache
+-	 * to ensure that all future reads are verified.
++	 * We no longer drop the inode's pagecache after enabling verity.  This
++	 * used to be done to try to avoid a race condition where pages could be
++	 * evicted after being used in the Merkle tree construction, then
++	 * re-instantiated by a concurrent read.  Such pages are unverified, and
++	 * the backing storage could have filled them with different content, so
++	 * they shouldn't be used to fulfill reads once verity is enabled.
++	 *
++	 * But, dropping the pagecache has a big performance impact, and it
++	 * doesn't fully solve the race condition anyway.  So for those reasons,
++	 * and also because this race condition isn't very important relatively
++	 * speaking (especially for small-ish files, where the chance of a page
++	 * being used, evicted, *and* re-instantiated all while enabling verity
++	 * is quite small), we no longer drop the inode's pagecache.
+ 	 */
+-	filemap_write_and_wait(inode->i_mapping);
+-	invalidate_inode_pages2(inode->i_mapping);
+ 
+ 	/*
+ 	 * allow_write_access() is needed to pair with deny_write_access().
+ 	 * Regardless, the filesystem won't allow writing to verity files.
+ 	 */
+-out_allow_write_access:
+ 	allow_write_access(filp);
+ out_drop_write:
+ 	mnt_drop_write_file(filp);
 -- 
 2.39.2
 
