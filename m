@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EE66D3F23
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B956D3F28
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231623AbjDCIib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58902 "EHLO
+        id S230105AbjDCIid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231310AbjDCIia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:38:30 -0400
+        with ESMTP id S231678AbjDCIic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:38:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A9D0526F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:38:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56766195
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1FA0B8124C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:38:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A16FC4339E;
-        Mon,  3 Apr 2023 08:38:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96E1EB815B1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:38:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A5EC4339C;
+        Mon,  3 Apr 2023 08:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680511104;
-        bh=WRdokgOG4t8NWprTG1UPDSLHAtDLrthrIGIaEGNz46E=;
+        s=korg; t=1680511107;
+        bh=cWxTsIsl0k2aJG7C3QEYSWlO8FLmmvLvp8/jydrmJFc=;
         h=Subject:To:Cc:From:Date:From;
-        b=PkfISZ/FaDUXs+PrV09XPMlgH7E+wlFkOCH3cw9GXl1wS9nf1tdV7FDnjkXE+5kC8
-         kVL8fYm+BTpN1f0wSrkju8wcuEjr6W9VG/9mvrjTJdZX0LS+QdaQToqGJdyZF09be7
-         LuhAxy9E344HRFXaqzdIz3yUplQTWZn3CFee1ao0=
-Subject: FAILED: patch "[PATCH] pinctrl: amd: Disable and mask interrupts on resume" failed to apply to 4.19-stable tree
+        b=Sq782ZgLakAAypnQt+Vw0hODM9/kH2K7jL6UcP5ny67BbER7Sej9/81NQypHvCiaK
+         nKqbiP3YSd+eUNYrEWj6teevJf//JF+QAfo67f8yL/kHkR7Rq8pNiaQ18OTSEHW3Ap
+         hta2h8sjgBdtp7DQSFxrhtvi434CQaXP/RrSR2cI=
+Subject: FAILED: patch "[PATCH] pinctrl: amd: Disable and mask interrupts on resume" failed to apply to 4.14-stable tree
 To:     korneld@chromium.org, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:38:14 +0200
-Message-ID: <2023040314-starring-unwanted-c4c0@gregkh>
+Date:   Mon, 03 Apr 2023 10:38:15 +0200
+Message-ID: <2023040315-prodigal-chief-ace2@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x b26cd9325be4c1fcd331b77f10acb627c560d4d7
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040314-starring-unwanted-c4c0@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040315-prodigal-chief-ace2@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
