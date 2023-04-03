@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7D46D4838
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABA86D4A25
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbjDCO0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55550 "EHLO
+        id S233879AbjDCOof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233321AbjDCO0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E65782CAF9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:40 -0700 (PDT)
+        with ESMTP id S233883AbjDCOoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B342C18262
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 793D8B81C12
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9744C4339B;
-        Mon,  3 Apr 2023 14:26:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8A8061E9C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B5DC433D2;
+        Mon,  3 Apr 2023 14:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531998;
-        bh=u/O9oSwFl7oXTaJku6rhQs0l1MMuGRCZTZekRT+8LbA=;
+        s=korg; t=1680533020;
+        bh=I5p+nFrt1hderaCIh4QWIYwi/J9OVB299B44AzHSw3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KblUbAKeJft14Gw+jSUmKCKPo9FjV5ystNQTd8T2c+cZY3M2TNWtU8gY98YpYaKXr
-         f7q9IDhsyCbmH+vYpkkXLBRBJXHJJI86nBBB9KXws+H4huFYzataObl8TfqSFDX0/3
-         ZDJp/p/rNd3KnbQioAohy/kj0Ac9aAKCUAsP7rJA=
+        b=sfUtTy7/VjWGrVn/DzDoQ17KFnuUAiOuNc0TS6ONP4vXDxCaPb3ymFZ1IaQKUOOi0
+         n2hhwG14fVgnIcbtiM+2lc4ZJG3RQgIBrRrNebT8uyCF2G0nseyjveP8dL0uSoMyma
+         3k/QmJPhCa9uH1Da0eCBotXypz21dolOIAOqZAMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Francois Romieu <romieu@fr.zoreil.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/173] atm: idt77252: fix kmemleak when rmmod idt77252
+Subject: [PATCH 6.2 016/187] ASoC: codecs: tx-macro: Fix for KASAN: slab-out-of-bounds
 Date:   Mon,  3 Apr 2023 16:07:41 +0200
-Message-Id: <20230403140415.915230235@linuxfoundation.org>
+Message-Id: <20230403140416.561565578@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
 
-[ Upstream commit 4fe3c88552a3fbe1944426a4506a18cdeb457b5a ]
+[ Upstream commit e5e7e398f6bb7918dab0612eb6991f7bae95520d ]
 
-There are memory leaks reported by kmemleak:
+When we run syzkaller we get below Out of Bound.
+    "KASAN: slab-out-of-bounds Read in regcache_flat_read"
 
-  unreferenced object 0xffff888106500800 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<000000000e947e2a>] idt77252_init_one+0x2847/0x3c90 [idt77252]
-      [<000000006efb048e>] local_pci_probe+0xeb/0x1a0
-    ...
+    Below is the backtrace of the issue:
 
-  unreferenced object 0xffff888106500b00 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 20 3d 01 80 88 ff ff 00 20 3d 01 80 88 ff ff  . =...... =.....
-      f0 23 3d 01 80 88 ff ff 00 20 3d 01 00 00 00 00  .#=...... =.....
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<00000000f451c5be>] alloc_scq.constprop.0+0x4a/0x400 [idt77252]
-      [<00000000e6313849>] idt77252_init_one+0x28cf/0x3c90 [idt77252]
+    dump_backtrace+0x0/0x4c8
+    show_stack+0x34/0x44
+    dump_stack_lvl+0xd8/0x118
+    print_address_description+0x30/0x2d8
+    kasan_report+0x158/0x198
+    __asan_report_load4_noabort+0x44/0x50
+    regcache_flat_read+0x10c/0x110
+    regcache_read+0xf4/0x180
+    _regmap_read+0xc4/0x278
+    _regmap_update_bits+0x130/0x290
+    regmap_update_bits_base+0xc0/0x15c
+    snd_soc_component_update_bits+0xa8/0x22c
+    snd_soc_component_write_field+0x68/0xd4
+    tx_macro_digital_mute+0xec/0x140
 
-The root cause is traced to the vc_maps which alloced in open_card_oam()
-are not freed in close_card_oam(). The vc_maps are used to record
-open connections, so when close a vc_map in close_card_oam(), the memory
-should be freed. Moreover, the ubr0 is not closed when close a idt77252
-device, leading to the memory leak of vc_map and scq_info.
+    Actually There is no need to have decimator with 32 bits.
+    By limiting the variable with short type u8 issue is resolved.
 
-Fix them by adding kfree in close_card_oam() and implementing new
-close_card_ubr0() to close ubr0.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
-Link: https://lore.kernel.org/r/20230320143318.2644630-1-lizetao1@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
+Link: https://lore.kernel.org/r/20230304080702.609-1-quic_visr@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/idt77252.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/soc/codecs/lpass-tx-macro.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
-index 82f6f1fbe9e78..a217b50439e72 100644
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -2915,6 +2915,7 @@ close_card_oam(struct idt77252_dev *card)
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 2449a2df66df0..8facdb922f076 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -242,7 +242,7 @@ enum {
  
- 				recycle_rx_pool_skb(card, &vc->rcv.rx_pool);
- 			}
-+			kfree(vc);
- 		}
- 	}
- }
-@@ -2958,6 +2959,15 @@ open_card_ubr0(struct idt77252_dev *card)
+ struct tx_mute_work {
+ 	struct tx_macro *tx;
+-	u32 decimator;
++	u8 decimator;
+ 	struct delayed_work dwork;
+ };
+ 
+@@ -635,7 +635,7 @@ static int tx_macro_mclk_enable(struct tx_macro *tx,
  	return 0;
  }
  
-+static void
-+close_card_ubr0(struct idt77252_dev *card)
-+{
-+	struct vc_map *vc = card->vcs[0];
-+
-+	free_scq(card, vc->scq);
-+	kfree(vc);
-+}
-+
- static int
- idt77252_dev_open(struct idt77252_dev *card)
+-static bool is_amic_enabled(struct snd_soc_component *component, int decimator)
++static bool is_amic_enabled(struct snd_soc_component *component, u8 decimator)
  {
-@@ -3007,6 +3017,7 @@ static void idt77252_dev_close(struct atm_dev *dev)
- 	struct idt77252_dev *card = dev->dev_data;
- 	u32 conf;
+ 	u16 adc_mux_reg, adc_reg, adc_n;
  
-+	close_card_ubr0(card);
- 	close_card_oam(card);
+@@ -849,7 +849,7 @@ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
+ 			       struct snd_kcontrol *kcontrol, int event)
+ {
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+-	unsigned int decimator;
++	u8 decimator;
+ 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg, tx_gain_ctl_reg;
+ 	u8 hpf_cut_off_freq;
+ 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
+@@ -1064,7 +1064,8 @@ static int tx_macro_hw_params(struct snd_pcm_substream *substream,
+ 			      struct snd_soc_dai *dai)
+ {
+ 	struct snd_soc_component *component = dai->component;
+-	u32 decimator, sample_rate;
++	u32 sample_rate;
++	u8 decimator;
+ 	int tx_fs_rate;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
  
- 	conf = SAR_CFG_RXPTH |	/* enable receive path           */
+@@ -1128,7 +1129,7 @@ static int tx_macro_digital_mute(struct snd_soc_dai *dai, int mute, int stream)
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+-	u16 decimator;
++	u8 decimator;
+ 
+ 	/* active decimator not set yet */
+ 	if (tx->active_decimator[dai->id] == -1)
 -- 
 2.39.2
 
