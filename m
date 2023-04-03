@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2736D4AD8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C18C6D4ADB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234134AbjDCOuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:50:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37018 "EHLO
+        id S234220AbjDCOuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234140AbjDCOud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E7622A5B4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:58 -0700 (PDT)
+        with ESMTP id S234059AbjDCOuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F292E5C9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAB67B81D77
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32FE9C433EF;
-        Mon,  3 Apr 2023 14:49:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1D0761F98
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F29C4339B;
+        Mon,  3 Apr 2023 14:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533396;
-        bh=/7UESJaSbLuYjJRWmY3fdKk3XgzPi1J1U01kCfYsG8w=;
+        s=korg; t=1680533399;
+        bh=wj+rD5Kw3ISKr/uc3MryWkpghY4EZz64lfSicubEcy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMifOw0GWC0DUFspeNMNeamUXF2lzMqEAJtXzJ9njJ3MOwZVD97vzuAMKLo43fNrF
-         b4PKBFPQf3QRDJe1hUtFAuAPKqfE2u8teEwLhhT7aJlbnIosYYJxqQ9U7RHRWpud7e
-         h8hlMfNMhd1d2LyVQy2mMfdsEpdgjnaMCgpn9jRg=
+        b=u3idzFlQgGB44ZVSWye0KuenY3MpAG8EUpp9ajwtMm+VEH/B3/0npO1/K9COP5mqn
+         Fjz+obMxvOm4/0qC7eLQHS2ozvIgDFJ8qA3jW8bZGlifTxfO0aGKsBYOEMC+8JYUHy
+         qrEwEoVP/BJhIfPUmL+IW3xaUhtND2pEaMr6bh2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 6.2 167/187] drm/etnaviv: fix reference leak when mmaping imported buffer
-Date:   Mon,  3 Apr 2023 16:10:12 +0200
-Message-Id: <20230403140421.690446291@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Perry <Perry.Yuan@amd.com>,
+        Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 168/187] drm/amdgpu: allow more APUs to do mode2 reset when go to S4
+Date:   Mon,  3 Apr 2023 16:10:13 +0200
+Message-Id: <20230403140421.739185352@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -52,41 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Tim Huang <tim.huang@amd.com>
 
-commit 963b2e8c428f79489ceeb058e8314554ec9cbe6f upstream.
+commit 2fec9dc8e0acc3dfb56d1389151bcf405f087b10 upstream.
 
-drm_gem_prime_mmap() takes a reference on the GEM object, but before that
-drm_gem_mmap_obj() already takes a reference, which will be leaked as only
-one reference is dropped when the mapping is closed. Drop the extra
-reference when dma_buf_mmap() succeeds.
+Skip mode2 reset only for IMU enabled APUs when do S4.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+This patch is to fix the regression issue
+https://gitlab.freedesktop.org/drm/amd/-/issues/2483
+It is generated by commit b589626674de ("drm/amdgpu: skip ASIC reset
+for APUs when go to S4").
+
+Fixes: b589626674de ("drm/amdgpu: skip ASIC reset for APUs when go to S4")
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2483
+Tested-by:  Yuan  Perry <Perry.Yuan@amd.com>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-@@ -91,7 +91,15 @@ static void *etnaviv_gem_prime_vmap_impl
- static int etnaviv_gem_prime_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
- 		struct vm_area_struct *vma)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -981,7 +981,12 @@ static bool amdgpu_atcs_pci_probe_handle
+  */
+ bool amdgpu_acpi_should_gpu_reset(struct amdgpu_device *adev)
  {
--	return dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	int ret;
+-	if (adev->flags & AMD_IS_APU)
++	if ((adev->flags & AMD_IS_APU) &&
++	    adev->gfx.imu.funcs) /* Not need to do mode2 reset for IMU enabled APUs */
++		return false;
 +
-+	ret = dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	if (!ret) {
-+		/* Drop the reference acquired by drm_gem_mmap_obj(). */
-+		drm_gem_object_put(&etnaviv_obj->base);
-+	}
-+
-+	return ret;
- }
++	if ((adev->flags & AMD_IS_APU) &&
++	    amdgpu_acpi_is_s3_active(adev))
+ 		return false;
  
- static const struct etnaviv_gem_ops etnaviv_gem_prime_ops = {
+ 	if (amdgpu_sriov_vf(adev))
 
 
