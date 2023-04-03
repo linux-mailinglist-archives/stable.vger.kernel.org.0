@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7C66D4711
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A946D46D6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232947AbjDCOQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34886 "EHLO
+        id S232880AbjDCOOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232956AbjDCOQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC8026256
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:46 -0700 (PDT)
+        with ESMTP id S232870AbjDCOOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDB54ECB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA59961CAF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DC4C433EF;
-        Mon,  3 Apr 2023 14:16:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1555261C83
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 297C4C433EF;
+        Mon,  3 Apr 2023 14:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531405;
-        bh=oAm6ArJv4GbELsqlCKvZ8KoepYY8yYEj6pRw1SG1z5k=;
+        s=korg; t=1680531273;
+        bh=uVI9bvcjhh5fMLFX4dlOB96QsXbr3zWKfyw4FSbntRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ6yq3xmoJvJseUUn2ziNHCs3P5Dk7bDct72IvFMPMrDYaed9Ox/6oKTYYsXVASge
-         fbOXk5BNguDuUggPAeJDCQeFTmsD2xkiNiZQeOcESQ7YNtgMC+ya7OM/W82GYyhFML
-         ttWt6xnZz7OLpSeIiuFF+9h9ewDaBQFGJTAE+g3w=
+        b=Gc+5oxBR/dl6jMkTqoKmoqfChSs5gL9F6eykkbYeXYx6FRC9qe8BA5mKvQ6LNNSBV
+         YLh+nCAdCvSPjbh63T+83WzVn2Dl77i9F9ShssonbZ0GdLBsFagp8sblaI++Y1bm8y
+         1tW4htUOANatkMSyHkl7jiNj38F0MhFo0itYncHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 50/84] ocfs2: fix data corruption after failed write
-Date:   Mon,  3 Apr 2023 16:08:51 +0200
-Message-Id: <20230403140355.115985478@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 44/66] ALSA: asihpi: check pao in control_message()
+Date:   Mon,  3 Apr 2023 16:08:52 +0200
+Message-Id: <20230403140353.396887247@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,67 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-commit 90410bcf873cf05f54a32183afff0161f44f9715 upstream.
+[ Upstream commit 9026c0bf233db53b86f74f4c620715e94eb32a09 ]
 
-When buffered write fails to copy data into underlying page cache page,
-ocfs2_write_end_nolock() just zeroes out and dirties the page.  This can
-leave dirty page beyond EOF and if page writeback tries to write this page
-before write succeeds and expands i_size, page gets into inconsistent
-state where page dirty bit is clear but buffer dirty bits stay set
-resulting in page data never getting written and so data copied to the
-page is lost.  Fix the problem by invalidating page beyond EOF after
-failed write.
+control_message() might be called with pao = NULL.
+Here indicates control_message() as sample.
 
-Link: https://lkml.kernel.org/r/20230302153843.18499-1-jack@suse.cz
-Fixes: 6dbf7bb55598 ("fs: Don't invalidate page buffers in block_write_full_page()")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-[ replace block_invalidate_folio to block_invalidatepage ]
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(B)	static void control_message(struct hpi_adapter_obj *pao, ...)
+	{                                                   ^^^
+		struct hpi_hw_obj *phw = pao->priv;
+		...                      ^^^
+	}
+
+(A)	void _HPI_6205(struct hpi_adapter_obj *pao, ...)
+	{                                      ^^^
+		...
+		case HPI_OBJ_CONTROL:
+(B)			control_message(pao, phm, phr);
+			break;          ^^^
+		...
+	}
+
+	void HPI_6205(...)
+	{
+		...
+(A)		_HPI_6205(NULL, phm, phr);
+		...       ^^^^
+	}
+
+Therefore, We will get too many warning via cppcheck, like below
+
+	sound/pci/asihpi/hpi6205.c:238:27: warning: Possible null pointer dereference: pao [nullPointer]
+		 struct hpi_hw_obj *phw = pao->priv;
+		                          ^
+	sound/pci/asihpi/hpi6205.c:433:13: note: Calling function '_HPI_6205', 1st argument 'NULL' value is 0
+		  _HPI_6205(NULL, phm, phr);
+		            ^
+	sound/pci/asihpi/hpi6205.c:401:20: note: Calling function 'control_message', 1st argument 'pao' value is 0
+	   control_message(pao, phm, phr);
+	                   ^
+Set phr->error like many functions doing, and don't call _HPI_6205()
+with NULL.
+
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87ttypeaqz.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/aops.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ sound/pci/asihpi/hpi6205.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2003,11 +2003,25 @@ int ocfs2_write_end_nolock(struct addres
+diff --git a/sound/pci/asihpi/hpi6205.c b/sound/pci/asihpi/hpi6205.c
+index 8d5abfa4e24bf..bc694a69b4b79 100644
+--- a/sound/pci/asihpi/hpi6205.c
++++ b/sound/pci/asihpi/hpi6205.c
+@@ -441,7 +441,7 @@ void HPI_6205(struct hpi_message *phm, struct hpi_response *phr)
+ 		pao = hpi_find_adapter(phm->adapter_index);
+ 	} else {
+ 		/* subsys messages don't address an adapter */
+-		_HPI_6205(NULL, phm, phr);
++		phr->error = HPI_ERROR_INVALID_OBJ_INDEX;
+ 		return;
  	}
  
- 	if (unlikely(copied < len) && wc->w_target_page) {
-+		loff_t new_isize;
-+
- 		if (!PageUptodate(wc->w_target_page))
- 			copied = 0;
- 
--		ocfs2_zero_new_buffers(wc->w_target_page, start+copied,
--				       start+len);
-+		new_isize = max_t(loff_t, i_size_read(inode), pos + copied);
-+		if (new_isize > page_offset(wc->w_target_page))
-+			ocfs2_zero_new_buffers(wc->w_target_page, start+copied,
-+					       start+len);
-+		else {
-+			/*
-+			 * When page is fully beyond new isize (data copy
-+			 * failed), do not bother zeroing the page. Invalidate
-+			 * it instead so that writeback does not get confused
-+			 * put page & buffer dirty bits into inconsistent
-+			 * state.
-+			 */
-+			block_invalidatepage(wc->w_target_page, 0, PAGE_SIZE);
-+		}
- 	}
- 	if (wc->w_target_page)
- 		flush_dcache_page(wc->w_target_page);
+-- 
+2.39.2
+
 
 
