@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8C26D4786
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 113386D4A4F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233136AbjDCOVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41794 "EHLO
+        id S233181AbjDCOqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:46:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233142AbjDCOVF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF029312AC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:46 -0700 (PDT)
+        with ESMTP id S233917AbjDCOqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7633A280CD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05FF361A2D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 179EEC4339C;
-        Mon,  3 Apr 2023 14:20:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5697E61EFC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F6DC4339C;
+        Mon,  3 Apr 2023 14:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531612;
-        bh=9d7Anayty8RhvVuNsOs31H6y62ZkLu4OYTN4Le6kfuk=;
+        s=korg; t=1680533147;
+        bh=91f3rYXBheiyoSvrK9v8HR8nVGsHmUGeWKN+axlOpJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbbsFGRI1K92c/CA+ADqwx0Qz/86XvClUUND5G1kanggcsc8LKsYm+EqREEcK+zzI
-         6VpRxYgXbqVauiKmSoAL7OBnJNKBQfRwr5qZiZ9MsWjbyI0LSMgs6XmWSrFemPnbQw
-         bA+5EAav5bwofTbAZMi6JthhgtG3+P11pSR5by6I=
+        b=P3on3yM3jeW+ENBgS4VqkOQuHMqd3nbi5Yzk5T8ez5j/8rndiRswtnOjOKf4o173r
+         4F4yI3Nl/Cw1zqonohfhtHPlOw6UG7WAcpPEXy3FwOjMXERNAq9/2LgegTUM/HLvvd
+         nkvyIx62gr6yZ7ww8fF3C9qM95IdWBYAQOJxyavw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.4 045/104] fsverity: Remove WQ_UNBOUND from fsverity read workqueue
+        patches@lists.linux.dev,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Mark Pearson <mpearson-lenovo@squebb.ca>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 072/187] platform/x86: think-lmi: use correct possible_values delimiters
 Date:   Mon,  3 Apr 2023 16:08:37 +0200
-Message-Id: <20230403140406.159854304@linuxfoundation.org>
+Message-Id: <20230403140418.313569005@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,62 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-commit f959325e6ac3f499450088b8d9c626d1177be160 upstream.
+[ Upstream commit 45e21289bfc6e257885514790a8a8887da822d40 ]
 
-WQ_UNBOUND causes significant scheduler latency on ARM64/Android.  This
-is problematic for latency sensitive workloads, like I/O
-post-processing.
+firmware-attributes class requires that possible values are delimited
+using ';' but the Lenovo firmware uses ',' instead.
+Parse string and replace where appropriate.
 
-Removing WQ_UNBOUND gives a 96% reduction in fsverity workqueue related
-scheduler latency and improves app cold startup times by ~30ms.
-WQ_UNBOUND was also removed from the dm-verity workqueue for the same
-reason [1].
-
-This code was tested by running Android app startup benchmarks and
-measuring how long the fsverity workqueue spent in the runnable state.
-
-Before
-Total workqueue scheduler latency: 553800us
-After
-Total workqueue scheduler latency: 18962us
-
-[1]: https://lore.kernel.org/all/20230202012348.885402-1-nhuck@google.com/
-
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Fixes: 8a1d0f9cacc9 ("fs-verity: add data verification hooks for ->readpages()")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230310193325.620493-1-nhuck@google.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Thomas Weißschuh <linux@weissschuh.net>
+Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230320003221.561750-2-mpearson-lenovo@squebb.ca
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/verity/verify.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/platform/x86/think-lmi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/verity/verify.c
-+++ b/fs/verity/verify.c
-@@ -259,15 +259,15 @@ EXPORT_SYMBOL_GPL(fsverity_enqueue_verif
- int __init fsverity_init_workqueue(void)
- {
- 	/*
--	 * Use an unbound workqueue to allow bios to be verified in parallel
--	 * even when they happen to complete on the same CPU.  This sacrifices
--	 * locality, but it's worthwhile since hashing is CPU-intensive.
-+	 * Use a high-priority workqueue to prioritize verification work, which
-+	 * blocks reads from completing, over regular application tasks.
- 	 *
--	 * Also use a high-priority workqueue to prioritize verification work,
--	 * which blocks reads from completing, over regular application tasks.
-+	 * For performance reasons, don't use an unbound workqueue.  Using an
-+	 * unbound workqueue for crypto operations causes excessive scheduler
-+	 * latency on ARM64.
- 	 */
- 	fsverity_read_workqueue = alloc_workqueue("fsverity_read_queue",
--						  WQ_UNBOUND | WQ_HIGHPRI,
-+						  WQ_HIGHPRI,
- 						  num_online_cpus());
- 	if (!fsverity_read_workqueue)
- 		return -ENOMEM;
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index 07c9dc21eff52..62241680c8a90 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -954,7 +954,7 @@ static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
+ 
+ 	if (setting->possible_values) {
+ 		/* Figure out what setting type is as BIOS does not return this */
+-		if (strchr(setting->possible_values, ','))
++		if (strchr(setting->possible_values, ';'))
+ 			return sysfs_emit(buf, "enumeration\n");
+ 	}
+ 	/* Anything else is going to be a string */
+@@ -1441,6 +1441,13 @@ static int tlmi_analyze(void)
+ 				pr_info("Error retrieving possible values for %d : %s\n",
+ 						i, setting->display_name);
+ 		}
++		/*
++		 * firmware-attributes requires that possible_values are separated by ';' but
++		 * Lenovo FW uses ','. Replace appropriately.
++		 */
++		if (setting->possible_values)
++			strreplace(setting->possible_values, ',', ';');
++
+ 		kobject_init(&setting->kobj, &tlmi_attr_setting_ktype);
+ 		tlmi_priv.setting[i] = setting;
+ 		kfree(item);
+-- 
+2.39.2
+
 
 
