@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 424256D4A0B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35EA36D47FE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233863AbjDCOnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:43:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59186 "EHLO
+        id S233242AbjDCOY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:24:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233900AbjDCOne (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BC51827D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:15 -0700 (PDT)
+        with ESMTP id S233277AbjDCOYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:24:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174CA1116E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0DC8B81D09
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B41FC433D2;
-        Mon,  3 Apr 2023 14:43:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A330961D7B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F5BC433EF;
+        Mon,  3 Apr 2023 14:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532993;
-        bh=mKTZqnASsqMLyV1yPuox+NTgyD0BIxwgbfujYSuC8K0=;
+        s=korg; t=1680531889;
+        bh=websRK601dg0l3lVlSZh/bK9uUKRLnhHxXXB3zenO60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10igI5pc2Z6ZYF6dR6sixBjsi/7SYmbPC06A3+p3R/hh/LffWEljJQKVWUqs9P3vn
-         jIaRbrNz2g0wUGh5z+YctkMleAeoEgxb0S86NXyzkvZm9efDblIIVMQvEV6RxWAyhv
-         IAbmsW0F/vqgcmxpBgng1QR75/YnsPr21hmSARCE=
+        b=NKyOp5b/HfCSYPr9G3ARcf9q3H49dyxWn8SxEpG2CQd2YqJm0WJ63VFxqrhtU8hEi
+         0UUw8dbAFXUvpezq9Zy7AhGzBzllfVPHHtHhCBKZ2/IA5goaMCRvYWBy4dknH25yT8
+         eljnT9uBvIfyHnefpWgKb4pbYl4RVxwEfT3DQKlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 014/187] cifs: fix missing unload_nls() in smb2_reconnect()
+Subject: [PATCH 5.10 044/173] net/mlx5: Read the TC mapping of all priorities on ETS query
 Date:   Mon,  3 Apr 2023 16:07:39 +0200
-Message-Id: <20230403140416.503750611@linuxfoundation.org>
+Message-Id: <20230403140415.842428493@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,52 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@manguebit.com>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit c24bb1a87dc3f2d77d410eaac2c6a295961bf50e ]
+[ Upstream commit 44d553188c38ac74b799dfdcebafef2f7bb70942 ]
 
-Make sure to unload_nls() @nls_codepage if we no longer need it.
+When ETS configurations are queried by the user to get the mapping
+assignment between packet priority and traffic class, only priorities up
+to maximum TCs are queried from QTCT register in FW to retrieve their
+assigned TC, leaving the rest of the priorities mapped to the default
+TC #0 which might be misleading.
 
-Fixes: bc962159e8e3 ("cifs: avoid race conditions with parallel reconnects")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Cc: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fix by querying the TC mapping of all priorities on each ETS query,
+regardless of the maximum number of TCs configured in FW.
+
+Fixes: 820c2c5e773d ("net/mlx5e: Read ETS settings directly from firmware")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index f0b1ae0835d71..b37379b62cc77 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -144,7 +144,7 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
- 	       struct TCP_Server_Info *server)
- {
- 	int rc = 0;
--	struct nls_table *nls_codepage;
-+	struct nls_table *nls_codepage = NULL;
- 	struct cifs_ses *ses;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+index 7c0ae7c38eefd..c25fb0cbde274 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+@@ -117,12 +117,14 @@ static int mlx5e_dcbnl_ieee_getets(struct net_device *netdev,
+ 	if (!MLX5_CAP_GEN(priv->mdev, ets))
+ 		return -EOPNOTSUPP;
  
- 	/*
-@@ -216,8 +216,6 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
- 		 tcon->ses->chans_need_reconnect,
- 		 tcon->need_reconnect);
+-	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
+-	for (i = 0; i < ets->ets_cap; i++) {
++	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+ 		err = mlx5_query_port_prio_tc(mdev, i, &ets->prio_tc[i]);
+ 		if (err)
+ 			return err;
++	}
  
--	nls_codepage = load_nls_default();
--
- 	mutex_lock(&ses->session_mutex);
- 	/*
- 	 * Recheck after acquire mutex. If another thread is negotiating
-@@ -237,6 +235,8 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
- 	}
- 	spin_unlock(&server->srv_lock);
- 
-+	nls_codepage = load_nls_default();
-+
- 	/*
- 	 * need to prevent multiple threads trying to simultaneously
- 	 * reconnect the same SMB session
++	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
++	for (i = 0; i < ets->ets_cap; i++) {
+ 		err = mlx5_query_port_tc_group(mdev, i, &tc_group[i]);
+ 		if (err)
+ 			return err;
 -- 
 2.39.2
 
