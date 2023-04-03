@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 675326D46EE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3C56D481B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232797AbjDCOPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:15:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32822 "EHLO
+        id S233291AbjDCOZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232889AbjDCOPf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5D52C9E5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:24 -0700 (PDT)
+        with ESMTP id S233298AbjDCOZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7792D7C2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F6C461CC1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52835C4339B;
-        Mon,  3 Apr 2023 14:15:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D2EE61D97
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF938C433D2;
+        Mon,  3 Apr 2023 14:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531323;
-        bh=xoYnR4n68PX8w5dMyu+b2oRPsBIZKfQ3h8fN8Vh8khc=;
+        s=korg; t=1680531949;
+        bh=x3kzMz32e+WMSIugB4PjBa5dkR3f0MBTkoGHz9n+y4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnnNz+wOnIOQsn742FFvgw3U1Z1xRSoaJMn6UzmPctpgT4m+J2YnR5HjsmdNgIhsy
-         1N2fYL+iLXS65rdlbkjZZAmQxOYYdRYaKeEvdnRZfV4Mu1xomfJ9bMl2y6j90gOfy1
-         ngo82aMmkfFugivZXIbCE2wXh+ddzei3iwzz8ze4=
+        b=zIqZ+UHGv7NR58d+RojxPNluN3FLIBpMR7nyd+OjUKIaXlNGPwgX0IQPt73bbH8j+
+         kyNwA7wZ/RGXI6WxPqLIOjFra4JDDELCvU5FX7t2s1fQnDTS+xxIoybbqoHrZRpahU
+         67nOvCo+q4sfaZS3LnRh/y3S19HX9+3TFURTECuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pawe=C5=82=20Jab=C5=82o=C5=84ski?= 
-        <pawel.jablonski@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/84] i40evf: Change a VF mac without reloading the VF driver
+Subject: [PATCH 5.10 068/173] selftests/bpf: check that modifier resolves after pointer
 Date:   Mon,  3 Apr 2023 16:08:03 +0200
-Message-Id: <20230403140353.493716936@linuxfoundation.org>
+Message-Id: <20230403140416.645378075@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,76 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Jabłoński <pawel.jablonski@intel.com>
+From: Lorenz Bauer <lorenz.bauer@isovalent.com>
 
-[ Upstream commit ae1e29f671b467f3e9e9aa2b82ee40e4300ea810 ]
+[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
 
-Add possibility to change a VF mac address from host side
-without reloading the VF driver on the guest side. Without
-this patch it is not possible to change the VF mac because
-executing i40evf_virtchnl_completion function with
-VIRTCHNL_OP_GET_VF_RESOURCES opcode resets the VF mac
-address to previous value.
+Add a regression test that ensures that a VAR pointing at a
+modifier which follows a PTR (or STRUCT or ARRAY) is resolved
+correctly by the datasec validator.
 
-Signed-off-by: Paweł Jabłoński <pawel.jablonski@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Stable-dep-of: 32d57f667f87 ("iavf: fix inverted Rx hash condition leading to disabled hash")
+Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c  |  8 +++++---
- drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c | 11 +++++++++--
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/btf.c | 28 ++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 240083201dbf4..1527c67b487b2 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2595,7 +2595,7 @@ static inline int i40e_check_vf_permission(struct i40e_vf *vf,
- 		    !is_multicast_ether_addr(addr) && vf->pf_set_mac &&
- 		    !ether_addr_equal(addr, vf->default_lan_addr.addr)) {
- 			dev_err(&pf->pdev->dev,
--				"VF attempting to override administratively set MAC address, reload the VF driver to resume normal operation\n");
-+				"VF attempting to override administratively set MAC address, bring down and up the VF interface to resume normal operation\n");
- 			return -EPERM;
- 		}
- 	}
-@@ -4019,9 +4019,11 @@ int i40e_ndo_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
- 			 mac, vf_id);
- 	}
- 
--	/* Force the VF driver stop so it has to reload with new MAC address */
-+	/* Force the VF interface down so it has to bring up with new MAC
-+	 * address
-+	 */
- 	i40e_vc_disable_vf(vf);
--	dev_info(&pf->pdev->dev, "Reload the VF driver to make this change effective.\n");
-+	dev_info(&pf->pdev->dev, "Bring down and up the VF interface to make this change effective.\n");
- 
- error_param:
- 	return ret;
-diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c b/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
-index 94dabc9d89f73..6579dabab78cf 100644
---- a/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
-@@ -1362,8 +1362,15 @@ void i40evf_virtchnl_completion(struct i40evf_adapter *adapter,
- 		memcpy(adapter->vf_res, msg, min(msglen, len));
- 		i40evf_validate_num_queues(adapter);
- 		i40e_vf_parse_hw_config(&adapter->hw, adapter->vf_res);
--		/* restore current mac address */
--		ether_addr_copy(adapter->hw.mac.addr, netdev->dev_addr);
-+		if (is_zero_ether_addr(adapter->hw.mac.addr)) {
-+			/* restore current mac address */
-+			ether_addr_copy(adapter->hw.mac.addr, netdev->dev_addr);
-+		} else {
-+			/* refresh current mac address if changed */
-+			ether_addr_copy(netdev->dev_addr, adapter->hw.mac.addr);
-+			ether_addr_copy(netdev->perm_addr,
-+					adapter->hw.mac.addr);
-+		}
- 		i40evf_process_config(adapter);
- 		}
- 		break;
+diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
+index 48b01150e703f..28d22265b8253 100644
+--- a/tools/testing/selftests/bpf/prog_tests/btf.c
++++ b/tools/testing/selftests/bpf/prog_tests/btf.c
+@@ -882,6 +882,34 @@ static struct btf_raw_test raw_tests[] = {
+ 	.btf_load_err = true,
+ 	.err_str = "Invalid elem",
+ },
++{
++	.descr = "var after datasec, ptr followed by modifier",
++	.raw_types = {
++		/* .bss section */				/* [1] */
++		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
++			sizeof(void*)+4),
++		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
++		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
++		/* int */					/* [2] */
++		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
++		/* int* */					/* [3] */
++		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
++		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
++		/* const int */					/* [5] */
++		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
++		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
++		BTF_END_RAW,
++	},
++	.str_sec = "\0a\0b\0c\0",
++	.str_sec_size = sizeof("\0a\0b\0c\0"),
++	.map_type = BPF_MAP_TYPE_ARRAY,
++	.map_name = ".bss",
++	.key_size = sizeof(int),
++	.value_size = sizeof(void*)+4,
++	.key_type_id = 0,
++	.value_type_id = 1,
++	.max_entries = 1,
++},
+ /* Test member exceeds the size of struct.
+  *
+  * struct A {
 -- 
 2.39.2
 
