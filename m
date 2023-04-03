@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DF76D496B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BEEA6D46B9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233696AbjDCOh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48112 "EHLO
+        id S232531AbjDCOMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233715AbjDCOhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:54 -0400
+        with ESMTP id S232862AbjDCOMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5037A1765B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9349B49C8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB608B81CC3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D22FC433D2;
-        Mon,  3 Apr 2023 14:37:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E0B0B81B2C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4528C4339B;
+        Mon,  3 Apr 2023 14:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532654;
-        bh=11A643II97k5BJwesN/mhwYq8mIX6gHm7xWFgzm2iaY=;
+        s=korg; t=1680531166;
+        bh=Jk7brHy/L80DmpWxQIzJiaQpVA2boZKGumloXVIAZaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K27CayfRUaRoCMhl8eiG8AtFyItBGRqooIEL45qHbt/MpbYfBtMvau+YiZeaPyLfN
-         8jgQTpq+DuXT3nvqMgTknASDZxNd5Soc5SQrigfSUsiTKbSVazKqLn6++TQAjpw1VG
-         UbYnXKs78Qc2Fi1OE4C8RnPm2jFaaxX9GtSMASTo=
+        b=n/OiAs6kcIQUKR5S7gdVuAtT7+Y7Ri0tNxQ2hNr5lWsFHvk6ZbsXImtTEHm68RbuU
+         UBPZ1x/wMVdFrS3jI2bVbQzUiOSwgBVa1bDmUwTvE5V2sDrgVJp3hN9vZo5yUZhxTd
+         /pyK7s+Ksp26w5jFTgLeG+e1X6CFT/GhxiMsMPt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 066/181] mtd: rawnand: meson: initialize struct with zeroes
-Date:   Mon,  3 Apr 2023 16:08:21 +0200
-Message-Id: <20230403140417.280242717@linuxfoundation.org>
+Subject: [PATCH 4.14 14/66] net/mlx5: Read the TC mapping of all priorities on ETS query
+Date:   Mon,  3 Apr 2023 16:08:22 +0200
+Message-Id: <20230403140352.363195045@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit 4ce341de6c02d02aba7c78a6447ccfcaa9eeb328 ]
+[ Upstream commit 44d553188c38ac74b799dfdcebafef2f7bb70942 ]
 
-This structure must be zeroed, because it's field 'hw->core' is used as
-'parent' in 'clk_core_fill_parent_index()', but it will be uninitialized.
-This happens, because when this struct is not zeroed, pointer 'hw' is
-"initialized" by garbage, which is valid pointer, but points to some
-garbage. So 'hw' will be dereferenced, but 'core' contains some random
-data which will be interpreted as a pointer. The following backtrace is
-result of dereference of such pointer:
+When ETS configurations are queried by the user to get the mapping
+assignment between packet priority and traffic class, only priorities up
+to maximum TCs are queried from QTCT register in FW to retrieve their
+assigned TC, leaving the rest of the priorities mapped to the default
+TC #0 which might be misleading.
 
-[    1.081319]  __clk_register+0x414/0x820
-[    1.085113]  devm_clk_register+0x64/0xd0
-[    1.088995]  meson_nfc_probe+0x258/0x6ec
-[    1.092875]  platform_probe+0x70/0xf0
-[    1.096498]  really_probe+0xc8/0x3e0
-[    1.100034]  __driver_probe_device+0x84/0x190
-[    1.104346]  driver_probe_device+0x44/0x120
-[    1.108487]  __driver_attach+0xb4/0x220
-[    1.112282]  bus_for_each_dev+0x78/0xd0
-[    1.116077]  driver_attach+0x2c/0x40
-[    1.119613]  bus_add_driver+0x184/0x240
-[    1.123408]  driver_register+0x80/0x140
-[    1.127203]  __platform_driver_register+0x30/0x40
-[    1.131860]  meson_nfc_driver_init+0x24/0x30
+Fix by querying the TC mapping of all priorities on each ETS query,
+regardless of the maximum number of TCs configured in FW.
 
-Fixes: 1e4d3ba66888 ("mtd: rawnand: meson: fix the clock")
-Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20230227102425.793841-1-AVKrasnov@sberdevices.ru
+Fixes: 820c2c5e773d ("net/mlx5e: Read ETS settings directly from firmware")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/meson_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
-index 5ee01231ac4cd..30e326adabfc1 100644
---- a/drivers/mtd/nand/raw/meson_nand.c
-+++ b/drivers/mtd/nand/raw/meson_nand.c
-@@ -991,7 +991,7 @@ static const struct mtd_ooblayout_ops meson_ooblayout_ops = {
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+index a5dd99aaf3212..9ebd43bcc19a0 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+@@ -99,12 +99,14 @@ static int mlx5e_dcbnl_ieee_getets(struct net_device *netdev,
+ 	if (!MLX5_CAP_GEN(priv->mdev, ets))
+ 		return -EOPNOTSUPP;
  
- static int meson_nfc_clk_init(struct meson_nfc *nfc)
- {
--	struct clk_parent_data nfc_divider_parent_data[1];
-+	struct clk_parent_data nfc_divider_parent_data[1] = {0};
- 	struct clk_init_data init = {0};
- 	int ret;
+-	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
+-	for (i = 0; i < ets->ets_cap; i++) {
++	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+ 		err = mlx5_query_port_prio_tc(mdev, i, &ets->prio_tc[i]);
+ 		if (err)
+ 			return err;
++	}
  
++	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
++	for (i = 0; i < ets->ets_cap; i++) {
+ 		err = mlx5_query_port_tc_group(mdev, i, &tc_group[i]);
+ 		if (err)
+ 			return err;
 -- 
 2.39.2
 
