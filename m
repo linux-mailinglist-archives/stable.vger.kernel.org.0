@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 818E06D4893
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F336D4AC4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233424AbjDCO3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60600 "EHLO
+        id S234214AbjDCOuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233419AbjDCO3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44479319B6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:50 -0700 (PDT)
+        with ESMTP id S234106AbjDCOt7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CAF817AF2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1CF2B81C35
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22E7FC4339E;
-        Mon,  3 Apr 2023 14:29:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C89D261F52
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB041C433EF;
+        Mon,  3 Apr 2023 14:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532187;
-        bh=Fk0Jiwx7jL3Vij2X9rYOxndAlVldXoA8kd9L1zcV0cE=;
+        s=korg; t=1680533302;
+        bh=blv3SW+RxsWGacT544sbFgefBCcLM8E7IYPNXmNLpPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLSu7Ms6Md1gRwsFeknySgEbjbDZmZRX86H3NX2W6gUdhGxdEcOzMNVk5ujfwR420
-         qD1Z9zNV+uA/QUWzrFk2xRD6mhdj5BBfXiluh89xAlOffPH/Fz/otJ7i/3jwn5BoFm
-         KSauPaFREjP/YOUqvE/hhauCqEz0SBrbCEDFxX/s=
+        b=U7MzRR3TPbKWSKzblaVoS0SpEHLgatC6I4fHYdC1yPeQx+RwtXDnRR1noYmeUhEe9
+         jbhiDPz11A9iXs69f40l9L9wypm3OMrH9PimbOD6jv6NFZtIZqOZKAMIqML6jScCmL
+         WrY2G7HYs/iZOkBcgSdGXyLHCKZacGWOlLPYlWwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Douglas Raillard <douglas.raillard@arm.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.10 161/173] rcu: Fix rcu_torture_read ftrace event
-Date:   Mon,  3 Apr 2023 16:09:36 +0200
-Message-Id: <20230403140419.653455757@linuxfoundation.org>
+        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 132/187] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
+Date:   Mon,  3 Apr 2023 16:09:37 +0200
+Message-Id: <20230403140420.325627577@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,39 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Raillard <douglas.raillard@arm.com>
+From: David Disseldorp <ddiss@suse.de>
 
-commit d18a04157fc171fd48075e3dc96471bd3b87f0dd upstream.
+commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
 
-Fix the rcutorturename field so that its size is correctly reported in
-the text format embedded in trace.dat files. As it stands, it is
-reported as being of size 1:
+When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
+is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
+S_AUTOMOUNT and corresponding dentry flags is retained regardless of
+CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
+VFS follow_automount() when traversing a DFS referral link:
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  ...
+  Call Trace:
+   <TASK>
+   __traverse_mounts+0xb5/0x220
+   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
+   step_into+0x195/0x610
+   ? lookup_fast+0xe2/0xf0
+   path_lookupat+0x64/0x140
+   filename_lookup+0xc2/0x140
+   ? __create_object+0x299/0x380
+   ? kmem_cache_alloc+0x119/0x220
+   ? user_path_at_empty+0x31/0x50
+   user_path_at_empty+0x31/0x50
+   __x64_sys_chdir+0x2a/0xd0
+   ? exit_to_user_mode_prepare+0xca/0x100
+   do_syscall_64+0x42/0x90
+   entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-    field:char rcutorturename[8];   offset:8;       size:1; signed:0;
+This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
+when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
+avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
+approach was chosen as it provides more control over the error path.
 
-Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: 04ae87a52074e ("ftrace: Rework event_create_dir()")
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-[ boqun: Add "Cc" and "Fixes" tags per Steven ]
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/rcu.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifsfs.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/trace/events/rcu.h
-+++ b/include/trace/events/rcu.h
-@@ -713,7 +713,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
- 	TP_ARGS(rcutorturename, rhp, secs, c_old, c),
+--- a/fs/cifs/cifsfs.h
++++ b/fs/cifs/cifsfs.h
+@@ -118,7 +118,10 @@ extern const struct dentry_operations ci
+ #ifdef CONFIG_CIFS_DFS_UPCALL
+ extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
+ #else
+-#define cifs_dfs_d_automount NULL
++static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
++{
++	return ERR_PTR(-EREMOTE);
++}
+ #endif
  
- 	TP_STRUCT__entry(
--		__field(char, rcutorturename[RCUTORTURENAME_LEN])
-+		__array(char, rcutorturename, RCUTORTURENAME_LEN)
- 		__field(struct rcu_head *, rhp)
- 		__field(unsigned long, secs)
- 		__field(unsigned long, c_old)
+ /* Functions related to symlinks */
 
 
