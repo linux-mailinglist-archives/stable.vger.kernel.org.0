@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B570B6D49B5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F6C6D48A8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233774AbjDCOkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:40:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53504 "EHLO
+        id S233451AbjDCOam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233788AbjDCOkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7723217AD2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:32 -0700 (PDT)
+        with ESMTP id S233445AbjDCOam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C39C31999
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13A8B61EC9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D2EC433EF;
-        Mon,  3 Apr 2023 14:40:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49D33B81C55
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7098C433D2;
+        Mon,  3 Apr 2023 14:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532831;
-        bh=am/cZ2VQblcLM3UF3r1wQtePQAg8kzwhdW0v967Zv9w=;
+        s=korg; t=1680532237;
+        bh=A2ihg6NCvTo57pbj+EXLYojVOlUt6a/yGPGu9qzuYYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0t6TStiEYV+wMGIg9BMxDZwZAyvE4vZEAx+CgpuarYawzVv5UAhScgmFjHR2kQ9g
-         Upx2GfU2857kI/wdyHgAMgwUd4lqIF6VNY+I3bnf6D8+b5t5DR7vD8AxdYf4vPedlO
-         hbRipIIFdgTKGPpD/HIcUksve//4NnexJQdVahaE=
+        b=1K761sJHoyC6+SkLP6ktzI+2Fmi9nzX4qy/Q94O7aKfqBK2Kvtgf1hhXOkLeBQQkf
+         z2K0ZAyYxcwRa3pUQJpi0p2kBcXW8jbJiNgLpL6j4zH08Xe0OpMDmlZCMwMtFGOv4M
+         3eBS3ZrSPPpOGKXzPlaVBLUyMg8scRZh4DiXPguw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 134/181] block/io_uring: pass in issue_flags for uring_cmd task_work handling
-Date:   Mon,  3 Apr 2023 16:09:29 +0200
-Message-Id: <20230403140419.429764225@linuxfoundation.org>
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 155/173] powerpc: Dont try to copy PPR for task with NULL pt_regs
+Date:   Mon,  3 Apr 2023 16:09:30 +0200
+Message-Id: <20230403140419.458180987@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,267 +54,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 9d2789ac9d60c049d26ef6d3005d9c94c5a559e9 upstream.
+commit fd7276189450110ed835eb0a334e62d2f1c4e3be upstream.
 
-io_uring_cmd_done() currently assumes that the uring_lock is held
-when invoked, and while it generally is, this is not guaranteed.
-Pass in the issue_flags associated with it, so that we have
-IO_URING_F_UNLOCKED available to be able to lock the CQ ring
-appropriately when completing events.
+powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
+from my (arguably very short) checking is not commonly done for other
+archs. This is fine, except when PF_IO_WORKER's have been created and
+the task does something that causes a coredump to be generated. Then we
+get this crash:
 
-Cc: stable@vger.kernel.org
-Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
+  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
+  BUG: Kernel NULL pointer dereference on read at 0x00000160
+  Faulting instruction address: 0xc0000000000c3a60
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
+  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
+  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
+  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
+  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
+  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
+  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
+  ...
+  NIP memcpy_power7+0x200/0x7d0
+  LR  ppr_get+0x64/0xb0
+  Call Trace:
+    ppr_get+0x40/0xb0 (unreliable)
+    __regset_get+0x180/0x1f0
+    regset_get_alloc+0x64/0x90
+    elf_core_dump+0xb98/0x1b60
+    do_coredump+0x1c34/0x24a0
+    get_signal+0x71c/0x1410
+    do_notify_resume+0x140/0x6f0
+    interrupt_exit_user_prepare_main+0x29c/0x320
+    interrupt_exit_user_prepare+0x6c/0xa0
+    interrupt_return_srr_user+0x8/0x138
+
+Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
+pt_regs.
+
+Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
+if not set. The actual error value doesn't seem to be important here, so
+just pick -EINVAL.
+
+Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
+Cc: stable@vger.kernel.org # v4.8+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[mpe: Trim oops in change log, add Fixes & Cc stable]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/ublk_drv.c  |   31 ++++++++++++++++++-------------
- drivers/nvme/host/ioctl.c |   14 ++++++++------
- include/linux/io_uring.h  |   11 ++++++-----
- io_uring/uring_cmd.c      |   10 ++++++----
- 4 files changed, 38 insertions(+), 28 deletions(-)
+ arch/powerpc/kernel/ptrace/ptrace-view.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -656,7 +656,8 @@ static void __ublk_fail_req(struct ublk_
- 	}
- }
- 
--static void ubq_complete_io_cmd(struct ublk_io *io, int res)
-+static void ubq_complete_io_cmd(struct ublk_io *io, int res,
-+				unsigned issue_flags)
+--- a/arch/powerpc/kernel/ptrace/ptrace-view.c
++++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
+@@ -298,6 +298,9 @@ static int gpr_set(struct task_struct *t
+ static int ppr_get(struct task_struct *target, const struct user_regset *regset,
+ 		   struct membuf to)
  {
- 	/* mark this cmd owned by ublksrv */
- 	io->flags |= UBLK_IO_FLAG_OWNED_BY_SRV;
-@@ -668,7 +669,7 @@ static void ubq_complete_io_cmd(struct u
- 	io->flags &= ~UBLK_IO_FLAG_ACTIVE;
- 
- 	/* tell ublksrv one io request is coming */
--	io_uring_cmd_done(io->cmd, res, 0);
-+	io_uring_cmd_done(io->cmd, res, 0, issue_flags);
++	if (!target->thread.regs)
++		return -EINVAL;
++
+ 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
  }
  
- #define UBLK_REQUEUE_DELAY_MS	3
-@@ -685,7 +686,8 @@ static inline void __ublk_abort_rq(struc
- 	mod_delayed_work(system_wq, &ubq->dev->monitor_work, 0);
- }
- 
--static inline void __ublk_rq_task_work(struct request *req)
-+static inline void __ublk_rq_task_work(struct request *req,
-+				       unsigned issue_flags)
+@@ -305,6 +308,9 @@ static int ppr_set(struct task_struct *t
+ 		   unsigned int pos, unsigned int count, const void *kbuf,
+ 		   const void __user *ubuf)
  {
- 	struct ublk_queue *ubq = req->mq_hctx->driver_data;
- 	int tag = req->tag;
-@@ -723,7 +725,7 @@ static inline void __ublk_rq_task_work(s
- 			pr_devel("%s: need get data. op %d, qid %d tag %d io_flags %x\n",
- 					__func__, io->cmd->cmd_op, ubq->q_id,
- 					req->tag, io->flags);
--			ubq_complete_io_cmd(io, UBLK_IO_RES_NEED_GET_DATA);
-+			ubq_complete_io_cmd(io, UBLK_IO_RES_NEED_GET_DATA, issue_flags);
- 			return;
- 		}
- 		/*
-@@ -761,17 +763,18 @@ static inline void __ublk_rq_task_work(s
- 			mapped_bytes >> 9;
- 	}
- 
--	ubq_complete_io_cmd(io, UBLK_IO_RES_OK);
-+	ubq_complete_io_cmd(io, UBLK_IO_RES_OK, issue_flags);
++	if (!target->thread.regs)
++		return -EINVAL;
++
+ 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+ 				  &target->thread.regs->ppr, 0, sizeof(u64));
  }
- 
--static inline void ublk_forward_io_cmds(struct ublk_queue *ubq)
-+static inline void ublk_forward_io_cmds(struct ublk_queue *ubq,
-+					unsigned issue_flags)
- {
- 	struct llist_node *io_cmds = llist_del_all(&ubq->io_cmds);
- 	struct ublk_rq_data *data, *tmp;
- 
- 	io_cmds = llist_reverse_order(io_cmds);
- 	llist_for_each_entry_safe(data, tmp, io_cmds, node)
--		__ublk_rq_task_work(blk_mq_rq_from_pdu(data));
-+		__ublk_rq_task_work(blk_mq_rq_from_pdu(data), issue_flags);
- }
- 
- static inline void ublk_abort_io_cmds(struct ublk_queue *ubq)
-@@ -783,12 +786,12 @@ static inline void ublk_abort_io_cmds(st
- 		__ublk_abort_rq(ubq, blk_mq_rq_from_pdu(data));
- }
- 
--static void ublk_rq_task_work_cb(struct io_uring_cmd *cmd)
-+static void ublk_rq_task_work_cb(struct io_uring_cmd *cmd, unsigned issue_flags)
- {
- 	struct ublk_uring_cmd_pdu *pdu = ublk_get_uring_cmd_pdu(cmd);
- 	struct ublk_queue *ubq = pdu->ubq;
- 
--	ublk_forward_io_cmds(ubq);
-+	ublk_forward_io_cmds(ubq, issue_flags);
- }
- 
- static void ublk_rq_task_work_fn(struct callback_head *work)
-@@ -797,8 +800,9 @@ static void ublk_rq_task_work_fn(struct
- 			struct ublk_rq_data, work);
- 	struct request *req = blk_mq_rq_from_pdu(data);
- 	struct ublk_queue *ubq = req->mq_hctx->driver_data;
-+	unsigned issue_flags = IO_URING_F_UNLOCKED;
- 
--	ublk_forward_io_cmds(ubq);
-+	ublk_forward_io_cmds(ubq, issue_flags);
- }
- 
- static void ublk_queue_cmd(struct ublk_queue *ubq, struct request *rq)
-@@ -1052,7 +1056,8 @@ static void ublk_cancel_queue(struct ubl
- 		struct ublk_io *io = &ubq->ios[i];
- 
- 		if (io->flags & UBLK_IO_FLAG_ACTIVE)
--			io_uring_cmd_done(io->cmd, UBLK_IO_RES_ABORT, 0);
-+			io_uring_cmd_done(io->cmd, UBLK_IO_RES_ABORT, 0,
-+						IO_URING_F_UNLOCKED);
- 	}
- 
- 	/* all io commands are canceled */
-@@ -1295,7 +1300,7 @@ static int ublk_ch_uring_cmd(struct io_u
- 	return -EIOCBQUEUED;
- 
-  out:
--	io_uring_cmd_done(cmd, ret, 0);
-+	io_uring_cmd_done(cmd, ret, 0, issue_flags);
- 	pr_devel("%s: complete: cmd op %d, tag %d ret %x io_flags %x\n",
- 			__func__, cmd_op, tag, ret, io->flags);
- 	return -EIOCBQUEUED;
-@@ -2053,7 +2058,7 @@ static int ublk_ctrl_uring_cmd(struct io
- 		break;
- 	}
-  out:
--	io_uring_cmd_done(cmd, ret, 0);
-+	io_uring_cmd_done(cmd, ret, 0, issue_flags);
- 	pr_devel("%s: cmd done ret %d cmd_op %x, dev id %d qid %d\n",
- 			__func__, ret, cmd->cmd_op, header->dev_id, header->queue_id);
- 	return -EIOCBQUEUED;
---- a/drivers/nvme/host/ioctl.c
-+++ b/drivers/nvme/host/ioctl.c
-@@ -387,7 +387,8 @@ static inline struct nvme_uring_cmd_pdu
- 	return (struct nvme_uring_cmd_pdu *)&ioucmd->pdu;
- }
- 
--static void nvme_uring_task_meta_cb(struct io_uring_cmd *ioucmd)
-+static void nvme_uring_task_meta_cb(struct io_uring_cmd *ioucmd,
-+				    unsigned issue_flags)
- {
- 	struct nvme_uring_cmd_pdu *pdu = nvme_uring_cmd_pdu(ioucmd);
- 	struct request *req = pdu->req;
-@@ -408,17 +409,18 @@ static void nvme_uring_task_meta_cb(stru
- 		blk_rq_unmap_user(req->bio);
- 	blk_mq_free_request(req);
- 
--	io_uring_cmd_done(ioucmd, status, result);
-+	io_uring_cmd_done(ioucmd, status, result, issue_flags);
- }
- 
--static void nvme_uring_task_cb(struct io_uring_cmd *ioucmd)
-+static void nvme_uring_task_cb(struct io_uring_cmd *ioucmd,
-+			       unsigned issue_flags)
- {
- 	struct nvme_uring_cmd_pdu *pdu = nvme_uring_cmd_pdu(ioucmd);
- 
- 	if (pdu->bio)
- 		blk_rq_unmap_user(pdu->bio);
- 
--	io_uring_cmd_done(ioucmd, pdu->nvme_status, pdu->u.result);
-+	io_uring_cmd_done(ioucmd, pdu->nvme_status, pdu->u.result, issue_flags);
- }
- 
- static enum rq_end_io_ret nvme_uring_cmd_end_io(struct request *req,
-@@ -440,7 +442,7 @@ static enum rq_end_io_ret nvme_uring_cmd
- 	 * Otherwise, move the completion to task work.
- 	 */
- 	if (cookie != NULL && blk_rq_is_poll(req))
--		nvme_uring_task_cb(ioucmd);
-+		nvme_uring_task_cb(ioucmd, IO_URING_F_UNLOCKED);
- 	else
- 		io_uring_cmd_complete_in_task(ioucmd, nvme_uring_task_cb);
- 
-@@ -462,7 +464,7 @@ static enum rq_end_io_ret nvme_uring_cmd
- 	 * Otherwise, move the completion to task work.
- 	 */
- 	if (cookie != NULL && blk_rq_is_poll(req))
--		nvme_uring_task_meta_cb(ioucmd);
-+		nvme_uring_task_meta_cb(ioucmd, IO_URING_F_UNLOCKED);
- 	else
- 		io_uring_cmd_complete_in_task(ioucmd, nvme_uring_task_meta_cb);
- 
---- a/include/linux/io_uring.h
-+++ b/include/linux/io_uring.h
-@@ -26,7 +26,7 @@ struct io_uring_cmd {
- 	const void	*cmd;
- 	union {
- 		/* callback to defer completions to task context */
--		void (*task_work_cb)(struct io_uring_cmd *cmd);
-+		void (*task_work_cb)(struct io_uring_cmd *cmd, unsigned);
- 		/* used for polled completion */
- 		void *cookie;
- 	};
-@@ -38,9 +38,10 @@ struct io_uring_cmd {
- #if defined(CONFIG_IO_URING)
- int io_uring_cmd_import_fixed(u64 ubuf, unsigned long len, int rw,
- 			      struct iov_iter *iter, void *ioucmd);
--void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret, ssize_t res2);
-+void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret, ssize_t res2,
-+			unsigned issue_flags);
- void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
--			void (*task_work_cb)(struct io_uring_cmd *));
-+			void (*task_work_cb)(struct io_uring_cmd *, unsigned));
- struct sock *io_uring_get_socket(struct file *file);
- void __io_uring_cancel(bool cancel_all);
- void __io_uring_free(struct task_struct *tsk);
-@@ -71,11 +72,11 @@ static inline int io_uring_cmd_import_fi
- 	return -EOPNOTSUPP;
- }
- static inline void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret,
--		ssize_t ret2)
-+		ssize_t ret2, unsigned issue_flags)
- {
- }
- static inline void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
--			void (*task_work_cb)(struct io_uring_cmd *))
-+			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
- {
- }
- static inline struct sock *io_uring_get_socket(struct file *file)
---- a/io_uring/uring_cmd.c
-+++ b/io_uring/uring_cmd.c
-@@ -15,12 +15,13 @@
- static void io_uring_cmd_work(struct io_kiocb *req, bool *locked)
- {
- 	struct io_uring_cmd *ioucmd = io_kiocb_to_cmd(req, struct io_uring_cmd);
-+	unsigned issue_flags = *locked ? 0 : IO_URING_F_UNLOCKED;
- 
--	ioucmd->task_work_cb(ioucmd);
-+	ioucmd->task_work_cb(ioucmd, issue_flags);
- }
- 
- void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
--			void (*task_work_cb)(struct io_uring_cmd *))
-+			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
- {
- 	struct io_kiocb *req = cmd_to_io_kiocb(ioucmd);
- 
-@@ -42,7 +43,8 @@ static inline void io_req_set_cqe32_extr
-  * Called by consumers of io_uring_cmd, if they originally returned
-  * -EIOCBQUEUED upon receiving the command.
-  */
--void io_uring_cmd_done(struct io_uring_cmd *ioucmd, ssize_t ret, ssize_t res2)
-+void io_uring_cmd_done(struct io_uring_cmd *ioucmd, ssize_t ret, ssize_t res2,
-+		       unsigned issue_flags)
- {
- 	struct io_kiocb *req = cmd_to_io_kiocb(ioucmd);
- 
-@@ -56,7 +58,7 @@ void io_uring_cmd_done(struct io_uring_c
- 		/* order with io_iopoll_req_issued() checking ->iopoll_complete */
- 		smp_store_release(&req->iopoll_completed, 1);
- 	else
--		__io_req_complete(req, 0);
-+		__io_req_complete(req, issue_flags);
- }
- EXPORT_SYMBOL_GPL(io_uring_cmd_done);
- 
 
 
