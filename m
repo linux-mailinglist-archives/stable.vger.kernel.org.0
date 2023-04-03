@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF5F76D469F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA7446D483E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232479AbjDCOMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51944 "EHLO
+        id S233313AbjDCO0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232819AbjDCOMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9056627831
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:40 -0700 (PDT)
+        with ESMTP id S233257AbjDCO0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D672CAF9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4325AB81B0A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1304C433D2;
-        Mon,  3 Apr 2023 14:11:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D85B6B81C15
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46A8FC433EF;
+        Mon,  3 Apr 2023 14:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531098;
-        bh=Ln/lfPB/i44AdjzE3fAZ0YGhQc5SmLWIszoCNLrFTeI=;
+        s=korg; t=1680532008;
+        bh=auzT78B8sTYFbmdAMJSvXW38zALVULSPkuQHYRo5wJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2v7zqAz2q/udwxkKlH88M+tP39GtcQEKNtQiUtu+anKHUuh32hoY+W+s4rikoBUQ
-         mUlsJ1yVc/dhyBpEdmZNvYQ3RJ6blRhpGq0hln3QL225qZhNkyWAY93tU/4hV533TZ
-         Oe1umhOZjHb4CU6tlCFvqmHjUGd/T51hl3FZxJCs=
+        b=UkHwP3P/21EliQgXunXGtnx190HlDoL6/xHZDXy9Du/NgHtOG5MRYpy7yxOiniIZB
+         hVn8IWNv9OiG3h2J9uYyRcT3CH4iEbnCjwVzOe+CZDWlPRmoBTWmbavpahzJztAg/x
+         6cLQ1RU25HDe/ymayc6uSIB2/CvvyXDlaKBjxzjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/66] Bluetooth: btsdio: fix use after free bug in btsdio_remove due to unfinished work
+        patches@lists.linux.dev, Rijo Thomas <Rijo-john.Thomas@amd.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Subject: [PATCH 5.10 092/173] tee: amdtee: fix race condition in amdtee_open_session
 Date:   Mon,  3 Apr 2023 16:08:27 +0200
-Message-Id: <20230403140352.592297669@linuxfoundation.org>
+Message-Id: <20230403140417.410529300@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,38 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Rijo Thomas <Rijo-john.Thomas@amd.com>
 
-[ Upstream commit 1e9ac114c4428fdb7ff4635b45d4f46017e8916f ]
+commit f8502fba45bd30e1a6a354d9d898bc99d1a11e6d upstream.
 
-In btsdio_probe, &data->work was bound with btsdio_work.In
-btsdio_send_frame, it was started by schedule_work.
+There is a potential race condition in amdtee_open_session that may
+lead to use-after-free. For instance, in amdtee_open_session() after
+sess->sess_mask is set, and before setting:
 
-If we call btsdio_remove with an unfinished job, there may
-be a race condition and cause UAF bug on hdev.
+    sess->session_info[i] = session_info;
 
-Fixes: ddbaf13e3609 ("[Bluetooth] Add generic driver for Bluetooth SDIO devices")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+if amdtee_close_session() closes this same session, then 'sess' data
+structure will be released, causing kernel panic when 'sess' is
+accessed within amdtee_open_session().
+
+The solution is to set the bit sess->sess_mask as the last step in
+amdtee_open_session().
+
+Fixes: 757cc3e9ff1d ("tee: add AMD-TEE driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
+Acked-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btsdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tee/amdtee/core.c |   29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/bluetooth/btsdio.c b/drivers/bluetooth/btsdio.c
-index 20142bc77554c..bd55bf7a9914c 100644
---- a/drivers/bluetooth/btsdio.c
-+++ b/drivers/bluetooth/btsdio.c
-@@ -353,6 +353,7 @@ static void btsdio_remove(struct sdio_func *func)
+--- a/drivers/tee/amdtee/core.c
++++ b/drivers/tee/amdtee/core.c
+@@ -267,35 +267,34 @@ int amdtee_open_session(struct tee_conte
+ 		goto out;
+ 	}
  
- 	BT_DBG("func %p", func);
++	/* Open session with loaded TA */
++	handle_open_session(arg, &session_info, param);
++	if (arg->ret != TEEC_SUCCESS) {
++		pr_err("open_session failed %d\n", arg->ret);
++		handle_unload_ta(ta_handle);
++		kref_put(&sess->refcount, destroy_session);
++		goto out;
++	}
++
+ 	/* Find an empty session index for the given TA */
+ 	spin_lock(&sess->lock);
+ 	i = find_first_zero_bit(sess->sess_mask, TEE_NUM_SESSIONS);
+-	if (i < TEE_NUM_SESSIONS)
++	if (i < TEE_NUM_SESSIONS) {
++		sess->session_info[i] = session_info;
++		set_session_id(ta_handle, i, &arg->session);
+ 		set_bit(i, sess->sess_mask);
++	}
+ 	spin_unlock(&sess->lock);
  
-+	cancel_work_sync(&data->work);
- 	if (!data)
- 		return;
+ 	if (i >= TEE_NUM_SESSIONS) {
+ 		pr_err("reached maximum session count %d\n", TEE_NUM_SESSIONS);
++		handle_close_session(ta_handle, session_info);
+ 		handle_unload_ta(ta_handle);
+ 		kref_put(&sess->refcount, destroy_session);
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
  
--- 
-2.39.2
-
+-	/* Open session with loaded TA */
+-	handle_open_session(arg, &session_info, param);
+-	if (arg->ret != TEEC_SUCCESS) {
+-		pr_err("open_session failed %d\n", arg->ret);
+-		spin_lock(&sess->lock);
+-		clear_bit(i, sess->sess_mask);
+-		spin_unlock(&sess->lock);
+-		handle_unload_ta(ta_handle);
+-		kref_put(&sess->refcount, destroy_session);
+-		goto out;
+-	}
+-
+-	sess->session_info[i] = session_info;
+-	set_session_id(ta_handle, i, &arg->session);
+ out:
+ 	free_pages((u64)ta, get_order(ta_size));
+ 	return rc;
 
 
