@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB0F6D46D9
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4216D48CA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232877AbjDCOOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59252 "EHLO
+        id S233495AbjDCOb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:31:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232870AbjDCOOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FB4A4C37
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:42 -0700 (PDT)
+        with ESMTP id S233485AbjDCOb5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D4B3502A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AF5C61CAC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 000CFC433D2;
-        Mon,  3 Apr 2023 14:14:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D3D61E05
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83139C433D2;
+        Mon,  3 Apr 2023 14:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531281;
-        bh=sCsDNYzSTG7AFZ+BVfOY2sgjHjNLAGu4CppjxGqG9l0=;
+        s=korg; t=1680532304;
+        bh=b0Z+ywrKJho9+/HDEm9stgcTAQDDhzWEQhXEGSKcnJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maklXekQ5gIGFiobMBmEgnKsiBx+M7Ss1Ib31aW7Fj9O2stW7JLp1+cqHqBoL8ftY
-         2cty6fP08MArpX6xBsYPC2MYZFrW2RsZa/LvZFn4Akipii6dtBvhsU1gUG1Bdm8Klj
-         OZHU9CGxpYKHQjKSs1kM4+gWNrGlUjgd/gKOR41U=
+        b=sV6u06WWib/6z7CVNEc5yB1exSVx2SwYLSnOnADYixA07Nb5mMPc/zg5TAKHvwrq1
+         +CmcYPxVkrVgJJ0PZS6tDsMKpwzuNRoTemADSywDs5dqVcUbdOGDeQ41/Gy0fnhJDm
+         ixie5WEwTSQNxPxCpNd0tar3RK7AcBNQNqgcuKjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev,
+        Siddharth Rajendra Kawar <sikawar@microsoft.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/66] sched_getaffinity: dont assume cpumask_size() is fully initialized
+Subject: [PATCH 5.15 32/99] SUNRPC: fix shutdown of NFS TCP client socket
 Date:   Mon,  3 Apr 2023 16:08:55 +0200
-Message-Id: <20230403140353.483565137@linuxfoundation.org>
+Message-Id: <20230403140404.360383298@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,80 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Siddharth Kawar <Siddharth.Kawar@microsoft.com>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit 943d045a6d796175e5d08f9973953b1d2c07d797 ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+NFS server Duplicate Request Cache (DRC) algorithms rely on NFS clients
+reconnecting using the same local TCP port. Unique NFS operations are
+identified by the per-TCP connection set of XIDs. This prevents file
+corruption when non-idempotent NFS operations are retried.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
+Currently, NFS client TCP connections are using different local TCP ports
+when reconnecting to NFS servers.
 
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
+After an NFS server initiates shutdown of the TCP connection, the NFS
+client's TCP socket is set to NULL after the socket state has reached
+TCP_LAST_ACK(9). When reconnecting, the new socket attempts to reuse
+the same local port but fails with EADDRNOTAVAIL (99). This forces the
+socket to use a different local TCP port to reconnect to the remote NFS
+server.
 
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
+State Transition and Events:
+TCP_CLOSE_WAIT(8)
+TCP_LAST_ACK(9)
+connect(fail EADDRNOTAVAIL(99))
+TCP_CLOSE(7)
+bind on new port
+connect success
 
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
+dmesg excerpts showing reconnect switching from TCP local port of 926 to
+763 after commit 7c81e6a9d75b:
+[13354.947854] NFS call  mkdir testW
+...
+[13405.654781] RPC:       xs_tcp_state_change client 00000000037d0f03...
+[13405.654813] RPC:       state 8 conn 1 dead 0 zapped 1 sk_shutdown 1
+[13405.654826] RPC:       xs_data_ready...
+[13405.654892] RPC:       xs_tcp_state_change client 00000000037d0f03...
+[13405.654895] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
+[13405.654899] RPC:       xs_tcp_state_change client 00000000037d0f03...
+[13405.654900] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
+[13405.654950] RPC:       xs_connect scheduled xprt 00000000037d0f03
+[13405.654975] RPC:       xs_bind 0.0.0.0:926: ok (0)
+[13405.654980] RPC:       worker connecting xprt 00000000037d0f03 via tcp
+			  to 10.101.6.228 (port 2049)
+[13405.654991] RPC:       00000000037d0f03 connect status 99 connected 0
+			  sock state 7
+[13405.655001] RPC:       xs_tcp_state_change client 00000000037d0f03...
+[13405.655002] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
+[13405.655024] RPC:       xs_connect scheduled xprt 00000000037d0f03
+[13405.655038] RPC:       xs_bind 0.0.0.0:763: ok (0)
+[13405.655041] RPC:       worker connecting xprt 00000000037d0f03 via tcp
+			  to 10.101.6.228 (port 2049)
+[13405.655065] RPC:       00000000037d0f03 connect status 115 connected 0
+			  sock state 2
 
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
+State Transition and Events with patch applied:
+TCP_CLOSE_WAIT(8)
+TCP_LAST_ACK(9)
+TCP_CLOSE(7)
+connect(reuse of port succeeds)
 
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+dmesg excerpts showing reconnect on same TCP local port of 936 with patch
+applied:
+[  257.139935] NFS: mkdir(0:59/560857152), testQ
+[  257.139937] NFS call  mkdir testQ
+...
+[  307.822702] RPC:       state 8 conn 1 dead 0 zapped 1 sk_shutdown 1
+[  307.822714] RPC:       xs_data_ready...
+[  307.822817] RPC:       xs_tcp_state_change client 00000000ce702f14...
+[  307.822821] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
+[  307.822825] RPC:       xs_tcp_state_change client 00000000ce702f14...
+[  307.822826] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
+[  307.823606] RPC:       xs_tcp_state_change client 00000000ce702f14...
+[  307.823609] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
+[  307.823629] RPC:       xs_tcp_state_change client 00000000ce702f14...
+[  307.823632] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
+[  307.823676] RPC:       xs_connect scheduled xprt 00000000ce702f14
+[  307.823704] RPC:       xs_bind 0.0.0.0:936: ok (0)
+[  307.823709] RPC:       worker connecting xprt 00000000ce702f14 via tcp
+			  to 10.101.1.30 (port 2049)
+[  307.823748] RPC:       00000000ce702f14 connect status 115 connected 0
+			  sock state 2
+...
+[  314.916193] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
+[  314.916251] RPC:       xs_connect scheduled xprt 00000000ce702f14
+[  314.916282] RPC:       xs_bind 0.0.0.0:936: ok (0)
+[  314.916292] RPC:       worker connecting xprt 00000000ce702f14 via tcp
+			  to 10.101.1.30 (port 2049)
+[  314.916342] RPC:       00000000ce702f14 connect status 115 connected 0
+			  sock state 2
+
+Fixes: 7c81e6a9d75b ("SUNRPC: Tweak TCP socket shutdown in the RPC client")
+Signed-off-by: Siddharth Rajendra Kawar <sikawar@microsoft.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/sunrpc/xprtsock.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index 45ae3ace49c29..63d10b91f80fa 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -351,7 +351,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 22a7a3435ad46..e3bda201f6396 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -4794,14 +4794,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		size_t retlen = min_t(size_t, len, cpumask_size());
- 
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 897dfce7dd271..bf801adff63db 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -2140,6 +2140,7 @@ static void xs_tcp_shutdown(struct rpc_xprt *xprt)
+ 	switch (skst) {
+ 	case TCP_FIN_WAIT1:
+ 	case TCP_FIN_WAIT2:
++	case TCP_LAST_ACK:
+ 		break;
+ 	case TCP_ESTABLISHED:
+ 	case TCP_CLOSE_WAIT:
 -- 
 2.39.2
 
