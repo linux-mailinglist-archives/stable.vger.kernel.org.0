@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9A96D4AB4
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2526C6D4905
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234178AbjDCOti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
+        id S233533AbjDCOeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:34:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234134AbjDCOtW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008CD2A580
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:30 -0700 (PDT)
+        with ESMTP id S233571AbjDCOeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDE416F14
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9742D61ED6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1047C4339E;
-        Mon,  3 Apr 2023 14:48:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6446061E5A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D19CC4339C;
+        Mon,  3 Apr 2023 14:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533310;
-        bh=7fxM8GdmJz4XU1Wmwks4WKlLAcEvkTVClq+ihHPbwk0=;
+        s=korg; t=1680532421;
+        bh=ztiuKPta5K4XqEf6JPO6r2QEIBwJDgEmXHyE7luSg98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBuNeXPzYxYXF0WSx3p40fIFn3r5KKzCxOeLgodg7/Adei94xh3QBEHeUIIEvEsbP
-         0SIOub9ksdyxbX9dDm239kxwV3GWUHhWvygueXfMQn022/1TcU+ydFV4px/HTOMmOj
-         VIOgk9ZSndIj2R0j+dqZeWisV+az0EL/tBw88Nhw=
+        b=XxxU0XXWKnPI3faMRWyWXKhyCF8LmvV2mjaXhGukuPe40LOlzS4LhIBa4aqOIgfoG
+         KeJuUjDXKC5RRUXTv+rxmTjqEW0iVSsvKiPqW4mRbZilpVwxnILn3IV9QazR7e2rCQ
+         2R3H4ypkEORGequB3PbNubNNVfeSn6nCF9WFctlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6.2 134/187] Input: goodix - add Lenovo Yoga Book X90F to nine_bytes_report DMI table
+        patches@lists.linux.dev,
+        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 76/99] pinctrl: amd: Disable and mask interrupts on resume
 Date:   Mon,  3 Apr 2023 16:09:39 +0200
-Message-Id: <20230403140420.412954969@linuxfoundation.org>
+Message-Id: <20230403140406.319667705@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,53 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Kornel Dulęba <korneld@chromium.org>
 
-commit 8a0432bab6ea3203d220785da7ab3c7677f70ecb upstream.
+commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 upstream.
 
-The Android Lenovo Yoga Book X90F / X90L uses the same goodix touchscreen
-with 9 bytes touch reports for its touch keyboard as the already supported
-Windows Lenovo Yoga Book X91F/L, add a DMI match for this to
-the nine_bytes_report DMI table.
+This fixes a similar problem to the one observed in:
+commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
 
-When the quirk for the X91F/L was initially added it was written to
-also apply to the X90F/L but this does not work because the Android
-version of the Yoga Book uses completely different DMI strings.
-Also adjust the X91F/L quirk to reflect that it only applies to
-the X91F/L models.
+On some systems, during suspend/resume cycle firmware leaves
+an interrupt enabled on a pin that is not used by the kernel.
+This confuses the AMD pinctrl driver and causes spurious interrupts.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Link: https://lore.kernel.org/r/20230315134442.71787-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The driver already has logic to detect if a pin is used by the kernel.
+Leverage it to re-initialize interrupt fields of a pin only if it's not
+used by us.
+
+Cc: stable@vger.kernel.org
+Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
+Signed-off-by: Kornel Dulęba <korneld@chromium.org>
+Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/goodix.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -124,10 +124,18 @@ static const unsigned long goodix_irq_fl
- static const struct dmi_system_id nine_bytes_report[] = {
- #if defined(CONFIG_DMI) && defined(CONFIG_X86)
- 	{
--		.ident = "Lenovo YogaBook",
--		/* YB1-X91L/F and YB1-X90L/F */
-+		/* Lenovo Yoga Book X90F / X90L */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9")
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -863,32 +863,34 @@ static const struct pinconf_ops amd_pinc
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
+ 
+-static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
+ {
+-	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	const struct pin_desc *pd;
+ 	unsigned long flags;
+ 	u32 pin_reg, mask;
+-	int i;
+ 
+ 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+ 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+ 		BIT(WAKE_CNTRL_OFF_S4);
+ 
+-	for (i = 0; i < desc->npins; i++) {
+-		int pin = desc->pins[i].number;
+-		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+-
+-		if (!pd)
+-			continue;
++	pd = pin_desc_get(gpio_dev->pctrl, pin);
++	if (!pd)
++		return;
+ 
+-		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	pin_reg = readl(gpio_dev->base + pin * 4);
++	pin_reg &= ~mask;
++	writel(pin_reg, gpio_dev->base + pin * 4);
++	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++}
+ 
+-		pin_reg = readl(gpio_dev->base + i * 4);
+-		pin_reg &= ~mask;
+-		writel(pin_reg, gpio_dev->base + i * 4);
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++{
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	int i;
+ 
+-		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+-	}
++	for (i = 0; i < desc->npins; i++)
++		amd_gpio_irq_init_pin(gpio_dev, i);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -941,8 +943,10 @@ static int amd_gpio_resume(struct device
+ 	for (i = 0; i < desc->npins; i++) {
+ 		int pin = desc->pins[i].number;
+ 
+-		if (!amd_gpio_should_save(gpio_dev, pin))
++		if (!amd_gpio_should_save(gpio_dev, pin)) {
++			amd_gpio_irq_init_pin(gpio_dev, pin);
+ 			continue;
 +		}
-+	},
-+	{
-+		/* Lenovo Yoga Book X91F / X91L */
-+		.matches = {
-+			/* Non exact match to match F + L versions */
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
- 		}
- 	},
- #endif
+ 
+ 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
 
 
