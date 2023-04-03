@@ -2,81 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB756D40FE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 11:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA4F6D4192
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 12:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232255AbjDCJpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 05:45:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
+        id S231285AbjDCKJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 06:09:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232369AbjDCJox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 05:44:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB22311648
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 02:44:25 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3338hs6Q019866;
-        Mon, 3 Apr 2023 09:43:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=FqnW77vjWvGB6pjl3FIC/5Acd2/jmYzt0SpsHYGmixA=;
- b=EuZfy998sefRNHmjBE+VcU4rsBpnPhXhT3HJUzR1j3z3WqPhXJgjUMfukuzIYFCR63ic
- 0u99G12mn5J1W6MTjZqLxV4ITXwApql6TuYLIGyuH1Ry0wGTu8SAE4DH4lHf8NlPw5Mt
- tehC7AP0o1YKuVqkoHkeEYSIqJPmoPQuxE8VZNnM6JRHVstROJYSajNRF5KNc3z5fAKt
- K4Zf+kgRRQR8xAXQPm0AxB6qjP3gpFInTJR0teoq913ZHwwPXeGO5hFwVXjOhs53Zdpa
- GpHpy70h4fd10LIgFodIMsxQbd4yjycTwCgsFEtJ8evTKQHwrzoIXcrjft7rKLYnpcba yg== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ppxdu3evg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Apr 2023 09:43:45 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3332P0Fe011551;
-        Mon, 3 Apr 2023 09:43:42 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3ppc86s52r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Apr 2023 09:43:42 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3339hdl430016098
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 3 Apr 2023 09:43:39 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 39D6C2004D;
-        Mon,  3 Apr 2023 09:43:39 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B36A20040;
-        Mon,  3 Apr 2023 09:43:39 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  3 Apr 2023 09:43:39 +0000 (GMT)
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14.y] s390/uaccess: add missing earlyclobber annotations to __clear_user()
-Date:   Mon,  3 Apr 2023 11:43:36 +0200
-Message-Id: <20230403094336.1325934-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <2023040339-copartner-curliness-0c67@gregkh>
-References: <2023040339-copartner-curliness-0c67@gregkh>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ka-WIb_XszKJ_PNa1L_8McrSoiSOV1Zo
-X-Proofpoint-GUID: Ka-WIb_XszKJ_PNa1L_8McrSoiSOV1Zo
+        with ESMTP id S231245AbjDCKJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 06:09:24 -0400
+Received: from EUR03-AM7-obe.outbound.protection.outlook.com (mail-am7eur03on2083.outbound.protection.outlook.com [40.107.105.83])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72FC7213A;
+        Mon,  3 Apr 2023 03:09:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dcnQd8c/QbWvLVVASTThZlhTM3A17IXfF6U4I3jRE2Y9HOb9ZrFvyVnkz/rgeyRZvcBqBf+RHySZfAp/Mx4e1O8ttD3JgmMBKM3SxuD0KuDD41I5hNHEPzdT1dBF41SOm7YD6wVOlrVPK2S9YTnwxygfQcY207yC9bDpe57eQhNu8N6dPzz73LhNDOlJm5tf/2fBnxNI+Qu/rRWnkJF+fJvwFJV3HBgcDG6bC3UFcdKHis7WLzTzGx8A12MdeekUbbfschpTHBdMzw8GXVZowDmNxmIryVtbVf/BqElArBLl64HGjBmlOX3zq7tZiORm64FjPpDkO49jEBjji2/FAQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=cqBYy8+9RVsf+te3aMsiLo6/GEMh97TxhPMb0ywJ42Y=;
+ b=g8LGMel4JRjtYALMP2awasyUSNXSjJ9af0nbqJ6ODxCre5IQpaTqzM2Rpg64BnuEiN7bXqd/6sBM/yZ0804qQDAsatnEwVC864vq8g++nZ4XvOJyjkm6lX5AIi2OfmroS+DfD7R73x56IFtZ/FusPuQTuUWT99KvH6o2UBTIgg+H/y0ToRF1itbXszeoRFFnZI8x6FLpGWrNJrGcD/RqPPY9pslSRBoWyQaFxDXG6j4EP9tHe1x6gK8qIcBnE8txLkatVRtjeokmbWYryFvneNrvt1wWETMHRlUPwAjy9ya8fZjosKRcEOOtAnwf1VkpSdGaW6dOjUYAQ4XTdBRWHg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
+ dkim=pass header.d=suse.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cqBYy8+9RVsf+te3aMsiLo6/GEMh97TxhPMb0ywJ42Y=;
+ b=YA8dbKOHTJtDNyQ+2qoCAhi6wV1yMMAZgJdYliKbggVjZyGF4NYMYr+BNBMpiT5HaO6t9nyAW/adKPt0R7v1AigIgkB/bY5fz/qOcTPVzsEJW903nzFXVWQvt20JBGMrZZUiDRAUUMzbl7kIFShA072aOjuW8MRYibsxyMGLY5HNnUHy1SfgIDmySekWgz3m37g+T5GzxoYOLjUETbeSmNrL3AEYVSw3/W9UXFgGoRwCbSe+Sh5qJGLqkvpiBmFFXRhFG5R7NqTNro16xFHrWIRTbMj5JUh4j1zlHiDcSoag/BXt12ZL7BvKkBNcHcznhXPOsgFAfm8KG/8f1psiBg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=suse.com;
+Received: from VI1PR04MB7104.eurprd04.prod.outlook.com (2603:10a6:800:126::9)
+ by GVXPR04MB10071.eurprd04.prod.outlook.com (2603:10a6:150:11a::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.30; Mon, 3 Apr
+ 2023 10:09:20 +0000
+Received: from VI1PR04MB7104.eurprd04.prod.outlook.com
+ ([fe80::74bd:991c:527d:aa61]) by VI1PR04MB7104.eurprd04.prod.outlook.com
+ ([fe80::74bd:991c:527d:aa61%9]) with mapi id 15.20.6254.033; Mon, 3 Apr 2023
+ 10:09:20 +0000
+Message-ID: <28ec4e65-647f-2567-fb7d-f656940d4e43@suse.com>
+Date:   Mon, 3 Apr 2023 12:09:13 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: issues with cdc ncm host class driver
+Content-Language: en-US
+To:     "Purohit, Kaushal" <kaushal.purohit@ti.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+References: <da37bb0d43de465185c10aad9924f265@ti.com>
+From:   Oliver Neukum <oneukum@suse.com>
+In-Reply-To: <da37bb0d43de465185c10aad9924f265@ti.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+X-ClientProxiedBy: FR0P281CA0136.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:96::10) To VI1PR04MB7104.eurprd04.prod.outlook.com
+ (2603:10a6:800:126::9)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-03_05,2023-03-31_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 bulkscore=0 spamscore=0 suspectscore=0 adultscore=0
- mlxlogscore=592 impostorscore=0 malwarescore=0 mlxscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304030073
-X-Spam-Status: No, score=-0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VI1PR04MB7104:EE_|GVXPR04MB10071:EE_
+X-MS-Office365-Filtering-Correlation-Id: a650da2d-b676-4874-bbe5-08db342b7c87
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: uXccuJqktl/ZkbxKr5ykxslqeUzcQNwIes9RNoqxpIQzyJ9G2iT5glB69HlWGf7H64cXOZXkLlhiTf1MYh/3IwAe8tjFGfPTJD0zsyZxkEsZXvmss9I4Fj92k+JjFbWOmC/S1N0RmW+HDSP4/Vv+b/ulxEMbRoY7hg6Y1IodqRZjj3bdXj6gTM4fCK6XnfNms8Av5HqQFEej2ksJ6JkoNHA1vA3yVwFgRaAOQr2z4GQUvJ7E/F0FlmG3FNhNtH6kOg1iU0xLzLPRauyhqnJ/Ggt94L7YMoLfVTE0p/S251T+rw6R2MyU3UnDcJU3s2/1Q/iwDgTb2kOZ8vPFPttLPdVlCsMA4ZhAo0asHsD5V5r6YGjUcJe3Zv+8kXAro0dvR/fLGj1y6DBNqDfyNom2MhqPGy86wAMXnI9pwULLNejgiLWzfdDOdy/IgFYr4acBELFAUxGI+sNCQW0U/8+C1O98UQ0l1ApRAyQhP4PXURBSGvs6FDPoI1qsd5clbqd/aB70ZGe/GTr4eJd6ubjo71IreGZ4sVkNw4/LgTErDegclepnIBolgB3ng2s7iZdRUmcpMi6S+oe/gYp7SWXHyCCvpIXtHHMdD0x/173NAUCq7rAKR9C+u3s4DjNwq89Q+K9sInIXGgSOuG0V4b5Rpw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB7104.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(396003)(39860400002)(136003)(346002)(366004)(376002)(451199021)(31696002)(86362001)(36756003)(2906002)(31686004)(2616005)(53546011)(83380400001)(186003)(6506007)(6486002)(6666004)(6512007)(4326008)(8676002)(66476007)(478600001)(66556008)(66946007)(41300700001)(38100700002)(5660300002)(54906003)(110136005)(316002)(8936002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cFNTWkxNWVhXTm1tTW9raUE4djhEODBmRGJyYTlEeFpHaWd6cTRWZjdaOGxM?=
+ =?utf-8?B?NEFaM0VSSnBVTXJJVUdwViszZysyNTA1THhscjNjbjAyS21wQm9UazMzV2JE?=
+ =?utf-8?B?cTh6eklJQ1lpUytjSFhBUjlpdWptYWFucGpYZVFYTUdzM2hiU3d3eUdVeTVP?=
+ =?utf-8?B?aVd5MjdsbHp1c3dCUXh3aTZPWWgrRHpkakVEUDVkeFBQbWJpQVRiYWtnWW1S?=
+ =?utf-8?B?MmZFbE5ybWdnSkJSOGI2OUNhRExPU1BMdEozLzMyVTU3Sjd1MFJTekp5UlRM?=
+ =?utf-8?B?M0E0cjJYV1VEdVBra1pzdXZvWFd4cThINjhjSUlSd3l1cnJHUXpnUEdWMG9S?=
+ =?utf-8?B?V0F6WmZlZ0tYUThwaUljaGZFaXZFMHFHUHNGK0RQc09VRWViWkRodGlFOERQ?=
+ =?utf-8?B?UEJRODNkVE05TjZqMFJmSkFQZ0tXVm1ITnRRTE1WWitXcEVVYVlJWDZqUXhX?=
+ =?utf-8?B?b0ZoRmNNV2c0UjUzYXBwZ3AwYTlITU9qLzdNOUVNVi9ZTjRzKzZDZ3lFSU8r?=
+ =?utf-8?B?cWlwb0dCclZVZjMvQ29YRHNRSmV5TDJvTitDOXZsczVrTkh1ZzRMbG1HWW95?=
+ =?utf-8?B?TXN1RFNkSmw0TWRvL3ZHMW1MQkFQd0MxeHVOQzZWbkh1Q2FRcmJsSnloMFox?=
+ =?utf-8?B?bGEvNWJjU0lJN3pXTVFKTTJTUVpHL21tU2VKVVNJVWtFd09KRWkrT092T0th?=
+ =?utf-8?B?dndwRUpDMkpsUDFVenltVjNOWnY5ZFFiYjlIdVZYMldONTBiMGREVWY5WW1m?=
+ =?utf-8?B?REpDZGpyU25GNWNRZCtSSGoxdWdYb2RZNE5obFlxaDBGKzBHWm1XNk9SYkhL?=
+ =?utf-8?B?VitCdzJpVUtLaE01aU5pY0lvWnNZaVA1OGdnU3BOdkpTSEdZWXNRQ1lNOHFK?=
+ =?utf-8?B?UlZTNitZcGRKd0ErYnNWQXBIdG9mVG1UclI4MFdickh5OUpGbTQwcTJ6UnhT?=
+ =?utf-8?B?MlpIWE9mdWt0R3d1OHYrRklRZ0NDT3lQQkhMMXUwSis3RTJ5Z2VoekFBSDFh?=
+ =?utf-8?B?NFlmUC9oaHdzaFM0UmYzWjgyQjZWZzRqWFZmQUM0L0NpbmZYNmhDNFdUbHg5?=
+ =?utf-8?B?a25pamR2dmZ6WmV1d04zSm5QcW1iT0t2QmhaOWxsMHZlMFl5SnArVGovYjls?=
+ =?utf-8?B?YWlFNy9lVGVIM1FqM1NJMXhsRTk3ZFJjdkRySjZ2alU2bkRvckQ4T3ZQQ29X?=
+ =?utf-8?B?dHcrWE5zcytLNmliUVppVVk3c1lQdVdXY0wrdkE4Q3J1VUVoVjZxSVd2VzBn?=
+ =?utf-8?B?aHZkZjVqbDh5Vm9HTWJUT1hrNGd3WUd5bkdvUE4wR1ErY0ptaGVQTWlRSitL?=
+ =?utf-8?B?aXFpbUF2MDlnZW9pVkJaOHg3NXFRMlUxbXRJZFVybzFwcTRuTWU4eS8xek9Z?=
+ =?utf-8?B?bzN6c1pjLzNuMTRyTjRJQW5TMjJld3U1Q0crcHNxQnlPdUVqUXhDSUpmeEd2?=
+ =?utf-8?B?WkkxTTF0MFJGNStuK2g4cXBlMDlzdEVZUzl3c29qT2RzQ3dzc0w5b2dSZmFr?=
+ =?utf-8?B?aFMzL3BWUmQzcHpNV3FWcExNQjVPcnl2UllPQ0toU1ZUM29uRjBuUTg2RVFZ?=
+ =?utf-8?B?SThKT1BJRC9oZWJRVlBaMzFjaHc1Q2VFSFZuM2tPc0xkdmYxNEc5ZVEwTHVu?=
+ =?utf-8?B?Z1ZoUzVyRmZtMWxham54WjVTeTMxVGFYcjNmdG4yUEZkZ1ROeWticzNmU01l?=
+ =?utf-8?B?d3U5M0ZPNjJBbXJBdHB4TUl4VjNtVzdWL3dRRG44OS9mOXluWStrZzUrTXRt?=
+ =?utf-8?B?dVFiRXJ1UnAvRGJTWUNUVDk5WVYvdWpSOE1NaWJKL3BMcW9CdmxQc0I4K0Yz?=
+ =?utf-8?B?a0R0WnhROE5wam9NbXVPZ1VrZUZxdVIxbGlFd1lzRDIxb1JlWjVSRktXck92?=
+ =?utf-8?B?UGc5ckFoTk5MK0dkRlcybWJqdzlpaHNLeXg2Z3R4elM1S2JLRXRucDJrTUJ6?=
+ =?utf-8?B?SHN3Q0prcUx4Witkc2xaMVo1bEhpbDU4Tk9YajJPa29RbWk2VU9EQjArcG5P?=
+ =?utf-8?B?N1pjSWRaWlFYcWE4aC9VQTJ5Z3NPMkxnVC9tcThkZkh5SWJuVXhQSW9DS1ov?=
+ =?utf-8?B?cTNjbVMzT2JENU9GemhrR0xvN2hIMkZndE5XTm5Wc1JqMnNzODAzQXVMb3A0?=
+ =?utf-8?B?eDZ0TG1ISlZVL2x6TjhmdE96WnJaa0tsZDJrdndqS052ei8rZkp4S042OXNx?=
+ =?utf-8?Q?JN7qamF6owfn74RozfVtGdfhrXramhwylK0UgKNQYplB?=
+X-OriginatorOrg: suse.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a650da2d-b676-4874-bbe5-08db342b7c87
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB7104.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2023 10:09:20.4607
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BPGPZy+ZxXlfbGXq6SXJKwsf4cqiAcSkgWxDqIxKvnqIZGqRqWFYUPUk8s0l57pdMSLCJdMMg2y1snMDklZ5Jg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR04MB10071
+X-Spam-Status: No, score=-1.6 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,37 +125,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
+On 03.04.23 08:14, Purohit, Kaushal wrote:
+> Hi,
+> 
 
-Add missing earlyclobber annotation to size, to, and tmp2 operands of the
-__clear_user() inline assembly since they are modified or written to before
-the last usage of all input operands. This can lead to incorrect register
-allocation for the inline assembly.
+Hi,
 
-Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
-Cc: stable@vger.kernel.org
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/lib/uaccess.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Referring to patch with commit ID (*e10dcb1b6ba714243ad5a35a11b91cc14103a9a9*).
+> 
+> This is a spec violation for CDC NCM class driver. Driver clearly says the significance of network capabilities. (snapshot below)
+> 
+> However, with the mentioned patch these values are disrespected and commands specific to these capabilities are sent from the host regardless of device' capabilities to handle them.
 
-diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
-index 802903c50de1..b11ebcb3d33b 100644
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -272,7 +272,7 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
- 		"4: slgr  %0,%0\n"
- 		"5:\n"
- 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
--		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
-+		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
- 		: "a" (empty_zero_page), "d" (reg0) : "cc", "memory");
- 	return size;
- }
--- 
-2.37.2
+Right. So for your device, the correct behavior would be to do
+nothing, wouldn't it? The packets would be delivered and the host
+needs to filter and discard unrequested packets.
+
+> Currently we are setting these bits to 0 indicating no capabilities on our device and still we observe that Host (Linux kernel host cdc driver) has been sending requests specific to these capabilities.
+> 
+> Please let me know if there is a better way to indicate host that device does not have these capabilities.
+
+no you are doing things as they are supposed to be done and
+the host is at fault. This kernel bug needs to be fixed.
+
+	Regards
+		Oliver
 
