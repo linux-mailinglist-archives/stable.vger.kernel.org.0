@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A53E86D3F33
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB496D3F35
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229659AbjDCIkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:40:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32912 "EHLO
+        id S231329AbjDCIkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:40:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbjDCIkQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:40:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0C8188
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:40:14 -0700 (PDT)
+        with ESMTP id S230052AbjDCIkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:40:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C317D188
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:40:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8239DB81132
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DDBC433EF;
-        Mon,  3 Apr 2023 08:40:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D464B81132
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8889C433D2;
+        Mon,  3 Apr 2023 08:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680511212;
-        bh=SiX1owABxQ6K4JeVVgK2fFxhgRvRSWCtCwacMbrgwRU=;
+        s=korg; t=1680511243;
+        bh=g0uNF6221URQTK7Xf5X6YShz2tpswpnd7pk55ItG8k0=;
         h=Subject:To:Cc:From:Date:From;
-        b=eogl8TYxZF4qNoQO9OnG1vLsJY97kwcTw6XZxJM1CfIriteVTFc2wjMZTH48Y56Ln
-         WBXEQhX+ebKZjDesx7O0mg4UET+H1Zh5g1ufirFLfM0xvKF4UtuG66t+FBwBIishMk
-         RVK17NiKgidNK/SRPOmx1IyfaXokITGp9GXTUTPM=
-Subject: FAILED: patch "[PATCH] powerpc: Don't try to copy PPR for task with NULL pt_regs" failed to apply to 4.14-stable tree
-To:     axboe@kernel.dk, mpe@ellerman.id.au
+        b=SBn4uJo4gKUwtGh1Qox1PkmY/IBI/nLz1z6I0RxTOeS6s4GS61KlwKyjcXFB68ONt
+         civJnwoTkXBzShKtMw724Q/rnGq8KDooYxZdgNXQCDfmVDsPTQmOakV1HrbzzrFzL1
+         A7z7cMq9/ZR5gkcBnF64MWO/MvHQBJgng9PSfPX4=
+Subject: FAILED: patch "[PATCH] NFSv4: Fix hangs when recovering open state after a server" failed to apply to 4.19-stable tree
+To:     trond.myklebust@hammerspace.com, Anna.Schumaker@Netapp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:40:06 +0200
-Message-ID: <2023040306-emit-earthling-ac1b@gregkh>
+Date:   Mon, 03 Apr 2023 10:40:40 +0200
+Message-ID: <2023040340-bouncing-sampling-7639@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,41 +47,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
-git cherry-pick -x fd7276189450110ed835eb0a334e62d2f1c4e3be
+git cherry-pick -x 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040306-emit-earthling-ac1b@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040340-bouncing-sampling-7639@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
-fd7276189450 ("powerpc: Don't try to copy PPR for task with NULL pt_regs")
-47e12855a91d ("powerpc: switch to ->regset_get()")
-6e0b79750ce2 ("powerpc/ptrace: move register viewing functions out of ptrace.c")
-7c1f8db019f8 ("powerpc/ptrace: split out TRANSACTIONAL_MEM related functions.")
-60ef9dbd9d2a ("powerpc/ptrace: split out SPE related functions.")
-1b20773b00b7 ("powerpc/ptrace: split out ALTIVEC related functions.")
-7b99ed4e8e3a ("powerpc/ptrace: split out VSX related functions.")
-963ae6b2ff1c ("powerpc/ptrace: drop PARAMETER_SAVE_AREA_OFFSET")
-f1763e623c69 ("powerpc/ptrace: drop unnecessary #ifdefs CONFIG_PPC64")
-b3138536c837 ("powerpc/ptrace: remove unused header includes")
-da9a1c10e2c7 ("powerpc: Move ptrace into a subdirectory.")
-68b34588e202 ("powerpc/64/sycall: Implement syscall entry/exit logic in C")
-965dd3ad3076 ("powerpc/64/syscall: Remove non-volatile GPR save optimisation")
-fddb5d430ad9 ("open: introduce openat2(2) syscall")
-793b08e2efff ("powerpc/kexec: Move kexec files into a dedicated subdir.")
-9f7bd9201521 ("powerpc/32: Split kexec low level code out of misc_32.S")
-b020aa9d1e87 ("powerpc: cleanup hw_irq.h")
-0671c5b84e9e ("MIPS: Wire up clone3 syscall")
-45824fc0da6e ("Merge tag 'powerpc-5.4-1' of git://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux")
+6165a16a5ad9 ("NFSv4: Fix hangs when recovering open state after a server reboot")
+e3c8dc761ead ("NFSv4: Check the return value of update_open_stateid()")
+ace9fad43aa6 ("NFSv4: Convert struct nfs4_state to use refcount_t")
 
 thanks,
 
@@ -89,79 +73,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fd7276189450110ed835eb0a334e62d2f1c4e3be Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Sun, 26 Mar 2023 16:15:57 -0600
-Subject: [PATCH] powerpc: Don't try to copy PPR for task with NULL pt_regs
+From 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3 Mon Sep 17 00:00:00 2001
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date: Tue, 21 Mar 2023 00:17:36 -0400
+Subject: [PATCH] NFSv4: Fix hangs when recovering open state after a server
+ reboot
 
-powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
-from my (arguably very short) checking is not commonly done for other
-archs. This is fine, except when PF_IO_WORKER's have been created and
-the task does something that causes a coredump to be generated. Then we
-get this crash:
+When we're using a cached open stateid or a delegation in order to avoid
+sending a CLAIM_PREVIOUS open RPC call to the server, we don't have a
+new open stateid to present to update_open_stateid().
+Instead rely on nfs4_try_open_cached(), just as if we were doing a
+normal open.
 
-  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
-  BUG: Kernel NULL pointer dereference on read at 0x00000160
-  Faulting instruction address: 0xc0000000000c3a60
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
-  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
-  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
-  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
-  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
-  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
-  ...
-  NIP memcpy_power7+0x200/0x7d0
-  LR  ppr_get+0x64/0xb0
-  Call Trace:
-    ppr_get+0x40/0xb0 (unreliable)
-    __regset_get+0x180/0x1f0
-    regset_get_alloc+0x64/0x90
-    elf_core_dump+0xb98/0x1b60
-    do_coredump+0x1c34/0x24a0
-    get_signal+0x71c/0x1410
-    do_notify_resume+0x140/0x6f0
-    interrupt_exit_user_prepare_main+0x29c/0x320
-    interrupt_exit_user_prepare+0x6c/0xa0
-    interrupt_return_srr_user+0x8/0x138
+Fixes: d2bfda2e7aa0 ("NFSv4: don't reprocess cached open CLAIM_PREVIOUS")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
-pt_regs.
-
-Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
-if not set. The actual error value doesn't seem to be important here, so
-just pick -EINVAL.
-
-Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[mpe: Trim oops in change log, add Fixes & Cc stable]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
-
-diff --git a/arch/powerpc/kernel/ptrace/ptrace-view.c b/arch/powerpc/kernel/ptrace/ptrace-view.c
-index 2087a785f05f..5fff0d04b23f 100644
---- a/arch/powerpc/kernel/ptrace/ptrace-view.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
-@@ -290,6 +290,9 @@ static int gpr_set(struct task_struct *target, const struct user_regset *regset,
- static int ppr_get(struct task_struct *target, const struct user_regset *regset,
- 		   struct membuf to)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
- }
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 22a93ae46cd7..5607b1e2b821 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1980,8 +1980,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(struct nfs4_opendata *data)
+ 	if (!data->rpc_done) {
+ 		if (data->rpc_status)
+ 			return ERR_PTR(data->rpc_status);
+-		/* cached opens have already been processed */
+-		goto update;
++		return nfs4_try_open_cached(data);
+ 	}
  
-@@ -297,6 +300,9 @@ static int ppr_set(struct task_struct *target, const struct user_regset *regset,
- 		   unsigned int pos, unsigned int count, const void *kbuf,
- 		   const void __user *ubuf)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
+ 	ret = nfs_refresh_inode(inode, &data->f_attr);
+@@ -1990,7 +1989,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(struct nfs4_opendata *data)
+ 
+ 	if (data->o_res.delegation_type != 0)
+ 		nfs4_opendata_check_deleg(data, state);
+-update:
 +
- 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
- 				  &target->thread.regs->ppr, 0, sizeof(u64));
- }
+ 	if (!update_open_stateid(state, &data->o_res.stateid,
+ 				NULL, data->o_arg.fmode))
+ 		return ERR_PTR(-EAGAIN);
 
