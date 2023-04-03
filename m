@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E496D471A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E676D4A8E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232968AbjDCORI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35458 "EHLO
+        id S233943AbjDCOsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:48:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232960AbjDCORH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:07 -0400
+        with ESMTP id S234099AbjDCOri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 080B327831
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9544B29BE4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95BCA61CD1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69E7C433EF;
-        Mon,  3 Apr 2023 14:17:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A05961EEE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88341C433EF;
+        Mon,  3 Apr 2023 14:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531426;
-        bh=95OnjUFgts2qjKb/jFfpXjpPJsfmbkMLtlubSbuSs1A=;
+        s=korg; t=1680533202;
+        bh=Ma1MO+lkonO5tlfeb0hMamB0IjqPRpvL37CsNZv9Zr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=me0O4lqhYwfPKMHGMjmqzwcaPxOad5dLrvMOX8DN3fZ3shsKSSwq66UbayQKJFN5N
-         YrBa3MfpX4AS/XjxffMBoGGuQB1SpuE/GuEZ/Uiodyn/Ec8hH4kYHrZ7SJ0DKkwV1P
-         nfsQjbUTeqLe9deq99HPJsESoW0Qae50fyNXpSNs=
+        b=GOBxwhyAJoGdmgOwGwU4R/InWq5V/2IMF+hUVK9DVVk2xhoojruLX+BZiVC/+HgFz
+         djyWy/DKoRUup2rrleeSeA7HS+2dGDsmPGqsqni0YN/mUxmRUNu6w3V1D8KuDASmGE
+         AV12CqESFrHJkPEc8KTlafLNruShabg0qKAxxSr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/84] fbdev: intelfb: Fix potential divide by zero
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 094/187] drm/i915/tc: Fix the ICL PHY ownership check in TC-cold state
 Date:   Mon,  3 Apr 2023 16:08:59 +0200
-Message-Id: <20230403140355.420772326@linuxfoundation.org>
+Message-Id: <20230403140419.076016778@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit d823685486a3446d061fed7c7d2f80af984f119a ]
+[ Upstream commit 38c583019484f190d5b33f59b8ae810e6b1763c6 ]
 
-Variable var->pixclock is controlled by user and can be assigned
-to zero. Without proper check, divide by zero would occur in
-intelfbhw_validate_mode and intelfbhw_mode_to_hw.
+The commit renaming icl_tc_phy_is_in_safe_mode() to
+icl_tc_phy_take_ownership() didn't flip the function's return value
+accordingly, fix this up.
 
-Error out if var->pixclock is zero.
+This didn't cause an actual problem besides state check errors, since
+the function is only used during HW readout.
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Fixes: f53979d68a77 ("drm/i915/display/tc: Rename safe_mode functions ownership")
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230316131724.359612-4-imre.deak@intel.com
+(cherry picked from commit f2c7959dda614d9b7c6a41510492de39d31705ec)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/intelfb/intelfbdrv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/i915/display/intel_tc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/intelfb/intelfbdrv.c b/drivers/video/fbdev/intelfb/intelfbdrv.c
-index d7463a2a5d83f..c97c0c8514809 100644
---- a/drivers/video/fbdev/intelfb/intelfbdrv.c
-+++ b/drivers/video/fbdev/intelfb/intelfbdrv.c
-@@ -1215,6 +1215,9 @@ static int intelfb_check_var(struct fb_var_screeninfo *var,
+diff --git a/drivers/gpu/drm/i915/display/intel_tc.c b/drivers/gpu/drm/i915/display/intel_tc.c
+index 70624b4b2d38c..c5d41fd51118f 100644
+--- a/drivers/gpu/drm/i915/display/intel_tc.c
++++ b/drivers/gpu/drm/i915/display/intel_tc.c
+@@ -436,9 +436,9 @@ static bool icl_tc_phy_is_owned(struct intel_digital_port *dig_port)
+ 				PORT_TX_DFLEXDPCSSS(dig_port->tc_phy_fia));
+ 	if (val == 0xffffffff) {
+ 		drm_dbg_kms(&i915->drm,
+-			    "Port %s: PHY in TCCOLD, assume safe mode\n",
++			    "Port %s: PHY in TCCOLD, assume not owned\n",
+ 			    dig_port->tc_port_name);
+-		return true;
++		return false;
+ 	}
  
- 	dinfo = GET_DINFO(info);
- 
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	/* update the pitch */
- 	if (intelfbhw_validate_mode(dinfo, var) != 0)
- 		return -EINVAL;
+ 	return val & DP_PHY_MODE_STATUS_NOT_SAFE(dig_port->tc_phy_fia_idx);
 -- 
 2.39.2
 
