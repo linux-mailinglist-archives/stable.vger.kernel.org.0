@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F35426D4713
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F4A6D48C8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232949AbjDCOQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35048 "EHLO
+        id S233478AbjDCOb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232956AbjDCOQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E7F22E90
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:51 -0700 (PDT)
+        with ESMTP id S233483AbjDCOb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5B63500B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E48E961CCE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2477C433EF;
-        Mon,  3 Apr 2023 14:16:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92AA4B81C5F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD03C433D2;
+        Mon,  3 Apr 2023 14:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531410;
-        bh=NxzOtRQu6KigYzzhwtqdp249Roma4xVFBm/yW7xDUEc=;
+        s=korg; t=1680532302;
+        bh=nKoXT/pN5cODU1vXtSyc7ofqfc/dOK1eSqnxjpQSMh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iz4Jyic+G5NbhCEt8qPfSQjTuWHZL6LgITnXikXzdQQ4fvVVERosVBaHEVVaWTOPO
-         Cd0lJyW634lHSVibbLc+WY9xOkPgmJFCF/g/4RFGg6YNJulLZf9tc3VFKPcsk20R7s
-         qtjU64L6kcBJ42L3a7NZxeP1U5LlAHiR6Y2SkyMs=
+        b=vM6NBnu+OiyN9xcR/kjqChf+bpm7+/fGlq5Add5Rg9eidBYjbIh8qJjf1BVa8wzxX
+         FyoZgEn/9D+uTzPrq3Fx/Y7tWYOqrav+BHHQBbf50bTrnUiXeV2OeFfM2JIXX+uMvE
+         CKOGlc7eIyYjB0FuSzUl4Bu+b3KVKTL4/v73bSMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        NeilBrown <neilb@suse.de>, Song Liu <song@kernel.org>,
+        patches@lists.linux.dev,
+        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 52/84] md: avoid signed overflow in slot_store()
-Date:   Mon,  3 Apr 2023 16:08:53 +0200
-Message-Id: <20230403140355.203256694@linuxfoundation.org>
+Subject: [PATCH 5.15 31/99] mtd: rawnand: meson: invalidate cache on polling ECC bit
+Date:   Mon,  3 Apr 2023 16:08:54 +0200
+Message-Id: <20230403140404.310210926@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,42 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Arseniy Krasnov <avkrasnov@sberdevices.ru>
 
-[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
+[ Upstream commit e732e39ed9929c05fd219035bc9653ba4100d4fa ]
 
-slot_store() uses kstrtouint() to get a slot number, but stores the
-result in an "int" variable (by casting a pointer).
-This can result in a negative slot number if the unsigned int value is
-very large.
+'info_buf' memory is cached and driver polls ECC bit in it. This bit
+is set by the NAND controller. If 'usleep_range()' returns before device
+sets this bit, 'info_buf' will be cached and driver won't see update of
+this bit and will loop forever.
 
-A negative number means that the slot is empty, but setting a negative
-slot number this way will not remove the device from the array.  I don't
-think this is a serious problem, but it could cause confusion and it is
-best to fix it.
-
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <song@kernel.org>
+Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
+Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/d4ef0bd6-816e-f6fa-9385-f05f775f0ae2@sberdevices.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/nand/raw/meson_nand.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 89d4dcc5253e5..f8c111b369928 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -2991,6 +2991,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
- 		if (err < 0)
- 			return err;
-+		if (slot < 0)
-+			/* overflow */
-+			return -ENOSPC;
- 	}
- 	if (rdev->mddev->pers && slot == -1) {
- 		/* Setting 'slot' on an active array requires also
+diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
+index b97adeee4cc14..4fd20e70aabd4 100644
+--- a/drivers/mtd/nand/raw/meson_nand.c
++++ b/drivers/mtd/nand/raw/meson_nand.c
+@@ -172,6 +172,7 @@ struct meson_nfc {
+ 
+ 	dma_addr_t daddr;
+ 	dma_addr_t iaddr;
++	u32 info_bytes;
+ 
+ 	unsigned long assigned_cs;
+ };
+@@ -499,6 +500,7 @@ static int meson_nfc_dma_buffer_setup(struct nand_chip *nand, void *databuf,
+ 					 nfc->daddr, datalen, dir);
+ 			return ret;
+ 		}
++		nfc->info_bytes = infolen;
+ 		cmd = GENCMDIADDRL(NFC_CMD_AIL, nfc->iaddr);
+ 		writel(cmd, nfc->reg_base + NFC_REG_CMD);
+ 
+@@ -516,8 +518,10 @@ static void meson_nfc_dma_buffer_release(struct nand_chip *nand,
+ 	struct meson_nfc *nfc = nand_get_controller_data(nand);
+ 
+ 	dma_unmap_single(nfc->dev, nfc->daddr, datalen, dir);
+-	if (infolen)
++	if (infolen) {
+ 		dma_unmap_single(nfc->dev, nfc->iaddr, infolen, dir);
++		nfc->info_bytes = 0;
++	}
+ }
+ 
+ static int meson_nfc_read_buf(struct nand_chip *nand, u8 *buf, int len)
+@@ -706,6 +710,8 @@ static void meson_nfc_check_ecc_pages_valid(struct meson_nfc *nfc,
+ 		usleep_range(10, 15);
+ 		/* info is updated by nfc dma engine*/
+ 		smp_rmb();
++		dma_sync_single_for_cpu(nfc->dev, nfc->iaddr, nfc->info_bytes,
++					DMA_FROM_DEVICE);
+ 		ret = *info & ECC_COMPLETE;
+ 	} while (!ret);
+ }
 -- 
 2.39.2
 
