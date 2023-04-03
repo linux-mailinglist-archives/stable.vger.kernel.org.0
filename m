@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 856C46D49BF
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F07986D4904
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233787AbjDCOlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54348 "EHLO
+        id S233541AbjDCOeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233793AbjDCOlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A259B17AD3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:00 -0700 (PDT)
+        with ESMTP id S233472AbjDCOeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06C335035
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37788B81CF5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A6A5C433EF;
-        Mon,  3 Apr 2023 14:40:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3BCE61E53
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D833BC433D2;
+        Mon,  3 Apr 2023 14:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532857;
-        bh=VJ8fSE6cPSnFA9ct74l+U//TUQbG/ORxZtqTFAi4G1Y=;
+        s=korg; t=1680532419;
+        bh=S2b79x8Vb6vy9+bSzEh8QYltQ22LpMjfCTYB7ztWqIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIhsnYtY0bd8aVMEClAjTv+lOPf8FHIhokMkfoK+W5cal0FyiYDQ3/ehxTyXyJYs+
-         66/mlA6DEO4LO68dwy6600YawXe3tKJx42OvNh18eMbfCHWntoHwGmn3Msvfmq79NP
-         969dEHgSfFdVT/iyafQ+SlEEKTgSeIsZAODn+BJ8=
+        b=AlkS0aYkq/AjqiFen1RU+dvtJjjHPa6yxv2a2NkyG32gVt4wgJKOH+VQB58eYe4V0
+         FyRa96lZnY4akGZFkI/XLWKgOK9EVfWY6ADTS3BYQqNIhazQZUqvBljXgy65WKMQC/
+         Wey0Eqm7HA/VE3JAHkGZs0cADucHVBCykkfv1Zcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josua Mayer <josua@solid-run.com>,
         Simon Horman <simon.horman@corigine.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 143/181] net: phy: dp83869: fix default value for tx-/rx-internal-delay
+Subject: [PATCH 5.15 75/99] net: phy: dp83869: fix default value for tx-/rx-internal-delay
 Date:   Mon,  3 Apr 2023 16:09:38 +0200
-Message-Id: <20230403140419.702771263@linuxfoundation.org>
+Message-Id: <20230403140406.289977821@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -86,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/phy/dp83869.c
 +++ b/drivers/net/phy/dp83869.c
-@@ -588,15 +588,13 @@ static int dp83869_of_init(struct phy_de
+@@ -587,15 +587,13 @@ static int dp83869_of_init(struct phy_de
  						       &dp83869_internal_delay[0],
  						       delay_size, true);
  	if (dp83869->rx_int_delay < 0)
