@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C706D46B8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC466D485B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232658AbjDCOMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
+        id S233351AbjDCO2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232774AbjDCOMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD501FF1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:44 -0700 (PDT)
+        with ESMTP id S233355AbjDCO17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB4DFE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C8E160B68
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22306C433D2;
-        Mon,  3 Apr 2023 14:12:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD33B61138
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FAEC433D2;
+        Mon,  3 Apr 2023 14:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531163;
-        bh=w98C8uP6tCGDs9QMuLfejUCwkf1JUDuDkKbJdsAlxTM=;
+        s=korg; t=1680532076;
+        bh=FubNWVgG7nFnrZ/ZV2IXiewk5f3Xuvqxab/EedCkg4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnhE17foshtduZ2vhlQ2EdHUmOx0yCF161clrJ9rSSeL+f0PtkV5CFygPVhJo+YXt
-         yUPppNfUJd9Au/jXH6eLtPg4c3SHxabtGSSfE3jvdyHGwnYQSUVRYeI55HhvFdRSgP
-         isvj/xVgtVyiXQDAFibK5pzU0rmQmOIGJFQNdkmw=
+        b=gqOxAtI+kKQlAhdr8iFDZT3v4RMY8v++kVqzKWWgUkMyrrC3KYC+KvZExMsY1zlV9
+         wLIpMveqV9FLnH/l+4RfeTLSzc24X65cUQVQggp9booPrdbPxacsr8UP3BjsrmFR7I
+         mFwPPGbQAZmGNHipnSUrQAJja8SpmKd7d5BlutNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Haynes <sh@synk.net>,
-        Lefteris Alexakis <lefteris.alexakis@kpn.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/66] bpf: Adjust insufficient default bpf_jit_limit
+        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH 5.10 086/173] usb: chipidea: core: fix possible concurrent when switch role
 Date:   Mon,  3 Apr 2023 16:08:21 +0200
-Message-Id: <20230403140352.318140448@linuxfoundation.org>
+Message-Id: <20230403140417.213940398@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,78 +52,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-[ Upstream commit 10ec8ca8ec1a2f04c4ed90897225231c58c124a7 ]
+commit 451b15ed138ec15bffbebb58a00ebdd884c3e659 upstream.
 
-We've seen recent AWS EKS (Kubernetes) user reports like the following:
+The user may call role_store() when driver is handling
+ci_handle_id_switch() which is triggerred by otg event or power lost
+event. Unfortunately, the controller may go into chaos in this case.
+Fix this by protecting it with mutex lock.
 
-  After upgrading EKS nodes from v20230203 to v20230217 on our 1.24 EKS
-  clusters after a few days a number of the nodes have containers stuck
-  in ContainerCreating state or liveness/readiness probes reporting the
-  following error:
-
-    Readiness probe errored: rpc error: code = Unknown desc = failed to
-    exec in container: failed to start exec "4a11039f730203ffc003b7[...]":
-    OCI runtime exec failed: exec failed: unable to start container process:
-    unable to init seccomp: error loading seccomp filter into kernel:
-    error loading seccomp filter: errno 524: unknown
-
-  However, we had not been seeing this issue on previous AMIs and it only
-  started to occur on v20230217 (following the upgrade from kernel 5.4 to
-  5.10) with no other changes to the underlying cluster or workloads.
-
-  We tried the suggestions from that issue (sysctl net.core.bpf_jit_limit=452534528)
-  which helped to immediately allow containers to be created and probes to
-  execute but after approximately a day the issue returned and the value
-  returned by cat /proc/vmallocinfo | grep bpf_jit | awk '{s+=$2} END {print s}'
-  was steadily increasing.
-
-I tested bpf tree to observe bpf_jit_charge_modmem, bpf_jit_uncharge_modmem
-their sizes passed in as well as bpf_jit_current under tcpdump BPF filter,
-seccomp BPF and native (e)BPF programs, and the behavior all looks sane
-and expected, that is nothing "leaking" from an upstream perspective.
-
-The bpf_jit_limit knob was originally added in order to avoid a situation
-where unprivileged applications loading BPF programs (e.g. seccomp BPF
-policies) consuming all the module memory space via BPF JIT such that loading
-of kernel modules would be prevented. The default limit was defined back in
-2018 and while good enough back then, we are generally seeing far more BPF
-consumers today.
-
-Adjust the limit for the BPF JIT pool from originally 1/4 to now 1/2 of the
-module memory space to better reflect today's needs and avoid more users
-running into potentially hard to debug issues.
-
-Fixes: fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
-Reported-by: Stephen Haynes <sh@synk.net>
-Reported-by: Lefteris Alexakis <lefteris.alexakis@kpn.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://github.com/awslabs/amazon-eks-ami/issues/1179
-Link: https://github.com/awslabs/amazon-eks-ami/issues/1219
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230320143725.8394-1-daniel@iogearbox.net
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a932a8041ff9 ("usb: chipidea: core: add sysfs group")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20230317061516.2451728-2-xu.yang_2@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/chipidea/ci.h   |    2 ++
+ drivers/usb/chipidea/core.c |    8 +++++++-
+ drivers/usb/chipidea/otg.c  |    5 ++++-
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 2ca36bb440ded..1f586204673d5 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -555,7 +555,7 @@ static int __init bpf_jit_charge_init(void)
- {
- 	/* Only used as heuristic here to derive limit. */
- 	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
--	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
-+	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 1,
- 					    PAGE_SIZE), LONG_MAX);
- 	return 0;
+--- a/drivers/usb/chipidea/ci.h
++++ b/drivers/usb/chipidea/ci.h
+@@ -204,6 +204,7 @@ struct hw_bank {
+  * @in_lpm: if the core in low power mode
+  * @wakeup_int: if wakeup interrupt occur
+  * @rev: The revision number for controller
++ * @mutex: protect code from concorrent running when doing role switch
+  */
+ struct ci_hdrc {
+ 	struct device			*dev;
+@@ -257,6 +258,7 @@ struct ci_hdrc {
+ 	bool				in_lpm;
+ 	bool				wakeup_int;
+ 	enum ci_revision		rev;
++	struct mutex                    mutex;
+ };
+ 
+ static inline struct ci_role_driver *ci_role(struct ci_hdrc *ci)
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -969,8 +969,12 @@ static ssize_t role_store(struct device
+ 	if (role == CI_ROLE_END)
+ 		return -EINVAL;
+ 
+-	if (role == ci->role)
++	mutex_lock(&ci->mutex);
++
++	if (role == ci->role) {
++		mutex_unlock(&ci->mutex);
+ 		return n;
++	}
+ 
+ 	pm_runtime_get_sync(dev);
+ 	disable_irq(ci->irq);
+@@ -980,6 +984,7 @@ static ssize_t role_store(struct device
+ 		ci_handle_vbus_change(ci);
+ 	enable_irq(ci->irq);
+ 	pm_runtime_put_sync(dev);
++	mutex_unlock(&ci->mutex);
+ 
+ 	return (ret == 0) ? n : ret;
  }
--- 
-2.39.2
-
+@@ -1015,6 +1020,7 @@ static int ci_hdrc_probe(struct platform
+ 		return -ENOMEM;
+ 
+ 	spin_lock_init(&ci->lock);
++	mutex_init(&ci->mutex);
+ 	ci->dev = dev;
+ 	ci->platdata = dev_get_platdata(dev);
+ 	ci->imx28_write_fix = !!(ci->platdata->flags &
+--- a/drivers/usb/chipidea/otg.c
++++ b/drivers/usb/chipidea/otg.c
+@@ -166,8 +166,10 @@ static int hw_wait_vbus_lower_bsv(struct
+ 
+ static void ci_handle_id_switch(struct ci_hdrc *ci)
+ {
+-	enum ci_role role = ci_otg_role(ci);
++	enum ci_role role;
+ 
++	mutex_lock(&ci->mutex);
++	role = ci_otg_role(ci);
+ 	if (role != ci->role) {
+ 		dev_dbg(ci->dev, "switching from %s to %s\n",
+ 			ci_role(ci)->name, ci->roles[role]->name);
+@@ -197,6 +199,7 @@ static void ci_handle_id_switch(struct c
+ 		if (role == CI_ROLE_GADGET)
+ 			ci_handle_vbus_change(ci);
+ 	}
++	mutex_unlock(&ci->mutex);
+ }
+ /**
+  * ci_otg_work - perform otg (vbus/id) event handle
 
 
