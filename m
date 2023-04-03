@@ -2,78 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2816D4439
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 14:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0D36D4475
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 14:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229509AbjDCMRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 08:17:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41192 "EHLO
+        id S231655AbjDCMcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 08:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbjDCMRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 08:17:09 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1AC410243
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 05:17:07 -0700 (PDT)
-Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PqqYG3XLRzSkjS;
-        Mon,  3 Apr 2023 20:13:22 +0800 (CST)
-Received: from cgs.huawei.com (10.244.148.83) by
- kwepemi500012.china.huawei.com (7.221.188.12) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Mon, 3 Apr 2023 20:17:05 +0800
-From:   Gaosheng Cui <cuigaosheng1@huawei.com>
-To:     <stable@vger.kernel.org>, <cuigaosheng1@huawei.com>
-CC:     <bparrot@ti.com>, <mchehab@kernel.org>, <sashal@kernel.org>,
-        <laurent.pinchart@ideasonboard.com>, <gregkh@linuxfoundation.org>,
-        <patches@lists.linux.dev>
-Subject: [PATCH 5.10] media: ti: cal: revert "media: ti: cal: fix possible memory leak in cal_ctx_create()"
-Date:   Mon, 3 Apr 2023 20:17:04 +0800
-Message-ID: <20230403121704.3017781-1-cuigaosheng1@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229780AbjDCMcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 08:32:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A5D18F8A;
+        Mon,  3 Apr 2023 05:32:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 665D860DCB;
+        Mon,  3 Apr 2023 12:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D24C4339B;
+        Mon,  3 Apr 2023 12:32:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680525151;
+        bh=ulRUO8fEKtK/fjgnpqilfVtOG7bGfaNe2DcuHFEQvow=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MxjHLqvp/wt7HJ/F9QbFK6KWaWwpZFxvvTYu/GSbf6mOMipizMMWyzbcIMGwIXbSa
+         PA7vML9GO7CztqywOEP+WeOVjiAAur7/z1zx3mF43VjGkIZfA25ks/voXfgkwZ6fRw
+         GnghkpJgKjaJ9I3NBW8afx61VWKSw20ogLBGp8CnntJCNF1plBybvSshB2KSBRDaLN
+         OmMX5OfUqoWLkSCzgx4mIJ1TCHA9P7Q3B7wyMnSxvUGhjEkeBvG0p+BwxvTAqoZr9M
+         fV1D7wbQGu0wM6NFeTeoWJDD1Arf42feCLn8Czf5ToXR7luCZBD117hs/X5KPQ3Rz5
+         GX76CF3Ah8u9Q==
+From:   rfoss@kernel.org
+To:     Neil Armstrong <neil.armstrong@linaro.org>,
+        Francesco Dolcini <francesco@dolcini.it>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        dri-devel@lists.freedesktop.org,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        David Airlie <airlied@gmail.com>
+Cc:     Robert Foss <rfoss@kernel.org>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v1] drm/bridge: lt8912b: Fix DSI Video Mode
+Date:   Mon,  3 Apr 2023 14:32:17 +0200
+Message-Id: <168052510957.3322285.11626143716583284143.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230330093131.424828-1-francesco@dolcini.it>
+References: <20230330093131.424828-1-francesco@dolcini.it>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.244.148.83]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemi500012.china.huawei.com (7.221.188.12)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit c7a218cbf67fffcd99b76ae3b5e9c2e8bef17c8c.
+From: Robert Foss <rfoss@kernel.org>
 
-The memory of ctx is allocated by devm_kzalloc in cal_ctx_create,
-it should not be freed by kfree when cal_ctx_v4l2_init() fails,
-otherwise kfree() will cause double free, so revert this patch.
+On Thu, 30 Mar 2023 11:31:31 +0200, Francesco Dolcini wrote:
+> From: Francesco Dolcini <francesco.dolcini@toradex.com>
+> 
+> LT8912 DSI port supports only Non-Burst mode video operation with Sync
+> Events and continuous clock on clock lane, correct dsi mode flags
+> according to that removing MIPI_DSI_MODE_VIDEO_BURST flag.
+> 
+> 
+> [...]
 
-Fixes: c7a218cbf67f ("media: ti: cal: fix possible memory leak in cal_ctx_create()")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
----
- drivers/media/platform/ti-vpe/cal.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Applied, thanks!
 
-diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-index 93121c90d76a..2eef245c31a1 100644
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -624,10 +624,8 @@ static struct cal_ctx *cal_ctx_create(struct cal_dev *cal, int inst)
- 	ctx->cport = inst;
- 
- 	ret = cal_ctx_v4l2_init(ctx);
--	if (ret) {
--		kfree(ctx);
-+	if (ret)
- 		return NULL;
--	}
- 
- 	return ctx;
- }
--- 
-2.25.1
+Repo: https://cgit.freedesktop.org/drm/drm-misc/
+
+
+[1/1] drm/bridge: lt8912b: Fix DSI Video Mode
+      commit: f435b7ef3b360d689df2ffa8326352cd07940d92
+
+
+
+Rob
 
