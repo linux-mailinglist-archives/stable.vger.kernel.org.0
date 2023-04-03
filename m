@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC2A6D4ABE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 892F86D48ED
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234170AbjDCOuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:50:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S233597AbjDCOdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234184AbjDCOtq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12CF329BD2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:58 -0700 (PDT)
+        with ESMTP id S233561AbjDCOdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250E7E5A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABD2CB81D73
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F647C433D2;
-        Mon,  3 Apr 2023 14:48:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B669E61B43
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDED1C433EF;
+        Mon,  3 Apr 2023 14:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533336;
-        bh=r0qPG9AVwV8MCeUOEbJH5imDFdSYCagOeFMWt+brQv4=;
+        s=korg; t=1680532375;
+        bh=qiubIwvqJ+FOVR3QFU4MswI3mScH5L+kQPAC5pyQKDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gdw9Up98MNDL2wRmMSZF5ixdM7QhGCEKyB5xSdRgcgi29qjJMg8GFPQiayVF0YGEg
-         mDQuODgy6tRimlxxC8LcD0t8TxE9Jb0qwVopBuEPRf2FxwHPBxfLDD1qetx//Ahx76
-         TqhZf+INAKRz38Ad9JYhQ7O5ARCExUTY3jaQguw8=
+        b=UM1G6tx8S4b0wy7LzOvVHlrVdxudFd0i0J5qZhbfTsYkSu4p/lnPm4bIzUYPV/mwM
+         WJGTUe4/JtZtKzWKNyo9CJk5fUZXR06puAFoj5zpz7SaAlFh0JoSuPiurxE48kPkFo
+         C14oopUqJBZXcWlilSVFW5BpFxED3z61wEtBcmns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Simon Horman <simon.horman@corigine.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 117/187] bnxt_en: Fix typo in PCI id to device description string mapping
+Subject: [PATCH 5.15 59/99] bnxt_en: Fix typo in PCI id to device description string mapping
 Date:   Mon,  3 Apr 2023 16:09:22 +0200
-Message-Id: <20230403140419.821206999@linuxfoundation.org>
+Message-Id: <20230403140405.629116241@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index b44b2ec5e61a2..015b5848b9583 100644
+index 4e98e34fc46b5..4ef90e0cb8f8e 100644
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -175,12 +175,12 @@ static const struct pci_device_id bnxt_pci_tbl[] = {
+@@ -223,12 +223,12 @@ static const struct pci_device_id bnxt_pci_tbl[] = {
  	{ PCI_VDEVICE(BROADCOM, 0x1750), .driver_data = BCM57508 },
  	{ PCI_VDEVICE(BROADCOM, 0x1751), .driver_data = BCM57504 },
  	{ PCI_VDEVICE(BROADCOM, 0x1752), .driver_data = BCM57502 },
