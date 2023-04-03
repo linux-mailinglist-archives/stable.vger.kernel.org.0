@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D7F6D474B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02A76D4A42
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233027AbjDCOS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
+        id S233825AbjDCOpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233023AbjDCOS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BE42C9EE;
-        Mon,  3 Apr 2023 07:18:56 -0700 (PDT)
+        with ESMTP id S233899AbjDCOpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5967E1695B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5B37B81BA8;
-        Mon,  3 Apr 2023 14:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC28C433D2;
-        Mon,  3 Apr 2023 14:18:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0C958CE12C8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B097C4339C;
+        Mon,  3 Apr 2023 14:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531533;
-        bh=23ce0YqyjdydrJ6eTt5+gYdCKYYGWRIVlyFT2GNleRQ=;
+        s=korg; t=1680533069;
+        bh=mJgUxo5owB/ky529vzd/7Ni0Rn3/5W3EfAkj5ZdLqhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmOxiF05ScxRzqaXDUd/GCgBHbSxr0M1z+t9RP37cEPd7j8e9P0rMeP9G8co6M2G4
-         AQxRkDOIH/K+GAQ3rnQs9BJQlNpHKlmU2p7OvCNaRr0u/64vIhK1F6ZYpv/MbNUksG
-         nhVHBfPsOT7lHFaD5JSXCnPrR+NvQuqoRzXFLKhU=
+        b=woIBa3iQg9yGAcanBE34EYYWnCj3f7zI8Xmo7PLlfQgUagCtz867O60UnCyQqY1NP
+         GtY7VP+tJn0xlvDJdVLvtCn7D9Gshhw1EVFv2NzZF6ZVNdUvsL6Y6m+ojLzoQT739p
+         14Vnx8N3lbZCLjdGRM1ZQkGuwFQghjGnm9FaDPbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bharath SM <bharathsm@microsoft.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Steve French <smfrench@gmail.com>, keyrings@vger.kernel.org,
-        linux-cifs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        patches@lists.linux.dev,
+        Aurabindo Pillai <Aurabindo.Pillai@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/104] keys: Do not cache key in task struct if key is requested from kernel thread
+Subject: [PATCH 6.2 042/187] drm/amd/display: Fix HDCP failing to enable after suspend
 Date:   Mon,  3 Apr 2023 16:08:07 +0200
-Message-Id: <20230403140404.785142940@linuxfoundation.org>
+Message-Id: <20230403140417.368961640@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,60 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
 
-[ Upstream commit 47f9e4c924025c5be87959d3335e66fcbb7f6b5c ]
+[ Upstream commit 728cefa53a36ba378ed4a7f31a0c08289687d824 ]
 
-The key which gets cached in task structure from a kernel thread does not
-get invalidated even after expiry.  Due to which, a new key request from
-kernel thread will be served with the cached key if it's present in task
-struct irrespective of the key validity.  The change is to not cache key in
-task_struct when key requested from kernel thread so that kernel thread
-gets a valid key on every key request.
+[Why]
+On resume some displays are not ready for HDCP, so they will fail if we
+start the hdcp authentintication too soon.
 
-The problem has been seen with the cifs module doing DNS lookups from a
-kernel thread and the results getting pinned by being attached to that
-kernel thread's cache - and thus not something that can be easily got rid
-of.  The cache would ordinarily be cleared by notify-resume, but kernel
-threads don't do that.
+Add a delay so that the displays can be ready before we start.
 
-This isn't seen with AFS because AFS is doing request_key() within the
-kernel half of a user thread - which will do notify-resume.
+NOTE: Previoulsy this delay was set to 3 seconds but it was causing
+issues with compliance, 2 seconds should enough for compliance and the
+s3 resume case.
 
-Fixes: 7743c48e54ee ("keys: Cache result of request_key*() temporarily in task_struct")
-Signed-off-by: Bharath SM <bharathsm@microsoft.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Shyam Prasad N <nspmangalore@gmail.com>
-cc: Steve French <smfrench@gmail.com>
-cc: keyrings@vger.kernel.org
-cc: linux-cifs@vger.kernel.org
-cc: linux-fsdevel@vger.kernel.org
-Link: https://lore.kernel.org/r/CAGypqWw951d=zYRbdgNR4snUDvJhWL=q3=WOyh7HhSJupjz2vA@mail.gmail.com/
+[How]
+Change the Delay to 2 seconds.
+
+Reviewed-by: Aurabindo Pillai <Aurabindo.Pillai@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/request_key.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/keys/request_key.c b/security/keys/request_key.c
-index 957b9e3e14924..17c9c0cfb6f59 100644
---- a/security/keys/request_key.c
-+++ b/security/keys/request_key.c
-@@ -38,9 +38,12 @@ static void cache_requested_key(struct key *key)
- #ifdef CONFIG_KEYS_REQUEST_CACHE
- 	struct task_struct *t = current;
- 
--	key_put(t->cached_requested_key);
--	t->cached_requested_key = key_get(key);
--	set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
-+	/* Do not cache key if it is a kernel thread */
-+	if (!(t->flags & PF_KTHREAD)) {
-+		key_put(t->cached_requested_key);
-+		t->cached_requested_key = key_get(key);
-+		set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
-+	}
- #endif
- }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+index a7fd98f57f94c..dc62375a8e2c4 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+@@ -495,7 +495,7 @@ static void update_config(void *handle, struct cp_psp_stream_config *config)
+ 	link->dp.mst_enabled = config->mst_enabled;
+ 	link->dp.usb4_enabled = config->usb4_enabled;
+ 	display->adjust.disable = MOD_HDCP_DISPLAY_DISABLE_AUTHENTICATION;
+-	link->adjust.auth_delay = 0;
++	link->adjust.auth_delay = 2;
+ 	link->adjust.hdcp1.disable = 0;
+ 	conn_state = aconnector->base.state;
  
 -- 
 2.39.2
