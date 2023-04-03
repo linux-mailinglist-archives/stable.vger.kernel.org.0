@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 203EC6D46AC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67AAC6D48CC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232744AbjDCOMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52642 "EHLO
+        id S233494AbjDCOcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232806AbjDCOMZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A19C2C9CE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:13 -0700 (PDT)
+        with ESMTP id S233490AbjDCOcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC12D4F8C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E7F7B81AF8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE2D2C433D2;
-        Mon,  3 Apr 2023 14:12:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D1DE61E18
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE8DC4339B;
+        Mon,  3 Apr 2023 14:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531132;
-        bh=racrdeC06ukuu1fSvkjbs9AJFAptKDnohO4OTEYO99I=;
+        s=korg; t=1680532310;
+        bh=n0wXmv/9AfzSzwTXDUFKIsGEtgqcqQkQw6BexLF/x64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pecY4c8LndIi+BmtQ2yKwDguIrey+seDKRQyi74NMYR05SAZ3poXtxf+Uxlud2qk1
-         E2YHtYYbskENQcJyG2HWEPDF45i1+jWXRt9yWjTD3S514zG4biJqdh3b5LnimSPgbH
-         5cWb1x4yzPLYi2s66S277YRV2R2/M/B+9kcDixyQ=
+        b=h3sbSvP4+T2cYmu3jaiVscxPq1vl58DmwXS5WNwv7Q4Rx5NJqQzKAAPtO1awXInK+
+         BQqZPJpOSk7TRMj+xoa3BI5s+0/PrdNnpQnihe1RRoaTI85Or1zzuwcPrQH0pxkNDL
+         iO0uG/SEJodRPakCEmNv0k1AxCIJNoQad89gMfL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Joel Selvaraj <joelselvaraj.oss@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 31/66] scsi: core: Add BLIST_SKIP_VPD_PAGES for SKhynix H28U74301AMR
+        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 16/99] sched_getaffinity: dont assume cpumask_size() is fully initialized
 Date:   Mon,  3 Apr 2023 16:08:39 +0200
-Message-Id: <20230403140353.004220736@linuxfoundation.org>
+Message-Id: <20230403140359.324159080@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit a204b490595de71016b2360a1886ec8c12d0afac upstream.
+[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
 
-Xiaomi Poco F1 (qcom/sdm845-xiaomi-beryllium*.dts) comes with a SKhynix
-H28U74301AMR UFS. The sd_read_cpr() operation leads to a 120 second
-timeout, making the device bootup very slow:
+The getaffinity() system call uses 'cpumask_size()' to decide how big
+the CPU mask is - so far so good.  It is indeed the allocation size of a
+cpumask.
 
-[  121.457736] sd 0:0:0:1: [sdb] tag#23 timing out command, waited 120s
+But the code also assumes that the whole allocation is initialized
+without actually doing so itself.  That's wrong, because we might have
+fixed-size allocations (making copying and clearing more efficient), but
+not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
 
-Setting the BLIST_SKIP_VPD_PAGES allows the device to skip the failing
-sd_read_cpr operation and boot normally.
+Having checked other users of 'cpumask_size()', they all seem to be ok,
+either using it purely for the allocation size, or explicitly zeroing
+the cpumask before using the size in bytes to copy it.
 
-Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
-Link: https://lore.kernel.org/r/20230313041402.39330-1-joelselvaraj.oss@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+See for example the ublk_ctrl_get_queue_affinity() function that uses
+the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
+cleared, whether the storage is on the stack or if it was an external
+allocation.
+
+Fix this by just zeroing the allocation before using it.  Do the same
+for the compat version of sched_getaffinity(), which had the same logic.
+
+Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
+access the bits.  For a cpumask_var_t, it ends up being a pointer to the
+same data either way, but it's just a good idea to treat it like you
+would a 'cpumask_t'.  The compat case already did that.
+
+Reported-by: Ryan Roberts <ryan.roberts@arm.com>
+Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
+Cc: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_devinfo.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/compat.c     | 2 +-
+ kernel/sched/core.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/scsi_devinfo.c
-+++ b/drivers/scsi/scsi_devinfo.c
-@@ -241,6 +241,7 @@ static struct {
- 	{"SGI", "RAID5", "*", BLIST_SPARSELUN},
- 	{"SGI", "TP9100", "*", BLIST_REPORTLUN2},
- 	{"SGI", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
-+	{"SKhynix", "H28U74301AMR", NULL, BLIST_SKIP_VPD_PAGES},
- 	{"IBM", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
- 	{"SUN", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
- 	{"DELL", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
+diff --git a/kernel/compat.c b/kernel/compat.c
+index 55551989d9da5..fb50f29d9b361 100644
+--- a/kernel/compat.c
++++ b/kernel/compat.c
+@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
+ 	if (len & (sizeof(compat_ulong_t)-1))
+ 		return -EINVAL;
+ 
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	ret = sched_getaffinity(pid, mask);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 0c72459d5f42a..acf7c09c9152f 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8185,14 +8185,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
+ 	if (len & (sizeof(unsigned long)-1))
+ 		return -EINVAL;
+ 
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	ret = sched_getaffinity(pid, mask);
+ 	if (ret == 0) {
+ 		unsigned int retlen = min(len, cpumask_size());
+ 
+-		if (copy_to_user(user_mask_ptr, mask, retlen))
++		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
+ 			ret = -EFAULT;
+ 		else
+ 			ret = retlen;
+-- 
+2.39.2
+
 
 
