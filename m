@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EBC6D47C3
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12C06D49BD
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233193AbjDCOXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:23:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47430 "EHLO
+        id S233789AbjDCOkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233169AbjDCOXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDED2D7CC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:49 -0700 (PDT)
+        with ESMTP id S233794AbjDCOky (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C64317ADE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1553B81BC0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A21DC433EF;
-        Mon,  3 Apr 2023 14:22:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14DBA61ED1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 274C7C433D2;
+        Mon,  3 Apr 2023 14:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531766;
-        bh=rfVv/EPGmOJfARn5s/5qZBQLEMqSzOYVFm85EhrcRl0=;
+        s=korg; t=1680532852;
+        bh=lqCj2IrxJRiHvfJNpW0pIk9HAiPYPcQsC53d06/2DPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGeRd0p6kzu/uhtfhBtiIYe2dHINInVgbtOqril6LxZAVn1U/VTzKSGChhSjS+7e/
-         aMYMLBOUO+KmMatacCiCpwlr2ZNSJT9TLfBLRLaLlLHywNXcyyiYSRCsUY+HU7P51X
-         YMMk8GzywhOtpWzuTg2skvwGN43zstGaHc2CA/zg=
+        b=eLSkY42r/aGUqU4hqIw1t1arcFCXGYb1GW7pHeSQsdm7iuYdNM/IyVZ69Vjt1l88p
+         yJmfise+aWLcbE1Az9beMa8n26RfcZKTdO6ZYXlxQcSsYBS+vLZNgxfDk9vvbWR9RJ
+         ECvH/NfNM7e9Ahxk2BEYZ+ktmEuu6DMf1+9VZM/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.4 104/104] gfs2: Always check inode size of inline inodes
+        syzbot+ee1cd780f69483a8616b@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 6.1 141/181] can: j1939: prevent deadlock by moving j1939_sk_errqueue()
 Date:   Mon,  3 Apr 2023 16:09:36 +0200
-Message-Id: <20230403140408.234088998@linuxfoundation.org>
+Message-Id: <20230403140419.645148905@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,65 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit 70376c7ff31221f1d21db5611d8209e677781d3a upstream.
+commit d1366b283d94ac4537a4b3a1e8668da4df7ce7e9 upstream.
 
-Check if the inode size of stuffed (inline) inodes is within the allowed
-range when reading inodes from disk (gfs2_dinode_in()).  This prevents
-us from on-disk corruption.
+This commit addresses a deadlock situation that can occur in certain
+scenarios, such as when running data TP/ETP transfer and subscribing to
+the error queue while receiving a net down event. The deadlock involves
+locks in the following order:
 
-The two checks in stuffed_readpage() and gfs2_unstuffer_page() that just
-truncate inline data to the maximum allowed size don't actually make
-sense, and they can be removed now as well.
+3
+  j1939_session_list_lock ->  active_session_list_lock
+  j1939_session_activate
+  ...
+  j1939_sk_queue_activate_next -> sk_session_queue_lock
+  ...
+  j1939_xtp_rx_eoma_one
 
-Reported-by: syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-[pchelkin@ispras.ru: adjust the inode variable inside gfs2_dinode_in with
-the format used before upstream commit 7db354444ad8 ("gfs2: Cosmetic
-gfs2_dinode_{in,out} cleanup")]
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+2
+  j1939_sk_queue_drop_all  ->  sk_session_queue_lock
+  ...
+  j1939_sk_netdev_event_netdown -> j1939_socks_lock
+  j1939_netdev_notify
+
+1
+  j1939_sk_errqueue -> j1939_socks_lock
+  __j1939_session_cancel -> active_session_list_lock
+  j1939_tp_rxtimer
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&priv->active_session_list_lock);
+                               lock(&jsk->sk_session_queue_lock);
+                               lock(&priv->active_session_list_lock);
+  lock(&priv->j1939_socks_lock);
+
+The solution implemented in this commit is to move the
+j1939_sk_errqueue() call out of the active_session_list_lock context,
+thus preventing the deadlock situation.
+
+Reported-by: syzbot+ee1cd780f69483a8616b@syzkaller.appspotmail.com
+Fixes: 5b9272e93f2e ("can: j1939: extend UAPI to notify about RX status")
+Co-developed-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/all/20230324130141.2132787-1-o.rempel@pengutronix.de
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/aops.c  |    2 --
- fs/gfs2/bmap.c  |    3 ---
- fs/gfs2/glops.c |    3 +++
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ net/can/j1939/transport.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/gfs2/aops.c
-+++ b/fs/gfs2/aops.c
-@@ -456,8 +456,6 @@ static int stuffed_readpage(struct gfs2_
- 		return error;
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1124,8 +1124,6 @@ static void __j1939_session_cancel(struc
  
- 	kaddr = kmap_atomic(page);
--	if (dsize > gfs2_max_stuffed_size(ip))
--		dsize = gfs2_max_stuffed_size(ip);
- 	memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
- 	memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
- 	kunmap_atomic(kaddr);
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -70,9 +70,6 @@ static int gfs2_unstuffer_page(struct gf
- 		void *kaddr = kmap(page);
- 		u64 dsize = i_size_read(inode);
-  
--		if (dsize > gfs2_max_stuffed_size(ip))
--			dsize = gfs2_max_stuffed_size(ip);
--
- 		memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
- 		memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
- 		kunmap(page);
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -411,6 +411,9 @@ static int gfs2_dinode_in(struct gfs2_in
- 	ip->i_depth = (u8)depth;
- 	ip->i_entries = be32_to_cpu(str->di_entries);
+ 	if (session->sk)
+ 		j1939_sk_send_loop_abort(session->sk, session->err);
+-	else
+-		j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
+ }
  
-+	if (gfs2_is_stuffed(ip) && ip->i_inode.i_size > gfs2_max_stuffed_size(ip))
-+		goto corrupt;
+ static void j1939_session_cancel(struct j1939_session *session,
+@@ -1140,6 +1138,9 @@ static void j1939_session_cancel(struct
+ 	}
+ 
+ 	j1939_session_list_unlock(session->priv);
 +
- 	if (S_ISREG(ip->i_inode.i_mode))
- 		gfs2_set_aops(&ip->i_inode);
++	if (!session->sk)
++		j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
+ }
  
+ static enum hrtimer_restart j1939_tp_txtimer(struct hrtimer *hrtimer)
+@@ -1253,6 +1254,9 @@ static enum hrtimer_restart j1939_tp_rxt
+ 			__j1939_session_cancel(session, J1939_XTP_ABORT_TIMEOUT);
+ 		}
+ 		j1939_session_list_unlock(session->priv);
++
++		if (!session->sk)
++			j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
+ 	}
+ 
+ 	j1939_session_put(session);
 
 
