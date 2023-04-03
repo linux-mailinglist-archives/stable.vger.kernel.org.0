@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD676D46A9
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDA26D4A5C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbjDCOMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54066 "EHLO
+        id S233981AbjDCOqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:46:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232824AbjDCOMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A60D1F7A5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:05 -0700 (PDT)
+        with ESMTP id S233998AbjDCOq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019C016979
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F8061C67
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE8DAC433EF;
-        Mon,  3 Apr 2023 14:12:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD07461F0A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C29BBC4339B;
+        Mon,  3 Apr 2023 14:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531124;
-        bh=aT+9RI8B6H+7lryqebuiyR0u4hMFVVvihkuE336Cddw=;
+        s=korg; t=1680533145;
+        bh=POaTkwwZJ7tL37prY/CVFCDc2KaYpGRV4p3VkAw6wsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDdTCLbp1BBQrCFuycXpzB9/Kw0e9+JLtklzyihWLrtFeSUQU/asd2Mn5YXWJyMbh
-         O3b+WdPXpW6k8q/YfxQrlKO+pzwWqWpRf/z31EzZCSZT5edEgqm0D1E5k1ezKMBzSS
-         nUyradyncIrHezPx8voU/VY5ybHXxrzb8RNtO7xE=
+        b=Ees5/uliFTzKEbKtKMGv6lRENmVXjMOzFXgydRIVGncI4r3HW6wewDbCoOEt9Sq+U
+         bvyKJl5j5RIY26OK3CzsvwO3XbWl2R96Vb3Gy3Dub4St5nFgrYQLDE1e0zR4HohTiF
+         hiJ3CGSEjvQ/QxZtOYisf/vNW+R8Pm3AH1J/QUu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/66] net: usb: cdc_mbim: avoid altsetting toggling for Telit FE990
+Subject: [PATCH 6.2 071/187] platform/x86: think-lmi: add missing type attribute
 Date:   Mon,  3 Apr 2023 16:08:36 +0200
-Message-Id: <20230403140352.912152444@linuxfoundation.org>
+Message-Id: <20230403140418.278867607@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,37 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enrico Sau <enrico.sau@gmail.com>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-[ Upstream commit 418383e6ed6b4624a54ec05c535f13d184fbf33b ]
+[ Upstream commit 583329dcf22e568a328a944f20427ccfc95dce01 ]
 
-Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit FE990
-0x1081 composition in order to avoid bind error.
+This driver was missing the mandatory type attribute...oops.
 
-Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
-Link: https://lore.kernel.org/r/20230306115933.198259-1-enrico.sau@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Add it in along with logic to determine whether the attribute is an
+enumeration type or a string by parsing the possible_values attribute.
+
+Upstream bug https://bugzilla.kernel.org/show_bug.cgi?id=216460
+
+Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230320003221.561750-1-mpearson-lenovo@squebb.ca
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_mbim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/platform/x86/think-lmi.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
-index 41bac861ca99d..72a93dc2df868 100644
---- a/drivers/net/usb/cdc_mbim.c
-+++ b/drivers/net/usb/cdc_mbim.c
-@@ -665,6 +665,11 @@ static const struct usb_device_id mbim_devs[] = {
- 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
- 	},
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index a01a92769c1a3..07c9dc21eff52 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -947,6 +947,20 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
+ 	return sysfs_emit(buf, "%s\n", setting->possible_values);
+ }
  
-+	/* Telit FE990 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1081, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
-+	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
-+	},
++static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
++		char *buf)
++{
++	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
 +
- 	/* default entry */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
- 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
++	if (setting->possible_values) {
++		/* Figure out what setting type is as BIOS does not return this */
++		if (strchr(setting->possible_values, ','))
++			return sysfs_emit(buf, "enumeration\n");
++	}
++	/* Anything else is going to be a string */
++	return sysfs_emit(buf, "string\n");
++}
++
+ static ssize_t current_value_store(struct kobject *kobj,
+ 		struct kobj_attribute *attr,
+ 		const char *buf, size_t count)
+@@ -1036,10 +1050,13 @@ static struct kobj_attribute attr_possible_values = __ATTR_RO(possible_values);
+ 
+ static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 0600);
+ 
++static struct kobj_attribute attr_type = __ATTR_RO(type);
++
+ static struct attribute *tlmi_attrs[] = {
+ 	&attr_displ_name.attr,
+ 	&attr_current_val.attr,
+ 	&attr_possible_values.attr,
++	&attr_type.attr,
+ 	NULL
+ };
+ 
 -- 
 2.39.2
 
