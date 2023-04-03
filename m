@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B9C6D489A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D356D49B0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233436AbjDCOaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33134 "EHLO
+        id S233773AbjDCOkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233433AbjDCOaF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE60319AC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:04 -0700 (PDT)
+        with ESMTP id S233789AbjDCOkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3FA17ACB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B74C761DC8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB41C433D2;
-        Mon,  3 Apr 2023 14:30:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D92C9B81CDE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365FBC43443;
+        Mon,  3 Apr 2023 14:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532203;
-        bh=hTO5rCFm8m80YtrBSZ/A5k+OnAYqmr6iNzrQePeUj4w=;
+        s=korg; t=1680532818;
+        bh=7fxM8GdmJz4XU1Wmwks4WKlLAcEvkTVClq+ihHPbwk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gauPnkH1gyCCwwJlLVgDNuD2wSWQn50MeqkWRoJpcAQjp8tMCQY1bKUoQV8wQX7H2
-         tJPQTCfJFGuJWjnFkMwRC4GP3drOEyqOhe70TMx7kFHP+dsHaAU2Xc7rnC3rt5DzqV
-         Zb/rPfVY9UdeceDDHDehLyFRVraw5RkKCMbfIIDc=
+        b=pN3s+rFOM0N4dJH06clG7zZZvT25EwZV9zbQkyGryoFrbxf7QQRCBfMcv8Rth0mFX
+         bijiuAu38K0J4diYT55C//+YT8tpogUMMVbcnSWoG/TMWDobmAH5LhFRtFVkRIiCpq
+         WWzY8BIkgBIlcoxMhwJHz6rkOuepV3MYKTsIgbvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
         Bastien Nocera <hadess@hadess.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 149/173] Input: goodix - add Lenovo Yoga Book X90F to nine_bytes_report DMI table
+Subject: [PATCH 6.1 129/181] Input: goodix - add Lenovo Yoga Book X90F to nine_bytes_report DMI table
 Date:   Mon,  3 Apr 2023 16:09:24 +0200
-Message-Id: <20230403140419.271741604@linuxfoundation.org>
+Message-Id: <20230403140419.265919605@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -183,10 +183,18 @@ static const unsigned long goodix_irq_fl
+@@ -124,10 +124,18 @@ static const unsigned long goodix_irq_fl
  static const struct dmi_system_id nine_bytes_report[] = {
  #if defined(CONFIG_DMI) && defined(CONFIG_X86)
  	{
