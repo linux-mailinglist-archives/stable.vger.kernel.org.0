@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 533A76D479D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 917416D4ABA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233147AbjDCOVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
+        id S234078AbjDCOts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233163AbjDCOVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 079153128B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:32 -0700 (PDT)
+        with ESMTP id S234080AbjDCOta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFE72A5B5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5C2CB81BBD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A110C433D2;
-        Mon,  3 Apr 2023 14:21:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DC2161F73
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B79EC433A0;
+        Mon,  3 Apr 2023 14:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531672;
-        bh=iMMIr1Ixdp6u59KlXGWv9O/EKWZQ0+/8B63H8WAnIbk=;
+        s=korg; t=1680533263;
+        bh=TZQ9Sm5l2kDAZhpM/PIy0lbG0iqc5RAQW1RYefq0zTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZTqN+HBngq5X0Jh7owPbKAhcjL+0U4qmsHSepayJBVMI5D3SZlU/rSqiCaC1LvMr
-         y3ZgHpEZHdRVIhoMG5De57bq/jjxL9fZFqAGHP1lBByQY30+oPgkARMa8cbsT2h/2N
-         c+Co0m7wAzAeyB4Tq4vqY7Z+DK1PBn+NxwCI2VlA=
+        b=Am/i8RqnXqA6zHYJBUFYKoH7RIr6501jVZmMBZ7sBBzN+YN3KF6IrZFR9pIzibGAb
+         TlsFLRQ/llBo82+Vg5TgdD1YlBpeKYMc+NNbY8maAKJb01jQbVnEVeZ9vwEQAqdHyF
+         zla8BXzdh4nDkJtQDuOQnPJo93jpRt48/D9Hnz6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Victor Hsieh <victorhsieh@google.com>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/104] fsverity: dont drop pagecache at end of FS_IOC_ENABLE_VERITY
+Subject: [PATCH 6.2 087/187] net: dsa: microchip: ksz8863_smi: fix bulk access
 Date:   Mon,  3 Apr 2023 16:08:52 +0200
-Message-Id: <20230403140406.626487694@linuxfoundation.org>
+Message-Id: <20230403140418.822152875@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit a075bacde257f755bea0e53400c9f1cdd1b8e8e6 ]
+[ Upstream commit 392ff7a84cbca34118ca286dfbfe8aee24605897 ]
 
-The full pagecache drop at the end of FS_IOC_ENABLE_VERITY is causing
-performance problems and is hindering adoption of fsverity.  It was
-intended to solve a race condition where unverified pages might be left
-in the pagecache.  But actually it doesn't solve it fully.
+Current regmap bulk access is broken, resulting to wrong reads/writes
+if ksz_read64/ksz_write64 functions are used.
+Mostly this issue was visible by using ksz8_fdb_dump(), which returned
+corrupt MAC address.
 
-Since the incomplete solution for this race condition has too much
-performance impact for it to be worth it, let's remove it for now.
+The reason is that regmap was configured to have max_raw_read/write,
+even if ksz8863_mdio_read/write functions are able to handle unlimited
+read/write accesses. On ksz_read64 function we are using multiple 32bit
+accesses by incrementing each access by 1 instead of 4. Resulting buffer
+had 01234567.12345678 instead of 01234567.89abcdef.
 
-Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
-Cc: stable@vger.kernel.org
-Reviewed-by: Victor Hsieh <victorhsieh@google.com>
-Link: https://lore.kernel.org/r/20230314235332.50270-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+We have multiple ways to fix it:
+- enable 4 byte alignment for 32bit accesses. Since the HW do not have
+  this requirement. It will break driver.
+- disable max_raw_* limit.
+
+This patch is removing max_raw_* limit for regmap accesses in ksz8863_smi.
+
+Fixes: 60a364760002 ("net: dsa: microchip: Add Microchip KSZ8863 SMI based driver support")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/verity/enable.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/net/dsa/microchip/ksz8863_smi.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/fs/verity/enable.c b/fs/verity/enable.c
-index 1370bfd17e870..39459b1eff752 100644
---- a/fs/verity/enable.c
-+++ b/fs/verity/enable.c
-@@ -350,25 +350,27 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
- 		goto out_drop_write;
+diff --git a/drivers/net/dsa/microchip/ksz8863_smi.c b/drivers/net/dsa/microchip/ksz8863_smi.c
+index 2f4623f3bd852..3698112138b78 100644
+--- a/drivers/net/dsa/microchip/ksz8863_smi.c
++++ b/drivers/net/dsa/microchip/ksz8863_smi.c
+@@ -82,22 +82,16 @@ static const struct regmap_bus regmap_smi[] = {
+ 	{
+ 		.read = ksz8863_mdio_read,
+ 		.write = ksz8863_mdio_write,
+-		.max_raw_read = 1,
+-		.max_raw_write = 1,
+ 	},
+ 	{
+ 		.read = ksz8863_mdio_read,
+ 		.write = ksz8863_mdio_write,
+ 		.val_format_endian_default = REGMAP_ENDIAN_BIG,
+-		.max_raw_read = 2,
+-		.max_raw_write = 2,
+ 	},
+ 	{
+ 		.read = ksz8863_mdio_read,
+ 		.write = ksz8863_mdio_write,
+ 		.val_format_endian_default = REGMAP_ENDIAN_BIG,
+-		.max_raw_read = 4,
+-		.max_raw_write = 4,
+ 	}
+ };
  
- 	err = enable_verity(filp, &arg);
--	if (err)
--		goto out_allow_write_access;
- 
- 	/*
--	 * Some pages of the file may have been evicted from pagecache after
--	 * being used in the Merkle tree construction, then read into pagecache
--	 * again by another process reading from the file concurrently.  Since
--	 * these pages didn't undergo verification against the file measurement
--	 * which fs-verity now claims to be enforcing, we have to wipe the
--	 * pagecache to ensure that all future reads are verified.
-+	 * We no longer drop the inode's pagecache after enabling verity.  This
-+	 * used to be done to try to avoid a race condition where pages could be
-+	 * evicted after being used in the Merkle tree construction, then
-+	 * re-instantiated by a concurrent read.  Such pages are unverified, and
-+	 * the backing storage could have filled them with different content, so
-+	 * they shouldn't be used to fulfill reads once verity is enabled.
-+	 *
-+	 * But, dropping the pagecache has a big performance impact, and it
-+	 * doesn't fully solve the race condition anyway.  So for those reasons,
-+	 * and also because this race condition isn't very important relatively
-+	 * speaking (especially for small-ish files, where the chance of a page
-+	 * being used, evicted, *and* re-instantiated all while enabling verity
-+	 * is quite small), we no longer drop the inode's pagecache.
- 	 */
--	filemap_write_and_wait(inode->i_mapping);
--	invalidate_inode_pages2(inode->i_mapping);
- 
- 	/*
- 	 * allow_write_access() is needed to pair with deny_write_access().
- 	 * Regardless, the filesystem won't allow writing to verity files.
- 	 */
--out_allow_write_access:
- 	allow_write_access(filp);
- out_drop_write:
- 	mnt_drop_write_file(filp);
+@@ -108,7 +102,6 @@ static const struct regmap_config ksz8863_regmap_config[] = {
+ 		.pad_bits = 24,
+ 		.val_bits = 8,
+ 		.cache_type = REGCACHE_NONE,
+-		.use_single_read = 1,
+ 		.lock = ksz_regmap_lock,
+ 		.unlock = ksz_regmap_unlock,
+ 	},
+@@ -118,7 +111,6 @@ static const struct regmap_config ksz8863_regmap_config[] = {
+ 		.pad_bits = 24,
+ 		.val_bits = 16,
+ 		.cache_type = REGCACHE_NONE,
+-		.use_single_read = 1,
+ 		.lock = ksz_regmap_lock,
+ 		.unlock = ksz_regmap_unlock,
+ 	},
+@@ -128,7 +120,6 @@ static const struct regmap_config ksz8863_regmap_config[] = {
+ 		.pad_bits = 24,
+ 		.val_bits = 32,
+ 		.cache_type = REGCACHE_NONE,
+-		.use_single_read = 1,
+ 		.lock = ksz_regmap_lock,
+ 		.unlock = ksz_regmap_unlock,
+ 	}
 -- 
 2.39.2
 
