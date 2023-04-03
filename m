@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A153C6D48FC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB1D16D4ABB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233550AbjDCOdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:33:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38994 "EHLO
+        id S234080AbjDCOtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233553AbjDCOdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B091767A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:23 -0700 (PDT)
+        with ESMTP id S234105AbjDCOtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA1362D496
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69D96B81C6F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B866CC433EF;
-        Mon,  3 Apr 2023 14:33:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38F61B81D74
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94679C433D2;
+        Mon,  3 Apr 2023 14:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532401;
-        bh=blv3SW+RxsWGacT544sbFgefBCcLM8E7IYPNXmNLpPU=;
+        s=korg; t=1680533286;
+        bh=sJYkMFLKTOSjPjS7N91ko3D1k/zI1jC2wm1x73QJaU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztyhDoDqvHwYwgCIy/e1SqBdKEKKBv6WEewbaduxjaDs3FgPfC/my10HcfCr4rYEA
-         Av3ozoubTGTbF/LKLUJwmnZ0wxRZIUu5Y0rmMuFm0H338PGHvOydSbDVlWDn0Bj6Co
-         9J7M8VOrIGCf0kCa3acq8HfvuNzuJWG0bsFdGZmo=
+        b=WW7oeCWrFhlWiFXqTq0Wiw04bw2BFusFlrjyeyRdriujb664YNA2YzeUPsy3OXU7U
+         KdxZ9yTB1rFQTvWldbkheifbl43cItwEmkqB1D9vXdF0dS9ssiVlkkmqezNXb9aEe7
+         Of/L0exEc7NGSjceL+utj6D2WeZEnfSQDrYweOgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 68/99] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
+        patches@lists.linux.dev,
+        Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 126/187] iommu/vt-d: Allow zero SAGAW if second-stage not supported
 Date:   Mon,  3 Apr 2023 16:09:31 +0200
-Message-Id: <20230403140406.044966453@linuxfoundation.org>
+Message-Id: <20230403140420.114648545@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,62 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
+[ Upstream commit bfd3c6b9fa4a1dc78139dd1621d5bea321ffa69d ]
 
-When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
-is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
-S_AUTOMOUNT and corresponding dentry flags is retained regardless of
-CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
-VFS follow_automount() when traversing a DFS referral link:
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  ...
-  Call Trace:
-   <TASK>
-   __traverse_mounts+0xb5/0x220
-   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
-   step_into+0x195/0x610
-   ? lookup_fast+0xe2/0xf0
-   path_lookupat+0x64/0x140
-   filename_lookup+0xc2/0x140
-   ? __create_object+0x299/0x380
-   ? kmem_cache_alloc+0x119/0x220
-   ? user_path_at_empty+0x31/0x50
-   user_path_at_empty+0x31/0x50
-   __x64_sys_chdir+0x2a/0xd0
-   ? exit_to_user_mode_prepare+0xca/0x100
-   do_syscall_64+0x42/0x90
-   entry_SYSCALL_64_after_hwframe+0x72/0xdc
+The VT-d spec states (in section 11.4.2) that hardware implementations
+reporting second-stage translation support (SSTS) field as Clear also
+report the SAGAW field as 0. Fix an inappropriate check in alloc_iommu().
 
-This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
-when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
-avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
-approach was chosen as it provides more control over the error path.
-
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 792fb43ce2c9 ("iommu/vt-d: Enable Intel IOMMU scalable mode by default")
+Suggested-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20230318024824.124542-1-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20230329134721.469447-3-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iommu/intel/dmar.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/cifsfs.h
-+++ b/fs/cifs/cifsfs.h
-@@ -118,7 +118,10 @@ extern const struct dentry_operations ci
- #ifdef CONFIG_CIFS_DFS_UPCALL
- extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
- #else
--#define cifs_dfs_d_automount NULL
-+static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
-+{
-+	return ERR_PTR(-EREMOTE);
-+}
- #endif
+diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
+index b00a0ceb2d137..c80c524ad32d7 100644
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -1057,7 +1057,8 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
+ 	}
  
- /* Functions related to symlinks */
+ 	err = -EINVAL;
+-	if (cap_sagaw(iommu->cap) == 0) {
++	if (!cap_sagaw(iommu->cap) &&
++	    (!ecap_smts(iommu->ecap) || ecap_slts(iommu->ecap))) {
+ 		pr_info("%s: No supported address widths. Not attempting DMA translation.\n",
+ 			iommu->name);
+ 		drhd->ignored = 1;
+-- 
+2.39.2
+
 
 
