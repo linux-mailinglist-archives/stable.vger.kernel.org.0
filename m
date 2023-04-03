@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 042936D48C3
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533A76D479D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233482AbjDCObq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
+        id S233147AbjDCOVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233506AbjDCObn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2174D35028
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:38 -0700 (PDT)
+        with ESMTP id S233163AbjDCOVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 079153128B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9253061E04
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6462C433EF;
-        Mon,  3 Apr 2023 14:31:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5C2CB81BBD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A110C433D2;
+        Mon,  3 Apr 2023 14:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532297;
-        bh=it6WkwQ5rBWnktVA+PGqrSmIIm6wJ06tHdf5MnobBBY=;
+        s=korg; t=1680531672;
+        bh=iMMIr1Ixdp6u59KlXGWv9O/EKWZQ0+/8B63H8WAnIbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5AByQkFI2TinKmPvInNPQyBS2BRNQarhWbw0N+2Nqs25Uiyiu7wkJuZY9vP1hFeS
-         nppYo0H61PdMzm2MANeQe+Umm7Cos+rVA658XKEDLnvSBgGFFaY4IxBg/ttbs2T51J
-         cNbzVxQbYsXJal29mA8n8Vst3t5tzdf07W+knWbs=
+        b=yZTqN+HBngq5X0Jh7owPbKAhcjL+0U4qmsHSepayJBVMI5D3SZlU/rSqiCaC1LvMr
+         y3ZgHpEZHdRVIhoMG5De57bq/jjxL9fZFqAGHP1lBByQY30+oPgkARMa8cbsT2h/2N
+         c+Co0m7wAzAeyB4Tq4vqY7Z+DK1PBn+NxwCI2VlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Victor Hsieh <victorhsieh@google.com>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 29/99] platform/x86: think-lmi: only display possible_values if available
+Subject: [PATCH 5.4 060/104] fsverity: dont drop pagecache at end of FS_IOC_ENABLE_VERITY
 Date:   Mon,  3 Apr 2023 16:08:52 +0200
-Message-Id: <20230403140404.172332773@linuxfoundation.org>
+Message-Id: <20230403140406.626487694@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,65 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <mpearson-lenovo@squebb.ca>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit cf337f27f3bfc4aeab4954c468239fd6233c7638 ]
+[ Upstream commit a075bacde257f755bea0e53400c9f1cdd1b8e8e6 ]
 
-Some attributes don't have any values available. In those cases don't
-make the possible_values entry visible.
+The full pagecache drop at the end of FS_IOC_ENABLE_VERITY is causing
+performance problems and is hindering adoption of fsverity.  It was
+intended to solve a race condition where unverified pages might be left
+in the pagecache.  But actually it doesn't solve it fully.
 
-Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Link: https://lore.kernel.org/r/20230320003221.561750-3-mpearson-lenovo@squebb.ca
-Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Since the incomplete solution for this race condition has too much
+performance impact for it to be worth it, let's remove it for now.
+
+Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
+Cc: stable@vger.kernel.org
+Reviewed-by: Victor Hsieh <victorhsieh@google.com>
+Link: https://lore.kernel.org/r/20230314235332.50270-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/think-lmi.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/verity/enable.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index f10fe5ffe47df..b7428f5ec4c4c 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -525,9 +525,6 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
- {
- 	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
+diff --git a/fs/verity/enable.c b/fs/verity/enable.c
+index 1370bfd17e870..39459b1eff752 100644
+--- a/fs/verity/enable.c
++++ b/fs/verity/enable.c
+@@ -350,25 +350,27 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
+ 		goto out_drop_write;
  
--	if (!tlmi_priv.can_get_bios_selections)
--		return -EOPNOTSUPP;
--
- 	return sysfs_emit(buf, "%s\n", setting->possible_values);
- }
+ 	err = enable_verity(filp, &arg);
+-	if (err)
+-		goto out_allow_write_access;
  
-@@ -617,6 +614,18 @@ static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 06
+ 	/*
+-	 * Some pages of the file may have been evicted from pagecache after
+-	 * being used in the Merkle tree construction, then read into pagecache
+-	 * again by another process reading from the file concurrently.  Since
+-	 * these pages didn't undergo verification against the file measurement
+-	 * which fs-verity now claims to be enforcing, we have to wipe the
+-	 * pagecache to ensure that all future reads are verified.
++	 * We no longer drop the inode's pagecache after enabling verity.  This
++	 * used to be done to try to avoid a race condition where pages could be
++	 * evicted after being used in the Merkle tree construction, then
++	 * re-instantiated by a concurrent read.  Such pages are unverified, and
++	 * the backing storage could have filled them with different content, so
++	 * they shouldn't be used to fulfill reads once verity is enabled.
++	 *
++	 * But, dropping the pagecache has a big performance impact, and it
++	 * doesn't fully solve the race condition anyway.  So for those reasons,
++	 * and also because this race condition isn't very important relatively
++	 * speaking (especially for small-ish files, where the chance of a page
++	 * being used, evicted, *and* re-instantiated all while enabling verity
++	 * is quite small), we no longer drop the inode's pagecache.
+ 	 */
+-	filemap_write_and_wait(inode->i_mapping);
+-	invalidate_inode_pages2(inode->i_mapping);
  
- static struct kobj_attribute attr_type = __ATTR_RO(type);
- 
-+static umode_t attr_is_visible(struct kobject *kobj,
-+					     struct attribute *attr, int n)
-+{
-+	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
-+
-+	/* We don't want to display possible_values attributes if not available */
-+	if ((attr == &attr_possible_values.attr) && (!setting->possible_values))
-+		return 0;
-+
-+	return attr->mode;
-+}
-+
- static struct attribute *tlmi_attrs[] = {
- 	&attr_displ_name.attr,
- 	&attr_current_val.attr,
-@@ -626,6 +635,7 @@ static struct attribute *tlmi_attrs[] = {
- };
- 
- static const struct attribute_group tlmi_attr_group = {
-+	.is_visible = attr_is_visible,
- 	.attrs = tlmi_attrs,
- };
- 
+ 	/*
+ 	 * allow_write_access() is needed to pair with deny_write_access().
+ 	 * Regardless, the filesystem won't allow writing to verity files.
+ 	 */
+-out_allow_write_access:
+ 	allow_write_access(filp);
+ out_drop_write:
+ 	mnt_drop_write_file(filp);
 -- 
 2.39.2
 
