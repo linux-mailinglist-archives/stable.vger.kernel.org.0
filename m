@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B35DE6D474E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD03D6D4980
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233015AbjDCOTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:19:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38600 "EHLO
+        id S233710AbjDCOi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233023AbjDCOTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3EA2C9DA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:59 -0700 (PDT)
+        with ESMTP id S233712AbjDCOi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C889F3C23
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C74461D01
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F49FC433EF;
-        Mon,  3 Apr 2023 14:18:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C016B81CBC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C18B3C433EF;
+        Mon,  3 Apr 2023 14:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531538;
-        bh=vmRHxWXauqltCTp09RX7xctKAfxXOkatQKiugOKMfCA=;
+        s=korg; t=1680532704;
+        bh=5eV74yvYIvmyDtYfV8PPpV4c+wtIjm40vhyr2Ff9WbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ogy1qzr2LggMeYok0b7rwM8Oja/etzUJXJ8QufW51QLeReooPN5hs3T/m//wMf51w
-         1/WKpQeMHWNcH2nsXN3uftefkKth/ZwtRlrx8B9C5fEi9eU/IeZX+g4i1d0wmCsYXI
-         dRSLuNi+qidrYW6to0bIeXFPH3qi3Or1Xh9JEPts=
+        b=pC7GnPqMRGv8PUeZmhcib7zDAT/zsPqtQjgEkypj3KSKXQSAIXlLfb1TM8m9RK/M3
+         0+am2UWrMUsyIU79bGQLVnMSWwHgWaLYSo7daqCE5u194/Tvxe4D2UsD2C3owlBaU0
+         NUhxUMo6Pf3krc1DTLVROF40UUenDkagXMKta0Yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 017/104] net/mlx5: Read the TC mapping of all priorities on ETS query
+        patches@lists.linux.dev,
+        Philipp Geulen <p.geulen@js-elektronik.de>,
+        Chaitanya Kulkarni <kkch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 054/181] nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM620
 Date:   Mon,  3 Apr 2023 16:08:09 +0200
-Message-Id: <20230403140404.877692387@linuxfoundation.org>
+Message-Id: <20230403140416.912193628@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maher Sanalla <msanalla@nvidia.com>
+From: Philipp Geulen <p.geulen@js-elektronik.de>
 
-[ Upstream commit 44d553188c38ac74b799dfdcebafef2f7bb70942 ]
+[ Upstream commit b65d44fa0fe072c91bf41cd8756baa2b4c77eff2 ]
 
-When ETS configurations are queried by the user to get the mapping
-assignment between packet priority and traffic class, only priorities up
-to maximum TCs are queried from QTCT register in FW to retrieve their
-assigned TC, leaving the rest of the priorities mapped to the default
-TC #0 which might be misleading.
+Added a quirk to fix Lexar NM620 1TB SSD reporting duplicate NGUIDs.
 
-Fix by querying the TC mapping of all priorities on each ETS query,
-regardless of the maximum number of TCs configured in FW.
-
-Fixes: 820c2c5e773d ("net/mlx5e: Read ETS settings directly from firmware")
-Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Philipp Geulen <p.geulen@js-elektronik.de>
+Reviewed-by: Chaitanya Kulkarni <kkch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-index 01f2918063af0..f1952e14c8042 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-@@ -109,12 +109,14 @@ static int mlx5e_dcbnl_ieee_getets(struct net_device *netdev,
- 	if (!MLX5_CAP_GEN(priv->mdev, ets))
- 		return -EOPNOTSUPP;
- 
--	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
--	for (i = 0; i < ets->ets_cap; i++) {
-+	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
- 		err = mlx5_query_port_prio_tc(mdev, i, &ets->prio_tc[i]);
- 		if (err)
- 			return err;
-+	}
- 
-+	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
-+	for (i = 0; i < ets->ets_cap; i++) {
- 		err = mlx5_query_port_tc_group(mdev, i, &tc_group[i]);
- 		if (err)
- 			return err;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 100f774bc97fa..60452f6a9f711 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3547,6 +3547,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1d97, 0x2263), /* Lexar NM610 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
++	{ PCI_DEVICE(0x1d97, 0x1d97), /* Lexar NM620 */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1d97, 0x2269), /* Lexar NM760 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
 -- 
 2.39.2
 
