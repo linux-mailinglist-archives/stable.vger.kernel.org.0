@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA3F6D46CB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7856D4A9E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232761AbjDCOOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58310 "EHLO
+        id S234107AbjDCOtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232803AbjDCOOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84E522E90
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:07 -0700 (PDT)
+        with ESMTP id S234170AbjDCOsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:48:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD60828EA9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25741B81B2F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F5AC433EF;
-        Mon,  3 Apr 2023 14:14:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 145B0B81D51
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58A8AC433EF;
+        Mon,  3 Apr 2023 14:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531244;
-        bh=2aIhFII3eIVmS73uoFi9gINRR136PU1L00WNnJmuWXc=;
+        s=korg; t=1680533218;
+        bh=OiRHRT+tN7kfIwIZmzUutp8jKYY6cjy2deDCH3BOxvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wg/iG2+zOD2My2hWyq4DyBC5NUwIvVNjTc404BaPX4727UZKkl5iNYVWmF2AghR+h
-         hF5pjw9qOVCUT+x1mzhWoRMyZ4RMhHWv681cNqn3vyP7F7tD+nq7aPUMFlkNRT+SlU
-         vlPTTzGq8CrbOx/33ZZjw373sLvv1YTrEfrXr75I=
+        b=BAZE08ILvcVxLeYbs4jm8Nz1rmutg12/99b7u9Tcap2TOL4ZgldI39PdOOBX0eyhI
+         gJBLrPgda6kptsasHGwopQyi4N1lOMFLKAQLutuYolfEhXnX3XD8xGRf5KLDx8kFas
+         B6r0GgHuo5WHE1kuPuOtiAecsc/Z/Dr62seGKkfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Paul Durrant <paul@xen.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 4.14 57/66] xen/netback: dont do grant copy across page boundary
+        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 100/187] loop: LOOP_CONFIGURE: send uevents for partitions
 Date:   Mon,  3 Apr 2023 16:09:05 +0200
-Message-Id: <20230403140353.791248085@linuxfoundation.org>
+Message-Id: <20230403140419.257452215@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,118 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Alyssa Ross <hi@alyssa.is>
 
-commit 05310f31ca74673a96567fb14637b7d5d6c82ea5 upstream.
+[ Upstream commit bb430b69422640891b0b8db762885730579a4145 ]
 
-Fix xenvif_get_requests() not to do grant copy operations across local
-page boundaries. This requires to double the maximum number of copy
-operations per queue, as each copy could now be split into 2.
+LOOP_CONFIGURE is, as far as I understand it, supposed to be a way to
+combine LOOP_SET_FD and LOOP_SET_STATUS64 into a single syscall.  When
+using LOOP_SET_FD+LOOP_SET_STATUS64, a single uevent would be sent for
+each partition found on the loop device after the second ioctl(), but
+when using LOOP_CONFIGURE, no such uevent was being sent.
 
-Make sure that struct xenvif_tx_cb doesn't grow too large.
+In the old setup, uevents are disabled for LOOP_SET_FD, but not for
+LOOP_SET_STATUS64.  This makes sense, as it prevents uevents being
+sent for a partially configured device during LOOP_SET_FD - they're
+only sent at the end of LOOP_SET_STATUS64.  But for LOOP_CONFIGURE,
+uevents were disabled for the entire operation, so that final
+notification was never issued.  To fix this, reduce the critical
+section to exclude the loop_reread_partitions() call, which causes
+the uevents to be issued, to after uevents are re-enabled, matching
+the behaviour of the LOOP_SET_FD+LOOP_SET_STATUS64 combination.
 
-Cc: stable@vger.kernel.org
-Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I noticed this because Busybox's losetup program recently changed from
+using LOOP_SET_FD+LOOP_SET_STATUS64 to LOOP_CONFIGURE, and this broke
+my setup, for which I want a notification from the kernel any time a
+new partition becomes available.
+
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+[hch: reduced the critical section]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
+Link: https://lore.kernel.org/r/20230320125430.55367-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/common.h  |    2 +-
- drivers/net/xen-netback/netback.c |   25 +++++++++++++++++++++++--
- 2 files changed, 24 insertions(+), 3 deletions(-)
+ drivers/block/loop.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data
- 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
- 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index eabbc3bdec221..4916fe78ab8fa 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1010,9 +1010,6 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	/* This is safe, since we have a reference from open(). */
+ 	__module_get(THIS_MODULE);
  
--	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
-+	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
- 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
- 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
- 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -327,6 +327,7 @@ static int xenvif_count_requests(struct
- struct xenvif_tx_cb {
- 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
- 	u8 copy_count;
-+	u32 split_mask;
- };
+-	/* suppress uevents while reconfiguring the device */
+-	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 1);
+-
+ 	/*
+ 	 * If we don't hold exclusive handle for the device, upgrade to it
+ 	 * here to avoid changing device under exclusive owner.
+@@ -1067,6 +1064,9 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 		}
+ 	}
  
- #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
-@@ -354,6 +355,8 @@ static inline struct sk_buff *xenvif_all
- 	struct sk_buff *skb =
- 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
- 			  GFP_ATOMIC | __GFP_NOWARN);
++	/* suppress uevents while reconfiguring the device */
++	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 1);
 +
-+	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
- 	if (unlikely(skb == NULL))
- 		return NULL;
+ 	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
+ 	set_disk_ro(lo->lo_disk, (lo->lo_flags & LO_FLAGS_READ_ONLY) != 0);
  
-@@ -389,11 +392,13 @@ static void xenvif_get_requests(struct x
- 	nr_slots = shinfo->nr_frags + 1;
+@@ -1109,17 +1109,17 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	if (partscan)
+ 		clear_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
  
- 	copy_count(skb) = 0;
-+	XENVIF_TX_CB(skb)->split_mask = 0;
- 
- 	/* Create copy ops for exactly data_len bytes into the skb head. */
- 	__skb_put(skb, data_len);
- 	while (data_len > 0) {
- 		int amount = data_len > txp->size ? txp->size : data_len;
-+		bool split = false;
- 
- 		cop->source.u.ref = txp->gref;
- 		cop->source.domid = queue->vif->domid;
-@@ -406,6 +411,13 @@ static void xenvif_get_requests(struct x
- 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
- 				               - data_len);
- 
-+		/* Don't cross local page boundary! */
-+		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
-+			amount = XEN_PAGE_SIZE - cop->dest.offset;
-+			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
-+			split = true;
-+		}
++	/* enable and uncork uevent now that we are done */
++	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 0);
 +
- 		cop->len = amount;
- 		cop->flags = GNTCOPY_source_gref;
- 
-@@ -413,7 +425,8 @@ static void xenvif_get_requests(struct x
- 		pending_idx = queue->pending_ring[index];
- 		callback_param(queue, pending_idx).ctx = NULL;
- 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
--		copy_count(skb)++;
-+		if (!split)
-+			copy_count(skb)++;
- 
- 		cop++;
- 		data_len -= amount;
-@@ -434,7 +447,8 @@ static void xenvif_get_requests(struct x
- 			nr_slots--;
- 		} else {
- 			/* The copy op partially covered the tx_request.
--			 * The remainder will be mapped.
-+			 * The remainder will be mapped or copied in the next
-+			 * iteration.
- 			 */
- 			txp->offset += amount;
- 			txp->size -= amount;
-@@ -532,6 +546,13 @@ static int xenvif_tx_check_gop(struct xe
- 		pending_idx = copy_pending_idx(skb, i);
- 
- 		newerr = (*gopp_copy)->status;
+ 	loop_global_unlock(lo, is_loop);
+ 	if (partscan)
+ 		loop_reread_partitions(lo);
 +
-+		/* Split copies need to be handled together. */
-+		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
-+			(*gopp_copy)++;
-+			if (!newerr)
-+				newerr = (*gopp_copy)->status;
-+		}
- 		if (likely(!newerr)) {
- 			/* The first frag might still have this slot mapped */
- 			if (i < copy_count(skb) - 1 || !sharedslot)
+ 	if (!(mode & FMODE_EXCL))
+ 		bd_abort_claiming(bdev, loop_configure);
+ 
+-	error = 0;
+-done:
+-	/* enable and uncork uevent now that we are done */
+-	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 0);
+-	return error;
++	return 0;
+ 
+ out_unlock:
+ 	loop_global_unlock(lo, is_loop);
+@@ -1130,7 +1130,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	fput(file);
+ 	/* This is safe: open() is still holding a reference. */
+ 	module_put(THIS_MODULE);
+-	goto done;
++	return error;
+ }
+ 
+ static void __loop_clr_fd(struct loop_device *lo, bool release)
+-- 
+2.39.2
+
 
 
