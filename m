@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3876B6D4A76
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD2B6D48E6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234097AbjDCOrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:47:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
+        id S233545AbjDCOcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233986AbjDCOrI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1298629BC1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:37 -0700 (PDT)
+        with ESMTP id S233537AbjDCOcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEBFBE44
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C238E61F47
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3363C433D2;
-        Mon,  3 Apr 2023 14:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56232B81AD8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C24C433EF;
+        Mon,  3 Apr 2023 14:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533174;
-        bh=ybnf0WuouWU08KTr71yU7vBE+kVfFz4SW7MEMzkHpuc=;
+        s=korg; t=1680532362;
+        bh=iIimPAl3W7sA8efoe/qBB54Hy/DRWY0cczHHWIEH6Vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDoGg9IkGdk0I7IqljMButsihzt4vfqSxIUnFyKN/r2Flph+OtH/uZNufPIk3lZt0
-         ZOxrItFblEbIECuUSbf5o7xDbwu3pmT26LPetPClHQCXBJpH1ARQ9iDXYisVexQVJP
-         0CkNFUkrIwmotHDbqHsvVSwkiKbHs3fx06EDSBSI=
+        b=v5PxZenHkCTkBk7K9Uh5judD4QgVSce2KPBw3d1q5Su+5BfyeoyYCEjr1Ikp0UEOA
+         M+s8GKLaajhDaoXazV1a2YjZlZN4Y7/UMOx+WiYhIrwY+w0phEJfo+4hGWvLPzHxv9
+         5XDF4O+W0rLr6rjrNfe7NjwpjlPyLEYDibx7gZP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Anton Gusev <aagusev@ispras.ru>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 081/187] net: dsa: realtek: fix out-of-bounds access
+Subject: [PATCH 5.15 23/99] tracing: Fix wrong return in kprobe_event_gen_test.c
 Date:   Mon,  3 Apr 2023 16:08:46 +0200
-Message-Id: <20230403140418.628007986@linuxfoundation.org>
+Message-Id: <20230403140403.096311281@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Anton Gusev <aagusev@ispras.ru>
 
-[ Upstream commit b93eb564869321d0dffaf23fcc5c88112ed62466 ]
+[ Upstream commit bc4f359b3b607daac0290d0038561237a86b38cb ]
 
-The probe function sets priv->chip_data to (void *)priv + sizeof(*priv)
-with the expectation that priv has enough trailing space.
+Overwriting the error code with the deletion result may cause the
+function to return 0 despite encountering an error. Commit b111545d26c0
+("tracing: Remove the useless value assignment in
+test_create_synth_event()") solves a similar issue by
+returning the original error code, so this patch does the same.
 
-However, only realtek-smi actually allocated this chip_data space.
-Do likewise in realtek-mdio to fix out-of-bounds accesses.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-These accesses likely went unnoticed so far, because of an (unused)
-buf[4096] member in struct realtek_priv, which caused kmalloc to
-round up the allocated buffer to a big enough size, so nothing of
-value was overwritten. With a different allocator (like in the barebox
-bootloader port of the driver) or with KASAN, the memory corruption
-becomes quickly apparent.
+Link: https://lore.kernel.org/linux-trace-kernel/20230131075818.5322-1-aagusev@ispras.ru
 
-Fixes: aac94001067d ("net: dsa: realtek: add new mdio interface for drivers")
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Link: https://lore.kernel.org/r/20230323103735.2331786-1-a.fatoum@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Anton Gusev <aagusev@ispras.ru>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/realtek/realtek-mdio.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/trace/kprobe_event_gen_test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/realtek/realtek-mdio.c b/drivers/net/dsa/realtek/realtek-mdio.c
-index 3e54fac5f9027..5a8fe707ca25e 100644
---- a/drivers/net/dsa/realtek/realtek-mdio.c
-+++ b/drivers/net/dsa/realtek/realtek-mdio.c
-@@ -21,6 +21,7 @@
+diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
+index c736487fc0e48..e0c420eb0b2b4 100644
+--- a/kernel/trace/kprobe_event_gen_test.c
++++ b/kernel/trace/kprobe_event_gen_test.c
+@@ -146,7 +146,7 @@ static int __init test_gen_kprobe_cmd(void)
+ 	if (trace_event_file_is_valid(gen_kprobe_test))
+ 		gen_kprobe_test = NULL;
+ 	/* We got an error after creating the event, delete it */
+-	ret = kprobe_event_delete("gen_kprobe_test");
++	kprobe_event_delete("gen_kprobe_test");
+ 	goto out;
+ }
  
- #include <linux/module.h>
- #include <linux/of_device.h>
-+#include <linux/overflow.h>
- #include <linux/regmap.h>
- 
- #include "realtek.h"
-@@ -152,7 +153,9 @@ static int realtek_mdio_probe(struct mdio_device *mdiodev)
- 	if (!var)
- 		return -EINVAL;
- 
--	priv = devm_kzalloc(&mdiodev->dev, sizeof(*priv), GFP_KERNEL);
-+	priv = devm_kzalloc(&mdiodev->dev,
-+			    size_add(sizeof(*priv), var->chip_data_sz),
-+			    GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
+@@ -211,7 +211,7 @@ static int __init test_gen_kretprobe_cmd(void)
+ 	if (trace_event_file_is_valid(gen_kretprobe_test))
+ 		gen_kretprobe_test = NULL;
+ 	/* We got an error after creating the event, delete it */
+-	ret = kprobe_event_delete("gen_kretprobe_test");
++	kprobe_event_delete("gen_kretprobe_test");
+ 	goto out;
+ }
  
 -- 
 2.39.2
