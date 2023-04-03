@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F28E16D4961
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7D46D4838
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233686AbjDCOhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:37:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
+        id S233327AbjDCO0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbjDCOhr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:47 -0400
+        with ESMTP id S233321AbjDCO0m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9554A16F3B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E65782CAF9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60E00B81CC0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B80D1C4339B;
-        Mon,  3 Apr 2023 14:37:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 793D8B81C12
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9744C4339B;
+        Mon,  3 Apr 2023 14:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532628;
-        bh=Jb490tCizwjgMEDnhB4AhjdZi8ljgpZONOn25AMTCfA=;
+        s=korg; t=1680531998;
+        bh=u/O9oSwFl7oXTaJku6rhQs0l1MMuGRCZTZekRT+8LbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdYEgmKI6pPxll0D2gtM0vwm227XexvyKTOy/P8wM+6pMz8bYXeBG+SW29EvKWT85
-         efHj41jxUSuUcb5CIjIrFKFuQ6Y09OHfugl5W7dKpn3gFYtpPPQfznEI1RmIJ6Z27B
-         BaBhZsrJkpamlxCE8fnZBA2K5QcAAfDbFaAZ5Y5s=
+        b=KblUbAKeJft14Gw+jSUmKCKPo9FjV5ystNQTd8T2c+cZY3M2TNWtU8gY98YpYaKXr
+         f7q9IDhsyCbmH+vYpkkXLBRBJXHJJI86nBBB9KXws+H4huFYzataObl8TfqSFDX0/3
+         ZDJp/p/rNd3KnbQioAohy/kj0Ac9aAKCUAsP7rJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Francois Romieu <romieu@fr.zoreil.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 026/181] tracing: Add .graph suffix option to histogram value
+Subject: [PATCH 5.10 046/173] atm: idt77252: fix kmemleak when rmmod idt77252
 Date:   Mon,  3 Apr 2023 16:07:41 +0200
-Message-Id: <20230403140415.998942244@linuxfoundation.org>
+Message-Id: <20230403140415.915230235@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,238 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit a2c54256dec7510477e2b4f4db187e638f7cac37 ]
+[ Upstream commit 4fe3c88552a3fbe1944426a4506a18cdeb457b5a ]
 
-Add the .graph suffix which shows the bar graph of the histogram value.
+There are memory leaks reported by kmemleak:
 
-For example, the below example shows that the bar graph
-of the histogram of the runtime for each tasks.
+  unreferenced object 0xffff888106500800 (size 128):
+    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
+      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
+      [<000000000e947e2a>] idt77252_init_one+0x2847/0x3c90 [idt77252]
+      [<000000006efb048e>] local_pci_probe+0xeb/0x1a0
+    ...
 
-------
-  # cd /sys/kernel/debug/tracing/
-  # echo hist:keys=pid:vals=runtime.graph:sort=pid > \
-   events/sched/sched_stat_runtime/trigger
-  # sleep 10
-  # cat events/sched/sched_stat_runtime/hist
- # event histogram
- #
- # trigger info: hist:keys=pid:vals=hitcount,runtime.graph:sort=pid:size=2048 [active]
- #
+  unreferenced object 0xffff888106500b00 (size 128):
+    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
+    hex dump (first 32 bytes):
+      00 20 3d 01 80 88 ff ff 00 20 3d 01 80 88 ff ff  . =...... =.....
+      f0 23 3d 01 80 88 ff ff 00 20 3d 01 00 00 00 00  .#=...... =.....
+    backtrace:
+      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
+      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
+      [<00000000f451c5be>] alloc_scq.constprop.0+0x4a/0x400 [idt77252]
+      [<00000000e6313849>] idt77252_init_one+0x28cf/0x3c90 [idt77252]
 
- { pid:         14 } hitcount:          2  runtime:
- { pid:         16 } hitcount:          8  runtime:
- { pid:         26 } hitcount:          1  runtime:
- { pid:         57 } hitcount:          3  runtime:
- { pid:         61 } hitcount:         20  runtime: ###
- { pid:         66 } hitcount:          2  runtime:
- { pid:         70 } hitcount:          3  runtime:
- { pid:         72 } hitcount:          2  runtime:
- { pid:        145 } hitcount:         14  runtime: ####################
- { pid:        152 } hitcount:          5  runtime: #######
- { pid:        153 } hitcount:          2  runtime: ####
+The root cause is traced to the vc_maps which alloced in open_card_oam()
+are not freed in close_card_oam(). The vc_maps are used to record
+open connections, so when close a vc_map in close_card_oam(), the memory
+should be freed. Moreover, the ubr0 is not closed when close a idt77252
+device, leading to the memory leak of vc_map and scq_info.
 
- Totals:
-     Hits: 62
-     Entries: 11
-     Dropped: 0
--------
+Fix them by adding kfree in close_card_oam() and implementing new
+close_card_ubr0() to close ubr0.
 
-Link: https://lore.kernel.org/linux-trace-kernel/166610813953.56030.10944148382315789485.stgit@devnote2
-
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Tested-by: Tom Zanussi <zanussi@kernel.org>
-Stable-dep-of: e0213434fe3e ("tracing: Do not let histogram values have some modifiers")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
+Link: https://lore.kernel.org/r/20230320143318.2644630-1-lizetao1@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c             |  3 +-
- kernel/trace/trace_events_hist.c | 77 +++++++++++++++++++++++++-------
- 2 files changed, 63 insertions(+), 17 deletions(-)
+ drivers/atm/idt77252.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index f714ed1f1c673..78d69b9488e45 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5728,7 +5728,8 @@ static const char readme_msg[] =
- 	"\t            .log2       display log2 value rather than raw number\n"
- 	"\t            .buckets=size  display values in groups of size rather than raw number\n"
- 	"\t            .usecs      display a common_timestamp in microseconds\n"
--	"\t            .percent    display a number of percentage value\n\n"
-+	"\t            .percent    display a number of percentage value\n"
-+	"\t            .graph      display a bar-graph of a value\n\n"
- 	"\t    The 'pause' parameter can be used to pause an existing hist\n"
- 	"\t    trigger or to start a hist trigger but not log any events\n"
- 	"\t    until told to do so.  'continue' can be used to start or\n"
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 1c207fbf5634f..8e0acf8009bde 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -507,6 +507,7 @@ enum hist_field_flags {
- 	HIST_FIELD_FL_BUCKET		= 1 << 17,
- 	HIST_FIELD_FL_CONST		= 1 << 18,
- 	HIST_FIELD_FL_PERCENT		= 1 << 19,
-+	HIST_FIELD_FL_GRAPH		= 1 << 20,
- };
+diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
+index 82f6f1fbe9e78..a217b50439e72 100644
+--- a/drivers/atm/idt77252.c
++++ b/drivers/atm/idt77252.c
+@@ -2915,6 +2915,7 @@ close_card_oam(struct idt77252_dev *card)
  
- struct var_defs {
-@@ -1711,6 +1712,8 @@ static const char *get_hist_field_flags(struct hist_field *hist_field)
- 		flags_str = "usecs";
- 	else if (hist_field->flags & HIST_FIELD_FL_PERCENT)
- 		flags_str = "percent";
-+	else if (hist_field->flags & HIST_FIELD_FL_GRAPH)
-+		flags_str = "graph";
- 
- 	return flags_str;
+ 				recycle_rx_pool_skb(card, &vc->rcv.rx_pool);
+ 			}
++			kfree(vc);
+ 		}
+ 	}
  }
-@@ -2327,6 +2330,10 @@ parse_field(struct hist_trigger_data *hist_data, struct trace_event_file *file,
- 			if (*flags & (HIST_FIELD_FL_VAR | HIST_FIELD_FL_KEY))
- 				goto error;
- 			*flags |= HIST_FIELD_FL_PERCENT;
-+		} else if (strncmp(modifier, "graph", 5) == 0) {
-+			if (*flags & (HIST_FIELD_FL_VAR | HIST_FIELD_FL_KEY))
-+				goto error;
-+			*flags |= HIST_FIELD_FL_GRAPH;
- 		} else {
-  error:
- 			hist_err(tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(modifier));
-@@ -5322,20 +5329,52 @@ static inline unsigned int __get_percentage(u64 val, u64 total)
- 	return val ? UINT_MAX : 0;
+@@ -2958,6 +2959,15 @@ open_card_ubr0(struct idt77252_dev *card)
+ 	return 0;
  }
  
-+#define BAR_CHAR '#'
-+
-+static inline const char *__fill_bar_str(char *buf, int size, u64 val, u64 max)
++static void
++close_card_ubr0(struct idt77252_dev *card)
 +{
-+	unsigned int len = __get_percentage(val, max);
-+	int i;
++	struct vc_map *vc = card->vcs[0];
 +
-+	if (len == UINT_MAX) {
-+		snprintf(buf, size, "[ERROR]");
-+		return buf;
-+	}
-+
-+	len = len * size / 10000;
-+	for (i = 0; i < len && i < size; i++)
-+		buf[i] = BAR_CHAR;
-+	while (i < size)
-+		buf[i++] = ' ';
-+	buf[size] = '\0';
-+
-+	return buf;
++	free_scq(card, vc->scq);
++	kfree(vc);
 +}
 +
-+struct hist_val_stat {
-+	u64 max;
-+	u64 total;
-+};
-+
- static void hist_trigger_print_val(struct seq_file *m, unsigned int idx,
- 				   const char *field_name, unsigned long flags,
--				   u64 *totals, struct tracing_map_elt *elt)
-+				   struct hist_val_stat *stats,
-+				   struct tracing_map_elt *elt)
+ static int
+ idt77252_dev_open(struct idt77252_dev *card)
  {
- 	u64 val = tracing_map_read_sum(elt, idx);
- 	unsigned int pc;
-+	char bar[21];
+@@ -3007,6 +3017,7 @@ static void idt77252_dev_close(struct atm_dev *dev)
+ 	struct idt77252_dev *card = dev->dev_data;
+ 	u32 conf;
  
- 	if (flags & HIST_FIELD_FL_PERCENT) {
--		pc = __get_percentage(val, totals[idx]);
-+		pc = __get_percentage(val, stats[idx].total);
- 		if (pc == UINT_MAX)
- 			seq_printf(m, " %s (%%):[ERROR]", field_name);
- 		else
- 			seq_printf(m, " %s (%%): %3u.%02u", field_name,
- 					pc / 100, pc % 100);
-+	} else if (flags & HIST_FIELD_FL_GRAPH) {
-+		seq_printf(m, " %s: %20s", field_name,
-+			   __fill_bar_str(bar, 20, val, stats[idx].max));
- 	} else if (flags & HIST_FIELD_FL_HEX) {
- 		seq_printf(m, " %s: %10llx", field_name, val);
- 	} else {
-@@ -5345,7 +5384,7 @@ static void hist_trigger_print_val(struct seq_file *m, unsigned int idx,
++	close_card_ubr0(card);
+ 	close_card_oam(card);
  
- static void hist_trigger_entry_print(struct seq_file *m,
- 				     struct hist_trigger_data *hist_data,
--				     u64 *totals,
-+				     struct hist_val_stat *stats,
- 				     void *key,
- 				     struct tracing_map_elt *elt)
- {
-@@ -5356,7 +5395,7 @@ static void hist_trigger_entry_print(struct seq_file *m,
- 	hist_trigger_print_key(m, hist_data, key, elt);
- 
- 	/* At first, show the raw hitcount always */
--	hist_trigger_print_val(m, i, "hitcount", 0, totals, elt);
-+	hist_trigger_print_val(m, i, "hitcount", 0, stats, elt);
- 
- 	for (i = 1; i < hist_data->n_vals; i++) {
- 		field_name = hist_field_name(hist_data->fields[i], 0);
-@@ -5366,7 +5405,7 @@ static void hist_trigger_entry_print(struct seq_file *m,
- 			continue;
- 
- 		seq_puts(m, " ");
--		hist_trigger_print_val(m, i, field_name, flags, totals, elt);
-+		hist_trigger_print_val(m, i, field_name, flags, stats, elt);
- 	}
- 
- 	print_actions(m, hist_data, elt);
-@@ -5380,7 +5419,8 @@ static int print_entries(struct seq_file *m,
- 	struct tracing_map_sort_entry **sort_entries = NULL;
- 	struct tracing_map *map = hist_data->map;
- 	int i, j, n_entries;
--	u64 *totals = NULL;
-+	struct hist_val_stat *stats = NULL;
-+	u64 val;
- 
- 	n_entries = tracing_map_sort_entries(map, hist_data->sort_keys,
- 					     hist_data->n_sort_keys,
-@@ -5388,28 +5428,33 @@ static int print_entries(struct seq_file *m,
- 	if (n_entries < 0)
- 		return n_entries;
- 
-+	/* Calculate the max and the total for each field if needed. */
- 	for (j = 0; j < hist_data->n_vals; j++) {
--		if (!(hist_data->fields[j]->flags & HIST_FIELD_FL_PERCENT))
-+		if (!(hist_data->fields[j]->flags &
-+			(HIST_FIELD_FL_PERCENT | HIST_FIELD_FL_GRAPH)))
- 			continue;
--		if (!totals) {
--			totals = kcalloc(hist_data->n_vals, sizeof(u64),
--					 GFP_KERNEL);
--			if (!totals) {
-+		if (!stats) {
-+			stats = kcalloc(hist_data->n_vals, sizeof(*stats),
-+				       GFP_KERNEL);
-+			if (!stats) {
- 				n_entries = -ENOMEM;
- 				goto out;
- 			}
- 		}
--		for (i = 0; i < n_entries; i++)
--			totals[j] += tracing_map_read_sum(
--					sort_entries[i]->elt, j);
-+		for (i = 0; i < n_entries; i++) {
-+			val = tracing_map_read_sum(sort_entries[i]->elt, j);
-+			stats[j].total += val;
-+			if (stats[j].max < val)
-+				stats[j].max = val;
-+		}
- 	}
- 
- 	for (i = 0; i < n_entries; i++)
--		hist_trigger_entry_print(m, hist_data, totals,
-+		hist_trigger_entry_print(m, hist_data, stats,
- 					 sort_entries[i]->key,
- 					 sort_entries[i]->elt);
- 
--	kfree(totals);
-+	kfree(stats);
- out:
- 	tracing_map_destroy_sort_entries(sort_entries, n_entries);
- 
+ 	conf = SAR_CFG_RXPTH |	/* enable receive path           */
 -- 
 2.39.2
 
