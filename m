@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9656D4A4D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 176C36D4861
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233903AbjDCOqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:46:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36198 "EHLO
+        id S233358AbjDCO2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbjDCOqE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77EB16F06
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:42 -0700 (PDT)
+        with ESMTP id S233357AbjDCO2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40964191F3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59C8861F25
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BB80C4339B;
-        Mon,  3 Apr 2023 14:45:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAD65B81C23
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61BFAC433EF;
+        Mon,  3 Apr 2023 14:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533105;
-        bh=9v6fPcXoHqX2UYXzCOsQOtq2Xoz/bLwl3a0T8ElP0JA=;
+        s=korg; t=1680532086;
+        bh=ofs2jD6JL/nr2hVtNEEt4cyqmDWgNc/8F3k/RHHvP8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPTZfL7P6dHCeW3kCMXGjyArc/G2/LhIN8hj/PRUr5Ah6FXpxfVNm56CH5uBXHeb6
-         BWVxMGmz2mDo94lx1CtWsH9Cdqjnp4IyWbZWdP6hkxdjFxhZPDJzIXYkOx26XpT3oN
-         uAWp3O5U2EQoMhY0CS6olvWXgV5EU2Zf53PLZTyg=
+        b=wHaOwbzBRWL5Dn/ozHkfE+tKrO72E5PlpEkSLoheaY/bD3kX/31KOqgi2Rr18XwMB
+         BHro62TgUCXUfe1CNYzCqchau4hPBCxZnEQ20V7OcKVay2RFwTbTzyPR0SCPhyv9r1
+         4z2bhaxKspdsM54pEhaNY8HA9+BgBDmdX0y7CbdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Irvin Cote <irvincoteg@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 049/187] nvme-pci: fixing memory leak in probe teardown path
-Date:   Mon,  3 Apr 2023 16:08:14 +0200
-Message-Id: <20230403140417.596536916@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        John Keeping <john@metanate.com>
+Subject: [PATCH 5.10 080/173] usb: gadget: u_audio: dont let userspace block driver unbind
+Date:   Mon,  3 Apr 2023 16:08:15 +0200
+Message-Id: <20230403140417.008576908@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Irvin Cote <irvincoteg@gmail.com>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit a61d265533b7fe0026a02a49916aa564ffe38e4c ]
+commit 6c67ed9ad9b83e453e808f9b31a931a20a25629b upstream.
 
-In case the nvme_probe teardown path is triggered the ctrl ref count does
-not reach 0 thus creating a memory leak upon failure of nvme_probe.
+In the unbind callback for f_uac1 and f_uac2, a call to snd_card_free()
+via g_audio_cleanup() will disconnect the card and then wait for all
+resources to be released, which happens when the refcount falls to zero.
+Since userspace can keep the refcount incremented by not closing the
+relevant file descriptor, the call to unbind may block indefinitely.
+This can cause a deadlock during reboot, as evidenced by the following
+blocked task observed on my machine:
 
-Signed-off-by: Irvin Cote <irvincoteg@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  task:reboot  state:D stack:0   pid:2827  ppid:569    flags:0x0000000c
+  Call trace:
+   __switch_to+0xc8/0x140
+   __schedule+0x2f0/0x7c0
+   schedule+0x60/0xd0
+   schedule_timeout+0x180/0x1d4
+   wait_for_completion+0x78/0x180
+   snd_card_free+0x90/0xa0
+   g_audio_cleanup+0x2c/0x64
+   afunc_unbind+0x28/0x60
+   ...
+   kernel_restart+0x4c/0xac
+   __do_sys_reboot+0xcc/0x1ec
+   __arm64_sys_reboot+0x28/0x30
+   invoke_syscall+0x4c/0x110
+   ...
+
+The issue can also be observed by opening the card with arecord and
+then stopping the process through the shell before unbinding:
+
+  # arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
+  Recording WAVE '/dev/null' : Signed 32 bit Little Endian, Rate 48000 Hz, Stereo
+  ^Z[1]+  Stopped                    arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
+  # echo gadget.0 > /sys/bus/gadget/drivers/configfs-gadget/unbind
+  (observe that the unbind command never finishes)
+
+Fix the problem by using snd_card_free_when_closed() instead, which will
+still disconnect the card as desired, but defer the task of freeing the
+resources to the core once userspace closes its file descriptor.
+
+Fixes: 132fcb460839 ("usb: gadget: Add Audio Class 2.0 Driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20230302163648.3349669-1-alvin@pqrs.dk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/u_audio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 29c902b9aecbd..c51ebbee8103e 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3126,6 +3126,7 @@ static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	nvme_dev_unmap(dev);
- out_uninit_ctrl:
- 	nvme_uninit_ctrl(&dev->ctrl);
-+	nvme_put_ctrl(&dev->ctrl);
- 	return result;
- }
+--- a/drivers/usb/gadget/function/u_audio.c
++++ b/drivers/usb/gadget/function/u_audio.c
+@@ -613,7 +613,7 @@ void g_audio_cleanup(struct g_audio *g_a
+ 	uac = g_audio->uac;
+ 	card = uac->card;
+ 	if (card)
+-		snd_card_free(card);
++		snd_card_free_when_closed(card);
  
--- 
-2.39.2
-
+ 	kfree(uac->p_prm.ureq);
+ 	kfree(uac->c_prm.ureq);
 
 
