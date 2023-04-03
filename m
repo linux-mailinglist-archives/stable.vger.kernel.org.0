@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 585946D4ACD
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E758D6D49E6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234115AbjDCOua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:50:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36736 "EHLO
+        id S233846AbjDCOmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:42:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234120AbjDCOuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:16 -0400
+        with ESMTP id S233831AbjDCOmG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:42:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F80829058
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B47317AFF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73CD961F3D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A916C433D2;
-        Mon,  3 Apr 2023 14:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94E5061ED6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC52C433D2;
+        Mon,  3 Apr 2023 14:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533325;
-        bh=BoB3oMBtNg/fDAUW2AA+bqEXtcZhcifO8b6Ne+d8Bkk=;
+        s=korg; t=1680532923;
+        bh=jyRttOi/+1GUQiXflH/H+fTtTJy0fN3XLyD5v4JQOY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbWHjPUqCRhlgm812hZed1wagbFZFNsDBtOm+77/Z2xU4Cr4u/RiPOMRzrm2QFqMT
-         UuolaUUwKrXsFAiM3p6dqMKzeSvTzsk/Ik84rySNKxqB1+Hn1JqawOW+x1j+v4YaKj
-         HMpGJ6QUALfIbuOvN2RFr1mhnNgOcXxozqhZvHf8=
+        b=G0B6xouZGyBtWYNyB127MZsw/f+a6NbuZV9e9tfk2lh40N2hkPuZgqP9FCGquDjpu
+         SGiwh3XT7fQ4K7VfvSeGomLKa0QdvfYXHgGG25sigrwRuEym0UkpAiZ5vKbqumXMIY
+         UN8z6tvQPNBUbVTXSvdN0hIWtc9GXRyHNTgMbC+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.2 140/187] io_uring/poll: clear single/double poll flags on poll arming
-Date:   Mon,  3 Apr 2023 16:09:45 +0200
-Message-Id: <20230403140420.609619449@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 6.1 151/181] NFSv4: Fix hangs when recovering open state after a server reboot
+Date:   Mon,  3 Apr 2023 16:09:46 +0200
+Message-Id: <20230403140419.967494531@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 005308f7bdacf5685ed1a431244a183dbbb9e0e8 upstream.
+commit 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3 upstream.
 
-Unless we have at least one entry queued, then don't call into
-io_poll_remove_entries(). Normally this isn't possible, but if we
-retry poll then we can have ->nr_entries cleared again as we're
-setting it up. If this happens for a poll retry, then we'll still have
-at least REQ_F_SINGLE_POLL set. io_poll_remove_entries() then thinks
-it has entries to remove.
+When we're using a cached open stateid or a delegation in order to avoid
+sending a CLAIM_PREVIOUS open RPC call to the server, we don't have a
+new open stateid to present to update_open_stateid().
+Instead rely on nfs4_try_open_cached(), just as if we were doing a
+normal open.
 
-Clear REQ_F_SINGLE_POLL and REQ_F_DOUBLE_POLL unconditionally when
-arming a poll request.
-
-Fixes: c16bda37594f ("io_uring/poll: allow some retries for poll triggering spuriously")
+Fixes: d2bfda2e7aa0 ("NFSv4: don't reprocess cached open CLAIM_PREVIOUS")
 Cc: stable@vger.kernel.org
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/poll.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/nfs4proc.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -724,6 +724,7 @@ int io_arm_poll_handler(struct io_kiocb
- 	apoll = io_req_alloc_apoll(req, issue_flags);
- 	if (!apoll)
- 		return IO_APOLL_ABORTED;
-+	req->flags &= ~(REQ_F_SINGLE_POLL | REQ_F_DOUBLE_POLL);
- 	req->flags |= REQ_F_POLLED;
- 	ipt.pt._qproc = io_async_queue_proc;
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1980,8 +1980,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 	if (!data->rpc_done) {
+ 		if (data->rpc_status)
+ 			return ERR_PTR(data->rpc_status);
+-		/* cached opens have already been processed */
+-		goto update;
++		return nfs4_try_open_cached(data);
+ 	}
  
+ 	ret = nfs_refresh_inode(inode, &data->f_attr);
+@@ -1990,7 +1989,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 
+ 	if (data->o_res.delegation_type != 0)
+ 		nfs4_opendata_check_deleg(data, state);
+-update:
++
+ 	if (!update_open_stateid(state, &data->o_res.stateid,
+ 				NULL, data->o_arg.fmode))
+ 		return ERR_PTR(-EAGAIN);
 
 
