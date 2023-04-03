@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A096D49A1
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36AE46D486F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233755AbjDCOjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52178 "EHLO
+        id S233385AbjDCO2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233759AbjDCOju (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B15236A4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:44 -0700 (PDT)
+        with ESMTP id S233387AbjDCO2l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D71F93500A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22C05B81CDB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9057CC433EF;
-        Mon,  3 Apr 2023 14:39:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 681F7B81C35
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB5ECC4339B;
+        Mon,  3 Apr 2023 14:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532781;
-        bh=7ndKNZWViU2f84b78ppPFmwaLXby3ksYxtK1B8Y+UM8=;
+        s=korg; t=1680532115;
+        bh=/obK6rDWHUQIau/qAmj3wPsGAbebbDit7OWGuRgYVQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6cAde0yh3wlQjbjqtXipSdTv0gZyIZB8DKAVm3Ryhcy2WgpKTQv/fopabX9qSQtz
-         1VFiwrfmptENnbHe3uU+1ym8HRslZaCBYbYevx3A/Ohz4eAi/PuCBG9tLdYMFwovhv
-         HLSAHLakzqe+FrLGZHvhWwnHx+2iQ6rjyNRqXHUg=
+        b=TKO7YRnODedTxWRyuJMEIQenrK5UbabKvgMD+MtAjB6+XTq7uHcAyCS556pPy7PnQ
+         UrH8FN4/ZxORNT1HzsX9xvQf0/rVWAzJZxiHrCAz05LlTJi8V0BdP6q7pcUyID0V+Z
+         gjAtK7JfBGISf8TD6ZtD09QkT8zkTtpIf58yr9Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Radoslaw Tyl <radoslawx.tyl@intel.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Arpana Arland <arpanax.arland@intel.com>
-Subject: [PATCH 6.1 113/181] i40e: fix registers dump after run ethtool adapter self test
+        patches@lists.linux.dev, Faicker Mo <faicker.mo@ucloud.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 133/173] net/net_failover: fix txq exceeding warning
 Date:   Mon,  3 Apr 2023 16:09:08 +0200
-Message-Id: <20230403140418.766076975@linuxfoundation.org>
+Message-Id: <20230403140418.777496876@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,89 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radoslaw Tyl <radoslawx.tyl@intel.com>
+From: Faicker Mo <faicker.mo@ucloud.cn>
 
-[ Upstream commit c5cff16f461a4a434a9915a7be7ac9ced861a8a4 ]
+[ Upstream commit e3cbdcb0fbb61045ef3ce0e072927cc41737f787 ]
 
-Fix invalid registers dump from ethtool -d ethX after adapter self test
-by ethtool -t ethY. It causes invalid data display.
+The failover txq is inited as 16 queues.
+when a packet is transmitted from the failover device firstly,
+the failover device will select the queue which is returned from
+the primary device if the primary device is UP and running.
+If the primary device txq is bigger than the default 16,
+it can lead to the following warning:
+eth0 selects TX queue 18, but real number of TX queues is 16
 
-The problem was caused by overwriting i40e_reg_list[].elements
-which is common for ethtool self test and dump.
+The warning backtrace is:
+[   32.146376] CPU: 18 PID: 9134 Comm: chronyd Tainted: G            E      6.2.8-1.el7.centos.x86_64 #1
+[   32.147175] Hardware name: Red Hat KVM, BIOS 1.10.2-3.el7_4.1 04/01/2014
+[   32.147730] Call Trace:
+[   32.147971]  <TASK>
+[   32.148183]  dump_stack_lvl+0x48/0x70
+[   32.148514]  dump_stack+0x10/0x20
+[   32.148820]  netdev_core_pick_tx+0xb1/0xe0
+[   32.149180]  __dev_queue_xmit+0x529/0xcf0
+[   32.149533]  ? __check_object_size.part.0+0x21c/0x2c0
+[   32.149967]  ip_finish_output2+0x278/0x560
+[   32.150327]  __ip_finish_output+0x1fe/0x2f0
+[   32.150690]  ip_finish_output+0x2a/0xd0
+[   32.151032]  ip_output+0x7a/0x110
+[   32.151337]  ? __pfx_ip_finish_output+0x10/0x10
+[   32.151733]  ip_local_out+0x5e/0x70
+[   32.152054]  ip_send_skb+0x19/0x50
+[   32.152366]  udp_send_skb.isra.0+0x163/0x3a0
+[   32.152736]  udp_sendmsg+0xba8/0xec0
+[   32.153060]  ? __folio_memcg_unlock+0x25/0x60
+[   32.153445]  ? __pfx_ip_generic_getfrag+0x10/0x10
+[   32.153854]  ? sock_has_perm+0x85/0xa0
+[   32.154190]  inet_sendmsg+0x6d/0x80
+[   32.154508]  ? inet_sendmsg+0x6d/0x80
+[   32.154838]  sock_sendmsg+0x62/0x70
+[   32.155152]  ____sys_sendmsg+0x134/0x290
+[   32.155499]  ___sys_sendmsg+0x81/0xc0
+[   32.155828]  ? _get_random_bytes.part.0+0x79/0x1a0
+[   32.156240]  ? ip4_datagram_release_cb+0x5f/0x1e0
+[   32.156649]  ? get_random_u16+0x69/0xf0
+[   32.156989]  ? __fget_light+0xcf/0x110
+[   32.157326]  __sys_sendmmsg+0xc4/0x210
+[   32.157657]  ? __sys_connect+0xb7/0xe0
+[   32.157995]  ? __audit_syscall_entry+0xce/0x140
+[   32.158388]  ? syscall_trace_enter.isra.0+0x12c/0x1a0
+[   32.158820]  __x64_sys_sendmmsg+0x24/0x30
+[   32.159171]  do_syscall_64+0x38/0x90
+[   32.159493]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-Fixes: 22dd9ae8afcc ("i40e: Rework register diagnostic")
-Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20230328172659.3906413-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix that by reducing txq number as the non-existent primary-dev does.
+
+Fixes: cfc80d9a1163 ("net: Introduce net_failover driver")
+Signed-off-by: Faicker Mo <faicker.mo@ucloud.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_diag.c | 11 ++++++-----
- drivers/net/ethernet/intel/i40e/i40e_diag.h |  2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/net_failover.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.c b/drivers/net/ethernet/intel/i40e/i40e_diag.c
-index ef4d3762bf371..ca229b0efeb65 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_diag.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_diag.c
-@@ -44,7 +44,7 @@ static i40e_status i40e_diag_reg_pattern_test(struct i40e_hw *hw,
- 	return 0;
- }
+diff --git a/drivers/net/net_failover.c b/drivers/net/net_failover.c
+index fb182bec8f062..6b7bba720d8c7 100644
+--- a/drivers/net/net_failover.c
++++ b/drivers/net/net_failover.c
+@@ -130,14 +130,10 @@ static u16 net_failover_select_queue(struct net_device *dev,
+ 			txq = ops->ndo_select_queue(primary_dev, skb, sb_dev);
+ 		else
+ 			txq = netdev_pick_tx(primary_dev, skb, NULL);
+-
+-		qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
+-
+-		return txq;
++	} else {
++		txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
+ 	}
  
--struct i40e_diag_reg_test_info i40e_reg_list[] = {
-+const struct i40e_diag_reg_test_info i40e_reg_list[] = {
- 	/* offset               mask         elements   stride */
- 	{I40E_QTX_CTL(0),       0x0000FFBF, 1,
- 		I40E_QTX_CTL(1) - I40E_QTX_CTL(0)},
-@@ -78,27 +78,28 @@ i40e_status i40e_diag_reg_test(struct i40e_hw *hw)
- {
- 	i40e_status ret_code = 0;
- 	u32 reg, mask;
-+	u32 elements;
- 	u32 i, j;
+-	txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
+-
+ 	/* Save the original txq to restore before passing to the driver */
+ 	qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
  
- 	for (i = 0; i40e_reg_list[i].offset != 0 &&
- 					     !ret_code; i++) {
- 
-+		elements = i40e_reg_list[i].elements;
- 		/* set actual reg range for dynamically allocated resources */
- 		if (i40e_reg_list[i].offset == I40E_QTX_CTL(0) &&
- 		    hw->func_caps.num_tx_qp != 0)
--			i40e_reg_list[i].elements = hw->func_caps.num_tx_qp;
-+			elements = hw->func_caps.num_tx_qp;
- 		if ((i40e_reg_list[i].offset == I40E_PFINT_ITRN(0, 0) ||
- 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(1, 0) ||
- 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(2, 0) ||
- 		     i40e_reg_list[i].offset == I40E_QINT_TQCTL(0) ||
- 		     i40e_reg_list[i].offset == I40E_QINT_RQCTL(0)) &&
- 		    hw->func_caps.num_msix_vectors != 0)
--			i40e_reg_list[i].elements =
--				hw->func_caps.num_msix_vectors - 1;
-+			elements = hw->func_caps.num_msix_vectors - 1;
- 
- 		/* test register access */
- 		mask = i40e_reg_list[i].mask;
--		for (j = 0; j < i40e_reg_list[i].elements && !ret_code; j++) {
-+		for (j = 0; j < elements && !ret_code; j++) {
- 			reg = i40e_reg_list[i].offset +
- 			      (j * i40e_reg_list[i].stride);
- 			ret_code = i40e_diag_reg_pattern_test(hw, reg, mask);
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.h b/drivers/net/ethernet/intel/i40e/i40e_diag.h
-index c3340f320a18c..1db7c6d572311 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_diag.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_diag.h
-@@ -20,7 +20,7 @@ struct i40e_diag_reg_test_info {
- 	u32 stride;	/* bytes between each element */
- };
- 
--extern struct i40e_diag_reg_test_info i40e_reg_list[];
-+extern const struct i40e_diag_reg_test_info i40e_reg_list[];
- 
- i40e_status i40e_diag_reg_test(struct i40e_hw *hw);
- i40e_status i40e_diag_eeprom_test(struct i40e_hw *hw);
 -- 
 2.39.2
 
