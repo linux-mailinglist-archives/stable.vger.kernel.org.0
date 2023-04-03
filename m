@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7106D493C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 147FF6D482C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233642AbjDCOgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44608 "EHLO
+        id S233340AbjDCO03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233640AbjDCOgB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E551016F19
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:58 -0700 (PDT)
+        with ESMTP id S233315AbjDCO0Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3799931984
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 775BD61E62
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89C34C433EF;
-        Mon,  3 Apr 2023 14:35:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCFB7B81C0E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F4CC433D2;
+        Mon,  3 Apr 2023 14:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532557;
-        bh=M82enYK/u3Lq+IAhCORnNPaErd0b2l+VW4A9UX58ASQ=;
+        s=korg; t=1680531969;
+        bh=TMxWy7W4G7H+8Bf/fT9Q3JmFCESugBABHkH4m+efxbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZg1+FNXCBzJ2YdpK4kSKP/RSUdNaL9usU/8r7O/uLJguI3MeWqmtcA14BnJOrzlY
-         9G6d2dBve//XKYckWdPIni5rQLmuVnLdGEg0xs2rPW7GjANDSppqvGJG3rAmGDRq5I
-         mRzcUTL3cyTnk11QrB0FNjc5tmiFjZP5FApOixk4=
+        b=PuGcTXE2FP/ljjZ8I46fAwXsbKX1qn4NatoTkxqjTzBf9jR9TWl8LzJrCWXOm+uL3
+         wjAXrbHi6Dk8HwO8AZHOQnLZ2Ol6AMMZpv5seO9KQ4FGmxd79oKkZ52R8jIcEvTfiY
+         bHh3xC0rkXMteNIcO+fAHNI4ZusnVJge5R7+oybY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 029/181] arm64: efi: Set NX compat flag in PE/COFF header
+        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Caleb Sander <csander@purestorage.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/173] nvme-tcp: fix nvme_tcp_term_pdu to match spec
 Date:   Mon,  3 Apr 2023 16:07:44 +0200
-Message-Id: <20230403140416.123277378@linuxfoundation.org>
+Message-Id: <20230403140416.018827435@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,47 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Caleb Sander <csander@purestorage.com>
 
-[ Upstream commit 3c66bb1918c262dd52fb4221a8d372619c5da70a ]
+[ Upstream commit aa01c67de5926fdb276793180564f172c55fb0d7 ]
 
-The PE/COFF header has a NX compat flag which informs the firmware that
-the application does not rely on memory regions being mapped with both
-executable and writable permissions at the same time.
+The FEI field of C2HTermReq/H2CTermReq is 4 bytes but not 4-byte-aligned
+in the NVMe/TCP specification (it is located at offset 10 in the PDU).
+Split it into two 16-bit integers in struct nvme_tcp_term_pdu
+so no padding is inserted. There should also be 10 reserved bytes after.
+There are currently no users of this type.
 
-This is typically used by the firmware to decide whether it can set the
-NX attribute on all allocations it returns, but going forward, it may be
-used to enforce a policy that only permits applications with the NX flag
-set to be loaded to begin wiht in some configurations, e.g., when Secure
-Boot is in effect.
-
-Even though the arm64 version of the EFI stub may relocate the kernel
-before executing it, it always did so after disabling the MMU, and so we
-were always in line with what the NX compat flag conveys, we just never
-bothered to set it.
-
-So let's set the flag now.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: fc221d05447aa6db ("nvme-tcp: Add protocol header")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Caleb Sander <csander@purestorage.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/efi-header.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/nvme-tcp.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/efi-header.S b/arch/arm64/kernel/efi-header.S
-index 28d8a5dca5f12..d731b4655df8e 100644
---- a/arch/arm64/kernel/efi-header.S
-+++ b/arch/arm64/kernel/efi-header.S
-@@ -66,7 +66,7 @@
- 	.long	.Lefi_header_end - .L_head		// SizeOfHeaders
- 	.long	0					// CheckSum
- 	.short	IMAGE_SUBSYSTEM_EFI_APPLICATION		// Subsystem
--	.short	0					// DllCharacteristics
-+	.short	IMAGE_DLL_CHARACTERISTICS_NX_COMPAT	// DllCharacteristics
- 	.quad	0					// SizeOfStackReserve
- 	.quad	0					// SizeOfStackCommit
- 	.quad	0					// SizeOfHeapReserve
+diff --git a/include/linux/nvme-tcp.h b/include/linux/nvme-tcp.h
+index 959e0bd9a913e..73364ae916890 100644
+--- a/include/linux/nvme-tcp.h
++++ b/include/linux/nvme-tcp.h
+@@ -114,8 +114,9 @@ struct nvme_tcp_icresp_pdu {
+ struct nvme_tcp_term_pdu {
+ 	struct nvme_tcp_hdr	hdr;
+ 	__le16			fes;
+-	__le32			fei;
+-	__u8			rsvd[8];
++	__le16			feil;
++	__le16			feiu;
++	__u8			rsvd[10];
+ };
+ 
+ /**
 -- 
 2.39.2
 
