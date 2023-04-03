@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1D16D4ABB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1FD6D48A9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234080AbjDCOtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:49:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38446 "EHLO
+        id S233445AbjDCOan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234105AbjDCOtg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:36 -0400
+        with ESMTP id S233449AbjDCOan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA1362D496
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2AD3500B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38F61B81D74
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94679C433D2;
-        Mon,  3 Apr 2023 14:48:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECA25B81C5E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58405C433D2;
+        Mon,  3 Apr 2023 14:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533286;
-        bh=sJYkMFLKTOSjPjS7N91ko3D1k/zI1jC2wm1x73QJaU0=;
+        s=korg; t=1680532239;
+        bh=IEk2Eltw+FzXBUfpcwCSJG/KGI0ke/ppbi16yVYrGHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WW7oeCWrFhlWiFXqTq0Wiw04bw2BFusFlrjyeyRdriujb664YNA2YzeUPsy3OXU7U
-         KdxZ9yTB1rFQTvWldbkheifbl43cItwEmkqB1D9vXdF0dS9ssiVlkkmqezNXb9aEe7
-         Of/L0exEc7NGSjceL+utj6D2WeZEnfSQDrYweOgs=
+        b=l2J28r4eXSOtBeqB1AZE6xIurymSQJ1doCzkw/5IdNELHqUcbFTWhnywP1gbWaUmh
+         XSVZIfIxazMsFMmkDJSVuUXqPCuldVx5WOOXOBElFxW4m3Na7r4ZlvWdqHSmmrvwj5
+         Y/ufcPMaJf8+dzzL69DlWprkPK3LPKT0docsMJ8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 126/187] iommu/vt-d: Allow zero SAGAW if second-stage not supported
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.10 156/173] NFSv4: Fix hangs when recovering open state after a server reboot
 Date:   Mon,  3 Apr 2023 16:09:31 +0200
-Message-Id: <20230403140420.114648545@linuxfoundation.org>
+Message-Id: <20230403140419.491549835@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit bfd3c6b9fa4a1dc78139dd1621d5bea321ffa69d ]
+commit 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3 upstream.
 
-The VT-d spec states (in section 11.4.2) that hardware implementations
-reporting second-stage translation support (SSTS) field as Clear also
-report the SAGAW field as 0. Fix an inappropriate check in alloc_iommu().
+When we're using a cached open stateid or a delegation in order to avoid
+sending a CLAIM_PREVIOUS open RPC call to the server, we don't have a
+new open stateid to present to update_open_stateid().
+Instead rely on nfs4_try_open_cached(), just as if we were doing a
+normal open.
 
-Fixes: 792fb43ce2c9 ("iommu/vt-d: Enable Intel IOMMU scalable mode by default")
-Suggested-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20230318024824.124542-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20230329134721.469447-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d2bfda2e7aa0 ("NFSv4: don't reprocess cached open CLAIM_PREVIOUS")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/dmar.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index b00a0ceb2d137..c80c524ad32d7 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -1057,7 +1057,8 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1975,8 +1975,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 	if (!data->rpc_done) {
+ 		if (data->rpc_status)
+ 			return ERR_PTR(data->rpc_status);
+-		/* cached opens have already been processed */
+-		goto update;
++		return nfs4_try_open_cached(data);
  	}
  
- 	err = -EINVAL;
--	if (cap_sagaw(iommu->cap) == 0) {
-+	if (!cap_sagaw(iommu->cap) &&
-+	    (!ecap_smts(iommu->ecap) || ecap_slts(iommu->ecap))) {
- 		pr_info("%s: No supported address widths. Not attempting DMA translation.\n",
- 			iommu->name);
- 		drhd->ignored = 1;
--- 
-2.39.2
-
+ 	ret = nfs_refresh_inode(inode, &data->f_attr);
+@@ -1985,7 +1984,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 
+ 	if (data->o_res.delegation_type != 0)
+ 		nfs4_opendata_check_deleg(data, state);
+-update:
++
+ 	if (!update_open_stateid(state, &data->o_res.stateid,
+ 				NULL, data->o_arg.fmode))
+ 		return ERR_PTR(-EAGAIN);
 
 
