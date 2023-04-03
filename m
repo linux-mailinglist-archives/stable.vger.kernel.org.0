@@ -2,59 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D066D3C26
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 05:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34BCC6D3C27
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 05:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230421AbjDCDbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Apr 2023 23:31:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
+        id S230269AbjDCDbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Apr 2023 23:31:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230269AbjDCDbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Apr 2023 23:31:50 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE8A10D7
-        for <stable@vger.kernel.org>; Sun,  2 Apr 2023 20:31:47 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id om3-20020a17090b3a8300b0023efab0e3bfso31093233pjb.3
-        for <stable@vger.kernel.org>; Sun, 02 Apr 2023 20:31:47 -0700 (PDT)
+        with ESMTP id S231144AbjDCDbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Apr 2023 23:31:51 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3513410F2
+        for <stable@vger.kernel.org>; Sun,  2 Apr 2023 20:31:49 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id fy10-20020a17090b020a00b0023b4bcf0727so29093670pjb.0
+        for <stable@vger.kernel.org>; Sun, 02 Apr 2023 20:31:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1680492707;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Zi3AbqssZhLRzQZCxgwndBo4lN8HKlNHh+obXfpLWY8=;
-        b=Xn2kpI+S4tNJ6L34vPgpY2lJnIFNk45groHQjGvRTvuK04c/sW51msSYGtuVykKWd7
-         EHbtsI9axAxW0ozZfxRWmTi90d4eZpghVf4JjLhvLvM3krWzmYbtpy0x3dMj2xG6PI+h
-         mgvKexwAvwl1THtbjDo9HfEvNvidclwQuqNvE=
+        d=chromium.org; s=google; t=1680492708;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oHKDLyseLdmN7lQ2k9FccjAcJAccGNiY/SJJwmjOFg0=;
+        b=bQzQyNdDLqv9kmRStT50EV/WUdeeommXwRYV+R98ECuSxnZbwDi3mNuwTV99xWXCLO
+         akWccF9F7VwcfeBOhTCIbYHLwvrWJYxkWOJzX0fiJgc5nf6pY6UCYvjOh0ttH+uWttwt
+         YFiNIU3tj34EILwOjP1GcYJR8oFYB3eAvNKXw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680492707;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Zi3AbqssZhLRzQZCxgwndBo4lN8HKlNHh+obXfpLWY8=;
-        b=MGyy8X+s6xB9448jEgOQfSztaqROHMq+EoS+xagQ0VKuipQymmUvXwdnP22Hv1WttM
-         4BSR0EuDfxL90j6IP/ibcV5bePkBFFlKF/JocTyFUSrXFU2RBpcxKegEPz2B5dECfoGy
-         lRuTT60GcmlTFkdNj8ywaIJb6cpFfrD4sZp0rNmbiaSJYUy4CofnhoUqvmlpw6erOyv4
-         yZiGxXpc1gksqZYBAndip4FpDs5rNwFtOiBl0V6VI/use0vG5KcIniVwZgdhLAVVSFSc
-         KrqcQASKOYNZ2ugSdM8mKNOOR0beiHr3xn9PRb9/3wllFiAndaO6RKTJLhmDKLLnMKhG
-         wMyQ==
-X-Gm-Message-State: AAQBX9ewQPnxPUpHaq4zE/qTnYJXjbhD9aj92qqy9HS8Lw+nScLsG9SZ
-        r7McoPWFn2ESuNjR2oY1FzNHyew/CUDYt7TVJL8=
-X-Google-Smtp-Source: AKy350ZqzU5A4LPy8hdNM1jeNqAzROIHLOLOuED/9v6dVLZXjOR6Yds5HW+nVKm5X+AP9zllFvZPyA==
-X-Received: by 2002:a17:90b:4c8b:b0:23f:44da:208d with SMTP id my11-20020a17090b4c8b00b0023f44da208dmr40290638pjb.47.1680492706878;
-        Sun, 02 Apr 2023 20:31:46 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1680492708;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oHKDLyseLdmN7lQ2k9FccjAcJAccGNiY/SJJwmjOFg0=;
+        b=aqe31moj+dfqJW6XFuTp81Db6abXrUcTZkWMxIhY4jc9BQWPjK3IF9bodJfkSSLqJk
+         0T5fzy+GeK8oq/HJ1kO7ewLbSnDh7vwK3FGGcQJvCV/nVV4OTaLxZk+iMAY1V/kTWLXy
+         0GGiJFInrrWu+nPLVPjL5pAs/9DDWhfcvX19ol/h8Ywo5mc6vWWPob5vwASLfG1cdbiR
+         n3AaYesvfgtUCshPfFTDSXJiVzP85VWto1QbkF03P5WvDbnGvY588IdsgW42gLT725uG
+         z3BfFpiOIkwPp2II9qby1sKFcS3mACGSh22zR7BtF2ieUB7anTNBHmMDxZolz0DUhcZg
+         jvcg==
+X-Gm-Message-State: AAQBX9e6MRjdAazh1E2FZsJs39QGYxH2ZoB0mgKeTr35hjXqFHvIidui
+        4Kw1t6U2T2kk19Ddq/bebyHI705rV4YQQNbAF50=
+X-Google-Smtp-Source: AKy350ZIUeCKCE61ifiteML5LybT54u5NmZMz6bg2EBvjHUfW4TAzRaY+YgjS47oHPKmEeo49VhL7w==
+X-Received: by 2002:a17:90b:4f86:b0:237:9fbd:31c8 with SMTP id qe6-20020a17090b4f8600b002379fbd31c8mr38091511pjb.15.1680492708163;
+        Sun, 02 Apr 2023 20:31:48 -0700 (PDT)
 Received: from zsm-linux.mtv.corp.google.com ([2620:15c:9d:2:cc81:d874:d668:3a88])
-        by smtp.googlemail.com with ESMTPSA id mh11-20020a17090b4acb00b0023cfbe7d62esm17597811pjb.1.2023.04.02.20.31.45
+        by smtp.googlemail.com with ESMTPSA id mh11-20020a17090b4acb00b0023cfbe7d62esm17597811pjb.1.2023.04.02.20.31.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Apr 2023 20:31:46 -0700 (PDT)
+        Sun, 02 Apr 2023 20:31:47 -0700 (PDT)
 From:   Zubin Mithra <zsm@chromium.org>
 X-Google-Original-From: Zubin Mithra <zsm@google.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
         edumazet@google.com, vladbu@mellanox.com, davem@davemloft.net,
         xiyou.wangcong@gmail.com, kuba@kernel.org, dvyukov@google.com
-Subject: [PATCH v5.4.y 1/2] net_sched: add __rcu annotation to netdev->qdisc
-Date:   Sun,  2 Apr 2023 20:31:39 -0700
-Message-Id: <20230403033140.3229863-1-zsm@google.com>
+Subject: [PATCH v5.4.y 2/2] net: sched: fix race condition in qdisc_graft()
+Date:   Sun,  2 Apr 2023 20:31:40 -0700
+Message-Id: <20230403033140.3229863-2-zsm@google.com>
 X-Mailer: git-send-email 2.40.0.348.gf938b09366-goog
+In-Reply-To: <20230403033140.3229863-1-zsm@google.com>
+References: <20230403033140.3229863-1-zsm@google.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
@@ -69,320 +72,261 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit 5891cd5ec46c2c2eb6427cb54d214b149635dd0e upstream.
+commit ebda44da44f6f309d302522b049f43d6f829f7aa upstream.
 
-syzbot found a data-race [1] which lead me to add __rcu
-annotations to netdev->qdisc, and proper accessors
-to get LOCKDEP support.
+We had one syzbot report [1] in syzbot queue for a while.
+I was waiting for more occurrences and/or a repro but
+Dmitry Vyukov spotted the issue right away.
+
+<quoting Dmitry>
+qdisc_graft() drops reference to qdisc in notify_and_destroy
+while it's still assigned to dev->qdisc
+</quoting>
+
+Indeed, RCU rules are clear when replacing a data structure.
+The visible pointer (dev->qdisc in this case) must be updated
+to the new object _before_ RCU grace period is started
+(qdisc_put(old) in this case).
 
 [1]
-BUG: KCSAN: data-race in dev_activate / qdisc_lookup_rcu
+BUG: KASAN: use-after-free in __tcf_qdisc_find.part.0+0xa3a/0xac0 net/sched/cls_api.c:1066
+Read of size 4 at addr ffff88802065e038 by task syz-executor.4/21027
 
-write to 0xffff888168ad6410 of 8 bytes by task 13559 on cpu 1:
- attach_default_qdiscs net/sched/sch_generic.c:1167 [inline]
- dev_activate+0x2ed/0x8f0 net/sched/sch_generic.c:1221
- __dev_open+0x2e9/0x3a0 net/core/dev.c:1416
- __dev_change_flags+0x167/0x3f0 net/core/dev.c:8139
- rtnl_configure_link+0xc2/0x150 net/core/rtnetlink.c:3150
- __rtnl_newlink net/core/rtnetlink.c:3489 [inline]
- rtnl_newlink+0xf4d/0x13e0 net/core/rtnetlink.c:3529
- rtnetlink_rcv_msg+0x745/0x7e0 net/core/rtnetlink.c:5594
- netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2494
- rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5612
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x602/0x6d0 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x728/0x850 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
- ___sys_sendmsg net/socket.c:2467 [inline]
- __sys_sendmsg+0x195/0x230 net/socket.c:2496
- __do_sys_sendmsg net/socket.c:2505 [inline]
- __se_sys_sendmsg net/socket.c:2503 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2503
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+CPU: 0 PID: 21027 Comm: syz-executor.4 Not tainted 6.0.0-rc3-syzkaller-00363-g7726d4c3e60b #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/26/2022
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+print_address_description mm/kasan/report.c:317 [inline]
+print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
+kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
+__tcf_qdisc_find.part.0+0xa3a/0xac0 net/sched/cls_api.c:1066
+__tcf_qdisc_find net/sched/cls_api.c:1051 [inline]
+tc_new_tfilter+0x34f/0x2200 net/sched/cls_api.c:2018
+rtnetlink_rcv_msg+0x955/0xca0 net/core/rtnetlink.c:6081
+netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2501
+netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+netlink_sendmsg+0x917/0xe10 net/netlink/af_netlink.c:1921
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xcf/0x120 net/socket.c:734
+____sys_sendmsg+0x6eb/0x810 net/socket.c:2482
+___sys_sendmsg+0x110/0x1b0 net/socket.c:2536
+__sys_sendmsg+0xf3/0x1c0 net/socket.c:2565
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f5efaa89279
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f5efbc31168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f5efab9bf80 RCX: 00007f5efaa89279
+RDX: 0000000000000000 RSI: 0000000020000140 RDI: 0000000000000005
+RBP: 00007f5efaae32e9 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f5efb0cfb1f R14: 00007f5efbc31300 R15: 0000000000022000
+</TASK>
 
-read to 0xffff888168ad6410 of 8 bytes by task 13560 on cpu 0:
- qdisc_lookup_rcu+0x30/0x2e0 net/sched/sch_api.c:323
- __tcf_qdisc_find+0x74/0x3a0 net/sched/cls_api.c:1050
- tc_del_tfilter+0x1c7/0x1350 net/sched/cls_api.c:2211
- rtnetlink_rcv_msg+0x5ba/0x7e0 net/core/rtnetlink.c:5585
- netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2494
- rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5612
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x602/0x6d0 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x728/0x850 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
- ___sys_sendmsg net/socket.c:2467 [inline]
- __sys_sendmsg+0x195/0x230 net/socket.c:2496
- __do_sys_sendmsg net/socket.c:2505 [inline]
- __se_sys_sendmsg net/socket.c:2503 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2503
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Allocated by task 21027:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+kasan_set_track mm/kasan/common.c:45 [inline]
+set_alloc_info mm/kasan/common.c:437 [inline]
+____kasan_kmalloc mm/kasan/common.c:516 [inline]
+____kasan_kmalloc mm/kasan/common.c:475 [inline]
+__kasan_kmalloc+0xa9/0xd0 mm/kasan/common.c:525
+kmalloc_node include/linux/slab.h:623 [inline]
+kzalloc_node include/linux/slab.h:744 [inline]
+qdisc_alloc+0xb0/0xc50 net/sched/sch_generic.c:938
+qdisc_create_dflt+0x71/0x4a0 net/sched/sch_generic.c:997
+attach_one_default_qdisc net/sched/sch_generic.c:1152 [inline]
+netdev_for_each_tx_queue include/linux/netdevice.h:2437 [inline]
+attach_default_qdiscs net/sched/sch_generic.c:1170 [inline]
+dev_activate+0x760/0xcd0 net/sched/sch_generic.c:1229
+__dev_open+0x393/0x4d0 net/core/dev.c:1441
+__dev_change_flags+0x583/0x750 net/core/dev.c:8556
+rtnl_configure_link+0xee/0x240 net/core/rtnetlink.c:3189
+rtnl_newlink_create net/core/rtnetlink.c:3371 [inline]
+__rtnl_newlink+0x10b8/0x17e0 net/core/rtnetlink.c:3580
+rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3593
+rtnetlink_rcv_msg+0x43a/0xca0 net/core/rtnetlink.c:6090
+netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2501
+netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+netlink_sendmsg+0x917/0xe10 net/netlink/af_netlink.c:1921
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xcf/0x120 net/socket.c:734
+____sys_sendmsg+0x6eb/0x810 net/socket.c:2482
+___sys_sendmsg+0x110/0x1b0 net/socket.c:2536
+__sys_sendmsg+0xf3/0x1c0 net/socket.c:2565
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-value changed: 0xffffffff85dee080 -> 0xffff88815d96ec00
+Freed by task 21020:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+____kasan_slab_free mm/kasan/common.c:367 [inline]
+____kasan_slab_free+0x166/0x1c0 mm/kasan/common.c:329
+kasan_slab_free include/linux/kasan.h:200 [inline]
+slab_free_hook mm/slub.c:1754 [inline]
+slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1780
+slab_free mm/slub.c:3534 [inline]
+kfree+0xe2/0x580 mm/slub.c:4562
+rcu_do_batch kernel/rcu/tree.c:2245 [inline]
+rcu_core+0x7b5/0x1890 kernel/rcu/tree.c:2505
+__do_softirq+0x1d3/0x9c6 kernel/softirq.c:571
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 13560 Comm: syz-executor.2 Not tainted 5.17.0-rc3-syzkaller-00116-gf1baf68e1383-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Last potentially related work creation:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+__kasan_record_aux_stack+0xbe/0xd0 mm/kasan/generic.c:348
+call_rcu+0x99/0x790 kernel/rcu/tree.c:2793
+qdisc_put+0xcd/0xe0 net/sched/sch_generic.c:1083
+notify_and_destroy net/sched/sch_api.c:1012 [inline]
+qdisc_graft+0xeb1/0x1270 net/sched/sch_api.c:1084
+tc_modify_qdisc+0xbb7/0x1a00 net/sched/sch_api.c:1671
+rtnetlink_rcv_msg+0x43a/0xca0 net/core/rtnetlink.c:6090
+netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2501
+netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+netlink_sendmsg+0x917/0xe10 net/netlink/af_netlink.c:1921
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xcf/0x120 net/socket.c:734
+____sys_sendmsg+0x6eb/0x810 net/socket.c:2482
+___sys_sendmsg+0x110/0x1b0 net/socket.c:2536
+__sys_sendmsg+0xf3/0x1c0 net/socket.c:2565
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Fixes: 470502de5bdb ("net: sched: unlock rules update API")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Vlad Buslov <vladbu@mellanox.com>
+Second to last potentially related work creation:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+__kasan_record_aux_stack+0xbe/0xd0 mm/kasan/generic.c:348
+kvfree_call_rcu+0x74/0x940 kernel/rcu/tree.c:3322
+neigh_destroy+0x431/0x630 net/core/neighbour.c:912
+neigh_release include/net/neighbour.h:454 [inline]
+neigh_cleanup_and_release+0x1f8/0x330 net/core/neighbour.c:103
+neigh_del net/core/neighbour.c:225 [inline]
+neigh_remove_one+0x37d/0x460 net/core/neighbour.c:246
+neigh_forced_gc net/core/neighbour.c:276 [inline]
+neigh_alloc net/core/neighbour.c:447 [inline]
+___neigh_create+0x18b5/0x29a0 net/core/neighbour.c:642
+ip6_finish_output2+0xfb8/0x1520 net/ipv6/ip6_output.c:125
+__ip6_finish_output net/ipv6/ip6_output.c:195 [inline]
+ip6_finish_output+0x690/0x1160 net/ipv6/ip6_output.c:206
+NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ip6_output+0x1ed/0x540 net/ipv6/ip6_output.c:227
+dst_output include/net/dst.h:451 [inline]
+NF_HOOK include/linux/netfilter.h:307 [inline]
+NF_HOOK include/linux/netfilter.h:301 [inline]
+mld_sendpack+0xa09/0xe70 net/ipv6/mcast.c:1820
+mld_send_cr net/ipv6/mcast.c:2121 [inline]
+mld_ifc_work+0x71c/0xdc0 net/ipv6/mcast.c:2653
+process_one_work+0x991/0x1610 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e4/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+The buggy address belongs to the object at ffff88802065e000
+which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 56 bytes inside of
+1024-byte region [ffff88802065e000, ffff88802065e400)
+
+The buggy address belongs to the physical page:
+page:ffffea0000819600 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x20658
+head:ffffea0000819600 order:3 compound_mapcount:0 compound_pincount:0
+flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000010200 0000000000000000 dead000000000001 ffff888011841dc0
+raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 3, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 3523, tgid 3523 (sshd), ts 41495190986, free_ts 41417713212
+prep_new_page mm/page_alloc.c:2532 [inline]
+get_page_from_freelist+0x109b/0x2ce0 mm/page_alloc.c:4283
+__alloc_pages+0x1c7/0x510 mm/page_alloc.c:5515
+alloc_pages+0x1a6/0x270 mm/mempolicy.c:2270
+alloc_slab_page mm/slub.c:1824 [inline]
+allocate_slab+0x27e/0x3d0 mm/slub.c:1969
+new_slab mm/slub.c:2029 [inline]
+___slab_alloc+0x7f1/0xe10 mm/slub.c:3031
+__slab_alloc.constprop.0+0x4d/0xa0 mm/slub.c:3118
+slab_alloc_node mm/slub.c:3209 [inline]
+__kmalloc_node_track_caller+0x2f2/0x380 mm/slub.c:4955
+kmalloc_reserve net/core/skbuff.c:358 [inline]
+__alloc_skb+0xd9/0x2f0 net/core/skbuff.c:430
+alloc_skb_fclone include/linux/skbuff.h:1307 [inline]
+tcp_stream_alloc_skb+0x38/0x580 net/ipv4/tcp.c:861
+tcp_sendmsg_locked+0xc36/0x2f80 net/ipv4/tcp.c:1325
+tcp_sendmsg+0x2b/0x40 net/ipv4/tcp.c:1483
+inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xcf/0x120 net/socket.c:734
+sock_write_iter+0x291/0x3d0 net/socket.c:1108
+call_write_iter include/linux/fs.h:2187 [inline]
+new_sync_write fs/read_write.c:491 [inline]
+vfs_write+0x9e9/0xdd0 fs/read_write.c:578
+ksys_write+0x1e8/0x250 fs/read_write.c:631
+page last free stack trace:
+reset_page_owner include/linux/page_owner.h:24 [inline]
+free_pages_prepare mm/page_alloc.c:1449 [inline]
+free_pcp_prepare+0x5e4/0xd20 mm/page_alloc.c:1499
+free_unref_page_prepare mm/page_alloc.c:3380 [inline]
+free_unref_page+0x19/0x4d0 mm/page_alloc.c:3476
+__unfreeze_partials+0x17c/0x1a0 mm/slub.c:2548
+qlink_free mm/kasan/quarantine.c:168 [inline]
+qlist_free_all+0x6a/0x170 mm/kasan/quarantine.c:187
+kasan_quarantine_reduce+0x180/0x200 mm/kasan/quarantine.c:294
+__kasan_slab_alloc+0xa2/0xc0 mm/kasan/common.c:447
+kasan_slab_alloc include/linux/kasan.h:224 [inline]
+slab_post_alloc_hook mm/slab.h:727 [inline]
+slab_alloc_node mm/slub.c:3243 [inline]
+slab_alloc mm/slub.c:3251 [inline]
+__kmem_cache_alloc_lru mm/slub.c:3258 [inline]
+kmem_cache_alloc+0x267/0x3b0 mm/slub.c:3268
+kmem_cache_zalloc include/linux/slab.h:723 [inline]
+alloc_buffer_head+0x20/0x140 fs/buffer.c:2974
+alloc_page_buffers+0x280/0x790 fs/buffer.c:829
+create_empty_buffers+0x2c/0xee0 fs/buffer.c:1558
+ext4_block_write_begin+0x1004/0x1530 fs/ext4/inode.c:1074
+ext4_da_write_begin+0x422/0xae0 fs/ext4/inode.c:2996
+generic_perform_write+0x246/0x560 mm/filemap.c:3738
+ext4_buffered_write_iter+0x15b/0x460 fs/ext4/file.c:270
+ext4_file_write_iter+0x44a/0x1660 fs/ext4/file.c:679
+call_write_iter include/linux/fs.h:2187 [inline]
+new_sync_write fs/read_write.c:491 [inline]
+vfs_write+0x9e9/0xdd0 fs/read_write.c:578
+
+Fixes: af356afa010f ("net_sched: reintroduce dev->qdisc for use by sch_api")
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Diagnosed-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221018203258.2793282-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Zubin Mithra <zsm@google.com>
 ---
- include/linux/netdevice.h |  2 +-
- net/core/rtnetlink.c      |  6 ++++--
- net/sched/cls_api.c       |  6 +++---
- net/sched/sch_api.c       | 22 ++++++++++++----------
- net/sched/sch_generic.c   | 22 ++++++++++++----------
- 5 files changed, 32 insertions(+), 26 deletions(-)
+ net/sched/sch_api.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 14183cbf0f0d..125542f305fa 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1986,7 +1986,7 @@ struct net_device {
- 	struct netdev_queue	*_tx ____cacheline_aligned_in_smp;
- 	unsigned int		num_tx_queues;
- 	unsigned int		real_num_tx_queues;
--	struct Qdisc		*qdisc;
-+	struct Qdisc __rcu	*qdisc;
- #ifdef CONFIG_NET_SCHED
- 	DECLARE_HASHTABLE	(qdisc_hash, 4);
- #endif
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index dbc9b2f53649..da1ef00fc9cc 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -1593,6 +1593,7 @@ static int rtnl_fill_ifinfo(struct sk_buff *skb,
- {
- 	struct ifinfomsg *ifm;
- 	struct nlmsghdr *nlh;
-+	struct Qdisc *qdisc;
- 
- 	ASSERT_RTNL();
- 	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*ifm), flags);
-@@ -1610,6 +1611,7 @@ static int rtnl_fill_ifinfo(struct sk_buff *skb,
- 	if (tgt_netnsid >= 0 && nla_put_s32(skb, IFLA_TARGET_NETNSID, tgt_netnsid))
- 		goto nla_put_failure;
- 
-+	qdisc = rtnl_dereference(dev->qdisc);
- 	if (nla_put_string(skb, IFLA_IFNAME, dev->name) ||
- 	    nla_put_u32(skb, IFLA_TXQLEN, dev->tx_queue_len) ||
- 	    nla_put_u8(skb, IFLA_OPERSTATE,
-@@ -1628,8 +1630,8 @@ static int rtnl_fill_ifinfo(struct sk_buff *skb,
- #endif
- 	    put_master_ifindex(skb, dev) ||
- 	    nla_put_u8(skb, IFLA_CARRIER, netif_carrier_ok(dev)) ||
--	    (dev->qdisc &&
--	     nla_put_string(skb, IFLA_QDISC, dev->qdisc->ops->id)) ||
-+	    (qdisc &&
-+	     nla_put_string(skb, IFLA_QDISC, qdisc->ops->id)) ||
- 	    nla_put_ifalias(skb, dev) ||
- 	    nla_put_u32(skb, IFLA_CARRIER_CHANGES,
- 			atomic_read(&dev->carrier_up_count) +
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 48a8c7daa635..77a1988d5ddc 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1079,7 +1079,7 @@ static int __tcf_qdisc_find(struct net *net, struct Qdisc **q,
- 
- 	/* Find qdisc */
- 	if (!*parent) {
--		*q = dev->qdisc;
-+		*q = rcu_dereference(dev->qdisc);
- 		*parent = (*q)->handle;
- 	} else {
- 		*q = qdisc_lookup_rcu(dev, TC_H_MAJ(*parent));
-@@ -2552,7 +2552,7 @@ static int tc_dump_tfilter(struct sk_buff *skb, struct netlink_callback *cb)
- 
- 		parent = tcm->tcm_parent;
- 		if (!parent)
--			q = dev->qdisc;
-+			q = rtnl_dereference(dev->qdisc);
- 		else
- 			q = qdisc_lookup(dev, TC_H_MAJ(tcm->tcm_parent));
- 		if (!q)
-@@ -2938,7 +2938,7 @@ static int tc_dump_chain(struct sk_buff *skb, struct netlink_callback *cb)
- 
- 		parent = tcm->tcm_parent;
- 		if (!parent) {
--			q = dev->qdisc;
-+			q = rtnl_dereference(dev->qdisc);
- 			parent = q->handle;
- 		} else {
- 			q = qdisc_lookup(dev, TC_H_MAJ(tcm->tcm_parent));
 diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 154d62d8ac16..1d9b9a6e4668 100644
+index 1d9b9a6e4668..67d6bc97e5fe 100644
 --- a/net/sched/sch_api.c
 +++ b/net/sched/sch_api.c
-@@ -298,7 +298,7 @@ struct Qdisc *qdisc_lookup(struct net_device *dev, u32 handle)
+@@ -1071,12 +1071,13 @@ static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
  
- 	if (!handle)
- 		return NULL;
--	q = qdisc_match_from_root(dev->qdisc, handle);
-+	q = qdisc_match_from_root(rtnl_dereference(dev->qdisc), handle);
- 	if (q)
- 		goto out;
- 
-@@ -317,7 +317,7 @@ struct Qdisc *qdisc_lookup_rcu(struct net_device *dev, u32 handle)
- 
- 	if (!handle)
- 		return NULL;
--	q = qdisc_match_from_root(dev->qdisc, handle);
-+	q = qdisc_match_from_root(rcu_dereference(dev->qdisc), handle);
- 	if (q)
- 		goto out;
- 
-@@ -1072,10 +1072,10 @@ static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
  skip:
  		if (!ingress) {
- 			notify_and_destroy(net, skb, n, classid,
--					   dev->qdisc, new);
-+					   rtnl_dereference(dev->qdisc), new);
+-			notify_and_destroy(net, skb, n, classid,
+-					   rtnl_dereference(dev->qdisc), new);
++			old = rtnl_dereference(dev->qdisc);
  			if (new && !new->ops->attach)
  				qdisc_refcount_inc(new);
--			dev->qdisc = new ? : &noop_qdisc;
-+			rcu_assign_pointer(dev->qdisc, new ? : &noop_qdisc);
+ 			rcu_assign_pointer(dev->qdisc, new ? : &noop_qdisc);
  
++			notify_and_destroy(net, skb, n, classid, old, new);
++
  			if (new && new->ops->attach)
  				new->ops->attach(new);
-@@ -1455,7 +1455,7 @@ static int tc_get_qdisc(struct sk_buff *skb, struct nlmsghdr *n,
- 				q = dev_ingress_queue(dev)->qdisc_sleeping;
- 			}
  		} else {
--			q = dev->qdisc;
-+			q = rtnl_dereference(dev->qdisc);
- 		}
- 		if (!q) {
- 			NL_SET_ERR_MSG(extack, "Cannot find specified qdisc on specified device");
-@@ -1544,7 +1544,7 @@ static int tc_modify_qdisc(struct sk_buff *skb, struct nlmsghdr *n,
- 				q = dev_ingress_queue(dev)->qdisc_sleeping;
- 			}
- 		} else {
--			q = dev->qdisc;
-+			q = rtnl_dereference(dev->qdisc);
- 		}
- 
- 		/* It may be default qdisc, ignore it */
-@@ -1766,7 +1766,8 @@ static int tc_dump_qdisc(struct sk_buff *skb, struct netlink_callback *cb)
- 			s_q_idx = 0;
- 		q_idx = 0;
- 
--		if (tc_dump_qdisc_root(dev->qdisc, skb, cb, &q_idx, s_q_idx,
-+		if (tc_dump_qdisc_root(rtnl_dereference(dev->qdisc),
-+				       skb, cb, &q_idx, s_q_idx,
- 				       true, tca[TCA_DUMP_INVISIBLE]) < 0)
- 			goto done;
- 
-@@ -2042,7 +2043,7 @@ static int tc_ctl_tclass(struct sk_buff *skb, struct nlmsghdr *n,
- 		} else if (qid1) {
- 			qid = qid1;
- 		} else if (qid == 0)
--			qid = dev->qdisc->handle;
-+			qid = rtnl_dereference(dev->qdisc)->handle;
- 
- 		/* Now qid is genuine qdisc handle consistent
- 		 * both with parent and child.
-@@ -2053,7 +2054,7 @@ static int tc_ctl_tclass(struct sk_buff *skb, struct nlmsghdr *n,
- 			portid = TC_H_MAKE(qid, portid);
- 	} else {
- 		if (qid == 0)
--			qid = dev->qdisc->handle;
-+			qid = rtnl_dereference(dev->qdisc)->handle;
- 	}
- 
- 	/* OK. Locate qdisc */
-@@ -2214,7 +2215,8 @@ static int tc_dump_tclass(struct sk_buff *skb, struct netlink_callback *cb)
- 	s_t = cb->args[0];
- 	t = 0;
- 
--	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t, true) < 0)
-+	if (tc_dump_tclass_root(rtnl_dereference(dev->qdisc),
-+				skb, tcm, cb, &t, s_t, true) < 0)
- 		goto done;
- 
- 	dev_queue = dev_ingress_queue(dev);
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 81fcf6c5bde9..1f055c21be4c 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -1106,18 +1106,20 @@ static void attach_default_qdiscs(struct net_device *dev)
- 	if (!netif_is_multiqueue(dev) ||
- 	    dev->priv_flags & IFF_NO_QUEUE) {
- 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
--		dev->qdisc = txq->qdisc_sleeping;
--		qdisc_refcount_inc(dev->qdisc);
-+		qdisc = txq->qdisc_sleeping;
-+		rcu_assign_pointer(dev->qdisc, qdisc);
-+		qdisc_refcount_inc(qdisc);
- 	} else {
- 		qdisc = qdisc_create_dflt(txq, &mq_qdisc_ops, TC_H_ROOT, NULL);
- 		if (qdisc) {
--			dev->qdisc = qdisc;
-+			rcu_assign_pointer(dev->qdisc, qdisc);
- 			qdisc->ops->attach(qdisc);
- 		}
- 	}
-+
- #ifdef CONFIG_NET_SCHED
--	if (dev->qdisc != &noop_qdisc)
--		qdisc_hash_add(dev->qdisc, false);
-+	if (qdisc != &noop_qdisc)
-+		qdisc_hash_add(qdisc, false);
- #endif
- }
- 
-@@ -1147,7 +1149,7 @@ void dev_activate(struct net_device *dev)
- 	 * and noqueue_qdisc for virtual interfaces
- 	 */
- 
--	if (dev->qdisc == &noop_qdisc)
-+	if (rtnl_dereference(dev->qdisc) == &noop_qdisc)
- 		attach_default_qdiscs(dev);
- 
- 	if (!netif_carrier_ok(dev))
-@@ -1316,7 +1318,7 @@ static int qdisc_change_tx_queue_len(struct net_device *dev,
- void dev_qdisc_change_real_num_tx(struct net_device *dev,
- 				  unsigned int new_real_tx)
- {
--	struct Qdisc *qdisc = dev->qdisc;
-+	struct Qdisc *qdisc = rtnl_dereference(dev->qdisc);
- 
- 	if (qdisc->ops->change_real_num_tx)
- 		qdisc->ops->change_real_num_tx(qdisc, new_real_tx);
-@@ -1356,7 +1358,7 @@ static void dev_init_scheduler_queue(struct net_device *dev,
- 
- void dev_init_scheduler(struct net_device *dev)
- {
--	dev->qdisc = &noop_qdisc;
-+	rcu_assign_pointer(dev->qdisc, &noop_qdisc);
- 	netdev_for_each_tx_queue(dev, dev_init_scheduler_queue, &noop_qdisc);
- 	if (dev_ingress_queue(dev))
- 		dev_init_scheduler_queue(dev, dev_ingress_queue(dev), &noop_qdisc);
-@@ -1384,8 +1386,8 @@ void dev_shutdown(struct net_device *dev)
- 	netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
- 	if (dev_ingress_queue(dev))
- 		shutdown_scheduler_queue(dev, dev_ingress_queue(dev), &noop_qdisc);
--	qdisc_put(dev->qdisc);
--	dev->qdisc = &noop_qdisc;
-+	qdisc_put(rtnl_dereference(dev->qdisc));
-+	rcu_assign_pointer(dev->qdisc, &noop_qdisc);
- 
- 	WARN_ON(timer_pending(&dev->watchdog_timer));
- }
 -- 
 2.40.0.348.gf938b09366-goog
 
