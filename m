@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2771C6D478D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 483E76D488D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233129AbjDCOVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43642 "EHLO
+        id S233418AbjDCO3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233151AbjDCOVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:18 -0400
+        with ESMTP id S233417AbjDCO3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905703129B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12E135005
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4DA361D39
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88B2C433EF;
-        Mon,  3 Apr 2023 14:20:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D55061DE7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91262C433EF;
+        Mon,  3 Apr 2023 14:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531649;
-        bh=XRqSj7GDNJVSFoLUmFcfEHBFGn6268V6jQhSs6LmeHo=;
+        s=korg; t=1680532171;
+        bh=lvQnkhV/8wk805PIcWa9w3sPtixMKH2N/WGyitj9tfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUYPrJOd8DxnzPytYOFUb/+0JKv9eHmEfXleaxW0np07iMcLhNFwXNdg8npd1mcPF
-         lGE7ErwoOl2MmfBXPQay+YPBMTMuQEzIzV4k5agCN3oSvAw+qB/bZqUGLzjoDUwu74
-         XQVN49BlHOkxjnb2y+ExRUx2HPlIrwWIqsYnB1Nk=
+        b=V+25pmsYopdIW8O3i2+2TKwokDeeK0NmTts/jBx37WX+BiC5vv7Rlm5tSnIrxCPFi
+         7UQSZ1Tbb5V5qrQ5R4jUomTBx6awJAa2ShaKdjxhgv7CZqdwVWobxEpw6HqEXDI6OS
+         +66HVd/+aL8vE0ympOEFOOvHO/kJSy7n3yQ854c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Zhang Qiao <zhangqiao22@huawei.com>
-Subject: [PATCH 5.4 057/104] sched/fair: Sanitize vruntime of entity being migrated
+        patches@lists.linux.dev, Kristian Overskeid <koverskeid@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 114/173] net: hsr: Dont log netdev_err message on unknown prp dst node
 Date:   Mon,  3 Apr 2023 16:08:49 +0200
-Message-Id: <20230403140406.532526096@linuxfoundation.org>
+Message-Id: <20230403140418.134178924@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,131 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Kristian Overskeid <koverskeid@gmail.com>
 
-commit a53ce18cacb477dd0513c607f187d16f0fa96f71 upstream.
+[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
 
-Commit 829c1651e9c4 ("sched/fair: sanitize vruntime of entity being placed")
-fixes an overflowing bug, but ignore a case that se->exec_start is reset
-after a migration.
+If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
+node will be deleted from the node_db list. If a frame is sent to the node
+after it is deleted, a netdev_err message for each slave interface is
+produced. This should not happen with dan nodes because of supervision
+frames, but can happen often with san nodes, which clutters the kernel
+log. Since the hsr protocol does not support sans, this is only relevant
+for the prp protocol.
 
-For fixing this case, we delay the reset of se->exec_start after
-placing the entity which se->exec_start to detect long sleeping task.
-
-In order to take into account a possible divergence between the clock_task
-of 2 rqs, we increase the threshold to around 104 days.
-
-Fixes: 829c1651e9c4 ("sched/fair: sanitize vruntime of entity being placed")
-Originally-by: Zhang Qiao <zhangqiao22@huawei.com>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Zhang Qiao <zhangqiao22@huawei.com>
-Link: https://lore.kernel.org/r/20230317160810.107988-1-vincent.guittot@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c |    3 ++
- kernel/sched/fair.c |   53 ++++++++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 46 insertions(+), 10 deletions(-)
+ net/hsr/hsr_framereg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1411,6 +1411,9 @@ static inline void dequeue_task(struct r
- 
- void activate_task(struct rq *rq, struct task_struct *p, int flags)
- {
-+	if (task_on_rq_migrating(p))
-+		flags |= ENQUEUE_MIGRATED;
-+
- 	if (task_contributes_to_load(p))
- 		rq->nr_uninterruptible--;
- 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3877,11 +3877,33 @@ static void check_spread(struct cfs_rq *
- #endif
- }
- 
-+static inline bool entity_is_long_sleeper(struct sched_entity *se)
-+{
-+	struct cfs_rq *cfs_rq;
-+	u64 sleep_time;
-+
-+	if (se->exec_start == 0)
-+		return false;
-+
-+	cfs_rq = cfs_rq_of(se);
-+
-+	sleep_time = rq_clock_task(rq_of(cfs_rq));
-+
-+	/* Happen while migrating because of clock task divergence */
-+	if (sleep_time <= se->exec_start)
-+		return false;
-+
-+	sleep_time -= se->exec_start;
-+	if (sleep_time > ((1ULL << 63) / scale_load_down(NICE_0_LOAD)))
-+		return true;
-+
-+	return false;
-+}
-+
- static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
- {
- 	u64 vruntime = cfs_rq->min_vruntime;
--	u64 sleep_time;
- 
- 	/*
- 	 * The 'current' period is already promised to the current tasks,
-@@ -3908,13 +3930,24 @@ place_entity(struct cfs_rq *cfs_rq, stru
- 
- 	/*
- 	 * Pull vruntime of the entity being placed to the base level of
--	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
--	 * slept for a long time, don't even try to compare its vruntime with
--	 * the base as it may be too far off and the comparison may get
--	 * inversed due to s64 overflow.
-+	 * cfs_rq, to prevent boosting it if placed backwards.
-+	 * However, min_vruntime can advance much faster than real time, with
-+	 * the extreme being when an entity with the minimal weight always runs
-+	 * on the cfs_rq. If the waking entity slept for a long time, its
-+	 * vruntime difference from min_vruntime may overflow s64 and their
-+	 * comparison may get inversed, so ignore the entity's original
-+	 * vruntime in that case.
-+	 * The maximal vruntime speedup is given by the ratio of normal to
-+	 * minimal weight: scale_load_down(NICE_0_LOAD) / MIN_SHARES.
-+	 * When placing a migrated waking entity, its exec_start has been set
-+	 * from a different rq. In order to take into account a possible
-+	 * divergence between new and prev rq's clocks task because of irq and
-+	 * stolen time, we take an additional margin.
-+	 * So, cutting off on the sleep time of
-+	 *     2^63 / scale_load_down(NICE_0_LOAD) ~ 104 days
-+	 * should be safe.
- 	 */
--	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
--	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-+	if (entity_is_long_sleeper(se))
- 		se->vruntime = vruntime;
- 	else
- 		se->vruntime = max_vruntime(se->vruntime, vruntime);
-@@ -4013,6 +4046,9 @@ enqueue_entity(struct cfs_rq *cfs_rq, st
- 
- 	if (flags & ENQUEUE_WAKEUP)
- 		place_entity(cfs_rq, se, 0);
-+	/* Entity has migrated, no longer consider this task hot */
-+	if (flags & ENQUEUE_MIGRATED)
-+		se->exec_start = 0;
- 
- 	check_schedstat_required();
- 	update_stats_enqueue(cfs_rq, se, flags);
-@@ -6638,9 +6674,6 @@ static void migrate_task_rq_fair(struct
- 	/* Tell new CPU we are migrated */
- 	p->se.avg.last_update_time = 0;
- 
--	/* We have migrated, no longer consider this task hot */
--	p->se.exec_start = 0;
--
- 	update_scan_period(p, new_cpu);
- }
- 
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 20cb6b7dbc694..08627c8368848 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -380,7 +380,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
+ 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
+ 				       eth_hdr(skb)->h_dest);
+ 	if (!node_dst) {
+-		if (net_ratelimit())
++		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
+ 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
+ 		return;
+ 	}
+-- 
+2.39.2
+
 
 
