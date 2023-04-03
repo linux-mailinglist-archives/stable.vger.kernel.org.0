@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 342A86D47AA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14F556D487D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233103AbjDCOWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
+        id S233399AbjDCO3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbjDCOWQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F8C312A1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:58 -0700 (PDT)
+        with ESMTP id S233411AbjDCO3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C9A35005
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5BD561A2D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC396C433EF;
-        Mon,  3 Apr 2023 14:21:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70B67B81C35
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08ADC433EF;
+        Mon,  3 Apr 2023 14:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531717;
-        bh=rdiOb6aB6IMXNSRwUVLojaJ0MoxQY4JfMOqOQjjqpiM=;
+        s=korg; t=1680532141;
+        bh=yRiw3o0/+sfsy1f3urFEAfzg3WhQdZrlqKCrqyY2xGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ji7uYws04fMHsgI3GcM+H8IsA0ITC3YUT4iAhsdIuRRIijjVxxVkoHKEuSZomhOW/
-         ipf/zu9X95K1CWp3f6sfPZNZm7oHYm9CmfDYok4NfsgxfgyDLRiUwjvrlAnTCxNX+C
-         ajCtqK5FN4re8S36F59qJtKizwPC96tFzcaWHcB0=
+        b=QVmXEFkkfsv4RqyRLnQFbDJQGqxjNE/ATFFqUxumOFtTXLst/YBM25Zr9Lz8oBRkm
+         GedWjQ9Di+K+3b9d3m9dkJ/iZQNYTSFhHWL1ThUP2VAL61iE5zF6VxlS+xztJNyUF4
+         4K7a1vqeY0lGOFkK1PHpDnyMKg/SvsV1qSvhaZ54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Steffen=20B=C3=A4tz?= <steffen@innosonix.de>,
-        Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        patches@lists.linux.dev, Michael Chan <michael.chan@broadcom.com>,
+        Simon Horman <simon.horman@corigine.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/104] net: dsa: mv88e6xxx: Enable IGMP snooping on user ports only
-Date:   Mon,  3 Apr 2023 16:09:16 +0200
-Message-Id: <20230403140407.429960034@linuxfoundation.org>
+Subject: [PATCH 5.10 142/173] bnxt_en: Add missing 200G link speed reporting
+Date:   Mon,  3 Apr 2023 16:09:17 +0200
+Message-Id: <20230403140419.056411295@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Bätz <steffen@innosonix.de>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 7bcad0f0e6fbc1d613e49e0ee35c8e5f2e685bb0 ]
+[ Upstream commit 581bce7bcb7e7f100908728e7b292e266c76895b ]
 
-Do not set the MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP bit on CPU or DSA ports.
+bnxt_fw_to_ethtool_speed() is missing the case statement for 200G
+link speed reported by firmware.  As a result, ethtool will report
+unknown speed when the firmware reports 200G link speed.
 
-This allows the host CPU port to be a regular IGMP listener by sending out
-IGMP Membership Reports, which would otherwise not be forwarded by the
-mv88exxx chip, but directly looped back to the CPU port itself.
-
-Fixes: 54d792f257c6 ("net: dsa: Centralise global and port setup code into mv88e6xxx.")
-Signed-off-by: Steffen Bätz <steffen@innosonix.de>
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20230329150140.701559-1-festevam@gmail.com
+Fixes: 532262ba3b84 ("bnxt_en: ethtool: support PAM4 link speeds up to 200G")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index b336ed071fa89..ea32be579e7b1 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2433,9 +2433,14 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
- 	 * If this is the upstream port for this switch, enable
- 	 * forwarding of unknown unicasts and multicasts.
- 	 */
--	reg = MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP |
--		MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
-+	reg = MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
- 		MV88E6XXX_PORT_CTL0_STATE_FORWARDING;
-+	/* Forward any IPv4 IGMP or IPv6 MLD frames received
-+	 * by a USER port to the CPU port to allow snooping.
-+	 */
-+	if (dsa_is_user_port(ds, port))
-+		reg |= MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP;
-+
- 	err = mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_CTL0, reg);
- 	if (err)
- 		return err;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+index 34affd1de91da..b7b07beb17ffb 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1198,6 +1198,7 @@ struct bnxt_link_info {
+ #define BNXT_LINK_SPEED_40GB	PORT_PHY_QCFG_RESP_LINK_SPEED_40GB
+ #define BNXT_LINK_SPEED_50GB	PORT_PHY_QCFG_RESP_LINK_SPEED_50GB
+ #define BNXT_LINK_SPEED_100GB	PORT_PHY_QCFG_RESP_LINK_SPEED_100GB
++#define BNXT_LINK_SPEED_200GB	PORT_PHY_QCFG_RESP_LINK_SPEED_200GB
+ 	u16			support_speeds;
+ 	u16			support_pam4_speeds;
+ 	u16			auto_link_speeds;	/* fw adv setting */
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 81b63d1c2391f..1e67e86fc3344 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1653,6 +1653,8 @@ u32 bnxt_fw_to_ethtool_speed(u16 fw_link_speed)
+ 		return SPEED_50000;
+ 	case BNXT_LINK_SPEED_100GB:
+ 		return SPEED_100000;
++	case BNXT_LINK_SPEED_200GB:
++		return SPEED_200000;
+ 	default:
+ 		return SPEED_UNKNOWN;
+ 	}
 -- 
 2.39.2
 
