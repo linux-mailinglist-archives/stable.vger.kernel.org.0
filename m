@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5F26D48A0
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32F246D4921
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233373AbjDCOaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
+        id S233032AbjDCOfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:35:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233441AbjDCOaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E306635002
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:19 -0700 (PDT)
+        with ESMTP id S233632AbjDCOfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3F3E44
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7718861DF6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C0B8C433EF;
-        Mon,  3 Apr 2023 14:30:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 164E8CE12DD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E861C433EF;
+        Mon,  3 Apr 2023 14:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532218;
-        bh=4MLDfjtmhqMJnSHxnehmbopmFve10hnYqhVKCSGQUtM=;
+        s=korg; t=1680532489;
+        bh=8fDpWdDJed4wWXQJ1uiE+mQNg9rYkBy9GbITTi0wzBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgyGnfV7eOSOWsOAA3iB3/7QI6AX2BBXVZs0kfTcgv8sNmf7HPeZHokbwVUb2YNvw
-         126WVroHhZeXiVx3/K901tKs9PZgpfdFm6zbUJv59RQeSGfkt1D/gBc2JZ4/rgBS13
-         OaymqMmaOuLe2TToQFZPX7cS0HLDpPi3e2sK4Ks8=
+        b=Hywl6dBWSnouvAfjStKemVZeK3aNGngOXNvN8gVbyHQbC969bWzoryZsoRr/tFMdO
+         r532uNhRtJK/Soh40ySx3ONDzIWIUJniErdkGRFIoI7Uy4SnWINNzmnSNOrrs6RpQu
+         B72RIqJ7eKBDemIvs/7FMhlMx9ykVXruMYkigsik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.10 172/173] gfs2: Always check inode size of inline inodes
+        patches@lists.linux.dev, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.15 84/99] xtensa: fix KASAN report for show_stack
 Date:   Mon,  3 Apr 2023 16:09:47 +0200
-Message-Id: <20230403140420.021888302@linuxfoundation.org>
+Message-Id: <20230403140406.558075369@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +51,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 70376c7ff31221f1d21db5611d8209e677781d3a upstream.
+commit 1d3b7a788ca7435156809a6bd5b20c95b2370d45 upstream.
 
-Check if the inode size of stuffed (inline) inodes is within the allowed
-range when reading inodes from disk (gfs2_dinode_in()).  This prevents
-us from on-disk corruption.
+show_stack dumps raw stack contents which may trigger an unnecessary
+KASAN report. Fix it by copying stack contents to a temporary buffer
+with __memcpy and then printing that buffer instead of passing stack
+pointer directly to the print_hex_dump.
 
-The two checks in stuffed_readpage() and gfs2_unstuffer_page() that just
-truncate inline data to the maximum allowed size don't actually make
-sense, and they can be removed now as well.
-
-Reported-by: syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-[pchelkin@ispras.ru: adjust the inode variable inside gfs2_dinode_in with
-the format used before upstream commit 7db354444ad8 ("gfs2: Cosmetic
-gfs2_dinode_{in,out} cleanup")]
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/aops.c  |    2 --
- fs/gfs2/bmap.c  |    3 ---
- fs/gfs2/glops.c |    3 +++
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ arch/xtensa/kernel/traps.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/fs/gfs2/aops.c
-+++ b/fs/gfs2/aops.c
-@@ -451,8 +451,6 @@ static int stuffed_readpage(struct gfs2_
- 		return error;
+--- a/arch/xtensa/kernel/traps.c
++++ b/arch/xtensa/kernel/traps.c
+@@ -510,7 +510,7 @@ static size_t kstack_depth_to_print = CO
  
- 	kaddr = kmap_atomic(page);
--	if (dsize > gfs2_max_stuffed_size(ip))
--		dsize = gfs2_max_stuffed_size(ip);
- 	memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
- 	memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
- 	kunmap_atomic(kaddr);
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -69,9 +69,6 @@ static int gfs2_unstuffer_page(struct gf
- 		void *kaddr = kmap(page);
- 		u64 dsize = i_size_read(inode);
-  
--		if (dsize > gfs2_max_stuffed_size(ip))
--			dsize = gfs2_max_stuffed_size(ip);
--
- 		memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
- 		memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
- 		kunmap(page);
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -454,6 +454,9 @@ static int gfs2_dinode_in(struct gfs2_in
- 	ip->i_depth = (u8)depth;
- 	ip->i_entries = be32_to_cpu(str->di_entries);
+ void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
+ {
+-	size_t len;
++	size_t len, off = 0;
  
-+	if (gfs2_is_stuffed(ip) && ip->i_inode.i_size > gfs2_max_stuffed_size(ip))
-+		goto corrupt;
+ 	if (!sp)
+ 		sp = stack_pointer(task);
+@@ -519,9 +519,17 @@ void show_stack(struct task_struct *task
+ 		  kstack_depth_to_print * STACK_DUMP_ENTRY_SIZE);
+ 
+ 	printk("%sStack:\n", loglvl);
+-	print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
+-		       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
+-		       sp, len, false);
++	while (off < len) {
++		u8 line[STACK_DUMP_LINE_SIZE];
++		size_t line_len = len - off > STACK_DUMP_LINE_SIZE ?
++			STACK_DUMP_LINE_SIZE : len - off;
 +
- 	if (S_ISREG(ip->i_inode.i_mode))
- 		gfs2_set_aops(&ip->i_inode);
++		__memcpy(line, (u8 *)sp + off, line_len);
++		print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
++			       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
++			       line, line_len, false);
++		off += STACK_DUMP_LINE_SIZE;
++	}
+ 	show_trace(task, sp, loglvl);
+ }
  
 
 
