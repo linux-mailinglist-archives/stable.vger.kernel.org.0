@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46AC36D485E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5186D46BA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbjDCO2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:28:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
+        id S230269AbjDCOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbjDCO2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA24A12D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:02 -0700 (PDT)
+        with ESMTP id S232824AbjDCOMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4D62126
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8C561DCC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2266FC433EF;
-        Mon,  3 Apr 2023 14:28:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6F86B81B2E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405EFC433EF;
+        Mon,  3 Apr 2023 14:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532081;
-        bh=SA7YaWf5QR5zQgtl/QG6yMkZUhfahvZkWHN9poCC5js=;
+        s=korg; t=1680531168;
+        bh=lVbpf/oCDD/vbSZnxLEH3CE6DYqm9uznXUotJc3kOow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGOejxx9SZyy+8meNhA3HyogGdWNBHc9G/R8aicTcbphD9Sx/BxR0hYhmSuGmVRcR
-         Sh7eCrz9Jv7CREEvvPWUeLm0MwVs23LcQ0Bv7MFumzhBKxjzspDArnuNZWNzhCV+yp
-         DSI7yxJ4IBpSTfkK1i01fBL7Ei6SPn08xuZMZlRg=
+        b=pYwsBzQ62W2DbzwiCz8NGV17t2useI8hX9hpa2e4aJzoFK646RGUJUFErRZeEDH89
+         g2DU0GAwZiALIKM8ps2G0BMsgP+81EpexRfm0bdc8QZfMzjpnr8wnVnQvGyAuO6k11
+         t0sMuJiLKBbELayxpwIj1YEgULrzg3vrRmaWRLKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 088/173] wifi: mac80211: fix qos on mesh interfaces
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Francois Romieu <romieu@fr.zoreil.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/66] atm: idt77252: fix kmemleak when rmmod idt77252
 Date:   Mon,  3 Apr 2023 16:08:23 +0200
-Message-Id: <20230403140417.289954989@linuxfoundation.org>
+Message-Id: <20230403140352.411068604@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,43 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Li Zetao <lizetao1@huawei.com>
 
-commit 4e348c6c6e23491ae6eb5e077848a42d0562339c upstream.
+[ Upstream commit 4fe3c88552a3fbe1944426a4506a18cdeb457b5a ]
 
-When ieee80211_select_queue is called for mesh, the sta pointer is usually
-NULL, since the nexthop is looked up much later in the tx path.
-Explicitly check for unicast address in that case in order to make qos work
-again.
+There are memory leaks reported by kmemleak:
 
-Cc: stable@vger.kernel.org
-Fixes: 50e2ab392919 ("wifi: mac80211: fix queue selection for mesh/OCB interfaces")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20230314095956.62085-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  unreferenced object 0xffff888106500800 (size 128):
+    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
+      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
+      [<000000000e947e2a>] idt77252_init_one+0x2847/0x3c90 [idt77252]
+      [<000000006efb048e>] local_pci_probe+0xeb/0x1a0
+    ...
+
+  unreferenced object 0xffff888106500b00 (size 128):
+    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
+    hex dump (first 32 bytes):
+      00 20 3d 01 80 88 ff ff 00 20 3d 01 80 88 ff ff  . =...... =.....
+      f0 23 3d 01 80 88 ff ff 00 20 3d 01 00 00 00 00  .#=...... =.....
+    backtrace:
+      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
+      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
+      [<00000000f451c5be>] alloc_scq.constprop.0+0x4a/0x400 [idt77252]
+      [<00000000e6313849>] idt77252_init_one+0x28cf/0x3c90 [idt77252]
+
+The root cause is traced to the vc_maps which alloced in open_card_oam()
+are not freed in close_card_oam(). The vc_maps are used to record
+open connections, so when close a vc_map in close_card_oam(), the memory
+should be freed. Moreover, the ubr0 is not closed when close a idt77252
+device, leading to the memory leak of vc_map and scq_info.
+
+Fix them by adding kfree in close_card_oam() and implementing new
+close_card_ubr0() to close ubr0.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
+Link: https://lore.kernel.org/r/20230320143318.2644630-1-lizetao1@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/wme.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/atm/idt77252.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/net/mac80211/wme.c
-+++ b/net/mac80211/wme.c
-@@ -141,12 +141,14 @@ u16 ieee80211_select_queue_80211(struct
- u16 __ieee80211_select_queue(struct ieee80211_sub_if_data *sdata,
- 			     struct sta_info *sta, struct sk_buff *skb)
- {
-+	const struct ethhdr *eth = (void *)skb->data;
- 	struct mac80211_qos_map *qos_map;
- 	bool qos;
+diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
+index 18f386466f943..e7a6b4903f9c7 100644
+--- a/drivers/atm/idt77252.c
++++ b/drivers/atm/idt77252.c
+@@ -2912,6 +2912,7 @@ close_card_oam(struct idt77252_dev *card)
  
- 	/* all mesh/ocb stations are required to support WME */
--	if (sta && (sdata->vif.type == NL80211_IFTYPE_MESH_POINT ||
--		    sdata->vif.type == NL80211_IFTYPE_OCB))
-+	if ((sdata->vif.type == NL80211_IFTYPE_MESH_POINT &&
-+	    !is_multicast_ether_addr(eth->h_dest)) ||
-+	    (sdata->vif.type == NL80211_IFTYPE_OCB && sta))
- 		qos = true;
- 	else if (sta)
- 		qos = sta->sta.wme;
+ 				recycle_rx_pool_skb(card, &vc->rcv.rx_pool);
+ 			}
++			kfree(vc);
+ 		}
+ 	}
+ }
+@@ -2955,6 +2956,15 @@ open_card_ubr0(struct idt77252_dev *card)
+ 	return 0;
+ }
+ 
++static void
++close_card_ubr0(struct idt77252_dev *card)
++{
++	struct vc_map *vc = card->vcs[0];
++
++	free_scq(card, vc->scq);
++	kfree(vc);
++}
++
+ static int
+ idt77252_dev_open(struct idt77252_dev *card)
+ {
+@@ -3004,6 +3014,7 @@ static void idt77252_dev_close(struct atm_dev *dev)
+ 	struct idt77252_dev *card = dev->dev_data;
+ 	u32 conf;
+ 
++	close_card_ubr0(card);
+ 	close_card_oam(card);
+ 
+ 	conf = SAR_CFG_RXPTH |	/* enable receive path           */
+-- 
+2.39.2
+
 
 
