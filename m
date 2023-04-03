@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8126D46EB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5526D4853
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232810AbjDCOP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60098 "EHLO
+        id S233344AbjDCO1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:27:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232906AbjDCOP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:26 -0400
+        with ESMTP id S233346AbjDCO1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8CF2CACF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB13F312B5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB465B81B35
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53685C4339E;
-        Mon,  3 Apr 2023 14:15:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D95DB81C1E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B39DCC433D2;
+        Mon,  3 Apr 2023 14:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531315;
-        bh=LfDgYuaWXEhuMTVNA6ZR30gYuMb3jLplz8PxfQTD7x8=;
+        s=korg; t=1680532058;
+        bh=+cSnd0+pXbfBgQ9Z2CGVEYbjvtyoDoodXIoHywwXID4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fNM+o4c11QYNo+bRDgfqTWRNdWJanj6wBZrZNNhvI8dGjqze4HPpurs1WNwPYPDkf
-         eYu285ST89B930Z7jDEUwMnTieNBGWGSwvKBCDjNToGO4i/bn0eBREjopzZdG6Qex8
-         7l732vFPAksSx1MDRYR2AUdaBnPKynhbCiwvvEpU=
+        b=KKXgmvAS/2Iy2gZ9znnWssiBORdXqoglsmvRUbV2YZiu7pZCnF9DF+J5XvKpmmglv
+         52c0gQB6JLebZo8O6t9kUFqcleW7baDysZGIBzDe7owowgI1rSKcm36urj1o3AWEM+
+         0rm7DRMeGfDLqmxwStlKWuaGvr4AchKoTSWOijQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/84] net/mlx5: Read the TC mapping of all priorities on ETS query
+        patches@lists.linux.dev, Coly Li <colyli@suse.de>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.10 083/173] dm thin: fix deadlock when swapping to thin device
 Date:   Mon,  3 Apr 2023 16:08:18 +0200
-Message-Id: <20230403140353.964564515@linuxfoundation.org>
+Message-Id: <20230403140417.106192169@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maher Sanalla <msanalla@nvidia.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 44d553188c38ac74b799dfdcebafef2f7bb70942 ]
+commit 9bbf5feecc7eab2c370496c1c161bbfe62084028 upstream.
 
-When ETS configurations are queried by the user to get the mapping
-assignment between packet priority and traffic class, only priorities up
-to maximum TCs are queried from QTCT register in FW to retrieve their
-assigned TC, leaving the rest of the priorities mapped to the default
-TC #0 which might be misleading.
+This is an already known issue that dm-thin volume cannot be used as
+swap, otherwise a deadlock may happen when dm-thin internal memory
+demand triggers swap I/O on the dm-thin volume itself.
 
-Fix by querying the TC mapping of all priorities on each ETS query,
-regardless of the maximum number of TCs configured in FW.
+But thanks to commit a666e5c05e7c ("dm: fix deadlock when swapping to
+encrypted device"), the limit_swap_bios target flag can also be used
+for dm-thin to avoid the recursive I/O when it is used as swap.
 
-Fixes: 820c2c5e773d ("net/mlx5e: Read ETS settings directly from firmware")
-Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix is to simply set ti->limit_swap_bios to true in both pool_ctr()
+and thin_ctr().
+
+In my test, I create a dm-thin volume /dev/vg/swap and use it as swap
+device. Then I run fio on another dm-thin volume /dev/vg/main and use
+large --blocksize to trigger swap I/O onto /dev/vg/swap.
+
+The following fio command line is used in my test,
+  fio --name recursive-swap-io --lockmem 1 --iodepth 128 \
+     --ioengine libaio --filename /dev/vg/main --rw randrw \
+    --blocksize 1M --numjobs 32 --time_based --runtime=12h
+
+Without this fix, the whole system can be locked up within 15 seconds.
+
+With this fix, there is no any deadlock or hung task observed after
+2 hours of running fio.
+
+Furthermore, if blocksize is changed from 1M to 128M, after around 30
+seconds fio has no visible I/O, and the out-of-memory killer message
+shows up in kernel message. After around 20 minutes all fio processes
+are killed and the whole system is back to being alive.
+
+This is exactly what is expected when recursive I/O happens on dm-thin
+volume when it is used as swap.
+
+Depends-on: a666e5c05e7c ("dm: fix deadlock when swapping to encrypted device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/md/dm-thin.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-index 722998d685646..6f1f53f91ed8c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-@@ -109,12 +109,14 @@ static int mlx5e_dcbnl_ieee_getets(struct net_device *netdev,
- 	if (!MLX5_CAP_GEN(priv->mdev, ets))
- 		return -EOPNOTSUPP;
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3383,6 +3383,7 @@ static int pool_ctr(struct dm_target *ti
+ 	pt->low_water_blocks = low_water_blocks;
+ 	pt->adjusted_pf = pt->requested_pf = pf;
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
  
--	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
--	for (i = 0; i < ets->ets_cap; i++) {
-+	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
- 		err = mlx5_query_port_prio_tc(mdev, i, &ets->prio_tc[i]);
- 		if (err)
- 			return err;
-+	}
+ 	/*
+ 	 * Only need to enable discards if the pool should pass
+@@ -4259,6 +4260,7 @@ static int thin_ctr(struct dm_target *ti
+ 		goto bad;
  
-+	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
-+	for (i = 0; i < ets->ets_cap; i++) {
- 		err = mlx5_query_port_tc_group(mdev, i, &tc_group[i]);
- 		if (err)
- 			return err;
--- 
-2.39.2
-
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
+ 	ti->flush_supported = true;
+ 	ti->per_io_data_size = sizeof(struct dm_thin_endio_hook);
+ 
 
 
