@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 267596D46AB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A56026D4A52
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232884AbjDCOMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
+        id S233962AbjDCOqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:46:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232910AbjDCOMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460822953A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:12 -0700 (PDT)
+        with ESMTP id S233940AbjDCOqP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EFD2280D4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A72BEB81B08
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265A8C433D2;
-        Mon,  3 Apr 2023 14:12:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92818B80B98
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FDB6C4339C;
+        Mon,  3 Apr 2023 14:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531129;
-        bh=26Y/ITEHPD8UFn8hEpEzsEFYiG8MOno/GFQpeNSP190=;
+        s=korg; t=1680533150;
+        bh=6q0Ps7XB8faagxeptPEDGa8C3aWgFEcEf3qeY75/eCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wYYOXGtBkVRQqsITBiMWIhPz2oBVMaXotbp8r98fno+GXi190EsqGFWm9p7jpo3El
-         THQjX4qjaR29H8nQccZ9wbC/U9HEgyjAKBN+l+/yf/VrPg8pSDRMEcxay7KAcsTnhu
-         9AOKgE8sej3En2g2dD53N68MRPG5jR6u+wSZTK7w=
+        b=CAbDwyLgQ8kDFFQIu23pE374iNzPg+09tkCQ6Al+C38fnDSA6r4+RChpBHT1SPT10
+         dN6EWfjcrtTC/kbHZeY9od5MRb1ASX8tuD3Hjei/8+ip+xW16AycJGPrwbgKk9ddP6
+         n4k7f6JILQ0ZrwWqFBN+Kq3NZcJEwNbhP8LDYpNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Rich Felker <dalias@libc.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/66] sh: sanitize the flags on sigreturn
+Subject: [PATCH 6.2 073/187] platform/x86: think-lmi: only display possible_values if available
 Date:   Mon,  3 Apr 2023 16:08:38 +0200
-Message-Id: <20230403140352.974721431@linuxfoundation.org>
+Message-Id: <20230403140418.352055298@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,51 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
+[ Upstream commit cf337f27f3bfc4aeab4954c468239fd6233c7638 ]
 
-We fetch %SR value from sigframe; it might have been modified by signal
-handler, so we can't trust it with any bits that are not modifiable in
-user mode.
+Some attributes don't have any values available. In those cases don't
+make the possible_values entry visible.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230320003221.561750-3-mpearson-lenovo@squebb.ca
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/processor_32.h |    1 +
- arch/sh/kernel/signal_32.c         |    3 +++
- 2 files changed, 4 insertions(+)
+ drivers/platform/x86/think-lmi.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/arch/sh/include/asm/processor_32.h
-+++ b/arch/sh/include/asm/processor_32.h
-@@ -57,6 +57,7 @@
- #define SR_FD		0x00008000
- #define SR_MD		0x40000000
- 
-+#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
- /*
-  * DSP structure and data
-  */
---- a/arch/sh/kernel/signal_32.c
-+++ b/arch/sh/kernel/signal_32.c
-@@ -116,6 +116,7 @@ static int
- restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index 62241680c8a90..ccd085bacf298 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -941,9 +941,6 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
  {
- 	unsigned int err = 0;
-+	unsigned int sr = regs->sr & ~SR_USER_MASK;
+ 	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
  
- #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
- 			COPY(regs[1]);
-@@ -131,6 +132,8 @@ restore_sigcontext(struct pt_regs *regs,
- 	COPY(sr);	COPY(pc);
- #undef COPY
+-	if (!tlmi_priv.can_get_bios_selections)
+-		return -EOPNOTSUPP;
+-
+ 	return sysfs_emit(buf, "%s\n", setting->possible_values);
+ }
  
-+	regs->sr = (regs->sr & SR_USER_MASK) | sr;
+@@ -1052,6 +1049,18 @@ static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 06
+ 
+ static struct kobj_attribute attr_type = __ATTR_RO(type);
+ 
++static umode_t attr_is_visible(struct kobject *kobj,
++					     struct attribute *attr, int n)
++{
++	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
 +
- #ifdef CONFIG_SH_FPU
- 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
- 		int owned_fp;
++	/* We don't want to display possible_values attributes if not available */
++	if ((attr == &attr_possible_values.attr) && (!setting->possible_values))
++		return 0;
++
++	return attr->mode;
++}
++
+ static struct attribute *tlmi_attrs[] = {
+ 	&attr_displ_name.attr,
+ 	&attr_current_val.attr,
+@@ -1061,6 +1070,7 @@ static struct attribute *tlmi_attrs[] = {
+ };
+ 
+ static const struct attribute_group tlmi_attr_group = {
++	.is_visible = attr_is_visible,
+ 	.attrs = tlmi_attrs,
+ };
+ 
+-- 
+2.39.2
+
 
 
