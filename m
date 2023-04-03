@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 206136D4AF5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4AF6D4AF4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234153AbjDCOvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234226AbjDCOvb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 3 Apr 2023 10:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38274 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234140AbjDCOvR (ORCPT
+        with ESMTP id S234153AbjDCOvR (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 702D929063
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:44 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D649229861
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5BCEB81D7E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29CCDC433D2;
-        Mon,  3 Apr 2023 14:50:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB38761FA2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1818C433D2;
+        Mon,  3 Apr 2023 14:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533438;
-        bh=yQpucFppg61iLd8+TE6u3745AlGx+fHxxxi4HMBtJ1c=;
+        s=korg; t=1680533441;
+        bh=nmz204XOkJG9uXQyQt9rWF57A+xCM4lATLzlpPjVCZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLyp9XjGJLlCW/O0ZXOpvauvUw9m+YpPXvkpSe+C9Vq5wCwlo3BR9PF/kU9DgX/RK
-         2Njg0/ivTF8UloDDAo9MtqHW68h9s4XKLDnBQ7Y02e7M3KvJQCuw1u6RZuQITRBotH
-         2Fwqxtw61Q+4Nx2UwP2HnAUthHl0hwDt42XT+vUc=
+        b=KCau1Wi/L3NgxTAjNyP0nzA1S7fxbKn/PVCwhyMIKMEAWGc4Dw4Svylr0zPO/hExE
+         3rtCObAkLyujfH6b9s27UgBRIdkfWtwx+pyAuaYgGmiLsbUC+JxdemiCI5NI42i/vW
+         hDsM5yS+Bjz12oss6Od4EdkWtADNbZRJ002etH7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Haren Myneni <haren@linux.ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 6.2 154/187] powerpc: Dont try to copy PPR for task with NULL pt_regs
-Date:   Mon,  3 Apr 2023 16:09:59 +0200
-Message-Id: <20230403140421.133498291@linuxfoundation.org>
+Subject: [PATCH 6.2 155/187] powerpc/pseries/vas: Ignore VAS update for DLPAR if copy/paste is not enabled
+Date:   Mon,  3 Apr 2023 16:10:00 +0200
+Message-Id: <20230403140421.184646624@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -43,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,81 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Haren Myneni <haren@linux.ibm.com>
 
-commit fd7276189450110ed835eb0a334e62d2f1c4e3be upstream.
+commit eca9f6e6f83b6725b84e1c76fdde19b003cff0eb upstream.
 
-powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
-from my (arguably very short) checking is not commonly done for other
-archs. This is fine, except when PF_IO_WORKER's have been created and
-the task does something that causes a coredump to be generated. Then we
-get this crash:
+The hypervisor supports user-mode NX from Power10.
 
-  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
-  BUG: Kernel NULL pointer dereference on read at 0x00000160
-  Faulting instruction address: 0xc0000000000c3a60
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
-  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
-  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
-  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
-  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
-  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
-  ...
-  NIP memcpy_power7+0x200/0x7d0
-  LR  ppr_get+0x64/0xb0
-  Call Trace:
-    ppr_get+0x40/0xb0 (unreliable)
-    __regset_get+0x180/0x1f0
-    regset_get_alloc+0x64/0x90
-    elf_core_dump+0xb98/0x1b60
-    do_coredump+0x1c34/0x24a0
-    get_signal+0x71c/0x1410
-    do_notify_resume+0x140/0x6f0
-    interrupt_exit_user_prepare_main+0x29c/0x320
-    interrupt_exit_user_prepare+0x6c/0xa0
-    interrupt_return_srr_user+0x8/0x138
+pseries_vas_dlpar_cpu() is called from lparcfg_write() to update VAS
+windows for DLPAR event in shared processor mode and the kernel gets
+-ENOTSUPP for HCALLs if the user-mode NX is not supported. The current
+VAS implementation also supports only with Radix page tables. Whereas in
+dedicated processor mode, pseries_vas_notifier() is registered only if
+the copy/paste feature is enabled. So instead of displaying HCALL error
+messages, update VAS capabilities if the copy/paste feature is
+available.
 
-Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
-pt_regs.
+This patch ignores updating VAS capabilities in pseries_vas_dlpar_cpu()
+and returns success if the copy/paste feature is not enabled. Then
+lparcfg_write() completes the processor DLPAR operations without any
+failures.
 
-Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
-if not set. The actual error value doesn't seem to be important here, so
-just pick -EINVAL.
-
-Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[mpe: Trim oops in change log, add Fixes & Cc stable]
+Fixes: 2147783d6bf0 ("powerpc/pseries: Use lparcfg to reconfig VAS windows for DLPAR CPU")
+Cc: stable@vger.kernel.org # v6.1+
+Signed-off-by: Haren Myneni <haren@linux.ibm.com>
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
+Link: https://msgid.link/1d0e727e7dbd9a28627ef08ca9df9c86a50175e2.camel@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/ptrace/ptrace-view.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/platforms/pseries/vas.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/powerpc/kernel/ptrace/ptrace-view.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
-@@ -290,6 +290,9 @@ static int gpr_set(struct task_struct *t
- static int ppr_get(struct task_struct *target, const struct user_regset *regset,
- 		   struct membuf to)
+--- a/arch/powerpc/platforms/pseries/vas.c
++++ b/arch/powerpc/platforms/pseries/vas.c
+@@ -857,6 +857,13 @@ int pseries_vas_dlpar_cpu(void)
  {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
- }
+ 	int new_nr_creds, rc;
  
-@@ -297,6 +300,9 @@ static int ppr_set(struct task_struct *t
- 		   unsigned int pos, unsigned int count, const void *kbuf,
- 		   const void __user *ubuf)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
++	/*
++	 * NX-GZIP is not enabled. Nothing to do for DLPAR event
++	 */
++	if (!copypaste_feat)
++		return 0;
 +
- 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
- 				  &target->thread.regs->ppr, 0, sizeof(u64));
- }
++
+ 	rc = h_query_vas_capabilities(H_QUERY_VAS_CAPABILITIES,
+ 				      vascaps[VAS_GZIP_DEF_FEAT_TYPE].feat,
+ 				      (u64)virt_to_phys(&hv_cop_caps));
+@@ -1013,6 +1020,7 @@ static int __init pseries_vas_init(void)
+ 	 * Linux supports user space COPY/PASTE only with Radix
+ 	 */
+ 	if (!radix_enabled()) {
++		copypaste_feat = false;
+ 		pr_err("API is supported only with radix page tables\n");
+ 		return -ENOTSUPP;
+ 	}
 
 
