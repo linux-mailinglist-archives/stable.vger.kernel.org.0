@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E08246D4695
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 720D86D4982
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232836AbjDCOLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:11:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51690 "EHLO
+        id S233712AbjDCOid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232853AbjDCOLh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:11:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FEA22B0FE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:20 -0700 (PDT)
+        with ESMTP id S233711AbjDCOic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5A84C16
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13F9461C3C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 255D9C433D2;
-        Mon,  3 Apr 2023 14:11:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87339B81CBC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02162C433D2;
+        Mon,  3 Apr 2023 14:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531076;
-        bh=C0FLhrOXWMhJz0PAJwRu0Uzl46me5i3kX96oWvGA5ew=;
+        s=korg; t=1680532709;
+        bh=JScWhqWpUgG463GuSgtB/AfcGxI7ds2qh6vyRe7IYQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3DB0jw6e4bMSr3UeLbicpsZ/klAbm8WE9Gy+/CpzIg5aD2laFRfInyMAA86B1QJu
-         HsCGKUrjDb7IvNxr5p9vUEPSh1E7aaMl2TuC1s430WEWLGguMmMmJIo/t+fw8map3A
-         AOXsCpYKxipDkdX2yL+PE5CUKh8V8z83/ldwIodA=
+        b=dHUmnd7b2BugowBo69GwgDHWeeyLbnPQdoRNUUUd14H4zgTyF3Obm73ZQNSjZOwTS
+         QTUWLQUEeguh5cOR8E/P+ODrZ46isZrSpoXwRHkOBqoVWMXlbrzkgfocNB7qUdRvEY
+         m6rZFRkiJv5kCI7dNDdaPYSh13unkIccd1qSUNcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Marek Szlosek <marek.szlosek@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Adham Faris <afaris@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/66] intel/igbvf: free irq on the error path in igbvf_request_msix()
+Subject: [PATCH 6.1 056/181] net/mlx5e: Lower maximum allowed MTU in XSK to match XDP prerequisites
 Date:   Mon,  3 Apr 2023 16:08:11 +0200
-Message-Id: <20230403140351.835051222@linuxfoundation.org>
+Message-Id: <20230403140416.971031459@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,52 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Adham Faris <afaris@nvidia.com>
 
-[ Upstream commit 85eb39bb39cbb5c086df1e19ba67cc1366693a77 ]
+[ Upstream commit 78dee7befd56987283c13877b834c0aa97ad51b9 ]
 
-In igbvf_request_msix(), irqs have not been freed on the err path,
-we need to free it. Fix it.
+XSK redirecting XDP programs require linearity, hence applies
+restrictions on the MTU. For PAGE_SIZE=4K, MTU shouldn't exceed 3498.
 
-Fixes: d4e0fe01a38a ("igbvf: add new driver to support 82576 virtual functions")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Features that contradict with XDP such HW-LRO and HW-GRO are enforced
+by the driver in advance, during XSK params validation, except for MTU,
+which was not enforced before this patch.
+
+This has been spotted during test scenario described below:
+Attaching xdpsock program (PAGE_SIZE=4K), with MTU < 3498, detaching
+XDP program, changing the MTU to arbitrary value in the range
+[3499, 3754], attaching XDP program again, which ended up with failure
+since MTU is > 3498.
+
+This commit lowers the XSK MTU limitation to be aligned with XDP MTU
+limitation, since XSK socket is meaningless without XDP program.
+
+Signed-off-by: Adham Faris <afaris@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igbvf/netdev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index 98fd214f2c42b..cc1a608904ab8 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -1093,7 +1093,7 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
- 			  igbvf_intr_msix_rx, 0, adapter->rx_ring->name,
- 			  netdev);
- 	if (err)
--		goto out;
-+		goto free_irq_tx;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 3b5c5064cfafc..5e01de4c32037 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4104,13 +4104,17 @@ static bool mlx5e_xsk_validate_mtu(struct net_device *netdev,
+ 		struct xsk_buff_pool *xsk_pool =
+ 			mlx5e_xsk_get_pool(&chs->params, chs->params.xsk, ix);
+ 		struct mlx5e_xsk_param xsk;
++		int max_xdp_mtu;
  
- 	adapter->rx_ring->itr_register = E1000_EITR(vector);
- 	adapter->rx_ring->itr_val = adapter->current_itr;
-@@ -1102,10 +1102,14 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
- 	err = request_irq(adapter->msix_entries[vector].vector,
- 			  igbvf_msix_other, 0, netdev->name, netdev);
- 	if (err)
--		goto out;
-+		goto free_irq_rx;
+ 		if (!xsk_pool)
+ 			continue;
  
- 	igbvf_configure_msix(adapter);
- 	return 0;
-+free_irq_rx:
-+	free_irq(adapter->msix_entries[--vector].vector, netdev);
-+free_irq_tx:
-+	free_irq(adapter->msix_entries[--vector].vector, netdev);
- out:
- 	return err;
- }
+ 		mlx5e_build_xsk_param(xsk_pool, &xsk);
++		max_xdp_mtu = mlx5e_xdp_max_mtu(new_params, &xsk);
+ 
+-		if (!mlx5e_validate_xsk_param(new_params, &xsk, mdev)) {
++		/* Validate XSK params and XDP MTU in advance */
++		if (!mlx5e_validate_xsk_param(new_params, &xsk, mdev) ||
++		    new_params->sw_mtu > max_xdp_mtu) {
+ 			u32 hr = mlx5e_get_linear_rq_headroom(new_params, &xsk);
+ 			int max_mtu_frame, max_mtu_page, max_mtu;
+ 
+@@ -4120,9 +4124,9 @@ static bool mlx5e_xsk_validate_mtu(struct net_device *netdev,
+ 			 */
+ 			max_mtu_frame = MLX5E_HW2SW_MTU(new_params, xsk.chunk_size - hr);
+ 			max_mtu_page = MLX5E_HW2SW_MTU(new_params, SKB_MAX_HEAD(0));
+-			max_mtu = min(max_mtu_frame, max_mtu_page);
++			max_mtu = min3(max_mtu_frame, max_mtu_page, max_xdp_mtu);
+ 
+-			netdev_err(netdev, "MTU %d is too big for an XSK running on channel %u. Try MTU <= %d\n",
++			netdev_err(netdev, "MTU %d is too big for an XSK running on channel %u or its redirection XDP program. Try MTU <= %d\n",
+ 				   new_params->sw_mtu, ix, max_mtu);
+ 			return false;
+ 		}
 -- 
 2.39.2
 
