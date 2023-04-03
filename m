@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 085146D469C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B006D46E9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232676AbjDCOMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52236 "EHLO
+        id S232919AbjDCOP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232256AbjDCOLz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:11:55 -0400
+        with ESMTP id S232922AbjDCOPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC602CAD4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F45A2C9F4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03AB5B81A6D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FC3FC4339B;
-        Mon,  3 Apr 2023 14:11:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37604B81B57
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5276C4339B;
+        Mon,  3 Apr 2023 14:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531092;
-        bh=pc7sVLMlxUUPLoMc579jDkeXM0xm02GMOsv3uokjTMA=;
+        s=korg; t=1680531313;
+        bh=PxqPMzVEc7im+jWZOMRDEIzZsZY7CHmVhF6E4q6Gmzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5I0FLmx/wDtE9smqlVbnfEWsWLn1E5sHlhZUFawG/UMn7t2UximRhmsFs6F/4J+c
-         bx5ciLxU/gmKUi/OuylSsEEYMhnHTE8BYfJJ9OqEW2EEi8bxyQQgLxE1g9ZtQoRLls
-         xalxFOyu3L1SB0HVMa3h53O6KRHwG7sNQgA9JaQ4=
+        b=ULEC4Ktg7kSqIm+HjO5Gyve7jKRnXptxZlSenLGJKWGavgf3jdi7Tkaih/ACtC5PS
+         XUwe01R1pxYdaJjo9Er5bmZk9F/oDz95P0Jbg2y/KCDr8DxYwQTm0CbtrOVPXyw5Fu
+         ctdxqyKWKnooAlaJVmpsX2/UE0xsTDstCP0am1eU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Stephen Haynes <sh@synk.net>,
+        Lefteris Alexakis <lefteris.alexakis@kpn.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/66] xirc2ps_cs: Fix use after free bug in xirc2ps_detach
+Subject: [PATCH 4.19 16/84] bpf: Adjust insufficient default bpf_jit_limit
 Date:   Mon,  3 Apr 2023 16:08:17 +0200
-Message-Id: <20230403140352.124952675@linuxfoundation.org>
+Message-Id: <20230403140353.936222062@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit e8d20c3ded59a092532513c9bd030d1ea66f5f44 ]
+[ Upstream commit 10ec8ca8ec1a2f04c4ed90897225231c58c124a7 ]
 
-In xirc2ps_probe, the local->tx_timeout_task was bounded
-with xirc2ps_tx_timeout_task. When timeout occurs,
-it will call xirc_tx_timeout->schedule_work to start the
-work.
+We've seen recent AWS EKS (Kubernetes) user reports like the following:
 
-When we call xirc2ps_detach to remove the driver, there
-may be a sequence as follows:
+  After upgrading EKS nodes from v20230203 to v20230217 on our 1.24 EKS
+  clusters after a few days a number of the nodes have containers stuck
+  in ContainerCreating state or liveness/readiness probes reporting the
+  following error:
 
-Stop responding to timeout tasks and complete scheduled
-tasks before cleanup in xirc2ps_detach, which will fix
-the problem.
+    Readiness probe errored: rpc error: code = Unknown desc = failed to
+    exec in container: failed to start exec "4a11039f730203ffc003b7[...]":
+    OCI runtime exec failed: exec failed: unable to start container process:
+    unable to init seccomp: error loading seccomp filter into kernel:
+    error loading seccomp filter: errno 524: unknown
 
-CPU0                  CPU1
+  However, we had not been seeing this issue on previous AMIs and it only
+  started to occur on v20230217 (following the upgrade from kernel 5.4 to
+  5.10) with no other changes to the underlying cluster or workloads.
 
-                    |xirc2ps_tx_timeout_task
-xirc2ps_detach      |
-  free_netdev       |
-    kfree(dev);     |
-                    |
-                    | do_reset
-                    |   //use dev
+  We tried the suggestions from that issue (sysctl net.core.bpf_jit_limit=452534528)
+  which helped to immediately allow containers to be created and probes to
+  execute but after approximately a day the issue returned and the value
+  returned by cat /proc/vmallocinfo | grep bpf_jit | awk '{s+=$2} END {print s}'
+  was steadily increasing.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+I tested bpf tree to observe bpf_jit_charge_modmem, bpf_jit_uncharge_modmem
+their sizes passed in as well as bpf_jit_current under tcpdump BPF filter,
+seccomp BPF and native (e)BPF programs, and the behavior all looks sane
+and expected, that is nothing "leaking" from an upstream perspective.
+
+The bpf_jit_limit knob was originally added in order to avoid a situation
+where unprivileged applications loading BPF programs (e.g. seccomp BPF
+policies) consuming all the module memory space via BPF JIT such that loading
+of kernel modules would be prevented. The default limit was defined back in
+2018 and while good enough back then, we are generally seeing far more BPF
+consumers today.
+
+Adjust the limit for the BPF JIT pool from originally 1/4 to now 1/2 of the
+module memory space to better reflect today's needs and avoid more users
+running into potentially hard to debug issues.
+
+Fixes: fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
+Reported-by: Stephen Haynes <sh@synk.net>
+Reported-by: Lefteris Alexakis <lefteris.alexakis@kpn.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://github.com/awslabs/amazon-eks-ami/issues/1179
+Link: https://github.com/awslabs/amazon-eks-ami/issues/1219
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20230320143725.8394-1-daniel@iogearbox.net
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xircom/xirc2ps_cs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/bpf/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xircom/xirc2ps_cs.c b/drivers/net/ethernet/xircom/xirc2ps_cs.c
-index fd5288ff53b53..e3438cef5f9c6 100644
---- a/drivers/net/ethernet/xircom/xirc2ps_cs.c
-+++ b/drivers/net/ethernet/xircom/xirc2ps_cs.c
-@@ -503,6 +503,11 @@ static void
- xirc2ps_detach(struct pcmcia_device *link)
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 24e16538e4d71..285101772c755 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -603,7 +603,7 @@ static int __init bpf_jit_charge_init(void)
  {
-     struct net_device *dev = link->priv;
-+    struct local_info *local = netdev_priv(dev);
-+
-+    netif_carrier_off(dev);
-+    netif_tx_disable(dev);
-+    cancel_work_sync(&local->tx_timeout_task);
- 
-     dev_dbg(&link->dev, "detach\n");
- 
+ 	/* Only used as heuristic here to derive limit. */
+ 	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
+-	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
++	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 1,
+ 					    PAGE_SIZE), LONG_MAX);
+ 	return 0;
+ }
 -- 
 2.39.2
 
