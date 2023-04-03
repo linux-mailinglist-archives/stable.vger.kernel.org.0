@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 145DF6D4779
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8012A6D4A4C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233140AbjDCOUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:20:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41742 "EHLO
+        id S233912AbjDCOqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:46:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233030AbjDCOUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:20:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FE52D7FB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:05 -0700 (PDT)
+        with ESMTP id S233903AbjDCOqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B51BB16972
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D397B81B01
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE9CAC433EF;
-        Mon,  3 Apr 2023 14:19:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADCF2B81D47
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0305DC4339B;
+        Mon,  3 Apr 2023 14:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531599;
-        bh=D9LIHxXi/O8sYDMR6WuLMz/qSGJTzq0BcnjwBtBH1F8=;
+        s=korg; t=1680533137;
+        bh=dijRHkwEyGLRXtAb+sEESVp1psxBCqD8i594SKuZ2DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3iwH0apG009G6p0OsxbGZx5UZjNdoPTNU1N9JuzV7h/oMEr57Jrk+6Ak85Qxuq+u
-         ArU03e6tcCGd1TqbILUU5GC7n4AyIgwrKbkkA3Jf6MkK9QpGMEAFZ4C+/JtUW8O8+o
-         dde0ihhBADgz5pYq1DQPkg2qAsrwkLZXa3EJlg58=
+        b=hgOU+JY0clok7upt2rYF32+ZTZYodmZI1xdZDfUd2HLzB+n2qzJ9UnaGQwLpABLGq
+         1JCq3cUcqcDS5E+BjtkJTImNxNOBIueToGiOMSjV1kPaZltSs70eKtqWpMOJ+I2BDP
+         fD+5Fe8Y9Wz72avcVC1WBOkGbIW1jv+YI5INKsGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/104] net: usb: qmi_wwan: add Telit 0x1080 composition
-Date:   Mon,  3 Apr 2023 16:08:32 +0200
-Message-Id: <20230403140405.951690400@linuxfoundation.org>
+        patches@lists.linux.dev, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        John Keeping <john@metanate.com>
+Subject: [PATCH 6.2 068/187] ALSA: usb-audio: Fix recursive locking at XRUN during syncing
+Date:   Mon,  3 Apr 2023 16:08:33 +0200
+Message-Id: <20230403140418.192305639@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,34 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enrico Sau <enrico.sau@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 382e363d5bed0cec5807b35761d14e55955eee63 ]
+[ Upstream commit 8c721c53dda512fdd48eb24d6d99e56deee57898 ]
 
-Add the following Telit FE990 composition:
+The recent support of low latency playback in USB-audio driver made
+the snd_usb_queue_pending_output_urbs() function to be called via PCM
+ack ops.  In the new code path, the function is performed already in
+the PCM stream lock.  The problem is that, when an XRUN is detected,
+the function calls snd_pcm_xrun() to notify, but snd_pcm_xrun() is
+supposed to be called only outside the stream lock.  As a result, it
+leads to a deadlock of PCM stream locking.
 
-0x1080: tty, adb, rmnet, tty, tty, tty, tty
+For avoiding such a recursive locking, this patch adds an additional
+check to the code paths in PCM core that call the ack callback; now it
+checks the error code from the callback, and if it's -EPIPE, the XRUN
+is handled in the PCM core side gracefully.  Along with it, the
+USB-audio driver code is changed to follow that, i.e. -EPIPE is
+returned instead of the explicit snd_pcm_xrun() call when the function
+is performed already in the stream lock.
 
-Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
-Link: https://lore.kernel.org/r/20230306120528.198842-1-enrico.sau@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: d5f871f89e21 ("ALSA: usb-audio: Improved lowlatency playback support")
+Reported-and-tested-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20230317195128.3911155-1-john@metanate.com
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Reviewed-by; Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20230320142838.494-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/pcm_lib.c |  2 ++
+ sound/usb/endpoint.c | 22 ++++++++++++++--------
+ sound/usb/endpoint.h |  4 ++--
+ sound/usb/pcm.c      |  2 +-
+ 4 files changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index c310cdbfd583e..c2307cfaf4009 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1319,6 +1319,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1080, 2)}, /* Telit FE990 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
+diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+index 8b6aeb8a78f7d..02fd65993e7e5 100644
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -2155,6 +2155,8 @@ int pcm_lib_apply_appl_ptr(struct snd_pcm_substream *substream,
+ 		ret = substream->ops->ack(substream);
+ 		if (ret < 0) {
+ 			runtime->control->appl_ptr = old_appl_ptr;
++			if (ret == -EPIPE)
++				__snd_pcm_xrun(substream);
+ 			return ret;
+ 		}
+ 	}
+diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
+index 419302e2057e8..647fa054d8b1d 100644
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -455,8 +455,8 @@ static void push_back_to_ready_list(struct snd_usb_endpoint *ep,
+  * This function is used both for implicit feedback endpoints and in low-
+  * latency playback mode.
+  */
+-void snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
+-				       bool in_stream_lock)
++int snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
++				      bool in_stream_lock)
+ {
+ 	bool implicit_fb = snd_usb_endpoint_implicit_feedback_sink(ep);
+ 
+@@ -480,7 +480,7 @@ void snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
+ 		spin_unlock_irqrestore(&ep->lock, flags);
+ 
+ 		if (ctx == NULL)
+-			return;
++			break;
+ 
+ 		/* copy over the length information */
+ 		if (implicit_fb) {
+@@ -495,11 +495,14 @@ void snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
+ 			break;
+ 		if (err < 0) {
+ 			/* push back to ready list again for -EAGAIN */
+-			if (err == -EAGAIN)
++			if (err == -EAGAIN) {
+ 				push_back_to_ready_list(ep, ctx);
+-			else
++				break;
++			}
++
++			if (!in_stream_lock)
+ 				notify_xrun(ep);
+-			return;
++			return -EPIPE;
+ 		}
+ 
+ 		err = usb_submit_urb(ctx->urb, GFP_ATOMIC);
+@@ -507,13 +510,16 @@ void snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
+ 			usb_audio_err(ep->chip,
+ 				      "Unable to submit urb #%d: %d at %s\n",
+ 				      ctx->index, err, __func__);
+-			notify_xrun(ep);
+-			return;
++			if (!in_stream_lock)
++				notify_xrun(ep);
++			return -EPIPE;
+ 		}
+ 
+ 		set_bit(ctx->index, &ep->active_mask);
+ 		atomic_inc(&ep->submitted_urbs);
+ 	}
++
++	return 0;
+ }
+ 
+ /*
+diff --git a/sound/usb/endpoint.h b/sound/usb/endpoint.h
+index 924f4351588ce..c09f68ce08b18 100644
+--- a/sound/usb/endpoint.h
++++ b/sound/usb/endpoint.h
+@@ -52,7 +52,7 @@ int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep);
+ int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep,
+ 				      struct snd_urb_ctx *ctx, int idx,
+ 				      unsigned int avail);
+-void snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
+-				       bool in_stream_lock);
++int snd_usb_queue_pending_output_urbs(struct snd_usb_endpoint *ep,
++				      bool in_stream_lock);
+ 
+ #endif /* __USBAUDIO_ENDPOINT_H */
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index d959da7a1afba..eec5232f9fb29 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1639,7 +1639,7 @@ static int snd_usb_pcm_playback_ack(struct snd_pcm_substream *substream)
+ 	 * outputs here
+ 	 */
+ 	if (!ep->active_mask)
+-		snd_usb_queue_pending_output_urbs(ep, true);
++		return snd_usb_queue_pending_output_urbs(ep, true);
+ 	return 0;
+ }
+ 
 -- 
 2.39.2
 
