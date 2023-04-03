@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3C56D481B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3F36D4744
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233291AbjDCOZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53778 "EHLO
+        id S233016AbjDCOSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233298AbjDCOZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7792D7C2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:50 -0700 (PDT)
+        with ESMTP id S233015AbjDCOSq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E17D2C9DC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D2EE61D97
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF938C433D2;
-        Mon,  3 Apr 2023 14:25:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5591DB81BA4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B37C3C4339B;
+        Mon,  3 Apr 2023 14:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531949;
-        bh=x3kzMz32e+WMSIugB4PjBa5dkR3f0MBTkoGHz9n+y4A=;
+        s=korg; t=1680531523;
+        bh=pc7sVLMlxUUPLoMc579jDkeXM0xm02GMOsv3uokjTMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zIqZ+UHGv7NR58d+RojxPNluN3FLIBpMR7nyd+OjUKIaXlNGPwgX0IQPt73bbH8j+
-         kyNwA7wZ/RGXI6WxPqLIOjFra4JDDELCvU5FX7t2s1fQnDTS+xxIoybbqoHrZRpahU
-         67nOvCo+q4sfaZS3LnRh/y3S19HX9+3TFURTECuM=
+        b=g6XnaKKEDnz1SqOxJKuOV1obP/iuMbFlk2YYdMbfVxsmMjkXEL+lCbj9iq8o3J0Hu
+         3r4T5tOoT1V7zyAAIABs7PeCGRAc/zrHY3k6PD2EjNdI5V3K3BTdqwFyOEfJpA8X67
+         Z8QyKhcOCazOnh6GFUoWyIoCp2eNkmffAbtsAWlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/173] selftests/bpf: check that modifier resolves after pointer
+Subject: [PATCH 5.4 011/104] xirc2ps_cs: Fix use after free bug in xirc2ps_detach
 Date:   Mon,  3 Apr 2023 16:08:03 +0200
-Message-Id: <20230403140416.645378075@linuxfoundation.org>
+Message-Id: <20230403140404.590762419@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lorenz.bauer@isovalent.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
+[ Upstream commit e8d20c3ded59a092532513c9bd030d1ea66f5f44 ]
 
-Add a regression test that ensures that a VAR pointing at a
-modifier which follows a PTR (or STRUCT or ARRAY) is resolved
-correctly by the datasec validator.
+In xirc2ps_probe, the local->tx_timeout_task was bounded
+with xirc2ps_tx_timeout_task. When timeout occurs,
+it will call xirc_tx_timeout->schedule_work to start the
+work.
 
-Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
-Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+When we call xirc2ps_detach to remove the driver, there
+may be a sequence as follows:
+
+Stop responding to timeout tasks and complete scheduled
+tasks before cleanup in xirc2ps_detach, which will fix
+the problem.
+
+CPU0                  CPU1
+
+                    |xirc2ps_tx_timeout_task
+xirc2ps_detach      |
+  free_netdev       |
+    kfree(dev);     |
+                    |
+                    | do_reset
+                    |   //use dev
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/btf.c | 28 ++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/net/ethernet/xircom/xirc2ps_cs.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index 48b01150e703f..28d22265b8253 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -882,6 +882,34 @@ static struct btf_raw_test raw_tests[] = {
- 	.btf_load_err = true,
- 	.err_str = "Invalid elem",
- },
-+{
-+	.descr = "var after datasec, ptr followed by modifier",
-+	.raw_types = {
-+		/* .bss section */				/* [1] */
-+		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
-+			sizeof(void*)+4),
-+		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
-+		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
-+		/* int */					/* [2] */
-+		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
-+		/* int* */					/* [3] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
-+		/* const int */					/* [5] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
-+		BTF_END_RAW,
-+	},
-+	.str_sec = "\0a\0b\0c\0",
-+	.str_sec_size = sizeof("\0a\0b\0c\0"),
-+	.map_type = BPF_MAP_TYPE_ARRAY,
-+	.map_name = ".bss",
-+	.key_size = sizeof(int),
-+	.value_size = sizeof(void*)+4,
-+	.key_type_id = 0,
-+	.value_type_id = 1,
-+	.max_entries = 1,
-+},
- /* Test member exceeds the size of struct.
-  *
-  * struct A {
+diff --git a/drivers/net/ethernet/xircom/xirc2ps_cs.c b/drivers/net/ethernet/xircom/xirc2ps_cs.c
+index fd5288ff53b53..e3438cef5f9c6 100644
+--- a/drivers/net/ethernet/xircom/xirc2ps_cs.c
++++ b/drivers/net/ethernet/xircom/xirc2ps_cs.c
+@@ -503,6 +503,11 @@ static void
+ xirc2ps_detach(struct pcmcia_device *link)
+ {
+     struct net_device *dev = link->priv;
++    struct local_info *local = netdev_priv(dev);
++
++    netif_carrier_off(dev);
++    netif_tx_disable(dev);
++    cancel_work_sync(&local->tx_timeout_task);
+ 
+     dev_dbg(&link->dev, "detach\n");
+ 
 -- 
 2.39.2
 
