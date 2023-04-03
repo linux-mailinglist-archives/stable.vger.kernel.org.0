@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63D566D47AB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4696D490B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233054AbjDCOWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:22:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45958 "EHLO
+        id S233564AbjDCOek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:34:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233112AbjDCOWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D57231297
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:01 -0700 (PDT)
+        with ESMTP id S233537AbjDCOej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE8216F32
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79C0E61D60
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C663C4339B;
-        Mon,  3 Apr 2023 14:21:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89A0561DE3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CD7DC433D2;
+        Mon,  3 Apr 2023 14:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531719;
-        bh=bkYkUBQq9L+2XTJs4SGMNKZf8XHThfh2of+zZKyLF0g=;
+        s=korg; t=1680532440;
+        bh=yl2rk6VyLYTv1k3iTf9DXMBvKRXy+Vadx1an0oQ3kwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1wHwQRfkFpMWywmmpKtYiXe2Pb+FT/Z77dzdbLq278GWafhI/qnvlztEYWNXCMXx
-         W8ElFVDhpFDj8R1s+1KLnZ3eH4I50e6F1hbofkjh2kjtLXfX0OVZhQt3qb6DYyaBVr
-         No032BadCwO6y2z2F7v90Om+uV5/BbpmjZQHzYY8=
+        b=GDsS3Hpt4KEp8Lc6QCcVfcY7aLHWohduXd0mz0FouV62KvHw/BD27K688sx7g28dV
+         KG1qy53au4ZzBQ/W0aL2MIA3sSldK07F1IzM23uGtPWUEQ+MP0lylASXlmjV6623/b
+         7rm3lyJ4mXNU65sYufN0frt2hcxxuR5x6XqMzbF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/104] net: mvneta: make tx buffer array agnostic
+        patches@lists.linux.dev, Tasos Sahanidis <tasos@tasossah.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 54/99] ALSA: ymfpci: Create card with device-managed snd_devm_card_new()
 Date:   Mon,  3 Apr 2023 16:09:17 +0200
-Message-Id: <20230403140407.465688356@linuxfoundation.org>
+Message-Id: <20230403140405.390334438@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,219 +52,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit 9e58c8b410650b5a6eb5b8fad8474bd8425a4023 ]
+[ Upstream commit f33fc1576757741479452255132d6e3aaf558ffe ]
 
-Allow tx buffer array to contain both skb and xdp buffers in order to
-enable xdp frame recycling adding XDP_TX verdict support
+snd_card_ymfpci_remove() was removed in commit c6e6bb5eab74 ("ALSA:
+ymfpci: Allocate resources with device-managed APIs"), but the call to
+snd_card_new() was not replaced with snd_devm_card_new().
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 2960a2d33b02 ("net: mvneta: fix potential double-frees in mvneta_txq_sw_deinit()")
+Since there was no longer a call to snd_card_free, unloading the module
+would eventually result in Oops:
+
+[697561.532887] BUG: unable to handle page fault for address: ffffffffc0924480
+[697561.532893] #PF: supervisor read access in kernel mode
+[697561.532896] #PF: error_code(0x0000) - not-present page
+[697561.532899] PGD ae1e15067 P4D ae1e15067 PUD ae1e17067 PMD 11a8f5067 PTE 0
+[697561.532905] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[697561.532909] CPU: 21 PID: 5080 Comm: wireplumber Tainted: G        W  OE      6.2.7 #1
+[697561.532914] Hardware name: System manufacturer System Product Name/TUF GAMING X570-PLUS, BIOS 4408 10/28/2022
+[697561.532916] RIP: 0010:try_module_get.part.0+0x1a/0xe0
+[697561.532924] Code: 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 55 41 54 49 89 fc bf 01 00 00 00 e8 56 3c f8 ff <41> 83 3c 24 02 0f 84 96 00 00 00 41 8b 84 24 30 03 00 00 85 c0 0f
+[697561.532927] RSP: 0018:ffffbe9b858c3bd8 EFLAGS: 00010246
+[697561.532930] RAX: ffff9815d14f1900 RBX: ffff9815c14e6000 RCX: 0000000000000000
+[697561.532933] RDX: 0000000000000000 RSI: ffffffffc055092c RDI: ffffffffb3778c1a
+[697561.532935] RBP: ffffbe9b858c3be8 R08: 0000000000000040 R09: ffff981a1a741380
+[697561.532937] R10: ffffbe9b858c3c80 R11: 00000009d56533a6 R12: ffffffffc0924480
+[697561.532939] R13: ffff9823439d8500 R14: 0000000000000025 R15: ffff9815cd109f80
+[697561.532942] FS:  00007f13084f1f80(0000) GS:ffff9824aef40000(0000) knlGS:0000000000000000
+[697561.532945] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[697561.532947] CR2: ffffffffc0924480 CR3: 0000000145344000 CR4: 0000000000350ee0
+[697561.532949] Call Trace:
+[697561.532951]  <TASK>
+[697561.532955]  try_module_get+0x13/0x30
+[697561.532960]  snd_ctl_open+0x61/0x1c0 [snd]
+[697561.532976]  snd_open+0xb4/0x1e0 [snd]
+[697561.532989]  chrdev_open+0xc7/0x240
+[697561.532995]  ? fsnotify_perm.part.0+0x6e/0x160
+[697561.533000]  ? __pfx_chrdev_open+0x10/0x10
+[697561.533005]  do_dentry_open+0x169/0x440
+[697561.533009]  vfs_open+0x2d/0x40
+[697561.533012]  path_openat+0xa9d/0x10d0
+[697561.533017]  ? debug_smp_processor_id+0x17/0x20
+[697561.533022]  ? trigger_load_balance+0x65/0x370
+[697561.533026]  do_filp_open+0xb2/0x160
+[697561.533032]  ? _raw_spin_unlock+0x19/0x40
+[697561.533036]  ? alloc_fd+0xa9/0x190
+[697561.533040]  do_sys_openat2+0x9f/0x160
+[697561.533044]  __x64_sys_openat+0x55/0x90
+[697561.533048]  do_syscall_64+0x3b/0x90
+[697561.533052]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+[697561.533056] RIP: 0033:0x7f1308a40db4
+[697561.533059] Code: 24 20 eb 8f 66 90 44 89 54 24 0c e8 46 68 f8 ff 44 8b 54 24 0c 44 89 e2 48 89 ee 41 89 c0 bf 9c ff ff ff b8 01 01 00 00 0f 05 <48> 3d 00 f0 ff ff 77 32 44 89 c7 89 44 24 0c e8 78 68 f8 ff 8b 44
+[697561.533062] RSP: 002b:00007ffcce664450 EFLAGS: 00000293 ORIG_RAX: 0000000000000101
+[697561.533066] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f1308a40db4
+[697561.533068] RDX: 0000000000080000 RSI: 00007ffcce664690 RDI: 00000000ffffff9c
+[697561.533070] RBP: 00007ffcce664690 R08: 0000000000000000 R09: 0000000000000012
+[697561.533072] R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000080000
+[697561.533074] R13: 00007f13054b069b R14: 0000565209f83200 R15: 0000000000000000
+[697561.533078]  </TASK>
+
+Fixes: c6e6bb5eab74 ("ALSA: ymfpci: Allocate resources with device-managed APIs")
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Link: https://lore.kernel.org/r/20230329032422.170024-1-tasos@tasossah.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 66 +++++++++++++++++----------
- 1 file changed, 43 insertions(+), 23 deletions(-)
+ sound/pci/ymfpci/ymfpci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 2c1ee32684988..977c2961aa2c2 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -549,6 +549,20 @@ struct mvneta_rx_desc {
- };
- #endif
- 
-+enum mvneta_tx_buf_type {
-+	MVNETA_TYPE_SKB,
-+	MVNETA_TYPE_XDP_TX,
-+	MVNETA_TYPE_XDP_NDO,
-+};
-+
-+struct mvneta_tx_buf {
-+	enum mvneta_tx_buf_type type;
-+	union {
-+		struct xdp_frame *xdpf;
-+		struct sk_buff *skb;
-+	};
-+};
-+
- struct mvneta_tx_queue {
- 	/* Number of this TX queue, in the range 0-7 */
- 	u8 id;
-@@ -564,8 +578,8 @@ struct mvneta_tx_queue {
- 	int tx_stop_threshold;
- 	int tx_wake_threshold;
- 
--	/* Array of transmitted skb */
--	struct sk_buff **tx_skb;
-+	/* Array of transmitted buffers */
-+	struct mvneta_tx_buf *buf;
- 
- 	/* Index of last TX DMA descriptor that was inserted */
- 	int txq_put_index;
-@@ -1774,14 +1788,9 @@ static void mvneta_txq_bufs_free(struct mvneta_port *pp,
- 	int i;
- 
- 	for (i = 0; i < num; i++) {
-+		struct mvneta_tx_buf *buf = &txq->buf[txq->txq_get_index];
- 		struct mvneta_tx_desc *tx_desc = txq->descs +
- 			txq->txq_get_index;
--		struct sk_buff *skb = txq->tx_skb[txq->txq_get_index];
--
--		if (skb) {
--			bytes_compl += skb->len;
--			pkts_compl++;
--		}
- 
- 		mvneta_txq_inc_get(txq);
- 
-@@ -1789,9 +1798,12 @@ static void mvneta_txq_bufs_free(struct mvneta_port *pp,
- 			dma_unmap_single(pp->dev->dev.parent,
- 					 tx_desc->buf_phys_addr,
- 					 tx_desc->data_size, DMA_TO_DEVICE);
--		if (!skb)
-+		if (!buf->skb)
- 			continue;
--		dev_kfree_skb_any(skb);
-+
-+		bytes_compl += buf->skb->len;
-+		pkts_compl++;
-+		dev_kfree_skb_any(buf->skb);
+diff --git a/sound/pci/ymfpci/ymfpci.c b/sound/pci/ymfpci/ymfpci.c
+index 1e198e4d57b8d..82d4e0fda91be 100644
+--- a/sound/pci/ymfpci/ymfpci.c
++++ b/sound/pci/ymfpci/ymfpci.c
+@@ -170,7 +170,7 @@ static int snd_card_ymfpci_probe(struct pci_dev *pci,
+ 		return -ENOENT;
  	}
  
- 	netdev_tx_completed_queue(nq, pkts_compl, bytes_compl);
-@@ -2242,16 +2254,19 @@ static inline void
- mvneta_tso_put_hdr(struct sk_buff *skb,
- 		   struct mvneta_port *pp, struct mvneta_tx_queue *txq)
- {
--	struct mvneta_tx_desc *tx_desc;
- 	int hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
-+	struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
-+	struct mvneta_tx_desc *tx_desc;
- 
--	txq->tx_skb[txq->txq_put_index] = NULL;
- 	tx_desc = mvneta_txq_next_desc_get(txq);
- 	tx_desc->data_size = hdr_len;
- 	tx_desc->command = mvneta_skb_tx_csum(pp, skb);
- 	tx_desc->command |= MVNETA_TXD_F_DESC;
- 	tx_desc->buf_phys_addr = txq->tso_hdrs_phys +
- 				 txq->txq_put_index * TSO_HEADER_SIZE;
-+	buf->type = MVNETA_TYPE_SKB;
-+	buf->skb = NULL;
-+
- 	mvneta_txq_inc_put(txq);
- }
- 
-@@ -2260,6 +2275,7 @@ mvneta_tso_put_data(struct net_device *dev, struct mvneta_tx_queue *txq,
- 		    struct sk_buff *skb, char *data, int size,
- 		    bool last_tcp, bool is_last)
- {
-+	struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
- 	struct mvneta_tx_desc *tx_desc;
- 
- 	tx_desc = mvneta_txq_next_desc_get(txq);
-@@ -2273,7 +2289,8 @@ mvneta_tso_put_data(struct net_device *dev, struct mvneta_tx_queue *txq,
- 	}
- 
- 	tx_desc->command = 0;
--	txq->tx_skb[txq->txq_put_index] = NULL;
-+	buf->type = MVNETA_TYPE_SKB;
-+	buf->skb = NULL;
- 
- 	if (last_tcp) {
- 		/* last descriptor in the TCP packet */
-@@ -2281,7 +2298,7 @@ mvneta_tso_put_data(struct net_device *dev, struct mvneta_tx_queue *txq,
- 
- 		/* last descriptor in SKB */
- 		if (is_last)
--			txq->tx_skb[txq->txq_put_index] = skb;
-+			buf->skb = skb;
- 	}
- 	mvneta_txq_inc_put(txq);
- 	return 0;
-@@ -2366,6 +2383,7 @@ static int mvneta_tx_frag_process(struct mvneta_port *pp, struct sk_buff *skb,
- 	int i, nr_frags = skb_shinfo(skb)->nr_frags;
- 
- 	for (i = 0; i < nr_frags; i++) {
-+		struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
- 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
- 		void *addr = skb_frag_address(frag);
- 
-@@ -2385,12 +2403,13 @@ static int mvneta_tx_frag_process(struct mvneta_port *pp, struct sk_buff *skb,
- 		if (i == nr_frags - 1) {
- 			/* Last descriptor */
- 			tx_desc->command = MVNETA_TXD_L_DESC | MVNETA_TXD_Z_PAD;
--			txq->tx_skb[txq->txq_put_index] = skb;
-+			buf->skb = skb;
- 		} else {
- 			/* Descriptor in the middle: Not First, Not Last */
- 			tx_desc->command = 0;
--			txq->tx_skb[txq->txq_put_index] = NULL;
-+			buf->skb = NULL;
- 		}
-+		buf->type = MVNETA_TYPE_SKB;
- 		mvneta_txq_inc_put(txq);
- 	}
- 
-@@ -2418,6 +2437,7 @@ static netdev_tx_t mvneta_tx(struct sk_buff *skb, struct net_device *dev)
- 	struct mvneta_port *pp = netdev_priv(dev);
- 	u16 txq_id = skb_get_queue_mapping(skb);
- 	struct mvneta_tx_queue *txq = &pp->txqs[txq_id];
-+	struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
- 	struct mvneta_tx_desc *tx_desc;
- 	int len = skb->len;
- 	int frags = 0;
-@@ -2450,16 +2470,17 @@ static netdev_tx_t mvneta_tx(struct sk_buff *skb, struct net_device *dev)
- 		goto out;
- 	}
- 
-+	buf->type = MVNETA_TYPE_SKB;
- 	if (frags == 1) {
- 		/* First and Last descriptor */
- 		tx_cmd |= MVNETA_TXD_FLZ_DESC;
- 		tx_desc->command = tx_cmd;
--		txq->tx_skb[txq->txq_put_index] = skb;
-+		buf->skb = skb;
- 		mvneta_txq_inc_put(txq);
- 	} else {
- 		/* First but not Last */
- 		tx_cmd |= MVNETA_TXD_F_DESC;
--		txq->tx_skb[txq->txq_put_index] = NULL;
-+		buf->skb = NULL;
- 		mvneta_txq_inc_put(txq);
- 		tx_desc->command = tx_cmd;
- 		/* Continue with other skb fragments */
-@@ -3005,9 +3026,8 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
- 
- 	txq->last_desc = txq->size - 1;
- 
--	txq->tx_skb = kmalloc_array(txq->size, sizeof(*txq->tx_skb),
--				    GFP_KERNEL);
--	if (!txq->tx_skb) {
-+	txq->buf = kmalloc_array(txq->size, sizeof(*txq->buf), GFP_KERNEL);
-+	if (!txq->buf) {
- 		dma_free_coherent(pp->dev->dev.parent,
- 				  txq->size * MVNETA_DESC_ALIGNED_SIZE,
- 				  txq->descs, txq->descs_phys);
-@@ -3019,7 +3039,7 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
- 					   txq->size * TSO_HEADER_SIZE,
- 					   &txq->tso_hdrs_phys, GFP_KERNEL);
- 	if (!txq->tso_hdrs) {
--		kfree(txq->tx_skb);
-+		kfree(txq->buf);
- 		dma_free_coherent(pp->dev->dev.parent,
- 				  txq->size * MVNETA_DESC_ALIGNED_SIZE,
- 				  txq->descs, txq->descs_phys);
-@@ -3074,7 +3094,7 @@ static void mvneta_txq_sw_deinit(struct mvneta_port *pp,
- {
- 	struct netdev_queue *nq = netdev_get_tx_queue(pp->dev, txq->id);
- 
--	kfree(txq->tx_skb);
-+	kfree(txq->buf);
- 
- 	if (txq->tso_hdrs)
- 		dma_free_coherent(pp->dev->dev.parent,
+-	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
++	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+ 			   sizeof(*chip), &card);
+ 	if (err < 0)
+ 		return err;
 -- 
 2.39.2
 
