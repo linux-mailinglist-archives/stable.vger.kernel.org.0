@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1F36D484B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267596D46AB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233343AbjDCO1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:27:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
+        id S232884AbjDCOMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233341AbjDCO1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:23 -0400
+        with ESMTP id S232910AbjDCOMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D29312BE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460822953A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E9E5B81C15
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88ADEC4339B;
-        Mon,  3 Apr 2023 14:27:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A72BEB81B08
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265A8C433D2;
+        Mon,  3 Apr 2023 14:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532039;
-        bh=FbWs3/rnsgWgG4PG1OBE6yvXyVbm/3yff3q5d1C6b+Y=;
+        s=korg; t=1680531129;
+        bh=26Y/ITEHPD8UFn8hEpEzsEFYiG8MOno/GFQpeNSP190=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9oFyz1oANotCrkVHnrrRaiu5/rbgQGnkcqgFrzTf4fL8XJwNdTi3P17FcMzCtb2j
-         F2LP1eKWvS1FS7A+cwv8gIyGaMokk0P+bZhGtQgXk93M1fXePZmpEdty4iKsSvXLPA
-         25+hYA55bdUqaAmmMzE5h8mtafyJPS1Ac1Sg4Fvk=
+        b=wYYOXGtBkVRQqsITBiMWIhPz2oBVMaXotbp8r98fno+GXi190EsqGFWm9p7jpo3El
+         THQjX4qjaR29H8nQccZ9wbC/U9HEgyjAKBN+l+/yf/VrPg8pSDRMEcxay7KAcsTnhu
+         9AOKgE8sej3En2g2dD53N68MRPG5jR6u+wSZTK7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xingyuan Mo <hdthky0@gmail.com>,
-        Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.10 103/173] NFSD: fix use-after-free in __nfs42_ssc_open()
+        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
+        Rich Felker <dalias@libc.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 30/66] sh: sanitize the flags on sigreturn
 Date:   Mon,  3 Apr 2023 16:08:38 +0200
-Message-Id: <20230403140417.773920681@linuxfoundation.org>
+Message-Id: <20230403140352.974721431@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 75333d48f92256a0dec91dbf07835e804fc411c0 upstream.
+[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
 
-Problem caused by source's vfsmount being unmounted but remains
-on the delayed unmount list. This happens when nfs42_ssc_open()
-return errors.
+We fetch %SR value from sigframe; it might have been modified by signal
+handler, so we can't trust it with any bits that are not modifiable in
+user mode.
 
-Fixed by removing nfsd4_interssc_connect(), leave the vfsmount
-for the laundromat to unmount when idle time expires.
-
-We don't need to call nfs_do_sb_deactive when nfs42_ssc_open
-return errors since the file was not opened so nfs_server->active
-was not incremented. Same as in nfsd4_copy, if we fail to
-launch nfsd4_do_async_copy thread then there's no need to
-call nfs_do_sb_deactive
-
-Reported-by: Xingyuan Mo <hdthky0@gmail.com>
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Tested-by: Xingyuan Mo <hdthky0@gmail.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c |   22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ arch/sh/include/asm/processor_32.h |    1 +
+ arch/sh/kernel/signal_32.c         |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1248,13 +1248,6 @@ out_err:
- 	return status;
- }
+--- a/arch/sh/include/asm/processor_32.h
++++ b/arch/sh/include/asm/processor_32.h
+@@ -57,6 +57,7 @@
+ #define SR_FD		0x00008000
+ #define SR_MD		0x40000000
  
--static void
--nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
--{
--	nfs_do_sb_deactive(ss_mnt->mnt_sb);
--	mntput(ss_mnt);
--}
--
++#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
  /*
-  * Verify COPY destination stateid.
-  *
-@@ -1325,11 +1318,6 @@ nfsd4_cleanup_inter_ssc(struct vfsmount
+  * DSP structure and data
+  */
+--- a/arch/sh/kernel/signal_32.c
++++ b/arch/sh/kernel/signal_32.c
+@@ -116,6 +116,7 @@ static int
+ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
  {
- }
+ 	unsigned int err = 0;
++	unsigned int sr = regs->sr & ~SR_USER_MASK;
  
--static void
--nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
--{
--}
--
- static struct file *nfs42_ssc_open(struct vfsmount *ss_mnt,
- 				   struct nfs_fh *src_fh,
- 				   nfs4_stateid *stateid)
-@@ -1471,14 +1459,14 @@ static int nfsd4_do_async_copy(void *dat
- 		copy->nf_src = kzalloc(sizeof(struct nfsd_file), GFP_KERNEL);
- 		if (!copy->nf_src) {
- 			copy->nfserr = nfserr_serverfault;
--			nfsd4_interssc_disconnect(copy->ss_mnt);
-+			/* ss_mnt will be unmounted by the laundromat */
- 			goto do_callback;
- 		}
- 		copy->nf_src->nf_file = nfs42_ssc_open(copy->ss_mnt, &copy->c_fh,
- 					      &copy->stateid);
- 		if (IS_ERR(copy->nf_src->nf_file)) {
- 			copy->nfserr = nfserr_offload_denied;
--			nfsd4_interssc_disconnect(copy->ss_mnt);
-+			/* ss_mnt will be unmounted by the laundromat */
- 			goto do_callback;
- 		}
- 	}
-@@ -1561,8 +1549,10 @@ out_err:
- 	if (async_copy)
- 		cleanup_async_copy(async_copy);
- 	status = nfserrno(-ENOMEM);
--	if (!copy->cp_intra)
--		nfsd4_interssc_disconnect(copy->ss_mnt);
-+	/*
-+	 * source's vfsmount of inter-copy will be unmounted
-+	 * by the laundromat
-+	 */
- 	goto out;
- }
+ #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
+ 			COPY(regs[1]);
+@@ -131,6 +132,8 @@ restore_sigcontext(struct pt_regs *regs,
+ 	COPY(sr);	COPY(pc);
+ #undef COPY
  
++	regs->sr = (regs->sr & SR_USER_MASK) | sr;
++
+ #ifdef CONFIG_SH_FPU
+ 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
+ 		int owned_fp;
 
 
