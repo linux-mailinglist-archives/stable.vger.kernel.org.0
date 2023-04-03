@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BF76D4919
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7636D4ACE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233556AbjDCOfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42322 "EHLO
+        id S234119AbjDCOub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233676AbjDCOfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F177916F32
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:42 -0700 (PDT)
+        with ESMTP id S234121AbjDCOuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC8028EA5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4060C61E47
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55508C433EF;
-        Mon,  3 Apr 2023 14:34:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21B53B81D83
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F83AC433EF;
+        Mon,  3 Apr 2023 14:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532481;
-        bh=QNjg35JqVGRkiXWOhfrxOD6oYTzm8nvTMwy5KmuZDYY=;
+        s=korg; t=1680533367;
+        bh=jyRttOi/+1GUQiXflH/H+fTtTJy0fN3XLyD5v4JQOY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckpC3lh+Lz30qBnjqm1Zc7ba9AzVO+AbyHuiby+nREMe7lrwCNBoy/5EkQ3ffTubK
-         vCSspNp/3lcP2NyDIhasTkmxzHxcoJRMlTSAHHiaWtom4nzwoGeEwsidv3wkvj37rN
-         EG5lCYuIj0ovxmUY3VyB5V4+gjMTL/cymP+j7ivU=
+        b=CeD/6OhejGvUy4P7oCI05mjPIbnF2xIzMjiQiNtjaEvctfBaH45uZMGdIIhYFcc3A
+         V3a+h8LrLlc2SCcaibWnOkfIWhzz5A+OE2hz1pjP+9952oedveMvdYJeYcbipG8pRW
+         3HM0yN8yeOS9XwAUuyPaWI7UiSyazZk3KUSsyUpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.15 99/99] x86/PVH: avoid 32-bit build warning when obtaining VGA console info
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 6.2 157/187] NFSv4: Fix hangs when recovering open state after a server reboot
 Date:   Mon,  3 Apr 2023 16:10:02 +0200
-Message-Id: <20230403140407.023606727@linuxfoundation.org>
+Message-Id: <20230403140421.262666521@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit aadbd07ff8a75ed342388846da78dfaddb8b106a upstream.
+commit 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3 upstream.
 
-In the commit referenced below I failed to pay attention to this code
-also being buildable as 32-bit. Adjust the type of "ret" - there's no
-real need for it to be wider than 32 bits.
+When we're using a cached open stateid or a delegation in order to avoid
+sending a CLAIM_PREVIOUS open RPC call to the server, we don't have a
+new open stateid to present to update_open_stateid().
+Instead rely on nfs4_try_open_cached(), just as if we were doing a
+normal open.
 
-Fixes: 934ef33ee75c ("x86/PVH: obtain VGA console info in Dom0")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
+Fixes: d2bfda2e7aa0 ("NFSv4: don't reprocess cached open CLAIM_PREVIOUS")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Link: https://lore.kernel.org/r/2d2193ff-670b-0a27-e12d-2c5c4c121c79@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/xen/enlighten_pvh.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/x86/xen/enlighten_pvh.c
-+++ b/arch/x86/xen/enlighten_pvh.c
-@@ -48,7 +48,7 @@ void __init xen_pvh_init(struct boot_par
- 		struct xen_platform_op op = {
- 			.cmd = XENPF_get_dom0_console,
- 		};
--		long ret = HYPERVISOR_platform_op(&op);
-+		int ret = HYPERVISOR_platform_op(&op);
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1980,8 +1980,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 	if (!data->rpc_done) {
+ 		if (data->rpc_status)
+ 			return ERR_PTR(data->rpc_status);
+-		/* cached opens have already been processed */
+-		goto update;
++		return nfs4_try_open_cached(data);
+ 	}
  
- 		if (ret > 0)
- 			xen_init_vga(&op.u.dom0_console,
+ 	ret = nfs_refresh_inode(inode, &data->f_attr);
+@@ -1990,7 +1989,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
+ 
+ 	if (data->o_res.delegation_type != 0)
+ 		nfs4_opendata_check_deleg(data, state);
+-update:
++
+ 	if (!update_open_stateid(state, &data->o_res.stateid,
+ 				NULL, data->o_arg.fmode))
+ 		return ERR_PTR(-EAGAIN);
 
 
