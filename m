@@ -2,66 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33FB66D59CB
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A10A56D59B4
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233928AbjDDHjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 03:39:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
+        id S233585AbjDDHdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 03:33:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233972AbjDDHi7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:38:59 -0400
-X-Greylist: delayed 445 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 04 Apr 2023 00:38:52 PDT
-Received: from mail.wellgood.pl (mail.wellgood.pl [217.61.106.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8CE410FF
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 00:38:52 -0700 (PDT)
-Received: by mail.wellgood.pl (Postfix, from userid 1001)
-        id B873283704; Tue,  4 Apr 2023 08:31:16 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wellgood.pl; s=mail;
-        t=1680593482; bh=UtcbU9UA93mmNmHDpTZ9gIpeOZkP8tqjxYsgDXJpvt4=;
-        h=Date:From:To:Subject:From;
-        b=FVoq3hsV3lQLKKyaPYzaWtyS2XgBljHjBvJnsKD4/QpT+HQ/ABXVzi2JN0KddF7Yw
-         Ba9ODO96ab+TexhNUTBTV3uzCV46Nm4Hw+vTydfdiB3mZChd4nRiCCGZnc5NFR0zpG
-         jtOoeWQ5WP3qDR2hDcUVa3gHWGjjP2RMI2NcRhUghpBdOgUCQa6Bv8Cr24djOFS9qa
-         CnWyOTCpqUQKjAlWZLEBmydGMHRR0UFnG6LyCIK+UjWBWo1Jy1tBZ7zT0E5z2QGkHg
-         w+mtSo0Pao3qqjgBvPgHYDOt6O1VrcIdsYM1clZL8YVkxtrumsKlLktLmPF5AL7Rzw
-         BXGMYz3bHtmMg==
-Received: by mail.wellgood.pl for <stable@vger.kernel.org>; Tue,  4 Apr 2023 07:30:44 GMT
-Message-ID: <20230404074501-0.1.4v.25a4x.0.i2p4h8e761@wellgood.pl>
-Date:   Tue,  4 Apr 2023 07:30:44 GMT
-From:   =?UTF-8?Q? "Przemys=C5=82aw_Polak" ?= 
-        <przemyslaw.polak@wellgood.pl>
-To:     <stable@vger.kernel.org>
-Subject: Pozycjonowanie- informacja 
-X-Mailer: mail.wellgood.pl
+        with ESMTP id S230038AbjDDHdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:33:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E728C188
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 00:33:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78DBA62F80
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 07:33:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3E3C433EF;
+        Tue,  4 Apr 2023 07:33:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1680593584;
+        bh=SVoW6fS2Yskb3Jfsbp0DL4kY4JiLIV1ESqOaFK6eDOQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FIOVIQNgoIt6BG7rUKHZ4AEisITm6vMT6JT8svqPFazorrdDjDJKUm22iK5tUVXSb
+         kdmtdwuJ/S9dOO0BE43HRJyIJsuL/ke3Ff11ipmrIGsGazA95ZMRbKbf7/iV8RpBD9
+         6SVZJyoyNsO2RnyAC+4Jxa6ktaPuL/DRSRtnN9xg=
+Date:   Tue, 4 Apr 2023 09:33:02 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     xiongxin <xiongxin@kylinos.cn>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] powercap: intel_rapl: Optimize rp->domains memory
+ allocation
+Message-ID: <2023040453-womanlike-neurosis-3b23@gregkh>
+References: <20230404072209.676132-1-xiongxin@kylinos.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230404072209.676132-1-xiongxin@kylinos.cn>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dzie=C5=84 dobry,=20
+On Tue, Apr 04, 2023 at 03:22:09PM +0800, xiongxin wrote:
+> In the memory allocation of rp->domains in rapl_detect_domains(), there
+> is an additional memory of struct rapl_domain allocated to prevent the
+> pointer out of bounds called later.
+> 
+> Optimize the code here to save sizeof(struct rapl_domain) bytes of
+> memory.
+> 
+> Test in Intel NUC (i5-1135G7).
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: xiongxin <xiongxin@kylinos.cn>
+> Tested-by: xiongxin <xiongxin@kylinos.cn>
+> ---
+>  drivers/powercap/intel_rapl_common.c | 15 ++++++++-------
+>  1 file changed, 8 insertions(+), 7 deletions(-)
+> 
 
-jaki=C5=9B czas temu zg=C5=82osi=C5=82a si=C4=99 do nas firma, kt=C3=B3re=
-j strona internetowa nie pozycjonowa=C5=82a si=C4=99 wysoko w wyszukiwarc=
-e Google.=20
 
-Na podstawie wykonanego przez nas audytu SEO zoptymalizowali=C5=9Bmy tre=C5=
-=9Bci na stronie pod k=C4=85tem wcze=C5=9Bniej opracowanych s=C5=82=C3=B3=
-w kluczowych. Nasz wewn=C4=99trzny system codziennie analizuje prawid=C5=82=
-owe dzia=C5=82anie witryny.  Dzi=C4=99ki indywidualnej strategii, firma z=
-dobywa coraz wi=C4=99cej Klient=C3=B3w. =20
+<formletter>
 
-Czy chcieliby Pa=C5=84stwo zwi=C4=99kszy=C4=87 liczb=C4=99 os=C3=B3b odwi=
-edzaj=C4=85cych stron=C4=99 internetow=C4=85 firmy? M=C3=B3g=C5=82bym prz=
-edstawi=C4=87 ofert=C4=99?=20
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-
-Pozdrawiam
-Przemys=C5=82aw Polak
+</formletter>
