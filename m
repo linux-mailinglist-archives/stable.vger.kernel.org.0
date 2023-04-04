@@ -2,113 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C04566D575B
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 05:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 109586D57AC
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 06:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbjDDD5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 23:57:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
+        id S231208AbjDDEtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 00:49:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbjDDD5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 23:57:51 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D91170D;
-        Mon,  3 Apr 2023 20:57:50 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id o11so30124516ple.1;
-        Mon, 03 Apr 2023 20:57:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680580670;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=X83KCjdEK4T1hTeVfZLCAmpcMx+WY5WGo1yjmpuoFY0=;
-        b=oq3XFCwGZiXf34KBortg9bkf70ZMlaDht0ktfRbBRS7y0qjhlChdfbhkO9hd0zbS0r
-         zNeoDd5Z9dbGGUndflQDKNsvuy6GO4sApUa5PcOFu785whnRHzDX4y2ECwLY7MUqo9Od
-         SGDMcJu9IfBHmyrCCbkEajT67JHRKuuQMu3bLM5HVxHXZ2jKkgfAn8OvDblBkRr1SE+E
-         P1ihcE03PtUmOw2g/RAc0Lzm7tttFYbNMa2x9RhgiojB41KPFfdD2moXblejwcaR4MK4
-         VeTG6PlWbZHRDnHdnTvfahag1UAzasfmxd68DxdBajUiVHE6lwKUW/MMjEWpuZioJeg0
-         j1Eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680580670;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=X83KCjdEK4T1hTeVfZLCAmpcMx+WY5WGo1yjmpuoFY0=;
-        b=S9GDePtq+uj74/K6UzRrSdVoBCMVYrbYYAwavhdU8toxcfT9H2VMWEj8PKlqC/RKUL
-         Kuj/Pd30inrMIJpRdOBeKWwRyD1la9Fkx2Fmsdvog1qzVWy7Ox/EB4Jeg6yK9qGe1+3/
-         pxY9I8ZKxdo9V59DgTQX9JosssYMlsLD6BR56LBGGIIS5yMs+Ua+/lzw1pv/ezdars50
-         4kL17TF4kLeLOZQfRREgLLDpuHNHyCmXcf3dZPecRtBDJ+yFOEW4GzB8Up2KAHB7sWLD
-         ReyH+mzIDNV/Q1ZQBZhzkVTvn2N0izLVD/lAfaLhEIETp1yLCHF9wvMULSQy4U4p+oym
-         0o9A==
-X-Gm-Message-State: AAQBX9eGZUXXY/sIwCF/mDGdzF1gPrTEE/63bL91QFrQ9XS+ak9o28cK
-        eufXiw9chtX+e0K8mJh5qow=
-X-Google-Smtp-Source: AKy350aA0gIOmG7NVFgGWhbVMzrwLDGJv2GOkUP/HnQ0c/JDE6vsHoRKeJF8b9596TgF/7xSOCYJJQ==
-X-Received: by 2002:a17:90b:4a50:b0:239:ea16:5b13 with SMTP id lb16-20020a17090b4a5000b00239ea165b13mr1371109pjb.14.1680580670314;
-        Mon, 03 Apr 2023 20:57:50 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-87.three.co.id. [180.214.233.87])
-        by smtp.gmail.com with ESMTPSA id kr15-20020a170903080f00b001a1ca6dc38csm7308518plb.118.2023.04.03.20.57.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Apr 2023 20:57:49 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id A43A7106782; Tue,  4 Apr 2023 10:57:46 +0700 (WIB)
-Date:   Tue, 4 Apr 2023 10:57:46 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/187] 6.2.10-rc1 review
-Message-ID: <ZCugOvsPTEg9A0nO@debian.me>
-References: <20230403140416.015323160@linuxfoundation.org>
+        with ESMTP id S229699AbjDDEs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 00:48:59 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06762184;
+        Mon,  3 Apr 2023 21:48:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680583739; x=1712119739;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=atNBv19nqFsJx7Jsp8sn5eYxALmhvo0gO3LFEzJDCZc=;
+  b=CwSjBK9kndC7sAbzC2ywHWBHuaNPOfZ68OHIo/KllJXcSHL8zsvMjWC/
+   /CwGyKg51GosfPwFKK4chEuoOZuLJFHxfWDc1MJeRfVurcjx1ed2zDFPm
+   dBICDDJtzyjSjvopordrdEyfiS0Wyf7hflJNxhoIa3bxlxMK40QR0h4IO
+   jjNICJSa4tbJKO4rTwIBxrjnsJmMiXpBKiobdnebvaq9LlbW9JEu8B6dz
+   tOlR5Iao9OYoPfb2m5War6OSE3p6lFiALlrW0HHTpJtUR5GB5HpX7mUd5
+   E3XMFjaz2aK/qOLdEecEa4lLRxuX21tHB29ihzYBUmAvdvCGCksN+hXOT
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10669"; a="321742175"
+X-IronPort-AV: E=Sophos;i="5.98,316,1673942400"; 
+   d="scan'208";a="321742175"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Apr 2023 21:48:58 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10669"; a="775496240"
+X-IronPort-AV: E=Sophos;i="5.98,316,1673942400"; 
+   d="scan'208";a="775496240"
+Received: from p12ill20yoongsia.png.intel.com ([10.88.227.28])
+  by FMSMGA003.fm.intel.com with ESMTP; 03 Apr 2023 21:48:54 -0700
+From:   Song Yoong Siang <yoong.siang.song@intel.com>
+To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Christian Marangi <ansuelsmth@gmail.com>
+Cc:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        Song Yoong Siang <yoong.siang.song@intel.com>
+Subject: [PATCH net 1/1] net: stmmac: Add queue reset into stmmac_xdp_open() function
+Date:   Tue,  4 Apr 2023 12:48:23 +0800
+Message-Id: <20230404044823.3226144-1-yoong.siang.song@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="5SJdshfoX489i1R0"
-Content-Disposition: inline
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-X-Spam-Status: No, score=1.3 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=0.5 required=5.0 tests=AC_FROM_MANY_DOTS,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_NONE autolearn=no
         autolearn_force=no version=3.4.6
-X-Spam-Level: *
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Queue reset was moved out from __init_dma_rx_desc_rings() and
+__init_dma_tx_desc_rings() functions. Thus, the driver fails to transmit
+and receive packet after XDP prog setup.
 
---5SJdshfoX489i1R0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This commit adds the missing queue reset into stmmac_xdp_open() function.
 
-On Mon, Apr 03, 2023 at 04:07:25PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 187 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Fixes: f9ec5723c3db ("net: ethernet: stmicro: stmmac: move queue reset to dedicated functions")
+Cc: <stable@vger.kernel.org> # 6.0+
+Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 3e5bbfe3c41b..e4c27eb17bd2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -6630,6 +6630,8 @@ int stmmac_xdp_open(struct net_device *dev)
+ 		goto init_error;
+ 	}
+ 
++	stmmac_reset_queues_param(priv);
++
+ 	/* DMA CSR Channel configuration */
+ 	for (chan = 0; chan < dma_csr_ch; chan++) {
+ 		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
+-- 
+2.34.1
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---5SJdshfoX489i1R0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZCugNQAKCRD2uYlJVVFO
-oxJXAQClKhOw1JlBz0nW4dpboPW5D5LZD5B0B5gkzM7vLQOEtgD/S6Y7Zdqp/PVq
-qqML2XTrdIrdrjKeQa2IpHEeFyrFzgc=
-=7dUL
------END PGP SIGNATURE-----
-
---5SJdshfoX489i1R0--
