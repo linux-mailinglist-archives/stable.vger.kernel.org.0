@@ -2,161 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48DDD6D5EEA
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 13:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 477876D5EED
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 13:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234378AbjDDLZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 07:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56982 "EHLO
+        id S233365AbjDDL1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 07:27:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234712AbjDDLZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 07:25:50 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 448241FEF;
-        Tue,  4 Apr 2023 04:25:49 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pjenL-0005Zk-3U; Tue, 04 Apr 2023 13:25:47 +0200
-Message-ID: <1473b364-777a-ede8-3ff6-36d9e1d577ad@leemhuis.info>
-Date:   Tue, 4 Apr 2023 13:25:46 +0200
+        with ESMTP id S229551AbjDDL1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 07:27:03 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A07195
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 04:27:02 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 678471C0E01; Tue,  4 Apr 2023 13:27:01 +0200 (CEST)
+Date:   Tue, 4 Apr 2023 13:27:00 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        =?utf-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 051/173] net: dsa: mt7530: move setting ssc_delta to
+ PHY_INTERFACE_MODE_TRGMII case
+Message-ID: <ZCwJhAfrTIPorVTw@duo.ucw.cz>
+References: <20230403140414.174516815@linuxfoundation.org>
+ <20230403140416.096716862@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: dmaengine: at_hdmac: Regression regarding rs485 via dma in v5.4
-Content-Language: en-US, de-DE
-To:     tudor.ambarus@microchip.com
-References: <CADBnMvj93bSO=+wU4=pLTgONV7w_hhecxQHAc_YS4P4GaqMNrA@mail.gmail.com>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Cc:     Linux kernel regressions list <regressions@lists.linux.dev>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kristof Havasi <havasiefr@gmail.com>,
-        dmaengine@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <CADBnMvj93bSO=+wU4=pLTgONV7w_hhecxQHAc_YS4P4GaqMNrA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1680607549;38fe22e1;
-X-HE-SMSGID: 1pjenL-0005Zk-3U
-X-Spam-Status: No, score=-1.9 required=5.0 tests=NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="xL+ikprMmmbWsSJq"
+Content-Disposition: inline
+In-Reply-To: <20230403140416.096716862@linuxfoundation.org>
+X-Spam-Status: No, score=0.7 required=5.0 tests=SPF_HELO_NONE,SPF_NEUTRAL
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Adding a few pople to the list of recipients that were involved in
-developing the culprit; also CCing the regression list, as it should be
-in the loop for regressions:
-https://docs.kernel.org/admin-guide/reporting-regressions.html]
 
-[TLDR: I'm adding this report to the list of tracked Linux kernel
-regressions; the text you find below is based on a few templates
-paragraphs you might have encountered already in similar form.
-See link in footer if these mails annoy you.]
+--xL+ikprMmmbWsSJq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 29.03.23 16:31, Kristof Havasi wrote:
-> 
-> I was rebasing the Kernel branch of our SAMA5D35 based board from
-> v5.4.189 to v5.4.238.
-> I noticed that after the rebase we could _only send, but not receive_
-> through our RS485 interface.
-> 
-> I could bisect the problem to 77b97ef4908aa917e7b68667ec6b344cc5dc5034
-> in the v5.4.225 release. 
+Hi!
 
-FWIW, that's 7176a6a8982d ("dmaengine: at_hdmac: Don't start
-transactions at tx_submit level") in mainline.
+> [ Upstream commit 407b508bdd70b6848993843d96ed49ac4108fb52 ]
+>=20
+> Move setting the ssc_delta variable to under the PHY_INTERFACE_MODE_TRGMII
+> case as it's only needed when trgmii is used.
 
-Kristof Havasi: would be good to know if this is something that happens
-with recent mainline as well, because if not it might be something the
-stable team needs to handle.
+This one is very wrong for 5.10. ssc_delta is unconditionally used
+below, and it will not use uninitialized variable.
 
-> If I revert this commit, the tx/rx works just
-> like before.
-> Maybe this use-case wasn't considered when this patch was created?
-> I haven't seen a documentation change regarding this in DT bindings,
-> but if the config should be something else, please let me know.
-> Otherwise this commit breaks the RS485 function of atmel_serial at
-> least in the v5.4.y branch.
-> 
-> Best Regards,
-> Kristóf Havasi
-> 
-> The relevant device tree nodes:
-> 
-> from sama5d3.dtsi:
-> 
-> usart1: serial@f0020000 {
->   compatible = "atmel,at91sam9260-usart";
->   reg = <0xf0020000 0x100>;
->   interrupts = <13 IRQ_TYPE_LEVEL_HIGH 5>;
->   dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(5)>,
->   <&dma0 2 (AT91_DMA_CFG_PER_ID(6) | AT91_DMA_CFG_FIFOCFG_ASAP)>;
->   dma-names = "tx", "rx";
->   pinctrl-names = "default";
->   pinctrl-0 = <&pinctrl_usart1>;
->   clocks = <&usart1_clk>;
->   clock-names = "usart";
->   status = "disabled";
-> };
-> 
-> pinctrl_usart1: usart1-0 {
->   atmel,pins =
->   <AT91_PIOB 28 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
->    AT91_PIOB 29 AT91_PERIPH_A AT91_PINCTRL_NONE>;
-> };
-> pinctrl_usart1_rts_cts: usart1_rts_cts-0 {
->   atmel,pins =
->   <AT91_PIOB 26 AT91_PERIPH_A AT91_PINCTRL_NONE /* PB26 periph A,
-> conflicts with GRX7 */
->    AT91_PIOB 27 AT91_PERIPH_A AT91_PINCTRL_NONE>; /* PB27 periph A,
-> conflicts with G125CKO */
-> };
-> 
-> from our dts:
-> 
-> &usart1 {
->   pinctrl-0 = <&pinctrl_usart1 &pinctrl_usart1_rts_cts>;
->   atmel,use-dma-rx;
->   atmel,use-dma-tx;
->   rs485-rx-during-tx;
->   linux,rs485-enabled-at-boot-time;
->   status = "okay";
-> };
-> 
-> HW:
-> The SAMA5D3's PB27 is connected to the |RE+DE of the RS485 transceiver
-> SP3458EN-L
+(In mainline, that code is protected by if (trgint), so it does not
+have this problem).
 
+Best regards,
+								Pavel
 
-Thanks for the report. To be sure the issue doesn't fall through the
-cracks unnoticed, I'm adding it to regzbot, the Linux kernel regression
-tracking bot:
+> +++ b/drivers/net/dsa/mt7530.c
+> @@ -403,6 +403,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_inte=
+rface_t interface)
+>  		break;
+>  	case PHY_INTERFACE_MODE_TRGMII:
+>  		trgint =3D 1;
+> +		if (xtal =3D=3D HWTRAP_XTAL_25MHZ)
+> +			ssc_delta =3D 0x57;
+> +		else
+> +			ssc_delta =3D 0x87;
+>  		if (priv->id =3D=3D ID_MT7621) {
+>  			/* PLL frequency: 150MHz: 1.2GBit */
+>  			if (xtal =3D=3D HWTRAP_XTAL_40MHZ)
+> @@ -422,11 +426,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_inte=
+rface_t interface)
+>  		return -EINVAL;
+>  	}
+> =20
+> -	if (xtal =3D=3D HWTRAP_XTAL_25MHZ)
+> -		ssc_delta =3D 0x57;
+> -	else
+> -		ssc_delta =3D 0x87;
+> -
+>  	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
+>  		   P6_INTF_MODE(trgint));
+> =20
 
-#regzbot ^introduced 77b97ef4908aa
-#regzbot title dmaengine: at_hdmac: receiving data through the RS485
-interface broke
-#regzbot ignore-activity
+--=20
+DENX Software Engineering GmbH,        Managing Director: Erika Unter
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply and tell me -- ideally
-while also telling regzbot about it, as explained by the page listed in
-the footer of this mail.
+--xL+ikprMmmbWsSJq
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Developers: When fixing the issue, remember to add 'Link:' tags pointing
-to the report (the parent of this mail). See page linked in footer for
-details.
+-----BEGIN PGP SIGNATURE-----
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-That page also explains what to do if mails like this annoy you.
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCZCwJhAAKCRAw5/Bqldv6
+8mYeAJ4w3zv0OY2gBX4ssOR3SzI65IpJTACfWhRCc5Ju6H5SdLg1JjYI0QN+5+o=
+=AvMh
+-----END PGP SIGNATURE-----
+
+--xL+ikprMmmbWsSJq--
