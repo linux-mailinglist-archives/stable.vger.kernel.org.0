@@ -2,67 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F0E6D5916
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2A96D5937
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbjDDHCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 03:02:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38912 "EHLO
+        id S233694AbjDDHLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 03:11:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233128AbjDDHCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:02:40 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BABB21BEB;
-        Tue,  4 Apr 2023 00:02:39 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id d22so19022287pgw.2;
-        Tue, 04 Apr 2023 00:02:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680591759;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zu1/4ofEiUpEr/nAZ126vJD9LVR8thpY1qUm9I5vgVo=;
-        b=kJxouxIrSPXmym/6d+rodZfz0ak6JgSQio5etru4EHlJOlC837ebiCDoJ8ysW3uk/2
-         MGagPJdRWdpE90Xl9VwPV/+vlcI4sUXarRuETDoUPcEERavtzp5kXj3dapgnYXL0+XsD
-         a1AMDW3xVFnQe+dHw3gLQKzqnQU97jgVCfMHv5XfhLyqLvRMx4XpVGb6yHp+oblKIZO1
-         krqniqdv0H4NbdhQzPEh2uh1Z/hU6bFxBC66ZJ6gu9r/5dopJGHf+cSHaD01nqWRdFT2
-         4poZc+AF00Bd/bcL1w4qYdVSXf77EfqvX9e0l+whZjOAUcP4HWPC9ueO/D8qiYbutwbU
-         RjpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680591759;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zu1/4ofEiUpEr/nAZ126vJD9LVR8thpY1qUm9I5vgVo=;
-        b=G9CFo/4usS8kyskj1kj05mSr7bpzQaceBRJVX+x4QWmKmO3Vg5KamfBfyu6zZ1Zahm
-         u90zjPEm+bDrZgY9usINQZ78eedYoQ4rim6Z0a7XGHQ9U4pxdlpVyiDpe4atprIjCzHg
-         NNpO4UJxIJYpiuHtycW6S5y9cTpcTucvuXyeq9xS0DHOxDf8wYGVXq6y4cf3Te+0Zl4M
-         aIo9Dvrvb3P7d+J+MrfOleh8S4N8sgZAU1mg3TPNkH86O3kQ6GaYfuybZ+19DqUfSvmi
-         hBeYlFruw6S696Ub59+yWaVtXw/ZP8KG31w8i2+eiBfZMHRANNH9sruA+6QW3MGG2tk0
-         xRaw==
-X-Gm-Message-State: AAQBX9ey7CMg05rvLYSeno9eng0NtvPDLCDqcvD9YuXnMVk4jV2L88nJ
-        7s+W+ZplPhc6Pcf6s3wDPdET46CRVw51/UvPkIU9kpWJJGsCTg==
-X-Google-Smtp-Source: AKy350ZNRj0xjX8FoXDbKXqut6Jzs3vhi8ZFnTBOtNbW5V4SpV4JWOoels8/aM6vlwaYr8dwDBVCN2qIxbLq5H4AoEM=
-X-Received: by 2002:a05:6a00:cc3:b0:626:1eb8:31d7 with SMTP id
- b3-20020a056a000cc300b006261eb831d7mr683117pfv.1.1680591758362; Tue, 04 Apr
- 2023 00:02:38 -0700 (PDT)
+        with ESMTP id S233570AbjDDHLu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:11:50 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5011988
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 00:11:49 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pjapJ-0005XZ-3k; Tue, 04 Apr 2023 09:11:33 +0200
+Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pjapF-0000B6-Nv; Tue, 04 Apr 2023 09:11:29 +0200
+Date:   Tue, 4 Apr 2023 09:11:29 +0200
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     Jonathan Bither <jonbither@gmail.com>
+Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
+        Hans Ulli Kroll <linux@ulli-kroll.de>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Pkshih <pkshih@realtek.com>, Tim K <tpkuester@gmail.com>,
+        "Alex G ." <mr.nuke.me@gmail.com>,
+        Nick Morrow <morrownr@gmail.com>,
+        Viktor Petrenko <g0000ga@gmail.com>,
+        Andreas Henriksson <andreas@fatal.se>,
+        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] wifi: rtw88: usb: fix priority queue to endpoint
+ mapping
+Message-ID: <20230404071129.GW19113@pengutronix.de>
+References: <20230331121054.112758-1-s.hauer@pengutronix.de>
+ <20230331121054.112758-2-s.hauer@pengutronix.de>
+ <cb5980b4-1e0e-57f8-e680-44e14fa0b02c@gmail.com>
 MIME-Version: 1.0
-References: <1679019847-1401-1-git-send-email-caelli@tencent.com>
- <ZCuQO3A6FX305KTJ@debian.me> <3d994c05-492d-f9f4-161d-123a68d4e87a@gmail.com>
-In-Reply-To: <3d994c05-492d-f9f4-161d-123a68d4e87a@gmail.com>
-From:   caelli <juanfengpy@gmail.com>
-Date:   Tue, 4 Apr 2023 15:02:27 +0800
-Message-ID: <CAPmgiUJhocwGweOYmJcYY47CONwJAqgLA7AdDzD=Quepd6u5cw@mail.gmail.com>
-Subject: Re: [PATCH v7] tty: fix hang on tty device with no_room set
-To:     Bagas Sanjaya <bagasdotme@gmail.com>
-Cc:     Hui Li <caelli@tencent.com>, stable@vger.kernel.org,
-        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cb5980b4-1e0e-57f8-e680-44e14fa0b02c@gmail.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -71,33 +63,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Where do you find this hanging pty? Seems like the wording makes me
-> confused. Maybe you mean "It is possible to hang pty device. In that
-> case, ..."
+On Fri, Mar 31, 2023 at 10:31:25AM -0400, Jonathan Bither wrote:
+> 
+> On 3/31/23 08:10, Sascha Hauer wrote:
+> > The RTW88 chipsets have four different priority queues in hardware. For
+> > the USB type chipsets the packets destined for a specific priority queue
+> > must be sent through the endpoint corresponding to the queue. This was
+> > not fully understood when porting from the RTW88 USB out of tree driver
+> > and thus violated.
+> > 
+> > This patch implements the qsel to endpoint mapping as in
+> > get_usb_bulkout_id_88xx() in the downstream driver.
+> > 
+> > Without this the driver often issues "timed out to flush queue 3"
+> > warnings and often TX stalls completely.
+> > 
+> > Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> > ---
+> >   drivers/net/wireless/realtek/rtw88/usb.c | 70 ++++++++++++++++--------
+> >   1 file changed, 47 insertions(+), 23 deletions(-)
+> > 
+> > diff --git a/drivers/net/wireless/realtek/rtw88/usb.c b/drivers/net/wireless/realtek/rtw88/usb.c
+> > index 2a8336b1847a5..a10d6fef4ffaf 100644
+> > --- a/drivers/net/wireless/realtek/rtw88/usb.c
+> > +++ b/drivers/net/wireless/realtek/rtw88/usb.c
+> > @@ -118,6 +118,22 @@ static void rtw_usb_write32(struct rtw_dev *rtwdev, u32 addr, u32 val)
+> >   	rtw_usb_write(rtwdev, addr, val, 4);
+> >   }
+> > +static int dma_mapping_to_ep(enum rtw_dma_mapping dma_mapping)
+> > +{
+> > +	switch (dma_mapping) {
+> > +	case RTW_DMA_MAPPING_HIGH:
+> > +		return 0;
+> > +	case RTW_DMA_MAPPING_NORMAL:
+> > +		return 1;
+> > +	case RTW_DMA_MAPPING_LOW:
+> > +		return 2;
+> > +	case RTW_DMA_MAPPING_EXTRA:
+> > +		return 3;
+> > +	default:
+> > +		return -EINVAL;
+> > +	}
+> > +}
+> Would it be beneficial to use defines for the returns? Would the
+> USB_ENDPOINT_XFER_ defines be applicable?
 
-Thanks for your reply, I will correct messages like this:
+The USB_ENDPOINT_XFER_* macros encode the type of the transfer, like
+bulk, control, isochronous and interrupt. What I need here really is
+the endpoint number. I don't see a benefit in adding a define here.
 
-"It is possible to hang pty devices in this case, the reader
-was blocking at epoll on master side, the writer was ..."
+Sascha
 
-Bagas Sanjaya <bagasdotme@gmail.com> =E4=BA=8E2023=E5=B9=B44=E6=9C=884=E6=
-=97=A5=E5=91=A8=E4=BA=8C 10:55=E5=86=99=E9=81=93=EF=BC=9A
->
-> On 4/4/23 09:49, Bagas Sanjaya wrote:
-> > On Fri, Mar 17, 2023 at 10:24:07AM +0800, juanfengpy@gmail.com wrote:
-> >> We have met a hang on pty device, the reader was blocking
-> >> at epoll on master side, the writer was sleeping at wait_woken
-> >> inside n_tty_write on slave side, and the write buffer on
-> >> tty_port was full, we found that the reader and writer would
-> >> never be woken again and blocked forever.
-> >
-> > Where do you find this hanging pty? Seems like the wording makes me
-> > confused. Maybe you mean "It is possible to hang pty device. In that
-> > case, ..."
-> >
->
-> Oops, I forgot to Cc: LKML.
->
-> --
-> An old man doll... just what I always wanted! - Clara
->
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
