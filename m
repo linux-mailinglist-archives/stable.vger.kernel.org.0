@@ -2,145 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DFAB6D69C0
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 19:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911E36D69E9
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 19:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231468AbjDDRE4 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 4 Apr 2023 13:04:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52184 "EHLO
+        id S235713AbjDDRJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 13:09:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235277AbjDDREz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 13:04:55 -0400
-Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558A149C3
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 10:04:53 -0700 (PDT)
-Received: by mail-yb1-f180.google.com with SMTP id p204so39521654ybc.12
-        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 10:04:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680627892;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DN8+oIYkNGb8Y5r2uRgiwjJT4v6XcCTZNjemsUmI+JY=;
-        b=5AguuxkzWlMfkq8QhRWt8j1ajCQOh11VvqVJ1KyhBs7iMKCyZNqruLIHe5KS0sQTuN
-         xSPW/ugdGnH/6sRWYgjSgzJBpEuFzy5DDGfE8UlSy5NOtP2Kujiy4IRnoFRjlhYfBuEC
-         9hHTgju1J5YyN0164jM/VpOChA8k9WSK1vIkQPciGymKj7I31nfQpdr7sVgfMW4dr+YY
-         dbpcJrqPtyY1gxKC7xza9BSyU2nIQmftTSD++FW/vPsknfmqiEx+tI4oKF7p0pS/t8sN
-         fW69RiL0w2dFp25n6Ut8mUrz0UeA+j8yWwLVvzCSTbP8R577owDVJ98H+1yGjryArE0z
-         RrCQ==
-X-Gm-Message-State: AAQBX9egQRCh/EGG/5VnDvO3nKQi7nmlsTpokRAA7F1bKHrQm1K6j3xi
-        XE3fCO0Sh9xs487hZ34jGpKv6th+Kqz0fhyh
-X-Google-Smtp-Source: AKy350YGcfaXxPBtRSO8ec64mVy9oO/eFSPlOqoK/EKtvKo6vd3277jt4RlYzl2lI504Psw8suAWIA==
-X-Received: by 2002:a25:6d04:0:b0:aac:87e:49f0 with SMTP id i4-20020a256d04000000b00aac087e49f0mr143333ybc.9.1680627892156;
-        Tue, 04 Apr 2023 10:04:52 -0700 (PDT)
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com. [209.85.219.177])
-        by smtp.gmail.com with ESMTPSA id g16-20020a256b10000000b00b7767ca7466sm3429870ybc.3.2023.04.04.10.04.51
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Apr 2023 10:04:51 -0700 (PDT)
-Received: by mail-yb1-f177.google.com with SMTP id cf7so39551032ybb.5
-        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 10:04:51 -0700 (PDT)
-X-Received: by 2002:a25:ca4b:0:b0:b77:d2db:5f8f with SMTP id
- a72-20020a25ca4b000000b00b77d2db5f8fmr2271273ybg.12.1680627890888; Tue, 04
- Apr 2023 10:04:50 -0700 (PDT)
+        with ESMTP id S235609AbjDDRJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 13:09:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAEC4C7;
+        Tue,  4 Apr 2023 10:09:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16B3B63773;
+        Tue,  4 Apr 2023 17:09:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF4AC433EF;
+        Tue,  4 Apr 2023 17:09:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680628194;
+        bh=IK2aCtlyClHSVX99J78ji0/3Kc8IkYOR0+e5e+EQq78=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=mjj5gN61RWvx3kW5BWospMkZcjO4aXYE6MfG53S9AmWfQyUuUSxSUIv4JTuZQPVC6
+         EIHzT14n1+NADzeeF1IpjZoYiX69W9D9R/mJDsBeuw7C5mo108RL/VfOh0CyNf4p6v
+         5xqAGutCYR6U6D64ChpMiTbg36lDwMCHWuOG7tohRURPS/KpwaXDfoD0B2nKGgUu07
+         iME1EHpbAriJV0fbYU9lnEfWg3wTpaOIz/fU6xOqsvOyXC4tnkrSJT/chG3Wwf/9ll
+         anmzBdavCLnQNeq8zJOTBtNNOtp8ElVHpt0DojmIGL9GRJOsNeozAk/R0bhRtExqZ9
+         PhkiUtuRXoXEQ==
+Date:   Tue, 4 Apr 2023 12:09:52 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Ben Greear <greearb@candelatech.com>
+Cc:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        bjorn@helgaas.com, LKML <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Yao Hongbo <yaohongbo@linux.alibaba.com>,
+        Naveen Naidu <naveennaidu479@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        Kalle Valo <kvalo@kernel.org>, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
+ get_port_device_capability()
+Message-ID: <20230404170952.GA3559293@bhelgaas>
 MIME-Version: 1.0
-References: <20230404123624.360384-1-daniel.vetter@ffwll.ch>
- <CAMuHMdUR=rx2QPvpzsSCwXTSTsPQOudNMzyL3dtZGQdQfrQGDA@mail.gmail.com>
- <ZCwtMJEAJiId/TJe@phenom.ffwll.local> <ZCwx+2hAmyDqOfWu@phenom.ffwll.local>
- <CAMuHMdVt+fsHhk73hPe=bN5e_vTjKEM014Q1AJ9tnankvsXcHg@mail.gmail.com> <CAKMK7uFEmt1=4jDi1xDbnTVH6M2iEZSjcY-UN93do0NiH=GogA@mail.gmail.com>
-In-Reply-To: <CAKMK7uFEmt1=4jDi1xDbnTVH6M2iEZSjcY-UN93do0NiH=GogA@mail.gmail.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 4 Apr 2023 19:04:39 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUpyxuAZVxZmVCzspbzCBPFdnhbrYOJPMjFnqwtwNCAsw@mail.gmail.com>
-Message-ID: <CAMuHMdUpyxuAZVxZmVCzspbzCBPFdnhbrYOJPMjFnqwtwNCAsw@mail.gmail.com>
-Subject: Re: [PATCH] fbdev: Don't spam dmesg on bad userspace ioctl input
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        syzbot+20dcf81733d43ddff661@syzkaller.appspotmail.com,
-        Helge Deller <deller@gmx.de>, stable@vger.kernel.org,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
-        Melissa Wen <melissa.srw@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=0.5 required=5.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
-        FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ff1397e-1d78-bc59-f577-e69024c4c4f3@candelatech.com>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Daniel,
+On Fri, Mar 31, 2023 at 03:31:40PM -0700, Ben Greear wrote:
+> On 3/31/23 15:06, Bjorn Helgaas wrote:
+> > [+cc iwlwifi folks]
+> > 
+> > Re: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in
+> > get_port_device_capability()")
+> > 
+> > On Wed, Mar 29, 2023 at 04:17:29PM -0700, Ben Greear wrote:
+> > > On 8/30/22 3:16 PM, Ben Greear wrote:
+> > > ...
+> > 
+> > > I notice this patch appears to be in 6.2.6 kernel, and my kernel logs are
+> > > full of spam and system is unstable.  Possibly the unstable part is related
+> > > to something else, but the log spam is definitely extreme.
+> > > 
+> > > These systems are fairly stable on 5.19-ish kernels without the patch in
+> > > question.
+> > 
+> > Hmmm, I was going to thank you for the report, but looking closer, I
+> > see that you reported this last August [1] and we *should* have
+> > pursued it with the iwlwifi folks or figured out what the PCI core is
+> > doing wrong, but I totally dropped the ball.  Sorry about that.
+> > 
+> > To make sure we're all on the same page, we're talking about
+> > 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in
+> > get_port_device_capability()") [2],
+> > which is present in v6.0 and later [3] but not v5.19.16 [4].
+> 
+> Yes, though I manually tried reverting that patch, and problem
+> persisted, so maybe some secondary patch still enables whatever
+> causes the issue.
+> 
+> Booting with pci=noaer 'fixes' the problem for me, that is what I am
+> running currently.
+> 
+> > > Here is sample of the spam:
+> > > 
+> > > [ 1675.547023] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+> > > [ 1675.556851] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
+> > > [ 1675.563904] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
+> > > [ 1675.569398] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
+> > > [ 1675.576296] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
+> > 
+> > The TLP header says this is an LTR message from 05:00.0.  Apparently
+> > the bridge above 05:00.0 is 03:02.0, which logged an Unsupported
+> > Request error for the message, probably because 03:02.0 doesn't have
+> > LTR enabled.
 
-On Tue, Apr 4, 2023 at 5:55 PM Daniel Vetter <daniel@ffwll.ch> wrote:
-> On Tue, 4 Apr 2023 at 16:51, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > On Tue, Apr 4, 2023 at 4:19 PM Daniel Vetter <daniel@ffwll.ch> wrote:
-> > > On Tue, Apr 04, 2023 at 03:59:12PM +0200, Daniel Vetter wrote:
-> > > > On Tue, Apr 04, 2023 at 03:53:09PM +0200, Geert Uytterhoeven wrote:
-> > > > > On Tue, Apr 4, 2023 at 2:36 PM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> > > > > > There's a few reasons the kernel should not spam dmesg on bad
-> > > > > > userspace ioctl input:
-> > > > > > - at warning level it results in CI false positives
-> > > > > > - it allows userspace to drown dmesg output, potentially hiding real
-> > > > > >   issues.
-> > > > > >
-> > > > > > None of the other generic EINVAL checks report in the
-> > > > > > FBIOPUT_VSCREENINFO ioctl do this, so it's also inconsistent.
-> > > > > >
-> > > > > > I guess the intent of the patch which introduced this warning was that
-> > > > > > the drivers ->fb_check_var routine should fail in that case. Reality
-> > > > > > is that there's too many fbdev drivers and not enough people
-> > > > > > maintaining them by far, and so over the past few years we've simply
-> > > > > > handled all these validation gaps by tighning the checks in the core,
-> > > > > > because that's realistically really all that will ever happen.
-> > > > > >
-> > > > > > Reported-by: syzbot+20dcf81733d43ddff661@syzkaller.appspotmail.com
-> > > > > > Link: https://syzkaller.appspot.com/bug?id=c5faf983bfa4a607de530cd3bb008888bf06cefc
-> > > > >
-> > > > >     WARNING: fbcon: Driver 'vkmsdrmfb' missed to adjust virtual screen
-> > > > > size (0x0 vs. 64x768)
-> > > > >
-> > > > > This is a bug in the vkmsdrmfb driver and/or DRM helpers.
-> > > > >
-> > > > > The message was added to make sure the individual drivers are fixed.
-> > > > > Perhaps it should be changed to BUG() instead, so dmesg output
-> > > > > cannot be drown?
-> > > >
-> > > > So you're solution is to essentially force us to replicate this check over
-> > > > all the drivers which cannot change the virtual size?
-> > > >
-> > > > Are you volunteering to field that audit and type all the patches?
-> > >
-> > > Note that at least efifb, vesafb and offb seem to get this wrong. I didn't
-> > > bother checking any of the non-fw drivers. Iow there is a _lot_ of work in
-> > > your nack.
-> >
-> > Please don't spread FUD: efifb, vesafb and offb do not implement
-> > fb_ops.fb_check_var(), so they are not affected.
->
-> Hm I missed that early out. I'll do a patch to fix the drm fb helpers,
-> as mentioned in the other thread I don't think we can actually just
-> delete that because it would short-circuit out the fb_set_par call
-> too.
+> Here is lspci, and please note that I am using a pcie -> 12x m.2
+> adapter board, which is not common in the world.  Possibly it is
+> causing some of the problems with the AER logic (though, it is
+> stable in 5.19 and lower.  And a similar system with 2 of these
+> adapter boards filled with 24 mtk7922 radios does not show the AER
+> warnings or instability problems so far.)
+> 
+> The lspci below is from a system with 12 ax210 radios, I have
+> another with 24, it shows similar problems.
 
-As I said to the other thread earlier today[1], I think we can keep
-the .fb_set_par() implementation.
-There's just no point in providing a .fb_check_var() callback if
-you don't support changing the video mode.
+Interesting config.  Somebody is definitely doing something wrong.
+LTR is enabled at 00:1c.0 (which is fine), not supported and disabled
+at 02:00.0 and 03:02.0 (also fine), but *enabled* at 05:00.0, which is
+absolutely not fine because 03:02.0 won't know what to do with the LTR
+messages and would log the AER errors you're seeing.
 
-[1] https://lore.kernel.org/all/CAMuHMdUaHd1jgrsCSxCqF-HP2rAo2ODM_ZOjhk7Q4vjuqvt36w@mail.gmail.com
-Gr{oetje,eeting}s,
+> 00:1c.0 PCI bridge: Intel Corporation 100 Series/C230 Series Chipset Family PCI Express Root Port #1 (rev f1) (prog-if 00 [Normal decode])
+> 	Bus: primary=00, secondary=02, subordinate=0f, sec-latency=0
+> 		DevCap2: Completion Timeout: Range ABC, TimeoutDis+, LTR+, OBFF Not Supported ARIFwd+
+> 			 AtomicOpsCap: Routing- 32bit- 64bit- 128bitCAS-
+> 		DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR+, OBFF Disabled ARIFwd-
 
-                        Geert
+> 02:00.0 PCI bridge: PLX Technology, Inc. PEX 8619 16-lane, 16-Port PCI Express Gen 2 (5.0 GT/s) Switch with DMA (rev ba) (prog-if 00 [Normal decode])
+> 	Bus: primary=02, secondary=03, subordinate=0f, sec-latency=0
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 		DevCap2: Completion Timeout: Not Supported, TimeoutDis-, LTR-, OBFF Not Supported
+> 			 AtomicOpsCap: Routing- 32bit- 64bit- 128bitCAS-
+> 		DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR-, OBFF Disabled
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> 03:02.0 PCI bridge: PLX Technology, Inc. PEX 8619 16-lane, 16-Port PCI Express Gen 2 (5.0 GT/s) Switch with DMA (rev ba) (prog-if 00 [Normal decode])
+> 	Bus: primary=03, secondary=05, subordinate=05, sec-latency=0
+
+> 		DevCap2: Completion Timeout: Not Supported, TimeoutDis-, LTR-, OBFF Not Supported ARIFwd+
+> 			 AtomicOpsCap: Routing-
+> 		DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR-, OBFF Disabled ARIFwd-
+
+> 05:00.0 Network controller: Intel Corporation Device 2725 (rev 1a)
+> 		DevCap2: Completion Timeout: Range B, TimeoutDis+, LTR+, OBFF Via WAKE#
+> 			 AtomicOpsCap: 32bit- 64bit- 128bitCAS-
+> 		DevCtl2: Completion Timeout: 16ms to 55ms, TimeoutDis-, LTR+, OBFF Disabled
+> 			 AtomicOpsCtl: ReqEn-
+
+For 02:00.0 and 03:02.0, pci_configure_ltr() should bail out as soon
+as it sees they don't support PCI_EXP_DEVCAP2_LTR, so they should
+never have dev->ltr_path set.  And pci_configure_ltr() should not set
+PCI_EXP_DEVCTL2_LTR_EN for 05:00.0 since bridge->ltr_path is not set
+for 03:02.0.
+
+Can you collect the dmesg log when booted with "pci=earlydump"?  I
+wonder if BIOS could be enabling LTR on 05:00.0.
+
+Bjorn
