@@ -2,142 +2,242 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 570916D5BD7
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 11:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB2EA6D5C9E
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 12:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234219AbjDDJZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 05:25:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57540 "EHLO
+        id S234311AbjDDKFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 06:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233706AbjDDJZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 05:25:19 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B241BD8;
-        Tue,  4 Apr 2023 02:25:16 -0700 (PDT)
-Received: from canpemm500006.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PrMlM5c8lzrVpR;
-        Tue,  4 Apr 2023 17:23:59 +0800 (CST)
-Received: from localhost.localdomain (10.175.104.82) by
- canpemm500006.china.huawei.com (7.192.105.130) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Tue, 4 Apr 2023 17:25:14 +0800
-From:   Ziyang Xuan <william.xuanziyang@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
-        <davem@davemloft.net>, <kuznet@ms2.inr.ac.ru>,
-        <yoshfuji@linux-ipv6.org>, <kuba@kernel.org>, <kuniyu@amazon.com>
-CC:     <netdev@vger.kernel.org>
-Subject: [PATCH 5.10 5/5] sctp: Call inet6_destroy_sock() via sk->sk_destruct().
-Date:   Tue, 4 Apr 2023 17:25:11 +0800
-Message-ID: <74888e6500d880300be7b907dd556618632d7228.1680589114.git.william.xuanziyang@huawei.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <cover.1680589114.git.william.xuanziyang@huawei.com>
-References: <cover.1680589114.git.william.xuanziyang@huawei.com>
+        with ESMTP id S234228AbjDDKFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 06:05:50 -0400
+Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D491BFB
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 03:05:49 -0700 (PDT)
+Received: by mail-vs1-xe2f.google.com with SMTP id c1so27935829vsk.2
+        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 03:05:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1680602748;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=t6kJcc2bUWjE/Wm8xwhZrxnLe8bMAR/uQeQIm/Gksbg=;
+        b=oHi4Ll9+VXF/8V2IqhmbTklYcRikN6S8XqOcTA5OFxOg89c5yhkqUz+E6Hseqjku54
+         9TyzFNOPlBKD8MfCO98hWbL+PZQOFqH0YU0OQ9ENb9/ZxPmvmXKRq9Wz2ddXqOKEiIsq
+         b8r8lC3vZrC2XTtrVpLgMUiGYeHzQVnx7mg5SodnjxRRqis71tfeX1hsMrcHieFHUWqE
+         M1czMd2qNO4TgvBKvZjsIxiuzQLYBGs4dCFFucom14MC7ZCu99EaV3zgCL/waKe12KXB
+         1rSh+kdfoGFpzUCPDHMH5EyRCUKnhwAJYhLSc8HKfDvS+zR4TsLoINAIeGx8u5dHnVtp
+         YIfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680602748;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=t6kJcc2bUWjE/Wm8xwhZrxnLe8bMAR/uQeQIm/Gksbg=;
+        b=pmAJMKJkgkp9Rh1MWx+9o62950K/533t5fMrgajFlLudiEM2EyY592vrfu4lmQC5MC
+         UwU6IeN5TiWtsTuGsUCBn6dV5C54X6Gjqd7ng87X2xXRC64ZEg2G71tV4vwZFKWFMQWC
+         VLafOf6rb7TDBX0TfZCJDgsa7WceP1JSn1y8AxsJR2AGhp94Gdl6b6k9ADd8DpeYCjsS
+         dVbqRcFQJfR9ps2XQNvzMor+7fN8nOmNLOPydOGiKzn1/iI+29Z9Iiwll5xP9z9DcYGu
+         UVBM/sUQ7RpFGL8O5DWXyl8xoShAal0YkY2lkW6NfwvVUpqIgaW+VQRX7LZ/BLaWFYnj
+         BgXA==
+X-Gm-Message-State: AAQBX9c9sZjQvKcrj+opfr7slFG/d9zyemxxyU4AQe29gfsW6rDhUmi/
+        2vYk1HyA1tl6Y0JAvYLpo7aRXdGClpJ2g6owY6iGBg==
+X-Google-Smtp-Source: AKy350bozIGUKrFTIuvX4HK5SHyZ/Y51MlT+Sqx2mhOA/4Eo2BaXE54VSsg61qenpSHyejFTj6QgIyXywHRS+Ij4K7s=
+X-Received: by 2002:a67:ca8d:0:b0:425:d255:dd38 with SMTP id
+ a13-20020a67ca8d000000b00425d255dd38mr1800040vsl.1.1680602748487; Tue, 04 Apr
+ 2023 03:05:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.104.82]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- canpemm500006.china.huawei.com (7.192.105.130)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 4 Apr 2023 15:35:36 +0530
+Message-ID: <CA+G9fYtMs6S+_LFRXNR3230wLOjz50ryNNJMuDdQAjMyyqC7pw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/99] 5.15.106-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+On Mon, 3 Apr 2023 at 20:01, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.106 release.
+> There are 99 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.106-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-commit 6431b0f6ff1633ae598667e4cdd93830074a03e8 upstream.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
-in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
-sk->sk_destruct() by setting inet6_sock_destruct() to it to make
-sure we do not leak inet6-specific resources.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-SCTP sets its own sk->sk_destruct() in the sctp_init_sock(), and
-SCTPv6 socket reuses it as the init function.
+## Build
+* kernel: 5.15.106-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: aacd621499911fb2f9643a302eb98e3670b89539
+* git describe: v5.15.105-100-gaacd62149991
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.105-100-gaacd62149991
 
-To call inet6_sock_destruct() from SCTPv6 sk->sk_destruct(), we
-set sctp_v6_destruct_sock() in a new init function.
+## Test Regressions (compared to v5.15.105)
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
----
- net/sctp/socket.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+## Metric Regressions (compared to v5.15.105)
 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index e9b4ea3d934f..0f0def3b1082 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -4991,13 +4991,17 @@ static void sctp_destroy_sock(struct sock *sk)
- }
- 
- /* Triggered when there are no references on the socket anymore */
--static void sctp_destruct_sock(struct sock *sk)
-+static void sctp_destruct_common(struct sock *sk)
- {
- 	struct sctp_sock *sp = sctp_sk(sk);
- 
- 	/* Free up the HMAC transform. */
- 	crypto_free_shash(sp->hmac);
-+}
- 
-+static void sctp_destruct_sock(struct sock *sk)
-+{
-+	sctp_destruct_common(sk);
- 	inet_sock_destruct(sk);
- }
- 
-@@ -9191,7 +9195,7 @@ void sctp_copy_sock(struct sock *newsk, struct sock *sk,
- 	sctp_sk(newsk)->reuse = sp->reuse;
- 
- 	newsk->sk_shutdown = sk->sk_shutdown;
--	newsk->sk_destruct = sctp_destruct_sock;
-+	newsk->sk_destruct = sk->sk_destruct;
- 	newsk->sk_family = sk->sk_family;
- 	newsk->sk_protocol = IPPROTO_SCTP;
- 	newsk->sk_backlog_rcv = sk->sk_prot->backlog_rcv;
-@@ -9423,11 +9427,20 @@ struct proto sctp_prot = {
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 
--#include <net/transp_v6.h>
--static void sctp_v6_destroy_sock(struct sock *sk)
-+static void sctp_v6_destruct_sock(struct sock *sk)
-+{
-+	sctp_destruct_common(sk);
-+	inet6_sock_destruct(sk);
-+}
-+
-+static int sctp_v6_init_sock(struct sock *sk)
- {
--	sctp_destroy_sock(sk);
--	inet6_destroy_sock(sk);
-+	int ret = sctp_init_sock(sk);
-+
-+	if (!ret)
-+		sk->sk_destruct = sctp_v6_destruct_sock;
-+
-+	return ret;
- }
- 
- struct proto sctpv6_prot = {
-@@ -9437,8 +9450,8 @@ struct proto sctpv6_prot = {
- 	.disconnect	= sctp_disconnect,
- 	.accept		= sctp_accept,
- 	.ioctl		= sctp_ioctl,
--	.init		= sctp_init_sock,
--	.destroy	= sctp_v6_destroy_sock,
-+	.init		= sctp_v6_init_sock,
-+	.destroy	= sctp_destroy_sock,
- 	.shutdown	= sctp_shutdown,
- 	.setsockopt	= sctp_setsockopt,
- 	.getsockopt	= sctp_getsockopt,
--- 
-2.25.1
+## Test Fixes (compared to v5.15.105)
 
+## Metric Fixes (compared to v5.15.105)
+
+## Test result summary
+total: 138014, pass: 115097, fail: 4115, skip: 18551, xfail: 251
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 115 total, 114 passed, 1 failed
+* arm64: 43 total, 43 passed, 0 failed
+* i386: 33 total, 31 passed, 2 failed
+* mips: 27 total, 26 passed, 1 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 27 total, 26 passed, 1 failed
+* riscv: 11 total, 11 passed, 0 failed
+* s390: 12 total, 11 passed, 1 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 36 total, 36 passed, 0 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
