@@ -2,67 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E81206D679D
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 17:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F20E96D67D2
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 17:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234451AbjDDPjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 11:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32850 "EHLO
+        id S235902AbjDDPr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 11:47:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235827AbjDDPjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 11:39:35 -0400
-Received: from mail.antaris-organics.com (mail.antaris-organics.com [91.227.220.155])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4B559D3;
-        Tue,  4 Apr 2023 08:39:16 -0700 (PDT)
-Date:   Tue, 4 Apr 2023 17:39:14 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mareichelt.com;
-        s=202107; t=1680622755;
-        bh=4iheBDUEXoHX+NGVC8wvboCGujgUMDWwA0qhziV4nJs=;
-        h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To:Cc:Cc:content-type:content-type:date:date:
-         From:from:in-reply-to:in-reply-to:message-id:mime-version:
-         references:reply-to:Sender:Subject:Subject:To:To;
-        b=CheTohrsHk+v5CCh695xKBoC7UZ8p2jbu79xGriHB1fphEYImCtCBZOQU+ShRjtHS
-         FdyI4PMjkgwucNZB7zWUjmgcd+MAauPfXz9NMcwVXivaqGP5v5mUBJfHNDpyzQYpQf
-         X1Jz4JPwzxKemQYivXeJVG7AeYrcUGO32CBxBgMqp+58EgcE4O3pfMxXn1RWab56QR
-         j7lGlhxxhZpVFcHRGS2V+eEIgg/I43Z6g00D4p2w8if8yvJufXm7TdrK0feFq/hHCY
-         W+13EmTdLMKkZ+s1foGbpZessQgS9aEKMxgYBBZicB3KfKa/zzSMbG1eh6haBtfbDw
-         GxTkau3FwHlaw==
-From:   Markus Reichelt <lkt+2023@mareichelt.com>
-To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6.2 000/187] 6.2.10-rc1 review
-Message-ID: <20230404153914.GB5308@pc21.mareichelt.com>
-Mail-Followup-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230403140416.015323160@linuxfoundation.org>
+        with ESMTP id S235898AbjDDPrZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 11:47:25 -0400
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80892173E;
+        Tue,  4 Apr 2023 08:47:22 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=rongwei.wang@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VfMLSkR_1680623236;
+Received: from localhost.localdomain(mailfrom:rongwei.wang@linux.alibaba.com fp:SMTPD_---0VfMLSkR_1680623236)
+          by smtp.aliyun-inc.com;
+          Tue, 04 Apr 2023 23:47:17 +0800
+From:   Rongwei Wang <rongwei.wang@linux.alibaba.com>
+To:     akpm@linux-foundation.org, bagasdotme@gmail.com,
+        willy@infradead.org
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+Date:   Tue,  4 Apr 2023 23:47:16 +0800
+Message-Id: <20230404154716.23058-1-rongwei.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20230401221920.57986-1-rongwei.wang@linux.alibaba.com>
+References: <20230401221920.57986-1-rongwei.wang@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-Organization: still stuck in reorganization mode
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.0 required=5.0 tests=ENV_AND_HDR_SPF_MATCH,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+The si->lock must be held when deleting the si from
+the available list.  Otherwise, another thread can
+re-add the si to the available list, which can lead
+to memory corruption. The only place we have found
+where this happens is in the swapoff path. This case
+can be described as below:
 
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 187 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
-> Anything received after that time might be too late.
+core 0                       core 1
+swapoff
 
-Hi Greg
+del_from_avail_list(si)      waiting
 
-6.2.10-rc1
+try lock si->lock            acquire swap_avail_lock
+                             and re-add si into
+                             swap_avail_head
 
-compiles, boots and runs here on x86_64
-(AMD Ryzen 5 PRO 4650G, Slackware64-15.0)
+acquire si->lock but
+missing si already be
+added again, and continuing
+to clear SWP_WRITEOK, etc.
 
-Tested-by: Markus Reichelt <lkt+2023@mareichelt.com>
+It can be easily found a massive warning messages can
+be triggered inside get_swap_pages() by some special
+cases, for example, we call madvise(MADV_PAGEOUT) on
+blocks of touched memory concurrently, meanwhile, run
+much swapon-swapoff operations (e.g. stress-ng-swap).
+
+However, in the worst case, panic can be caused by the
+above scene. In swapoff(), the memory used by si could
+be kept in swap_info[] after turning off a swap. This
+means memory corruption will not be caused immediately
+until allocated and reset for a new swap in the swapon
+path. A panic message caused:
+(with CONFIG_PLIST_DEBUG enabled)
+
+------------[ cut here ]------------
+top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
+prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
+next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
+WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
+Modules linked in: rfkill(E) crct10dif_ce(E)...
+CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
+Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+pc : plist_check_prev_next_node+0x50/0x70
+lr : plist_check_prev_next_node+0x50/0x70
+sp : ffff0018009d3c30
+x29: ffff0018009d3c40 x28: ffff800011b32a98
+x27: 0000000000000000 x26: ffff001803908000
+x25: ffff8000128ea088 x24: ffff800011b32a48
+x23: 0000000000000028 x22: ffff001800875c00
+x21: ffff800010f9e520 x20: ffff001800875c00
+x19: ffff001800fdc6e0 x18: 0000000000000030
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0736076307640766 x14: 0730073007380731
+x13: 0736076307640766 x12: 0730073007380731
+x11: 000000000004058d x10: 0000000085a85b76
+x9 : ffff8000101436e4 x8 : ffff800011c8ce08
+x7 : 0000000000000000 x6 : 0000000000000001
+x5 : ffff0017df9ed338 x4 : 0000000000000001
+x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ plist_check_prev_next_node+0x50/0x70
+ plist_check_head+0x80/0xf0
+ plist_add+0x28/0x140
+ add_to_avail_list+0x9c/0xf0
+ _enable_swap_info+0x78/0xb4
+ __do_sys_swapon+0x918/0xa10
+ __arm64_sys_swapon+0x20/0x30
+ el0_svc_common+0x8c/0x220
+ do_el0_svc+0x2c/0x90
+ el0_svc+0x1c/0x30
+ el0_sync_handler+0xa8/0xb0
+ el0_sync+0x148/0x180
+irq event stamp: 2082270
+
+Now, si->lock locked before calling 'del_from_avail_list()'
+to make sure other thread see the si had been deleted
+and SWP_WRITEOK cleared together, will not reinsert again.
+
+This problem exists in versions after stable 5.10.y.
+
+Cc: stable@vger.kernel.org
+Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
+Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+---
+ mm/swapfile.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index 62ba2bf577d7..2c718f45745f 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -679,6 +679,7 @@ static void __del_from_avail_list(struct swap_info_struct *p)
+ {
+ 	int nid;
+ 
++	assert_spin_locked(&p->lock);
+ 	for_each_node(nid)
+ 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
+ }
+@@ -2434,8 +2435,8 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
+ 		spin_unlock(&swap_lock);
+ 		goto out_dput;
+ 	}
+-	del_from_avail_list(p);
+ 	spin_lock(&p->lock);
++	del_from_avail_list(p);
+ 	if (p->prio < 0) {
+ 		struct swap_info_struct *si = p;
+ 		int nid;
+-- 
+2.27.0
+
