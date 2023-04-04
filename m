@@ -2,106 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1509B6D5701
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 05:08:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5766D6D5746
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 05:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229654AbjDDDIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 23:08:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56774 "EHLO
+        id S232495AbjDDDrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 23:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjDDDIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 23:08:16 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B85810FF;
-        Mon,  3 Apr 2023 20:08:15 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id o11so30048095ple.1;
-        Mon, 03 Apr 2023 20:08:15 -0700 (PDT)
+        with ESMTP id S229449AbjDDDrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 23:47:16 -0400
+Received: from smtp-fw-6002.amazon.com (smtp-fw-6002.amazon.com [52.95.49.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B756B1BFB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 20:47:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680577695; x=1683169695;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MRnkaaj/cVgSaagBe9PehnJgOMpffWqdnxqVj0DdFK0=;
-        b=MBoIRhcYmwFydDMClcg2UreRmhzz7xW1W3ifJjOObZVq84h7WmE/Le3zwuFS+EwjSw
-         61/b2Cqr0rxDzHpSkqF6pzhykiZzzwseuoI+ACxkfNEHZayWd1c4hRe3OGnUIHJsFUFZ
-         Gro4nuRj9Sz7107JS2qefjLg+ZO8miF2mfaSnULZTZl897mooDXzcDsqdewNPakI/I6o
-         1wISUI+tn47fYLaHs/EmBPcFhVE72O5oCQ3P9oyUoWEQ/TvtaWEK4SwjLurFbL3s7VFO
-         Db9j3SOsmbsb42IuYu0y7AGFdRNW+iEnpxULLZUbTJ/Pd9gA6WZ0Ba6acbY5Og2dhrLN
-         iMLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680577695; x=1683169695;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MRnkaaj/cVgSaagBe9PehnJgOMpffWqdnxqVj0DdFK0=;
-        b=zONPEJLHgHTolmwR+LtWE9EAVEFYEJPgUJofKCAgZZ/Q2/D+G7IK2nTe4GOP/5Y2iR
-         HNAjfam3FnbcnE0tuu9cevrpKNPmRQdDON2hu+ki86fd5PRO2m+h8Uz0PrloitYUatcu
-         E48RQdKwDTpjYEe2RMQBXJ5YbMs5posQQKGj2bLS9aQeYZUv2hZ2kHiAywm/EjQpcXAm
-         B/3AESUR5LWp5gW6gmjW9mCeLj/d3YHVylgM5Ij/T28kTpVBT/JEHluM6dyn19yEvI5T
-         t3wdQlyLlhXpiAQoIe1II76gfAVhwg+3EQ4CglJR7FCRLTNAL2NX2spOOHdgVhS7FTkb
-         EDqw==
-X-Gm-Message-State: AAQBX9dfYPT3EFCFmLhfoOPIy/f2rR+dFr2hSJVveMnLjUJ7QP9KG5L5
-        TfUy9cjCm860m16o6QOmeSI=
-X-Google-Smtp-Source: AKy350blamQxgHaeX5hc8HPO9IhB+5+NqWBQpJrec0j8+FB1pQ3uAr2PPmmNHy8w06h/XkTUUqeXnA==
-X-Received: by 2002:a17:90a:4146:b0:23c:6713:45b3 with SMTP id m6-20020a17090a414600b0023c671345b3mr1398826pjg.7.1680577694750;
-        Mon, 03 Apr 2023 20:08:14 -0700 (PDT)
-Received: from [10.230.29.214] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id 3-20020a17090a174300b0023f545c055bsm10242115pjm.33.2023.04.03.20.08.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Apr 2023 20:08:14 -0700 (PDT)
-Message-ID: <134bdc4b-e62d-7892-68d7-24f917e1e7e9@gmail.com>
-Date:   Mon, 3 Apr 2023 20:08:10 -0700
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1680580035; x=1712116035;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=YZx+uFNx1aN9y6Ue9sLi1IqPHGygQA8xye5gNDDnr/Q=;
+  b=RPVTdVFXoFCnT6qfgLgzmDagFwYn4hm2qGNVHVr/m5M9lxWX6+vb0ZjA
+   kopG5mStp7aqj1bKvIFlk+hIf0XTLxLG0MQKBSbgd7oMguETl6s/lf0OT
+   YLqZlqLI2HQbZMt63Gn6SodwYaFmKpTV+38hWOUgr2FsouLa7evnOOdnV
+   o=;
+X-IronPort-AV: E=Sophos;i="5.98,316,1673913600"; 
+   d="scan'208";a="314426549"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-pdx-2c-m6i4x-d2040ec1.us-west-2.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-6002.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Apr 2023 03:47:12 +0000
+Received: from EX19MTAUWC002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2c-m6i4x-d2040ec1.us-west-2.amazon.com (Postfix) with ESMTPS id CCB27413AB;
+        Tue,  4 Apr 2023 03:47:11 +0000 (UTC)
+Received: from EX19D002ANA003.ant.amazon.com (10.37.240.141) by
+ EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.25; Tue, 4 Apr 2023 03:47:11 +0000
+Received: from b0f1d8753182.ant.amazon.com (10.106.83.21) by
+ EX19D002ANA003.ant.amazon.com (10.37.240.141) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.26;
+ Tue, 4 Apr 2023 03:47:06 +0000
+From:   Takahiro Itazuri <itazur@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Dave Martin <Dave.Martin@arm.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Julien Thierry <julien.thierry@arm.com>,
+        "zhang . lei" <zhang.lei@jp.fujitsu.com>,
+        "Takahiro Itazuri" <zulinx86@gmail.com>,
+        Takahiro Itazuri <itazur@amazon.com>
+Subject: [RESEND PATCH stable 4.14 4.19 0/2] Backport "KVM: arm64: Filter out invalid core registers IDs in KVM_GET_REG_LIST"
+Date:   Tue, 4 Apr 2023 04:46:47 +0100
+Message-ID: <20230404034649.77915-1-itazur@amazon.com>
+X-Mailer: git-send-email 2.38.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [PATCH 6.2 000/187] 6.2.10-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230403140416.015323160@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.106.83.21]
+X-ClientProxiedBy: EX19D035UWB004.ant.amazon.com (10.13.138.104) To
+ EX19D002ANA003.ant.amazon.com (10.37.240.141)
+X-Spam-Status: No, score=-9.7 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi stable maintainers,
 
+This is a backport patch for commit df205b5c6328 ("KVM: arm64: Filter
+out invalid core register IDs in KVM_GET_REG_LIST") to 4.14 and 4.19.
+This commit was not applied to the 4.14-stable tree due to merge
+conflict [1]. To backport this, commit be25bbb392fa ("KVM: arm64: Factor
+out core register ID enumeration") that has no functional changes is
+cherry-picked.
 
-On 4/3/2023 7:07 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 187 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+I'd appreciate if if you could consider backporting this to 4.14 and
+4.19.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Best regards,
+Takahiro
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+[1] https://lore.kernel.org/all/1560343489-22906-1-git-send-email-Dave.Martin@arm.com/
+
+Dave Martin (2):
+  KVM: arm64: Factor out core register ID enumeration
+  KVM: arm64: Filter out invalid core register IDs in KVM_GET_REG_LIST
+
+ arch/arm64/kvm/guest.c | 79 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 65 insertions(+), 14 deletions(-)
+
 -- 
-Florian
+2.39.2
+
