@@ -2,120 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D34E86D5AB0
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 10:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A92566D5AB7
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 10:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233873AbjDDIXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 04:23:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59502 "EHLO
+        id S234180AbjDDIZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 04:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbjDDIXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 04:23:53 -0400
-Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6CB1B7
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 01:23:51 -0700 (PDT)
-Received: from gproxy3-pub.mail.unifiedlayer.com (unknown [69.89.30.42])
-        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 7B3238028A10
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 08:23:51 +0000 (UTC)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 0969D1003F0D6
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 08:23:50 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id jbxGpWgvPuftbjbxGpcxTD; Tue, 04 Apr 2023 08:23:50 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=cPYlDnSN c=1 sm=1 tr=0 ts=642bde96
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=dKHAf1wccvYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=+IoIfCnNuLKHzmztRu0VTFAP/IUIGC9ln/Qu+p+X6Bg=; b=GOa+GZDpukXkhne6SCdzEdSbvA
-        l8+tjYHZ0wkTInmop2PYZaJln6alxJ5D2cOVN6pRNM38hjFjiUv83f0xCXa4ePmQ2B3FPGJXnUOpx
-        3CqovkSVRp2Kwub1jt454RuE8FEWcw82m1Mvoij+wqgz6VSOpZwMMCMVcslTQ51gm+ECHkodsLcNU
-        37aVnHXhmOa9AxUm3vI7gogKHDmV0SiV1nBdM92fOhAORGXfuvrDF98iLe3Kdk72AGGGBLZWFOa+J
-        3+pmPsevKsoQFKMbuaAS2k2Plc+mcf1viTRq8TU+RgJUcT88UlPiS/euNv5VvSfzc2xpa6BRT3S8J
-        Ou0qVM0Q==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34080 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pjbxF-000m1y-Q6;
-        Tue, 04 Apr 2023 02:23:49 -0600
-Subject: Re: [PATCH 6.2 000/187] 6.2.10-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230403140416.015323160@linuxfoundation.org>
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <a1adee63-bbcb-3221-1a6e-910508d3515e@w6rz.net>
-Date:   Tue, 4 Apr 2023 01:23:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S234166AbjDDIZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 04:25:09 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82DE21BE8;
+        Tue,  4 Apr 2023 01:25:04 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id cn12so127310846edb.4;
+        Tue, 04 Apr 2023 01:25:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680596703;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=H9JMZo+h1Q4ZjhPYRd6OF+eR14aI4rNR3ktfkwOViXk=;
+        b=eKcMH3SCK/MbvXuG3s2Ev/t/hq1VBjng1BsNbovjdYDzWxmh5EvfFbpoGhQSkIs7zd
+         KM9qQGv9dmQ07lGLewPyudXrdyFruzXwvpI2vGdfLjgflmsAhE9oNVznVCB9CjjkQo+X
+         Mvl6VslYs4Yysi7O6tvayCT3OHbAor2EBVaajWAaOf5G7tIlXK9aR69Q9HIkROmcmszi
+         7zzlVzO+JIbwT4BvHoDFDugx8swq7vYbahcdtmjJ5bjKKkisKjwDcLnCpGfx8mUN6AKH
+         tkoUdxWjKem1Qh8D9bT9a0O9XjT60QV/3PfPJ/36oYkEJ4TQpRYO7tupUgtXLySFhlPU
+         PcNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680596703;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=H9JMZo+h1Q4ZjhPYRd6OF+eR14aI4rNR3ktfkwOViXk=;
+        b=mWyomXZOFrqYZrKDrynJYi2MIJzXfU4QwNyzF2S+3SG/4Lhel2EFEoTOHhZvbhhDkw
+         RwoFewucREhBFY2gs+9Jo2Fly/TK7bHpvgYdD4fVmbdVVdB/ddlZ/+MLERWHS6wJ/4V0
+         LnYPaYrdgX1r1mevJbTqQHUzkrdhZg5kv9soN0RrIGEr2rratT41GnlsaZLZgK4dHtfL
+         3XhzblGspXrFS6EifeK5rRLfKZjO0yyAIVwcAwi//K/2l44vVwffzlK47s5iBpWqxl25
+         6jWcsF8V4u9fkVFGCzGpzJJSvDUQCjDwrYQkAjfDuftr9N32BsWX021N4ojnR5BqbcHR
+         KfoQ==
+X-Gm-Message-State: AAQBX9eipWwl+B+uOKwfI73rvtOIotV8xeuYyfAXaTTfz+vFDc9DodoG
+        FR5aeUWBYRtfWpe+JQ4fmaI=
+X-Google-Smtp-Source: AKy350Ys42q5uri8bicxqR0N3cA43deEBD9IDcrI3QZ/WfiFn0XzrsmaOfX3iP+K1xydrcXYHOvJtg==
+X-Received: by 2002:a17:906:f29a:b0:933:816c:abb9 with SMTP id gu26-20020a170906f29a00b00933816cabb9mr18076043ejb.36.1680596703038;
+        Tue, 04 Apr 2023 01:25:03 -0700 (PDT)
+Received: from A13PC04R.einet.ad.eivd.ch ([193.134.219.72])
+        by smtp.googlemail.com with ESMTPSA id s5-20020a170906454500b008e54ac90de1sm5640652ejq.74.2023.04.04.01.25.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Apr 2023 01:25:02 -0700 (PDT)
+From:   Rick Wertenbroek <rick.wertenbroek@gmail.com>
+To:     alberto.dassatti@heig-vd.ch
+Cc:     damien.lemoal@opensource.wdc.com, xxm@rock-chips.com,
+        Rick Wertenbroek <rick.wertenbroek@gmail.com>,
+        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Johan Jonker <jbx6244@gmail.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Caleb Connolly <kc@postmarketos.org>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Judy Hsiao <judyhsiao@chromium.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Lin Huang <hl@rock-chips.com>,
+        Arnaud Ferraris <arnaud.ferraris@collabora.com>,
+        Hugh Cole-Baker <sigmaris@gmail.com>,
+        linux-pci@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 02/11] PCI: rockchip: Write PCI Device ID to correct register
+Date:   Tue,  4 Apr 2023 10:24:15 +0200
+Message-Id: <20230404082426.3880812-3-rick.wertenbroek@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230404082426.3880812-1-rick.wertenbroek@gmail.com>
+References: <20230404082426.3880812-1-rick.wertenbroek@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pjbxF-000m1y-Q6
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:34080
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/3/23 7:07 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 187 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Write PCI Device ID (DID) to the correct register. The Device ID was not
+updated through the correct register. Device ID was written to a read-only
+register and therefore did not work. The Device ID is now set through the
+correct register. This is documented in the RK3399 TRM section 17.6.6.1.1
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rick Wertenbroek <rick.wertenbroek@gmail.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+---
+ drivers/pci/controller/pcie-rockchip-ep.c | 6 ++++--
+ drivers/pci/controller/pcie-rockchip.h    | 2 ++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-Tested-by: Ron Economos <re@w6rz.net>
+diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
+index d5c477020417..9b835377bd9e 100644
+--- a/drivers/pci/controller/pcie-rockchip-ep.c
++++ b/drivers/pci/controller/pcie-rockchip-ep.c
+@@ -115,6 +115,7 @@ static void rockchip_pcie_prog_ep_ob_atu(struct rockchip_pcie *rockchip, u8 fn,
+ static int rockchip_pcie_ep_write_header(struct pci_epc *epc, u8 fn, u8 vfn,
+ 					 struct pci_epf_header *hdr)
+ {
++	u32 reg;
+ 	struct rockchip_pcie_ep *ep = epc_get_drvdata(epc);
+ 	struct rockchip_pcie *rockchip = &ep->rockchip;
+ 
+@@ -127,8 +128,9 @@ static int rockchip_pcie_ep_write_header(struct pci_epc *epc, u8 fn, u8 vfn,
+ 				    PCIE_CORE_CONFIG_VENDOR);
+ 	}
+ 
+-	rockchip_pcie_write(rockchip, hdr->deviceid << 16,
+-			    ROCKCHIP_PCIE_EP_FUNC_BASE(fn) + PCI_VENDOR_ID);
++	reg = rockchip_pcie_read(rockchip, PCIE_EP_CONFIG_DID_VID);
++	reg = (reg & 0xFFFF) | (hdr->deviceid << 16);
++	rockchip_pcie_write(rockchip, reg, PCIE_EP_CONFIG_DID_VID);
+ 
+ 	rockchip_pcie_write(rockchip,
+ 			    hdr->revid |
+diff --git a/drivers/pci/controller/pcie-rockchip.h b/drivers/pci/controller/pcie-rockchip.h
+index 32c3a859c26b..51a123e5c0cf 100644
+--- a/drivers/pci/controller/pcie-rockchip.h
++++ b/drivers/pci/controller/pcie-rockchip.h
+@@ -133,6 +133,8 @@
+ #define PCIE_RC_RP_ATS_BASE		0x400000
+ #define PCIE_RC_CONFIG_NORMAL_BASE	0x800000
+ #define PCIE_RC_CONFIG_BASE		0xa00000
++#define PCIE_EP_CONFIG_BASE		0xa00000
++#define PCIE_EP_CONFIG_DID_VID		(PCIE_EP_CONFIG_BASE + 0x00)
+ #define PCIE_RC_CONFIG_RID_CCR		(PCIE_RC_CONFIG_BASE + 0x08)
+ #define PCIE_RC_CONFIG_DCR		(PCIE_RC_CONFIG_BASE + 0xc4)
+ #define   PCIE_RC_CONFIG_DCR_CSPL_SHIFT		18
+-- 
+2.25.1
 
