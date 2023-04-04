@@ -2,105 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 785686D5977
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 448376D597D
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233607AbjDDHZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 03:25:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        id S233933AbjDDHZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 03:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233643AbjDDHZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:25:24 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3695910D3
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 00:25:23 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1pjb2V-000749-15; Tue, 04 Apr 2023 09:25:11 +0200
-Received: from [2a0a:edc0:0:1101:1d::28] (helo=dude02.red.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <sha@pengutronix.de>)
-        id 1pjb2U-008rco-D6; Tue, 04 Apr 2023 09:25:10 +0200
-Received: from sha by dude02.red.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <sha@pengutronix.de>)
-        id 1pjb2T-002UPq-HU; Tue, 04 Apr 2023 09:25:09 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     linux-wireless <linux-wireless@vger.kernel.org>
-Cc:     Hans Ulli Kroll <linux@ulli-kroll.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Pkshih <pkshih@realtek.com>, Tim K <tpkuester@gmail.com>,
-        "Alex G ." <mr.nuke.me@gmail.com>,
-        Nick Morrow <morrownr@gmail.com>,
-        Viktor Petrenko <g0000ga@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
-        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-Date:   Tue,  4 Apr 2023 09:25:08 +0200
-Message-Id: <20230404072508.578056-3-s.hauer@pengutronix.de>
+        with ESMTP id S233855AbjDDHZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:25:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88DD211D;
+        Tue,  4 Apr 2023 00:25:48 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0463262F78;
+        Tue,  4 Apr 2023 07:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3355C433A1;
+        Tue,  4 Apr 2023 07:25:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680593145;
+        bh=iHqtt6aurKW7xgkS/ixqd4KPAJ1KczXFGt1nLIx2xMk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=K1n6F5eZDdBbjegK2Acko97lmDHxG+NTTtvQTtgWDZ3YLV/JkOFqyyTl9NugKPJKN
+         6gwjOnmOfE3FaRi7du198wWXpF4+LvQC1SI97DtBu4fEtK6I0DFDOsjdNs+mMppL4C
+         76xYgYCwRC9wRjJy8zW2E+QbsMVKdFpejzGBccOaJyWe5mQK53qH+4gTIuNyKhJI18
+         +T4JjiQpt7J4cAMja2s/FvYaQ9kKOfw6hARV+9GpLlgAdq4a2LF82l25dX/+EqNF3y
+         yXnuPq+x3JFQET+GIPHY1K+vEwqDlJc2iHkAeAGQGM5BPxqyJmJVrdujo3v6su/zGf
+         W/QpAiQUCz/2A==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1pjb3U-0004xQ-Lg; Tue, 04 Apr 2023 09:26:12 +0200
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org,
+        Roger Quadros <rogerq@ti.com>
+Subject: [PATCH 01/11] USB: dwc3: fix runtime pm imbalance on probe errors
+Date:   Tue,  4 Apr 2023 09:25:14 +0200
+Message-Id: <20230404072524.19014-2-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230404072508.578056-1-s.hauer@pengutronix.de>
-References: <20230404072508.578056-1-s.hauer@pengutronix.de>
+In-Reply-To: <20230404072524.19014-1-johan+linaro@kernel.org>
+References: <20230404072524.19014-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On my RTW8821CU chipset rfe_option reads as 0x22. Looking at the
-downstream driver suggests that the field width of rfe_option is 5 bit,
-so rfe_option should be masked with 0x1f.
+Make sure not to suspend the device when probe fails to avoid disabling
+clocks and phys multiple times.
 
-Without this the rfe_option comparisons with 2 further down the
-driver evaluate as false when they should really evaluate as true.
-The effect is that 2G channels do not work.
-
-rfe_option is also used as an array index into rtw8821c_rfe_defs[].
-rtw8821c_rfe_defs[34] (0x22) was added as part of adding USB support,
-likely because rfe_option reads as 0x22. As this now becomes 0x2,
-rtw8821c_rfe_defs[34] is no longer used and can be removed.
-
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Tested-by: ValdikSS <iam@valdikss.org.ru>
-Tested-by: Alexandru gagniuc <mr.nuke.me@gmail.com>
-Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: stable@vger.kernel.org
+Fixes: 328082376aea ("usb: dwc3: fix runtime PM in error path")
+Cc: stable@vger.kernel.org      # 4.8
+Cc: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/rtw8821c.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/dwc3/core.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8821c.c b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-index 17f800f6efbd0..67efa58dd78ee 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-@@ -47,7 +47,7 @@ static int rtw8821c_read_efuse(struct rtw_dev *rtwdev, u8 *log_map)
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 476b63618511..5058bd8d56ca 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1883,13 +1883,11 @@ static int dwc3_probe(struct platform_device *pdev)
+ 	spin_lock_init(&dwc->lock);
+ 	mutex_init(&dwc->mutex);
  
- 	map = (struct rtw8821c_efuse *)log_map;
++	pm_runtime_get_noresume(dev);
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_set_autosuspend_delay(dev, DWC3_DEFAULT_AUTOSUSPEND_DELAY);
+ 	pm_runtime_enable(dev);
+-	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
+-		goto err1;
  
--	efuse->rfe_option = map->rfe_option;
-+	efuse->rfe_option = map->rfe_option & 0x1f;
- 	efuse->rf_board_option = map->rf_board_option;
- 	efuse->crystal_cap = map->xtal_k;
- 	efuse->pa_type_2g = map->pa_type;
-@@ -1537,7 +1537,6 @@ static const struct rtw_rfe_def rtw8821c_rfe_defs[] = {
- 	[2] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
- 	[4] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
- 	[6] = RTW_DEF_RFE(8821c, 0, 0),
--	[34] = RTW_DEF_RFE(8821c, 0, 0),
- };
+ 	pm_runtime_forbid(dev);
  
- static struct rtw_hw_reg rtw8821c_dig[] = {
+@@ -1954,12 +1952,10 @@ static int dwc3_probe(struct platform_device *pdev)
+ 	dwc3_free_event_buffers(dwc);
+ 
+ err2:
+-	pm_runtime_allow(&pdev->dev);
+-
+-err1:
+-	pm_runtime_put_sync(&pdev->dev);
+-	pm_runtime_disable(&pdev->dev);
+-
++	pm_runtime_allow(dev);
++	pm_runtime_disable(dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_put_noidle(dev);
+ disable_clks:
+ 	dwc3_clk_disable(dwc);
+ assert_reset:
 -- 
 2.39.2
 
