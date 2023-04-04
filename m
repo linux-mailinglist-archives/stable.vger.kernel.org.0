@@ -2,146 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4409E6D6C13
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 20:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 536E76D6C05
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 20:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235282AbjDDSau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 14:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
+        id S234462AbjDDS3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 14:29:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235922AbjDDSaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 14:30:14 -0400
-Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A2C4975A
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 11:26:38 -0700 (PDT)
-Received: by mail-qt1-x82c.google.com with SMTP id cn12so29338397qtb.8
-        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 11:26:38 -0700 (PDT)
+        with ESMTP id S234268AbjDDS2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 14:28:54 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842056184
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 11:26:09 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id p203so39778018ybb.13
+        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 11:26:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1680632765;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xyjoFpVijlAvxTCbOhJJ22iDzQUactcN5oOMXtPKyqU=;
+        b=fcxPf/i8xq/kSQfoVdznWlATaPoee6x4Dem/NHTsVKRgZLeTmjolTZLa/+wlaVzoo2
+         9wvH9iZDHP0vTlVzDnxPCaPpHN3tDUjPt67SQO61fkm34DihtHBMRLAFcs2rMItJTIhy
+         I6ffUk8HIw91u9pqKUvjV5A2g74DjoemZoBP07KThvSgH49wdGzmNq3+3McXhZUTP6Pp
+         haNgzYnEbjtZi+tD+GbjOtszKTPwrkXxqpENHShf5NPe98Q7/dEGAs3IkKkA7iFl8wl0
+         Nim2er0csMAF8UUSFkm0qwDshTzU0tzM7EOY6pkH15hkYpDAVagWgrcgvIf+Y7NEmhNw
+         8ElQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680632736;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20210112; t=1680632765;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZsI89aBxoNjXwhryh0Y5XhntM/4A2U2YcKa3v6rBxI8=;
-        b=k3pzOvcHL2pDMPwLLkxG2MqKArQprEK2GzphbnmZ4ZnAxTPH5ihcscmS6D5mTx+TE7
-         TjqrqIWY/V1otnWslO4z5AEvOPoC6jDwJCECeFx4tMcwUi1Ub5QQ0sX7p8lOmL2kYIc8
-         PQsecET1eeKrj8ISWKhKnRBprrtWWf0mo0XefA5x5reS7GWWqLA+tE4JD262BmNc6unq
-         n813KXBj/37v4kHEf7R1RLHZx1CJUBAheJisJslxK42+ciF0zJ4I2G7NheQBtsWa7MFH
-         2SzjbjZokJSffRrtzt1e4XBIp4r89WR9ALW4tvWx3rDNy6GuOhLj37nbS2/k2YOCWIeB
-         gyWA==
-X-Gm-Message-State: AAQBX9dVYasCybXayFuw552lc9eZ3KsRM1XbrsaNyMGxoHRXKRbsqUpR
-        SWgiMJP0BSp/uZYQmHSNv5MI
-X-Google-Smtp-Source: AKy350Yec29feyEXNVi14lFt7bOYrZ93ajKnUVjq3UUW/e4C61nOpSWfVWjceniGfdwjb3A+s+WAbQ==
-X-Received: by 2002:ac8:5988:0:b0:3e6:4094:8a9b with SMTP id e8-20020ac85988000000b003e640948a9bmr675413qte.58.1680632736607;
-        Tue, 04 Apr 2023 11:25:36 -0700 (PDT)
-Received: from localhost (pool-68-160-166-30.bstnma.fios.verizon.net. [68.160.166.30])
-        by smtp.gmail.com with ESMTPSA id o24-20020a05620a229800b00748448d9a7dsm3769329qkh.106.2023.04.04.11.25.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Apr 2023 11:25:36 -0700 (PDT)
-From:   Mike Snitzer <snitzer@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, bmarzins@redhat.com,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.1+] dm: fix improper splitting for abnormal bios
-Date:   Tue,  4 Apr 2023 14:25:32 -0400
-Message-Id: <20230404182532.34579-1-snitzer@kernel.org>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <2023040334-attire-drone-2c8b@gregkh>
-References: <2023040334-attire-drone-2c8b@gregkh>
+        bh=xyjoFpVijlAvxTCbOhJJ22iDzQUactcN5oOMXtPKyqU=;
+        b=vD4d0Hz9+qvaFELVkPZWS5GCMf7O6o2LGB3+0uHUN0ShkZQj7J/7xJsEdrg1KRl4S9
+         sJl+NE4ZniBnbjoS8M7z1gq8q/yn0OstCcBkOrQSoVu+r/pS4fvel9fbegovzawh13Yh
+         X2vpjBoewsc89S+AjIDVcKfTHAstU8ab+Dshz0tDWY64GP/jombCyN3N2TsHv6WWBcA6
+         qqUr/mskXsaGPpeTWtB18aB/vqkkCuDYmvA7YI+Rp6uj1BPjzUsqzZRjCuI69SCsaz+9
+         8dYPLJSZGRNbsheBjBSHRHSTrrE590xecIDkM4ntIHNnERI834EqX8XjAFP8ahnoJKQg
+         U6xg==
+X-Gm-Message-State: AAQBX9fZRbhqzrZmmUxPvPQFgezLmvvPRZ7OCEjv/NnYOcgJPClzJqwV
+        sRLMJ0tj/LTFAuVDkkvkspqLEUGvMgAzkyHex0X2
+X-Google-Smtp-Source: AKy350Z1zr2YlO7SKFTwlplbfhoyc2wR4q7sivsyQWkkLJjxdDoxjxyefjzb/C0u+bqpRWOrC8ylutsAT9jk1XyHS7o=
+X-Received: by 2002:a25:7449:0:b0:b75:8ac3:d5d9 with SMTP id
+ p70-20020a257449000000b00b758ac3d5d9mr2436296ybc.3.1680632765167; Tue, 04 Apr
+ 2023 11:26:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.3 required=5.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.6
+References: <20230331123221.3273328-1-roberto.sassu@huaweicloud.com> <20230331123221.3273328-2-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20230331123221.3273328-2-roberto.sassu@huaweicloud.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 4 Apr 2023 14:25:54 -0400
+Message-ID: <CAHC9VhT17mtnncuKVNzqr0zTU+E5R+8wMaxF4AYXS_bG9L0HZQ@mail.gmail.com>
+Subject: Re: [PATCH v10 1/4] reiserfs: Add security prefix to xattr name in reiserfs_security_write()
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Marzinski <bmarzins@redhat.com>
+On Fri, Mar 31, 2023 at 8:33=E2=80=AFAM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
+>
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+>
+> Reiserfs sets a security xattr at inode creation time in two stages: firs=
+t,
+> it calls reiserfs_security_init() to obtain the xattr from active LSMs;
+> then, it calls reiserfs_security_write() to actually write that xattr.
+>
+> Unfortunately, it seems there is a wrong expectation that LSMs provide th=
+e
+> full xattr name in the form 'security.<suffix>'. However, LSMs always
+> provided just the suffix, causing reiserfs to not write the xattr at all
+> (if the suffix is shorter than the prefix), or to write an xattr with the
+> wrong name.
+>
+> Add a temporary buffer in reiserfs_security_write(), and write to it the
+> full xattr name, before passing it to reiserfs_xattr_set_handle().
+>
+> Also replace the name length check with a check that the full xattr name =
+is
+> not larger than XATTR_NAME_MAX.
+>
+> Cc: stable@vger.kernel.org # v2.6.x
+> Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes=
+ during inode creation")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>  fs/reiserfs/xattr_security.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 
-Conflicts: Code changes due to missing upstream commit 86a3238c7b9b
-           ('dm: change "unsigned" to "unsigned int"')
+This looks good to me, thanks.  While normally I would merge something
+like this into the lsm/stable-X.Y branch, I'm going to merge it into
+lsm/next to give it a week or two of extra testing.  I think anyone
+who is using reiserfs+LSM (doubtful as it looks horribly broken) would
+be okay with waiting a few more days at this point :)
 
-commit f7b58a69fad9d2c4c90cab0247811155dd0d48e7
-Author: Mike Snitzer <snitzer@kernel.org>
-Date:   Thu Mar 30 14:56:38 2023 -0400
-
-    dm: fix improper splitting for abnormal bios
-
-    "Abnormal" bios include discards, write zeroes and secure erase. By no
-    longer passing the calculated 'len' pointer, commit 7dd06a2548b2 ("dm:
-    allow dm_accept_partial_bio() for dm_io without duplicate bios") took a
-    senseless approach to disallowing dm_accept_partial_bio() from working
-    for duplicate bios processed using __send_duplicate_bios().
-
-    It inadvertently and incorrectly stopped the use of 'len' when
-    initializing a target's io (in alloc_tio). As such the resulting tio
-    could address more area of a device than it should.
-
-    For example, when discarding an entire DM striped device with the
-    following DM table:
-     vg-lvol0: 0 159744 striped 2 128 7:0 2048 7:1 2048
-     vg-lvol0: 159744 45056 striped 2 128 7:2 2048 7:3 2048
-
-    Before this fix:
-
-     device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=102400
-     blkdiscard: attempt to access beyond end of device
-     loop0: rw=2051, sector=2048, nr_sectors = 102400 limit=81920
-
-     device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=102400
-     blkdiscard: attempt to access beyond end of device
-     loop1: rw=2051, sector=2048, nr_sectors = 102400 limit=81920
-
-    After this fix;
-
-     device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=79872
-     device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=79872
-
-    Fixes: 7dd06a2548b2 ("dm: allow dm_accept_partial_bio() for dm_io without duplicate bios")
-    Cc: stable@vger.kernel.org
-    Reported-by: Orange Kao <orange@aiven.io>
-    Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-
-Signed-off-by: Benjamin Marzinski <bmarzins@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
----
- drivers/md/dm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index f9a402c04666..e624a919fe55 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1460,7 +1460,8 @@ static void setup_split_accounting(struct clone_info *ci, unsigned len)
- }
- 
- static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
--				struct dm_target *ti, unsigned num_bios)
-+				struct dm_target *ti, unsigned num_bios,
-+				unsigned *len)
- {
- 	struct bio *bio;
- 	int try;
-@@ -1471,7 +1472,7 @@ static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
- 		if (try)
- 			mutex_lock(&ci->io->md->table_devices_lock);
- 		for (bio_nr = 0; bio_nr < num_bios; bio_nr++) {
--			bio = alloc_tio(ci, ti, bio_nr, NULL,
-+			bio = alloc_tio(ci, ti, bio_nr, len,
- 					try ? GFP_NOIO : GFP_NOWAIT);
- 			if (!bio)
- 				break;
-@@ -1507,7 +1508,7 @@ static int __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
- 		break;
- 	default:
- 		/* dm_accept_partial_bio() is not supported with shared tio->len_ptr */
--		alloc_multiple_bios(&blist, ci, ti, num_bios);
-+		alloc_multiple_bios(&blist, ci, ti, num_bios, len);
- 		while ((clone = bio_list_pop(&blist))) {
- 			dm_tio_set_flag(clone_to_tio(clone), DM_TIO_IS_DUPLICATE_BIO);
- 			__map_bio(clone);
--- 
-2.30.0
-
+--=20
+paul-moore.com
