@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 038746D5EB8
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 13:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 673646D5EA2
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 13:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234527AbjDDLKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 07:10:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42728 "EHLO
+        id S234917AbjDDLHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 07:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234516AbjDDLKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 07:10:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78062133
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 04:09:30 -0700 (PDT)
+        with ESMTP id S234786AbjDDLHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 07:07:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F5A84C0A
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 04:04:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680606570;
+        s=mimecast20190719; t=1680606194;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=EzDn6/dNG6W9bpF33/A9akZ0Fh/d2exOdQEiIaEENDw=;
-        b=JfIFQaRdpAoqSOeW0J/Q9E3lkF00QccO76lLh+6GOHse0c4sLGrSEnV15uvdAg85I8xa+0
-        maJt968MdKLt0uPJ2nJYPUWWfS5ujW8dWbA/WJJJH89cKj/FUzvWFv1xzNM7jrdHxW1iy1
-        RSUSrwn7U/AVf7elhi4nCQ5oYi2jwIw=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=EgmNJkyVd1cusK6HOLOjjJPFUWD2h64HXMSqY5UxpBY=;
+        b=I5w91z9OFF/8HHyJtNn4PEY9mRSzFKlCj/8c8fgY0YQsWqGMU8GLqBtaHpw3zDbPzS9lYn
+        8388MS9hcQEtA4q92d1qZrubl8HtmQHY+/tzgll+/Os5sZXnb78aEVlyD/cqyPFUP/0xcz
+        RMqGCLsP2flQXSRx5//CA1NR2VI9mqA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-341-BCG8yJebOG2X3wdA7GNOnQ-1; Tue, 04 Apr 2023 07:03:09 -0400
-X-MC-Unique: BCG8yJebOG2X3wdA7GNOnQ-1
+ us-mta-259-yFC-h2ruNn26lBdAx7XcCA-1; Tue, 04 Apr 2023 07:03:10 -0400
+X-MC-Unique: yFC-h2ruNn26lBdAx7XcCA-1
 Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 252403C16E84;
-        Tue,  4 Apr 2023 11:03:09 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 64894884EC7;
+        Tue,  4 Apr 2023 11:03:10 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.39.192.74])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2067C483EC1;
-        Tue,  4 Apr 2023 11:03:08 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 59F75400F4F;
+        Tue,  4 Apr 2023 11:03:09 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     "Rafael J . Wysocki" <rafael@kernel.org>
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Mario Limonciello <mario.limonciello@amd.com>,
         Daniel Dadap <ddadap@nvidia.com>, Len Brown <lenb@kernel.org>,
         linux-acpi@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v2 3/6] ACPI: video: Add acpi_backlight=video quirk for Apple iMac14,1 and iMac14,2
-Date:   Tue,  4 Apr 2023 13:02:48 +0200
-Message-Id: <20230404110251.42449-4-hdegoede@redhat.com>
+Subject: [PATCH v2 4/6] ACPI: video: Add acpi_backlight=video quirk for Lenovo ThinkPad W530
+Date:   Tue,  4 Apr 2023 13:02:49 +0200
+Message-Id: <20230404110251.42449-5-hdegoede@redhat.com>
 In-Reply-To: <20230404110251.42449-1-hdegoede@redhat.com>
 References: <20230404110251.42449-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -61,56 +61,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On the Apple iMac14,1 and iMac14,2 all-in-ones (monitors with builtin "PC")
-the connection between the GPU and the panel is seen by the GPU driver as
-regular DP instead of eDP, causing the GPU driver to never call
-acpi_video_register_backlight().
+The Lenovo ThinkPad W530 uses a nvidia k1000m GPU. When this gets used
+together with one of the older nvidia binary driver series (the latest
+series does not support it), then backlight control does not work.
 
-(GPU drivers only call acpi_video_register_backlight() when an internal
- panel is detected, to avoid non working acpi_video# devices getting
- registered on desktops which unfortunately is a real issue.)
+This is caused by commit 3dbc80a3e4c5 ("ACPI: video: Make backlight
+class device registration a separate step (v2)") combined with
+commit 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for
+creating ACPI backlight by default").
 
-Fix the missing acpi_video# backlight device on these all-in-ones by
-adding a acpi_backlight=video DMI quirk, so that video.ko will
-immediately register the backlight device instead of waiting for
-an acpi_video_register_backlight() call.
+After these changes the acpi_video# backlight device is only registered
+when requested by a GPU driver calling acpi_video_register_backlight()
+which the nvidia binary driver does not do.
+
+I realize that using the nvidia binary driver is not a supported use-case
+and users can workaround this by adding acpi_backlight=video on the kernel
+commandline, but the ThinkPad W530 is a popular model under Linux users,
+so it seems worthwhile to add a quirk for this.
+
+I will also email Nvidia asking them to make the driver call
+acpi_video_register_backlight() when an internal LCD panel is detected.
+So maybe the next maintenance release of the drivers will fix this...
 
 Fixes: 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for creating ACPI backlight by default")
 Cc: stable@vger.kernel.org
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/acpi/video_detect.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/acpi/video_detect.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index f7c218dd8742..295744fe7c92 100644
+index 295744fe7c92..e85729fc481f 100644
 --- a/drivers/acpi/video_detect.c
 +++ b/drivers/acpi/video_detect.c
-@@ -276,6 +276,29 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+@@ -299,6 +299,20 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
  		},
  	},
  
 +	/*
-+	 * Models which need acpi_video backlight control where the GPU drivers
-+	 * do not call acpi_video_register_backlight() because no internal panel
-+	 * is detected. Typically these are all-in-ones (monitors with builtin
-+	 * PC) where the panel connection shows up as regular DP instead of eDP.
++	 * Older models with nvidia GPU which need acpi_video backlight
++	 * control and where the old nvidia binary driver series does not
++	 * call acpi_video_register_backlight().
 +	 */
 +	{
 +	 .callback = video_detect_force_video,
-+	 /* Apple iMac14,1 */
++	 /* ThinkPad W530 */
 +	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "iMac14,1"),
-+		},
-+	},
-+	{
-+	 .callback = video_detect_force_video,
-+	 /* Apple iMac14,2 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "iMac14,2"),
++		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad W530"),
 +		},
 +	},
 +
