@@ -2,185 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B52326D69FB
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 19:14:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01436D6A52
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 19:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbjDDRO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 13:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36878 "EHLO
+        id S235952AbjDDRVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 13:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235324AbjDDROW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 13:14:22 -0400
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D60F170F
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 10:14:18 -0700 (PDT)
-Received: by mail-ot1-x32d.google.com with SMTP id f4-20020a9d0384000000b0069fab3f4cafso17691791otf.9
-        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 10:14:18 -0700 (PDT)
+        with ESMTP id S235916AbjDDRVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 13:21:48 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25C34F9;
+        Tue,  4 Apr 2023 10:21:43 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id fy10-20020a17090b020a00b0023b4bcf0727so34713459pjb.0;
+        Tue, 04 Apr 2023 10:21:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google; t=1680628457;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+rctyGFwUhLz0v8rBkOornKtYQMB5BPJug/RzBuS/2M=;
-        b=VmRmfUZJUhyGOczWKMV+00PPnBHHsUoFeSbH0NGIe8Pd07ZW3TAuh1YijivL9qwChI
-         h7bi++UVLPLXD8FqO6JdWSOR2/A2A35sAcOUU+OVZ3FHQ++SuIZjes+JUL5nzx+nHCz5
-         yUpA65U8rH4S0U9vn0CAIA5igm+IkFgm69g+o=
+        d=gmail.com; s=20210112; t=1680628902; x=1683220902;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZiBMCUFMw1ZDjB+YrQkeZxAt4DJ2+vedDb0Fa2LgdvQ=;
+        b=kGCKFdF1iNrmyIH2cBWz0Q7pkjddKmSppklppuCOY8LbV7b69uEhrel4aS+73Uy+E0
+         9LB5IUGOHpJL40tPrbFJs//NQGHzk65YP6fETCejP1/st7X4HqTFMWM9q5f10ALilMuU
+         NbTqoqFNC7JvmY4P+uc+O+ivIWaW1DLEyY5pOjNoaZehIgXEw46g51nYiiap7vXO1B/N
+         fTmXo9/GYEoNAWhvbm/tkVafIvAY1kIXbEROuibRmmkhQtQKsyQDP8BMdk3fd40vqbYV
+         wfNOPHNo0w6qejQr5c3qwFRTvyJxSeeK4XhzZx6sRmU9x25wfrO1DEJGh7Ezve1fb+ih
+         9VgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680628457;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+rctyGFwUhLz0v8rBkOornKtYQMB5BPJug/RzBuS/2M=;
-        b=7OkR14I7hvhFQ724sv6UUko7oJLhPRLhrENV/RS0fZ7FvI15ENWEtfSdalgOjKVu47
-         TTX437k6Fs/lzqyCrhL8GZAr7ZMnAywMloiIbaKUOBgDmwZgDQjNyyg5sbbo7DcoDxgB
-         h9HqKZabw4pAWT8hKajgfy9PUkUAAEUBdxAudBde5RvLHVu9ipkIb2YnQLVd8h/MSU0F
-         fXSH+syXBShvvnytyKf+/HpsSRzD3NnaqP5Nux46PNVNYefmaWg6fCXXzcuytZwha30s
-         EFBp0ZHS12sDEXwe4jKlcNTXU3MnSCoCvVbBbF4sigUSZI5Lkdpsfsdp2Gu99XdtA+LN
-         B0vA==
-X-Gm-Message-State: AAQBX9dctwX2ECLv0e4wkVLOr6ATrptUCV5lvsMKq5Gdprb1WVxJbHN6
-        zppHEx8CDFl+Tvs2gETE0I+6ICou4iF+7q5Z+jPqYQ==
-X-Google-Smtp-Source: AKy350YHyFY/sr2g+RppxfbAVFUR9kDehSje5aPccXvHQ9pwWgn46QEOz0mPW9kfcDo5DAf2YO8EtU9WiCaFTdWS/hQ=
-X-Received: by 2002:a9d:74cf:0:b0:6a3:8428:fd4e with SMTP id
- a15-20020a9d74cf000000b006a38428fd4emr1053522otl.6.1680628457599; Tue, 04 Apr
- 2023 10:14:17 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1680628902; x=1683220902;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZiBMCUFMw1ZDjB+YrQkeZxAt4DJ2+vedDb0Fa2LgdvQ=;
+        b=2j0RBT+UTzAM8l42ExVcak3ZIz869YiceVn+4B0/H7rBkTwIbV7N8lfQjBgnWUB1TN
+         NlR13rv/nswtaGpBBtzXtAg+08b+WlTg6DjI2ppW+yv+RAbYXrddhki9iWKYCRXQijDh
+         SnVvAMcj3WMlCiay0tzLXVoID8vLbYTxI48c//XXhnupHz4MQCEN6I/oT3H3xiUUcCFl
+         fniWkoLAGSQ1DenBwkz9CKGWF64SwRMTcFD67K0djGVxBzXdpBbVqq6XHp/uOlZ576wx
+         26gxTvx6i41OcRHarndRMzVkMdEQo9JB2I9bULYYXQakLFfeBs/UcstUlqEuJUD4qM/s
+         XITw==
+X-Gm-Message-State: AAQBX9eRxtOPH8snjRdihmE+Obj8WAeMMP3ahSy+nq3Hfs2zmqm4rD1A
+        PA2Mqpi9ne30aM1wGndpEmE=
+X-Google-Smtp-Source: AKy350aVMal1RU9eiSmBLW0rJxH/MrWDy+/ZJBHjFSrh5IJ8d5fjaHlNLVfbMVxA5NfnCN2G7OkWZw==
+X-Received: by 2002:a17:902:e353:b0:1a0:428b:d8c5 with SMTP id p19-20020a170902e35300b001a0428bd8c5mr2914493plc.45.1680628902448;
+        Tue, 04 Apr 2023 10:21:42 -0700 (PDT)
+Received: from [10.69.71.131] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id g14-20020a1709029f8e00b00198b01b412csm8544231plq.303.2023.04.04.10.21.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Apr 2023 10:21:41 -0700 (PDT)
+Message-ID: <052a7a73-ea48-a4ff-f8cb-b30a40ac4b70@gmail.com>
+Date:   Tue, 4 Apr 2023 10:21:39 -0700
 MIME-Version: 1.0
-References: <20230404123624.360384-1-daniel.vetter@ffwll.ch>
- <CAMuHMdUR=rx2QPvpzsSCwXTSTsPQOudNMzyL3dtZGQdQfrQGDA@mail.gmail.com>
- <ZCwtMJEAJiId/TJe@phenom.ffwll.local> <ZCwx+2hAmyDqOfWu@phenom.ffwll.local>
- <CAMuHMdVt+fsHhk73hPe=bN5e_vTjKEM014Q1AJ9tnankvsXcHg@mail.gmail.com>
- <CAKMK7uFEmt1=4jDi1xDbnTVH6M2iEZSjcY-UN93do0NiH=GogA@mail.gmail.com> <CAMuHMdUpyxuAZVxZmVCzspbzCBPFdnhbrYOJPMjFnqwtwNCAsw@mail.gmail.com>
-In-Reply-To: <CAMuHMdUpyxuAZVxZmVCzspbzCBPFdnhbrYOJPMjFnqwtwNCAsw@mail.gmail.com>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Tue, 4 Apr 2023 19:14:06 +0200
-Message-ID: <CAKMK7uFtL=ON_PiwcSKpwkiaHt3wqShN=UwxeKTZN4heK5K0UA@mail.gmail.com>
-Subject: Re: [PATCH] fbdev: Don't spam dmesg on bad userspace ioctl input
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        syzbot+20dcf81733d43ddff661@syzkaller.appspotmail.com,
-        Helge Deller <deller@gmx.de>, stable@vger.kernel.org,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
-        Melissa Wen <melissa.srw@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [PATCH 5.4 000/104] 5.4.240-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230403140403.549815164@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 4 Apr 2023 at 19:04, Geert Uytterhoeven <geert@linux-m68k.org> wrot=
-e:
->
-> Hi Daniel,
->
-> On Tue, Apr 4, 2023 at 5:55=E2=80=AFPM Daniel Vetter <daniel@ffwll.ch> wr=
-ote:
-> > On Tue, 4 Apr 2023 at 16:51, Geert Uytterhoeven <geert@linux-m68k.org> =
-wrote:
-> > > On Tue, Apr 4, 2023 at 4:19=E2=80=AFPM Daniel Vetter <daniel@ffwll.ch=
-> wrote:
-> > > > On Tue, Apr 04, 2023 at 03:59:12PM +0200, Daniel Vetter wrote:
-> > > > > On Tue, Apr 04, 2023 at 03:53:09PM +0200, Geert Uytterhoeven wrot=
-e:
-> > > > > > On Tue, Apr 4, 2023 at 2:36=E2=80=AFPM Daniel Vetter <daniel.ve=
-tter@ffwll.ch> wrote:
-> > > > > > > There's a few reasons the kernel should not spam dmesg on bad
-> > > > > > > userspace ioctl input:
-> > > > > > > - at warning level it results in CI false positives
-> > > > > > > - it allows userspace to drown dmesg output, potentially hidi=
-ng real
-> > > > > > >   issues.
-> > > > > > >
-> > > > > > > None of the other generic EINVAL checks report in the
-> > > > > > > FBIOPUT_VSCREENINFO ioctl do this, so it's also inconsistent.
-> > > > > > >
-> > > > > > > I guess the intent of the patch which introduced this warning=
- was that
-> > > > > > > the drivers ->fb_check_var routine should fail in that case. =
-Reality
-> > > > > > > is that there's too many fbdev drivers and not enough people
-> > > > > > > maintaining them by far, and so over the past few years we've=
- simply
-> > > > > > > handled all these validation gaps by tighning the checks in t=
-he core,
-> > > > > > > because that's realistically really all that will ever happen=
-.
-> > > > > > >
-> > > > > > > Reported-by: syzbot+20dcf81733d43ddff661@syzkaller.appspotmai=
-l.com
-> > > > > > > Link: https://syzkaller.appspot.com/bug?id=3Dc5faf983bfa4a607=
-de530cd3bb008888bf06cefc
-> > > > > >
-> > > > > >     WARNING: fbcon: Driver 'vkmsdrmfb' missed to adjust virtual=
- screen
-> > > > > > size (0x0 vs. 64x768)
-> > > > > >
-> > > > > > This is a bug in the vkmsdrmfb driver and/or DRM helpers.
-> > > > > >
-> > > > > > The message was added to make sure the individual drivers are f=
-ixed.
-> > > > > > Perhaps it should be changed to BUG() instead, so dmesg output
-> > > > > > cannot be drown?
-> > > > >
-> > > > > So you're solution is to essentially force us to replicate this c=
-heck over
-> > > > > all the drivers which cannot change the virtual size?
-> > > > >
-> > > > > Are you volunteering to field that audit and type all the patches=
-?
-> > > >
-> > > > Note that at least efifb, vesafb and offb seem to get this wrong. I=
- didn't
-> > > > bother checking any of the non-fw drivers. Iow there is a _lot_ of =
-work in
-> > > > your nack.
-> > >
-> > > Please don't spread FUD: efifb, vesafb and offb do not implement
-> > > fb_ops.fb_check_var(), so they are not affected.
-> >
-> > Hm I missed that early out. I'll do a patch to fix the drm fb helpers,
-> > as mentioned in the other thread I don't think we can actually just
-> > delete that because it would short-circuit out the fb_set_par call
-> > too.
->
-> As I said to the other thread earlier today[1], I think we can keep
-> the .fb_set_par() implementation.
-> There's just no point in providing a .fb_check_var() callback if
-> you don't support changing the video mode.
-
-If you don't have check_var then set_par just isn't called. Or am
-blind once more, not the first time today.
-
-And see the big comment in the drm set_par implementation, we can't
-ditch that because uabi fun in how the fbdev vs kms interactions are
-handled.
--Daniel
-
-> [1] https://lore.kernel.org/all/CAMuHMdUaHd1jgrsCSxCqF-HP2rAo2ODM_ZOjhk7Q=
-4vjuqvt36w@mail.gmail.com
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
-8k.org
->
-> In personal conversations with technical people, I call myself a hacker. =
-But
-> when I'm talking to journalists I just say "programmer" or something like=
- that.
->                                 -- Linus Torvalds
 
 
+On 4/3/2023 7:07 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.240 release.
+> There are 104 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.240-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
---=20
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
