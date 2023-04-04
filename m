@@ -2,135 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 841FD6D5963
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D72B6D5978
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 09:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233861AbjDDHWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 03:22:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
+        id S233643AbjDDHZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 03:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233891AbjDDHWs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:22:48 -0400
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76A62703
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 00:22:46 -0700 (PDT)
-Received: by mail-pj1-f51.google.com with SMTP id lr16-20020a17090b4b9000b0023f187954acso33036029pjb.2
-        for <stable@vger.kernel.org>; Tue, 04 Apr 2023 00:22:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680592966; x=1683184966;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=321YqDnSuehxPnWUbyYpciZ0sMxU1JX89/Zr4yQAoVQ=;
-        b=oCvwiMxvt7e/SV4eEat5bl5/HYzbYn7z0PrFvy0r4vmOG2ddmkyTOfrUXl8cS8NCmx
-         d6Nbcnx4g29vVRBDQWcxBknyMgCDNr4lsZyZo5Oa2bRjFQrhXahi9Txmu/G0gNzIfIE2
-         3SpWTO1AdIl8r7AbouXx5SYaHoJDBw6/hDJTM0rmobMuSUD17WNJ+r7tq3zJ8rHfOSgI
-         2gTDYV8Z3cjPCdsU7iKK4n4oWfYanT9yW3U87F5zSv3Sz1EYhn/rqH782CCnhP7/sc5g
-         fM6FsNCg1QQiOz4ym6i6qK3Q72rpVc5BT4QDPma/Yu38XBAy2gvHzOl30GBhVt6gZwG4
-         vc3g==
-X-Gm-Message-State: AAQBX9dmxFp1bLDNrkOUH3xxAwpl77gkhD37aAjh/HfurUb4PTVBkpnY
-        fqAVfFanuZQ2b25FkN9gar3JhbMQFyQ=
-X-Google-Smtp-Source: AKy350bO9lopRx/m9nUw7XFOef0TBIzVqx6qsf32bju6RpD53lyQgfFGlEPpqYLsDY5WvROcQLD5kw==
-X-Received: by 2002:a17:902:b68b:b0:19d:1e21:7f59 with SMTP id c11-20020a170902b68b00b0019d1e217f59mr1495566pls.0.1680592966036;
-        Tue, 04 Apr 2023 00:22:46 -0700 (PDT)
-Received: from tgsp-ThinkPad-X280.. ([116.128.244.169])
-        by smtp.gmail.com with ESMTPSA id d6-20020a170902c18600b001a04d37a4acsm7773658pld.9.2023.04.04.00.22.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Apr 2023 00:22:45 -0700 (PDT)
-From:   xiongxin <xiongxin@kylinos.cn>
-To:     xiongxin@kylinos.cn
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] powercap: intel_rapl: Optimize rp->domains memory allocation
-Date:   Tue,  4 Apr 2023 15:22:09 +0800
-Message-Id: <20230404072209.676132-1-xiongxin@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S233651AbjDDHZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 03:25:24 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376911BCB
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 00:25:23 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pjb2U-00073r-P0; Tue, 04 Apr 2023 09:25:10 +0200
+Received: from [2a0a:edc0:0:1101:1d::28] (helo=dude02.red.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pjb2U-008rcj-4i; Tue, 04 Apr 2023 09:25:10 +0200
+Received: from sha by dude02.red.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pjb2T-002UPb-GG; Tue, 04 Apr 2023 09:25:09 +0200
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     linux-wireless <linux-wireless@vger.kernel.org>
+Cc:     Hans Ulli Kroll <linux@ulli-kroll.de>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Pkshih <pkshih@realtek.com>, Tim K <tpkuester@gmail.com>,
+        "Alex G ." <mr.nuke.me@gmail.com>,
+        Nick Morrow <morrownr@gmail.com>,
+        Viktor Petrenko <g0000ga@gmail.com>,
+        Andreas Henriksson <andreas@fatal.se>,
+        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
+        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] wifi: rtw88: usb: fix priority queue to endpoint mapping
+Date:   Tue,  4 Apr 2023 09:25:07 +0200
+Message-Id: <20230404072508.578056-2-s.hauer@pengutronix.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230404072508.578056-1-s.hauer@pengutronix.de>
+References: <20230404072508.578056-1-s.hauer@pengutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.8 required=5.0 tests=FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the memory allocation of rp->domains in rapl_detect_domains(), there
-is an additional memory of struct rapl_domain allocated to prevent the
-pointer out of bounds called later.
+The RTW88 chipsets have four different priority queues in hardware. For
+the USB type chipsets the packets destined for a specific priority queue
+must be sent through the endpoint corresponding to the queue. This was
+not fully understood when porting from the RTW88 USB out of tree driver
+and thus violated.
 
-Optimize the code here to save sizeof(struct rapl_domain) bytes of
-memory.
+This patch implements the qsel to endpoint mapping as in
+get_usb_bulkout_id_88xx() in the downstream driver.
 
-Test in Intel NUC (i5-1135G7).
+Without this the driver often issues "timed out to flush queue 3"
+warnings and often TX stalls completely.
 
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: ValdikSS <iam@valdikss.org.ru>
+Tested-by: Alexandru gagniuc <mr.nuke.me@gmail.com>
+Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
 Cc: stable@vger.kernel.org
-Signed-off-by: xiongxin <xiongxin@kylinos.cn>
-Tested-by: xiongxin <xiongxin@kylinos.cn>
 ---
- drivers/powercap/intel_rapl_common.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/wireless/realtek/rtw88/usb.c | 70 ++++++++++++++++--------
+ 1 file changed, 47 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
-index 8970c7b80884..f8971282498a 100644
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -1171,13 +1171,14 @@ static int rapl_package_register_powercap(struct rapl_package *rp)
+diff --git a/drivers/net/wireless/realtek/rtw88/usb.c b/drivers/net/wireless/realtek/rtw88/usb.c
+index 2a8336b1847a5..a10d6fef4ffaf 100644
+--- a/drivers/net/wireless/realtek/rtw88/usb.c
++++ b/drivers/net/wireless/realtek/rtw88/usb.c
+@@ -118,6 +118,22 @@ static void rtw_usb_write32(struct rtw_dev *rtwdev, u32 addr, u32 val)
+ 	rtw_usb_write(rtwdev, addr, val, 4);
+ }
+ 
++static int dma_mapping_to_ep(enum rtw_dma_mapping dma_mapping)
++{
++	switch (dma_mapping) {
++	case RTW_DMA_MAPPING_HIGH:
++		return 0;
++	case RTW_DMA_MAPPING_NORMAL:
++		return 1;
++	case RTW_DMA_MAPPING_LOW:
++		return 2;
++	case RTW_DMA_MAPPING_EXTRA:
++		return 3;
++	default:
++		return -EINVAL;
++	}
++}
++
+ static int rtw_usb_parse(struct rtw_dev *rtwdev,
+ 			 struct usb_interface *interface)
  {
- 	struct rapl_domain *rd;
- 	struct powercap_zone *power_zone = NULL;
--	int nr_pl, ret;
-+	int nr_pl, ret, i;
- 
- 	/* Update the domain data of the new package */
- 	rapl_update_domain_data(rp);
- 
- 	/* first we register package domain as the parent zone */
--	for (rd = rp->domains; rd < rp->domains + rp->nr_domains; rd++) {
-+	for (i = 0; i < rp->nr_domains; i++) {
-+		rd = &rp->domains[i];
- 		if (rd->id == RAPL_DOMAIN_PACKAGE) {
- 			nr_pl = find_nr_power_limit(rd);
- 			pr_debug("register package domain %s\n", rp->name);
-@@ -1201,8 +1202,9 @@ static int rapl_package_register_powercap(struct rapl_package *rp)
- 		return -ENODEV;
- 	}
- 	/* now register domains as children of the socket/package */
--	for (rd = rp->domains; rd < rp->domains + rp->nr_domains; rd++) {
-+	for (i = 0; i < rp->nr_domains; i++) {
- 		struct powercap_zone *parent = rp->power_zone;
-+		rd = &rp->domains[i];
- 
- 		if (rd->id == RAPL_DOMAIN_PACKAGE)
- 			continue;
-@@ -1302,7 +1304,6 @@ static void rapl_detect_powerlimit(struct rapl_domain *rd)
-  */
- static int rapl_detect_domains(struct rapl_package *rp, int cpu)
- {
--	struct rapl_domain *rd;
+@@ -129,6 +145,8 @@ static int rtw_usb_parse(struct rtw_dev *rtwdev,
+ 	int num_out_pipes = 0;
  	int i;
+ 	u8 num;
++	const struct rtw_chip_info *chip = rtwdev->chip;
++	const struct rtw_rqpn *rqpn;
  
- 	for (i = 0; i < RAPL_DOMAIN_MAX; i++) {
-@@ -1319,15 +1320,15 @@ static int rapl_detect_domains(struct rapl_package *rp, int cpu)
+ 	for (i = 0; i < interface_desc->bNumEndpoints; i++) {
+ 		endpoint = &host_interface->endpoint[i].desc;
+@@ -183,31 +201,34 @@ static int rtw_usb_parse(struct rtw_dev *rtwdev,
+ 
+ 	rtwdev->hci.bulkout_num = num_out_pipes;
+ 
+-	switch (num_out_pipes) {
+-	case 4:
+-	case 3:
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID0] = 2;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID1] = 2;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID2] = 2;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID3] = 2;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID4] = 1;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID5] = 1;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID6] = 0;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID7] = 0;
+-		break;
+-	case 2:
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID0] = 1;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID1] = 1;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID2] = 1;
+-		rtwusb->qsel_to_ep[TX_DESC_QSEL_TID3] = 1;
+-		break;
+-	case 1:
+-		break;
+-	default:
+-		rtw_err(rtwdev, "failed to get out_pipes(%d)\n", num_out_pipes);
++	if (num_out_pipes < 1 || num_out_pipes > 4) {
++		rtw_err(rtwdev, "invalid number of endpoints %d\n", num_out_pipes);
+ 		return -EINVAL;
  	}
- 	pr_debug("found %d domains on %s\n", rp->nr_domains, rp->name);
  
--	rp->domains = kcalloc(rp->nr_domains + 1, sizeof(struct rapl_domain),
-+	rp->domains = kcalloc(rp->nr_domains, sizeof(struct rapl_domain),
- 			      GFP_KERNEL);
- 	if (!rp->domains)
- 		return -ENOMEM;
- 
- 	rapl_init_domains(rp);
- 
--	for (rd = rp->domains; rd < rp->domains + rp->nr_domains; rd++)
--		rapl_detect_powerlimit(rd);
-+	for (i = 0; i < rp->nr_domains; i++)
-+		rapl_detect_powerlimit(&rp->domains[i]);
- 
++	rqpn = &chip->rqpn_table[num_out_pipes];
++
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID0] = dma_mapping_to_ep(rqpn->dma_map_be);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID1] = dma_mapping_to_ep(rqpn->dma_map_bk);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID2] = dma_mapping_to_ep(rqpn->dma_map_bk);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID3] = dma_mapping_to_ep(rqpn->dma_map_be);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID4] = dma_mapping_to_ep(rqpn->dma_map_vi);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID5] = dma_mapping_to_ep(rqpn->dma_map_vi);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID6] = dma_mapping_to_ep(rqpn->dma_map_vo);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID7] = dma_mapping_to_ep(rqpn->dma_map_vo);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID8] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID9] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID10] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID11] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID12] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID13] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID14] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_TID15] = -EINVAL;
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_BEACON] = dma_mapping_to_ep(rqpn->dma_map_hi);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_HIGH] = dma_mapping_to_ep(rqpn->dma_map_hi);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_MGMT] = dma_mapping_to_ep(rqpn->dma_map_mg);
++	rtwusb->qsel_to_ep[TX_DESC_QSEL_H2C] = dma_mapping_to_ep(rqpn->dma_map_hi);
++
  	return 0;
  }
+ 
+@@ -250,7 +271,7 @@ static void rtw_usb_write_port_tx_complete(struct urb *urb)
+ static int qsel_to_ep(struct rtw_usb *rtwusb, unsigned int qsel)
+ {
+ 	if (qsel >= ARRAY_SIZE(rtwusb->qsel_to_ep))
+-		return 0;
++		return -EINVAL;
+ 
+ 	return rtwusb->qsel_to_ep[qsel];
+ }
+@@ -265,6 +286,9 @@ static int rtw_usb_write_port(struct rtw_dev *rtwdev, u8 qsel, struct sk_buff *s
+ 	int ret;
+ 	int ep = qsel_to_ep(rtwusb, qsel);
+ 
++	if (ep < 0)
++		return ep;
++
+ 	pipe = usb_sndbulkpipe(usbd, rtwusb->out_ep[ep]);
+ 	urb = usb_alloc_urb(0, GFP_ATOMIC);
+ 	if (!urb)
 -- 
-2.34.1
+2.39.2
 
