@@ -2,123 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBF16D5AAD
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 10:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D34E86D5AB0
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 10:23:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233941AbjDDIXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 04:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58852 "EHLO
+        id S233873AbjDDIXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 04:23:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbjDDIXR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 04:23:17 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2852F1B7;
-        Tue,  4 Apr 2023 01:23:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=KtSOeF+WNLp6LDrLU00+5iLlovDzZEod0pAEJUP6bi0=; b=Gb7lXsGgza8FyhMkmFJCeJ+L91
-        067XAhZ6Y4vACCH/9V/gMgUecKcilHprdAXrl/+VvVH4GfF0kLe4+VG/wgSPqtj/lrljkdS6flADe
-        KC8s7CZhQYpF+PUfnQEDD+1ebia65r8CCjJSDja+482qwgg8zH7x5o9b/dMhAtVJ0Zqw7v7yNlJ1u
-        Q5qO3yHCOlblfou1IMebCnWcMk3FDyJ2WPwNgauiHBUjAUDYm96c54muj5L7z9nuSfpRDugLlvwTr
-        PpCdkL4shkyIPggC3MpYpoyODraoW8bYh+qPV4B9QuZuhly67r/0bUKYGHqfmYCnTUJnZgmX9OtU4
-        ehkIr3EA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pjbwR-00FBOk-Ds; Tue, 04 Apr 2023 08:22:59 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id AC52E300338;
-        Tue,  4 Apr 2023 10:22:55 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 35E42242109FC; Tue,  4 Apr 2023 10:22:55 +0200 (CEST)
-Date:   Tue, 4 Apr 2023 10:22:55 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Benjamin Bara <bbara93@gmail.com>
-Cc:     Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>,
-        rafael.j.wysocki@intel.com, dmitry.osipenko@collabora.com,
-        jonathanh@nvidia.com, richard.leitner@linux.dev,
-        treding@nvidia.com, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        Benjamin Bara <benjamin.bara@skidata.com>,
+        with ESMTP id S233356AbjDDIXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 04:23:53 -0400
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6CB1B7
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 01:23:51 -0700 (PDT)
+Received: from gproxy3-pub.mail.unifiedlayer.com (unknown [69.89.30.42])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 7B3238028A10
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 08:23:51 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 0969D1003F0D6
+        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 08:23:50 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id jbxGpWgvPuftbjbxGpcxTD; Tue, 04 Apr 2023 08:23:50 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=cPYlDnSN c=1 sm=1 tr=0 ts=642bde96
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=dKHAf1wccvYA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=+IoIfCnNuLKHzmztRu0VTFAP/IUIGC9ln/Qu+p+X6Bg=; b=GOa+GZDpukXkhne6SCdzEdSbvA
+        l8+tjYHZ0wkTInmop2PYZaJln6alxJ5D2cOVN6pRNM38hjFjiUv83f0xCXa4ePmQ2B3FPGJXnUOpx
+        3CqovkSVRp2Kwub1jt454RuE8FEWcw82m1Mvoij+wqgz6VSOpZwMMCMVcslTQ51gm+ECHkodsLcNU
+        37aVnHXhmOa9AxUm3vI7gogKHDmV0SiV1nBdM92fOhAORGXfuvrDF98iLe3Kdk72AGGGBLZWFOa+J
+        3+pmPsevKsoQFKMbuaAS2k2Plc+mcf1viTRq8TU+RgJUcT88UlPiS/euNv5VvSfzc2xpa6BRT3S8J
+        Ou0qVM0Q==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34080 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1pjbxF-000m1y-Q6;
+        Tue, 04 Apr 2023 02:23:49 -0600
+Subject: Re: [PATCH 6.2 000/187] 6.2.10-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/4] i2c: core: run atomic i2c xfer when !preemptible
-Message-ID: <20230404082255.GU4253@hirez.programming.kicks-ass.net>
-References: <20230327-tegra-pmic-reboot-v3-0-3c0ee3567e14@skidata.com>
- <20230327-tegra-pmic-reboot-v3-2-3c0ee3567e14@skidata.com>
- <ZCGuMzmS0Lz5WX2/@ninjato>
- <CAJpcXm6bt100442y8ajz7kR0nF3Gm9PVVwo3EKVBDC4Pmd-7Ag@mail.gmail.com>
- <ZCSWkhyQjnzByDoR@shikoro>
- <CAJpcXm5eKhQg3JDksGs5fHi-DN+VAJNnuyUKtQGiS2OzTgzyVw@mail.gmail.com>
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <a1adee63-bbcb-3221-1a6e-910508d3515e@w6rz.net>
+Date:   Tue, 4 Apr 2023 01:23:45 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJpcXm5eKhQg3JDksGs5fHi-DN+VAJNnuyUKtQGiS2OzTgzyVw@mail.gmail.com>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1pjbxF-000m1y-Q6
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:34080
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 02, 2023 at 12:04:48PM +0200, Benjamin Bara wrote:
-> On Wed, 29 Mar 2023 at 21:50, Wolfram Sang <wsa@kernel.org> wrote:
-> > Could you make sure please?
-> 
-> Sure, I'll try. The check before bae1d3a was:
-> in_atomic() || irqs_disabled()
-> which boils down to:
-> (preempt_count() != 0) || irqs_disabled()
-> preemptible() is defined as:
-> (preempt_count() == 0 && !irqs_disabled())
-> 
-> so this patch should behave the same as pre-v5.2, but with the
-> additional system state check. From my point of view, the additional
-> value of the in_atomic() check was that it activated atomic i2c xfers
-> when preemption is disabled, like in the case of panic(). So reverting
-> that commit would also re-activate atomic i2c transfers during emergency
-> restarts. However, I think considering the system state makes sense
-> here.
-> 
-> From my understanding, non-atomic i2c transfers require enabled IRQs,
-> but atomic i2c transfers do not have any "requirements". So the
-> irqs_disabled() check is not here to ensure that the following atomic
-> i2c transfer works correctly, but to use non-atomic i2c xfer as
-> long/often as possible.
-> 
-> Unfortunately, I am not sure yet about !CONFIG_PREEMPTION. I looked into
-> some i2c-bus implementations which implement both, atomic and
-> non-atomic. As far as I saw, the basic difference is that the non-atomic
-> variants usually utilize the DMA and then call a variant of
-> wait_for_completion(), like in i2c_imx_dma_write() [1]. However, the
-> documentation of wait_for_completion [2] states that:
-> "wait_for_completion() and its variants are only safe in process context
-> (as they can sleep) but not (...) [if] preemption is disabled".
-> Therefore, I am not quite sure yet if !CONFIG_PREEMPTION uses the
-> non-atomic variant at all or if this case is handled differently.
-> 
-> > Asking Peter Zijlstra might be a good idea.
-> > He helped me with the current implementation.
-> 
-> Thanks for the hint! I wrote an extra email to him and added him to CC.
+On 4/3/23 7:07 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.2.10 release.
+> There are 187 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-So yeah, can't call schedule() if non preemptible (which is either
-preempt_disable(), local_bh_disable() (true for bh handlers) or
-local_irq_disable() (true for IRQ handlers) and mostly rcu_read_lock()).
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-You can mostly forget about CONFIG_PREEMPT=n (or more specifically
-CONFIG_PREMPT_COUNT=n) things that work for PREEMPT typically also work
-for !PREEMPT.
-
-The question here seems to be if i2c_in_atomic_xfer_mode() should have
-an in_atomic() / !preemptible() check, right? IIUC Wolfram doesn't like
-it being used outside of extra special cicumstances?
-
-
-
+Tested-by: Ron Economos <re@w6rz.net>
 
