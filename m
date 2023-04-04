@@ -2,102 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 109586D57AC
-	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 06:49:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0E66D57E0
+	for <lists+stable@lfdr.de>; Tue,  4 Apr 2023 07:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbjDDEtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 00:49:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
+        id S232939AbjDDFL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 01:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229699AbjDDEs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 00:48:59 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06762184;
-        Mon,  3 Apr 2023 21:48:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680583739; x=1712119739;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=atNBv19nqFsJx7Jsp8sn5eYxALmhvo0gO3LFEzJDCZc=;
-  b=CwSjBK9kndC7sAbzC2ywHWBHuaNPOfZ68OHIo/KllJXcSHL8zsvMjWC/
-   /CwGyKg51GosfPwFKK4chEuoOZuLJFHxfWDc1MJeRfVurcjx1ed2zDFPm
-   dBICDDJtzyjSjvopordrdEyfiS0Wyf7hflJNxhoIa3bxlxMK40QR0h4IO
-   jjNICJSa4tbJKO4rTwIBxrjnsJmMiXpBKiobdnebvaq9LlbW9JEu8B6dz
-   tOlR5Iao9OYoPfb2m5War6OSE3p6lFiALlrW0HHTpJtUR5GB5HpX7mUd5
-   E3XMFjaz2aK/qOLdEecEa4lLRxuX21tHB29ihzYBUmAvdvCGCksN+hXOT
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10669"; a="321742175"
-X-IronPort-AV: E=Sophos;i="5.98,316,1673942400"; 
-   d="scan'208";a="321742175"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Apr 2023 21:48:58 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10669"; a="775496240"
-X-IronPort-AV: E=Sophos;i="5.98,316,1673942400"; 
-   d="scan'208";a="775496240"
-Received: from p12ill20yoongsia.png.intel.com ([10.88.227.28])
-  by FMSMGA003.fm.intel.com with ESMTP; 03 Apr 2023 21:48:54 -0700
-From:   Song Yoong Siang <yoong.siang.song@intel.com>
-To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Christian Marangi <ansuelsmth@gmail.com>
-Cc:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bpf@vger.kernel.org, stable@vger.kernel.org,
-        Song Yoong Siang <yoong.siang.song@intel.com>
-Subject: [PATCH net 1/1] net: stmmac: Add queue reset into stmmac_xdp_open() function
-Date:   Tue,  4 Apr 2023 12:48:23 +0800
-Message-Id: <20230404044823.3226144-1-yoong.siang.song@intel.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S232723AbjDDFL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 01:11:57 -0400
+Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D919C1BF9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 22:11:53 -0700 (PDT)
+Received: by mail-vs1-xe2d.google.com with SMTP id dg15so15745755vsb.13
+        for <stable@vger.kernel.org>; Mon, 03 Apr 2023 22:11:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1680585111;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SCiMJmUi8GaQ+x1OyTgFrNc5tQQqEFd+PygZeMOOGjI=;
+        b=YGyuMqUTM5D9CeLhG6088aMd/+HgcJ+QoHsGZlmMCscGNlPTDjJfOdxKaXEdKG86Tc
+         RJeiV03HoDKlpeCd+enyYmHAvE1uLgrT19GcPrGCrM2e3YF8xE49bgm01bM+or15PGE3
+         eg0yrLkn5f6KkSKruqEqTxHQsiU76iJrPsDHJGXVOuB598RLhT6aoaTWS2bXzs7WVs9m
+         iAV5nmL3WZs9M0sLSP1FvgDNAKsGsea/6tlhadFKLq8VmPdi8ipS40AMe5IELCqJ/7Sr
+         T6+uDSCBtsr80NpKcFfgjTcB49i9FJ8dhy1cJk+RHzGA/HAKvPOdXHEzYnBLjYVewrVT
+         ZoyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680585111;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=SCiMJmUi8GaQ+x1OyTgFrNc5tQQqEFd+PygZeMOOGjI=;
+        b=fGIJ7SpS50X5t5uQEkLvaMigW+ycpas4zEM9sq5o6496ys+BMXF5MgmUJIwHDglrMK
+         bdDnGjlXU8CK62o1HnxFQ8e93sPPffNFq75+NYRDaoSdETMeqYDk0HK3mI+nykF8suX2
+         JdbW2r7P7DBdLE9ojiw7vjuJUA5Tvk/o4h0CSEKSzkPo+o84LpjBBpuoHXyufagJWoxB
+         O9V28jSQnjpJrfq/jidi/hgvHoJdzwgI//AFy4uyW0TMUiNmbQ7nJcWjc9rIFAFJiRTl
+         4+NGmd+4O8Ck7yzucLMVpOclDeeK5CVxMMg5UYUMqzgNCQZN/NZYEFLKr41OkFQKOo1x
+         8zUA==
+X-Gm-Message-State: AAQBX9dy0Nvk9Wokz2deefuLK8NnJraB6fPq0A3DQq2JsvhQCy322jpA
+        UEzbq/3jZ0KusbwPajsvsrfqPyv4OQqTuTVUJQAhAA==
+X-Google-Smtp-Source: AKy350YHEjnie5+lRjtxBz/zJSLcE4i2hqRV2u+5OLxYyK4AT/Gz1r8izWK4qKq8pbmTVSQjCPJE4C3u7sKBmh52BGI=
+X-Received: by 2002:a67:ca8d:0:b0:425:d255:dd38 with SMTP id
+ a13-20020a67ca8d000000b00425d255dd38mr1343193vsl.1.1680585111012; Mon, 03 Apr
+ 2023 22:11:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.5 required=5.0 tests=AC_FROM_MANY_DOTS,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.6
+References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 4 Apr 2023 10:41:39 +0530
+Message-ID: <CA+G9fYu2dBjTD=X5josQwf0om2C1_A-Lerfnb7A9BWD=_drQ4w@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/66] 4.14.312-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Queue reset was moved out from __init_dma_rx_desc_rings() and
-__init_dma_tx_desc_rings() functions. Thus, the driver fails to transmit
-and receive packet after XDP prog setup.
+On Mon, 3 Apr 2023 at 19:41, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.312 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.312-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-This commit adds the missing queue reset into stmmac_xdp_open() function.
 
-Fixes: f9ec5723c3db ("net: ethernet: stmicro: stmmac: move queue reset to dedicated functions")
-Cc: <stable@vger.kernel.org> # 6.0+
-Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 3e5bbfe3c41b..e4c27eb17bd2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -6630,6 +6630,8 @@ int stmmac_xdp_open(struct net_device *dev)
- 		goto init_error;
- 	}
- 
-+	stmmac_reset_queues_param(priv);
-+
- 	/* DMA CSR Channel configuration */
- 	for (chan = 0; chan < dma_csr_ch; chan++) {
- 		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
--- 
-2.34.1
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+## Build
+* kernel: 4.14.312-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.14.y
+* git commit: f4c3927dd933c23aed0848ae3b5214808b7e6e88
+* git describe: v4.14.311-67-gf4c3927dd933
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.311-67-gf4c3927dd933
+
+## Test Regressions (compared to v4.14.311)
+
+## Metric Regressions (compared to v4.14.311)
+
+## Test Fixes (compared to v4.14.311)
+
+## Metric Fixes (compared to v4.14.311)
+
+## Test result summary
+total: 63126, pass: 54139, fail: 1959, skip: 6939, xfail: 89
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 106 total, 104 passed, 2 failed
+* arm64: 33 total, 31 passed, 2 failed
+* i386: 20 total, 19 passed, 1 failed
+* mips: 21 total, 21 passed, 0 failed
+* parisc: 6 total, 6 passed, 0 failed
+* powerpc: 8 total, 7 passed, 1 failed
+* s390: 6 total, 5 passed, 1 failed
+* sh: 12 total, 12 passed, 0 failed
+* sparc: 6 total, 6 passed, 0 failed
+* x86_64: 25 total, 24 passed, 1 failed
+
+## Test suites summary
+* boot
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
