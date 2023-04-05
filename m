@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EECD16D7864
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 11:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5246D7865
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 11:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237486AbjDEJcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237362AbjDEJcl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 5 Apr 2023 05:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54984 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237362AbjDEJc1 (ORCPT
+        with ESMTP id S237789AbjDEJc1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 05:32:27 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AA4619C
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 02:31:51 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id g187-20020a2520c4000000b00b74680a7904so34645008ybg.15
-        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 02:31:51 -0700 (PDT)
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C1E91
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 02:31:52 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id 4-20020a251904000000b00b7f75c3cafdso19594709ybz.16
+        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 02:31:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1680687096;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=yBhMce5MJnmp23KM1dsJQjjtpNOxg2YPVBV4k7AdjEQ=;
-        b=aKsY5zNFDmGcT2oLevWC/U6nVR8VVMOStPWNb4b9XzcOaVjjp+bwM1RXUgrG4WynDQ
-         EAxvcUnxeK8linTrOHXJ23Neiwz4JAipa8sCiG5FwsjKyZnSg4nLhAAeeHaeGvIkyxBN
-         0vxBwJODeOm8+XNgsAemb9wyJOCmS1+BVmwQwIj7dxnUwF+JhVy0qD0yKI1q8aiR2Bfp
-         BqOqXQFOrEOccYY5wWn/4RG6V5hIFL7gced4oTznR9QP98pyNMjTO50nnFeJpqBjnJWN
-         tHmMzJjz+MdOldH4zur6+Mfj77JQM81yJGOVtkzG2xueaSaWjstQgEmhlCbHFgtozBqT
-         4ihA==
+        d=google.com; s=20210112; t=1680687098;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z/f7k2pCQfyKc9i/c1APoOdFbnqMktgzwaYI9MvzI7I=;
+        b=ekKxX2C34tJMVaSXEvswV0dn6KXZYLxQfRnib0ncGtIcCdhLZO6fp2nRbolxeyWGzA
+         AYVX07eNPDMYwUsG3dP9BPeP2e5BeikACMPWKsdDgc9PBzoPPBBUTk13ZhX6F2+JKfY6
+         0OD8NNIJRYP47IGm3P76WE55/EhcYUESreY4vB7hWrB4RXU2uyx6p/zbGqbRv9IrZT1o
+         3SX29/CnmHD0LUzKLULvlZPEIAsp9DmlVdWIbFIOTDAi41BBAkSO3R3dHc62ZaimoKx5
+         DMZ56/BJN9X5Vfs7MNZwyOpTZ1qU4u2jyV1QMMmjqflFOkckrT5g9iMG32sRJt8BUZ1F
+         xtPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680687096;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yBhMce5MJnmp23KM1dsJQjjtpNOxg2YPVBV4k7AdjEQ=;
-        b=5E7RoztYrEeqbJsd3W54DN+u3oLfSNVoG0brYB06yz5nMdZMD3kUwtvzAJW7sHj+mI
-         blNCkhBKs0WQ1torW4tMUzEMWek1Qhj5mWZs+fhZWcAeStqpDs3fO7EOBYybhf7YoqRe
-         GJG9zZKqLXsE0xHcwRGTvlahPE0cC+xjv0MQe3WVxE+6oo2IKCOrcM3AgbvJ5XTBrhBa
-         DxwzFFON7tCuslgyf3FjuUDzvcGP6BuqHb08XGQxJDOMBFPgqPUEtimyv0Bz+UqDK+B6
-         XhuhWQy2sjC7uIHfNn/QzmZLYkn+udwwMPDxb/qBWJm/efxKsE3waEvboWfdIXdjN1Jq
-         MfAw==
-X-Gm-Message-State: AAQBX9cdqHCOMQABy47oKdaI/5ngTguYziiYSELaePWzW/iKhBTBp7vj
-        w/yRcobUFQYIYsRkFz69/DbaXBKNQ0M=
-X-Google-Smtp-Source: AKy350Z65mkS+F6+obV9zcmrHvkJXQkjOz7M3BWVH07O3xO+HLMKQCcCFv7crfTnz3r+DFRozrmh0MeyTAw=
+        d=1e100.net; s=20210112; t=1680687098;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z/f7k2pCQfyKc9i/c1APoOdFbnqMktgzwaYI9MvzI7I=;
+        b=PXZFnmSLyKxtp97395fP+9346SAL1kghhWyCOKu3+CHvILNAVvR+/MIfvNjV+mYx7M
+         l75DDI36j4ZFgCwjNm3QAdO7gMpgT1MQ7HCHabNFJjd8yx59qwCn7OWmtf86KoJZp57S
+         +ssQ7VKWiTX8Xf4WON3vLxRkFfmjs+PTI4bzfwpcQa2MA8ImE0dvlhCfiBsbS6mdWyvN
+         LAddAoOt5lua7a87y9kncz/eAFBRunvQJMigvvUuGLTO/tUeM2N+fXjp6BQf8gTd4dXQ
+         xeFb67BTS3T2Osbysgvu1UiOtU1Iae7RjUiU1vHOt3BWvwCi/6s0KWNH5dwW5IF959aF
+         JYLw==
+X-Gm-Message-State: AAQBX9ceie9tbbrl34lgTfNpyPl89ZAOEreJ67lDlXgVT30MWfMr1KTS
+        osjd+HtsMj/xxitjxUbTUJzaSFM7Bx8=
+X-Google-Smtp-Source: AKy350aKsyRuBxaFkts/Dkw/YAKF8fPlfRHIbx10T2+rN8xaLh+uXq86LvxxLKF39pNGTOckwR/zSyrRIDs=
 X-Received: from badhri.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:6442])
- (user=badhri job=sendgmr) by 2002:a25:da4e:0:b0:a02:a3a6:78fa with SMTP id
- n75-20020a25da4e000000b00a02a3a678famr3137102ybf.12.1680687096140; Wed, 05
- Apr 2023 02:31:36 -0700 (PDT)
-Date:   Wed,  5 Apr 2023 09:31:32 +0000
+ (user=badhri job=sendgmr) by 2002:a81:ad04:0:b0:544:5aa0:e212 with SMTP id
+ l4-20020a81ad04000000b005445aa0e212mr3163443ywh.6.1680687097844; Wed, 05 Apr
+ 2023 02:31:37 -0700 (PDT)
+Date:   Wed,  5 Apr 2023 09:31:33 +0000
+In-Reply-To: <20230405093133.1858140-1-badhri@google.com>
 Mime-Version: 1.0
+References: <20230405093133.1858140-1-badhri@google.com>
 X-Mailer: git-send-email 2.40.0.348.gf938b09366-goog
-Message-ID: <20230405093133.1858140-1-badhri@google.com>
-Subject: [PATCH v1 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect only
- when started
+Message-ID: <20230405093133.1858140-2-badhri@google.com>
+Subject: [PATCH v1 2/2] usb: gadget: udc: core: Prevent redundant calls to pullup
 From:   Badhri Jagan Sridharan <badhri@google.com>
 To:     gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
         colin.i.king@gmail.com, xuetao09@huawei.com,
@@ -69,112 +70,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-usb_udc_connect_control does not check to see if the udc
-has already been started. This causes gadget->ops->pullup
-to be called through usb_gadget_connect when invoked
-from usb_udc_vbus_handler even before usb_gadget_udc_start
-is called. Guard this by checking for udc->started in
-usb_udc_connect_control before invoking usb_gadget_connect.
-
-Guarding udc_connect_control, udc->started and udc->vbus
-with its own mutex as usb_udc_connect_control_locked
-can be simulataneously invoked from different code paths.
+usb_gadget_connect calls gadget->ops->pullup without
+checking whether gadget->connected was previously set.
+Make this symmetric to usb_gadget_disconnect by returning
+early if gadget->connected is already set.
 
 Cc: stable@vger.kernel.org
 
 Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Fixes: 628ef0d273a6 ("usb: udc: add usb_udc_vbus_handler")
+Fixes: 5a1da544e572 ("usb: gadget: core: do not try to disconnect gadget if it is not connected")
 ---
- drivers/usb/gadget/udc/core.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/core.c
-index 3dcbba739db6..890f92cb6344 100644
+index 890f92cb6344..7eeaf7dbb350 100644
 --- a/drivers/usb/gadget/udc/core.c
 +++ b/drivers/usb/gadget/udc/core.c
-@@ -56,6 +56,8 @@ static LIST_HEAD(udc_list);
- /* Protects udc_list, udc->driver, driver->is_bound, and related calls */
- static DEFINE_MUTEX(udc_lock);
- 
-+/* Protects udc->vbus, udc-started and udc_connect_control_locked */
-+static DEFINE_MUTEX(udc_connect_control_lock);
- /* ------------------------------------------------------------------------- */
- 
- /**
-@@ -1078,9 +1080,10 @@ EXPORT_SYMBOL_GPL(usb_gadget_set_state);
- 
- /* ------------------------------------------------------------------------- */
- 
--static void usb_udc_connect_control(struct usb_udc *udc)
-+/* Acquire udc_connect_control_lock before calling this function. */
-+static void usb_udc_connect_control_locked(struct usb_udc *udc)
- {
--	if (udc->vbus)
-+	if (udc->vbus && udc->started)
- 		usb_gadget_connect(udc->gadget);
- 	else
- 		usb_gadget_disconnect(udc->gadget);
-@@ -1099,10 +1102,12 @@ void usb_udc_vbus_handler(struct usb_gadget *gadget, bool status)
- {
- 	struct usb_udc *udc = gadget->udc;
- 
-+	mutex_lock(&udc_connect_control_lock);
- 	if (udc) {
- 		udc->vbus = status;
--		usb_udc_connect_control(udc);
-+		usb_udc_connect_control_locked(udc);
- 	}
-+	mutex_unlock(&udc_connect_control_lock);
- }
- EXPORT_SYMBOL_GPL(usb_udc_vbus_handler);
- 
-@@ -1140,14 +1145,18 @@ static inline int usb_gadget_udc_start(struct usb_udc *udc)
- {
- 	int ret;
- 
-+	mutex_lock(&udc_connect_control_lock);
- 	if (udc->started) {
- 		dev_err(&udc->dev, "UDC had already started\n");
-+		mutex_unlock(&udc_connect_control_lock);
- 		return -EBUSY;
+@@ -708,6 +708,9 @@ int usb_gadget_connect(struct usb_gadget *gadget)
+ 		goto out;
  	}
  
- 	ret = udc->gadget->ops->udc_start(udc->gadget, udc->driver);
- 	if (!ret)
- 		udc->started = true;
-+	usb_udc_connect_control_locked(udc);
-+	mutex_unlock(&udc_connect_control_lock);
- 
- 	return ret;
- }
-@@ -1165,13 +1174,17 @@ static inline int usb_gadget_udc_start(struct usb_udc *udc)
-  */
- static inline void usb_gadget_udc_stop(struct usb_udc *udc)
- {
-+	mutex_lock(&udc_connect_control_lock);
- 	if (!udc->started) {
- 		dev_err(&udc->dev, "UDC had already stopped\n");
-+		mutex_unlock(&udc_connect_control_lock);
- 		return;
- 	}
- 
- 	udc->gadget->ops->udc_stop(udc->gadget);
- 	udc->started = false;
-+	usb_udc_connect_control_locked(udc);
-+	mutex_unlock(&udc_connect_control_lock);
- }
- 
- /**
-@@ -1527,7 +1540,6 @@ static int gadget_bind_driver(struct device *dev)
- 	if (ret)
- 		goto err_start;
- 	usb_gadget_enable_async_callbacks(udc);
--	usb_udc_connect_control(udc);
- 
- 	kobject_uevent(&udc->dev.kobj, KOBJ_CHANGE);
- 	return 0;
-
-base-commit: d629c0e221cd99198b843d8351a0a9bfec6c0423
++	if (gadget->connected)
++		goto out;
++
+ 	if (gadget->deactivated) {
+ 		/*
+ 		 * If gadget is deactivated we only save new state.
 -- 
 2.40.0.348.gf938b09366-goog
 
