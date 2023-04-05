@@ -2,131 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 993246D7F5F
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 16:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3776D7F6C
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 16:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238494AbjDEO1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 10:27:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56754 "EHLO
+        id S238569AbjDEO1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 10:27:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238498AbjDEO1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 10:27:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C71B558E
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 07:26:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680704762;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wA9vrEua4SxGH0U8touKUeIrkMHHDv7b7I0B36bB+wM=;
-        b=TKhQVo1ZNoSQ9fTDDw0QJVoAbYXsJt1gHLJI2UfUdva9S8PRE6zwOok8axJDuqOlDL878+
-        sVaQw+0i/OAvekZngUDkAsL285IDM8SdeFaMZ+JgdOa0L4yrS1Yklsvhzv1GiEYsHr1mkB
-        b3LdGL6xGDYQLa42NC6q2a3aBy86fFw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-343-mYpZFFrRMw-fpnIzPwp4dg-1; Wed, 05 Apr 2023 10:25:42 -0400
-X-MC-Unique: mYpZFFrRMw-fpnIzPwp4dg-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7A9C68996E4;
-        Wed,  5 Apr 2023 14:25:38 +0000 (UTC)
-Received: from t480s.fritz.box (unknown [10.39.195.71])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 55334400F57;
-        Wed,  5 Apr 2023 14:25:37 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v1 1/2] mm/userfaultfd: fix uffd-wp handling for THP migration entries
-Date:   Wed,  5 Apr 2023 16:25:34 +0200
-Message-Id: <20230405142535.493854-2-david@redhat.com>
-In-Reply-To: <20230405142535.493854-1-david@redhat.com>
-References: <20230405142535.493854-1-david@redhat.com>
+        with ESMTP id S238585AbjDEO1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 10:27:41 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C0765AD
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 07:27:14 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id o6-20020a17090a9f8600b0023f32869993so39688929pjp.1
+        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 07:27:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=heitbaum.com; s=google; t=1680704833;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=n5Q02pfG+OMk1kh4JZ7k9vPqYbgDWeWrEDJEsiquIG4=;
+        b=OKG4h15dRFM8loga0ZloBGZgnF3LHC7oXhkOBfSthdmOI1EvekxAnPab3OhpRM4ip7
+         oYkUFKrGyJ9t91H2ZZgyogELlpEPRaxyzj4dgYhEHQtku9+aw/+4mGBSuyILq75Helph
+         jIBLEzMI4bl5eJG5iSZmAim2Il85wh5bnxi8Y=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680704833;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=n5Q02pfG+OMk1kh4JZ7k9vPqYbgDWeWrEDJEsiquIG4=;
+        b=yO7R7BJMLeQfRJFUP3miLNbOM1udBaPPh9qpWrbZIgL+3ul08povtrBTacQYcyqy1V
+         Erz8RGYhAg8A/0Hi4mQPYnPQDNZfc+3G2x7o79HtfCPXTTCPAHTHjCdDYdgB19ibk82Q
+         j1oqRhXhaOYPYbz5BtxWtM/i04AKXPmap+vYeomb0VImbp909x056Fi/mMp/UQelyU2A
+         rsxJNlHbh6VR25tUIOTVTzx4F0tF+bb2/jZanTJWKc4VWiT3z3LiPjKy6Kh57ua+lLpU
+         lTrxFMyxeLEiPzt0BxIyXAA0sU21aP0xHgxSqaGBgm245T1S5gibC3UP/3KnTHhmCAjv
+         sbOA==
+X-Gm-Message-State: AAQBX9dYimwWd1cxhVDGiAkp4RTQqYCACJKF8T68IcyNFOJRFe/f+bpy
+        nNAEM/oh9oj0s26BJBnv0dTBqw==
+X-Google-Smtp-Source: AKy350bdTWZsUp46cZZT7/E0Gnd1Xdy0heFNW1jSTFgn0+eJMFdjYMnZCiPf6VmMUxVQNMG5RAZeDg==
+X-Received: by 2002:a17:902:db10:b0:1a2:8924:224a with SMTP id m16-20020a170902db1000b001a28924224amr7755865plx.25.1680704833368;
+        Wed, 05 Apr 2023 07:27:13 -0700 (PDT)
+Received: from 90aff2bdd59e (124-148-239-102.tpgi.com.au. [124.148.239.102])
+        by smtp.gmail.com with ESMTPSA id j11-20020a17090276cb00b0019e5fc3c7e6sm10224782plt.101.2023.04.05.07.27.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Apr 2023 07:27:12 -0700 (PDT)
+Date:   Wed, 5 Apr 2023 14:27:05 +0000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/177] 6.1.23-rc3 review
+Message-ID: <20230405142705.GA8@90aff2bdd59e>
+References: <20230405100302.540890806@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230405100302.540890806@linuxfoundation.org>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Looks like what we fixed for hugetlb in commit 44f86392bdd1 ("mm/hugetlb:
-fix uffd-wp handling for migration entries in hugetlb_change_protection()")
-similarly applies to THP.
+On Wed, Apr 05, 2023 at 12:03:38PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.23 release.
+> There are 177 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 07 Apr 2023 10:02:26 +0000.
+> Anything received after that time might be too late.
 
-Setting/clearing uffd-wp on THP migration entries is not implemented
-properly. Further, while removing migration PMDs considers the uffd-wp
-bit, inserting migration PMDs does not consider the uffd-wp bit.
+Hi Greg,
 
-We have to set/clear independently of the migration entry type in
-change_huge_pmd() and properly copy the uffd-wp bit in
-set_pmd_migration_entry().
+6.1.23-rc3 tested.
 
-Verified using a simple reproducer that triggers migration of a THP, that
-the set_pmd_migration_entry() no longer loses the uffd-wp bit.
+Run tested on:
+- Allwinner H6 (Tanix TX6)
+- Intel Alder Lake x86_64 (nuc12 i7-1260P)
 
-Fixes: f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration")
-Cc: stable@vger.kernel.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/huge_memory.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+In addition - build tested for:
+- Allwinner A64
+- Allwinner H3
+- Allwinner H5
+- NXP iMX6
+- NXP iMX8
+- Qualcomm Dragonboard
+- Rockchip RK3288
+- Rockchip RK3328
+- Rockchip RK3399pro
+- Samsung Exynos
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 032fb0ef9cd1..bdda4f426d58 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1838,10 +1838,10 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
- 	if (is_swap_pmd(*pmd)) {
- 		swp_entry_t entry = pmd_to_swp_entry(*pmd);
- 		struct page *page = pfn_swap_entry_to_page(entry);
-+		pmd_t newpmd;
- 
- 		VM_BUG_ON(!is_pmd_migration_entry(*pmd));
- 		if (is_writable_migration_entry(entry)) {
--			pmd_t newpmd;
- 			/*
- 			 * A protection check is difficult so
- 			 * just be safe and disable write
-@@ -1855,8 +1855,16 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
- 				newpmd = pmd_swp_mksoft_dirty(newpmd);
- 			if (pmd_swp_uffd_wp(*pmd))
- 				newpmd = pmd_swp_mkuffd_wp(newpmd);
--			set_pmd_at(mm, addr, pmd, newpmd);
-+		} else {
-+			newpmd = *pmd;
- 		}
-+
-+		if (uffd_wp)
-+			newpmd = pmd_swp_mkuffd_wp(newpmd);
-+		else if (uffd_wp_resolve)
-+			newpmd = pmd_swp_clear_uffd_wp(newpmd);
-+		if (!pmd_same(*pmd, newpmd))
-+			set_pmd_at(mm, addr, pmd, newpmd);
- 		goto unlock;
- 	}
- #endif
-@@ -3251,6 +3259,8 @@ int set_pmd_migration_entry(struct page_vma_mapped_walk *pvmw,
- 	pmdswp = swp_entry_to_pmd(entry);
- 	if (pmd_soft_dirty(pmdval))
- 		pmdswp = pmd_swp_mksoft_dirty(pmdswp);
-+	if (pmd_swp_uffd_wp(*pvmw->pmd))
-+		pmdswp = pmd_swp_mkuffd_wp(pmdswp);
- 	set_pmd_at(mm, address, pvmw->pmd, pmdswp);
- 	page_remove_rmap(page, vma, true);
- 	put_page(page);
--- 
-2.39.2
-
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+--
+Rudi
