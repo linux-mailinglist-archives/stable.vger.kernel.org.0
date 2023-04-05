@@ -2,117 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7076D7291
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 04:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34866D7298
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 04:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236758AbjDECpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Apr 2023 22:45:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54770 "EHLO
+        id S236720AbjDECwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Apr 2023 22:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236752AbjDECpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 22:45:31 -0400
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BBC53A9F
-        for <stable@vger.kernel.org>; Tue,  4 Apr 2023 19:45:30 -0700 (PDT)
-Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id C15331004853E
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 02:45:29 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id jt9Np3co4zLqsjt9Np9qpr; Wed, 05 Apr 2023 02:45:29 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=M+SIlw8s c=1 sm=1 tr=0 ts=642ce0c9
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=dKHAf1wccvYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=rwde2vLGyBdoTMciaJAA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=UG42hj4qw0tNhibK7lyPhkULm/Re9q2sW9cwapeprqM=; b=FfuZwz12qWNbqIhNxvQMmf72pk
-        RDU1/wQ0lDUuPmo/T3RdQ/DS+EOI2uCWRu4HokstfhkALeRH4KTjB9Q/flqePAHN0O4/wxMeWaeCJ
-        7627pVQl6hI160M3kn3FKKyHvmBQfarABVKQPp7IOJG7QCt2is9dcnroi0kzzcuYxxgFYy/xrK0qd
-        3rxM6/Ma+zSqB+ZlgLC1fBe78Z2v2U51XAf0hUGWuSKSRTWoAze9cLJi1IZBwPrfLqVHGMYso1vst
-        iFrOV77ziB2lt2N8inGJVDP5NNZMjraTCmAU4IY5+4RPLe54lce6Z6heV5q+Hfbe01qm0ygghumLE
-        ATekmBZA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34158 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pjt9M-003b37-K1;
-        Tue, 04 Apr 2023 20:45:28 -0600
-Subject: Re: [PATCH 6.1 000/179] 6.1.23-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230404183150.381314754@linuxfoundation.org>
-In-Reply-To: <20230404183150.381314754@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <5ebc4141-dfd2-af04-ec46-343de0052d44@w6rz.net>
-Date:   Tue, 4 Apr 2023 19:45:23 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S236424AbjDECwA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Apr 2023 22:52:00 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0043A90;
+        Tue,  4 Apr 2023 19:51:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680663119; x=1712199119;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=4cRIj5k4QHvBFCWEt1UKzqqvkGiVg/SrV18IyE5gB1E=;
+  b=GDNhAlCcXvoX2+zV1NQV240eVrEamTeMBb58Un+c/a2ErhD0u0W16C8J
+   iXInxcciK/YTN4HwWtkQrmMOl/s/r59EtrYhUfEj24hbZX5wa+41PkkMB
+   S27Sarjn9qXaJlbGAFFOfQS1jtBJi0HU2OWO8RIVG0bVcblEN5hU7DS7N
+   ToGOQqFUhAyUUAl8X9jb3mVuLEp/rp0KuOeQYdzaLIv+OoMNIjsf+4/Rg
+   dKlKuTC/6FdcqWQuHFVXgw5R1Es1d+m2l6bUPMwK2jv4f2jUzRsWk9X1h
+   kScm/Dr9u0PsRw3r1N4N3CMhYPn3BE+n0JXuwXQcC1Q9ZCI0TK/yq90Ut
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10670"; a="322017008"
+X-IronPort-AV: E=Sophos;i="5.98,319,1673942400"; 
+   d="scan'208";a="322017008"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Apr 2023 19:51:58 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10670"; a="663872550"
+X-IronPort-AV: E=Sophos;i="5.98,319,1673942400"; 
+   d="scan'208";a="663872550"
+Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
+  by orsmga006.jf.intel.com with ESMTP; 04 Apr 2023 19:51:54 -0700
+Received: from kbuild by b613635ddfff with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pjtFZ-000QDm-2o;
+        Wed, 05 Apr 2023 02:51:53 +0000
+Date:   Wed, 5 Apr 2023 10:51:34 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Ross Zwisler <zwisler@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] tracing: Fix ftrace_boot_snapshot command line logic
+Message-ID: <202304051001.dL3Fvaxd-lkp@intel.com>
+References: <20230404230308.501833715@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pjt9M-003b37-K1
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:34158
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230404230308.501833715@goodmis.org>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/4/23 11:32 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.23 release.
-> There are 179 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 06 Apr 2023 18:31:13 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.23-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi Steven,
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+kernel test robot noticed the following build errors:
 
-Tested-by: Ron Economos <re@w6rz.net>
+[auto build test ERROR on akpm-mm/mm-everything]
+[also build test ERROR on linus/master v6.3-rc5 next-20230404]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Steven-Rostedt/tracing-Have-tracing_snapshot_instance_cond-write-errors-to-the-appropriate-instance/20230405-070406
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+patch link:    https://lore.kernel.org/r/20230404230308.501833715%40goodmis.org
+patch subject: [PATCH 2/2] tracing: Fix ftrace_boot_snapshot command line logic
+config: arc-buildonly-randconfig-r003-20230403 (https://download.01.org/0day-ci/archive/20230405/202304051001.dL3Fvaxd-lkp@intel.com/config)
+compiler: arceb-elf-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/ac5e916ec8d65b5e0c13719694efd3084105f416
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Steven-Rostedt/tracing-Have-tracing_snapshot_instance_cond-write-errors-to-the-appropriate-instance/20230405-070406
+        git checkout ac5e916ec8d65b5e0c13719694efd3084105f416
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=arc olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=arc SHELL=/bin/bash kernel/
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202304051001.dL3Fvaxd-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   kernel/trace/trace.c: In function 'ftrace_boot_snapshot':
+>> kernel/trace/trace.c:10402:24: error: 'struct trace_array' has no member named 'allocated_snapshot'
+   10402 |                 if (!tr->allocated_snapshot)
+         |                        ^~
+
+
+vim +10402 kernel/trace/trace.c
+
+ 10393	
+ 10394	void __init ftrace_boot_snapshot(void)
+ 10395	{
+ 10396		struct trace_array *tr;
+ 10397	
+ 10398		if (!snapshot_at_boot)
+ 10399			return;
+ 10400	
+ 10401		list_for_each_entry(tr, &ftrace_trace_arrays, list) {
+ 10402			if (!tr->allocated_snapshot)
+ 10403				continue;
+ 10404	
+ 10405			tracing_snapshot_instance(tr);
+ 10406			trace_array_puts(tr, "** Boot snapshot taken **\n");
+ 10407		}
+ 10408	}
+ 10409	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
