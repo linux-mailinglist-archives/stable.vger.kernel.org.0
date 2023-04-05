@@ -2,76 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07EAB6D7747
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 10:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7916D7757
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 10:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237083AbjDEIsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 04:48:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44072 "EHLO
+        id S237311AbjDEIuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 04:50:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237443AbjDEIsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 04:48:17 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C431FDC
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 01:48:15 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id 4fb4d7f45d1cf-502aa0f24daso29526a12.1
-        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 01:48:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google; t=1680684494;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=AFqeFcmpYVKfxH4Qmh9JiLnzzuxZwy+QStGun2zwksc=;
-        b=Yz0I+sQqLPCOCLQ9VmUO9W3Fch9AgazOq5C3JClos/O3S6IKuU1mkk6N0vS2zTFh31
-         q3u1kTNATioDrA+pSptIjKOBgb6SAm9B6MPYAD5yik6h7KUAVkCZKOBuZwaU6RZxEhBE
-         25O2dsPBaN5TPmgrFJGya4KNGvzU000DkLAeg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680684494;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AFqeFcmpYVKfxH4Qmh9JiLnzzuxZwy+QStGun2zwksc=;
-        b=to39u5pWkiY2mmALlUQHp2/75D+sWiv4jm1TJk2LnCydK9C1JUw4b7hONG+8jQXUtv
-         8flCYOEBSztY6GBskvyddJ2vSJDjl5S9QYcyE30L/gAMRVNmlE1R1Lny9EqhX/eCBzrY
-         h5n/96fjssokIwz2NewY//XaHRGuqdGbgrdnM8yw/vEeNgsPeFIPybJZ125wBQQwbYQK
-         CERvf7K4eNDqR0AirlUZSblrzNHi57KIY1PYibN6EBPASvBopqmYWVAHjiIEoXIZxxyC
-         CEFKXQVhTCjtjQXvv6O3CFC7fiJ8RXCFActVYqhulrPCr8elbhrTJBRCsnBrOAbGmrNq
-         PXuw==
-X-Gm-Message-State: AAQBX9eBmhhLiidPaFIomH1WGZjwpJnFcZmePgIToU/5VjSGCBd20IZH
-        uK+R+2B7AYTmmK37Ug5PB3H5Ww==
-X-Google-Smtp-Source: AKy350ZdqOuyKM0+bL26ExKxTefXwLGpdvPreJz1tIksj7h5Ldy4eQWpGYu27lmAlhkIkLlMrzWuKw==
-X-Received: by 2002:a05:6402:4413:b0:502:ffd:74a0 with SMTP id y19-20020a056402441300b005020ffd74a0mr1340537eda.2.1680684494335;
-        Wed, 05 Apr 2023 01:48:14 -0700 (PDT)
-Received: from phenom.ffwll.local (212-51-149-33.fiber7.init7.net. [212.51.149.33])
-        by smtp.gmail.com with ESMTPSA id o13-20020a50c90d000000b004f9ca99cf5csm6757222edh.92.2023.04.05.01.48.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Apr 2023 01:48:13 -0700 (PDT)
-Date:   Wed, 5 Apr 2023 10:48:12 +0200
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Aaron Plattner <aplattner@nvidia.com>
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        with ESMTP id S237022AbjDEIuX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 04:50:23 -0400
+Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F24130FD
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 01:50:20 -0700 (PDT)
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 291AD802382F
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 08:50:20 +0000 (UTC)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 1CDC21004624B
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 08:49:50 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id jypypTwOpyk8zjypyp2HKJ; Wed, 05 Apr 2023 08:49:50 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=fuoZ2H0f c=1 sm=1 tr=0 ts=642d362e
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=dKHAf1wccvYA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=wCbDlB704wCocptsMoXzCNIIUhH1OZvAYrJXarJTUuI=; b=kB97TK0l+bsfhCd2Izz2KgCoq8
+        Lxpqv5BV1XDlw651KHym4RC/GZfWv6eBRbQuHX8NKWvzgZWTf5KSRQW2d1JCQ/ztUcbcqfmIive9e
+        iycWcxTRl0rEjx5sJnuQyQEau0eqJPHFah930OYnUbxtJIZvGkyBOz3/Lre5As8ifoFzGBcVtmVz4
+        LEFYFeE2ZvPW225LZadlcfvBS1exA7ZHNhVwPH10vGT8VLHo3d+DRVY1Yue+G9u40xzYEDzQxRMx/
+        EUmlVBYKmbUGopzyck+F5y4cCINKP7+jQFit4ys9vBIlLjr6Mrqda4JRUaRgI3sAjyFFLVJ9ngqSl
+        r+749Yrw==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34180 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1pjypx-001ZCk-4r;
+        Wed, 05 Apr 2023 02:49:49 -0600
+Subject: Re: [PATCH 5.15 00/99] 5.15.106-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 7/8] video/aperture: Only remove sysfb on the default vga
- pci device
-Message-ID: <ZC01zPuv/gAlWUoQ@phenom.ffwll.local>
-References: <20230404201842.567344-1-daniel.vetter@ffwll.ch>
- <20230404201842.567344-7-daniel.vetter@ffwll.ch>
- <090966b8-acad-62df-40aa-232471502edd@nvidia.com>
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <c6df1f3a-f92d-86a7-9a2b-08ca7eedcad8@w6rz.net>
+Date:   Wed, 5 Apr 2023 01:49:43 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <090966b8-acad-62df-40aa-232471502edd@nvidia.com>
-X-Operating-System: Linux phenom 6.1.0-7-amd64 
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1pjypx-001ZCk-4r
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:34180
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.6 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,112 +96,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 04, 2023 at 01:59:33PM -0700, Aaron Plattner wrote:
-> On 4/4/23 1:18 PM, Daniel Vetter wrote:
-> > Instead of calling aperture_remove_conflicting_devices() to remove the
-> > conflicting devices, just call to aperture_detach_devices() to detach
-> > the device that matches the same PCI BAR / aperture range. Since the
-> > former is just a wrapper of the latter plus a sysfb_disable() call,
-> > and now that's done in this function but only for the primary devices.
-> > 
-> > This fixes a regression introduced by ee7a69aa38d8 ("fbdev: Disable
-> > sysfb device registration when removing conflicting FBs"), where we
-> > remove the sysfb when loading a driver for an unrelated pci device,
-> > resulting in the user loosing their efifb console or similar.
-> > 
-> > Note that in practice this only is a problem with the nvidia blob,
-> > because that's the only gpu driver people might install which does not
-> > come with an fbdev driver of it's own. For everyone else the real gpu
-> > driver will restore a working console.
-> 
-> It might be worth noting that this also affects devices that have no driver
-> installed, or where the driver failed to initialize or was configured not to
-> set a mode. E.g. I reproduced this problem on a laptop with i915.modeset=0
-> and an NVIDIA driver that calls drm_fbdev_generic_setup. It would also
-> reproduce on a system that sets modeset=0 (or has a GPU that's too new for
-> its corresponding kernel driver) and that passes an NVIDIA GPU through to a
-> VM using vfio-pci since that also calls
-> aperture_remove_conflicting_pci_devices.
-> 
-> I agree that in practice this will mostly affect people with our driver
-> until I get my changes to add drm_fbdev_generic_setup checked in. But these
-> other cases don't seem all that unlikely to me.
+On 4/3/23 7:08 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.106 release.
+> There are 99 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.106-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Thomas Z. refactored the entire modeset=0 handling to be more consistent
-across drivers, so I think in practice it'll again only happen with the
-nvidia blob driver (unless you patch in the call to
-drm_firmware_drivers_only()). Or if you dont use nomodeset or similar and
-instead use a driver-specific module option, which isn't what howtos in
-distros recommend.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-I can add this to the commit message if you want?
--Daniel
+Tested-by: Ron Economos <re@w6rz.net>
 
-> 
-> -- Aaron
-> 
-> > Also note that in the referenced bug there's confusion that this same
-> > bug also happens on amdgpu. But that was just another amdgpu specific
-> > regression, which just happened to happen at roughly the same time and
-> > with the same user-observable symptoms. That bug is fixed now, see
-> > https://bugzilla.kernel.org/show_bug.cgi?id=216331#c15
-> > 
-> > Note that we should not have any such issues on non-pci multi-gpu
-> > issues, because I could only find two such cases:
-> > - SoC with some external panel over spi or similar. These panel
-> >    drivers do not use drm_aperture_remove_conflicting_framebuffers(),
-> >    so no problem.
-> > - vga+mga, which is a direct console driver and entirely bypasses all
-> >    this.
-> > 
-> > For the above reasons the cc: stable is just notionally, this patch
-> > will need a backport and that's up to nvidia if they care enough.
-> > 
-> > v2:
-> > - Explain a bit better why other multi-gpu that aren't pci shouldn't
-> >    have any issues with making all this fully pci specific.
-> > 
-> > v3
-> > - polish commit message (Javier)
-> > 
-> > Fixes: ee7a69aa38d8 ("fbdev: Disable sysfb device registration when removing conflicting FBs")
-> > Tested-by: Aaron Plattner <aplattner@nvidia.com>
-> > Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-> > References: https://bugzilla.kernel.org/show_bug.cgi?id=216303#c28
-> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> > Cc: Aaron Plattner <aplattner@nvidia.com>
-> > Cc: Javier Martinez Canillas <javierm@redhat.com>
-> > Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> > Cc: Helge Deller <deller@gmx.de>
-> > Cc: Sam Ravnborg <sam@ravnborg.org>
-> > Cc: Alex Deucher <alexander.deucher@amd.com>
-> > Cc: <stable@vger.kernel.org> # v5.19+ (if someone else does the backport)
-> > ---
-> >   drivers/video/aperture.c | 7 ++++---
-> >   1 file changed, 4 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/video/aperture.c b/drivers/video/aperture.c
-> > index 8f1437339e49..2394c2d310f8 100644
-> > --- a/drivers/video/aperture.c
-> > +++ b/drivers/video/aperture.c
-> > @@ -321,15 +321,16 @@ int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *na
-> >   	primary = pdev == vga_default_device();
-> > +	if (primary)
-> > +		sysfb_disable();
-> > +
-> >   	for (bar = 0; bar < PCI_STD_NUM_BARS; ++bar) {
-> >   		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
-> >   			continue;
-> >   		base = pci_resource_start(pdev, bar);
-> >   		size = pci_resource_len(pdev, bar);
-> > -		ret = aperture_remove_conflicting_devices(base, size, name);
-> > -		if (ret)
-> > -			return ret;
-> > +		aperture_detach_devices(base, size);
-> >   	}
-> >   	if (primary) {
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
