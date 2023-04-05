@@ -2,95 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4AC6D85E9
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 20:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 817A36D85EE
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 20:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbjDESY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 14:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
+        id S232011AbjDESZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 14:25:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230100AbjDESY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 14:24:26 -0400
-Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 176254226;
-        Wed,  5 Apr 2023 11:24:22 -0700 (PDT)
-Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-17aa62d0a4aso39527321fac.4;
-        Wed, 05 Apr 2023 11:24:22 -0700 (PDT)
+        with ESMTP id S231167AbjDESZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 14:25:37 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22A13ABC;
+        Wed,  5 Apr 2023 11:25:36 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id cu12so24267784pfb.13;
+        Wed, 05 Apr 2023 11:25:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680719059;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ONtXHsFdkNYgP1HOTNA0FlfkBGs3b4xV19x0hQRzSms=;
-        b=YpYX0GN+Nh/RoB4ClA83wZO9sfkDDFUDB8RQcRJh1glosn/bCLWQAcVwr6TBF56CWg
-         1gMrOHy/J+eTvX2+IoXBRsWADsXrHrPrU2jsNETWnrY+r59FFY8wyPas/SGegRvZjN0s
-         56x+ZNkGRMJz+jDbANPbKi54y7tryHoZ8xYDVlU2jyjSSrpSf6bU4Vp9ujUOrkXc/Njx
-         +nlVwTFRxOvR3Ww+CMkYOwZAmZrD4Q8790oXKn90GpNsWLcOoRLUVznuKg7eJTeJeL8M
-         u21kIWubNqGi+epoWyxyURJ6LtJvM7Q/UbSmRFLnOqs7X6czOwdFHFxlWczw0Y3Jhno+
-         Y2Wg==
+        d=gmail.com; s=20210112; t=1680719136;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iCptc+kA5zXDdmAuA5of1pjj6ECPBD9EyosUWG9DOXY=;
+        b=b0wEGUnlTwRu184txYCFSgU2+1bYA32X8C5SLFPd+pjOQ2zXGpQxoat+6txV4sYjCm
+         cL7gvZagcwGc+pjq2zl2c0aNLW5CJZdYMhU+25BnYZhFxT7+Waako8RpTlAFUaZHlP86
+         JHYKZMqcULWxbGSVQziwbxkFOLSqIAkYqURZ+1nt4Ad5TRFe9N+fTSgOtVO6AuRCtCvb
+         42mmmtEKBsoe2QTXn215aqHmlo4ThRkTNco3b17whfWNwPWTuYO3AJxqjlaYJsZ4ivFq
+         D6e8C5I9wuQmNJNLYy3/HuTJ/S9PG46kFbAHWTUukbRb4zblNUYsbZ0XCJE4Tl6GPY1K
+         aLyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680719059;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20210112; t=1680719136;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ONtXHsFdkNYgP1HOTNA0FlfkBGs3b4xV19x0hQRzSms=;
-        b=Gqzy9b4Z+008TkIaduJICWjrz249WKJPEjrz0KKJorH8iDSa397QdRA2AkgehN7pU5
-         ctVtYR9yE/U8JtG/lGo0mDA5iz02QalpXp9F8oA/0Ol8HSH6QZLH8HzmL+XJVckle6XZ
-         SwNjH5nx6NJPcZcycnNWfI8wOcNwvY40UhHjyNOw5HjHHadtz7Tc21Hivc8lAsBsq0An
-         A2flWTMibyHN5HU70pEFHVvc0DLvdyU5a6L84y1bFAzAaVQvOuJb7r4ZkI4WDby85UnF
-         c8I/VgtHI0TGyYsK6qx7/E3eGlIiUS3fke+NVPhRsCRzRtgccu6r4P0pc8lUJR5zWl4L
-         JzIA==
-X-Gm-Message-State: AAQBX9dEc30VjPesBe5GHk4Ng3FGtN4bZCCvlg7KmRdY8pMCHMYZLnK9
-        kSvkeQMP4F2eFIX/b3CbpRg=
-X-Google-Smtp-Source: AKy350bDmas/yzxcH3Kf/5PqXkUJUvVJpjI1WNx8Mz5HkO6lYyL07ItMMKVTA08EYa7t1nW8ThCyag==
-X-Received: by 2002:a05:6870:2181:b0:177:a15a:4d5e with SMTP id l1-20020a056870218100b00177a15a4d5emr4487368oae.37.1680719059618;
-        Wed, 05 Apr 2023 11:24:19 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id vi17-20020a0568710d9100b001803597b4cesm6075364oab.55.2023.04.05.11.24.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Apr 2023 11:24:19 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 5 Apr 2023 11:24:18 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/185] 6.2.10-rc2 review
-Message-ID: <b1ee46c3-7a3a-492b-8547-3d608082d78c@roeck-us.net>
-References: <20230405100309.298748790@linuxfoundation.org>
+        bh=iCptc+kA5zXDdmAuA5of1pjj6ECPBD9EyosUWG9DOXY=;
+        b=UZ4J4eHjekOO0VYxjNQwGdnBow47Ku54wXDBEqOzLxzn0fBQ+kZFxSchysTU5O8Z/k
+         chLdCcLiBbsaL/4FjlGFLkDkRYpZQtrw+zi/YBzg9MYoSR6vwPCJO5UC24RAwqHGDsKi
+         McMiYzfEPdkTm0zM0vatP3GraIQ8xor615ofE3FRkYHRd/mFHYHM0xsQKBYoSG+GTrbH
+         4tCEr6cO39/dirG3A1UYhCqeoMjG44R/mTXPrQTusjdVUYk/fedwTUuydA/CTKHm+D1M
+         mTssh7d1zEmpe84wlFjtU0DHVzKElBUDZ4sC7+wF9enRvbTRRMVg6o/yFbmgLixTc9EJ
+         igxw==
+X-Gm-Message-State: AAQBX9erKIIAzoX0sqScukCO6V7KPes62N08gFwHMw/hpZO9Vktrq6c1
+        2daHSjzkatFWShEsjbcpMhqQ+SMI6FClyfXOO5Y=
+X-Google-Smtp-Source: AKy350b2Wbwyv1L6f98Vzq50lFWkxGC/rY4GOuWs7FtED4TSHS3YhFkk1MiIL8vg5A5HXY/zuoZ7yyYU0CHr6Hvz1hw=
+X-Received: by 2002:a05:6a00:1783:b0:62b:e52e:1bb with SMTP id
+ s3-20020a056a00178300b0062be52e01bbmr3905606pfg.0.1680719135951; Wed, 05 Apr
+ 2023 11:25:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230405100309.298748790@linuxfoundation.org>
-X-Spam-Status: No, score=0.7 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FORGED_FROMDOMAIN,
-        FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+References: <20230405155120.3608140-1-peterx@redhat.com> <CAHbLzkqKE-TE9Od1E=PQDGuhoR+r-TOz4LP8WQgucm_6ZVYTRA@mail.gmail.com>
+ <ZC25d12d0sc1L7tS@x1n>
+In-Reply-To: <ZC25d12d0sc1L7tS@x1n>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Wed, 5 Apr 2023 11:25:24 -0700
+Message-ID: <CAHbLzkqzYxCrJdH8f7OY5x9-mngK+xKJUZ+HCB9V-O+yQqKE4w@mail.gmail.com>
+Subject: Re: [PATCH] mm/khugepaged: Check again on anon uffd-wp during isolation
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 05, 2023 at 12:03:46PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 185 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 07 Apr 2023 10:02:32 +0000.
-> Anything received after that time might be too late.
-> 
+On Wed, Apr 5, 2023 at 11:10=E2=80=AFAM Peter Xu <peterx@redhat.com> wrote:
+>
+> On Wed, Apr 05, 2023 at 09:59:15AM -0700, Yang Shi wrote:
+> > On Wed, Apr 5, 2023 at 8:51=E2=80=AFAM Peter Xu <peterx@redhat.com> wro=
+te:
+> > >
+> > > Khugepaged collapse an anonymous thp in two rounds of scans.  The 2nd=
+ round
+> > > done in __collapse_huge_page_isolate() after hpage_collapse_scan_pmd(=
+),
+> > > during which all the locks will be released temporarily. It means the
+> > > pgtable can change during this phase before 2nd round starts.
+> > >
+> > > It's logically possible some ptes got wr-protected during this phase,=
+ and
+> > > we can errornously collapse a thp without noticing some ptes are
+> > > wr-protected by userfault.  e1e267c7928f wanted to avoid it but it on=
+ly did
+> > > that for the 1st phase, not the 2nd phase.
+> > >
+> > > Since __collapse_huge_page_isolate() happens after a round of small p=
+age
+> > > swapins, we don't need to worry on any !present ptes - if it existed
+> > > khugepaged will already bail out.  So we only need to check present p=
+tes
+> > > with uffd-wp bit set there.
+> > >
+> > > This is something I found only but never had a reproducer, I thought =
+it was
+> > > one caused a bug in Muhammad's recent pagemap new ioctl work, but it =
+turns
+> > > out it's not the cause of that but an userspace bug.  However this se=
+ems to
+> > > still be a real bug even with a very small race window, still worth t=
+o have
+> > > it fixed and copy stable.
+> >
+> > Yeah, I agree. But I got confused by userfaultfd_wp(vma) and
+> > pte_uffd_wp(pte). If a vma is armed with uffd wp, shall we skip the
+> > whole vma? If so, whether it is better to just check vma? We do
+> > revalidate vma once reacquiring mmap_lock, so we should be able to
+> > bail out earlier.
+>
+> Checking against VMA is safe too, the difference is current code still
+> allows thp to be collapsed as long as none of the page is explicitly
+> protected over the thp range, even if the range is registered with
+> userfault-wp.  That's also what e1e267c7928f does.
+>
+> Here we have slightly different handling between anon / file thps (file
+> thps checks against the vma flags), IMHO mostly because we don't scan
+> pgtables when making decisions to collapse a shmem thp, so we made it
+> simple by checking against vma flags.  We can make it the same as anon bu=
+t
+> it might be an overkill just to scan the entries for uffd-wp purpose.
+>
+> For anon we always scans the pgtable anyway so it's easier to make a more
+> accurate decision.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 520 pass: 520 fail: 0
+Aha, I see. It does resolve my confusion. Thanks for elaborating.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+The patch looks good to me. Reviewed-by: Yang Shi <shy828301@gmail.com>
 
-Guenter
+>
+> Thanks,
+>
+> --
+> Peter Xu
+>
