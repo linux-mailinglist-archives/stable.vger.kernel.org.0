@@ -2,107 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E33136D77EC
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 11:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F0976D77FD
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 11:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230172AbjDEJU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 05:20:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47594 "EHLO
+        id S237242AbjDEJZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 05:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230031AbjDEJU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 05:20:58 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9194449C
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 02:20:57 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id r7-20020a17090b050700b002404be7920aso34869698pjz.5
-        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 02:20:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680686457;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=UUGG0UnIKCN5qEoPaOBgNrMnkJlxU/sklsT+gsOkTMM=;
-        b=MAdTF7XT7YVCaTWjxlJW9Ihn38xvLJV8eeTHarODYjG2vcT30KY0uTV+OF41gNtDyL
-         ebWGshv80mKcME/9nK3DV2b0CMuNVTumjlonauivOyg34MteO02vJXIpEGxe8wrz94I+
-         CN9h33adnwlWjs4SHYInu32LzkJ3rA/a3NMvU7LUc5V0e06J88n5cB3dq0tzITtv8j6r
-         P5V40vnWGgi+YoTcJ8FptKzC2VsXgZfXTTPVVT6n5fwN3jTbZrZuEDSihF4U/9DK2u+6
-         hKbDKSrav5qH0Vnw2ttVpH87ajNkkPMC4IP8Aq2DD1WRKmSQsd1Mkxirsnk/jfnxyf+D
-         qgBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680686457;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UUGG0UnIKCN5qEoPaOBgNrMnkJlxU/sklsT+gsOkTMM=;
-        b=Sp+Wf7Qa2C1+smFaIbqbsGLxjXjXFIf4YHPjrxfBr2NNy8bvJQh81PYhke+8RF3Spq
-         NcmMNfJf3WYHXfZpGYBDKwd9lDB0sWR4PdOzZoGOh2wzAnvUuZnbyv1wrh1+y47zf50j
-         40mrUm1MEb0xd0/snsnIFFqEaKczpJn9U4rD8Eb//wxTzg8ZJRmlB6b6J6zBXKYh9D4K
-         pfprwhlj1Wh8IuY/j5bW9ngzcyIABSdwstNG1RwNxihdbGTNCcjXHJbfwkagJPj2iFlO
-         hdI4hDjuUWWH8IqdiRO9xs0DmN3/8VbMJr++5aHZxpWvTW0qy9Uej7qlIWiaMtUSQUAT
-         Fh/g==
-X-Gm-Message-State: AAQBX9cGG95UcuRjUCfQAwVv8hoH0YuY0zb+gKSrueKSKPqg/5BA6D8T
-        wmiWNnuohsPD2Zr6Uto4H2herQ==
-X-Google-Smtp-Source: AKy350ZOfl79l/5fmaoP9sjI60100Aurk4/c5nevLRCb3fE9XKEbXKQ8Pbgl4T4MF9pEFhQblizSQA==
-X-Received: by 2002:a17:90b:1a92:b0:23a:8f25:7fd6 with SMTP id ng18-20020a17090b1a9200b0023a8f257fd6mr6185368pjb.29.1680686457089;
-        Wed, 05 Apr 2023 02:20:57 -0700 (PDT)
-Received: from localhost.localdomain ([49.207.50.231])
-        by smtp.gmail.com with ESMTPSA id g15-20020a170902868f00b0019b0afc24e8sm9676678plo.250.2023.04.05.02.20.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Apr 2023 02:20:56 -0700 (PDT)
-From:   Amit Pundir <amit.pundir@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Stable <stable@vger.kernel.org>
-Cc:     Robert Foss <robert.foss@linaro.org>
-Subject: [PATCH for-5.10+] drm/bridge: lt9611: Fix PLL being unable to lock
-Date:   Wed,  5 Apr 2023 14:50:52 +0530
-Message-Id: <20230405092052.3843974-1-amit.pundir@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S237308AbjDEJZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 05:25:03 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B4749CE
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 02:25:01 -0700 (PDT)
+Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1pjzNz-00048f-G3
+        for stable@vger.kernel.org; Wed, 05 Apr 2023 11:24:59 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id A5DFA1A7139
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 09:24:58 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id D00641A7123;
+        Wed,  5 Apr 2023 09:24:55 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id f6a584fb;
+        Wed, 5 Apr 2023 09:24:54 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shuangpeng Bai <sjb7183@psu.edu>, stable@vger.kernel.org,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 1/4] can: j1939: j1939_tp_tx_dat_new(): fix out-of-bounds memory access
+Date:   Wed,  5 Apr 2023 11:24:41 +0200
+Message-Id: <20230405092444.1802340-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230405092444.1802340-1-mkl@pengutronix.de>
+References: <20230405092444.1802340-1-mkl@pengutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:b01:1d::7b
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Foss <robert.foss@linaro.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 2a9df204be0bbb896e087f00b9ee3fc559d5a608 ]
+In the j1939_tp_tx_dat_new() function, an out-of-bounds memory access
+could occur during the memcpy() operation if the size of skb->cb is
+larger than the size of struct j1939_sk_buff_cb. This is because the
+memcpy() operation uses the size of skb->cb, leading to a read beyond
+the struct j1939_sk_buff_cb.
 
-This fixes PLL being unable to lock, and is derived from an equivalent
-downstream commit.
+Updated the memcpy() operation to use the size of struct
+j1939_sk_buff_cb instead of the size of skb->cb. This ensures that the
+memcpy() operation only reads the memory within the bounds of struct
+j1939_sk_buff_cb, preventing out-of-bounds memory access.
 
-Available LT9611 documentation does not list this register, neither does
-LT9611UXC (which is a different chip).
+Additionally, add a BUILD_BUG_ON() to check that the size of skb->cb
+is greater than or equal to the size of struct j1939_sk_buff_cb. This
+ensures that the skb->cb buffer is large enough to hold the
+j1939_sk_buff_cb structure.
 
-This commit has been confirmed to fix HDMI output on DragonBoard 845c.
-
-Suggested-by: Amit Pundir <amit.pundir@linaro.org>
-Reviewed-by: Amit Pundir <amit.pundir@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221213150304.4189760-1-robert.foss@linaro.org
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Reported-by: Shuangpeng Bai <sjb7183@psu.edu>
+Tested-by: Shuangpeng Bai <sjb7183@psu.edu>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://groups.google.com/g/syzkaller/c/G_LL-C3plRs/m/-8xCi6dCAgAJ
+Link: https://lore.kernel.org/all/20230404073128.3173900-1-o.rempel@pengutronix.de
+Cc: stable@vger.kernel.org
+[mkl: rephrase commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
+ net/can/j1939/transport.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-To be cherry-picked on v5.10.y, v5.15.y and v6.1.y.
-
- drivers/gpu/drm/bridge/lontium-lt9611.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 3b77238ca4af..ae8c6d9d4095 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -258,6 +258,7 @@ static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode
- 		{ 0x8126, 0x55 },
- 		{ 0x8127, 0x66 },
- 		{ 0x8128, 0x88 },
-+		{ 0x812a, 0x20 },
- 	};
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index fb92c3609e17..fe3df23a2595 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -604,7 +604,10 @@ sk_buff *j1939_tp_tx_dat_new(struct j1939_priv *priv,
+ 	/* reserve CAN header */
+ 	skb_reserve(skb, offsetof(struct can_frame, data));
  
- 	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+-	memcpy(skb->cb, re_skcb, sizeof(skb->cb));
++	/* skb->cb must be large enough to hold a j1939_sk_buff_cb structure */
++	BUILD_BUG_ON(sizeof(skb->cb) < sizeof(*re_skcb));
++
++	memcpy(skb->cb, re_skcb, sizeof(*re_skcb));
+ 	skcb = j1939_skb_to_cb(skb);
+ 	if (swap_src_dst)
+ 		j1939_skbcb_swap(skcb);
+
+base-commit: 3ce9345580974863c060fa32971537996a7b2d57
 -- 
-2.25.1
+2.39.2
+
 
