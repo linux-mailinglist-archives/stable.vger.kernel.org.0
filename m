@@ -2,93 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7916D7757
-	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 10:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDCC6D7753
+	for <lists+stable@lfdr.de>; Wed,  5 Apr 2023 10:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237311AbjDEIuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 04:50:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
+        id S237043AbjDEIus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 04:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237022AbjDEIuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 04:50:23 -0400
-Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F24130FD
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 01:50:20 -0700 (PDT)
-Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
-        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 291AD802382F
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 08:50:20 +0000 (UTC)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 1CDC21004624B
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 08:49:50 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id jypypTwOpyk8zjypyp2HKJ; Wed, 05 Apr 2023 08:49:50 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=fuoZ2H0f c=1 sm=1 tr=0 ts=642d362e
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=dKHAf1wccvYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=wCbDlB704wCocptsMoXzCNIIUhH1OZvAYrJXarJTUuI=; b=kB97TK0l+bsfhCd2Izz2KgCoq8
-        Lxpqv5BV1XDlw651KHym4RC/GZfWv6eBRbQuHX8NKWvzgZWTf5KSRQW2d1JCQ/ztUcbcqfmIive9e
-        iycWcxTRl0rEjx5sJnuQyQEau0eqJPHFah930OYnUbxtJIZvGkyBOz3/Lre5As8ifoFzGBcVtmVz4
-        LEFYFeE2ZvPW225LZadlcfvBS1exA7ZHNhVwPH10vGT8VLHo3d+DRVY1Yue+G9u40xzYEDzQxRMx/
-        EUmlVBYKmbUGopzyck+F5y4cCINKP7+jQFit4ys9vBIlLjr6Mrqda4JRUaRgI3sAjyFFLVJ9ngqSl
-        r+749Yrw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34180 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pjypx-001ZCk-4r;
-        Wed, 05 Apr 2023 02:49:49 -0600
-Subject: Re: [PATCH 5.15 00/99] 5.15.106-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230403140356.079638751@linuxfoundation.org>
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <c6df1f3a-f92d-86a7-9a2b-08ca7eedcad8@w6rz.net>
-Date:   Wed, 5 Apr 2023 01:49:43 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S237624AbjDEIud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 04:50:33 -0400
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D8F3C3E
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 01:50:30 -0700 (PDT)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4PryyC05jKz9sd0;
+        Wed,  5 Apr 2023 10:50:27 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1680684627;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+JoMcQjaWRTFJAZlTMPW2CqATVYYxvDWYRqZtrHR7FM=;
+        b=CNfGQoM5HmhSLG8MpAhKqf6chfhxkuJLEFSFMr8Ltr5xSari8NB4GMztJFMnPUBuWipj5J
+        dfhVXfuWoY3kHmsW4pEiLnJ3kfOv2OfbMBCiBEKCKev5ofIXg3SQDG1G0bZYuNPN9dAzfR
+        E2fViaA3MlomCBaCpRL3jgOXEpBHT9bGXwloKdGc9KmzopqOykUhXcrMHUAij6IRbxTQ5W
+        a5R+gFTInDhc2IF+b4s+S1WWYIvwoS8t9Q+/uDNhuYs0zDpvebO9rbgAMjM8hd4D/Hme+i
+        nQp9pMW080SjjxmmaDOp9ZAMjlRTieQds/Wdlv27ySn5jIR16+payT3K2EpkhQ==
+Message-ID: <03a575e1-b4ed-7bd6-b68a-0583d76803ff@mailbox.org>
+Date:   Wed, 5 Apr 2023 10:50:24 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pjypx-001ZCk-4r
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:34180
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.6 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+Subject: Re: [PATCH] fbdev: Don't spam dmesg on bad userspace ioctl input
+Content-Language: en-CA
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        DRI Development <dri-devel@lists.freedesktop.org>
+Cc:     Thomas Zimmermann <tzimmermann@suse.de>,
+        Helge Deller <deller@gmx.de>,
+        syzbot+20dcf81733d43ddff661@syzkaller.appspotmail.com,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Daniel Vetter <daniel.vetter@intel.com>
+References: <20230404123624.360384-1-daniel.vetter@ffwll.ch>
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel.daenzer@mailbox.org>
+In-Reply-To: <20230404123624.360384-1-daniel.vetter@ffwll.ch>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: mzxrw78thnopc4sgrgqtw97dq6x1qahi
+X-MBO-RS-ID: 94d8a51d1212d5b7798
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -96,26 +61,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/3/23 7:08 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.106 release.
-> There are 99 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 05 Apr 2023 14:03:18 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.106-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 4/4/23 14:36, Daniel Vetter wrote:
+> There's a few reasons the kernel should not spam dmesg on bad
+> userspace ioctl input:
+> - at warning level it results in CI false positives
+> - it allows userspace to drown dmesg output, potentially hiding real
+>   issues.
+> 
+> None of the other generic EINVAL checks report in the
+> FBIOPUT_VSCREENINFO ioctl do this, so it's also inconsistent.
+> 
+> I guess the intent of the patch which introduced this warning was that
+> the drivers ->fb_check_var routine should fail in that case. Reality
+> is that there's too many fbdev drivers and not enough people
+> maintaining them by far, and so over the past few years we've simply
+> handled all these validation gaps by tighning the checks in the core,
+> because that's realistically really all that will ever happen.
+> 
+> Reported-by: syzbot+20dcf81733d43ddff661@syzkaller.appspotmail.com
+> Link: https://syzkaller.appspot.com/bug?id=c5faf983bfa4a607de530cd3bb008888bf06cefc
+> Fixes: 6c11df58fd1a ("fbmem: Check virtual screen sizes in fb_set_var()")
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: stable@vger.kernel.org # v5.4+
+> Cc: Daniel Vetter <daniel@ffwll.ch>
+> Cc: Javier Martinez Canillas <javierm@redhat.com>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> ---
+>  drivers/video/fbdev/core/fbmem.c | 4 ----
+>  1 file changed, 4 deletions(-)
+> 
+> diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+> index 875541ff185b..9757f4bcdf57 100644
+> --- a/drivers/video/fbdev/core/fbmem.c
+> +++ b/drivers/video/fbdev/core/fbmem.c
+> @@ -1021,10 +1021,6 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
+>  	/* verify that virtual resolution >= physical resolution */
+>  	if (var->xres_virtual < var->xres ||
+>  	    var->yres_virtual < var->yres) {
+> -		pr_warn("WARNING: fbcon: Driver '%s' missed to adjust virtual screen size (%ux%u vs. %ux%u)\n",
+> -			info->fix.id,
+> -			var->xres_virtual, var->yres_virtual,
+> -			var->xres, var->yres);
+>  		return -EINVAL;
+>  	}
+>  
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Make it pr_warn_once? 99.9...% of the benefit, without spam.
 
-Tested-by: Ron Economos <re@w6rz.net>
+
+-- 
+Earthling Michel Dänzer            |                  https://redhat.com
+Libre software enthusiast          |         Mesa and Xwayland developer
 
