@@ -2,291 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F036D96D9
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 14:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 845146D96F5
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 14:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237081AbjDFMNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 08:13:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52190 "EHLO
+        id S236824AbjDFMU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 08:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237363AbjDFMNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 08:13:08 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB571FCC;
-        Thu,  6 Apr 2023 05:13:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680783185; x=1712319185;
-  h=date:from:to:cc:subject:message-id:references:
-   content-transfer-encoding:in-reply-to:mime-version;
-  bh=6phrrFj6gvfwPEazvYRcrVUbpdVeZ3I1d0Qp0kiyn+c=;
-  b=MK43r5Xmnd4oKYGspqQDbeJL+I1gqv5DXDuz2D1ctaKptsZkpPArZdKz
-   zTuD4QU8xQEgM7hHf2RL8czxP+cLeHA6eBwnLpYBKl5Ky1C0BNieG5hT9
-   yOx0sCQ4g3OVwc+2bRCvKptmhuQhuhnNngV7zf9sukDbnZcnQOQf0UAk6
-   MD0e+L+nOI8DJ4/Y/goJ0+ZznraeRLuxHGlPJQYLT0p6kyzeH3Q0yT0Pn
-   5QTASHD5ugvLSFxlilNquJPow/W2J1xOZcHaTXGOxgQfrENQoNKmKKGrx
-   HGGOBdasAypzDeR5QWanVMqVU8DBwbxwlZWpeyddc1ADcHy+4WfvovaXS
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="429003665"
-X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
-   d="scan'208";a="429003665"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 05:13:04 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="776465508"
-X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
-   d="scan'208";a="776465508"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by FMSMGA003.fm.intel.com with ESMTP; 06 Apr 2023 05:13:04 -0700
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Thu, 6 Apr 2023 05:13:04 -0700
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Thu, 6 Apr 2023 05:13:03 -0700
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21 via Frontend Transport; Thu, 6 Apr 2023 05:13:03 -0700
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.44) by
- edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.21; Thu, 6 Apr 2023 05:13:03 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JS2Hb/gRXS90lIj80TSv4c7nJ/Fk+NMzP7f57Ju5s5XuSUW240lBgOz6BsW5iegdEZ377Jy0IHQuHuKztcaUYFa8HLBcEv2trudiWgTMuLy436LeuPMYKBpNy88X2pYgibm09iqhhsA2g0cOm1fHnJb6E0ZYOlR7FsafTFPs8EovRcHdJ9uXBnZRvrexT0dks6ZYLZn7N9V98hsCj4LgDSUpLDSVHaiN1GHXlpd09ild/FbTaZCpV779faABTnPzGsloyDp/EwMUnok/BRrNYWeGpH1H0Z+3kbvxEp4yMEu2gXloOKPab1RdYEbWnmxy5/NPl46CqEAHS3CgolfhdA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=sE+Be6mBxirkp1/d7AR+LoZd7DDFRHR1q3Qo4rpwWvw=;
- b=oIk8RQLZFGO4VPEPNBgUfI/RcaARk4hyUWARCvTy99SUrAMjw+92LvQ0D+kt3VOJg6mOjTWXpoboT2ul/MDxA+Og6HwsuZJHrfEDXM/y6Bto5Nbo44js8syRCCkAzW/657KSdXW8PLH+TvPGMQWP+Dt+R6YsV8Ez1Qv71KPUeiqHI/yTQhxQGQEjADiLhk+gEz/S2upyqueef5IoIVCGhQ8/rO8LtmwhOTDXFvZE7wV/JCyNHYrkRzESJ3q6EhuBPZqSt49jDnhaoyWL2gW3wEbjvHFiy+fNzpm0aCigmQrQlgbwLKDHwcW8dRdJnR6q+Uj9AFdH/war+IFe9IRNoQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from BL0PR11MB3060.namprd11.prod.outlook.com (2603:10b6:208:72::24)
- by SN7PR11MB6601.namprd11.prod.outlook.com (2603:10b6:806:273::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.31; Thu, 6 Apr
- 2023 12:13:02 +0000
-Received: from BL0PR11MB3060.namprd11.prod.outlook.com
- ([fe80::bb9:c617:3fd4:7bb3]) by BL0PR11MB3060.namprd11.prod.outlook.com
- ([fe80::bb9:c617:3fd4:7bb3%6]) with mapi id 15.20.6254.026; Thu, 6 Apr 2023
- 12:13:02 +0000
-Date:   Thu, 6 Apr 2023 20:12:45 +0800
-From:   Aaron Lu <aaron.lu@intel.com>
-To:     Rongwei Wang <rongwei.wang@linux.alibaba.com>
-CC:     <akpm@linux-foundation.org>, <bagasdotme@gmail.com>,
-        <willy@infradead.org>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] mm/swap: fix swap_info_struct race between swapoff
- and get_swap_pages()
-Message-ID: <20230406121245.GA376058@ziqianlu-desk2>
+        with ESMTP id S229755AbjDFMUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 08:20:25 -0400
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB496E82;
+        Thu,  6 Apr 2023 05:20:23 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=rongwei.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VfT7z72_1680783614;
+Received: from 30.221.129.255(mailfrom:rongwei.wang@linux.alibaba.com fp:SMTPD_---0VfT7z72_1680783614)
+          by smtp.aliyun-inc.com;
+          Thu, 06 Apr 2023 20:20:19 +0800
+Message-ID: <5963a915-00bd-bedc-14f4-abcd0997ae36@linux.alibaba.com>
+Date:   Thu, 6 Apr 2023 20:20:14 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.1
+From:   Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Subject: Re: [PATCH v2] mm/swap: fix swap_info_struct race between swapoff and
+ get_swap_pages()
+To:     Aaron Lu <aaron.lu@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     bagasdotme@gmail.com, willy@infradead.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
 References: <20230401221920.57986-1-rongwei.wang@linux.alibaba.com>
  <20230404154716.23058-1-rongwei.wang@linux.alibaba.com>
- <6dad8c2f-b896-3cc0-26c1-37f5fff406bd@linux.alibaba.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6dad8c2f-b896-3cc0-26c1-37f5fff406bd@linux.alibaba.com>
-X-ClientProxiedBy: SG2PR01CA0144.apcprd01.prod.exchangelabs.com
- (2603:1096:4:8f::24) To BL0PR11MB3060.namprd11.prod.outlook.com
- (2603:10b6:208:72::24)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL0PR11MB3060:EE_|SN7PR11MB6601:EE_
-X-MS-Office365-Filtering-Correlation-Id: 25fd19c0-2104-47cd-0c96-08db3698449b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /AgmABMrnqT6cLWLTW3R/C2KNmhqSQeCJdmbrfYW29vsVpvd5n9+nKMoef1pMqJQTWiqUOqJy+hqGiZqIJNpDIFILSKTXHbyWkBX7vz6UYhn6gHl2mP5M+FKR9uLNZvF20h1Kcil6KxKypFGgoS8+0Zc07d9JY1GqQbvOa4rWzYJ0srcREzFZe6yCn/kEtvKrhgwpQ6wQ4JbOpnFfBBGaZ4w5x5Ulj07dLvaTQwsW1apb0YvQzs0MpEu8U045yViFbgiIscvJhpoNRRogdP4Iu0R3zILno69w69jUHLcrgsLkLjkGzpZG5X03MerZU8WQ8F50gUc5SRfkWACuauk4OvxIDMb9gRMLreGohBXWWq2clQzFl2XqoHwS9tiK127jUWljCKo02tVigO1bUxRMrfIy2UXIQO7wp48nqmYXJFyMWEKFjtWRKyySUZJvBjvfHtijxevckMIVHA5RigsE0PPfWOmaeTJMkjsQ+/IaNvNeAgkcauxbt4MBT1K9Sugk4OmVMslJSbSMgcQ6LXNDZj9YF6iMY1YJ/FV0MDRkqsoLoVEmdGssxnhkqegj16Z
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR11MB3060.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(7916004)(396003)(376002)(39860400002)(366004)(346002)(136003)(451199021)(66574015)(83380400001)(478600001)(6486002)(6666004)(186003)(316002)(26005)(9686003)(6512007)(6506007)(1076003)(33716001)(5660300002)(2906002)(44832011)(33656002)(38100700002)(66946007)(66556008)(66476007)(6916009)(82960400001)(4326008)(41300700001)(8676002)(8936002)(86362001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?9UsR1PkNV9q/pg5aEQIj+Ux+PiUwS4APKpBGAddbfAL3CdK/pjePoHZIbQ?=
- =?iso-8859-1?Q?e/IWwPCzD8bXZxE1GSSuB6KXk/dvE30IlwpNlLeshKNQh13QXXKdJvMIQK?=
- =?iso-8859-1?Q?/HGH5tHgqfip1Pxy2Nan7bX6m01XThAtsyFeRHOEJyNCSrBcyUiCzKmYyD?=
- =?iso-8859-1?Q?/O+72R2WARFOCa3WMsda+cdhTLcmkyIBTGlT22h4jTmTG4aR+8mfKE87+y?=
- =?iso-8859-1?Q?7CNo2GoZjZaIZukT1LNf6fYqdz0uMzzaH8D56uvDNpHPTPYH+6Ub5DTFS2?=
- =?iso-8859-1?Q?tBeSjZxl3ocKmSgDgnVMkhvss41RzSKh0f0f4AKzXxZWoH2OdT2+h3qOOJ?=
- =?iso-8859-1?Q?P9nKkRg4PtpRt9GmuK6pJE5flNnv1z9L97PuYc7UcS033Ni+JQj+UQ05LR?=
- =?iso-8859-1?Q?oQWUs5yt1JqmErF49YrBcjg1KVcF3OIPVoKeNmuUy0jQiQsMKYhk8yjnsA?=
- =?iso-8859-1?Q?N65s5zCTsEUlWMvD0O8U7do382VMvMl5rN6iobgEQTRUlvqormIkA7olhw?=
- =?iso-8859-1?Q?5aqwZkJQjYYXEFXClAbXvECV7WWmh4ZX13FSQSDSluvD3rbASLVpVDnBDX?=
- =?iso-8859-1?Q?M4vUT2YYQT1cLh+KO0UGNO/O9YJxVPoTQxnEW/9Q12boPFizTHnjsoBIGj?=
- =?iso-8859-1?Q?faDDiD25AaAqhKcUwtFCR9SAVNAnfVrJvK/h32X0ikpEWx3Wi/eUX+84Lf?=
- =?iso-8859-1?Q?GzcDAeJ2bMNlCly91e5jswTedIRkHAqOsUP/SH/X/XYBYQPy2VHaLIMh1Y?=
- =?iso-8859-1?Q?OCdgG2uZ/Y4lU2Un2WSb79mNkMaV9UZK7AMRwuDr0ZiAxXEqOeM4mrFslI?=
- =?iso-8859-1?Q?nlwWJyc9tsuBraEBlG196V31cJhYvliJjWaIpBYp5UMDV2D9sFp4Nv36kB?=
- =?iso-8859-1?Q?TMyCAk+BgnvtaxXOLap5bX3NxlLPfsncUjnXB3U3IU5qYk6tnS80YLfeNU?=
- =?iso-8859-1?Q?vRQQxuR0/1UO8XTgzmAB2lv+fjC5g9ZONFIMUfrnhbidnjO7AsR/DP36xC?=
- =?iso-8859-1?Q?6yLyy8kXS8qA+KXhINnoUupl/VIxFHx2tzFKsJngP7XTO4m1ppuwPd3H3S?=
- =?iso-8859-1?Q?D7WpamrlfUrHLd1IXEO2mHzhueTLKi6HrbhoBqF4qz+B1tAT0W+acKZa+f?=
- =?iso-8859-1?Q?zUj5DLIsCLfr4xtmdPbPYUevP9o2lceNWLNPm+XT3SQVUuFJyDK/+0ieU+?=
- =?iso-8859-1?Q?V/NnFg4az4BY/kjqkLyEe7YRodkJ0o2hIvRTRzadBA9AO8jLo3Opx/AeSa?=
- =?iso-8859-1?Q?lEbQ9Ezc0n9Ic2jyhFkxtfnhnIVhDmJR8dAbBSp22ZxjXu4WasyTS+oYMn?=
- =?iso-8859-1?Q?ivyFLIYRvKkJYPqYVnJ0DQEvhnh7HyJW+fXdtPw/TuvIX78MnNABe0+YAf?=
- =?iso-8859-1?Q?VbaVTVoko2lEwzMyNwntXlnRZCoCWyonG5Nev1f6aP+CcO4SufDXNKXIFN?=
- =?iso-8859-1?Q?NM5K+ABjoz0Dk6dxI0NSyRiSn9IMNXQM0D5V5BPMcktsD6YptIPiGKut8t?=
- =?iso-8859-1?Q?WsBptLjx29644TLco4yFNjRh1bbqrQS9OWYoKqQxz9y7ee6Gy8TIomqsZ/?=
- =?iso-8859-1?Q?gTg++ePw8Dn8/VxyrdOAP4aM0XL3es3DusvoxAOnPt8QkwxC4eXxly2v/r?=
- =?iso-8859-1?Q?uxlMjRm5TPA+ld61CTvCwjsCoAIPGrpGRJ?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 25fd19c0-2104-47cd-0c96-08db3698449b
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR11MB3060.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2023 12:13:01.9661
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: B1+JkgsptAPebiF4g0VxV72wznndXbSVhos5m9QCFKGaQ5t/S4BTGliR2ob8ptctahCP7XEIytaRrVQNGpVNuA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB6601
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+ <20230404122600.88257a623c7f72e078dcf705@linux-foundation.org>
+ <20230406065809.GB64960@ziqianlu-desk2>
+Content-Language: en-US
+In-Reply-To: <20230406065809.GB64960@ziqianlu-desk2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-10.2 required=5.0 tests=ENV_AND_HDR_SPF_MATCH,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 05, 2023 at 12:08:47AM +0800, Rongwei Wang wrote:
-> Hello
-> 
-> I have fix up some stuff base on Patch v1. And in order to help all readers
-> and reviewers to
-> 
-> reproduce this bug, share a reproducer here:
 
-I reproduced this problem under a VM this way:
+> It doesn't appear to be the case. For one thing, the problematic code
+> that removes the swap device from the avail list without acquiring
+> si->lock was there before my commit and my commit didn't change that
+> behaviour. For another, I wanted to see if the problem is still there
+> without my commit(just to make sure).
+>
+> I followed Rongwei's description and used stress-ng/swap test together
+> with some test progs that does memory allocation then MADVISE(pageout)
+> in a loop to reproduce this problem and I can also see the warning like
+> below using Linus' master branch as of today, I believe this is the
+> problem Rongwei described:
+Hi, Aaron, I can sure this is that bug, and the panic will happen when 
+CONFIG_PLIST_DEBUG enabled (I'm not sure whether you have enabled it).
+>
+> [ 1914.518786] ------------[ cut here ]------------
+> [ 1914.519049] swap_info 9 in list but !SWP_WRITEOK
+> [ 1914.519274] WARNING: CPU: 14 PID: 14307 at mm/swapfile.c:1085 get_swap_pages+0x3b3/0x440
+> [ 1914.519660] Modules linked in:
+> [ 1914.519811] CPU: 14 PID: 14307 Comm: swap Tainted: G        W          6.3.0-rc5-00032-g99ddf2254feb #5
+> [ 1914.520238] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.1-2.fc36 04/01/2014
+> [ 1914.520641] RIP: 0010:get_swap_pages+0x3b3/0x440
+> [ 1914.520860] Code: 48 8b 4c 24 30 48 c1 e0 3a 4c 09 e0 48 89 01 e8 43 79 96 00 e9 b2 fd ff ff 41 0f be 77 48 48 c7 c78
+> [ 1914.521709] RSP: 0018:ffffc9000ba0f838 EFLAGS: 00010282
+> [ 1914.521950] RAX: 0000000000000000 RBX: ffff888154411400 RCX: 0000000000000000
+> [ 1914.522273] RDX: 0000000000000004 RSI: ffffffff824035cb RDI: 0000000000000001
+> [ 1914.522601] RBP: ffff888100d95f68 R08: 0000000000000001 R09: 0000000000000003
+> [ 1914.522926] R10: ffffffff82a7a420 R11: ffffffff82a7a420 R12: 0000000000000350
+> [ 1914.523249] R13: ffff888100d95da8 R14: ffff888100d95f50 R15: ffff888100d95c00
+> [ 1914.523576] FS:  00007f23abea2600(0000) GS:ffff88823b600000(0000) knlGS:0000000000000000
+> [ 1914.523942] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [ 1914.524206] CR2: 00007f23abbff000 CR3: 0000000104b86004 CR4: 0000000000770ee0
+> [ 1914.524534] PKRU: 55555554
+> [ 1914.524661] Call Trace:
+> [ 1914.524782]  <TASK>
+> [ 1914.524889]  folio_alloc_swap+0xde/0x230
+> [ 1914.525076]  add_to_swap+0x36/0xb0
+> [ 1914.525242]  shrink_folio_list+0x9ab/0xef0
+> [ 1914.525445]  reclaim_folio_list+0x70/0x130
+> [ 1914.525644]  reclaim_pages+0x9c/0x1c0
+> [ 1914.525819]  madvise_cold_or_pageout_pte_range+0x79f/0xc80
+> [ 1914.526073]  walk_pgd_range+0x4d8/0x940
+> [ 1914.526255]  ? mt_find+0x15b/0x490
+> [ 1914.526426]  __walk_page_range+0x211/0x230
+> [ 1914.526619]  walk_page_range+0x17a/0x1e0
+> [ 1914.526807]  madvise_pageout+0xef/0x250
+>
+> And when I reverted my commit on the same branch(needs some manual edits),
+> the problem is still there.
+>
+> Another thing is, I noticed Rongwei mentioned "This problem exists in
+> versions after stable 5.10.y." in the changelog while my commit entered
+> mainline in v4.14.
+>
+> So either this problem is always there, i.e. earlier than my commit; or
+> this problem is indeed only there after v5.10, then it should be something
+> else that triggered it. My qemu refuses to boot v4.14 kernel so I can
+> not verify the former yet.
 
-$ sudo ./stress-ng --swap 1
-// on another terminal
-$ for i in `seq 8`; do ./swap & done
-Looks simpler than yours :-)
-(Didn't realize you have posted your reproducer here since I'm not CCed
-and just found it after invented mine)
-Then the warning message normally appear within a few seconds.
+Me too. The oldest kernel that my qemu can run is 4.19.
 
-Here is the code for the above swap prog:
+BTW, I try to replace 'p' with 'si' today, and find there are many areas 
+need to be modified, especially inside swapoff() and swapon(). So many 
+modifications maybe affect future tracking of code modifications and 
+will cost some time to test. So I wanna to ensure whether need I to do 
+this. If need, I can continue to do this.
 
-#include <stdio.h>
-#include <stddef.h>
-#include <sys/mman.h>
 
-#define SIZE 0x100000
+Thanks.
 
-int main(void)
-{
-        int i, ret;
-        void *p;
-
-        p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-        if (p == MAP_FAILED) {
-                perror("mmap");
-                return -1;
-        }
-
-        ret = 0;
-        while (1) {
-                for (i = 0; i < SIZE; i += 0x1000)
-                        ((char *)p)[i] = 1;
-                ret = madvise(p, SIZE, MADV_PAGEOUT);
-                if (ret != 0) {
-                        perror("madvise");
-                        break;
-                }
-        }
-
-        return ret;
-}
-
-Unfortunately, this test prog did not work on kernels before v5.4 because
-MADV_PAGEOUT is introduced in v5.4. I tested on v5.4 and the problem is
-also there.
-
-Haven't found a way to trigger swap with swap device come and go on
-kernels before v5.4; tried putting the test prog in a memcg with memory
-limit but then the prog is easily killed due to nowhere to swap out.
-
-> 
-> swap_bomb.sh
-> 
-> #!/usr/bin/env bash
-> 
-> stress-ng -a 1 --class vm -t 12h --metrics --times -x bigheap,stackmmap,mlock,vm-splice,mmapaddr,mmapfixed,mmapfork,mmaphuge,mmapmany,mprotect,mremap,msync,msyncmany,physpage,tmpfs,vm-addr,vm-rw,brk,vm-segv,userfaultfd,malloc,stack,munmap,dev-shm,bad-altstack,shm-sysv,pageswap,madvise,vm,shm,env,mmap
-> --verify -v &
-> stress-ng -a 1 --class vm -t 12h --metrics --times -x bigheap,stackmmap,mlock,vm-splice,mmapaddr,mmapfixed,mmapfork,mmaphuge,mmapmany,mprotect,mremap,msync,msyncmany,physpage,tmpfs,vm-addr,vm-rw,brk,vm-segv,userfaultfd,malloc,stack,munmap,dev-shm,bad-altstack,shm-sysv,pageswap,madvise,vm,shm,env,mmap
-> --verify -v &
-> stress-ng -a 1 --class vm -t 12h --metrics --times -x bigheap,stackmmap,mlock,vm-splice,mmapaddr,mmapfixed,mmapfork,mmaphuge,mmapmany,mprotect,mremap,msync,msyncmany,physpage,tmpfs,vm-addr,vm-rw,brk,vm-segv,userfaultfd,malloc,stack,munmap,dev-shm,bad-altstack,shm-sysv,pageswap,madvise,vm,shm,env,mmap
-> --verify -v &
-> stress-ng -a 1 --class vm -t 12h --metrics --times -x bigheap,stackmmap,mlock,vm-splice,mmapaddr,mmapfixed,mmapfork,mmaphuge,mmapmany,mprotect,mremap,msync,msyncmany,physpage,tmpfs,vm-addr,vm-rw,brk,vm-segv,userfaultfd,malloc,stack,munmap,dev-shm,bad-altstack,shm-sysv,pageswap,madvise,vm,shm,env,mmap
-> --verify -v
-> 
-> 
-> madvise_shared.c
-> 
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <sys/mman.h>
-> #include <unistd.h>
-> 
-> #define MSIZE (1024 * 1024 * 2)
-> 
-> int main()
-> {
->         char *shm_addr;
->         unsigned long i;
-> 
->         while (1) {
->                 // Map shared memory segment
->                 shm_addr =
->                     mmap(NULL, MSIZE, PROT_READ | PROT_WRITE,
->                          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
->                 if (shm_addr == MAP_FAILED) {
->                         perror("Failed to map shared memory segment");
->                         exit(EXIT_FAILURE);
->                 }
-> 
->                 for (i = 0; i < MSIZE; i++) {
->                         shm_addr[i] = 1;
->                 }
-> 
->                 // Advise kernel on usage pattern of shared memory
->                 if (madvise(shm_addr, MSIZE, MADV_PAGEOUT) == -1) {
->                         perror
->                             ("Failed to advise kernel on shared memory
-> usage");
->                         exit(EXIT_FAILURE);
->                 }
-> 
->                 for (i = 0; i < MSIZE; i++) {
->                         shm_addr[i] = 1;
->                 }
-> 
->                 // Advise kernel on usage pattern of shared memory
->                 if (madvise(shm_addr, MSIZE, MADV_PAGEOUT) == -1) {
->                         perror
->                             ("Failed to advise kernel on shared memory
-> usage");
->                         exit(EXIT_FAILURE);
->                 }
->                 // Use shared memory
->                 printf("Hello, shared memory: 0x%lx\n", shm_addr);
-> 
->                 // Unmap shared memory segment
->                 if (munmap(shm_addr, MSIZE) == -1) {
->                         perror("Failed to unmap shared memory segment");
->                         exit(EXIT_FAILURE);
->                 }
->         }
-> 
->         return 0;
-> }
-> 
-> The bug will reproduce more quickly (about 2~5 minutes) if concurrent more
-> swap_bomb.sh and madvise_shared.
-> 
-> Thanks.
