@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6937B6D8DA9
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 04:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA866D8DAE
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 04:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231889AbjDFCt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 22:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38956 "EHLO
+        id S235158AbjDFCu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 22:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235096AbjDFCtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 22:49:40 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB41AF0A;
-        Wed,  5 Apr 2023 19:47:00 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id w4so36249108plg.9;
-        Wed, 05 Apr 2023 19:47:00 -0700 (PDT)
+        with ESMTP id S235166AbjDFCuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 22:50:16 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74CFE9EF6;
+        Wed,  5 Apr 2023 19:48:39 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id z10so22959475pgr.8;
+        Wed, 05 Apr 2023 19:48:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680749219; x=1683341219;
+        d=gmail.com; s=20210112; t=1680749319; x=1683341319;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=uHA5gOYuEN9+cwpsK5Jf8OpixnKs1IAW1nJs78pOjkQ=;
-        b=hCuWgBHIPql9uxthjwmU6uWR1K/B6v97ekkhp3pbSOLqrD6lCwKpLhl1smWtki1AOM
-         K80q50qliBzAoIpFx5etvmQgwsIkxWot734Z/EJMhPtmwqR9qAllizzBJc1oVlW6FfN4
-         nQfrTdX4gugjLklP97/XBJOuVBDOuW4nuDvQUdbct5ytmLxoXB8ImKfwXAKLphTZocLL
-         Ew4d57p6eH7kzVfl43WQA4E5BqD2LDC6+y/yGmPdsurHXGiGer+Nh7q2WNcYyA4PNS1u
-         Vw5dMFgLHNj5YFp/A/VR+ZeBwA4PQPb+xBvcondGlK7kc797voNokVLIPbc2f2zt1MG7
-         vpRQ==
+        bh=MHuPzBxJToh2F/SQs1hc1tHUZRPWSYggD2FMkgtFvfU=;
+        b=RTKcqTfW0bcbhj53/JSrPCwNJD1Ba88spY6/ybnuphWun2+rmFQmK1uLk0wbkc1kKa
+         jZNdcK/zr3w9CBlghABXWIglBm9pYljqfr/0THmtze44cp/qPaitadt/6tdH+khAbuMZ
+         QJwp0IwE9qDS0MVsFJvlrnx9tZuMss2F5AR2Od1swe1Vl7P0pacrSTYOYDL+p/IwwWHv
+         5Civ59SUpKkTNlbKT5UJWcYwmZqnhAz8UIII9XKvEo2diUqzmauRDGATGkt9zQ18Hcwd
+         25A9NIXzLdL5/IGyZGxHwB8HtzwocoE0QBs6TwAF7bxtmHKTDRTYWqoOoacrZRTbq2vE
+         REwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680749219; x=1683341219;
+        d=1e100.net; s=20210112; t=1680749319; x=1683341319;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=uHA5gOYuEN9+cwpsK5Jf8OpixnKs1IAW1nJs78pOjkQ=;
-        b=8EcuMqVrhqN/4ESihESYgSOvlc9dVYSKkcL8Tym95giTRD3U1EkufcD4QenUIivRQf
-         5mz+6SaXapZo4NfaJo5Z46AWVbSnAsPqvR0p/8PQ1+p1LRE7IdkRBtXs3/rvrNxYAbA5
-         8IUzgaHavYcgSxeIWu+YnfznUQkILQ7J5IaNXGKHZ9DiGOj0IsjmmB6NiGJtzoCxwukY
-         OUWVve/OXxoIA7SgxJRrEvNGIFntwSwZs9xAq/23NghtuJBYk/1MomP+CTZyP9DJDAYv
-         9c5heF6YwalxWYLws1HwFDjgrLEJ9x0PGUFW32sJr+dvUYfgDbo6t7qlOY6rlSCX3n7m
-         O9Ug==
-X-Gm-Message-State: AAQBX9eBZmuIqkjoyL7S7xflzZpRgED2a9TXjrSfJqQ3gfM9DRN8W5SV
-        gw8UWQh+Igo5lPlr9TNjGp3eYDryg7qfQVq5584=
-X-Google-Smtp-Source: AKy350b5Hyez+XCFm4zwuGJSvWVUJWRnBYp0HXwmgeqw2yrQga6spQZbhjMTWPgRiJrPWfSVykUmADgiGMmDap/makw=
-X-Received: by 2002:a17:903:1c4:b0:1a1:b318:2776 with SMTP id
- e4-20020a17090301c400b001a1b3182776mr3653414plh.0.1680749219607; Wed, 05 Apr
- 2023 19:46:59 -0700 (PDT)
+        bh=MHuPzBxJToh2F/SQs1hc1tHUZRPWSYggD2FMkgtFvfU=;
+        b=qE4E72dS1+pKJkVfZdrIM+HNHSflIha5unZwKcsef5KwNH1YxLmwFsQUP1D66VJBYg
+         KeF+DhJVJFm2GkOshB4EkENfs6VtfBg3fC3Yru6tWvwDW1vbYaj4as45RzWKlnnmbH8y
+         1ouD9Tz+BC6N+NDYJo3OYMTLmKoxJW8blHSeYsLEtWXH0Jn0BCKA29souiXjNvH8Gkfu
+         1t7E8Pi3SASDxxxBFAV1U3YwN+cBjgg6MbD8s1haGh5xdbBWDeP1gXepwN39P+0v+T+4
+         V4oRxc6dKkzprcwYRAlij/O4O7Zk0KacOiAXNLZuEasO6Trjh0xm4Igvpq6pRphP/Ulp
+         s3SA==
+X-Gm-Message-State: AAQBX9eVPlImD8sL1saxItWRXw2xS5FTiPwOv22svxkDYWWenZzvEaqu
+        mlipF7F3pxA33qm1NZhppVV9uh4eHLA5jUma2ME=
+X-Google-Smtp-Source: AKy350bfpkuIo+RGLpDcjFpvKCAEt+1deus7O3fF9RbKJsscdxuSKlJ3KTv9GDz4ZMdQyeQE61+I0jn93WpfMURtvuY=
+X-Received: by 2002:a05:6a00:1394:b0:626:2343:76b0 with SMTP id
+ t20-20020a056a00139400b00626234376b0mr4514179pfg.6.1680749318969; Wed, 05 Apr
+ 2023 19:48:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230405100309.298748790@linuxfoundation.org>
-In-Reply-To: <20230405100309.298748790@linuxfoundation.org>
+References: <20230405100302.540890806@linuxfoundation.org>
+In-Reply-To: <20230405100302.540890806@linuxfoundation.org>
 From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Thu, 6 Apr 2023 08:16:48 +0530
-Message-ID: <CAJq+SaCeiSguHSztp_ufOeK-QKG--LAa_p+j5hVKZJLkPvcZJA@mail.gmail.com>
-Subject: Re: [PATCH 6.2 000/185] 6.2.10-rc2 review
+Date:   Thu, 6 Apr 2023 08:18:28 +0530
+Message-ID: <CAJq+SaAc05wRYVQVRHP0zPZfYbHb5nz80JHfU-74MSa+X8_sRg@mail.gmail.com>
+Subject: Re: [PATCH 6.1 000/177] 6.1.23-rc3 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -70,24 +70,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 185 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 6.1.23 release.
+> There are 177 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Fri, 07 Apr 2023 10:02:32 +0000.
+> Responses should be made by Fri, 07 Apr 2023 10:02:26 +0000.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.10-rc2.gz
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.23-rc3.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
->
 
 Compiled and booted on my x86_64 and ARM64 test systems. No errors or
 regressions.
