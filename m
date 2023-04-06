@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B82236D9547
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C3BF6D954B
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237954AbjDFLcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
+        id S236724AbjDFLc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237835AbjDFLcc (ORCPT
+        with ESMTP id S237905AbjDFLcc (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:32:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266899EFA;
-        Thu,  6 Apr 2023 04:32:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6509EDD;
+        Thu,  6 Apr 2023 04:32:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F3756465C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B086064668;
+        Thu,  6 Apr 2023 11:32:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF5EC433A0;
         Thu,  6 Apr 2023 11:32:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B761BC433A1;
-        Thu,  6 Apr 2023 11:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780726;
-        bh=JYv8anrELkRS2InyKfowv6LTjAw5NsWku3VF0hOAG1c=;
+        s=k20201202; t=1680780728;
+        bh=YimFVwDeaW+TGuGRJmmcI1SbAKhZF5qTQM8vXf4U8XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUm3KHk747drsNPz+Z0buQynVuBAz2heVtesdzfxaXkIilPM390GQsjsEQQar30ZB
-         CNCgSIoeD8xdqL9Ptpi/m60PXAzEVIDOdjEV4rgEAZxtOTqsXSjkEctqcb9uyLfMRY
-         /bh6sQBcU2s2YuSPjOe8PMgqeJx8VWahD+5g/ne6SB8eV2QusDK4uYU8Fif1rugSU9
-         r59twVqy81k//UBRHBqdJCVcNW5InJt3pERxGFSPFclXtCxXh6LNuldlFVn2vtX00S
-         g6NukxvPyIGQJYs9UQqgEQL0pEM4bSynpaC3EEZkvy83W2H39DiCJ0F+p0x4ra7/dk
-         MjVFjEZpQH22Q==
+        b=q9BQQsFoqKB5c2urwuk/08HOm/lnOfAzqFkLSoSINQRs4oADoyAmOldmQaTIsCd1h
+         e0/OVyMJBYepCq3dWFX6RokutIAVEEXkaVHmtUlzqT2woh+33uL0aSGl6Kty56wrS9
+         xGMwMe4YhpkxPVQiQvDqgqSsfT/rigCVRP1uJF9qIH1BaPPgXPhVWVKqorm4IN6cxE
+         5a+dHrwsYHETyy+xJFb1NTI3Xub35OZZ10sOC4PH2tcNcx3CqHBErDNLyxuUpCZNw1
+         78BWJgQh3k3JEox/hEJXITf+X92vCW+hiWKVnovqyvOylj1vVLJlLB363jwpLq1sw8
+         7DzXnM7dLOu4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Jan Beulich <jbeulich@suse.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, wei.liu@kernel.org,
-        paul@xen.org, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, xen-devel@lists.xenproject.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 14/17] xen/netback: use same error messages for same errors
-Date:   Thu,  6 Apr 2023 07:31:28 -0400
-Message-Id: <20230406113131.648213-14-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Brandon Nielsen <nielsenb@jetfuse.net>,
+        Sasha Levin <sashal@kernel.org>, thomas@weissschuh.net,
+        markgross@kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 15/17] platform/x86: gigabyte-wmi: add support for X570S AORUS ELITE
+Date:   Thu,  6 Apr 2023 07:31:29 -0400
+Message-Id: <20230406113131.648213-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230406113131.648213-1-sashal@kernel.org>
 References: <20230406113131.648213-1-sashal@kernel.org>
@@ -58,40 +56,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2eca98e5b24d01c02b46c67be05a5f98cc9789b1 ]
+[ Upstream commit 52f91e51944808d83dfe2d5582601b5e84e472cc ]
 
-Issue the same error message in case an illegal page boundary crossing
-has been detected in both cases where this is tested.
+Add "X570S AORUS ELITE" to known working boards
 
-Suggested-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20230329080259.14823-1-jgross@suse.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reported-by: Brandon Nielsen <nielsenb@jetfuse.net>
+Link: https://lore.kernel.org/r/20230331014902.7864-1-nielsenb@jetfuse.net
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/platform/x86/gigabyte-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 5c266062c08f0..c35c085dbc877 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -996,10 +996,8 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 
- 		/* No crossing a page as the payload mustn't fragment. */
- 		if (unlikely((txreq.offset + txreq.size) > XEN_PAGE_SIZE)) {
--			netdev_err(queue->vif->dev,
--				   "txreq.offset: %u, size: %u, end: %lu\n",
--				   txreq.offset, txreq.size,
--				   (unsigned long)(txreq.offset&~XEN_PAGE_MASK) + txreq.size);
-+			netdev_err(queue->vif->dev, "Cross page boundary, txreq.offset: %u, size: %u\n",
-+				   txreq.offset, txreq.size);
- 			xenvif_fatal_tx_err(queue->vif);
- 			break;
- 		}
+diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
+index 5e5b17c50eb67..2a426040f749e 100644
+--- a/drivers/platform/x86/gigabyte-wmi.c
++++ b/drivers/platform/x86/gigabyte-wmi.c
+@@ -161,6 +161,7 @@ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 GAMING X"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 I AORUS PRO WIFI"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 UD"),
++	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570S AORUS ELITE"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("Z690M AORUS ELITE AX DDR4"),
+ 	{ }
+ };
 -- 
 2.39.2
 
