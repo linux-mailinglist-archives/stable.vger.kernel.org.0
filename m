@@ -2,84 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 625636D983D
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 15:30:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E266F6D9887
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 15:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237424AbjDFNaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 09:30:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33042 "EHLO
+        id S237180AbjDFNrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 09:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238302AbjDFNaI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 09:30:08 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C2761BA
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 06:30:06 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pkPgi-000699-Ma; Thu, 06 Apr 2023 15:30:04 +0200
-Message-ID: <c87add10-3e8f-b17e-f3f5-067431a23e16@leemhuis.info>
-Date:   Thu, 6 Apr 2023 15:30:04 +0200
+        with ESMTP id S238761AbjDFNrT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 09:47:19 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B526F6EAF
+        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 06:47:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680788838; x=1712324838;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=rx6NRwCG3zzfbrT+I88OAD+AeQRS8XmAJrho0BU1D98=;
+  b=FcyCVRKjU7p2q8j5kLzgXty7SUmwh1OrmM/KOqSZndrPBaCkkbd4/VDW
+   nKq+QGwJAqW4PXz+icCgpAdh284smBN+Y0UgaHDMjQFbvXRJ79vKwpsNt
+   uRCcr7WUC9Lb9fmf1cjkPNPUpzJmnUguMm5qW+zHXuv7Hg3upS0bElUhV
+   ctcmXRM1YSAchicDajtlawwy3rQJn0XJq+7ixxpMrtD3U1jbQ8vRs4M1s
+   GX94bNXQsEVgh50AmGYBUJjEVOtUnUkUN7a4e3Hf3scYfOD4C3Sa5d/fq
+   pN5DUI0KlBrQSiysyveMTcOuDkBAbVBIhKBgpr2cfTF9TAfeasgbLnesR
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10672"; a="331372142"
+X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
+   d="scan'208";a="331372142"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 06:46:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10672"; a="798328155"
+X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
+   d="scan'208";a="798328155"
+Received: from unknown (HELO localhost) ([10.237.66.160])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 06:46:21 -0700
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Manasi Navare <navaremanasi@google.com>,
+        Anusha Srivatsa <anusha.srivatsa@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/dsc: fix drm_edp_dsc_sink_output_bpp() DPCD high byte usage
+Date:   Thu,  6 Apr 2023 16:46:14 +0300
+Message-Id: <20230406134615.1422509-1-jani.nikula@intel.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: 6.1.22: Resume from hibernate fails; bisected
-Content-Language: en-US, de-DE
-To:     Rainer Fiebig <jrf@mailbox.org>, stable@vger.kernel.org,
-        tim.huang@amd.com, Alex Deucher <alexander.deucher@amd.com>,
-        Linux kernel regressions list <regressions@lists.linux.dev>
-References: <b52bfd11-0d90-739b-be3e-058e246478f7@mailbox.org>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <b52bfd11-0d90-739b-be3e-058e246478f7@mailbox.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1680787806;ff43d043;
-X-HE-SMSGID: 1pkPgi-000699-Ma
-X-Spam-Status: No, score=-2.2 required=5.0 tests=NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[CCing the regression list, as it should be in the loop for regressions:
-https://docs.kernel.org/admin-guide/reporting-regressions.html]
+The operator precedence between << and & is wrong, leading to the high
+byte being completely ignored. For example, with the 6.4 format, 32
+becomes 0 and 24 becomes 8. Fix it, and remove the slightly confusing
+and unnecessary DP_DSC_MAX_BITS_PER_PIXEL_HI_SHIFT macro while at it.
 
-On 06.04.23 14:06, Rainer Fiebig wrote:
-> Hi! Since kernel 6.1.22 starting a resume from hibernate by hitting a
-> key on the keyboard fails. However, if the PC was switched off and on
-> again (or reset), the resume is OK. The APU  is a Ryzen 5600G.
-> 
-> Bisecting between 6.1.21/22 turned up this:
-> 
-> 
-> Author: Tim Huang <tim.huang@amd.com>
-> Date:   Thu Mar 9 16:27:51 2023 +0800
-> 
->     drm/amdgpu: skip ASIC reset for APUs when go to S4
-> 
->     commit b589626674de94d977e81c99bf7905872b991197 upstream.
-> 
->     For GC IP v11.0.4/11, PSP TMR need to be reserved
->     for ASIC mode2 reset. But for S4, when psp suspend,
->     it will destroy the TMR that fails the ASIC reset.
-> [...]
-> 
-> 
-> Reverting the commit solves the problem.
-> Thanks.
+Fixes: 0575650077ea ("drm/dp: DRM DP helper/macros to get DP sink DSC parameters")
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Cc: Manasi Navare <navaremanasi@google.com>
+Cc: Anusha Srivatsa <anusha.srivatsa@intel.com>
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+---
+ include/drm/display/drm_dp.h        | 1 -
+ include/drm/display/drm_dp_helper.h | 5 ++---
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-Please try 6.1.23 and report back, because from the thread
-https://lore.kernel.org/all/20230330160740.1dbff94b@schienar/
-it sounds a lot like "drm/amdgpu: allow more APUs to do mode2 reset when
-go to S4" might be fixing this, which went into 6.1.23.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
+diff --git a/include/drm/display/drm_dp.h b/include/drm/display/drm_dp.h
+index 358db4a9f167..89d5a700b04d 100644
+--- a/include/drm/display/drm_dp.h
++++ b/include/drm/display/drm_dp.h
+@@ -286,7 +286,6 @@
+ 
+ #define DP_DSC_MAX_BITS_PER_PIXEL_HI        0x068   /* eDP 1.4 */
+ # define DP_DSC_MAX_BITS_PER_PIXEL_HI_MASK  (0x3 << 0)
+-# define DP_DSC_MAX_BITS_PER_PIXEL_HI_SHIFT 8
+ # define DP_DSC_MAX_BPP_DELTA_VERSION_MASK  0x06
+ # define DP_DSC_MAX_BPP_DELTA_AVAILABILITY  0x08
+ 
+diff --git a/include/drm/display/drm_dp_helper.h b/include/drm/display/drm_dp_helper.h
+index 533d3ee7fe05..86f24a759268 100644
+--- a/include/drm/display/drm_dp_helper.h
++++ b/include/drm/display/drm_dp_helper.h
+@@ -181,9 +181,8 @@ static inline u16
+ drm_edp_dsc_sink_output_bpp(const u8 dsc_dpcd[DP_DSC_RECEIVER_CAP_SIZE])
+ {
+ 	return dsc_dpcd[DP_DSC_MAX_BITS_PER_PIXEL_LOW - DP_DSC_SUPPORT] |
+-		(dsc_dpcd[DP_DSC_MAX_BITS_PER_PIXEL_HI - DP_DSC_SUPPORT] &
+-		 DP_DSC_MAX_BITS_PER_PIXEL_HI_MASK <<
+-		 DP_DSC_MAX_BITS_PER_PIXEL_HI_SHIFT);
++		((dsc_dpcd[DP_DSC_MAX_BITS_PER_PIXEL_HI - DP_DSC_SUPPORT] &
++		  DP_DSC_MAX_BITS_PER_PIXEL_HI_MASK) << 8);
+ }
+ 
+ static inline u32
+-- 
+2.39.2
 
