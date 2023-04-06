@@ -2,169 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77A6E6D980E
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 15:22:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C78C6D9813
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 15:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236863AbjDFNW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 09:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
+        id S238558AbjDFNXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 09:23:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237756AbjDFNWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 09:22:21 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257D9A5C5
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 06:22:00 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id B55FD1FE46;
-        Thu,  6 Apr 2023 13:21:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1680787272; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZHuv7i6TQ34yXo0XsYJLfXMXpD4gSmzt1yYMAFjPJ5A=;
-        b=CE2c33xzPYQ7Vynl2GjGTax1mGgy790qzv0FrPXWnb5xEr87qin1u/Hz0ObsCEaPrZV8mi
-        21DDGEMY6wB2BplaAdagRpCD9udy8SWwp4OVc/oq4WISSqwthS/oLycJB0obNpWHqoHjIX
-        CIhYHjVtuNIk5GgbDtrk2wlO0xHquYs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1680787272;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZHuv7i6TQ34yXo0XsYJLfXMXpD4gSmzt1yYMAFjPJ5A=;
-        b=1E0UVW0EHFT6yfKQ4y+tU7tANqHENfaVpLuaaeUNXaPkcpjHsEkNmhVw+N2GHVANQrSHoE
-        TSu6dCvCbru6sKBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7FF8013A1D;
-        Thu,  6 Apr 2023 13:21:12 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 4JheHkjHLmSqBwAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Thu, 06 Apr 2023 13:21:12 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     javierm@redhat.com, daniel.vetter@ffwll.ch,
-        patrik.r.jakobsson@gmail.com
-Cc:     dri-devel@lists.freedesktop.org,
-        Aaron Plattner <aplattner@nvidia.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v5 7/9] video/aperture: Only remove sysfb on the default vga pci device
-Date:   Thu,  6 Apr 2023 15:21:07 +0200
-Message-Id: <20230406132109.32050-8-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230406132109.32050-1-tzimmermann@suse.de>
-References: <20230406132109.32050-1-tzimmermann@suse.de>
+        with ESMTP id S238588AbjDFNXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 09:23:24 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7560393ED
+        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 06:23:01 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id g18so1356290ejx.7
+        for <stable@vger.kernel.org>; Thu, 06 Apr 2023 06:23:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=grsecurity.net; s=grsec; t=1680787377;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ttt1Wrk11aqssHXvE6bPBSAFizYrCoyDM1ispHOs5pE=;
+        b=hr+2Jx6wTreFTthuQzBFI7Qv6XG0rGQU4nd3RHjPonfrU9JWhSi4RK05HIvzecLXWA
+         /PLpcvlVS0BY+RoRn68fpdolVJqoxP/64FGDQXhPe+88Z686UjSjL6awrti/8Qe0+BqN
+         pvZmOL4kfIBLUBDz/7/BXLsXT6aEre6BluGMpFzgh2+8ydUFZFssIWQ3XB0Q90zKOyDM
+         2/SlrYbb0iYxyaDDOd8FM7nJcrVN7eOQuwTK2CZSiMwdVTDQYwGyz8YEU9R9V57vH5oC
+         +NKE/Q2K61QLgDFxwGMoB2WUjDhMuepjavqvwbCYvYsu9wB9SZI0TaQOILYRhH5K43xu
+         Ivaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680787377;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ttt1Wrk11aqssHXvE6bPBSAFizYrCoyDM1ispHOs5pE=;
+        b=Ghb4PYAg4OfG4WAuFQX0PAfNAVfsmjQtk8aEqdslp3olGlgA+3QDBJClLjifYsIcny
+         E34bA3CcbAlGuxEuZoZwE6y7V+fmSKFOXvlfM9OrszFkJB1JLm8xAcmBkwqbn1kjhBYz
+         RBzmKLM27jnj+NAcuf3PEbayGp35sCTiHVQCB7PP7GRrZfwN56B7Mw3Ymx37+RLiUml5
+         xje68Ox/iBF/+2v2HBa1Q9fmttKe4L86wKmx+iyE6SyP5l4CvFwG9Ej3WmMb4UFY8FRe
+         SdtQ0c0KP+AaCSZn6tKj3uOMQjg5c9HTLZvLgstIRhhc//uyOqxRmz+OarfAa6PXfV6s
+         b/cg==
+X-Gm-Message-State: AAQBX9eKJSjEm8UfByJ7urJVpD+4VgUo9EYo7yDHYDrmSPKwdIhvK+Th
+        eIIS3auuaR1ySF/EK9qKIKgAXI/HDL3WhIuT9oI=
+X-Google-Smtp-Source: AKy350aaN9DxenSE+w3yUdr0k1oz+UymL0vJWEsoXz6gM+usLKKqCJfvHtum3Vi8suAK2SABz/qLfw==
+X-Received: by 2002:a17:906:ccc6:b0:8b1:2c37:ae97 with SMTP id ot6-20020a170906ccc600b008b12c37ae97mr5506972ejb.43.1680787377618;
+        Thu, 06 Apr 2023 06:22:57 -0700 (PDT)
+Received: from ?IPV6:2003:f6:af05:3700:e3dd:8565:18f3:3982? (p200300f6af053700e3dd856518f33982.dip0.t-ipconnect.de. [2003:f6:af05:3700:e3dd:8565:18f3:3982])
+        by smtp.gmail.com with ESMTPSA id ho11-20020a1709070e8b00b0093ebc654f78sm817622ejc.25.2023.04.06.06.22.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Apr 2023 06:22:57 -0700 (PDT)
+Message-ID: <0c47acc0-1f13-ebe5-20e5-524e5b6930e3@grsecurity.net>
+Date:   Thu, 6 Apr 2023 15:22:56 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH v4 0/6] KVM: MMU: performance tweaks for heavy CR0.WP
+ users
+Content-Language: en-US, de-DE
+To:     Sean Christopherson <seanjc@google.com>, Greg KH <greg@kroah.com>
+Cc:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org
+References: <20230322013731.102955-1-minipli@grsecurity.net>
+ <167949641597.2215962.13042575709754610384.b4-ty@google.com>
+ <190509c8-0f05-d05c-831c-596d2c9664ac@grsecurity.net>
+ <ZB7oKD6CHa6f2IEO@kroah.com> <ZC4tocf+PeuUEe4+@google.com>
+From:   Mathias Krause <minipli@grsecurity.net>
+In-Reply-To: <ZC4tocf+PeuUEe4+@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+On 06.04.23 04:25, Sean Christopherson wrote:
+> On Sat, Mar 25, 2023, Greg KH wrote:
+>> On Sat, Mar 25, 2023 at 12:39:59PM +0100, Mathias Krause wrote:
+>>> As this is a huge performance fix for us, we'd like to get it integrated
+>>> into current stable kernels as well -- not without having the changes
+>>> get some wider testing, of course, i.e. not before they end up in a
+>>> non-rc version released by Linus. But I already did a backport to 5.4 to
+>>> get a feeling how hard it would be and for the impact it has on older
+>>> kernels.
+>>>
+>>> Using the 'ssdd 10 50000' test I used before, I get promising results
+>>> there as well. Without the patches it takes 9.31s, while with them we're
+>>> down to 4.64s. Taking into account that this is the runtime of a
+>>> workload in a VM that gets cut in half, I hope this qualifies as stable
+>>> material, as it's a huge performance fix.
+>>>
+>>> Greg, what's your opinion on it? Original series here:
+>>> https://lore.kernel.org/kvm/20230322013731.102955-1-minipli@grsecurity.net/
+>>
+>> I'll leave the judgement call up to the KVM maintainers, as they are the
+>> ones that need to ack any KVM patch added to stable trees.
+> 
+> These are quite risky to backport.  E.g. we botched patch 6[*], and my initial
+> fix also had a subtle bug.  There have also been quite a few KVM MMU changes since
+> 5.4, so it's possible that an edge case may exist in 5.4 that doesn't exist in
+> mainline.
 
-Instead of calling aperture_remove_conflicting_devices() to remove the
-conflicting devices, just call to aperture_detach_devices() to detach
-the device that matches the same PCI BAR / aperture range. Since the
-former is just a wrapper of the latter plus a sysfb_disable() call,
-and now that's done in this function but only for the primary devices.
+I totally agree. Getting the changes to work with older kernels needs
+more work. The MMU role handling was refactored in 5.14 and down to 5.4
+it differs even more, so backports to earlier kernels definitely needs
+more care.
 
-This fixes a regression introduced by commit ee7a69aa38d8 ("fbdev:
-Disable sysfb device registration when removing conflicting FBs"),
-where we remove the sysfb when loading a driver for an unrelated pci
-device, resulting in the user losing their efifb console or similar.
+My plan would be to limit backporting of the whole series to kernels
+down to 5.15 (maybe 5.10 if it turns out to be doable) and for kernels
+before that only without patch 6. That would leave out the problematic
+change but still give us the benefits of dropping the needless mmu
+unloads for only toggling CR0.WP in the VM. This already helps us a lot!
 
-Note that in practice this only is a problem with the nvidia blob,
-because that's the only gpu driver people might install which does not
-come with an fbdev driver of it's own. For everyone else the real gpu
-driver will restore a working console.
+> 
+> I'm not totally opposed to the idea since our tests _should_ be provide solid
+> coverage, e.g. existing tests caught my subtle bug, but I don't think we should
+> backport these without a solid usecase, as there is a fairly high risk of breaking
+> random KVM users that wouldn't see any meaningful benefit.
+> 
+> In other words, who cares enough about the performance of running grsecurity kernels
+> in VMs to want these backported, but doesn't have the resources to maintain (or pay
+> someone to maintain) their own host kernel?
 
-Also note that in the referenced bug there's confusion that this same
-bug also happens on amdgpu. But that was just another amdgpu specific
-regression, which just happened to happen at roughly the same time and
-with the same user-observable symptoms. That bug is fixed now, see
-https://bugzilla.kernel.org/show_bug.cgi?id=216331#c15
+The ones who care are, obviously, our customers -- and we, of course!
+Customers that can run their own infrastructure don't need these
+backports in upstream LTS kernels, as we will provide them as well.
+However, customers that rent VMs in the cloud have no control of what
+runs as host kernel. It'll likely be some distribution kernel or some
+tailored version of that, which is likely based on one of the LTS kernels.
 
-Note that we should not have any such issues on non-pci multi-gpu
-issues, because I could only find two such cases:
-- SoC with some external panel over spi or similar. These panel
-  drivers do not use drm_aperture_remove_conflicting_framebuffers(),
-  so no problem.
-- vga+mga, which is a direct console driver and entirely bypasses all
-  this.
+Proxmox[1], for example, is a Debian based virtualization management
+system. They do provide their own kernels, based on 5.15. However, the
+official Debian stable kernel is based on 5.10. So it would be nice to
+get backports down to this version at least.
 
-For the above reasons the cc: stable is just notionally, this patch
-will need a backport and that's up to nvidia if they care enough.
+[1] https://www.proxmox.com/en/proxmox-ve/features
 
-v2:
-- Explain a bit better why other multi-gpu that aren't pci shouldn't
-  have any issues with making all this fully pci specific.
-
-v3
-- polish commit message (Javier)
-
-v4:
-- Fix commit message style (i.e., commit 1234 ("..."))
-- fix Daniel's S-o-b address
-
-v5:
-- add back an S-o-b tag with Daniel's Intel address
-
-Fixes: ee7a69aa38d8 ("fbdev: Disable sysfb device registration when removing conflicting FBs")
-Tested-by: Aaron Plattner <aplattner@nvidia.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216303#c28
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Aaron Plattner <aplattner@nvidia.com>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org> # v5.19+ (if someone else does the backport)
----
- drivers/video/aperture.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/video/aperture.c b/drivers/video/aperture.c
-index 1356f0e88241..e4091688b5eb 100644
---- a/drivers/video/aperture.c
-+++ b/drivers/video/aperture.c
-@@ -322,15 +322,16 @@ int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *na
- 	if (pdev == vga_default_device())
- 		primary = true;
- 
-+	if (primary)
-+		sysfb_disable();
-+
- 	for (bar = 0; bar < PCI_STD_NUM_BARS; ++bar) {
- 		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
- 			continue;
- 
- 		base = pci_resource_start(pdev, bar);
- 		size = pci_resource_len(pdev, bar);
--		ret = aperture_remove_conflicting_devices(base, size, name);
--		if (ret)
--			return ret;
-+		aperture_detach_devices(base, size);
- 	}
- 
- 	if (primary) {
--- 
-2.40.0
-
+> 
+> [*] https://lkml.kernel.org/r/20230405002608.418442-1-seanjc%40google.com
