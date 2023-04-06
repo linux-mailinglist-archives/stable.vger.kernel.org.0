@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DEBA6D8C72
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AFD06D8C73
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234329AbjDFBHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 21:07:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45194 "EHLO
+        id S234368AbjDFBHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 21:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234501AbjDFBHP (ORCPT
+        with ESMTP id S234461AbjDFBHP (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 21:07:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B786E89;
-        Wed,  5 Apr 2023 18:07:02 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F176EB9;
+        Wed,  5 Apr 2023 18:07:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D03496429C;
-        Thu,  6 Apr 2023 01:07:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33C9EC433EF;
-        Thu,  6 Apr 2023 01:07:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDE60642A8;
+        Thu,  6 Apr 2023 01:07:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52240C4339B;
+        Thu,  6 Apr 2023 01:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1680743221;
-        bh=oa4JM7r1eb3fDhxYOUEiOI1DZFjMSszKxAgiWCrIpEg=;
+        s=korg; t=1680743222;
+        bh=OryYMC+pWp2Pf+zbFTCcasL4aTIPZve2waQFDDTWLsQ=;
         h=Date:To:From:Subject:From;
-        b=k4kxFrrO0Bhg+qUB1ztzw3NO5isiAUEeZ13Pv14r/Y65SsLStvxkh1TQs6Y7JsBwN
-         TjTeAMZ0/Rs025vt0cy5xf/ir1+4cfnyxcQY3gao7ww+vvi7MIlnIh2RdSjwjGRkyT
-         EZ8pPwVoH1diVADCqjeDg6Q/36i3W4dzErHrceA4=
-Date:   Wed, 05 Apr 2023 18:07:00 -0700
-To:     mm-commits@vger.kernel.org, urezki@gmail.com,
-        stable@vger.kernel.org, lstoakes@gmail.com, hch@infradead.org,
-        laoar.shao@gmail.com, akpm@linux-foundation.org
+        b=sZYJsoxUaZPW5wbPk9NLFbr2zl/s+RgCxipkAhNHMUnLD7l+JEeOYhfhrmWZnXeo6
+         Rc9pkODYwjbM+MR2Ksn0UsU5bhB1hPQ1/siwwXvLFdL/UdpETQPeZVMWz1U4cXxcfL
+         BGZkuI1Zx30I4ps3mzax6JuZ6ozsNlUob0AAoDjw=
+Date:   Wed, 05 Apr 2023 18:07:01 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        stable@vger.kernel.org, rcampbell@nvidia.com, jhubbard@nvidia.com,
+        hch@infradead.org, david@redhat.com, apopple@nvidia.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal.patch removed from -mm tree
-Message-Id: <20230406010701.33C9EC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+Subject: [merged mm-hotfixes-stable] mm-take-a-page-reference-when-removing-device-exclusive-entries.patch removed from -mm tree
+Message-Id: <20230406010702.52240C4339B@smtp.kernel.org>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,133 +47,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm: vmalloc: avoid warn_alloc noise caused by fatal signal
+     Subject: mm: take a page reference when removing device exclusive entries
 has been removed from the -mm tree.  Its filename was
-     mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal.patch
+     mm-take-a-page-reference-when-removing-device-exclusive-entries.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Yafang Shao <laoar.shao@gmail.com>
-Subject: mm: vmalloc: avoid warn_alloc noise caused by fatal signal
-Date: Thu, 30 Mar 2023 16:26:25 +0000
+From: Alistair Popple <apopple@nvidia.com>
+Subject: mm: take a page reference when removing device exclusive entries
+Date: Thu, 30 Mar 2023 12:25:19 +1100
 
-There're some suspicious warn_alloc on my test serer, for example,
+Device exclusive page table entries are used to prevent CPU access to a
+page whilst it is being accessed from a device.  Typically this is used to
+implement atomic operations when the underlying bus does not support
+atomic access.  When a CPU thread encounters a device exclusive entry it
+locks the page and restores the original entry after calling mmu notifiers
+to signal drivers that exclusive access is no longer available.
 
-[13366.518837] warn_alloc: 81 callbacks suppressed
-[13366.518841] test_verifier: vmalloc error: size 4096, page order 0, failed to allocate pages, mode:0x500dc2(GFP_HIGHUSER|__GFP_ZERO|__GFP_ACCOUNT), nodemask=(null),cpuset=/,mems_allowed=0-1
-[13366.522240] CPU: 30 PID: 722463 Comm: test_verifier Kdump: loaded Tainted: G        W  O       6.2.0+ #638
-[13366.524216] Call Trace:
-[13366.524702]  <TASK>
-[13366.525148]  dump_stack_lvl+0x6c/0x80
-[13366.525712]  dump_stack+0x10/0x20
-[13366.526239]  warn_alloc+0x119/0x190
-[13366.526783]  ? alloc_pages_bulk_array_mempolicy+0x9e/0x2a0
-[13366.527470]  __vmalloc_area_node+0x546/0x5b0
-[13366.528066]  __vmalloc_node_range+0xc2/0x210
-[13366.528660]  __vmalloc_node+0x42/0x50
-[13366.529186]  ? bpf_prog_realloc+0x53/0xc0
-[13366.529743]  __vmalloc+0x1e/0x30
-[13366.530235]  bpf_prog_realloc+0x53/0xc0
-[13366.530771]  bpf_patch_insn_single+0x80/0x1b0
-[13366.531351]  bpf_jit_blind_constants+0xe9/0x1c0
-[13366.531932]  ? __free_pages+0xee/0x100
-[13366.532457]  ? free_large_kmalloc+0x58/0xb0
-[13366.533002]  bpf_int_jit_compile+0x8c/0x5e0
-[13366.533546]  bpf_prog_select_runtime+0xb4/0x100
-[13366.534108]  bpf_prog_load+0x6b1/0xa50
-[13366.534610]  ? perf_event_task_tick+0x96/0xb0
-[13366.535151]  ? security_capable+0x3a/0x60
-[13366.535663]  __sys_bpf+0xb38/0x2190
-[13366.536120]  ? kvm_clock_get_cycles+0x9/0x10
-[13366.536643]  __x64_sys_bpf+0x1c/0x30
-[13366.537094]  do_syscall_64+0x38/0x90
-[13366.537554]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-[13366.538107] RIP: 0033:0x7f78310f8e29
-[13366.538561] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 17 e0 2c 00 f7 d8 64 89 01 48
-[13366.540286] RSP: 002b:00007ffe2a61fff8 EFLAGS: 00000206 ORIG_RAX: 0000000000000141
-[13366.541031] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f78310f8e29
-[13366.541749] RDX: 0000000000000080 RSI: 00007ffe2a6200b0 RDI: 0000000000000005
-[13366.542470] RBP: 00007ffe2a620010 R08: 00007ffe2a6202a0 R09: 00007ffe2a6200b0
-[13366.543183] R10: 00000000000f423e R11: 0000000000000206 R12: 0000000000407800
-[13366.543900] R13: 00007ffe2a620540 R14: 0000000000000000 R15: 0000000000000000
-[13366.544623]  </TASK>
-[13366.545260] Mem-Info:
-[13366.546121] active_anon:81319 inactive_anon:20733 isolated_anon:0
- active_file:69450 inactive_file:5624 isolated_file:0
- unevictable:0 dirty:10 writeback:0
- slab_reclaimable:69649 slab_unreclaimable:48930
- mapped:27400 shmem:12868 pagetables:4929
- sec_pagetables:0 bounce:0
- kernel_misc_reclaimable:0
- free:15870308 free_pcp:142935 free_cma:0
-[13366.551886] Node 0 active_anon:224836kB inactive_anon:33528kB active_file:175692kB inactive_file:13752kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:59248kB dirty:32kB writeback:0kB shmem:18252kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:4616kB pagetables:10664kB sec_pagetables:0kB all_unreclaimable? no
-[13366.555184] Node 1 active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:50352kB dirty:8kB writeback:0kB shmem:33220kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:3896kB pagetables:9052kB sec_pagetables:0kB all_unreclaimable? no
-[13366.558262] Node 0 DMA free:15360kB boost:0kB min:304kB low:380kB high:456kB reserved_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB present:15992kB managed:15360kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
-[13366.560821] lowmem_reserve[]: 0 2735 31873 31873 31873
-[13366.561981] Node 0 DMA32 free:2790904kB boost:0kB min:56028kB low:70032kB high:84036kB reserved_highatomic:0KB active_anon:1936kB inactive_anon:20kB active_file:396kB inactive_file:344kB unevictable:0kB writepending:0kB present:3129200kB managed:2801520kB mlocked:0kB bounce:0kB free_pcp:5188kB local_pcp:0kB free_cma:0kB
-[13366.565148] lowmem_reserve[]: 0 0 29137 29137 29137
-[13366.566168] Node 0 Normal free:28533824kB boost:0kB min:596740kB low:745924kB high:895108kB reserved_highatomic:28672KB active_anon:222900kB inactive_anon:33508kB active_file:175296kB inactive_file:13408kB unevictable:0kB writepending:32kB present:30408704kB managed:29837172kB mlocked:0kB bounce:0kB free_pcp:295724kB local_pcp:0kB free_cma:0kB
-[13366.569485] lowmem_reserve[]: 0 0 0 0 0
-[13366.570416] Node 1 Normal free:32141144kB boost:0kB min:660504kB low:825628kB high:990752kB reserved_highatomic:69632KB active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB writepending:8kB present:33554432kB managed:33025372kB mlocked:0kB bounce:0kB free_pcp:270880kB local_pcp:46860kB free_cma:0kB
-[13366.573403] lowmem_reserve[]: 0 0 0 0 0
-[13366.574015] Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 1*2048kB (M) 3*4096kB (M) = 15360kB
-[13366.575474] Node 0 DMA32: 782*4kB (UME) 756*8kB (UME) 736*16kB (UME) 745*32kB (UME) 694*64kB (UME) 653*128kB (UME) 595*256kB (UME) 552*512kB (UME) 454*1024kB (UME) 347*2048kB (UME) 246*4096kB (UME) = 2790904kB
-[13366.577442] Node 0 Normal: 33856*4kB (UMEH) 51815*8kB (UMEH) 42418*16kB (UMEH) 36272*32kB (UMEH) 22195*64kB (UMEH) 10296*128kB (UMEH) 7238*256kB (UMEH) 5638*512kB (UEH) 5337*1024kB (UMEH) 3506*2048kB (UMEH) 1470*4096kB (UME) = 28533784kB
-[13366.580460] Node 1 Normal: 15776*4kB (UMEH) 37485*8kB (UMEH) 29509*16kB (UMEH) 21420*32kB (UMEH) 14818*64kB (UMEH) 13051*128kB (UMEH) 9918*256kB (UMEH) 7374*512kB (UMEH) 5397*1024kB (UMEH) 3887*2048kB (UMEH) 2002*4096kB (UME) = 32141240kB
-[13366.583027] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
-[13366.584380] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-[13366.585702] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
-[13366.587042] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-[13366.588372] 87386 total pagecache pages
-[13366.589266] 0 pages in swap cache
-[13366.590327] Free swap  = 0kB
-[13366.591227] Total swap = 0kB
-[13366.592142] 16777082 pages RAM
-[13366.593057] 0 pages HighMem/MovableOnly
-[13366.594037] 357226 pages reserved
-[13366.594979] 0 pages hwpoisoned
+The device exclusive entry holds a reference to the page making it safe to
+access the struct page whilst the entry is present.  However the fault
+handling code does not hold the PTL when taking the page lock.  This means
+if there are multiple threads faulting concurrently on the device
+exclusive entry one will remove the entry whilst others will wait on the
+page lock without holding a reference.
 
-This failure really confuse me as there're still lots of available pages. 
-Finally I figured out it was caused by a fatal signal.  When a process is
-allocating memory via vm_area_alloc_pages(), it will break directly even
-if it hasn't allocated the requested pages when it receives a fatal
-signal.  In that case, we shouldn't show this warn_alloc, as it is
-useless.  We only need to show this warning when there're really no enough
-pages.
+This can lead to threads locking or waiting on a folio with a zero
+refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
+they may still be freed by a migration.  This leads to warnings such as
+PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
+drops to zero.
 
-Link: https://lkml.kernel.org/r/20230330162625.13604-1-laoar.shao@gmail.com
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Reviewed-by: Lorenzo Stoakes <lstoakes@gmail.com>
+Fix this by trying to take a reference on the folio before locking it. 
+The code already checks the PTE under the PTL and aborts if the entry is
+no longer there.  It is also possible the folio has been unmapped, freed
+and re-allocated allowing a reference to be taken on an unrelated folio. 
+This case is also detected by the PTE check and the folio is unlocked
+without further changes.
+
+Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
+Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
 Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/vmalloc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/memory.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/mm/vmalloc.c~mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal
-+++ a/mm/vmalloc.c
-@@ -3042,9 +3042,11 @@ static void *__vmalloc_area_node(struct
- 	 * allocation request, free them via vfree() if any.
- 	 */
- 	if (area->nr_pages != nr_small_pages) {
--		warn_alloc(gfp_mask, NULL,
--			"vmalloc error: size %lu, page order %u, failed to allocate pages",
--			area->nr_pages * PAGE_SIZE, page_order);
-+		/* vm_area_alloc_pages() can also fail due to a fatal signal */
-+		if (!fatal_signal_pending(current))
-+			warn_alloc(gfp_mask, NULL,
-+				"vmalloc error: size %lu, page order %u, failed to allocate pages",
-+				area->nr_pages * PAGE_SIZE, page_order);
- 		goto fail;
- 	}
+--- a/mm/memory.c~mm-take-a-page-reference-when-removing-device-exclusive-entries
++++ a/mm/memory.c
+@@ -3563,8 +3563,21 @@ static vm_fault_t remove_device_exclusiv
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct mmu_notifier_range range;
  
+-	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags))
++	/*
++	 * We need a reference to lock the folio because we don't hold
++	 * the PTL so a racing thread can remove the device-exclusive
++	 * entry and unmap it. If the folio is free the entry must
++	 * have been removed already. If it happens to have already
++	 * been re-allocated after being freed all we do is lock and
++	 * unlock it.
++	 */
++	if (!folio_try_get(folio))
++		return 0;
++
++	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags)) {
++		folio_put(folio);
+ 		return VM_FAULT_RETRY;
++	}
+ 	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0,
+ 				vma->vm_mm, vmf->address & PAGE_MASK,
+ 				(vmf->address & PAGE_MASK) + PAGE_SIZE, NULL);
+@@ -3577,6 +3590,7 @@ static vm_fault_t remove_device_exclusiv
+ 
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	folio_unlock(folio);
++	folio_put(folio);
+ 
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	return 0;
 _
 
-Patches currently in -mm which might be from laoar.shao@gmail.com are
+Patches currently in -mm which might be from apopple@nvidia.com are
 
 
