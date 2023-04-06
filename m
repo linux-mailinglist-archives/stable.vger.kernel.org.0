@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6968B6D95CD
+	by mail.lfdr.de (Postfix) with ESMTP id ED3C96D95CE
 	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238414AbjDFLhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34832 "EHLO
+        id S238335AbjDFLhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:37:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238409AbjDFLgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:36:41 -0400
+        with ESMTP id S238324AbjDFLg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:36:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 201A8B747;
-        Thu,  6 Apr 2023 04:34:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0DFB74D;
+        Thu,  6 Apr 2023 04:34:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0B2B645A3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83ADE6446D;
+        Thu,  6 Apr 2023 11:34:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF81BC4339C;
         Thu,  6 Apr 2023 11:34:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FB69C4339E;
-        Thu,  6 Apr 2023 11:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780856;
-        bh=ttxrWK0ds3BLQZme7B06MSYATP5g4gqhmeNnU6qH4I0=;
+        s=k20201202; t=1680780858;
+        bh=F//45VwgUYwqnq/zqqoCuZrjr2a4lXeB7zZZmi+WW18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8PWhkXdW6/MNpjP3Mjj7Rjd/Y4dw71SmfZ6nkSS02tEmAeDuYvDgwyJzTUvLz9kv
-         YbdDmNC2TYWqDB4bKjHImMxUckhCHQoMKxCjwUzX5KqpQ+gwusjRpnT/ZVsq/Sagwh
-         aP+Q2uxOGbGhz6MtvlKSZz10hxS2i3eyJ4tSrca3zpzlhCvwlOSLzAwWWOi8AOz80P
-         zQTEnRv3D0rplqKWn3MG/BeTtfMSxbm5u6j01XBbPNJEdAPnSZ+bfTksL2h8mpRCCK
-         2OCXeuG7bE9SnDxHXS2QxzROMmM/4Y7gdoiLCqffKOeEiR1vDh7CXD+tJsCA/AP4N/
-         Voj6a9fLjbpvQ==
+        b=QjpANuLvEv8wYMhfcH1BzehDpOlVM2JAfnTpA+bF56oMze6QGPIRRPPDVJgT25Vho
+         HerEpRu28xDTJCqiqE+hBepoyBTs/0caF6LMRlTXmBY+Wrr8eGgZWhftOD+1WuYstV
+         x53jy/2EzyjnXmCD1xeS2I/tTcgnjSrpMysES3HJwlf2uWVqYqLCS2bmViUE6dWhyg
+         qh7w76/ufXhqvzgOgN4bnfuCXQuRVpeJ/2XJRxYMo3SzaMVeBq72hrjcT2abS0lGLR
+         m9P5m6QRD4IoTHOBfidarXqpQFHEZAI6xeYOWXEc2JOZDwQKoSFn8EycWcsgyIDzuY
+         87tZrzQpaxWtw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/8] scsi: core: Improve scsi_vpd_inquiry() checks
-Date:   Thu,  6 Apr 2023 07:33:57 -0400
-Message-Id: <20230406113400.649038-5-sashal@kernel.org>
+Cc:     =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
+        olteanv@gmail.com, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 6/8] net: dsa: b53: mmap: add phy ops
+Date:   Thu,  6 Apr 2023 07:33:58 -0400
+Message-Id: <20230406113400.649038-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230406113400.649038-1-sashal@kernel.org>
 References: <20230406113400.649038-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,58 +59,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Álvaro Fernández Rojas <noltari@gmail.com>
 
-[ Upstream commit f0aa59a33d2ac2267d260fe21eaf92500df8e7b4 ]
+[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
 
-Some USB-SATA adapters have broken behavior when an unsupported VPD page is
-probed: Depending on the VPD page number, a 4-byte header with a valid VPD
-page number but with a 0 length is returned. Currently, scsi_vpd_inquiry()
-only checks that the page number is valid to determine if the page is
-valid, which results in receiving only the 4-byte header for the
-non-existent page. This error manifests itself very often with page 0xb9
-for the Concurrent Positioning Ranges detection done by sd_read_cpr(),
-resulting in the following error message:
+Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
+B53_PORT_MII_PAGE registers which hangs the device.
+This access should be done through the MDIO Mux bus controller.
 
-sd 0:0:0:0: [sda] Invalid Concurrent Positioning Ranges VPD page
-
-Prevent such misleading error message by adding a check in
-scsi_vpd_inquiry() to verify that the page length is not 0.
-
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Link: https://lore.kernel.org/r/20230322022211.116327-1-damien.lemoal@opensource.wdc.com
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
-index febe29a9b8b06..acd118da88bfb 100644
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -351,11 +351,18 @@ static int scsi_vpd_inquiry(struct scsi_device *sdev, unsigned char *buffer,
- 	if (result)
- 		return -EIO;
- 
--	/* Sanity check that we got the page back that we asked for */
-+	/*
-+	 * Sanity check that we got the page back that we asked for and that
-+	 * the page size is not 0.
-+	 */
- 	if (buffer[1] != page)
- 		return -EIO;
- 
--	return get_unaligned_be16(&buffer[2]) + 4;
-+	result = get_unaligned_be16(&buffer[2]);
-+	if (!result)
-+		return -EIO;
-+
-+	return result + 4;
+diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
+index c628d0980c0b1..1d52cb3e46d52 100644
+--- a/drivers/net/dsa/b53/b53_mmap.c
++++ b/drivers/net/dsa/b53/b53_mmap.c
+@@ -215,6 +215,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
+ 	return 0;
  }
  
- /**
++static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
++			       u16 *value)
++{
++	return -EIO;
++}
++
++static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
++				u16 value)
++{
++	return -EIO;
++}
++
+ static const struct b53_io_ops b53_mmap_ops = {
+ 	.read8 = b53_mmap_read8,
+ 	.read16 = b53_mmap_read16,
+@@ -226,6 +238,8 @@ static const struct b53_io_ops b53_mmap_ops = {
+ 	.write32 = b53_mmap_write32,
+ 	.write48 = b53_mmap_write48,
+ 	.write64 = b53_mmap_write64,
++	.phy_read16 = b53_mmap_phy_read16,
++	.phy_write16 = b53_mmap_phy_write16,
+ };
+ 
+ static int b53_mmap_probe(struct platform_device *pdev)
 -- 
 2.39.2
 
