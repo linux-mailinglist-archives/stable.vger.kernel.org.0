@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D986D8F71
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 960676D8F81
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234979AbjDFGbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 02:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41298 "EHLO
+        id S235498AbjDFGeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 02:34:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234582AbjDFGbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:31:48 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38E2B2127
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 23:31:47 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id j13so36393362pjd.1
-        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 23:31:47 -0700 (PDT)
+        with ESMTP id S235480AbjDFGeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:34:19 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D48FA24D
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 23:34:16 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id 185so11988134pgc.10
+        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 23:34:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1680762706;
+        d=google.com; s=20210112; t=1680762856;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=obqxU2mz+jsw4Hq+pdxHcftpRbpV6+H1hg2uFdKXnJg=;
-        b=ptJ5Ich+H+NtwSCosTGyCsY/Pp8sDLBBsJO3lvmHJWFzVRghQY6PrLbGWedx3zug+q
-         wSAXcIfZKbYI8+XSF4EtFioPbIG+l4U+P4n4GbbdLj2DUQZBpHOTn2K/AtKxAc79YakZ
-         6Fzw/Zdad+E4P8kZ4z4AZwliiD7Jf04Hx9CUtIWhtkkDd12bdxiuiv7zknh/YMlnuMqx
-         kfykzcr+Y+DK+HRFlA4++5JDf+LdXpA9olP5rj+AqMId4X1H566ZHEWgk6IJYvwJF8YD
-         EQO8+qrAhPiWtTravKJwe8WwDGc6xdXJDJsTrTcxEqIMmT7gOcaG6uOHN0bpsebBEeaz
-         0Dag==
+        bh=ywRy2NXg/YzPGPsQQtseGk+ykosJNLGdFknAZq9oon8=;
+        b=SAJGqK+/VO4Kto7Td+yYhsLmaOk7HrEBQbs3efgqgCbat5ZLAhp8+7A64Ttj+QL4Ol
+         kMoPp46DeleCcru+sKESaaS4XM8ojsMov4kZwNlNa50x3yChuEl72k/EwiJTJSoZqyvu
+         lQ+tanhKOzHQ57N5CyFVO/lPL4ioc+kZIXfDcRZP2Sn7RoWZZXcu8cVe8uYVotuX+vLH
+         0lTtWjAVgfNB3YW+nlyP+cQ09U3HbvNmVPfL8Lu64z/oi02i4r26PbgHCxm496DzVioK
+         mmTbSN81gjo2RmFNF0vgxkrm3vXkwoTucl/0hout5Ksx3y6KrzCJfT47HD/rPnQjyXcm
+         VBSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680762706;
+        d=1e100.net; s=20210112; t=1680762856;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=obqxU2mz+jsw4Hq+pdxHcftpRbpV6+H1hg2uFdKXnJg=;
-        b=2BmM46EEmxknlIAhJHSO0zWY71nf0gQBcjb9RB/8rI4uhv16FlOnUtEHag+VYyCUvE
-         4FclE8tVAOXD7lsD9/GZFhN9Y5cwPKtyCF7jHam9QLs2vh4Q7fSunWGoqfDXrYMSaa2j
-         pp4hgZ2M0UKIDbkSZNG/i9sGjBZ/m/yq3oicr8VXuAm26K7nY46XADjMjupDUn6tRWxh
-         +bSDIBWKqVYMr5bghKZ5krhoADYVaYNSS6PxPMqBvmhJZ6o3G/3MUvUyGsD+zPsxTMhm
-         jURutrUfKlK+bDsU+qOV1+iL+lTTByrTZzeNrnVKV25D9pxWejB7AT0R6I1W/xhs/+zf
-         AACg==
-X-Gm-Message-State: AAQBX9fR7QO2Bvvqfemp/Iq4ARpL0fQ4wjfW9vhdMChGLc8gOIJmjJTF
-        n6H+Ghs0ZSjBrSDjWpF0XJJCWrtmBqsdAzwcl90SQQ==
-X-Google-Smtp-Source: AKy350bD/Y64vs0qD2MjbI2NJK9P6rHL4AOtwZ1mlHpfcDrjjo6HIcGlm9zSWVu5nF5ZmUVlW1s6jp7cSID+mqvlTXA=
-X-Received: by 2002:a17:90b:1083:b0:244:9620:c114 with SMTP id
- gj3-20020a17090b108300b002449620c114mr318232pjb.1.1680762706468; Wed, 05 Apr
- 2023 23:31:46 -0700 (PDT)
+        bh=ywRy2NXg/YzPGPsQQtseGk+ykosJNLGdFknAZq9oon8=;
+        b=Ap/NylpR4i2Tw9VxVA0uvtHRF/NrVt69ppqnRTMDlvwtCGlY6xYZi3rk/AfHnMpKI2
+         3IqhpnaVSp+Gj19Wavkx8FNslHyfgxKO3B+4y1Lo1R+CXTEaa10U8OF+YPUtaFCEXiWG
+         QLX0M3uqs26aFS3Jwry9BsqKfsCcNR+uM+EEjW+WIHrC9qZyftRIOI1V+Xaihwtwoqy5
+         1TMUZNtRh+ekT82wiTfkJnIaD2OsQSbOqkAdiFHMK1f/qhefWY8RAxubMm36JY7TyoVy
+         KA5qO1i/OMhPyWhHiC33BGuIsNhv21WwVIyfgOKtTUIZSR314494GqM7nY/8xvltLc/L
+         As6Q==
+X-Gm-Message-State: AAQBX9f/ujwepn3GCLLYDMrBlxd1YMLIFod197mmudnezNq86ss1kfi7
+        7suT4aOAR+dcRV8q5dFMjWXp8HyDEPs+4tao8iq9Mw==
+X-Google-Smtp-Source: AKy350ZIR5QFT05CqoEKBHsSl5AdBctVFfha1iZRBdPWiB2ybG0JLlr1rtZDtUXKC1sPXgDpQ9x/mOpGRV/wttLQXGw=
+X-Received: by 2002:a63:e148:0:b0:503:7bbb:9a77 with SMTP id
+ h8-20020a63e148000000b005037bbb9a77mr2897768pgk.8.1680762855762; Wed, 05 Apr
+ 2023 23:34:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230406061905.2460827-1-badhri@google.com> <ZC5m0onNYztT4Zbl@kroah.com>
-In-Reply-To: <ZC5m0onNYztT4Zbl@kroah.com>
+References: <20230405093133.1858140-1-badhri@google.com> <56abca17-7240-4bd5-98db-ef48059ff315@rowland.harvard.edu>
+In-Reply-To: <56abca17-7240-4bd5-98db-ef48059ff315@rowland.harvard.edu>
 From:   Badhri Jagan Sridharan <badhri@google.com>
-Date:   Wed, 5 Apr 2023 23:31:10 -0700
-Message-ID: <CAPTae5J40pmziEk6k0iBEuJ7=NMeFdnk-hkzUCibqRj4aGbzjQ@mail.gmail.com>
+Date:   Wed, 5 Apr 2023 23:33:39 -0700
+Message-ID: <CAPTae5KxVj_F_4Z0Dh00C-SvKRgJMfUPFOuoUU5ZDW87WgMRBA@mail.gmail.com>
 Subject: Re: [PATCH v1 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect
  only when started
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stern@rowland.harvard.edu, colin.i.king@gmail.com,
+To:     Alan Stern <stern@rowland.harvard.edu>
+Cc:     gregkh@linuxfoundation.org, colin.i.king@gmail.com,
         xuetao09@huawei.com, quic_eserrao@quicinc.com,
         water.zhangjiantao@huawei.com, peter.chen@freescale.com,
         balbi@ti.com, linux-usb@vger.kernel.org,
@@ -73,10 +73,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 5, 2023 at 11:29=E2=80=AFPM Greg KH <gregkh@linuxfoundation.org=
-> wrote:
+> No blank line after cc: stable, and put the fixes above your
+signed-off-by line please.
+
+Fixed all commit message related concerns.
+
+> Why a global lock?  Shouldn't this be a per-device lock?
+
+Ack ! Addressed this in V2.
+
+On Wed, Apr 5, 2023 at 6:29=E2=80=AFPM Alan Stern <stern@rowland.harvard.ed=
+u> wrote:
 >
-> On Thu, Apr 06, 2023 at 06:19:04AM +0000, Badhri Jagan Sridharan wrote:
+> On Wed, Apr 05, 2023 at 09:31:32AM +0000, Badhri Jagan Sridharan wrote:
 > > usb_udc_connect_control does not check to see if the udc
 > > has already been started. This causes gadget->ops->pullup
 > > to be called through usb_gadget_connect when invoked
@@ -92,17 +101,97 @@ On Wed, Apr 5, 2023 at 11:29=E2=80=AFPM Greg KH <gregkh@linuxfoundation.org=
 > >
 > > Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 > > Fixes: 628ef0d273a6 ("usb: udc: add usb_udc_vbus_handler")
+>
+> There's a problem with this patch.
+>
 > > ---
 > >  drivers/usb/gadget/udc/core.c | 20 ++++++++++++++++----
 > >  1 file changed, 16 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/cor=
+e.c
+> > index 3dcbba739db6..890f92cb6344 100644
+> > --- a/drivers/usb/gadget/udc/core.c
+> > +++ b/drivers/usb/gadget/udc/core.c
 >
-> Why resend v1 when it's been reviewed already?
+> > @@ -1140,14 +1145,18 @@ static inline int usb_gadget_udc_start(struct u=
+sb_udc *udc)
+> >  {
+> >       int ret;
+> >
+> > +     mutex_lock(&udc_connect_control_lock);
+> >       if (udc->started) {
+> >               dev_err(&udc->dev, "UDC had already started\n");
+> > +             mutex_unlock(&udc_connect_control_lock);
+> >               return -EBUSY;
+> >       }
+> >
+> >       ret =3D udc->gadget->ops->udc_start(udc->gadget, udc->driver);
+> >       if (!ret)
+> >               udc->started =3D true;
+> > +     usb_udc_connect_control_locked(udc);
+> > +     mutex_unlock(&udc_connect_control_lock);
+>
+> You moved the connect_control call up here, into usb_gadget_udc_start().
 
-I just now sent a note.
-Apologies resent V1 again instead of V2. Have sent V2 for real.
-Sorry for the confusion.
+Have moved it back into gadget_bind_driver.
 
 >
-> confused,
+> >       return ret;
+> >  }
+> > @@ -1165,13 +1174,17 @@ static inline int usb_gadget_udc_start(struct u=
+sb_udc *udc)
+> >   */
+> >  static inline void usb_gadget_udc_stop(struct usb_udc *udc)
+> >  {
+> > +     mutex_lock(&udc_connect_control_lock);
+> >       if (!udc->started) {
+> >               dev_err(&udc->dev, "UDC had already stopped\n");
+> > +             mutex_unlock(&udc_connect_control_lock);
+> >               return;
+> >       }
+> >
+> >       udc->gadget->ops->udc_stop(udc->gadget);
+> >       udc->started =3D false;
+> > +     usb_udc_connect_control_locked(udc);
+> > +     mutex_unlock(&udc_connect_control_lock);
+> >  }
+> >
+> >  /**
+> > @@ -1527,7 +1540,6 @@ static int gadget_bind_driver(struct device *dev)
+> >       if (ret)
+> >               goto err_start;
+> >       usb_gadget_enable_async_callbacks(udc);
+> > -     usb_udc_connect_control(udc);
 >
-> greg k-h
+> This is where it used to be.
+>
+> The problem is that in the gadget_bind_driver pathway,
+> usb_gadget_enable_async_callbacks() has to run _before_ the gadget
+> connects.  Maybe you can fix this by leaving the function call in its
+> original location and protecting it with the new mutex?
+>
+> There may be a similar problem with disconnecting and the
+> gadget_unbind_driver pathway (usb_gadget_disable_async_callbacks() has to
+> run _after_ the disconnect occurs).  I haven't tried to follow the patch
+> in enough detail to see whether that's an issue.
+
+Thanks for explaining what's the expectation here. I have incorporated
+the feedback in v2.
+The new lock now additionally guards  gadget->connect and gadget->deactivat=
+e as
+well. Guarding all with the new lock as they are related to one another.
+I have made sure that the gadget_bind_driver and gadget_unbind_driver
+sequence remains unaltered.
+
+>
+> Alan Stern
+>
+> >
+> >       kobject_uevent(&udc->dev.kobj, KOBJ_CHANGE);
+> >       return 0;
+> >
+> > base-commit: d629c0e221cd99198b843d8351a0a9bfec6c0423
+> > --
+> > 2.40.0.348.gf938b09366-goog
+> >
