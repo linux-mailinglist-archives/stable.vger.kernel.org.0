@@ -2,53 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 440DE6D95D2
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE656D962A
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238345AbjDFLhX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:37:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
+        id S237230AbjDFLph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:45:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238435AbjDFLhA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:37:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050B6B758;
-        Thu,  6 Apr 2023 04:34:25 -0700 (PDT)
+        with ESMTP id S238921AbjDFLpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:45:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887F11114D;
+        Thu,  6 Apr 2023 04:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8ECF60C8A;
-        Thu,  6 Apr 2023 11:34:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F74C433EF;
-        Thu,  6 Apr 2023 11:34:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DE164663;
+        Thu,  6 Apr 2023 11:34:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2634C433D2;
+        Thu,  6 Apr 2023 11:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780864;
-        bh=bGR+Tw6mloWZH8hjTxh2KaOIT6KEbpEGt46Bqak7IiA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=vJQcJ9W1yJnS60YhZ6inH9gesB3vsmG8g95CP7UJAZ97giIFz0eLXBS3uKPJ0+hxg
-         aZHXsn4AlhwwRx4FHMuT4pT8wF+VkvfBaRnAkluaLAAZDl0AtxTaxI06Om6orfGYHP
-         QJT8k8QBifCLnyiXRR0QW0v6Pqq3aRVVagjKuBfw2txCjI1+GXCvKW1OgP3R/zXTmf
-         BIRyAtP8NLbK6KIMBwxs3ddfshKBxUyoBTZTsl2/aPJDL0p1uVf7pV3b4RiSZdYlnZ
-         wwqCbfoGEMN45m9Eh/RabFr8VqVgOIHvsWML7/HHSD6gUNUOGYteSbxdBsfHEtYuWR
-         aM+uME6mezCkw==
+        s=k20201202; t=1680780871;
+        bh=V5BQsr3kjpmrNU85YSATEXJCjRsQghWvapoHfDmbADI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CL2DFiJbpiVUHZyaRsFIKr64609SX2qUMaRuLbfgBNegShercRs9iCTf+yaN78Anc
+         lXdjRVE1CpRpS3YNsW4ERROQe09TUQOhaeYRsKUJdcfSzwr0cMwzTJHgSvK9Zw8RH3
+         2j/Y/C4mCwZTjlq1rPM223zHnR89CcQUDkrZNCXvtzx/HaPVPUEEED0AMp92N5sWss
+         siF6c3QojJ6ujju+qR3B6IwkZWSVxS/DwTwFUM0FS6Jdyd4X+eDwOvEetUPVHs9Iom
+         WI5z0qLtXQjKQJYmDAOFLAD8Q8sX8xhYy06cTsXK7UVbsNXISNk8Zy6sc1dqX4mvnZ
+         f5+Si1Uunj7bA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Raillard <douglas.raillard@arm.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
-        mhiramat@kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/7] f2fs: Fix f2fs_truncate_partial_nodes ftrace event
-Date:   Thu,  6 Apr 2023 07:34:15 -0400
-Message-Id: <20230406113421.649149-1-sashal@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, guoren@kernel.org, nathan@kernel.org,
+        linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-csky@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.14 2/7] selftests: sigaltstack: fix -Wuninitialized
+Date:   Thu,  6 Apr 2023 07:34:16 -0400
+Message-Id: <20230406113421.649149-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230406113421.649149-1-sashal@kernel.org>
+References: <20230406113421.649149-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,45 +62,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Raillard <douglas.raillard@arm.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 0b04d4c0542e8573a837b1d81b94209e48723b25 ]
+[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
 
-Fix the nid_t field so that its size is correctly reported in the text
-format embedded in trace.dat files. As it stands, it is reported as
-being of size 4:
+Building sigaltstack with clang via:
+$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
 
-        field:nid_t nid[3];     offset:24;      size:4; signed:0;
+produces the following warning:
+  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
+  if (sp < (unsigned long)sstack ||
+      ^~
 
-Instead of 12:
+Clang expects these to be declared at global scope; we've fixed this in
+the kernel proper by using the macro `current_stack_pointer`. This is
+defined in different headers for different target architectures, so just
+create a new header that defines the arch-specific register names for
+the stack pointer register, and define it for more targets (at least the
+ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
 
-        field:nid_t nid[3];     offset:24;      size:12;        signed:0;
-
-This also fixes the reported offset of subsequent fields so that they
-match with the actual struct layout.
-
-Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/f2fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
+ tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+ create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
 
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index 7ab40491485bc..8ecfc8e68507d 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -485,7 +485,7 @@ TRACE_EVENT(f2fs_truncate_partial_nodes,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(nid_t,	nid[3])
-+		__array(nid_t,	nid, 3)
- 		__field(int,	depth)
- 		__field(int,	err)
- 	),
+diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+new file mode 100644
+index 0000000000000..ea9bdf3a90b16
+--- /dev/null
++++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#if __alpha__
++register unsigned long sp asm("$30");
++#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
++register unsigned long sp asm("sp");
++#elif __i386__
++register unsigned long sp asm("esp");
++#elif __loongarch64
++register unsigned long sp asm("$sp");
++#elif __ppc__
++register unsigned long sp asm("r1");
++#elif __s390x__
++register unsigned long sp asm("%15");
++#elif __sh__
++register unsigned long sp asm("r15");
++#elif __x86_64__
++register unsigned long sp asm("rsp");
++#elif __XTENSA__
++register unsigned long sp asm("a1");
++#else
++#error "implement current_stack_pointer equivalent"
++#endif
+diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
+index 228c2ae47687d..6069d97bf5063 100644
+--- a/tools/testing/selftests/sigaltstack/sas.c
++++ b/tools/testing/selftests/sigaltstack/sas.c
+@@ -19,6 +19,7 @@
+ #include <errno.h>
+ 
+ #include "../kselftest.h"
++#include "current_stack_pointer.h"
+ 
+ #ifndef SS_AUTODISARM
+ #define SS_AUTODISARM  (1U << 31)
+@@ -40,12 +41,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
+ 	stack_t stk;
+ 	struct stk_data *p;
+ 
+-#if __s390x__
+-	register unsigned long sp asm("%15");
+-#else
+-	register unsigned long sp asm("sp");
+-#endif
+-
+ 	if (sp < (unsigned long)sstack ||
+ 			sp >= (unsigned long)sstack + SIGSTKSZ) {
+ 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
 -- 
 2.39.2
 
