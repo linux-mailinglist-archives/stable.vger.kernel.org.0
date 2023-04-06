@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 845146D96F5
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 14:20:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFAE6D9766
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 14:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236824AbjDFMU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 08:20:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58692 "EHLO
+        id S237928AbjDFMzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 08:55:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229755AbjDFMUZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 08:20:25 -0400
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB496E82;
-        Thu,  6 Apr 2023 05:20:23 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=rongwei.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VfT7z72_1680783614;
-Received: from 30.221.129.255(mailfrom:rongwei.wang@linux.alibaba.com fp:SMTPD_---0VfT7z72_1680783614)
+        with ESMTP id S237514AbjDFMzV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 08:55:21 -0400
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469694C21;
+        Thu,  6 Apr 2023 05:55:19 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=rongwei.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VfTAMRc_1680785713;
+Received: from 30.221.129.255(mailfrom:rongwei.wang@linux.alibaba.com fp:SMTPD_---0VfTAMRc_1680785713)
           by smtp.aliyun-inc.com;
-          Thu, 06 Apr 2023 20:20:19 +0800
-Message-ID: <5963a915-00bd-bedc-14f4-abcd0997ae36@linux.alibaba.com>
-Date:   Thu, 6 Apr 2023 20:20:14 +0800
+          Thu, 06 Apr 2023 20:55:14 +0800
+Message-ID: <a37f0f71-2ea0-857a-6e87-376d95d207a9@linux.alibaba.com>
+Date:   Thu, 6 Apr 2023 20:55:12 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.9.1
-From:   Rongwei Wang <rongwei.wang@linux.alibaba.com>
 Subject: Re: [PATCH v2] mm/swap: fix swap_info_struct race between swapoff and
  get_swap_pages()
-To:     Aaron Lu <aaron.lu@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     bagasdotme@gmail.com, willy@infradead.org, linux-mm@kvack.org,
+Content-Language: en-US
+To:     Aaron Lu <aaron.lu@intel.com>
+Cc:     akpm@linux-foundation.org, bagasdotme@gmail.com,
+        willy@infradead.org, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
 References: <20230401221920.57986-1-rongwei.wang@linux.alibaba.com>
  <20230404154716.23058-1-rongwei.wang@linux.alibaba.com>
- <20230404122600.88257a623c7f72e078dcf705@linux-foundation.org>
- <20230406065809.GB64960@ziqianlu-desk2>
-Content-Language: en-US
-In-Reply-To: <20230406065809.GB64960@ziqianlu-desk2>
+ <6dad8c2f-b896-3cc0-26c1-37f5fff406bd@linux.alibaba.com>
+ <20230406121245.GA376058@ziqianlu-desk2>
+From:   Rongwei Wang <rongwei.wang@linux.alibaba.com>
+In-Reply-To: <20230406121245.GA376058@ziqianlu-desk2>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-10.2 required=5.0 tests=ENV_AND_HDR_SPF_MATCH,
@@ -48,73 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Oh, sorry, I miss this email just now, that because of I'm also replying 
+your previous email.
 
-> It doesn't appear to be the case. For one thing, the problematic code
-> that removes the swap device from the avail list without acquiring
-> si->lock was there before my commit and my commit didn't change that
-> behaviour. For another, I wanted to see if the problem is still there
-> without my commit(just to make sure).
+On 2023/4/6 20:12, Aaron Lu wrote:
+> On Wed, Apr 05, 2023 at 12:08:47AM +0800, Rongwei Wang wrote:
+>> Hello
+>>
+>> I have fix up some stuff base on Patch v1. And in order to help all readers
+>> and reviewers to
+>>
+>> reproduce this bug, share a reproducer here:
+> I reproduced this problem under a VM this way:
 >
-> I followed Rongwei's description and used stress-ng/swap test together
-> with some test progs that does memory allocation then MADVISE(pageout)
-> in a loop to reproduce this problem and I can also see the warning like
-> below using Linus' master branch as of today, I believe this is the
-> problem Rongwei described:
-Hi, Aaron, I can sure this is that bug, and the panic will happen when 
-CONFIG_PLIST_DEBUG enabled (I'm not sure whether you have enabled it).
+> $ sudo ./stress-ng --swap 1
+> // on another terminal
+> $ for i in `seq 8`; do ./swap & done
+> Looks simpler than yours :-)
+Cool, indeed become simpler.
+> (Didn't realize you have posted your reproducer here since I'm not CCed
+> and just found it after invented mine)
+> Then the warning message normally appear within a few seconds.
 >
-> [ 1914.518786] ------------[ cut here ]------------
-> [ 1914.519049] swap_info 9 in list but !SWP_WRITEOK
-> [ 1914.519274] WARNING: CPU: 14 PID: 14307 at mm/swapfile.c:1085 get_swap_pages+0x3b3/0x440
-> [ 1914.519660] Modules linked in:
-> [ 1914.519811] CPU: 14 PID: 14307 Comm: swap Tainted: G        W          6.3.0-rc5-00032-g99ddf2254feb #5
-> [ 1914.520238] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.1-2.fc36 04/01/2014
-> [ 1914.520641] RIP: 0010:get_swap_pages+0x3b3/0x440
-> [ 1914.520860] Code: 48 8b 4c 24 30 48 c1 e0 3a 4c 09 e0 48 89 01 e8 43 79 96 00 e9 b2 fd ff ff 41 0f be 77 48 48 c7 c78
-> [ 1914.521709] RSP: 0018:ffffc9000ba0f838 EFLAGS: 00010282
-> [ 1914.521950] RAX: 0000000000000000 RBX: ffff888154411400 RCX: 0000000000000000
-> [ 1914.522273] RDX: 0000000000000004 RSI: ffffffff824035cb RDI: 0000000000000001
-> [ 1914.522601] RBP: ffff888100d95f68 R08: 0000000000000001 R09: 0000000000000003
-> [ 1914.522926] R10: ffffffff82a7a420 R11: ffffffff82a7a420 R12: 0000000000000350
-> [ 1914.523249] R13: ffff888100d95da8 R14: ffff888100d95f50 R15: ffff888100d95c00
-> [ 1914.523576] FS:  00007f23abea2600(0000) GS:ffff88823b600000(0000) knlGS:0000000000000000
-> [ 1914.523942] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [ 1914.524206] CR2: 00007f23abbff000 CR3: 0000000104b86004 CR4: 0000000000770ee0
-> [ 1914.524534] PKRU: 55555554
-> [ 1914.524661] Call Trace:
-> [ 1914.524782]  <TASK>
-> [ 1914.524889]  folio_alloc_swap+0xde/0x230
-> [ 1914.525076]  add_to_swap+0x36/0xb0
-> [ 1914.525242]  shrink_folio_list+0x9ab/0xef0
-> [ 1914.525445]  reclaim_folio_list+0x70/0x130
-> [ 1914.525644]  reclaim_pages+0x9c/0x1c0
-> [ 1914.525819]  madvise_cold_or_pageout_pte_range+0x79f/0xc80
-> [ 1914.526073]  walk_pgd_range+0x4d8/0x940
-> [ 1914.526255]  ? mt_find+0x15b/0x490
-> [ 1914.526426]  __walk_page_range+0x211/0x230
-> [ 1914.526619]  walk_page_range+0x17a/0x1e0
-> [ 1914.526807]  madvise_pageout+0xef/0x250
+> Here is the code for the above swap prog:
 >
-> And when I reverted my commit on the same branch(needs some manual edits),
-> the problem is still there.
+> #include <stdio.h>
+> #include <stddef.h>
+> #include <sys/mman.h>
 >
-> Another thing is, I noticed Rongwei mentioned "This problem exists in
-> versions after stable 5.10.y." in the changelog while my commit entered
-> mainline in v4.14.
+> #define SIZE 0x100000
 >
-> So either this problem is always there, i.e. earlier than my commit; or
-> this problem is indeed only there after v5.10, then it should be something
-> else that triggered it. My qemu refuses to boot v4.14 kernel so I can
-> not verify the former yet.
+> int main(void)
+> {
+>          int i, ret;
+>          void *p;
+>
+>          p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+>          if (p == MAP_FAILED) {
+>                  perror("mmap");
+>                  return -1;
+>          }
+>
+>          ret = 0;
+>          while (1) {
+>                  for (i = 0; i < SIZE; i += 0x1000)
+>                          ((char *)p)[i] = 1;
+>                  ret = madvise(p, SIZE, MADV_PAGEOUT);
+>                  if (ret != 0) {
+>                          perror("madvise");
+>                          break;
+>                  }
+>          }
+>
+>          return ret;
+> }
+>
+> Unfortunately, this test prog did not work on kernels before v5.4 because
+> MADV_PAGEOUT is introduced in v5.4. I tested on v5.4 and the problem is
+> also there.
 
-Me too. The oldest kernel that my qemu can run is 4.19.
+Maybe that is this bug can not be found since now. And we found this is 
+triggered by stress-ng-swap and stress-ng-madvise (PAGEOUT) firstly. It 
+seems this is that reason.
 
-BTW, I try to replace 'p' with 'si' today, and find there are many areas 
-need to be modified, especially inside swapoff() and swapon(). So many 
-modifications maybe affect future tracking of code modifications and 
-will cost some time to test. So I wanna to ensure whether need I to do 
-this. If need, I can continue to do this.
+It seems MADV_COLD is also introduced together with MADV_PAGEOUT. I have 
+no idea and have to depend on you.:-)
+
+>
+> Haven't found a way to trigger swap with swap device come and go on
+> kernels before v5.4; tried putting the test prog in a memcg with memory
+> limit but then the prog is easily killed due to nowhere to swap out.
+>
+Personally, I do not intend to continuing searching for the method to 
+reproduce before v5.4. Of course, if you have idea, I can try.
 
 
-Thanks.
+Thanks:-)
 
