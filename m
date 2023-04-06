@@ -2,53 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B27B26D95C9
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22EBF6D95E7
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238223AbjDFLhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:37:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34334 "EHLO
+        id S238459AbjDFLio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238210AbjDFLgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:36:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A42A5C4;
-        Thu,  6 Apr 2023 04:34:04 -0700 (PDT)
+        with ESMTP id S238016AbjDFLiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:38:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D584EBDD7;
+        Thu,  6 Apr 2023 04:35:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2E786448A;
-        Thu,  6 Apr 2023 11:34:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4B8C4339B;
-        Thu,  6 Apr 2023 11:34:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 292056465D;
+        Thu,  6 Apr 2023 11:34:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D400C433D2;
+        Thu,  6 Apr 2023 11:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780843;
-        bh=FrPrFRzIb80pwqGPPW/9W4CngxldpXYwhVu5k4UI80Q=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sYnM4NjzMbhILoUjrkvIKXnYDQlisejccKwGKyuExp+d35Y/K2HLxIH9aNsf9CILI
-         m9tVgx+o4O0CA+1K8e94Rq6KdehFLnUJdNlhibf2gDUKL1hKXwGKJ9Z6qMeIQrWssS
-         ucu7Mf01HqgevsqxmTkIkYdZn+jbo9LgkmG3ILGenFl9yjQndW63e80e/xRbsVulfy
-         eKcu7QHc6TaJXtNLu7Jqx7wAvOt1cJnP7SmJ3m+SyRwVX2pjXqjr6CZw4gUe4bpfvw
-         /v0eLR33jW3RX8S51Xn8BtUzVhfRQNrqOz2JbSpR4PxISm/SlU3qfapkNd25Veur+9
-         fae+mtL1WfkVg==
+        s=k20201202; t=1680780846;
+        bh=9sQTzdzQIRmdNZ+niKlHkq4sOuPXASqIJ/yStmcsx48=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jZTdC8nYR/4aw+0BDTs5Io5SuYQplI6VMSDZZT3RpxH7sWXO7wyy+cJ8bwZlXZHza
+         8Xu5ABOg+uH3pSRjFZufzIxfhzBvH/lM/iQ2iLViJWqIlm09GL+8mqNwVT7LjYn577
+         9PJf/M+/MHNt3kruFPrkuT6uOb+HbpKaueVmXwz7r1LntVIsaLGi5eWjJaxuUZItmJ
+         TblXocfhxiBdEpfn5IKgzMB7qAU4epvcjuJ8VZUpdyl4VDzlZinCte9Pc3lqdCkTBz
+         xNqm3crQoATbBVLYjh8LPw6vyY37iTrBdBfY4H5jio7YjSEaHpKGH4C1gdh/82rPqb
+         vzThgKvakyB0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Raillard <douglas.raillard@arm.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
-        mhiramat@kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/8] f2fs: Fix f2fs_truncate_partial_nodes ftrace event
-Date:   Thu,  6 Apr 2023 07:33:53 -0400
-Message-Id: <20230406113400.649038-1-sashal@kernel.org>
+Cc:     Jonathan Denose <jdenose@chromium.org>,
+        Jonathan Denose <jdenose@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, wse@tuxedocomputers.com,
+        wsa+renesas@sang-engineering.com, mkorpershoek@baylibre.com,
+        chenhuacai@kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 2/8] Input: i8042 - add quirk for Fujitsu Lifebook A574/H
+Date:   Thu,  6 Apr 2023 07:33:54 -0400
+Message-Id: <20230406113400.649038-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230406113400.649038-1-sashal@kernel.org>
+References: <20230406113400.649038-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,45 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Raillard <douglas.raillard@arm.com>
+From: Jonathan Denose <jdenose@chromium.org>
 
-[ Upstream commit 0b04d4c0542e8573a837b1d81b94209e48723b25 ]
+[ Upstream commit f5bad62f9107b701a6def7cac1f5f65862219b83 ]
 
-Fix the nid_t field so that its size is correctly reported in the text
-format embedded in trace.dat files. As it stands, it is reported as
-being of size 4:
+Fujitsu Lifebook A574/H requires the nomux option to properly
+probe the touchpad, especially when waking from sleep.
 
-        field:nid_t nid[3];     offset:24;      size:4; signed:0;
-
-Instead of 12:
-
-        field:nid_t nid[3];     offset:24;      size:12;        signed:0;
-
-This also fixes the reported offset of subsequent fields so that they
-match with the actual struct layout.
-
-Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Jonathan Denose <jdenose@google.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230303152623.45859-1-jdenose@google.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/f2fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index 52e6456bdb922..098d6dff20bef 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -498,7 +498,7 @@ TRACE_EVENT(f2fs_truncate_partial_nodes,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(nid_t,	nid[3])
-+		__array(nid_t,	nid, 3)
- 		__field(int,	depth)
- 		__field(int,	err)
- 	),
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index b2ab20c16cc77..da2bf8259330e 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -605,6 +605,14 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
+ 	},
++	{
++		/* Fujitsu Lifebook A574/H */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "FMVA0501PZ"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
++	},
+ 	{
+ 		/* Gigabyte M912 */
+ 		.matches = {
 -- 
 2.39.2
 
