@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D056E6D9520
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:31:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DDEE6D9526
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbjDFLbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:31:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60776 "EHLO
+        id S237658AbjDFLb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:31:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229938AbjDFLbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:31:39 -0400
+        with ESMTP id S236905AbjDFLbx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:31:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD53A2;
-        Thu,  6 Apr 2023 04:31:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE9F9039;
+        Thu,  6 Apr 2023 04:31:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B2B96464B;
-        Thu,  6 Apr 2023 11:31:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991B3C433EF;
-        Thu,  6 Apr 2023 11:31:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C76E36464B;
+        Thu,  6 Apr 2023 11:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC54C433D2;
+        Thu,  6 Apr 2023 11:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780697;
-        bh=3dVPcMbV3ggeR+q8y8Q6SKl2kZ8tYqnwVf4u6VuwgMw=;
+        s=k20201202; t=1680780705;
+        bh=cfJ073jZWuUKyB8yTPziOXBTwqVge2u8UtgBTT4+M2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rimAB8ZXI+0hVp4QmwRTMpKSiEq06NkNMKNLfv9zX+lRQjFfoVB9LQXKrbrByWNvB
-         DYKqSmGRi1niv4GO9IhP2i9vCnbchb/39/KF2y4I7lp7p+Nq2XdZ7NQzwmEn8XApHB
-         PVxGH1m1f9XwnJ/yT5vh6eVNzDHIZGvvt/NVWtn6hgVBoMVghemyxbWONhPGQOH5nG
-         UtNXYFeXmhfhQ1gnQ2H9mWusxmbdv+m+rBbFsOtBNap+xn8IWkRB5asXeeaTAAO1Jn
-         9NiKVlSEeBLkKbl8SYAoQLVK3/IQ7G1s5wYh+vcxWR/YQMSWlIcu2hwdO1F5M69mHL
-         Yvs8VPv6o/aHg==
+        b=ke9T55bE9PEIRdLT98NiZeP2bb07OFwofuV8GEso27h5qCugw5D4b20+ULA8n1qaB
+         qL8b4DDYZRWCG3P6/CzOaRSxRtbOxFkRCnQj6hmMMBRt1g8oPAyDKK4zA/9Fcl+Njs
+         nkppIPQpKMeIHltAmzpIV9Wqt/auWZSMurSb7LayRFqZupRnMLApBjwJF9cZnEbvwr
+         4bZcEpkyhzjN9k/LICcudUEBS+IBS2AdzlCww1aVE2g8sN44aUqubDQShGcBze8En9
+         7b7LkxPXx4sx3vbhcLls+ASGK+lUcEriuKoqVLWjcvrdF5zUZalzIsNZG9piVZrzBm
+         LG2+EpZyX5Icw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Crawford <frank@crawford.emu.id.au>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, thomas@weissschuh.net,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 03/17] platform/x86 (gigabyte-wmi): Add support for A320M-S2H V2
-Date:   Thu,  6 Apr 2023 07:31:17 -0400
-Message-Id: <20230406113131.648213-3-sashal@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, guoren@kernel.org, nathan@kernel.org,
+        linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-csky@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.2 04/17] selftests: sigaltstack: fix -Wuninitialized
+Date:   Thu,  6 Apr 2023 07:31:18 -0400
+Message-Id: <20230406113131.648213-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230406113131.648213-1-sashal@kernel.org>
 References: <20230406113131.648213-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,34 +62,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Crawford <frank@crawford.emu.id.au>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit b7c994f8c35e916e27c60803bb21457bc1373500 ]
+[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
 
-Add support for A320M-S2H V2.  Tested using module force_load option.
+Building sigaltstack with clang via:
+$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
 
-Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
-Acked-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/r/20230318091441.1240921-1-frank@crawford.emu.id.au
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+produces the following warning:
+  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
+  if (sp < (unsigned long)sstack ||
+      ^~
+
+Clang expects these to be declared at global scope; we've fixed this in
+the kernel proper by using the macro `current_stack_pointer`. This is
+defined in different headers for different target architectures, so just
+create a new header that defines the arch-specific register names for
+the stack pointer register, and define it for more targets (at least the
+ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
+ tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+ create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index 322cfaeda17ba..4dd39ab6ecfa2 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -140,6 +140,7 @@ static u8 gigabyte_wmi_detect_sensor_usability(struct wmi_device *wdev)
- 	}}
+diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+new file mode 100644
+index 0000000000000..ea9bdf3a90b16
+--- /dev/null
++++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#if __alpha__
++register unsigned long sp asm("$30");
++#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
++register unsigned long sp asm("sp");
++#elif __i386__
++register unsigned long sp asm("esp");
++#elif __loongarch64
++register unsigned long sp asm("$sp");
++#elif __ppc__
++register unsigned long sp asm("r1");
++#elif __s390x__
++register unsigned long sp asm("%15");
++#elif __sh__
++register unsigned long sp asm("r15");
++#elif __x86_64__
++register unsigned long sp asm("rsp");
++#elif __XTENSA__
++register unsigned long sp asm("a1");
++#else
++#error "implement current_stack_pointer equivalent"
++#endif
+diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
+index c53b070755b65..98d37cb744fb2 100644
+--- a/tools/testing/selftests/sigaltstack/sas.c
++++ b/tools/testing/selftests/sigaltstack/sas.c
+@@ -20,6 +20,7 @@
+ #include <sys/auxv.h>
  
- static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("A320M-S2H V2-CF"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H-CF"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H WIFI-CF"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
+ #include "../kselftest.h"
++#include "current_stack_pointer.h"
+ 
+ #ifndef SS_AUTODISARM
+ #define SS_AUTODISARM  (1U << 31)
+@@ -46,12 +47,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
+ 	stack_t stk;
+ 	struct stk_data *p;
+ 
+-#if __s390x__
+-	register unsigned long sp asm("%15");
+-#else
+-	register unsigned long sp asm("sp");
+-#endif
+-
+ 	if (sp < (unsigned long)sstack ||
+ 			sp >= (unsigned long)sstack + stack_size) {
+ 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
 -- 
 2.39.2
 
