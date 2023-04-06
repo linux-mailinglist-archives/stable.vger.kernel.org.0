@@ -2,219 +2,264 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DE96D8FB6
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC82A6D9015
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 09:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbjDFGux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 02:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
+        id S235471AbjDFHFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 03:05:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232252AbjDFGuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:50:51 -0400
-Received: from JPN01-OS0-obe.outbound.protection.outlook.com (mail-os0jpn01on2120.outbound.protection.outlook.com [40.107.113.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008AA8A55;
-        Wed,  5 Apr 2023 23:50:49 -0700 (PDT)
+        with ESMTP id S235788AbjDFHE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 03:04:56 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F999BB8D;
+        Thu,  6 Apr 2023 00:03:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680764601; x=1712300601;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=N8gyyV3oIQrOS3Bhv+IwmZz0HlaYz2lJEUZS7C4kwFc=;
+  b=MnaTCIUULUIGfSKX3ziYdQtaze2eXPAFR8KRduObazk58Pn7TQdD5Iqy
+   AhhQLE5g9c9R4tPQxDGj3W2L5g+HVFZwDoIJzOB0PnxrQXvIGbLb6KlRe
+   EdJ3scOAgM4CPpCgAY4zQjLT8+H0HwBVM3sqNMtDZ5wunfn+AsRLHcHZw
+   hnlzmxRIghd65vd7BI/Cjtcliv/YASQfSg/+1KZmI4iQfQc0RMwG27CE6
+   ipyde8neVq1BcVq2T2uS5k6UWb6O+PXlhlFwtQ95TU1RPKjHJ0Da2+XyU
+   C0BVKSVDBXSFiDYQ2Sjdp6Qaj6QXtgeTIlKru6M8cuRGvcZt+XxGuLKAi
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="322311062"
+X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
+   d="scan'208";a="322311062"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2023 23:58:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="717337926"
+X-IronPort-AV: E=Sophos;i="5.98,322,1673942400"; 
+   d="scan'208";a="717337926"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by orsmga008.jf.intel.com with ESMTP; 05 Apr 2023 23:58:22 -0700
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Wed, 5 Apr 2023 23:58:22 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Wed, 5 Apr 2023 23:58:21 -0700
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21 via Frontend Transport; Wed, 5 Apr 2023 23:58:21 -0700
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.105)
+ by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.21; Wed, 5 Apr 2023 23:58:21 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=K779qQHtv217ig/+689Lxly+FMXnXHbIOqJk+m8R46cOu1l1Oq1Xm3ZEuczRE9DNJ0tOFR3NPoibUs+IyH9OYN40dBcm6EBz4+QT3Js9yL3ModY9kebE4HRqzkJ/h34I2YcsPl/1Cq7R0USDdR0XkvR3ocRTLDXYwBJfitmAiju4ILnTZCHn6RDsKuZd7P6CMwz2OfdNqcRqcPnQ3K8o88M4RgeBBtqRZHV9R7cXet6kgf1+alLenBU/I/Z1G/GTs/m+ggxQoeCmhhdvFhN7bwNrNpPPpTVdTmveWXzGpu2LwR88Y7QVHTiz/gQ5EC4/qywyfVdTEBONsEnFyjhhtg==
+ b=BLd9W71WqthVTptzjfCoDvWEaNIjxcd0TPFxuFLo5mjeC5NsM7yuWvaF+LB1uZmk6u8AM98wDoFS7//rjkIF0qCIIEjhRfXe1er1UGUo012HS2RmbO79ixTrn9Z2eTvedOp/GbrtBII+yfAqYCwIWkWjhF3WC7ZM+mmPMwAgndtYp6FlNhCE+gmZnQuGBS/cSlM7IxY4+HMrfc0t9UibHfjyQbQ6Oc4stkhNoDKtuYlZd/zADhHPACWLtXqQ1Y+vCNapWLG7z3yU+hSuNZ9t3ujlLMGEUPa4xukEby3NG+C6EZraDFc4KKjTvei57g5drNTeyfZfdHkeoKIE7aAlew==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lM7oDe8qhxOnkfdEc6M4QNWfAur0Ued0NakMErDtZAk=;
- b=GSvsgBZ7pwLEammogoNUDzLwsaoBwDvqo+OPwffxrOqpQe0QSert3KLVsHbiv+bjQ2GezNLq3axEOyDO9nf3NqIrAAPs5e32yN24ZfuXs23XyrJKin8umJJWb6Qo2XjpOIK3s9OnEOHVUzPRIGsHmrf9LdytE9Wv+omchFhMJraV2WR4UAD/VNS2nMSf5fIsU24A5agxKPm11zubRVNc3+jKeeBSKlRYhfr9lU3fQSTCdjnrA/V+B4hl34bqznpSId4xxdDVYsW6RKUswey5Y5P71w93PyerZbUV+7DlKgnFRtSLnouDmXCHFoXvqpKkzuVIFeQFZ2gpKGKwwsh9Ew==
+ bh=QjW1OD8rt73L9SpkQXSiJU84LQ+ImT5WFmSzX0+JvLM=;
+ b=nzuZFjNRbpW+bY5hlRGwGbaGmfhjNmv6yh6YQXwtwsF2Jc8bQvbFM8L9mZRMzWUycXgYBhaBjQBOdf5PZdYZsMUA5Pqxbets5x1Mg7zVfD47ULjHganLmuMoOynR8PPfs8GmulMHuBAGvEX1RfMYTeMzo5vuwDm/QHgoNDFi3sVgctIGen9YKXFmis4xm8NS34joX6jx7U+o4dxb/8RpTI88/DB43QyrUOPzahqZ8Xf/sQ77vO/toaMoe07iiC+8N8gHYBE99QNdTwqv36tcU2Jy3DkWSX32A5VbWqiqdklFyP8QWdCuAa9OQuUUyI+EqUinXvm8qiemAgu1+2M3hQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
- header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lM7oDe8qhxOnkfdEc6M4QNWfAur0Ued0NakMErDtZAk=;
- b=lGOTZ8i5Wha4ZJvBKFgClbqbqNnwuw6d9TDmOXl8K7lZ+SOwwbUCHEhWgy2XlreQY1a8nr9/4zoJOL3bGIVFgHej+0GBXeNGdonMlQWkqgSLBjB0VzpIk+Gt9yCCE3mlbejzen2w3+pWSn6hpqoYx9jTkm4dcaIhva3wwzv070E=
-Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com (2603:1096:604:bb::5)
- by OS3PR01MB6023.jpnprd01.prod.outlook.com (2603:1096:604:d6::6) with
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from BYAPR11MB3062.namprd11.prod.outlook.com (2603:10b6:a03:92::18)
+ by SJ0PR11MB6717.namprd11.prod.outlook.com (2603:10b6:a03:44f::9) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.35; Thu, 6 Apr
- 2023 06:50:47 +0000
-Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com
- ([fe80::e521:994c:bb0e:9bf6]) by OS0PR01MB5922.jpnprd01.prod.outlook.com
- ([fe80::e521:994c:bb0e:9bf6%8]) with mapi id 15.20.6254.035; Thu, 6 Apr 2023
- 06:50:46 +0000
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Jiri Slaby <jirislaby@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v4 3/5] tty: serial: sh-sci: Fix Tx on SCI IP
-Thread-Topic: [PATCH v4 3/5] tty: serial: sh-sci: Fix Tx on SCI IP
-Thread-Index: AQHZW+sDTp56XJCyOUCmMvHLJFxxba8d7uaA
-Date:   Thu, 6 Apr 2023 06:50:46 +0000
-Message-ID: <OS0PR01MB59220B26E3627CF3EFC94D5E86919@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-References: <20230321114753.75038-1-biju.das.jz@bp.renesas.com>
- <20230321114753.75038-4-biju.das.jz@bp.renesas.com>
-In-Reply-To: <20230321114753.75038-4-biju.das.jz@bp.renesas.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=bp.renesas.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: OS0PR01MB5922:EE_|OS3PR01MB6023:EE_
-x-ms-office365-filtering-correlation-id: 3fe8518f-89fa-4435-0169-08db366b401a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 14cshgBlBsPTiAFB3hdvoh8M6HAhrycXz1uJ/1U11DMlMr3Kmqa53OGnNLWmEU7m6zzDXPsC0jOzJQg8bZirRe3xj6Y4JI0A5wAIJnMuqUDOcg/CUJJ28Q2d5WHaBtJKQABQS49K9/4QKQbiADbHHZ0yAyjtMbKp/oUNWdlrmw/Nlqt/OGCwO6ErVDSa43JhNinVwZUPxmZssSLYwPLl8fZOB4SWCnGR4kuU86ipBQp+2dWz5tvAYkHjuG5ewYITkf3ESS6M+2Mppmj2aGRcvueGpls9dnXY54DSYXL92yTbJjXFoPjMuE04N1sgU11v1Lpyv4vY7bdCe6nekwZ3WR8k9bNcpftdM1/tpCJswj1EBthxV8vD9xU63kdzwyS2+iV1xi0d+B5FEIb+DXBN8LxQXd24ilHQGXvUdRhMaozXZnMmYeQ4UH4EyOlPFMvPKJwKoKoiC/uSmLIRqtJw82Qydkvo22lglFToAd6Moq556UK6lZ2ytCdXbZbelIDUGM/Yw2vjdjJTUG5R5LA/G79SiDHe2jXemb0K5rpe5Aqs0hYNXvlPYNKTd3SV3J37ib0mk8bBWqKkShkjraHaj3Z4UyplBzwjS59lqpaG1zn6feLTGNkytZ2S7QZ+7NVcX9WAQBCf6p+Uzrk3MxY6gQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OS0PR01MB5922.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(39860400002)(396003)(366004)(136003)(376002)(451199021)(4326008)(8676002)(54906003)(64756008)(966005)(316002)(66476007)(66446008)(6916009)(66556008)(66946007)(76116006)(41300700001)(478600001)(52536014)(7696005)(8936002)(71200400001)(2906002)(5660300002)(86362001)(38070700005)(55016003)(186003)(83380400001)(26005)(9686003)(6506007)(38100700002)(122000001)(33656002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?sjD9x17OrsWc25fcVqUYQJylA6BQY+1TnqI6zS+V8vLVu5y4oicF7HHHkFA/?=
- =?us-ascii?Q?RZDSVO6BcpY6HAIhabtkEs7tY6hKA5lN4lTSN2arVGi6qqP+mHvh6p15KvvX?=
- =?us-ascii?Q?cZD1F2hgV+K2c3mpDtI4kfbTEuYuGF1/XXi7rkiVa0QDpfFI4SmekCCcWsIw?=
- =?us-ascii?Q?UA+AX+kMRgtEqKSYIHZZV/oswr8sm5uyfoVXYEDiCR297cL2lLTtrgjCACqD?=
- =?us-ascii?Q?BQO8MrFzZ7Wc6XufFgfaHUKHQonikafA5Y6evtqighMGq26BROqO5I3VVcbp?=
- =?us-ascii?Q?KshfY/v+wcSUM1ngR09v8d0RB4p5WO3Vj/ya1iBLOIXDhXFSdDeVldCroRt/?=
- =?us-ascii?Q?2qv4hX4788gAiRQ0rcPFdTWYXNija/PmqrAtJi/wuAFQQqr6bOstWVgl/aIP?=
- =?us-ascii?Q?SEiaf6nfHzay5iXAvUnq6aIzhyjdy3bmkBjdrmozLBd6N1CgCX1ipETig8je?=
- =?us-ascii?Q?r7Hz/lnuimOmoc+Cb2uB6Z4x2fazAPOYR9k1DJkJI891IErwJyzh7eJ9XcQT?=
- =?us-ascii?Q?6pkKXeqn2Vl/sPfJEZG4UuFBu6CCo0zxwKwu0EbRJHnXJp4l0PeroGcomupe?=
- =?us-ascii?Q?CoCj4G0qmrliTnDsP2mtvxirFZZdBaE4okXALcgHw7YellR/9opRSbpsrX1Y?=
- =?us-ascii?Q?WZS7bk+VXg2yfxpL3P/TBLNYyixRWjhVW2ToxCKLqzAKTgxs5cZwUSZIR7OW?=
- =?us-ascii?Q?Z8t2iA8uMKSAKaE2fX1s37gdnnol90qJFWT+NB+mXYEmPuGyCRaBvu7aPEVW?=
- =?us-ascii?Q?VGN66pt3OKWcjKoC7kgT1lGSbZJ5fSoyjIIxhltbYHIGOrHuFhp5th0yBiFS?=
- =?us-ascii?Q?q+DDwWUILX4v1xMAdaqI/ngzsURgEpB+cNZJ540qseoJOlQi+KW3MrQ7xLIY?=
- =?us-ascii?Q?3KHB3kZ+a5PmRl2qD7PzCbSAotSYSI6Sos/nIJyCjzuefVS0CFGwXiEoWvNY?=
- =?us-ascii?Q?pkBIN4pSyrj21GS14zjOH5tcAbRV0B4M72Zqs0c/zuxyZu2aw1q8otQmkLFe?=
- =?us-ascii?Q?LrD7OdgI7asbXzd9kNlcSpbbC9f8kqbrp8zpXU2eCzJL7regYYk9pSDYsOri?=
- =?us-ascii?Q?PLzT4pu2AyJnbIBPlamy01Xbdi6YcWWfYxr5fsEKRd/R++12ifc7YnQb3y5P?=
- =?us-ascii?Q?+xdGcahdM5PjpkqI6MmHIExGbCziJTkBA75f0QTCO1ThDxSSh8SDMM6usR4k?=
- =?us-ascii?Q?EKA6YfRtCc5IBAzRV5fjU+3odTHNQNMuP7U+ns4MihYEo5Rep3fN6xfdg73Q?=
- =?us-ascii?Q?5MG8WsCKBIFemqs/mP1Ljzfj2tRoQs0q7z98jzqlDNv2wzpEZkNOcpdOIMEZ?=
- =?us-ascii?Q?Mg2rRsDG50woN+ECIuVjXT4wbg8r95kR+JOjBazqg3HerSVJ7AyzkXk6cYAH?=
- =?us-ascii?Q?IzqrSxmATwn7iGGR49k1FTL9EgrZ4nC3mehNR7F0EjI+QV7MXRDi38ijCp8y?=
- =?us-ascii?Q?Zfkp6+HlA0JQ0nnWvYPROMPrdvZC1bLhiyUFeXAwARsa06NrPIC6yKqbK9B6?=
- =?us-ascii?Q?hq5TZCkKuuuQSRDwSpF3giICLXpkxEo9F3ISKr3Nra1BJnoXTRFHWaufJFh1?=
- =?us-ascii?Q?iIDlH5l0yIrWDCXHCOwxc6jp8qvOioIi2SzKi1ss?=
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.28; Thu, 6 Apr
+ 2023 06:58:19 +0000
+Received: from BYAPR11MB3062.namprd11.prod.outlook.com
+ ([fe80::78d1:41fe:eae2:1f6d]) by BYAPR11MB3062.namprd11.prod.outlook.com
+ ([fe80::78d1:41fe:eae2:1f6d%7]) with mapi id 15.20.6254.034; Thu, 6 Apr 2023
+ 06:58:19 +0000
+Date:   Thu, 6 Apr 2023 14:58:09 +0800
+From:   Aaron Lu <aaron.lu@intel.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     Rongwei Wang <rongwei.wang@linux.alibaba.com>,
+        <bagasdotme@gmail.com>, <willy@infradead.org>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] mm/swap: fix swap_info_struct race between swapoff
+ and get_swap_pages()
+Message-ID: <20230406065809.GB64960@ziqianlu-desk2>
+References: <20230401221920.57986-1-rongwei.wang@linux.alibaba.com>
+ <20230404154716.23058-1-rongwei.wang@linux.alibaba.com>
+ <20230404122600.88257a623c7f72e078dcf705@linux-foundation.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+In-Reply-To: <20230404122600.88257a623c7f72e078dcf705@linux-foundation.org>
+X-ClientProxiedBy: SG2PR04CA0202.apcprd04.prod.outlook.com
+ (2603:1096:4:187::20) To BYAPR11MB3062.namprd11.prod.outlook.com
+ (2603:10b6:a03:92::18)
 MIME-Version: 1.0
-X-OriginatorOrg: bp.renesas.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BYAPR11MB3062:EE_|SJ0PR11MB6717:EE_
+X-MS-Office365-Filtering-Correlation-Id: d767ee59-ea0d-4d3b-e946-08db366c4dda
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: VV5QtuVduuouNjtJMT1uPmnNi5nl3a2A56gigzmypAayOACmnIlv9dFAt413IkwXXsOCLsmkgWIJ37gq9AuHerpu71dVQZmG3L/bdPnZhjO6+bG0qx35ZUfKnJ4/YSSByUaJGuXMXgTOnbqu52qwcMZuXyK4Vc62ARXItqSerGd2sPsYdu3RH/Q+zp/JpCKVzpV8cxNeV8LNGiDdBHan0bsdtqYC5Sh86okznT4nRp4HGE2NkAgfibrAsUvFVjdlTnDwewlzSxswpYhClXPVWYGfOtzr8eN7IToSs887af2cFCS94AKmBJl008kIkgCEgp6YGG30xtFUi4jlnv9lIPcyKSdhd9e3GbW1xoEcn5Km01BG8xaJE3EdqCbbR7mMDqxZOWaIqF2iMIzHN0+6iMv3WJ3LSL6s+G7t6u6H75enBJrSrg8Jwd3rvjpLwkxHpeI4trL/15Kketjl/KFLo52JoATk+clqJu0+4gzEF3NbdSOt/p8i2q0zDtTiQ6I4Tw7uLtf46jtpMjJstryfo6xnUkqqFhhcko3vZqOIxCD1ADUFP+qKb6JGZ/UW4fTR
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB3062.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(7916004)(136003)(396003)(39860400002)(366004)(346002)(376002)(451199021)(6506007)(66946007)(66556008)(5660300002)(66476007)(82960400001)(478600001)(38100700002)(4326008)(316002)(8936002)(41300700001)(8676002)(186003)(45080400002)(83380400001)(44832011)(6486002)(9686003)(26005)(6512007)(6916009)(1076003)(6666004)(33656002)(2906002)(33716001)(86362001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?p3tiRIguc5gYkDBi1YwDp/oPV49bZlId6J9ySUngLCcedioGUUGeygXe41Lu?=
+ =?us-ascii?Q?TYJMCEk//qDTUhLZuur0QZ/lvimgt7NeYFwQU49lWmTcASbK8X31KV192c3q?=
+ =?us-ascii?Q?aG7jHI8ywozaczFAajKMx022D9vtwMrrV/qcYbNA6uPxve1uW4OX7oEmangb?=
+ =?us-ascii?Q?qWQsfh/u6moNKxn55dG2/vK3v2y95HteEWVpsVYeB3cftgxnWKvOmbpqaX/F?=
+ =?us-ascii?Q?y4M2KsH1UgdRdjUGbczeDIxlkhbA95MNJY3DoHkjjvSzeuyBJ5WZxJ0BBNuP?=
+ =?us-ascii?Q?zEVxURU1jiIQU+PZquyG64okIYqrHX1zqj5NzBtWUEGCRl8yOuCMit9BLPp7?=
+ =?us-ascii?Q?rubS5gdH2TsAlIiVc04SVj7xg+G0lYRJrm4gFcNazy/4iA+qxnGmy/PWlcQ8?=
+ =?us-ascii?Q?R0ubjXFXbl+fw4cfYixlCh6Yqcfla9ehcvLomrMWA6cTR6/VkPmM83vtJ9Kv?=
+ =?us-ascii?Q?GLDQN75W7mVTCROZ78l3vaOdU3ay/1b3JGJZPZ4ewuZXf0dV4d3FGZFona7y?=
+ =?us-ascii?Q?WQGIH+jPxynDuGxgmb9jbqTGX+WAk3B1xLSCPef+bo4q6PxZQjpNfTuggQQZ?=
+ =?us-ascii?Q?t1go0lFFZRgFb8jaCQZ+upsSnwsufOO9TJuAqz61xcKy05N4RwUGCLCwj2Tt?=
+ =?us-ascii?Q?Sf5kCOEG+pDXh7YZJiB6nj1/SyQ5D/qH1WuVskVVwB7Q0VvZXY1C/+DugmzG?=
+ =?us-ascii?Q?hR2ATcmF3H6xTQbzh/0XAOW9218UQbaXsaZdGN5zC/ddiQtzo9DUllgrq7hk?=
+ =?us-ascii?Q?N1Ab5JPCA1LQ4k3FPq+008QrYgUIILZz4av4TvFG+jXaFV5o0rczjF4febtL?=
+ =?us-ascii?Q?zFrj6r51crciKpcJ3mS47ArP7QNnlfMyHdc9/yQrq8I918na4D12+ue67OUR?=
+ =?us-ascii?Q?DuYyHmX6milZx8PaKtbe8a88ZENTXws3NXq5SJwf+mMBMddTKfvDGfHZkqGp?=
+ =?us-ascii?Q?MlnK6Q9Kfu0F2alBTEFYq2yYGbRQt+q9aMGYoXZfRs8JGwCXVFQUZkIwIszl?=
+ =?us-ascii?Q?XwSc1mKtwIinmii9qVICmPLzOBc665AQY/mAMnnjRLZz2hxc5pcFqWsJKRbF?=
+ =?us-ascii?Q?gAmzftwIDwGiJdTyuR49SfC8oe7rj/tuMiMYNHzRf+gHXqp8yaxnsxIfs4ot?=
+ =?us-ascii?Q?uIAV7WiFiasqOtH2+slP/HKQ8LwpMuVzfKVU28TUUw8FVPiegqw2Ihp9rTmP?=
+ =?us-ascii?Q?FFcFvBsWVf1/e6TGOlYr/x0rOKfnGvfCodWiGoqhCZ204ieNPHiKWS9dJQ3p?=
+ =?us-ascii?Q?k/cuSxMO20xmrns0Fq77zsswioSJ7dVi4P6RlUtXVCnxBnf+0JEJAJMZRqFe?=
+ =?us-ascii?Q?Fd0v2lttFIL0vDJM7J8wx9reCcCPpFNpwisnL2E6b+0PCPAzkoKkYjHjnGcQ?=
+ =?us-ascii?Q?D27JYzBdkoVPDo7PshsSmnCO31lV/TgTNukOqBDqjGZcBDUIuruLYDsloM7B?=
+ =?us-ascii?Q?Fdpj1mB9wENeTu2lFTdrxQuoxZGREq52HOX17dnO6ZsLPlkN15dqQGbV2ryZ?=
+ =?us-ascii?Q?13yOiAYPed5jSV0mYyCEsTxEczG/xDUIUVAyrF1yrEKOTH3rcbac9jDzfpoX?=
+ =?us-ascii?Q?hGQ+dAWqUGn0qRWUc/kG47z917QVW/3rqMvHeJdW?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: d767ee59-ea0d-4d3b-e946-08db366c4dda
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB3062.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: OS0PR01MB5922.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3fe8518f-89fa-4435-0169-08db366b401a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Apr 2023 06:50:46.7866
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2023 06:58:19.5248
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mRhOLqYCrOk49K0MNj733t2Ln00aqRmGkK2lY6zxnY6wG9jbA7iL4TfBqoLxyZ4VV7FnnpQzM2xwJ7lxX63Tn7yRlut6ets7fiUwQZAaCdk=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3PR01MB6023
-X-Spam-Status: No, score=-0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: CS7ImG7oLaYpKMA7EsjsHox/G5I4/IR3O3Oyrg4SM4QBzELaIYr/qTB0t8Z5sKpEsoLWA+N1f9W3dJFCQGOtMw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB6717
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi All,
+Hi Andrew,
 
-I split this patch into 2([1] & [2]) after fixing commit message
-and merged with the series[3] to avoid any dependencies.
+Sorry for replying a little late, it's holiday here yesterday.
 
-[1] https://lore.kernel.org/linux-renesas-soc/20230331113346.170602-4-biju.=
-das.jz@bp.renesas.com/T/#u
-[2] https://lore.kernel.org/linux-renesas-soc/20230331113346.170602-4-biju.=
-das.jz@bp.renesas.com/T/#md8ae156345aed10bdeba764dcf2253f00b02e38c
+On Tue, Apr 04, 2023 at 12:26:00PM -0700, Andrew Morton wrote:
+> On Tue,  4 Apr 2023 23:47:16 +0800 Rongwei Wang <rongwei.wang@linux.alibaba.com> wrote:
+> 
+> > The si->lock must be held when deleting the si from
+> > the available list.
+> >
+> > ...
+> >
+> > --- a/mm/swapfile.c
+> > +++ b/mm/swapfile.c
+> > @@ -679,6 +679,7 @@ static void __del_from_avail_list(struct swap_info_struct *p)
+> >  {
+> >  	int nid;
+> >  
+> > +	assert_spin_locked(&p->lock);
+> >  	for_each_node(nid)
+> >  		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
+> >  }
+> > @@ -2434,8 +2435,8 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
+> >  		spin_unlock(&swap_lock);
+> >  		goto out_dput;
+> >  	}
+> > -	del_from_avail_list(p);
+> >  	spin_lock(&p->lock);
+> > +	del_from_avail_list(p);
+> >  	if (p->prio < 0) {
+> >  		struct swap_info_struct *si = p;
+> >  		int nid;
+> 
+> So we have
+> 
+> swap_avail_lock
+> swap_info_struct.lock
+> swap_cluster_info.lock
+> 
+> Is the ranking of these three clearly documented somewhere?
+>
 
-[3] https://lore.kernel.org/linux-renesas-soc/20230331113346.170602-4-biju.=
-das.jz@bp.renesas.com/T/#me7f60560fbf24bf361d70ccb6ba223e92a60de9b
+I see some comments in swapfile.c mentioned something related, e.g.
+above the definition of swap_avail_heads, the comment mentioned
+swap_lock has to be taken before si->lock and swap_avail_lock can be
+taken after si->lock is held, but I'm not aware of a place documenting
+these things. Documenting these things is useful information I think,
+let me see if I can come up with something later.
 
-Cheers,
-Biju
+> 
+> Did you test this with lockdep fully enabled?
+> 
+> 
+> I'm thinking that Aaron's a2468cc9bfdff ("swap: choose swap device
+> according to numa node") is the appropriate Fixes: target - do you
+> agree?
 
+It doesn't appear to be the case. For one thing, the problematic code
+that removes the swap device from the avail list without acquiring
+si->lock was there before my commit and my commit didn't change that
+behaviour. For another, I wanted to see if the problem is still there
+without my commit(just to make sure).
 
-> Subject: [PATCH v4 3/5] tty: serial: sh-sci: Fix Tx on SCI IP
->=20
-> For SCI, the TE (transmit enable) must be set after setting TIE (transmit
-> interrupt enable) or in the same instruction to start the transmission.
-> Set TE bit in sci_start_tx() instead of set_termios() for SCI and clear T=
-E
-> bit, if circular buffer is empty in sci_transmit_chars().
->=20
-> Fixes: 93bcefd4c6ba ("serial: sh-sci: Fix setting SCSCR_TIE while
-> transferring data")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-> ---
-> v3->v4:
->  * Updated fixes tag.
-> v3:
->  * New patch
-> ---
->  drivers/tty/serial/sh-sci.c | 25 +++++++++++++++++++++++--
->  1 file changed, 23 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c in=
-dex
-> 15954ca3e9dc..bcc4152ce043 100644
-> --- a/drivers/tty/serial/sh-sci.c
-> +++ b/drivers/tty/serial/sh-sci.c
-> @@ -596,6 +596,15 @@ static void sci_start_tx(struct uart_port *port)
->  	if (!s->chan_tx || port->type =3D=3D PORT_SCIFA || port->type =3D=3D
-> PORT_SCIFB) {
->  		/* Set TIE (Transmit Interrupt Enable) bit in SCSCR */
->  		ctrl =3D serial_port_in(port, SCSCR);
-> +
-> +		/*
-> +		 * For SCI, TE (transmit enable) must be set after setting TIE
-> +		 * (transmit interrupt enable) or in the same instruction to
-> start
-> +		 * the transmit process.
-> +		 */
-> +		if (port->type =3D=3D PORT_SCI)
-> +			ctrl |=3D SCSCR_TE;
-> +
->  		serial_port_out(port, SCSCR, ctrl | SCSCR_TIE);
->  	}
->  }
-> @@ -834,6 +843,12 @@ static void sci_transmit_chars(struct uart_port *por=
-t)
->  			c =3D xmit->buf[xmit->tail];
->  			xmit->tail =3D (xmit->tail + 1) & (UART_XMIT_SIZE - 1);
->  		} else {
-> +			if (port->type =3D=3D PORT_SCI) {
-> +				ctrl =3D serial_port_in(port, SCSCR);
-> +				ctrl &=3D ~SCSCR_TE;
-> +				serial_port_out(port, SCSCR, ctrl);
-> +				return;
-> +			}
->  			break;
->  		}
->=20
-> @@ -2580,8 +2595,14 @@ static void sci_set_termios(struct uart_port *port=
-,
-> struct ktermios *termios,
->  		sci_set_mctrl(port, port->mctrl);
->  	}
->=20
-> -	scr_val |=3D SCSCR_RE | SCSCR_TE |
-> -		   (s->cfg->scscr & ~(SCSCR_CKE1 | SCSCR_CKE0));
-> +	/*
-> +	 * For SCI, TE (transmit enable) must be set after setting TIE
-> +	 * (transmit interrupt enable) or in the same instruction to
-> +	 * start the transmitting process. So skip setting TE here for SCI.
-> +	 */
-> +	if (port->type !=3D PORT_SCI)
-> +		scr_val |=3D SCSCR_TE;
-> +	scr_val |=3D SCSCR_RE | (s->cfg->scscr & ~(SCSCR_CKE1 | SCSCR_CKE0));
->  	serial_port_out(port, SCSCR, scr_val | s->hscif_tot);
->  	if ((srr + 1 =3D=3D 5) &&
->  	    (port->type =3D=3D PORT_SCIFA || port->type =3D=3D PORT_SCIFB)) {
-> --
-> 2.25.1
+I followed Rongwei's description and used stress-ng/swap test together
+with some test progs that does memory allocation then MADVISE(pageout)
+in a loop to reproduce this problem and I can also see the warning like
+below using Linus' master branch as of today, I believe this is the
+problem Rongwei described:
 
+[ 1914.518786] ------------[ cut here ]------------
+[ 1914.519049] swap_info 9 in list but !SWP_WRITEOK
+[ 1914.519274] WARNING: CPU: 14 PID: 14307 at mm/swapfile.c:1085 get_swap_pages+0x3b3/0x440
+[ 1914.519660] Modules linked in:
+[ 1914.519811] CPU: 14 PID: 14307 Comm: swap Tainted: G        W          6.3.0-rc5-00032-g99ddf2254feb #5
+[ 1914.520238] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.1-2.fc36 04/01/2014
+[ 1914.520641] RIP: 0010:get_swap_pages+0x3b3/0x440
+[ 1914.520860] Code: 48 8b 4c 24 30 48 c1 e0 3a 4c 09 e0 48 89 01 e8 43 79 96 00 e9 b2 fd ff ff 41 0f be 77 48 48 c7 c78
+[ 1914.521709] RSP: 0018:ffffc9000ba0f838 EFLAGS: 00010282
+[ 1914.521950] RAX: 0000000000000000 RBX: ffff888154411400 RCX: 0000000000000000
+[ 1914.522273] RDX: 0000000000000004 RSI: ffffffff824035cb RDI: 0000000000000001
+[ 1914.522601] RBP: ffff888100d95f68 R08: 0000000000000001 R09: 0000000000000003
+[ 1914.522926] R10: ffffffff82a7a420 R11: ffffffff82a7a420 R12: 0000000000000350
+[ 1914.523249] R13: ffff888100d95da8 R14: ffff888100d95f50 R15: ffff888100d95c00
+[ 1914.523576] FS:  00007f23abea2600(0000) GS:ffff88823b600000(0000) knlGS:0000000000000000
+[ 1914.523942] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1914.524206] CR2: 00007f23abbff000 CR3: 0000000104b86004 CR4: 0000000000770ee0
+[ 1914.524534] PKRU: 55555554
+[ 1914.524661] Call Trace:
+[ 1914.524782]  <TASK>
+[ 1914.524889]  folio_alloc_swap+0xde/0x230
+[ 1914.525076]  add_to_swap+0x36/0xb0
+[ 1914.525242]  shrink_folio_list+0x9ab/0xef0
+[ 1914.525445]  reclaim_folio_list+0x70/0x130
+[ 1914.525644]  reclaim_pages+0x9c/0x1c0
+[ 1914.525819]  madvise_cold_or_pageout_pte_range+0x79f/0xc80
+[ 1914.526073]  walk_pgd_range+0x4d8/0x940
+[ 1914.526255]  ? mt_find+0x15b/0x490
+[ 1914.526426]  __walk_page_range+0x211/0x230
+[ 1914.526619]  walk_page_range+0x17a/0x1e0
+[ 1914.526807]  madvise_pageout+0xef/0x250
+
+And when I reverted my commit on the same branch(needs some manual edits),
+the problem is still there.
+
+Another thing is, I noticed Rongwei mentioned "This problem exists in
+versions after stable 5.10.y." in the changelog while my commit entered
+mainline in v4.14.
+
+So either this problem is always there, i.e. earlier than my commit; or
+this problem is indeed only there after v5.10, then it should be something
+else that triggered it. My qemu refuses to boot v4.14 kernel so I can
+not verify the former yet.
