@@ -2,207 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 043B16D92AB
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 11:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C365D6D9368
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 11:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236091AbjDFJ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 05:27:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38420 "EHLO
+        id S236586AbjDFJ6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 05:58:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236180AbjDFJ14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 05:27:56 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1FF76E9D;
-        Thu,  6 Apr 2023 02:27:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680773270; x=1712309270;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=InPNIBceKrNnxNxhCo8TDxqyXGZESVT0F+BzGH5I//k=;
-  b=TNpzp+bOMyh8T1FXO5QFZvfJd0Ndcn8MMb+f44sIuetfuVnHglVqhxjc
-   o4TGFiJmvRA0pTTRXWJK3Qz3Vr460JWfFP3+gGdbXDaoffCFlAifoo86a
-   xWPQxfoxB2LFOkjiomh7uPjiGG+sWhdHWvqOV2uH0C438m+zyIpyAQOLZ
-   0ANm+e1btBUMzKfM4aB3vO5KJV4kTzUsxxyWfgmyGV+IDJPv62Ly534uT
-   VgDAMtDfTzVVjMecNwJR6D1sceTfkffP3RSsZ48oT18wHOWEKqNs7aAS1
-   SOr3uYsDtNqaDPx3g2yOyLu6rY6T/uw3vRVbxGuc5Sjj7SjBI7SQuRbDW
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="345288857"
-X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
-   d="scan'208";a="345288857"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 02:27:50 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="1016809916"
-X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
-   d="scan'208";a="1016809916"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
-  by fmsmga005.fm.intel.com with ESMTP; 06 Apr 2023 02:27:46 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pkLuE-000RGg-0I;
-        Thu, 06 Apr 2023 09:27:46 +0000
-Date:   Thu, 6 Apr 2023 17:26:48 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Badhri Jagan Sridharan <badhri@google.com>,
-        gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
-        colin.i.king@gmail.com, xuetao09@huawei.com,
-        quic_eserrao@quicinc.com, water.zhangjiantao@huawei.com,
-        peter.chen@freescale.com, balbi@ti.com
-Cc:     oe-kbuild-all@lists.linux.dev, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Badhri Jagan Sridharan <badhri@google.com>
-Subject: Re: [PATCH v2 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect
- only when started
-Message-ID: <202304061758.Tz5RJDZU-lkp@intel.com>
-References: <20230406062549.2461917-1-badhri@google.com>
+        with ESMTP id S236316AbjDFJ5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 05:57:36 -0400
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com (mail-vi1eur04on2089.outbound.protection.outlook.com [40.107.8.89])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289069003;
+        Thu,  6 Apr 2023 02:56:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FsXvZ7KdTfH90Mhe1DoNdr+OsAmVWLrOhawp0tMMNsHpZr4c2zf0ogMqaJ3IHXOqX9cWPcwmCTmi/qHuTrM4loVj+JpdTOmq/edOo13OkY80LhkzD9uGEYrkfyGdBpjkE7IEpClbPkWnY4IMBuHhPHgGKbPrpyIAPD36sFquLqSrEdaI8lQ+31oW5gf8bwVVBtNUkgo9uSZACN33UeWsQAVmbxTvuOm1xm9YD3s9zBXPET76Ld1O6XYRXssRBRD/+qcq3DLf1QdyL3ir1nc3pp3viJBtFs2xmFBLpGCEcTVoUbe0cm84lJ3ISULnmPSU2ZhtYfdkJry1Zkc2x8W4+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1RXX4TT2ASqdiKhE67DCvLDebqmlpmUdgAsc+MtqUmM=;
+ b=kyaWGuqOCWbNO4wAXA/a0TS0A2Rfzar+KddhCyRG8E6VuX0FZ2DSGC0lAIwM4DLhhw7j/iozAHMhe606YUCYIjsn5y65UWd1YceRC1OstJTGuCTuQykhH8SjekSKus4JbqLp921elWZSJB/J+nRv7o/ric97DMUYN1h+Rf3gvxtNVYoLjtBKrJR5p44lR+CAJ5njATp5LfcS9UI9X5YzYWI5PbHBsL2S1Swf+aG7EeJ+SEN+6ntdJlmsvPcjJYURBGXgHIhuHNWEZvG/aqI25QXHECfDugGh8QUUqjfH38KsWVsPJR6MlMnPSe564f75xjiTwGhjTlKhMZBg3b8s4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector2-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1RXX4TT2ASqdiKhE67DCvLDebqmlpmUdgAsc+MtqUmM=;
+ b=SPwrgtPeGmRTsNBLQWKda5tjvwl3yOJDTpHbrea8CWgYbLGMc92gd54Q6KyIlKLQAVXjtm4n+1F4NTWoMEv0KoPwR22M59qa1QaWxmuUUaMf93fdr4JLMnoTlZgN6jIfmn2blPUcWcaIap3in+IElNFE7PluLjSky3nl9YUcttQ=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM9PR04MB8954.eurprd04.prod.outlook.com (2603:10a6:20b:409::7)
+ by PA4PR04MB7549.eurprd04.prod.outlook.com (2603:10a6:102:e0::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.29; Thu, 6 Apr
+ 2023 09:56:01 +0000
+Received: from AM9PR04MB8954.eurprd04.prod.outlook.com
+ ([fe80::9701:b3b3:e698:e733]) by AM9PR04MB8954.eurprd04.prod.outlook.com
+ ([fe80::9701:b3b3:e698:e733%7]) with mapi id 15.20.6277.031; Thu, 6 Apr 2023
+ 09:56:00 +0000
+From:   "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
+To:     andrew@lunn.ch, hkallweit1@gmail.com, linux@armlinux.org.uk,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        stable@vger.kernel.org
+Subject: [PATCH net] net: phy: nxp-c45-tja11xx: disable port and global interrupts
+Date:   Thu,  6 Apr 2023 12:55:46 +0300
+Message-Id: <20230406095546.74351-1-radu-nicolae.pirea@oss.nxp.com>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: VI1PR0102CA0092.eurprd01.prod.exchangelabs.com
+ (2603:10a6:803:15::33) To AM9PR04MB8954.eurprd04.prod.outlook.com
+ (2603:10a6:20b:409::7)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230406062549.2461917-1-badhri@google.com>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM9PR04MB8954:EE_|PA4PR04MB7549:EE_
+X-MS-Office365-Filtering-Correlation-Id: 87ce4c26-5d5f-42f2-cde3-08db3685206c
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ILiF9UppvdxcQG/8klbGKYTP4UWnM2FslvRt5mLiyqLbnof+l38vlpyXwLbHNIzv/QRMFC7JDRy68N3rnJpXfFRmQsG4WfZEzudGBg+7r+qM/qTfpD6fSpM9T/Z8oXyti8JkVlUN/UpOBaIp+nGDBmliuEG5gEcxlBvNgAmJZdoWJm1/zvfEavJX5H2LkPUQbIAIaRE/DeHj2/WXYfCioxmaoCd1fdx6ZGADj2L86vqDE9MLX5PGvM8XDUfGzJGF9tbbCrZNqYOVPt5eQJNsKRrZLXPn88tXx2kYGM1qof6U6UZYMdKXjDcqOrcpq+JXvcvpkrrPexB4lEwl1vw2v9GRJzVBuJRaquEYWnvRMISR9kURXlkwfCiXcIu6fQgwpqGqLf8ap6xQy/pujnVQy/z8GgI4daT9tPSOjFNh/u5Vi0GRh+z3+6dv0C6ObYbdKGeXeZZm7MdDJHMgROvj+cdu6uOwfcfF2E/pzRO3v998+ckScRgvrLMhlRqdtbPRa60AmHNWDSJ59TiBgAg2yjMsNNyRLL2xUMr5h1R6q6BlH6HGY4yXXSZlkbBHJkno+GF2cD/QPFqSGb7kDhWKP4YVBy794oMwyK3gF1Bv1Z/gH5eut1n9nG+pc36ZKtrR
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR04MB8954.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(346002)(376002)(366004)(136003)(39860400002)(451199021)(6666004)(41300700001)(86362001)(6486002)(4326008)(186003)(8676002)(52116002)(38100700002)(2906002)(66476007)(66946007)(66556008)(83380400001)(316002)(8936002)(38350700002)(478600001)(26005)(5660300002)(2616005)(6512007)(6506007)(1076003)(7416002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?rFp0zez7/JCxnZTX4yYss31LEnLmHNvvrB/UJO553/q7nZcQighA6K1WdgUZ?=
+ =?us-ascii?Q?Rm8mJnMBDB1PJ/VeFvx9pXz1uIxQoppP/lcyDy5yA73zUJH+x55OL+S4hk3W?=
+ =?us-ascii?Q?ymEB4LeqFoJAd7ZHqhLwBAjustud42JKH3rGDf9Zc3ow8rGFRug4zrqqXwxe?=
+ =?us-ascii?Q?poU29Kkk/e9N7YdlJPp3We/FSQRuBKUSiZq08BmmiyjOE50DKIlV3yCNzRMn?=
+ =?us-ascii?Q?kc2i0PwLxC94+GmMdZZwwY13gat8JmZjDWSfunoHFA0j6Rhf7r4ZPyr4xLSe?=
+ =?us-ascii?Q?PfqxdEvfTZ1gaYSrTOle+/n4lWac7+uFmp3qBXTJE83zPuRzDnvFuJLB+0fr?=
+ =?us-ascii?Q?s45wLXpoB7GSbMc889O9ZvKJ5RC6yNs3+zyfy+ebbSlqOYsEG+M9UGIGdR7i?=
+ =?us-ascii?Q?4aLV5PbCCkQKcF5eY4GsBmSJE8Xy4W/bTwqItN9MHc5fBtYfn3/gezvnRqNU?=
+ =?us-ascii?Q?3UxIxvRvpDu4J9x3zg7aqQm+gYwaim9TnaJF8Eksq4Z9Z7Y5w6KwVEvJfJuw?=
+ =?us-ascii?Q?+KtptEZv/fDoa6uL1C6o+8AjnTkaCFnm5rTWhUG22YdXaOVNvM31CE4rK1py?=
+ =?us-ascii?Q?R6zbEEylzQhHGCL459zahk8BybOHDUWW99wjXRwy7HNmuMtvGtJDGwamV6wX?=
+ =?us-ascii?Q?oB6GUQyq/iTX46kdyLY9FhYE1lGApaQM8G57vPdF553WCV0EDTvbWgP/HqXI?=
+ =?us-ascii?Q?1pRw4UKS/Tk0fuWYqmpCsJAXS/Wc2VHp//hbrUb06wCvEaePS5UefKuEIMSN?=
+ =?us-ascii?Q?EaG+/l7y1wYojCI5URTnFtPpX0qxZ4/Li12dB5e3sOpvrMN6e/sQGTJ1UbIc?=
+ =?us-ascii?Q?R6ZY+yguGQ6NYfpQG/WggXOE1mFq59U6Rv6qQES9+qLwMvjWdcqnJzQp6VHU?=
+ =?us-ascii?Q?oLzOXFoS5om+7w2kp5u4d71y2F3MBX9c5OWmqu+uQoLHqp7rnXP4oZ8x5aa5?=
+ =?us-ascii?Q?MqYkKx13sPyTWa3bSvyPJa+aNOwA4vf1PIKfuPxNBTL/hs1Kl5qhB6WG6uWk?=
+ =?us-ascii?Q?2lFCeBSWBbROXAGmcfJiDbpMbi80Dtp9Fc3Q1bl6egEpKRQqth4yo2sTbpRm?=
+ =?us-ascii?Q?Njk1aRR91sNDw8S1kcViZIMDL6dyd7qUhBM3MzjYpKwXxBTy8/QCvSdFA7qT?=
+ =?us-ascii?Q?UkBeRnVcd4RtEgOUcX8mksX4cHz+ba/hpJ15tFY+nmvQJ1decUCIt0UVDflW?=
+ =?us-ascii?Q?DqFjOop+DF/8fSxHRqssdETECuT8hIGgW+luSipDFz2be8KTymNhDMP+W8D6?=
+ =?us-ascii?Q?P6i5Jdj1mU1jzZRgzGCWdIpAplrMYnVOdAKEyrGWmSkVtyahQbXuGhXYPVkn?=
+ =?us-ascii?Q?MlQptOWbBjwWyyKdC5Di8+7TRettnylm3XZocJDhITJ5rykqssnbXi8R+VrB?=
+ =?us-ascii?Q?8E8of439cyg4y9wr4PyeNEYBPs0f1lZ3hcS94G8//gRhnuf7C+8KwxPIIuXE?=
+ =?us-ascii?Q?RcjWP79FgiexxsxSVSc1vIxu0dJiMh2il5dHHKfRjVqZvXVhPEZEajwaYClW?=
+ =?us-ascii?Q?BPjCoo5BayCvtjWf6IorZK1IZFdHV+grDDMqLU3t35CiRaehvwtNiqn8C2B/?=
+ =?us-ascii?Q?gM+UnjTUXDGnyxhjqd5mXP4kqvHn5JaPdA1mAu0CnkACmlB2tuCO23x75Q7A?=
+ =?us-ascii?Q?PQ=3D=3D?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 87ce4c26-5d5f-42f2-cde3-08db3685206c
+X-MS-Exchange-CrossTenant-AuthSource: AM9PR04MB8954.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2023 09:56:00.8042
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8+QXD6h1oe7Xobb0hu087v9hZ7Nn+G2l06bCF/DMyvrhDRrkdNf+eZwHj80NCvehS/LIhPJXne6OMi/wxuCG0VudS4lAiUFYPw3uWU7lIzk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR04MB7549
+X-Spam-Status: No, score=1.3 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,RCVD_IN_VALIDITY_RPBL,
+        SPF_HELO_PASS,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: *
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Badhri,
+Disabling only the link event irq is not enough to disable the
+interrupts. PTP will still be able to generate interrupts.
 
-kernel test robot noticed the following build warnings:
+The interrupts are organised in a tree on the C45 TJA11XX PHYs. To
+completely disable the interrupts, they are disable from the top of the
+interrupt tree.
 
-[auto build test WARNING on d629c0e221cd99198b843d8351a0a9bfec6c0423]
+Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+---
+ drivers/net/phy/nxp-c45-tja11xx.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Badhri-Jagan-Sridharan/usb-gadget-udc-core-Prevent-redundant-calls-to-pullup/20230406-142708
-base:   d629c0e221cd99198b843d8351a0a9bfec6c0423
-patch link:    https://lore.kernel.org/r/20230406062549.2461917-1-badhri%40google.com
-patch subject: [PATCH v2 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect only when started
-config: s390-allyesconfig (https://download.01.org/0day-ci/archive/20230406/202304061758.Tz5RJDZU-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/2f12e8b0c9bf3d25df88c73b614c3e8d84bd7338
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Badhri-Jagan-Sridharan/usb-gadget-udc-core-Prevent-redundant-calls-to-pullup/20230406-142708
-        git checkout 2f12e8b0c9bf3d25df88c73b614c3e8d84bd7338
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash drivers/usb/gadget/udc/
-
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202304061758.Tz5RJDZU-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/usb/gadget/udc/core.c:696:5: warning: no previous prototype for 'usb_gadget_connect_locked' [-Wmissing-prototypes]
-     696 | int usb_gadget_connect_locked(struct usb_gadget *gadget)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/usb/gadget/udc/core.c:749:5: warning: no previous prototype for 'usb_gadget_disconnect_locked' [-Wmissing-prototypes]
-     749 | int usb_gadget_disconnect_locked(struct usb_gadget *gadget)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +/usb_gadget_connect_locked +696 drivers/usb/gadget/udc/core.c
-
-   694	
-   695	/* Internal version of usb_gadget_connect needs to be called with udc_connect_control_lock held. */
- > 696	int usb_gadget_connect_locked(struct usb_gadget *gadget)
-   697	{
-   698		int ret = 0;
-   699	
-   700		if (!gadget->ops->pullup) {
-   701			ret = -EOPNOTSUPP;
-   702			goto out;
-   703		}
-   704	
-   705		if (gadget->deactivated || !gadget->udc->started) {
-   706			/*
-   707			 * If gadget is deactivated we only save new state.
-   708			 * Gadget will be connected automatically after activation.
-   709			 *
-   710			 * udc first needs to be started before gadget can be pulled up.
-   711			 */
-   712			gadget->connected = true;
-   713			goto out;
-   714		}
-   715	
-   716		ret = gadget->ops->pullup(gadget, 1);
-   717		if (!ret)
-   718			gadget->connected = 1;
-   719	
-   720	out:
-   721		trace_usb_gadget_connect(gadget, ret);
-   722	
-   723		return ret;
-   724	}
-   725	
-   726	/**
-   727	 * usb_gadget_connect - software-controlled connect to USB host
-   728	 * @gadget:the peripheral being connected
-   729	 *
-   730	 * Enables the D+ (or potentially D-) pullup.  The host will start
-   731	 * enumerating this gadget when the pullup is active and a VBUS session
-   732	 * is active (the link is powered).
-   733	 *
-   734	 * Returns zero on success, else negative errno.
-   735	 */
-   736	int usb_gadget_connect(struct usb_gadget *gadget)
-   737	{
-   738		int ret;
-   739	
-   740		mutex_lock(&gadget->udc->connect_lock);
-   741		ret = usb_gadget_connect_locked(gadget);
-   742		mutex_unlock(&gadget->udc->connect_lock);
-   743	
-   744		return ret;
-   745	}
-   746	EXPORT_SYMBOL_GPL(usb_gadget_connect);
-   747	
-   748	/* Internal version of usb_gadget_disconnect needs to be called with udc->connect_lock held. */
- > 749	int usb_gadget_disconnect_locked(struct usb_gadget *gadget)
-   750	{
-   751		int ret = 0;
-   752	
-   753		if (!gadget->ops->pullup) {
-   754			ret = -EOPNOTSUPP;
-   755			goto out;
-   756		}
-   757	
-   758		if (!gadget->connected)
-   759			goto out;
-   760	
-   761		if (gadget->deactivated || !gadget->udc->started) {
-   762			/*
-   763			 * If gadget is deactivated we only save new state.
-   764			 * Gadget will stay disconnected after activation.
-   765			 *
-   766			 * udc should have been started before gadget being pulled down.
-   767			 */
-   768			gadget->connected = false;
-   769			goto out;
-   770		}
-   771	
-   772		ret = gadget->ops->pullup(gadget, 0);
-   773		if (!ret)
-   774			gadget->connected = 0;
-   775	
-   776		mutex_lock(&udc_lock);
-   777		if (gadget->udc->driver)
-   778			gadget->udc->driver->disconnect(gadget);
-   779		mutex_unlock(&udc_lock);
-   780	
-   781	out:
-   782		trace_usb_gadget_disconnect(gadget, ret);
-   783	
-   784		return ret;
-   785	}
-   786	
-
+diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
+index 029875a59ff8..ce718a5865a4 100644
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -31,6 +31,10 @@
+ #define DEVICE_CONTROL_CONFIG_GLOBAL_EN	BIT(14)
+ #define DEVICE_CONTROL_CONFIG_ALL_EN	BIT(13)
+ 
++#define VEND1_PORT_IRQ_ENABLES		0x0072
++#define PORT1_IRQ			BIT(1)
++#define GLOBAL_IRQ			BIT(0)
++
+ #define VEND1_PHY_IRQ_ACK		0x80A0
+ #define VEND1_PHY_IRQ_EN		0x80A1
+ #define VEND1_PHY_IRQ_STATUS		0x80A2
+@@ -235,7 +239,7 @@ struct nxp_c45_phy_stats {
+ 	u16		mask;
+ };
+ 
+-static bool nxp_c45_poll_txts(struct phy_device *phydev)
++static bool nxp_c45_poll(struct phy_device *phydev)
+ {
+ 	return phydev->irq <= 0;
+ }
+@@ -448,7 +452,7 @@ static void nxp_c45_process_txts(struct nxp_c45_phy *priv,
+ static long nxp_c45_do_aux_work(struct ptp_clock_info *ptp)
+ {
+ 	struct nxp_c45_phy *priv = container_of(ptp, struct nxp_c45_phy, caps);
+-	bool poll_txts = nxp_c45_poll_txts(priv->phydev);
++	bool poll_txts = nxp_c45_poll(priv->phydev);
+ 	struct skb_shared_hwtstamps *shhwtstamps_rx;
+ 	struct ptp_clock_event event;
+ 	struct nxp_c45_hwts hwts;
+@@ -699,7 +703,7 @@ static void nxp_c45_txtstamp(struct mii_timestamper *mii_ts,
+ 		NXP_C45_SKB_CB(skb)->header = ptp_parse_header(skb, type);
+ 		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 		skb_queue_tail(&priv->tx_queue, skb);
+-		if (nxp_c45_poll_txts(priv->phydev))
++		if (nxp_c45_poll(priv->phydev))
+ 			ptp_schedule_worker(priv->ptp_clock, 0);
+ 		break;
+ 	case HWTSTAMP_TX_OFF:
+@@ -772,7 +776,7 @@ static int nxp_c45_hwtstamp(struct mii_timestamper *mii_ts,
+ 				 PORT_PTP_CONTROL_BYPASS);
+ 	}
+ 
+-	if (nxp_c45_poll_txts(priv->phydev))
++	if (nxp_c45_poll(priv->phydev))
+ 		goto nxp_c45_no_ptp_irq;
+ 
+ 	if (priv->hwts_tx)
+@@ -892,10 +896,12 @@ static int nxp_c45_config_intr(struct phy_device *phydev)
+ {
+ 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
+ 		return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
+-					VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
++					VEND1_PORT_IRQ_ENABLES,
++					PORT1_IRQ | GLOBAL_IRQ);
+ 	else
+ 		return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1,
+-					  VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
++					  VEND1_PORT_IRQ_ENABLES,
++					  PORT1_IRQ | GLOBAL_IRQ);
+ }
+ 
+ static irqreturn_t nxp_c45_handle_interrupt(struct phy_device *phydev)
+@@ -1290,6 +1296,10 @@ static int nxp_c45_config_init(struct phy_device *phydev)
+ 	phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, VEND1_PORT_FUNC_ENABLES,
+ 			 PTP_ENABLE);
+ 
++	if (!nxp_c45_poll(phydev))
++		phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
++				 VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
++
+ 	return nxp_c45_start_op(phydev);
+ }
+ 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.34.1
+
