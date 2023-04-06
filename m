@@ -2,164 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5D16D91A2
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 10:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5691A6D91EF
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 10:48:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236292AbjDFIcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 04:32:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
+        id S233235AbjDFIso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 04:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236243AbjDFIcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 04:32:47 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805F36EB8
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 01:32:45 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 09C5021F2F;
-        Thu,  6 Apr 2023 08:32:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1680769964; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2yg2bRrCpgYSzgbeFGraHUJEYqbNVnw5AQ0aXS2gUP4=;
-        b=IYFxCNg4A5cGGpFOzWiPTDNxXAnbvNat4y7FP4zK2AfJ4C3vTSbJtq+OK4Pe8rtR0aGGz2
-        sBqvMBfgznoQPsawU2pA6dreW9SAFR1OHxC/WVoFCKz3lFjgTYD9+3dgrtwj6fLipBkHjt
-        EKJkMuqWrR4DdXb/7n3lUPcIFZNPxcA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1680769964;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2yg2bRrCpgYSzgbeFGraHUJEYqbNVnw5AQ0aXS2gUP4=;
-        b=/+ee67yCLVcEzK9LrLjkIAEr2L7pddzWjwMyut0Uah88Xkgbp4TklgX9QXy0Ye/85uU6sA
-        lsFOmqNC4KBHXkDA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C88A0133E5;
-        Thu,  6 Apr 2023 08:32:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 4PsgMKuDLmQZZgAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Thu, 06 Apr 2023 08:32:43 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     javierm@redhat.com, daniel.vetter@ffwll.ch,
-        patrik.r.jakobsson@gmail.com
-Cc:     dri-devel@lists.freedesktop.org,
-        Aaron Plattner <aplattner@nvidia.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v4 7/9] video/aperture: Only remove sysfb on the default vga pci device
-Date:   Thu,  6 Apr 2023 10:32:38 +0200
-Message-Id: <20230406083240.14031-8-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230406083240.14031-1-tzimmermann@suse.de>
-References: <20230406083240.14031-1-tzimmermann@suse.de>
+        with ESMTP id S235362AbjDFIsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 04:48:40 -0400
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D404A7EC9
+        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 01:48:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazon201209;
+  t=1680770915; x=1712306915;
+  h=from:to:cc:subject:references:date:in-reply-to:
+   message-id:mime-version;
+  bh=eCCEIPDsX9p6xMK5oOcfZQj/UVGS7/pUHr5w0Qxmn+A=;
+  b=hT/kDM9FaFL7WQRIz1fRoPYgUEueeSwdr4BPhhgTlyvilLpToQA9spHC
+   6/xMbW3pPg//B7kvDl3TBUuS9SpMu2DKJ7C+wqL7ZFcdTv9ggkitw6h9V
+   gmS8VT4LRwSlHVdwkeKfOsEER9681VhqSHm0suMwL1odHSvOq9eq0W3+1
+   c=;
+X-IronPort-AV: E=Sophos;i="5.98,323,1673913600"; 
+   d="scan'208";a="326711923"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2a-m6i4x-83883bdb.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 08:48:28 +0000
+Received: from EX19MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2a-m6i4x-83883bdb.us-west-2.amazon.com (Postfix) with ESMTPS id 6539060148;
+        Thu,  6 Apr 2023 08:48:26 +0000 (UTC)
+Received: from EX19MTAUWC001.ant.amazon.com (10.250.64.145) by
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.26; Thu, 6 Apr 2023 08:48:26 +0000
+Received: from dev-dsk-ptyadav-1c-37607b33.eu-west-1.amazon.com (10.15.11.255)
+ by mail-relay.amazon.com (10.250.64.145) with Microsoft SMTP Server id
+ 15.2.1118.25 via Frontend Transport; Thu, 6 Apr 2023 08:48:25 +0000
+Received: by dev-dsk-ptyadav-1c-37607b33.eu-west-1.amazon.com (Postfix, from userid 23027615)
+        id 72E1622BC6; Thu,  6 Apr 2023 10:48:24 +0200 (CEST)
+From:   Pratyush Yadav <ptyadav@amazon.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Steve French <stfrench@microsoft.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Aurelien Aptel <aaptel@suse.com>, <stable@vger.kernel.org>,
+        <patches@lists.linux.dev>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4] smb3: fix problem with null cifs super block with
+ previous patch
+References: <20230405135709.100174-1-ptyadav@amazon.de>
+        <2023040523-delusion-corrode-f466@gregkh> <mafs0fs9egzzb.fsf_-_@amazon.de>
+        <2023040514-ravishing-problem-9302@gregkh>
+Date:   Thu, 6 Apr 2023 10:48:24 +0200
+In-Reply-To: <2023040514-ravishing-problem-9302@gregkh> (Greg Kroah-Hartman's
+        message of "Wed, 5 Apr 2023 19:04:35 +0200")
+Message-ID: <mafs0bkk1gzvr.fsf_-_@amazon.de>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+On Wed, Apr 05 2023, Greg Kroah-Hartman wrote:
 
-Instead of calling aperture_remove_conflicting_devices() to remove the
-conflicting devices, just call to aperture_detach_devices() to detach
-the device that matches the same PCI BAR / aperture range. Since the
-former is just a wrapper of the latter plus a sysfb_disable() call,
-and now that's done in this function but only for the primary devices.
+> On Wed, Apr 05, 2023 at 04:34:00PM +0200, Pratyush Yadav wrote:
+>> On Wed, Apr 05 2023, Greg Kroah-Hartman wrote:
+>>
+>> > On Wed, Apr 05, 2023 at 03:57:09PM +0200, Pratyush Yadav wrote:
+>> >> From: Steve French <stfrench@microsoft.com>
+>> >>
+>> >> [ Upstream commit 87f93d82e0952da18af4d978e7d887b4c5326c0b ]
+>> >>
+>> >> Add check for null cifs_sb to create_options helper
+>> >>
+>> >> Signed-off-by: Steve French <stfrench@microsoft.com>
+>> >> Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+>> >> Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+>> >> Signed-off-by: Pratyush Yadav <ptyadav@amazon.de>
+>> >> ---
+>> >>
+>> >> Only compile-tested. This was discovered by our static code analysis
+>> >> tool. I do not use CIFS and do not know how to actually reproduce the
+>> >> NULL dereference.
+>> >>
+>> >> Follow up from [0]. Original patch is at [1].
+>> >>
+>> >> Mandatory text due to licensing terms:
+>> >>
+>> >> This bug was discovered and resolved using Coverity Static Analysis
+>> >> Security Testing (SAST) by Synopsys, Inc.
+>> >
+>> > What?  That's funny.  And nothing I'm going to be adding to the
+>> > changelog text, sorry, as that's not what is upstream.
+>>
+>> That is fine by me. I placed this text below the 3 dashed lines so it
+>> does _not_ end up in the commit message, but still discloses this
+>> information.
+>>
+>> > Please go poke your lawyers, that's not ok.
+>>
+>> Yes, perhaps I should. But let's go forward with this patch since it
+>> keeps the original commit message?
+>
+> It's already been queued up, you should have gotten an email saying
+> that, right?
 
-This fixes a regression introduced by commit ee7a69aa38d8 ("fbdev:
-Disable sysfb device registration when removing conflicting FBs"),
-where we remove the sysfb when loading a driver for an unrelated pci
-device, resulting in the user losing their efifb console or similar.
+Yes, I did, thanks! There was a bit of a race in me sending that email
+and receiving the notification.
 
-Note that in practice this only is a problem with the nvidia blob,
-because that's the only gpu driver people might install which does not
-come with an fbdev driver of it's own. For everyone else the real gpu
-driver will restore a working console.
-
-Also note that in the referenced bug there's confusion that this same
-bug also happens on amdgpu. But that was just another amdgpu specific
-regression, which just happened to happen at roughly the same time and
-with the same user-observable symptoms. That bug is fixed now, see
-https://bugzilla.kernel.org/show_bug.cgi?id=216331#c15
-
-Note that we should not have any such issues on non-pci multi-gpu
-issues, because I could only find two such cases:
-- SoC with some external panel over spi or similar. These panel
-  drivers do not use drm_aperture_remove_conflicting_framebuffers(),
-  so no problem.
-- vga+mga, which is a direct console driver and entirely bypasses all
-  this.
-
-For the above reasons the cc: stable is just notionally, this patch
-will need a backport and that's up to nvidia if they care enough.
-
-v2:
-- Explain a bit better why other multi-gpu that aren't pci shouldn't
-  have any issues with making all this fully pci specific.
-
-v3
-- polish commit message (Javier)
-
-v4:
-- Fix commit message style (i.e., commit 1234 ("..."))
-- fix Daniel's S-o-b address
-
-Fixes: ee7a69aa38d8 ("fbdev: Disable sysfb device registration when removing conflicting FBs")
-Tested-by: Aaron Plattner <aplattner@nvidia.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216303#c28
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Aaron Plattner <aplattner@nvidia.com>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org> # v5.19+ (if someone else does the backport)
----
- drivers/video/aperture.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/video/aperture.c b/drivers/video/aperture.c
-index 1356f0e88241..e4091688b5eb 100644
---- a/drivers/video/aperture.c
-+++ b/drivers/video/aperture.c
-@@ -322,15 +322,16 @@ int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *na
- 	if (pdev == vga_default_device())
- 		primary = true;
- 
-+	if (primary)
-+		sysfb_disable();
-+
- 	for (bar = 0; bar < PCI_STD_NUM_BARS; ++bar) {
- 		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
- 			continue;
- 
- 		base = pci_resource_start(pdev, bar);
- 		size = pci_resource_len(pdev, bar);
--		ret = aperture_remove_conflicting_devices(base, size, name);
--		if (ret)
--			return ret;
-+		aperture_detach_devices(base, size);
- 	}
- 
- 	if (primary) {
 -- 
-2.40.0
+Regards,
+Pratyush Yadav
+
+
+
+Amazon Development Center Germany GmbH
+Krausenstr. 38
+10117 Berlin
+Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
+Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
+Sitz: Berlin
+Ust-ID: DE 289 237 879
+
+
 
