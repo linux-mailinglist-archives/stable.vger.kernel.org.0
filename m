@@ -2,68 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2EF6D8B3A
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 01:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF5E6D8BE4
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 02:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbjDEXrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 19:47:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39006 "EHLO
+        id S234131AbjDFAaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 20:30:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233910AbjDEXrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 19:47:17 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43D4172B5;
-        Wed,  5 Apr 2023 16:47:11 -0700 (PDT)
-Received: by linux.microsoft.com (Postfix, from userid 1131)
-        id B3420210DEF1; Wed,  5 Apr 2023 16:47:10 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B3420210DEF1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1680738430;
-        bh=yNAS5erRHhc/EFovP6vHaxgN265p2mfiB1fFyCTB5Ps=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i8wtK9UPGKsH/hQJPEblp8Q6kuursJLm1edttlRDGEHQKBvD9GGnufAYR3CfXxm2j
-         2oMf29rR+yni6ErUPADLi/D+JxmFvZ9qU37T5InL8qmMhswYu0CKJS1AAgJCglkCTp
-         mZ22BaHALA/7hjZldRK4mkGR6lXf38c10Eo+8sDY=
-Date:   Wed, 5 Apr 2023 16:47:10 -0700
-From:   Kelsey Steele <kelseysteele@linux.microsoft.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/185] 6.2.10-rc2 review
-Message-ID: <20230405234710.GB5053@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20230405100309.298748790@linuxfoundation.org>
+        with ESMTP id S232832AbjDFAaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 20:30:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5561A65B9;
+        Wed,  5 Apr 2023 17:30:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B31A062838;
+        Thu,  6 Apr 2023 00:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 06EE4C4339B;
+        Thu,  6 Apr 2023 00:30:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680741019;
+        bh=YltVwM566EynBdXKC++louwOvG8Ao22xLaga+QCbfG4=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=hRlx8XdCIgYU+kagKwT+YFpNvENrkBKQVXKPncWm3JWJBRFdwzH+28rAqNKkkzvGA
+         z4VGbZtyEDtnFuIIvYmBOeZn2UwBTXnjuXBzk18maVYK23DVCm1KXpkFxjsTmVxzk0
+         FlXZQDlCNrMMWRr8vkRMRFfvfKamNTCZsZ7ZKzl7HM+IBYNtN5K5W7htejQwcCqcnR
+         2nUSEADye0sLSiM+uOxRKbtez1J0NAHDhQqZeb1SIGAyie04sVPMPW/w99c7KULFyI
+         +AvoCzQMHh4k6mAf37+jRgXp00IAFZjRPfUQGByNcnO0c+7CZOQDt54IxaIPBmdlZc
+         O+29XyQ3BILlA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id DFE32C41671;
+        Thu,  6 Apr 2023 00:30:18 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230405100309.298748790@linuxfoundation.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-17.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 1/4] can: j1939: j1939_tp_tx_dat_new(): fix out-of-bounds
+ memory access
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <168074101891.1850.786445177337726896.git-patchwork-notify@kernel.org>
+Date:   Thu, 06 Apr 2023 00:30:18 +0000
+References: <20230405092444.1802340-2-mkl@pengutronix.de>
+In-Reply-To: <20230405092444.1802340-2-mkl@pengutronix.de>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-can@vger.kernel.org, kernel@pengutronix.de,
+        o.rempel@pengutronix.de, sjb7183@psu.edu, stable@vger.kernel.org
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 05, 2023 at 12:03:46PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.10 release.
-> There are 185 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Hello:
+
+This series was applied to netdev/net.git (main)
+by Marc Kleine-Budde <mkl@pengutronix.de>:
+
+On Wed,  5 Apr 2023 11:24:41 +0200 you wrote:
+> From: Oleksij Rempel <o.rempel@pengutronix.de>
 > 
-> Responses should be made by Fri, 07 Apr 2023 10:02:32 +0000.
-> Anything received after that time might be too late.
+> In the j1939_tp_tx_dat_new() function, an out-of-bounds memory access
+> could occur during the memcpy() operation if the size of skb->cb is
+> larger than the size of struct j1939_sk_buff_cb. This is because the
+> memcpy() operation uses the size of skb->cb, leading to a read beyond
+> the struct j1939_sk_buff_cb.
+> 
+> [...]
 
-No regressions found on WSL (x86 and arm64).
+Here is the summary with links:
+  - [net,1/4] can: j1939: j1939_tp_tx_dat_new(): fix out-of-bounds memory access
+    https://git.kernel.org/netdev/net/c/b45193cb4df5
+  - [net,2/4] can: isotp: isotp_recvmsg(): use sock_recv_cmsgs() to get SOCK_RXQ_OVFL infos
+    https://git.kernel.org/netdev/net/c/0145462fc802
+  - [net,3/4] can: isotp: isotp_ops: fix poll() to not report false EPOLLOUT events
+    https://git.kernel.org/netdev/net/c/79e19fa79cb5
+  - [net,4/4] can: isotp: fix race between isotp_sendsmg() and isotp_release()
+    https://git.kernel.org/netdev/net/c/051737439eae
 
-Built, booted, and reviewed dmesg.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Thank you.
 
-Tested-by: Kelsey Steele <kelseysteele@linux.microsoft.com> 
