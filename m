@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0206D8F40
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE736D8F41
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235092AbjDFGSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 02:18:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
+        id S235090AbjDFGSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 02:18:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234783AbjDFGSN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:18:13 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8910A8A60
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 23:18:10 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id gp15-20020a17090adf0f00b0023d1bbd9f9eso41973447pjb.0
-        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 23:18:10 -0700 (PDT)
+        with ESMTP id S234713AbjDFGSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:18:16 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA1E8A54
+        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 23:18:15 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id o2so36636134plg.4
+        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 23:18:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680761890;
+        d=gmail.com; s=20210112; t=1680761895;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zCEA1jaG6kIaIVjEfEFyy0ijLEpt43ZoFGLdbbk9ziM=;
-        b=jkzquUiUYpzf1iUmoyDTbcxE37xDnI0gu5WXkP5hKCAGxi6OEyVXtFP4ruVsAp9e63
-         al8bAnP0sT/SFIiTmODzsj9CeEBBEIrkOKRg8bPcof7XdwKRQaevu3Dy7Kd9cy4biLxE
-         oyMrIzPmI6MZcLYJNmFwCiD2tVzlPu9prgeKd25EqqBNxxicDBbkGGKWjEZYHMJ8bczH
-         HPI7ch6Rn/5rxG7FNRv5F3w0tRF+fh4Sk3SOFYjxSpA8p3Hnl2OkMFv7T8PJxrDQRElV
-         Zzi1j2NQ6WpreAo0NqBywSadjeD15xW1ucjLQu7AzgwLnVXz+vkjKjVxH/FNE7/wKGBm
-         Tjeg==
+        bh=0AF6XRLMpMrC/rHnX59D2IU8B/emr6VxjeWEikNdIws=;
+        b=Gy/FDNbSmw9KNj77j3hvIfS76DoSyMTDwMgXW9CLYrVcIMQ9k15VS0Sef/0nuxPji/
+         0bdSoEk/+Jn6GeCQxkq7Z7I3Rl/IChvzdR6gf9lqFkWkAhM6LEKl8crAKTKg5pHMmY7U
+         2aeUjbhVkloKT1wlbvpuaikFWN1bDZ6ZV3+UVPjdexS1QkhXCHeK5BGHCo9iIPSnZdjJ
+         FC4v7zUy3I752PihpTtOPmKd3D168JkKpm5UIwO9OhyTOlheNeUs+RYgapl26gIDhsDl
+         NoDsheTwMMSunH0NjGlu5bva1Qn3YGJ8pxUOxHFNhlxijnl8q2FrpZ5QifKmcnMbF+cw
+         +SKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680761890;
+        d=1e100.net; s=20210112; t=1680761895;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zCEA1jaG6kIaIVjEfEFyy0ijLEpt43ZoFGLdbbk9ziM=;
-        b=psOveGvCjZx39+fqXtU5h54who9gw+/PyoZjoKopsTPx8Qol2Ex3DLH+xDmFl1mWdX
-         T0Ew/qso3dclAz2DXwHlHzkWJfc4/djnxeEJi2ahYIHEBthMD0VS3fttmAjWZvW4XV01
-         TrQbBlyy+CWt0bjM0Co4AnoNTh8yiiqJg6xLG5bm89yUVcO9fA5EIhyfEkBfG1FwGF2Q
-         biHfZEHyiW7wCY7IjoC+N32m67pmugnhFwPo9HNB4PZ601oDXXmHtD3e3toB4+/EqtfC
-         lFlNVCOhTyMt3dNLPDdBKn1LlZhaAXsvvYDqkwrnVWEZupT/rHtbVs8afEM8GOITdwbH
-         Up8Q==
-X-Gm-Message-State: AAQBX9eTc0nxGdaOlLzVaJ1KrmmNJrhwrXuOwRbNFHJTKE7cYA8mwMQt
-        BpTDMA2Xy8tebXCP38Y2r9A=
-X-Google-Smtp-Source: AKy350bmXKziSxPzbErymEv4CZ5tvv9TAV0tAlcHDIqTHmYRoV34GnZYqfQSK1Jp0Azb3vBtkXAp3A==
-X-Received: by 2002:a17:902:ea07:b0:19c:3d78:6a54 with SMTP id s7-20020a170902ea0700b0019c3d786a54mr5539527plg.14.1680761889951;
-        Wed, 05 Apr 2023 23:18:09 -0700 (PDT)
+        bh=0AF6XRLMpMrC/rHnX59D2IU8B/emr6VxjeWEikNdIws=;
+        b=JukPfZD3qZjik2JL207D/RENO+mc5OI/mf1PdBZ9MxRalE5aq8vBypYGG4P3e+ciA1
+         sAX3fbx4YU7jzsL20kveIw58gtv0qEAqzHHm73xGGJwGKTEjV9TTHbtXW/8uXClabbaE
+         cIgGZtkLSvHJdmig4ayNx7wXXkLHOUIug8ZXWQd5uvpEP2/FmcyiAEmL5YlaWMMMFnNB
+         V1cbCjFCxdl7oQTNXX1g26vM987uymmyPL4LxUcua3ZayOojk6LK9t0zO+fOzkIgyi3j
+         Px8DimfnsDWQti3I6Ba5/bM1JpcBAWoAl+DyEBFpiC2yf6EIOKxGZyh8cuH2lcndQmsp
+         1wXg==
+X-Gm-Message-State: AAQBX9crKSsjQJFP7kc9eQRgp5yFpqWO/niaIwyocLeEY66lhqlj5Hln
+        c8KMdzxLyOMlibk9/caVO0A=
+X-Google-Smtp-Source: AKy350Y5+oSVHHHfQ/F37Z6yx9V0prP6cBK490VXkt7WHzDAdD2BKK+fw29oqRJO+Kj0I9DZjDZz9w==
+X-Received: by 2002:a17:902:dac1:b0:19c:f80c:df90 with SMTP id q1-20020a170902dac100b0019cf80cdf90mr11715307plx.45.1680761895191;
+        Wed, 05 Apr 2023 23:18:15 -0700 (PDT)
 Received: from ISCN5CG2520RPD.infineon.com (sp49-98-38-119.msd.spmode.ne.jp. [49.98.38.119])
-        by smtp.gmail.com with ESMTPSA id y11-20020a1709027c8b00b0019c919bccf8sm567622pll.86.2023.04.05.23.18.04
+        by smtp.gmail.com with ESMTPSA id y11-20020a1709027c8b00b0019c919bccf8sm567622pll.86.2023.04.05.23.18.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Apr 2023 23:18:09 -0700 (PDT)
+        Wed, 05 Apr 2023 23:18:14 -0700 (PDT)
 From:   tkuw584924@gmail.com
 X-Google-Original-From: Takahiro.Kuwano@infineon.com
 To:     linux-mtd@lists.infradead.org
@@ -57,9 +57,9 @@ Cc:     tudor.ambarus@linaro.org, pratyush@kernel.org, michael@walle.cc,
         d-gole@ti.com, tkuw584924@gmail.com, Bacem.Daassi@infineon.com,
         Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
         stable@vger.kernel.org
-Subject: [PATCH v3 2/3] mtd: spi-nor: spansion: Enable JFFS2 write buffer for Infineon s25hx SEMPER flash
-Date:   Thu,  6 Apr 2023 15:17:45 +0900
-Message-Id: <a1cc128e094db4ec141f85bd380127598dfef17e.1680760742.git.Takahiro.Kuwano@infineon.com>
+Subject: [PATCH v3 3/3] mtd: spi-nor: spansion: Enable JFFS2 write buffer for S25FS256T
+Date:   Thu,  6 Apr 2023 15:17:46 +0900
+Message-Id: <641bfb26c6e059915ae920117b7ec278df1a6f0a.1680760742.git.Takahiro.Kuwano@infineon.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <cover.1680760742.git.Takahiro.Kuwano@infineon.com>
 References: <cover.1680760742.git.Takahiro.Kuwano@infineon.com>
@@ -80,36 +80,36 @@ From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
 Infineon(Cypress) SEMPER NOR flash family has on-die ECC and its program
 granularity is 16-byte ECC data unit size. JFFS2 supports write buffer
 mode for ECC'd NOR flash. Provide a way to clear the MTD_BIT_WRITEABLE
-flag in order to enable JFFS2 write buffer mode support.
+flag in order to enable JFFS2 write buffer mode support. Drop the
+comment as the same info is now specified in cypress_nor_ecc_init().
 
-Fixes: b6b23833fc42 ("mtd: spi-nor: spansion: Add s25hl-t/s25hs-t IDs and fixups")
+Fixes: 6afcc84080c4 ("mtd: spi-nor: spansion: Add support for Infineon S25FS256T")
 Suggested-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/mtd/spi-nor/spansion.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/mtd/spi-nor/spansion.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
 diff --git a/drivers/mtd/spi-nor/spansion.c b/drivers/mtd/spi-nor/spansion.c
-index 19b1436f36ea..4d0cc10e3d85 100644
+index 4d0cc10e3d85..ffeede78700d 100644
 --- a/drivers/mtd/spi-nor/spansion.c
 +++ b/drivers/mtd/spi-nor/spansion.c
-@@ -442,13 +442,10 @@ static void s25hx_t_post_sfdp_fixup(struct spi_nor *nor)
+@@ -384,13 +384,7 @@ static void s25fs256t_post_sfdp_fixup(struct spi_nor *nor)
  
- static void s25hx_t_late_init(struct spi_nor *nor)
+ static void s25fs256t_late_init(struct spi_nor *nor)
  {
--	struct spi_nor_flash_parameter *params = nor->params;
--
- 	/* Fast Read 4B requires mode cycles */
--	params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
-+	nor->params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
- 
--	/* The writesize should be ECC data unit size */
--	params->writesize = 16;
+-	/*
+-	 * Programming is supported only in 16-byte ECC data unit granularity.
+-	 * Byte-programming, bit-walking, or multiple program operations to the
+-	 * same ECC data unit without an erase are not allowed. See chapter
+-	 * 5.3.1 and 5.6 in the datasheet.
+-	 */
+-	nor->params->writesize = 16;
 +	cypress_nor_ecc_init(nor);
  }
  
- static struct spi_nor_fixups s25hx_t_fixups = {
+ static struct spi_nor_fixups s25fs256t_fixups = {
 -- 
 2.34.1
 
