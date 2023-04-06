@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C836D8C6E
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D81F76D8C6F
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234297AbjDFBHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 21:07:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44768 "EHLO
+        id S234493AbjDFBHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 21:07:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232902AbjDFBG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 21:06:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF909FB;
-        Wed,  5 Apr 2023 18:06:56 -0700 (PDT)
+        with ESMTP id S234449AbjDFBG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 21:06:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023D81FD8;
+        Wed,  5 Apr 2023 18:06:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CDB76429A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 827796429C;
+        Thu,  6 Apr 2023 01:06:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA828C433D2;
         Thu,  6 Apr 2023 01:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5B4EC433D2;
-        Thu,  6 Apr 2023 01:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1680743215;
-        bh=ZiEmyaRXwTNS+c77PMqE/CacidoMNmql9hctdq9zUKw=;
+        s=korg; t=1680743217;
+        bh=l2vnebP+K+oTWiY2r/yoYmxFO0T1FVpE/RMjxYJnRd4=;
         h=Date:To:From:Subject:From;
-        b=SLf4xWH4ajq3Fdi0LH1PTDPyG9wIZewZNYNgie0B9ZYyVBRreQ3Y0a/qUKFfj7+La
-         tqaEB32GiEzUvEio1Jeh+YqUp5mxvODNf1rFxSuW1Rwsbj82gYP1basfXlUk9pgU7k
-         KKSOTwbJKUbqi+/h/WilM1EBUoz4FPwMBY9h2Mvg=
-Date:   Wed, 05 Apr 2023 18:06:55 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, jack@suse.cz, djwong@kernel.org,
-        dan.j.williams@intel.com, ruansy.fnst@fujitsu.com,
+        b=cu3cli8fOqArwmUB5l4i3dcTRr46VackWuLUYvJ+YFokQYBGAfdV2HHVP9+qwmL8i
+         KZj+6qfBj+TREar/W7beOjo/WoS4CRX8SOchCXRcjPbRpZp4bQMj6MkXFe3t3HqncA
+         rfSvzzfbMvdzbJINu0/NLly47NwHYaS22iN4EO/4=
+Date:   Wed, 05 Apr 2023 18:06:56 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        minchan@kernel.org, senozhatsky@chromium.org,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] fsdax-force-clear-dirty-mark-if-cow.patch removed from -mm tree
-Message-Id: <20230406010655.D5B4EC433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+Subject: [merged mm-hotfixes-stable] zsmalloc-document-new-fullness-grouping.patch removed from -mm tree
+Message-Id: <20230406010656.DA828C433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,138 +46,245 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: fsdax: force clear dirty mark if CoW
+     Subject: zsmalloc: document new fullness grouping
 has been removed from the -mm tree.  Its filename was
-     fsdax-force-clear-dirty-mark-if-cow.patch
+     zsmalloc-document-new-fullness-grouping.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Shiyang Ruan <ruansy.fnst@fujitsu.com>
-Subject: fsdax: force clear dirty mark if CoW
-Date: Fri, 24 Mar 2023 10:28:00 +0000
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: zsmalloc: document new fullness grouping
+Date: Sat, 25 Mar 2023 11:46:30 +0900
 
-XFS allows CoW on non-shared extents to combat fragmentation[1].  The old
-non-shared extent could be mwrited before, its dax entry is marked dirty. 
+Patch series "zsmalloc: minor documentation updates".
 
-This results in a WARNing:
-
-[   28.512349] ------------[ cut here ]------------
-[   28.512622] WARNING: CPU: 2 PID: 5255 at fs/dax.c:390 dax_insert_entry+0x342/0x390
-[   28.513050] Modules linked in: rpcsec_gss_krb5 auth_rpcgss nfsv4 nfs lockd grace fscache netfs nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables
-[   28.515462] CPU: 2 PID: 5255 Comm: fsstress Kdump: loaded Not tainted 6.3.0-rc1-00001-g85e1481e19c1-dirty #117
-[   28.515902] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS Arch Linux 1.16.1-1-1 04/01/2014
-[   28.516307] RIP: 0010:dax_insert_entry+0x342/0x390
-[   28.516536] Code: 30 5b 5d 41 5c 41 5d 41 5e 41 5f c3 cc cc cc cc 48 8b 45 20 48 83 c0 01 e9 e2 fe ff ff 48 8b 45 20 48 83 c0 01 e9 cd fe ff ff <0f> 0b e9 53 ff ff ff 48 8b 7c 24 08 31 f6 e8 1b 61 a1 00 eb 8c 48
-[   28.517417] RSP: 0000:ffffc9000845fb18 EFLAGS: 00010086
-[   28.517721] RAX: 0000000000000053 RBX: 0000000000000155 RCX: 000000000018824b
-[   28.518113] RDX: 0000000000000000 RSI: ffffffff827525a6 RDI: 00000000ffffffff
-[   28.518515] RBP: ffffea00062092c0 R08: 0000000000000000 R09: ffffc9000845f9c8
-[   28.518905] R10: 0000000000000003 R11: ffffffff82ddb7e8 R12: 0000000000000155
-[   28.519301] R13: 0000000000000000 R14: 000000000018824b R15: ffff88810cfa76b8
-[   28.519703] FS:  00007f14a0c94740(0000) GS:ffff88817bd00000(0000) knlGS:0000000000000000
-[   28.520148] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   28.520472] CR2: 00007f14a0c8d000 CR3: 000000010321c004 CR4: 0000000000770ee0
-[   28.520863] PKRU: 55555554
-[   28.521043] Call Trace:
-[   28.521219]  <TASK>
-[   28.521368]  dax_fault_iter+0x196/0x390
-[   28.521595]  dax_iomap_pte_fault+0x19b/0x3d0
-[   28.521852]  __xfs_filemap_fault+0x234/0x2b0
-[   28.522116]  __do_fault+0x30/0x130
-[   28.522334]  do_fault+0x193/0x340
-[   28.522586]  __handle_mm_fault+0x2d3/0x690
-[   28.522975]  handle_mm_fault+0xe6/0x2c0
-[   28.523259]  do_user_addr_fault+0x1bc/0x6f0
-[   28.523521]  exc_page_fault+0x60/0x140
-[   28.523763]  asm_exc_page_fault+0x22/0x30
-[   28.524001] RIP: 0033:0x7f14a0b589ca
-[   28.524225] Code: c5 fe 7f 07 c5 fe 7f 47 20 c5 fe 7f 47 40 c5 fe 7f 47 60 c5 f8 77 c3 66 0f 1f 84 00 00 00 00 00 40 0f b6 c6 48 89 d1 48 89 fa <f3> aa 48 89 d0 c5 f8 77 c3 66 66 2e 0f 1f 84 00 00 00 00 00 66 90
-[   28.525198] RSP: 002b:00007fff1dea1c98 EFLAGS: 00010202
-[   28.525505] RAX: 000000000000001e RBX: 000000000014a000 RCX: 0000000000006046
-[   28.525895] RDX: 00007f14a0c82000 RSI: 000000000000001e RDI: 00007f14a0c8d000
-[   28.526290] RBP: 000000000000006f R08: 0000000000000004 R09: 000000000014a000
-[   28.526681] R10: 0000000000000008 R11: 0000000000000246 R12: 028f5c28f5c28f5c
-[   28.527067] R13: 8f5c28f5c28f5c29 R14: 0000000000011046 R15: 00007f14a0c946c0
-[   28.527449]  </TASK>
-[   28.527600] ---[ end trace 0000000000000000 ]---
+Two minor patches that bring zsmalloc documentation up to date.
 
 
-To be able to delete this entry, clear its dirty mark before
-invalidate_inode_pages2_range().
+This patch (of 2):
 
-[1] https://lore.kernel.org/linux-xfs/20230321151339.GA11376@frogsfrogsfrogs/
+Update documentation and reflect new zspages fullness grouping (we don't
+use almost_empty and almost_full anymore).
 
-Link: https://lkml.kernel.org/r/1679653680-2-1-git-send-email-ruansy.fnst@fujitsu.com
-Fixes: f80e1668888f3 ("fsdax: invalidate pages when CoW")
-Signed-off-by: Shiyang Ruan <ruansy.fnst@fujitsu.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Darrick J. Wong <djwong@kernel.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lkml.kernel.org/r/20230325024631.2817153-1-senozhatsky@chromium.org
+Link: https://lkml.kernel.org/r/20230325024631.2817153-2-senozhatsky@chromium.org
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Fixes: 67e157eb3639 ("zsmalloc: show per fullness group class stats")
+Cc: Minchan Kim <minchan@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/dax.c |   37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ Documentation/mm/zsmalloc.rst |  133 +++++++++++++++++---------------
+ 1 file changed, 74 insertions(+), 59 deletions(-)
 
---- a/fs/dax.c~fsdax-force-clear-dirty-mark-if-cow
-+++ a/fs/dax.c
-@@ -781,6 +781,33 @@ out:
- 	return ret;
- }
+--- a/Documentation/mm/zsmalloc.rst~zsmalloc-document-new-fullness-grouping
++++ a/Documentation/mm/zsmalloc.rst
+@@ -39,13 +39,12 @@ With CONFIG_ZSMALLOC_STAT, we could see
  
-+static int __dax_clear_dirty_range(struct address_space *mapping,
-+		pgoff_t start, pgoff_t end)
-+{
-+	XA_STATE(xas, &mapping->i_pages, start);
-+	unsigned int scanned = 0;
-+	void *entry;
+  # cat /sys/kernel/debug/zsmalloc/zram0/classes
+ 
+- class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage
++ class  size       10%       20%       30%       40%       50%       60%       70%       80%       90%       99%      100% obj_allocated   obj_used pages_used pages_per_zspage freeable
+     ...
+     ...
+-     9   176           0            1           186        129          8                4
+-    10   192           1            0          2880       2872        135                3
+-    11   208           0            1           819        795         42                2
+-    12   224           0            1           219        159         12                4
++    30   512         0        12         4         1         0         1         0         0         1         0       414          3464       3346        433                1       14
++    31   528         2         7         2         2         1         0         1         0         0         2       117          4154       3793        536                4       44
++    32   544         6         3         4         1         2         1         0         0         0         1       260          4170       3965        556                2       26
+     ...
+     ...
+ 
+@@ -54,10 +53,28 @@ class
+ 	index
+ size
+ 	object size zspage stores
+-almost_empty
+-	the number of ZS_ALMOST_EMPTY zspages(see below)
+-almost_full
+-	the number of ZS_ALMOST_FULL zspages(see below)
++10%
++	the number of zspages with usage ratio less than 10% (see below)
++20%
++	the number of zspages with usage ratio between 10% and 20%
++30%
++	the number of zspages with usage ratio between 20% and 30%
++40%
++	the number of zspages with usage ratio between 30% and 40%
++50%
++	the number of zspages with usage ratio between 40% and 50%
++60%
++	the number of zspages with usage ratio between 50% and 60%
++70%
++	the number of zspages with usage ratio between 60% and 70%
++80%
++	the number of zspages with usage ratio between 70% and 80%
++90%
++	the number of zspages with usage ratio between 80% and 90%
++99%
++	the number of zspages with usage ratio between 90% and 99%
++100%
++	the number of zspages with usage ratio 100%
+ obj_allocated
+ 	the number of objects allocated
+ obj_used
+@@ -67,18 +84,11 @@ pages_used
+ pages_per_zspage
+ 	the number of 0-order pages to make a zspage
+ 
+-We assign a zspage to ZS_ALMOST_EMPTY fullness group when n <= N / f, where
+-
+-* n = number of allocated objects
+-* N = total number of objects zspage can store
+-* f = fullness_threshold_frac(ie, 4 at the moment)
+-
+-Similarly, we assign zspage to:
+-
+-* ZS_ALMOST_FULL  when n > N / f
+-* ZS_EMPTY        when n == 0
+-* ZS_FULL         when n == N
+-
++Each zspage maintains inuse counter which keeps track of the number of
++objects stored in the zspage.  The inuse counter determines the zspage's
++"fullness group" which is calculated as the ratio of the "inuse" objects to
++the total number of objects the zspage can hold (objs_per_zspage). The
++closer the inuse counter is to objs_per_zspage, the better.
+ 
+ Internals
+ =========
+@@ -94,10 +104,10 @@ of objects that each zspage can store.
+ 
+ For instance, consider the following size classes:::
+ 
+-  class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage freeable
++  class  size       10%   ....    100% obj_allocated   obj_used pages_used pages_per_zspage freeable
+   ...
+-     94  1536           0            0             0          0          0                3        0
+-    100  1632           0            0             0          0          0                2        0
++     94  1536        0    ....       0             0          0          0                3        0
++    100  1632        0    ....       0             0          0          0                2        0
+   ...
+ 
+ 
+@@ -134,10 +144,11 @@ reduces memory wastage.
+ 
+ Let's take a closer look at the bottom of `/sys/kernel/debug/zsmalloc/zramX/classes`:::
+ 
+-  class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage freeable
++  class  size       10%   ....    100% obj_allocated   obj_used pages_used pages_per_zspage freeable
 +
-+	xas_lock_irq(&xas);
-+	xas_for_each(&xas, entry, end) {
-+		entry = get_unlocked_entry(&xas, 0);
-+		xas_clear_mark(&xas, PAGECACHE_TAG_DIRTY);
-+		xas_clear_mark(&xas, PAGECACHE_TAG_TOWRITE);
-+		put_unlocked_entry(&xas, entry, WAKE_NEXT);
+   ...
+-    202  3264           0            0             0          0          0                4        0
+-    254  4096           0            0             0          0          0                1        0
++    202  3264         0   ..         0             0          0          0                4        0
++    254  4096         0   ..         0             0          0          0                1        0
+   ...
+ 
+ Size class #202 stores objects of size 3264 bytes and has a maximum of 4 pages
+@@ -151,40 +162,42 @@ efficient storage of large objects.
+ 
+ For zspage chain size of 8, huge class watermark becomes 3632 bytes:::
+ 
+-  class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage freeable
++  class  size       10%   ....    100% obj_allocated   obj_used pages_used pages_per_zspage freeable
 +
-+		if (++scanned % XA_CHECK_SCHED)
-+			continue;
+   ...
+-    202  3264           0            0             0          0          0                4        0
+-    211  3408           0            0             0          0          0                5        0
+-    217  3504           0            0             0          0          0                6        0
+-    222  3584           0            0             0          0          0                7        0
+-    225  3632           0            0             0          0          0                8        0
+-    254  4096           0            0             0          0          0                1        0
++    202  3264         0   ..         0             0          0          0                4        0
++    211  3408         0   ..         0             0          0          0                5        0
++    217  3504         0   ..         0             0          0          0                6        0
++    222  3584         0   ..         0             0          0          0                7        0
++    225  3632         0   ..         0             0          0          0                8        0
++    254  4096         0   ..         0             0          0          0                1        0
+   ...
+ 
+ For zspage chain size of 16, huge class watermark becomes 3840 bytes:::
+ 
+-  class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage freeable
++  class  size       10%   ....    100% obj_allocated   obj_used pages_used pages_per_zspage freeable
 +
-+		xas_pause(&xas);
-+		xas_unlock_irq(&xas);
-+		cond_resched();
-+		xas_lock_irq(&xas);
-+	}
-+	xas_unlock_irq(&xas);
+   ...
+-    202  3264           0            0             0          0          0                4        0
+-    206  3328           0            0             0          0          0               13        0
+-    207  3344           0            0             0          0          0                9        0
+-    208  3360           0            0             0          0          0               14        0
+-    211  3408           0            0             0          0          0                5        0
+-    212  3424           0            0             0          0          0               16        0
+-    214  3456           0            0             0          0          0               11        0
+-    217  3504           0            0             0          0          0                6        0
+-    219  3536           0            0             0          0          0               13        0
+-    222  3584           0            0             0          0          0                7        0
+-    223  3600           0            0             0          0          0               15        0
+-    225  3632           0            0             0          0          0                8        0
+-    228  3680           0            0             0          0          0                9        0
+-    230  3712           0            0             0          0          0               10        0
+-    232  3744           0            0             0          0          0               11        0
+-    234  3776           0            0             0          0          0               12        0
+-    235  3792           0            0             0          0          0               13        0
+-    236  3808           0            0             0          0          0               14        0
+-    238  3840           0            0             0          0          0               15        0
+-    254  4096           0            0             0          0          0                1        0
++    202  3264         0   ..         0             0          0          0                4        0
++    206  3328         0   ..         0             0          0          0               13        0
++    207  3344         0   ..         0             0          0          0                9        0
++    208  3360         0   ..         0             0          0          0               14        0
++    211  3408         0   ..         0             0          0          0                5        0
++    212  3424         0   ..         0             0          0          0               16        0
++    214  3456         0   ..         0             0          0          0               11        0
++    217  3504         0   ..         0             0          0          0                6        0
++    219  3536         0   ..         0             0          0          0               13        0
++    222  3584         0   ..         0             0          0          0                7        0
++    223  3600         0   ..         0             0          0          0               15        0
++    225  3632         0   ..         0             0          0          0                8        0
++    228  3680         0   ..         0             0          0          0                9        0
++    230  3712         0   ..         0             0          0          0               10        0
++    232  3744         0   ..         0             0          0          0               11        0
++    234  3776         0   ..         0             0          0          0               12        0
++    235  3792         0   ..         0             0          0          0               13        0
++    236  3808         0   ..         0             0          0          0               14        0
++    238  3840         0   ..         0             0          0          0               15        0
++    254  4096         0   ..         0             0          0          0                1        0
+   ...
+ 
+ Overall the combined zspage chain size effect on zsmalloc pool configuration:::
+@@ -214,9 +227,10 @@ zram as a build artifacts storage (Linux
+ 
+   zsmalloc classes stats:::
+ 
+-    class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage freeable
++    class  size       10%   ....    100% obj_allocated   obj_used pages_used pages_per_zspage freeable
 +
-+	return 0;
-+}
+     ...
+-    Total                13           51        413836     412973     159955                         3
++    Total              13   ..        51        413836     412973     159955                         3
+ 
+   zram mm_stat:::
+ 
+@@ -227,9 +241,10 @@ zram as a build artifacts storage (Linux
+ 
+   zsmalloc classes stats:::
+ 
+-    class  size almost_full almost_empty obj_allocated   obj_used pages_used pages_per_zspage freeable
++    class  size       10%   ....    100% obj_allocated   obj_used pages_used pages_per_zspage freeable
 +
- /*
-  * Delete DAX entry at @index from @mapping.  Wait for it
-  * to be unlocked before deleting it.
-@@ -1440,6 +1467,16 @@ static loff_t dax_iomap_iter(const struc
- 	 * written by write(2) is visible in mmap.
- 	 */
- 	if (iomap->flags & IOMAP_F_NEW || cow) {
-+		/*
-+		 * Filesystem allows CoW on non-shared extents. The src extents
-+		 * may have been mmapped with dirty mark before. To be able to
-+		 * invalidate its dax entries, we need to clear the dirty mark
-+		 * in advance.
-+		 */
-+		if (cow)
-+			__dax_clear_dirty_range(iomi->inode->i_mapping,
-+						pos >> PAGE_SHIFT,
-+						(end - 1) >> PAGE_SHIFT);
- 		invalidate_inode_pages2_range(iomi->inode->i_mapping,
- 					      pos >> PAGE_SHIFT,
- 					      (end - 1) >> PAGE_SHIFT);
+     ...
+-    Total                18           87        414852     412978     156666                         0
++    Total              18   ..        87        414852     412978     156666                         0
+ 
+   zram mm_stat:::
+ 
 _
 
-Patches currently in -mm which might be from ruansy.fnst@fujitsu.com are
+Patches currently in -mm which might be from senozhatsky@chromium.org are
 
 
