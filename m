@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8286D8C74
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E2F6D8C75
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234495AbjDFBHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 21:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45206 "EHLO
+        id S234598AbjDFBHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 21:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234571AbjDFBHQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 21:07:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 336827683;
-        Wed,  5 Apr 2023 18:07:04 -0700 (PDT)
+        with ESMTP id S234455AbjDFBHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 21:07:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61497ABA;
+        Wed,  5 Apr 2023 18:07:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15B1762C07;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4330764293;
+        Thu,  6 Apr 2023 01:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D9EDC433EF;
         Thu,  6 Apr 2023 01:07:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E1AC433EF;
-        Thu,  6 Apr 2023 01:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1680743223;
-        bh=fduElP1BjicQGZ526UjirjBvo5cueWN2SWSL9ra3d/w=;
+        s=korg; t=1680743224;
+        bh=tHnu4caCXt9HC0iXdNAvbS2jQxEmHBcElV8xYk86ET8=;
         h=Date:To:From:Subject:From;
-        b=htFpq/27mwxZiiOmmO3DB0myyP76LIzPjoR6kxf3CBNeb/cxQxWtAhJ9R7BI2Ccea
-         cxc5+CQMJ6bTnZJbKyU9+syH6o8LKNQ7zbzTzaELTuTy5jjrIzqC7Ft/oDDMjyUZqw
-         4OkrKAKeReg2fJqyfzrZEK+lTwwxahZlRTPHkgg0=
-Date:   Wed, 05 Apr 2023 18:07:02 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        slava@dubeyko.com, konishi.ryusuke@gmail.com,
-        akpm@linux-foundation.org
+        b=fdf6jVgq5oXkWRQnc3IFa6n5fo6Pojym2+ZXGh+KVKeGTPx5tNjRiBbyzx9fPukJ2
+         w1HeFK6JeCmUzIS4F3yRzUfVS2C0SL/QS/9hauwQjecnVyCrb84GY8WH+gQIB9UGc7
+         SaQml4AzXoe9zF5ppGDWyxGiiNvPTwnBdkvP+v7w=
+Date:   Wed, 05 Apr 2023 18:07:04 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        wb-yyc939293@alibaba-inc.com, stable@vger.kernel.org,
+        bagasdotme@gmail.com, aaron.lu@intel.com,
+        rongwei.wang@linux.alibaba.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] nilfs2-fix-sysfs-interface-lifetime.patch removed from -mm tree
-Message-Id: <20230406010703.70E1AC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+Subject: [merged mm-hotfixes-stable] mm-swap-fix-swap_info_struct-race-between-swapoff-and-get_swap_pages.patch removed from -mm tree
+Message-Id: <20230406010704.9D9EDC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,129 +47,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: nilfs2: fix sysfs interface lifetime
+     Subject: mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
 has been removed from the -mm tree.  Its filename was
-     nilfs2-fix-sysfs-interface-lifetime.patch
+     mm-swap-fix-swap_info_struct-race-between-swapoff-and-get_swap_pages.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: fix sysfs interface lifetime
-Date: Fri, 31 Mar 2023 05:55:15 +0900
+From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Subject: mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+Date: Tue, 4 Apr 2023 23:47:16 +0800
 
-The current nilfs2 sysfs support has issues with the timing of creation
-and deletion of sysfs entries, potentially leading to null pointer
-dereferences, use-after-free, and lockdep warnings.
+The si->lock must be held when deleting the si from the available list. 
+Otherwise, another thread can re-add the si to the available list, which
+can lead to memory corruption.  The only place we have found where this
+happens is in the swapoff path.  This case can be described as below:
 
-Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
-metadata file "cpfile", "sufile", or "dat", but
-nilfs_sysfs_create_device_group that creates those attributes is executed
-before the inodes for these metadata files are loaded, and
-nilfs_sysfs_delete_device_group which deletes these sysfs entries is
-called after releasing their metadata file inodes.
+core 0                       core 1
+swapoff
 
-Therefore, access to some of these sysfs attributes may occur outside of
-the lifetime of these metadata files, resulting in inode NULL pointer
-dereferences or use-after-free.
+del_from_avail_list(si)      waiting
 
-In addition, the call to nilfs_sysfs_create_device_group() is made during
-the locking period of the semaphore "ns_sem" of nilfs object, so the
-shrinker call caused by the memory allocation for the sysfs entries, may
-derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
-nilfs_evict_inode()".
+try lock si->lock            acquire swap_avail_lock
+                             and re-add si into
+                             swap_avail_head
 
-Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
-locks via its error handler __nilfs_error(), this causes lockdep to report
-circular locking.  This is a false positive and no circular locking
-actually occurs as no inodes exist yet when
-nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
-warnings can be resolved by simply moving the call to
-nilfs_sysfs_create_device_group() out of "ns_sem".
+acquire si->lock but missing si already being added again, and continuing
+to clear SWP_WRITEOK, etc.
 
-This fixes these sysfs issues by revising where the device's sysfs
-interface is created/deleted and keeping its lifetime within the lifetime
-of the metadata files above.
+It can be easily found that a massive warning messages can be triggered
+inside get_swap_pages() by some special cases, for example, we call
+madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
+run much swapon-swapoff operations (e.g.  stress-ng-swap).
 
-Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
-Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
-Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+However, in the worst case, panic can be caused by the above scene.  In
+swapoff(), the memory used by si could be kept in swap_info[] after
+turning off a swap.  This means memory corruption will not be caused
+immediately until allocated and reset for a new swap in the swapon path. 
+A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
+
+------------[ cut here ]------------
+top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
+prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
+next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
+WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
+Modules linked in: rfkill(E) crct10dif_ce(E)...
+CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
+Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+pc : plist_check_prev_next_node+0x50/0x70
+lr : plist_check_prev_next_node+0x50/0x70
+sp : ffff0018009d3c30
+x29: ffff0018009d3c40 x28: ffff800011b32a98
+x27: 0000000000000000 x26: ffff001803908000
+x25: ffff8000128ea088 x24: ffff800011b32a48
+x23: 0000000000000028 x22: ffff001800875c00
+x21: ffff800010f9e520 x20: ffff001800875c00
+x19: ffff001800fdc6e0 x18: 0000000000000030
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0736076307640766 x14: 0730073007380731
+x13: 0736076307640766 x12: 0730073007380731
+x11: 000000000004058d x10: 0000000085a85b76
+x9 : ffff8000101436e4 x8 : ffff800011c8ce08
+x7 : 0000000000000000 x6 : 0000000000000001
+x5 : ffff0017df9ed338 x4 : 0000000000000001
+x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ plist_check_prev_next_node+0x50/0x70
+ plist_check_head+0x80/0xf0
+ plist_add+0x28/0x140
+ add_to_avail_list+0x9c/0xf0
+ _enable_swap_info+0x78/0xb4
+ __do_sys_swapon+0x918/0xa10
+ __arm64_sys_swapon+0x20/0x30
+ el0_svc_common+0x8c/0x220
+ do_el0_svc+0x2c/0x90
+ el0_svc+0x1c/0x30
+ el0_sync_handler+0xa8/0xb0
+ el0_sync+0x148/0x180
+irq event stamp: 2082270
+
+Now, si->lock locked before calling 'del_from_avail_list()' to make sure
+other thread see the si had been deleted and SWP_WRITEOK cleared together,
+will not reinsert again.
+
+This problem exists in versions after stable 5.10.y.
+
+Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
+Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node") 
+Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
+Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Cc: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Aaron Lu <aaron.lu@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/nilfs2/super.c     |    2 ++
- fs/nilfs2/the_nilfs.c |   12 +++++++-----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ mm/swapfile.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/super.c~nilfs2-fix-sysfs-interface-lifetime
-+++ a/fs/nilfs2/super.c
-@@ -482,6 +482,7 @@ static void nilfs_put_super(struct super
- 		up_write(&nilfs->ns_sem);
- 	}
- 
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
-@@ -1105,6 +1106,7 @@ nilfs_fill_super(struct super_block *sb,
- 	nilfs_put_root(fsroot);
- 
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
---- a/fs/nilfs2/the_nilfs.c~nilfs2-fix-sysfs-interface-lifetime
-+++ a/fs/nilfs2/the_nilfs.c
-@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
+--- a/mm/swapfile.c~mm-swap-fix-swap_info_struct-race-between-swapoff-and-get_swap_pages
++++ a/mm/swapfile.c
+@@ -679,6 +679,7 @@ static void __del_from_avail_list(struct
  {
- 	might_sleep();
- 	if (nilfs_init(nilfs)) {
--		nilfs_sysfs_delete_device_group(nilfs);
- 		brelse(nilfs->ns_sbh[0]);
- 		brelse(nilfs->ns_sbh[1]);
+ 	int nid;
+ 
++	assert_spin_locked(&p->lock);
+ 	for_each_node(nid)
+ 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
+ }
+@@ -2434,8 +2435,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
+ 		spin_unlock(&swap_lock);
+ 		goto out_dput;
  	}
-@@ -305,6 +304,10 @@ int load_nilfs(struct the_nilfs *nilfs,
- 		goto failed;
- 	}
- 
-+	err = nilfs_sysfs_create_device_group(sb);
-+	if (unlikely(err))
-+		goto sysfs_error;
-+
- 	if (valid_fs)
- 		goto skip_recovery;
- 
-@@ -366,6 +369,9 @@ int load_nilfs(struct the_nilfs *nilfs,
- 	goto failed;
- 
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
-+
-+ sysfs_error:
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_dat);
-@@ -697,10 +703,6 @@ int init_nilfs(struct the_nilfs *nilfs,
- 	if (err)
- 		goto failed_sbh;
- 
--	err = nilfs_sysfs_create_device_group(sb);
--	if (err)
--		goto failed_sbh;
--
- 	set_nilfs_init(nilfs);
- 	err = 0;
-  out:
+-	del_from_avail_list(p);
+ 	spin_lock(&p->lock);
++	del_from_avail_list(p);
+ 	if (p->prio < 0) {
+ 		struct swap_info_struct *si = p;
+ 		int nid;
 _
 
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
+Patches currently in -mm which might be from rongwei.wang@linux.alibaba.com are
 
 
