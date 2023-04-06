@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE936D9603
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B27B26D95C9
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238585AbjDFLjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:39:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
+        id S238223AbjDFLhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:37:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238400AbjDFLjD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:39:03 -0400
+        with ESMTP id S238210AbjDFLgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:36:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FAE5A5DF;
-        Thu,  6 Apr 2023 04:35:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A42A5C4;
+        Thu,  6 Apr 2023 04:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93CD964598;
-        Thu,  6 Apr 2023 11:34:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE3BC433EF;
-        Thu,  6 Apr 2023 11:33:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2E786448A;
+        Thu,  6 Apr 2023 11:34:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4B8C4339B;
+        Thu,  6 Apr 2023 11:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780840;
-        bh=DPDY4dLUTQFSWfyffi7VSXhzq2fp9bKn4Z6f3hsXLJY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3O+lWgS9za640uc/O0WqKXjg9ExsPtbEkIL3gWU41hf7E1ctsPbsjZ9en7ZEPKq2
-         BfttYxCflZFHdJZWU74UrushclmrnUqLbOYP6DPlvJLhrsviv0nUnM0CvbJMj2WNrn
-         dS+KSjtYq2r/RmdaCmu4swItk+NekGlwVYBMR8Y77ngGriccJgRhW0MuARmSNf3OoB
-         Vyyv3//853X8cfh/V8ICCmxawrg92SvsJkxUFix4nS0Oi548sNtsNHVH2voZSkr8ey
-         oIql7dWyzbs7znGxHoZSz1DQTUAFpKjkHCfAHjOJJ/s6TBUx7Qho7jiR6kgpNRPGSS
-         Zp2cMUbK6Z3CQ==
+        s=k20201202; t=1680780843;
+        bh=FrPrFRzIb80pwqGPPW/9W4CngxldpXYwhVu5k4UI80Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=sYnM4NjzMbhILoUjrkvIKXnYDQlisejccKwGKyuExp+d35Y/K2HLxIH9aNsf9CILI
+         m9tVgx+o4O0CA+1K8e94Rq6KdehFLnUJdNlhibf2gDUKL1hKXwGKJ9Z6qMeIQrWssS
+         ucu7Mf01HqgevsqxmTkIkYdZn+jbo9LgkmG3ILGenFl9yjQndW63e80e/xRbsVulfy
+         eKcu7QHc6TaJXtNLu7Jqx7wAvOt1cJnP7SmJ3m+SyRwVX2pjXqjr6CZw4gUe4bpfvw
+         /v0eLR33jW3RX8S51Xn8BtUzVhfRQNrqOz2JbSpR4PxISm/SlU3qfapkNd25Veur+9
+         fae+mtL1WfkVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Jan Beulich <jbeulich@suse.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, wei.liu@kernel.org,
-        paul@xen.org, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, xen-devel@lists.xenproject.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 9/9] xen/netback: use same error messages for same errors
-Date:   Thu,  6 Apr 2023 07:33:37 -0400
-Message-Id: <20230406113337.648916-9-sashal@kernel.org>
+Cc:     Douglas Raillard <douglas.raillard@arm.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
+        mhiramat@kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-trace-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/8] f2fs: Fix f2fs_truncate_partial_nodes ftrace event
+Date:   Thu,  6 Apr 2023 07:33:53 -0400
+Message-Id: <20230406113400.649038-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230406113337.648916-1-sashal@kernel.org>
-References: <20230406113337.648916-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,40 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Douglas Raillard <douglas.raillard@arm.com>
 
-[ Upstream commit 2eca98e5b24d01c02b46c67be05a5f98cc9789b1 ]
+[ Upstream commit 0b04d4c0542e8573a837b1d81b94209e48723b25 ]
 
-Issue the same error message in case an illegal page boundary crossing
-has been detected in both cases where this is tested.
+Fix the nid_t field so that its size is correctly reported in the text
+format embedded in trace.dat files. As it stands, it is reported as
+being of size 4:
 
-Suggested-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20230329080259.14823-1-jgross@suse.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+        field:nid_t nid[3];     offset:24;      size:4; signed:0;
+
+Instead of 12:
+
+        field:nid_t nid[3];     offset:24;      size:12;        signed:0;
+
+This also fixes the reported offset of subsequent fields so that they
+match with the actual struct layout.
+
+Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ include/trace/events/f2fs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 3dfc5c66f1408..a3078755939e3 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -989,10 +989,8 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 
- 		/* No crossing a page as the payload mustn't fragment. */
- 		if (unlikely((txreq.offset + txreq.size) > XEN_PAGE_SIZE)) {
--			netdev_err(queue->vif->dev,
--				   "txreq.offset: %u, size: %u, end: %lu\n",
--				   txreq.offset, txreq.size,
--				   (unsigned long)(txreq.offset&~XEN_PAGE_MASK) + txreq.size);
-+			netdev_err(queue->vif->dev, "Cross page boundary, txreq.offset: %u, size: %u\n",
-+				   txreq.offset, txreq.size);
- 			xenvif_fatal_tx_err(queue->vif);
- 			break;
- 		}
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index 52e6456bdb922..098d6dff20bef 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -498,7 +498,7 @@ TRACE_EVENT(f2fs_truncate_partial_nodes,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(nid_t,	nid[3])
++		__array(nid_t,	nid, 3)
+ 		__field(int,	depth)
+ 		__field(int,	err)
+ 	),
 -- 
 2.39.2
 
