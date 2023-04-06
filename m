@@ -2,131 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C63E6D901B
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 09:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 714AB6D9074
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 09:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231994AbjDFHFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 03:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40546 "EHLO
+        id S233303AbjDFHbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 03:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234923AbjDFHFM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 03:05:12 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4544EE
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 00:03:41 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id eg48so146852559edb.13
-        for <stable@vger.kernel.org>; Thu, 06 Apr 2023 00:03:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680764611;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xt6w7DBEEp2oP9gq6uM1fJrHBdn8VFiv3bhU+Z8knvc=;
-        b=hVmARTOWOi8zcXg/wquYPGxpaxjcdvjoCiWvCn/vQkTDpU56ZAhW4rutJ//Xzx6vz6
-         sk3iRLVpvhW3aaX6lykCTeKgQdHEX3JMgzS3Fd8W/zp/KAEo3Uym7g3mEqBTKJ918jtL
-         ZptyNafVhadzQfCoJ9p/gMqw2crPzdyyUqSqaxzOQBoP36R43wjUYT0BWvOWLp/G4g4r
-         w2MNwZyMW99BYuaI53XP55LtMnPpEKKSs3VklWerLWaPLAqduIdjf2PAm+v4eSgUnQ3P
-         4jdU3H4yFFIg4N6F6dc7AXYvM5/+VezfVxrJ8j51k/LsJlDEj4wZKerHQUaes0qBUMwa
-         FFTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680764611;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xt6w7DBEEp2oP9gq6uM1fJrHBdn8VFiv3bhU+Z8knvc=;
-        b=BLGtZnn2ottK9MtZTEYahZt435Ncr/wUJE7ZgdSI/QXDKym0piRmqV0er9MwksX1vO
-         rmXFQo/bvbc4cCXhWSuRxkMs6mcjke+hMc3YUPwNZli6Gd6JxDbF9eAn/2dn46LfMKv0
-         tjEpeT3D3BBbYGI882IH8ErTBzVgxRy+qI29b/w0QFOwEgY7kU44J0etj5hNZ67YFIyM
-         09EcId9csg99G3hOg6QxY/c3gen4nDAv/MgmYOG1ywIl99d9GXWvH7P+CWXbNI/WnR3K
-         /p35OkltN75Jg/AJ8UzeYoYh4I20MyrehPZDZXwWUR/jkgszouZg7eCZTFVklHueQGVy
-         rKdA==
-X-Gm-Message-State: AAQBX9cXSoZjvhE4VhXvccPrLncvfB/+WEJx+OQkx5QosSa/Skf40e6j
-        4NnXc3eakMd2ZR7CPV1L+vaQPw==
-X-Google-Smtp-Source: AKy350YnhKpndWCuKkoEX1F9XMUWGFxBZSXdLPSCgbRgT7xN4Z0Df2myKsprNtK3DO5NAXHENav20w==
-X-Received: by 2002:a17:906:9145:b0:931:df8d:113 with SMTP id y5-20020a170906914500b00931df8d0113mr4673121ejw.26.1680764611021;
-        Thu, 06 Apr 2023 00:03:31 -0700 (PDT)
-Received: from ?IPV6:2a02:810d:15c0:828:49e6:bb8c:a05b:c4ed? ([2a02:810d:15c0:828:49e6:bb8c:a05b:c4ed])
-        by smtp.gmail.com with ESMTPSA id f13-20020a170906c08d00b0092f289b6fdbsm390050ejz.181.2023.04.06.00.03.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Apr 2023 00:03:30 -0700 (PDT)
-Message-ID: <11de8706-5753-472b-1fe0-de80bb3d8c8c@linaro.org>
-Date:   Thu, 6 Apr 2023 09:03:29 +0200
+        with ESMTP id S233235AbjDFHbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 03:31:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69B32EE;
+        Thu,  6 Apr 2023 00:31:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF80461482;
+        Thu,  6 Apr 2023 07:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38FEDC4339B;
+        Thu,  6 Apr 2023 07:31:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680766281;
+        bh=ETbfyfCMDp3/1UzRk+wb1+5DWlQo/l40rg20m5e16cU=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=g+yqaDwXIWwFaaFSp/PkhyUZ4wki+zkdYZxgkWjkg69YT+maDEJCHKU2kZEAipH66
+         moSHtF7o/YUJr24G1pN426d8u5xtTia7en25hlCc0bijtI+SJZcmiamJrhDU19BKa6
+         lOPoYQhW5Ccy1iJaDvZjLogjiH3V48G5QYf8qHy/05HeBeTATj9aredUuXwPIKkRpj
+         CNWLycNWFzIiAEiqS8h7NFZu9bsf8QaQ3wT3kGy1OCegcIHaHL0MU7qoD8QGJvuh0J
+         or4ofV5F3twEEp8grfTAV1WzFvXdrCKlIn9d9hSXeBLPuTQcoxr+2fVUHDV4t0FqK7
+         efMWOV280V5xg==
+Received: by mail-lj1-f175.google.com with SMTP id z42so39771871ljq.13;
+        Thu, 06 Apr 2023 00:31:21 -0700 (PDT)
+X-Gm-Message-State: AAQBX9eCx+BTgYUOLHcp/8mlt1PbYgzz6BqUYUpCXSr9SxHgql2j6Kft
+        CH7yz8sqgmLKhVz64pzbW+dKtKVQyKLCWUfib+E=
+X-Google-Smtp-Source: AKy350bQNM+gUl6oQj2ADMATHsYFHDqbNQfOH6aDOcb3ZHj4ykvfAYvg5QVvyYoQEt59P3U63UrU1cj2BKR2Hk5kNsI=
+X-Received: by 2002:a2e:93c3:0:b0:298:bddc:dbbf with SMTP id
+ p3-20020a2e93c3000000b00298bddcdbbfmr3104529ljh.2.1680766279202; Thu, 06 Apr
+ 2023 00:31:19 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH] soundwire: qcom: Fix enumeration of second device on the
- bus
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Sanyog Kale <sanyog.r.kale@intel.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        linux-arm-msm@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Patrick Lai <quic_plai@quicinc.com>
-References: <20230405142926.842173-1-krzysztof.kozlowski@linaro.org>
- <ecc13046-1a4f-77e7-c4dc-a5a4c1248572@linux.intel.com>
-Content-Language: en-US
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <ecc13046-1a4f-77e7-c4dc-a5a4c1248572@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.6 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20230406040515.383238-1-jhubbard@nvidia.com>
+In-Reply-To: <20230406040515.383238-1-jhubbard@nvidia.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Thu, 6 Apr 2023 09:31:07 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXHxyntweiq76CdW=ov2_CkEQUbdPekGNDtFp7rBCJJE2w@mail.gmail.com>
+Message-ID: <CAMj1kXHxyntweiq76CdW=ov2_CkEQUbdPekGNDtFp7rBCJJE2w@mail.gmail.com>
+Subject: Re: [PATCH] arm64/mm: don't WARN when alloc/free-ing device private pages
+To:     John Hubbard <jhubbard@nvidia.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Feiyang Chen <chenfeiyang@loongson.cn>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        linux-arm-kernel@lists.infradead.org,
+        LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/04/2023 17:01, Pierre-Louis Bossart wrote:
-> 
-> 
-> On 4/5/23 09:29, Krzysztof Kozlowski wrote:
->> Some Soundwire buses (like &swr0 on Qualcomm HDK8450) have two devices,
->> which can be brought from powerdown state one after another.  We need to
->> keep enumerating them on each slave attached interrupt, otherwise only
->> first will appear.
->>
->> Cc: <stable@vger.kernel.org>
->> Fixes: a6e6581942ca ("soundwire: qcom: add auto enumeration support")
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
->>
->> ---
->>
->> Cc: Patrick Lai <quic_plai@quicinc.com>
->> ---
->>  drivers/soundwire/qcom.c | 11 +++--------
->>  1 file changed, 3 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
->> index c296e0bf897b..1e5077d91f59 100644
->> --- a/drivers/soundwire/qcom.c
->> +++ b/drivers/soundwire/qcom.c
->> @@ -587,14 +587,9 @@ static irqreturn_t qcom_swrm_irq_handler(int irq, void *dev_id)
->>  			case SWRM_INTERRUPT_STATUS_CHANGE_ENUM_SLAVE_STATUS:
->>  				dev_dbg_ratelimited(swrm->dev, "SWR new slave attached\n");
->>  				swrm->reg_read(swrm, SWRM_MCP_SLV_STATUS, &slave_status);
->> -				if (swrm->slave_status == slave_status) {
->> -					dev_dbg(swrm->dev, "Slave status not changed %x\n",
->> -						slave_status);
-> 
-> it's not clear to me how removing this test helps with the two-device
-> configuration?
-> 
-> Or is this a case where the status for both devices changes at the same
-> time but the interrupt status remains set, so the next iteration of the
-> loop is ignored?
+Hello John,
 
-I think the patch is not correct. I misinterpreted the slave status
-field and after double checking I see two speakers bound. Please ignore
-for now.
+On Thu, 6 Apr 2023 at 06:05, John Hubbard <jhubbard@nvidia.com> wrote:
+>
+> Although CONFIG_DEVICE_PRIVATE and hmm_range_fault() and related
+> functionality was first developed on x86, it also works on arm64.
+> However, when trying this out on an arm64 system, it turns out that
+> there is a massive slowdown during the setup and teardown phases.
+>
+> This slowdown is due to lots of calls to WARN_ON()'s that are checking
+> for pages that are out of the physical range for the CPU. However,
+> that's a design feature of device private pages: they are specfically
+> chosen in order to be outside of the range of the CPU's true physical
+> pages.
+>
 
-Best regards,
-Krzysztof
+Currently, the vmemmap region is dimensioned to only cover the PFN
+range that backs the linear map. So the WARN() seems appropriate here:
+you are mapping struct page[] ranges outside of the allocated window,
+and afaict, you might actually wrap around and corrupt the linear map
+at the start of the kernel VA space like this.
 
+
+> x86 doesn't have this warning. It only checks that pages are properly
+> aligned. I've shown a comparison below between x86 (which works well)
+> and arm64 (which has these warnings).
+>
+> memunmap_pages()
+>   pageunmap_range()
+>     if (pgmap->type == MEMORY_DEVICE_PRIVATE)
+>       __remove_pages()
+>         __remove_section()
+>           sparse_remove_section()
+>             section_deactivate()
+>               depopulate_section_memmap()
+>                 /* arch/arm64/mm/mmu.c */
+>                 vmemmap_free()
+>                 {
+>                   WARN_ON((start < VMEMMAP_START) || (end > VMEMMAP_END));
+>                   ...
+>                 }
+>
+>                 /* arch/x86/mm/init_64.c */
+>                 vmemmap_free()
+>                 {
+>                   VM_BUG_ON(!PAGE_ALIGNED(start));
+>                   VM_BUG_ON(!PAGE_ALIGNED(end));
+>                   ...
+>                 }
+>
+> So, the warning is a false positive for this case. Therefore, skip the
+> warning if CONFIG_DEVICE_PRIVATE is set.
+>
+
+I don't think this is a false positive. We'll need to adjust
+VMEMMAP_SIZE to account for this.
+
+
+> Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+> cc: <stable@vger.kernel.org>
+> ---
+>  arch/arm64/mm/mmu.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+> index 6f9d8898a025..d5c9b611a8d1 100644
+> --- a/arch/arm64/mm/mmu.c
+> +++ b/arch/arm64/mm/mmu.c
+> @@ -1157,8 +1157,10 @@ int __meminit vmemmap_check_pmd(pmd_t *pmdp, int node,
+>  int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+>                 struct vmem_altmap *altmap)
+>  {
+> +/* Device private pages are outside of the CPU's physical page range. */
+> +#ifndef CONFIG_DEVICE_PRIVATE
+>         WARN_ON((start < VMEMMAP_START) || (end > VMEMMAP_END));
+> -
+> +#endif
+>         if (!IS_ENABLED(CONFIG_ARM64_4K_PAGES))
+>                 return vmemmap_populate_basepages(start, end, node, altmap);
+>         else
+> @@ -1169,8 +1171,10 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+>  void vmemmap_free(unsigned long start, unsigned long end,
+>                 struct vmem_altmap *altmap)
+>  {
+> +/* Device private pages are outside of the CPU's physical page range. */
+> +#ifndef CONFIG_DEVICE_PRIVATE
+>         WARN_ON((start < VMEMMAP_START) || (end > VMEMMAP_END));
+> -
+> +#endif
+>         unmap_hotplug_range(start, end, true, altmap);
+>         free_empty_tables(start, end, VMEMMAP_START, VMEMMAP_END);
+>  }
+> --
+> 2.40.0
+>
