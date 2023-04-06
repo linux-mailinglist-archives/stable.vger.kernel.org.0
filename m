@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE656D962A
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28546D960D
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237230AbjDFLph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60552 "EHLO
+        id S238322AbjDFLkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238921AbjDFLpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:45:06 -0400
+        with ESMTP id S238562AbjDFLjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:39:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887F11114D;
-        Thu,  6 Apr 2023 04:41:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F658CA01;
+        Thu,  6 Apr 2023 04:35:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DE164663;
-        Thu,  6 Apr 2023 11:34:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2634C433D2;
-        Thu,  6 Apr 2023 11:34:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82B696458D;
+        Thu,  6 Apr 2023 11:34:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E04D6C433A0;
+        Thu,  6 Apr 2023 11:34:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780871;
-        bh=V5BQsr3kjpmrNU85YSATEXJCjRsQghWvapoHfDmbADI=;
+        s=k20201202; t=1680780872;
+        bh=Mkim9FDcw9ZkkgMeZP4bqkpWTtR0d4V/v47YXQecxEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CL2DFiJbpiVUHZyaRsFIKr64609SX2qUMaRuLbfgBNegShercRs9iCTf+yaN78Anc
-         lXdjRVE1CpRpS3YNsW4ERROQe09TUQOhaeYRsKUJdcfSzwr0cMwzTJHgSvK9Zw8RH3
-         2j/Y/C4mCwZTjlq1rPM223zHnR89CcQUDkrZNCXvtzx/HaPVPUEEED0AMp92N5sWss
-         siF6c3QojJ6ujju+qR3B6IwkZWSVxS/DwTwFUM0FS6Jdyd4X+eDwOvEetUPVHs9Iom
-         WI5z0qLtXQjKQJYmDAOFLAD8Q8sX8xhYy06cTsXK7UVbsNXISNk8Zy6sc1dqX4mvnZ
-         f5+Si1Uunj7bA==
+        b=mQjV7p6pH51SM9LTBqkc7r9VjHk2hWd8VRoJZdu6bjm5vYdbUHljmPVzOQcScqqwY
+         ttIf3/LBECm/Qse5YQi4gIpGi/XB0YwWBZ8GZnRnBRkjvWBV55oXJJcs4/ETDaRGiH
+         Dr9nisJzEMN6ke+Z60uQYeAu0GSORdu1xqlk0RFyB695dYzXxtQjNzO7R0xqmWbaNK
+         EFr3CXsBjFulFMqEQOuhee1oj3Kvj2Qr5AokFQoajveF3hwquSYDdYIJtolNZyNHZa
+         KjSlZxmqmLgDSF9FJuC1dd6WJYW/7WrGiPsBw+2GzUowymI4oUICC+Z/6W40QbrK4v
+         0uX9o06LI3l0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Kees Cook <keescook@chromium.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, guoren@kernel.org, nathan@kernel.org,
-        linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-csky@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 4.14 2/7] selftests: sigaltstack: fix -Wuninitialized
-Date:   Thu,  6 Apr 2023 07:34:16 -0400
-Message-Id: <20230406113421.649149-2-sashal@kernel.org>
+Cc:     Tomas Henzl <thenzl@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, kashyap.desai@broadcom.com,
+        sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+        jejb@linux.ibm.com, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 3/7] scsi: megaraid_sas: Fix fw_crash_buffer_show()
+Date:   Thu,  6 Apr 2023 07:34:17 -0400
+Message-Id: <20230406113421.649149-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230406113421.649149-1-sashal@kernel.org>
 References: <20230406113421.649149-1-sashal@kernel.org>
@@ -62,93 +58,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
+[ Upstream commit 0808ed6ebbc292222ca069d339744870f6d801da ]
 
-Building sigaltstack with clang via:
-$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
+If crash_dump_buf is not allocated then crash dump can't be available.
+Replace logical 'and' with 'or'.
 
-produces the following warning:
-  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
-  if (sp < (unsigned long)sstack ||
-      ^~
-
-Clang expects these to be declared at global scope; we've fixed this in
-the kernel proper by using the macro `current_stack_pointer`. This is
-defined in different headers for different target architectures, so just
-create a new header that defines the arch-specific register names for
-the stack pointer register, and define it for more targets (at least the
-ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Link: https://lore.kernel.org/r/20230324135249.9733-1-thenzl@redhat.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
- tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
- 2 files changed, 24 insertions(+), 6 deletions(-)
- create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
+ drivers/scsi/megaraid/megaraid_sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-new file mode 100644
-index 0000000000000..ea9bdf3a90b16
---- /dev/null
-+++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#if __alpha__
-+register unsigned long sp asm("$30");
-+#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
-+register unsigned long sp asm("sp");
-+#elif __i386__
-+register unsigned long sp asm("esp");
-+#elif __loongarch64
-+register unsigned long sp asm("$sp");
-+#elif __ppc__
-+register unsigned long sp asm("r1");
-+#elif __s390x__
-+register unsigned long sp asm("%15");
-+#elif __sh__
-+register unsigned long sp asm("r15");
-+#elif __x86_64__
-+register unsigned long sp asm("rsp");
-+#elif __XTENSA__
-+register unsigned long sp asm("a1");
-+#else
-+#error "implement current_stack_pointer equivalent"
-+#endif
-diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
-index 228c2ae47687d..6069d97bf5063 100644
---- a/tools/testing/selftests/sigaltstack/sas.c
-+++ b/tools/testing/selftests/sigaltstack/sas.c
-@@ -19,6 +19,7 @@
- #include <errno.h>
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 42d876034741c..bdd06b26e2de1 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -2983,7 +2983,7 @@ megasas_fw_crash_buffer_show(struct device *cdev,
  
- #include "../kselftest.h"
-+#include "current_stack_pointer.h"
- 
- #ifndef SS_AUTODISARM
- #define SS_AUTODISARM  (1U << 31)
-@@ -40,12 +41,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
- 	stack_t stk;
- 	struct stk_data *p;
- 
--#if __s390x__
--	register unsigned long sp asm("%15");
--#else
--	register unsigned long sp asm("sp");
--#endif
--
- 	if (sp < (unsigned long)sstack ||
- 			sp >= (unsigned long)sstack + SIGSTKSZ) {
- 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
+ 	spin_lock_irqsave(&instance->crashdump_lock, flags);
+ 	buff_offset = instance->fw_crash_buffer_offset;
+-	if (!instance->crash_dump_buf &&
++	if (!instance->crash_dump_buf ||
+ 		!((instance->fw_crash_state == AVAILABLE) ||
+ 		(instance->fw_crash_state == COPYING))) {
+ 		dev_err(&instance->pdev->dev,
 -- 
 2.39.2
 
