@@ -2,147 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DEC6D937C
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 12:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8876D93B0
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 12:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235492AbjDFKBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 06:01:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52088 "EHLO
+        id S229835AbjDFKIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 06:08:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236853AbjDFKAj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 06:00:39 -0400
-Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-he1eur04on2073.outbound.protection.outlook.com [40.107.7.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FEFC868F;
-        Thu,  6 Apr 2023 03:00:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=W1/Xs2YszkDemYrk5DqOCaEEMHHdo78F2uyZFQDIiet3NSBObnbHxQWCUt5YY0Uz5lZ0w7fCVRTDHnBXLqmWzYzFbeaHoE6MCoezYaABWHCryfV9f5Eu9/wQkGTuAUs2HQFS8Gyddvc4StMygwL77WXo6+HXt5jYv1e7PQcW6zF5mnnyLEkGVScGTSIYcFmMYbX8EYNPqDYQBa761TTssU4R7cShuf5Gz5piS7ipn0j88kHag/R35AANZx5RvErYitG937z+DPp69hqQngFpXMG/YDzQME6/kCQIiISt4EHKjhNysvCNIcUYgp8VU8yN8952uH59Sw74pRR56yZHbA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1qk3bivjPsFZ7aVqLlUWUZ6HNx93+XPlfc41xoaGiLA=;
- b=FbWJ/evkKFQMvMHNNRtMHii2gOwHmHEymSmpv333nmCK1RtSzsS+/aBx+1lAIGsLW6ka9cJPPv5xzKlgTV/5k7AYmo+8VnNFK021meB80sR4eLYoDPeotYymqiDxxdAAX57eokpGXy0/gMOwi5nznzqHa8IMKqE4hHZZNao6tfeYd4+FoTXkM4YbpbV1dJZtCKPvhQ+PRH9QqskAO0jzUPkYSsbK7+6BFYyT41TsLdskJUyMuAy8HGmfIs2ttZJIGulqZtuyeKJKfzpMBKDj6AuLFBgtr7AcylZaxfmXvqJlurwZIyczerWhtAZKFhRA+eP9NtK5dpgz0sB8bO2CGg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector2-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1qk3bivjPsFZ7aVqLlUWUZ6HNx93+XPlfc41xoaGiLA=;
- b=NMYAlz4ivkdluAtzlCw/UE9V3KFNffGhPvHEIbUKgUVxPjJjTF4WAYtgUOWW1QxsPGxjNgtQJ/sj7S7sWUK2olac0IZ3YpiHaBioGH9lewZYKMS3lIHBlgofXesF+keLh/Z384goZuPGXPNkuw7djvqYhkxS4/w2hHV86YrIXz0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM9PR04MB8954.eurprd04.prod.outlook.com (2603:10a6:20b:409::7)
- by VE1PR04MB7232.eurprd04.prod.outlook.com (2603:10a6:800:1af::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.35; Thu, 6 Apr
- 2023 10:00:05 +0000
-Received: from AM9PR04MB8954.eurprd04.prod.outlook.com
- ([fe80::9701:b3b3:e698:e733]) by AM9PR04MB8954.eurprd04.prod.outlook.com
- ([fe80::9701:b3b3:e698:e733%7]) with mapi id 15.20.6277.031; Thu, 6 Apr 2023
- 10:00:05 +0000
-From:   "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
-To:     andrew@lunn.ch, hkallweit1@gmail.com, linux@armlinux.org.uk,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
-        stable@vger.kernel.org
-Subject: [PATCH net] net: phy: nxp-c45-tja11xx: fix unsigned long multiplication overflow
-Date:   Thu,  6 Apr 2023 12:59:53 +0300
-Message-Id: <20230406095953.75622-1-radu-nicolae.pirea@oss.nxp.com>
-X-Mailer: git-send-email 2.34.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: VI1PR06CA0127.eurprd06.prod.outlook.com
- (2603:10a6:803:a0::20) To AM9PR04MB8954.eurprd04.prod.outlook.com
- (2603:10a6:20b:409::7)
+        with ESMTP id S229702AbjDFKIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 06:08:54 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA7D98;
+        Thu,  6 Apr 2023 03:08:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680775732; x=1712311732;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Vj2yYDdaNBKxmJWDjwzQ/CvQHf+cpCsKosmbQ6GR4k8=;
+  b=e9EHZP3VM7tnS2ovnD/qgwOeN7ipicrpmDoiWGOpzIPIszbqWNm3Kvxz
+   L/iilKMCEBgB8IaMSC/MVs2TtbByipFWLMyiMTSZWbfWepn/7nnA7th6l
+   tZue6OLsToNMR6ZE9JiYiDzMB2cDI54KAX7TM+a5oe9MmyPpLaQaTTOhk
+   d2qFqSz2wmhzFKG7nzIByDZZm3ugbgOhJCH/hzp9r+c6bECF9WCLXObN+
+   3WF2VopBNKZKhfERmM+trvO/Q0RLSFxKB3dbGcp/gHq27kUG70hHELoUi
+   CjTHvu8ESnOSNogKRbkJlpTzqU2cYLbjELmsPG+WrhTpzKyO+FKoCdOZN
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="345297262"
+X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
+   d="scan'208";a="345297262"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 03:08:51 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10671"; a="637220429"
+X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
+   d="scan'208";a="637220429"
+Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
+  by orsmga003.jf.intel.com with ESMTP; 06 Apr 2023 03:08:47 -0700
+Received: from kbuild by b613635ddfff with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pkMXv-000RHy-0m;
+        Thu, 06 Apr 2023 10:08:47 +0000
+Date:   Thu, 6 Apr 2023 18:08:08 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Badhri Jagan Sridharan <badhri@google.com>,
+        gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
+        colin.i.king@gmail.com, xuetao09@huawei.com,
+        quic_eserrao@quicinc.com, water.zhangjiantao@huawei.com,
+        peter.chen@freescale.com, balbi@ti.com
+Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>
+Subject: Re: [PATCH v2 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect
+ only when started
+Message-ID: <202304061713.mqRzNBGz-lkp@intel.com>
+References: <20230406062549.2461917-1-badhri@google.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM9PR04MB8954:EE_|VE1PR04MB7232:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9def8160-098e-4fba-07e4-08db3685b265
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QbGEKu86QMAdgSbbpEaR/d+WPXczPQoZowoUJipKucumePG5UvtA100v8bWjVbnp8FN1pQ81FcBdj0APIQfDY6z3WAmGFmTXFZvbvMPFHUgPNopCymDbwiavOanVk7VmKvX0371E5iEFHcnDFuy1R3uOmXuVO9WPtZ51OaoOMHDACmkjKLBqnJn12XiYjHo8W5FPl18zbtwbeYzqHeOhd1GFDhnT2McPFY2d/IHfZpchOnHhwHz26cdDmAtyKtJSh8XlOkJHuHYGSh2ft98fkyI6rtbbYonS0AQz3WP3tRvNOG794MuCrEE2e50JfsGm5P1O76OVKeteetdSYp43zvwuNwpHsvyUWK7pPzvvO5OYWoIBHSTpf5gJZ2qgtZF0fH24PtUjhUbAEy6gIy5GkcWRGLkqmD0mYzTZsu5YmFMbJjNS62/y6e/2SaqXIkm9RtwvJoN2m07R0HJM/7sSGrWXBDaLALFFzOxhL595yzcc9mHTbRnQUrlVDLtK01ofo8lsJwnEQx8vLWLb4RQnqqARS0TSIzxtc875rWPS+Id1yscWzwJOuiy/3yJCKMgOtW7BvOPdqsjf6dJmvA1+t9dMwusWRl28W7z/VUAiuQjlrVluPPyB66UnqKs5pHiU
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR04MB8954.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(346002)(136003)(366004)(396003)(451199021)(6506007)(26005)(6512007)(1076003)(8676002)(5660300002)(8936002)(6666004)(6486002)(52116002)(316002)(186003)(83380400001)(478600001)(66946007)(66476007)(66556008)(41300700001)(4326008)(2616005)(2906002)(86362001)(38100700002)(38350700002)(7416002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?h1cKfawCvB1ufSRYd+zxte6yaEAAscUudXGi8ygP/xqIWFThAKdxvWFi8fTN?=
- =?us-ascii?Q?F3mN9fhLbpBUYNGqlpyOf091KbKD2UhMfTPTZMO4XmKElsCryT3C+S6oj6bn?=
- =?us-ascii?Q?X/Yxuhp2so+sbPMHGJ08xRC2sVU4KHrQ0/IsP9J+1WDwZUZZo/+YHpAGabYw?=
- =?us-ascii?Q?UD/7tyliXra84hpxEOg1IKyVwbeSLd6Yvw0KMvTwuPl+OcoTeQBX2aNenkLT?=
- =?us-ascii?Q?SIvD3XiBLRt2zyQoERSEydIDG3cjZAu3ETDiSvceGX74UEBrcarXO8LlQSTw?=
- =?us-ascii?Q?dxDkidlGXgIlVG1QeA7yGYLjW9UDKIwzLX5fanrYvOGp7hnPXq8k+rTWVe6V?=
- =?us-ascii?Q?40ohe81EZpOp8rZ+1kaUB56fkhyTOpjitmvnn+RD4yNJR9Z18mQmV3vX7jmm?=
- =?us-ascii?Q?B7MAob8LIBRniFwhN0hOOnbDNX387KWF9LfMFzs2mzrUZBt5cp+b2Z1inN9G?=
- =?us-ascii?Q?GHa+dphGZpcd9JE4jY1qpORt6kvEtnX3oR2+3TMwsg8irylsEtwsjjxKW0ZC?=
- =?us-ascii?Q?GCE9z9oX2EtkNu9GlPD0/aQOfL56kPa32w8JqFrXzpNs72BCOI50lfoiM2eO?=
- =?us-ascii?Q?kEpKsbltMUY3dbdjQZz+enGMDOagJHqgy/34AsQs4iB191LtN4cl2IYn1whI?=
- =?us-ascii?Q?Mtn/xMLj1j6bKTHjVzpdjEgCezheYHovhh4z3M2Mk+2hdbrBC9Rxl/ddGsHq?=
- =?us-ascii?Q?eV38M6zx/8bJT00shAgSfFIS0IjAcKZx7SJDnK3EdhkEsMxJAcnOcYgdHTEQ?=
- =?us-ascii?Q?NS3mUtvZs2r5PGTerwIztppls3pSkBom1mceli7yC5LYp1OllfbJdWflZ9Z8?=
- =?us-ascii?Q?gldDfsqvn/9KG/dh+O8Fv/ViVvWqrcoiCfjpUEb/aadvj55Nl1TB9j7T8yU5?=
- =?us-ascii?Q?yJo9dbDjRG9FW4dz9vXxFgb+LkA6qhIpqxqo2A6Ms8lB5hnS0mpMqgh3aoy1?=
- =?us-ascii?Q?ds+GoEcrRgIakGkXbEi9dz2jjhUfUYJzKQ2XVSO6kmkMb5CMX1O1M++y/S7F?=
- =?us-ascii?Q?51oEiCDuPsd2ftQ91PW//BvWKWPu1xBf3QgMiJ5saplE6rrdw0fsrYwjDJkD?=
- =?us-ascii?Q?y3L9c0KYo1Yre3dVLAotzfuydEwiGsxukN2qNUvuIYlIomcDWK31fYJrRQ+6?=
- =?us-ascii?Q?HzkI9MPPtPAFwU+fBv742/telQ9b+w2BbKKEFcs3BldSrDplQn+ww7L9tKnT?=
- =?us-ascii?Q?nygI29d+dles3FvO13DQ2p8gpld4E5gWJFWJj/VgSsns6OP1XG4OoDzJ3/F9?=
- =?us-ascii?Q?qvO1pM3RGNVt/zUbtZT8r7goznTi3KH/SFSqFDIaHRkGfrDHWW3swKUIXcK/?=
- =?us-ascii?Q?JVNTwCwZz6jAfKFlEs8ie3L/RTiCbddcy+NbiY7zHllkqgS/Q9RavJ/rj6f1?=
- =?us-ascii?Q?4e38Ob5ReBazwZPiuLmvkFFG1r4ZFGXG7rvodClGeVMmlIOU5U5mKznEamG6?=
- =?us-ascii?Q?QDNvTB8+xVe/h5N3oGWVTTtDforITqCfJJH7ehdpKWhoGJFjBDOTFtzwPAUY?=
- =?us-ascii?Q?jpHULZ6sFBY1pS9Mgfwh1JhoZ1/oEi902cmg/yoeHH+cf8FwnLzZOOl/zMXu?=
- =?us-ascii?Q?125QAFExFI/1r/J/YRk9Y2+bpvdoHbBwginkvxS0uchaVkt9d8hmZQ/AZkGL?=
- =?us-ascii?Q?rw=3D=3D?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9def8160-098e-4fba-07e4-08db3685b265
-X-MS-Exchange-CrossTenant-AuthSource: AM9PR04MB8954.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2023 10:00:05.7029
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xPt4rZFVfVjahzxxHQbVaj1m3zvpSIJIUcvUtsmZhEgkTB8pKzPMAjM2JSQVEyEhHhyqNnugU8Qry0KSiYTZ3cU/wVKKuZGg9sb4Tz86lzM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1PR04MB7232
-X-Spam-Status: No, score=-0.0 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230406062549.2461917-1-badhri@google.com>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Any multiplication between GENMASK(31, 0) and a number bigger than 1
-will be truncated because of the overflow, if the size of unsigned long
-is 32 bits.
+Hi Badhri,
 
-Replaced GENMASK with GENMASK_ULL to make sure that multiplication will
-be between 64 bits values.
+kernel test robot noticed the following build warnings:
 
-Cc: <stable@vger.kernel.org> # 5.15+
-Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
-Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
----
- drivers/net/phy/nxp-c45-tja11xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[auto build test WARNING on d629c0e221cd99198b843d8351a0a9bfec6c0423]
 
-diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
-index 27738d1ae9ea..029875a59ff8 100644
---- a/drivers/net/phy/nxp-c45-tja11xx.c
-+++ b/drivers/net/phy/nxp-c45-tja11xx.c
-@@ -191,7 +191,7 @@
- #define MAX_ID_PS			2260U
- #define DEFAULT_ID_PS			2000U
- 
--#define PPM_TO_SUBNS_INC(ppb)	div_u64(GENMASK(31, 0) * (ppb) * \
-+#define PPM_TO_SUBNS_INC(ppb)	div_u64(GENMASK_ULL(31, 0) * (ppb) * \
- 					PTP_CLK_PERIOD_100BT1, NSEC_PER_SEC)
- 
- #define NXP_C45_SKB_CB(skb)	((struct nxp_c45_skb_cb *)(skb)->cb)
+url:    https://github.com/intel-lab-lkp/linux/commits/Badhri-Jagan-Sridharan/usb-gadget-udc-core-Prevent-redundant-calls-to-pullup/20230406-142708
+base:   d629c0e221cd99198b843d8351a0a9bfec6c0423
+patch link:    https://lore.kernel.org/r/20230406062549.2461917-1-badhri%40google.com
+patch subject: [PATCH v2 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect only when started
+config: hexagon-randconfig-r041-20230403 (https://download.01.org/0day-ci/archive/20230406/202304061713.mqRzNBGz-lkp@intel.com/config)
+compiler: clang version 17.0.0 (https://github.com/llvm/llvm-project 67409911353323ca5edf2049ef0df54132fa1ca7)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/2f12e8b0c9bf3d25df88c73b614c3e8d84bd7338
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Badhri-Jagan-Sridharan/usb-gadget-udc-core-Prevent-redundant-calls-to-pullup/20230406-142708
+        git checkout 2f12e8b0c9bf3d25df88c73b614c3e8d84bd7338
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash drivers/usb/gadget/udc/
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202304061713.mqRzNBGz-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   In file included from drivers/usb/gadget/udc/core.c:17:
+   In file included from include/linux/dma-mapping.h:10:
+   In file included from include/linux/scatterlist.h:9:
+   In file included from arch/hexagon/include/asm/io.h:334:
+   include/asm-generic/io.h:547:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+           val = __raw_readb(PCI_IOBASE + addr);
+                             ~~~~~~~~~~ ^
+   include/asm-generic/io.h:560:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
+                                                           ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:37:51: note: expanded from macro '__le16_to_cpu'
+   #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
+                                                     ^
+   In file included from drivers/usb/gadget/udc/core.c:17:
+   In file included from include/linux/dma-mapping.h:10:
+   In file included from include/linux/scatterlist.h:9:
+   In file included from arch/hexagon/include/asm/io.h:334:
+   include/asm-generic/io.h:573:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
+                                                           ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:35:51: note: expanded from macro '__le32_to_cpu'
+   #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
+                                                     ^
+   In file included from drivers/usb/gadget/udc/core.c:17:
+   In file included from include/linux/dma-mapping.h:10:
+   In file included from include/linux/scatterlist.h:9:
+   In file included from arch/hexagon/include/asm/io.h:334:
+   include/asm-generic/io.h:584:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+           __raw_writeb(value, PCI_IOBASE + addr);
+                               ~~~~~~~~~~ ^
+   include/asm-generic/io.h:594:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
+                                                         ~~~~~~~~~~ ^
+   include/asm-generic/io.h:604:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
+                                                         ~~~~~~~~~~ ^
+>> drivers/usb/gadget/udc/core.c:696:5: warning: no previous prototype for function 'usb_gadget_connect_locked' [-Wmissing-prototypes]
+   int usb_gadget_connect_locked(struct usb_gadget *gadget)
+       ^
+   drivers/usb/gadget/udc/core.c:696:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   int usb_gadget_connect_locked(struct usb_gadget *gadget)
+   ^
+   static 
+>> drivers/usb/gadget/udc/core.c:749:5: warning: no previous prototype for function 'usb_gadget_disconnect_locked' [-Wmissing-prototypes]
+   int usb_gadget_disconnect_locked(struct usb_gadget *gadget)
+       ^
+   drivers/usb/gadget/udc/core.c:749:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   int usb_gadget_disconnect_locked(struct usb_gadget *gadget)
+   ^
+   static 
+   8 warnings generated.
+
+
+vim +/usb_gadget_connect_locked +696 drivers/usb/gadget/udc/core.c
+
+   694	
+   695	/* Internal version of usb_gadget_connect needs to be called with udc_connect_control_lock held. */
+ > 696	int usb_gadget_connect_locked(struct usb_gadget *gadget)
+   697	{
+   698		int ret = 0;
+   699	
+   700		if (!gadget->ops->pullup) {
+   701			ret = -EOPNOTSUPP;
+   702			goto out;
+   703		}
+   704	
+   705		if (gadget->deactivated || !gadget->udc->started) {
+   706			/*
+   707			 * If gadget is deactivated we only save new state.
+   708			 * Gadget will be connected automatically after activation.
+   709			 *
+   710			 * udc first needs to be started before gadget can be pulled up.
+   711			 */
+   712			gadget->connected = true;
+   713			goto out;
+   714		}
+   715	
+   716		ret = gadget->ops->pullup(gadget, 1);
+   717		if (!ret)
+   718			gadget->connected = 1;
+   719	
+   720	out:
+   721		trace_usb_gadget_connect(gadget, ret);
+   722	
+   723		return ret;
+   724	}
+   725	
+   726	/**
+   727	 * usb_gadget_connect - software-controlled connect to USB host
+   728	 * @gadget:the peripheral being connected
+   729	 *
+   730	 * Enables the D+ (or potentially D-) pullup.  The host will start
+   731	 * enumerating this gadget when the pullup is active and a VBUS session
+   732	 * is active (the link is powered).
+   733	 *
+   734	 * Returns zero on success, else negative errno.
+   735	 */
+   736	int usb_gadget_connect(struct usb_gadget *gadget)
+   737	{
+   738		int ret;
+   739	
+   740		mutex_lock(&gadget->udc->connect_lock);
+   741		ret = usb_gadget_connect_locked(gadget);
+   742		mutex_unlock(&gadget->udc->connect_lock);
+   743	
+   744		return ret;
+   745	}
+   746	EXPORT_SYMBOL_GPL(usb_gadget_connect);
+   747	
+   748	/* Internal version of usb_gadget_disconnect needs to be called with udc->connect_lock held. */
+ > 749	int usb_gadget_disconnect_locked(struct usb_gadget *gadget)
+   750	{
+   751		int ret = 0;
+   752	
+   753		if (!gadget->ops->pullup) {
+   754			ret = -EOPNOTSUPP;
+   755			goto out;
+   756		}
+   757	
+   758		if (!gadget->connected)
+   759			goto out;
+   760	
+   761		if (gadget->deactivated || !gadget->udc->started) {
+   762			/*
+   763			 * If gadget is deactivated we only save new state.
+   764			 * Gadget will stay disconnected after activation.
+   765			 *
+   766			 * udc should have been started before gadget being pulled down.
+   767			 */
+   768			gadget->connected = false;
+   769			goto out;
+   770		}
+   771	
+   772		ret = gadget->ops->pullup(gadget, 0);
+   773		if (!ret)
+   774			gadget->connected = 0;
+   775	
+   776		mutex_lock(&udc_lock);
+   777		if (gadget->udc->driver)
+   778			gadget->udc->driver->disconnect(gadget);
+   779		mutex_unlock(&udc_lock);
+   780	
+   781	out:
+   782		trace_usb_gadget_disconnect(gadget, ret);
+   783	
+   784		return ret;
+   785	}
+   786	
+
 -- 
-2.34.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
