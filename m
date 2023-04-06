@@ -2,121 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D776D8F8C
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:36:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8748E6D8F92
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 08:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235467AbjDFGg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 02:36:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46684 "EHLO
+        id S235512AbjDFGhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 02:37:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234379AbjDFGgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:36:25 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7DA8A68
-        for <stable@vger.kernel.org>; Wed,  5 Apr 2023 23:36:24 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id o2so36669565plg.4
-        for <stable@vger.kernel.org>; Wed, 05 Apr 2023 23:36:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1680762984;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MR2uGYHr2XQbgshfGo1SsPwfCbCQRjTFchS5WzXQOLA=;
-        b=H/HUkMo7yH5xEcRprfpCq1CqZA9KAccmnFbceZgLqgyQbLuPaUxBeXB0a3xrn/shNg
-         2I8HZivgJ5n3vx6lPdOAXC4SLALjyH0VJ7cR4zsqyaTsLuktp7g4r0YoyDhbse9dZ3X8
-         Kxg8L3kCd2Z1suUT/NgCi/Xhi7U6lp1sfnvo0cR2UX6X2nm4DpYGUb+P+II+sbQ0UlLO
-         XSXIOjBQlnRDgD71KZrIBcky4EjfA4n5BSZkt8c9ko9/KuUTdPRq9QGdMZx28PcCYId8
-         euEPhMgFvwTq3085sGkFmQnpnl9NQgvXQU5efE3J0AvEvPZcm8lFUmGVJHEXWJq9bSRQ
-         V6tQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680762984;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MR2uGYHr2XQbgshfGo1SsPwfCbCQRjTFchS5WzXQOLA=;
-        b=4RdkOlJz3g25aukStAAwGMgZ1P9sscLXti06gllI47D9iLvrPEfa5hmzdgLDML+wIv
-         MHiSHR9rsMdfkXCspL+EfWrpUXiMSV9hh+lke9ijtyOGnjCATv5nQLT1Oxszt5oUmZ8g
-         FXSohDP4y81f9XQi/jfCf1JlJmMxfl7o/GqNnXAyIQ0A8lQfIgTyzzkPATBENbazoL4N
-         ZezIINYU33fj9quoRCgBlQ7xdPpv0LFT8JJkMH+fpTYPiIR+BF2xgmvk9r667EYdttgQ
-         LSzESSaeRbgPkwE93yMEzdRqzmtKAI8TIVv/5l04wqRNruCj08w0QTEGp/okjLdSwmoS
-         g4vQ==
-X-Gm-Message-State: AAQBX9fMtYPwNt2yt5j6fjyMKquBtnFO1hKzhi4BK/O3K13YSwo6CXlA
-        9KHZk6VKvUGakfT4xHR7ye5YzED6px0kofD/m1qGRw==
-X-Google-Smtp-Source: AKy350aPiL+zgLH4gl35YK6hGGynFK4yB18/TWgTYP+MlgMHiKYq5bgjFyNA1/UaczkXb0Y4XiIwg3ElKi2TTWDCzqM=
-X-Received: by 2002:a17:902:b693:b0:1a1:8f72:e9b with SMTP id
- c19-20020a170902b69300b001a18f720e9bmr3407891pls.7.1680762983590; Wed, 05 Apr
- 2023 23:36:23 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230405093133.1858140-1-badhri@google.com> <20230405093133.1858140-2-badhri@google.com>
- <2023040520-corned-recluse-d191@gregkh>
-In-Reply-To: <2023040520-corned-recluse-d191@gregkh>
-From:   Badhri Jagan Sridharan <badhri@google.com>
-Date:   Wed, 5 Apr 2023 23:35:47 -0700
-Message-ID: <CAPTae5KoAP6E5ReVX4auco6ctS0jLAhNmknTosJvWvhcp4GO7g@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] usb: gadget: udc: core: Prevent redundant calls to pullup
-To:     Greg KH <gregkh@linuxfoundation.org>
+        with ESMTP id S235208AbjDFGhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 02:37:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5725B8A6F;
+        Wed,  5 Apr 2023 23:37:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF68262BE3;
+        Thu,  6 Apr 2023 06:37:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE5BAC433D2;
+        Thu,  6 Apr 2023 06:37:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1680763030;
+        bh=vq6kY+dugOOAccH81P3M0ANBZyroiFKbkpLxZ/jFuJE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ejWK0ZtEJPBoEPNXKh7IG/KEcweD5pQjgKfNDiyvF8hsLLomw6JghcL2BLFiiHbso
+         JihpWmbjVhgsg0BYEJ4QABnboCa93r5zojzsSneDBUaRv3mDSAybkmIRH3fYcv01VY
+         1oMmfnedzjigXwQIKMXN53ASf9Hz8l/sakUWD2e0=
+Date:   Thu, 6 Apr 2023 08:37:07 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Badhri Jagan Sridharan <badhri@google.com>
 Cc:     stern@rowland.harvard.edu, colin.i.king@gmail.com,
         xuetao09@huawei.com, quic_eserrao@quicinc.com,
         water.zhangjiantao@huawei.com, peter.chen@freescale.com,
         balbi@ti.com, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
-        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Subject: Re: [PATCH v2 1/2] usb: gadget: udc: core: Invoke usb_gadget_connect
+ only when started
+Message-ID: <2023040639-lair-risotto-4693@gregkh>
+References: <20230406062549.2461917-1-badhri@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230406062549.2461917-1-badhri@google.com>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 5, 2023 at 10:16=E2=80=AFAM Greg KH <gregkh@linuxfoundation.org=
-> wrote:
->
-> On Wed, Apr 05, 2023 at 09:31:33AM +0000, Badhri Jagan Sridharan wrote:
-> > usb_gadget_connect calls gadget->ops->pullup without
-> > checking whether gadget->connected was previously set.
-> > Make this symmetric to usb_gadget_disconnect by returning
-> > early if gadget->connected is already set.
-> >
-> > Cc: stable@vger.kernel.org
-> >
-> > Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-> > Fixes: 5a1da544e572 ("usb: gadget: core: do not try to disconnect gadge=
-t if it is not connected")
->
-> Same changelog comment as before.
-Thanks for the feedback Greg ! Have fixed it in v2.
+On Thu, Apr 06, 2023 at 06:25:48AM +0000, Badhri Jagan Sridharan wrote:
+> usb_udc_connect_control does not check to see if the udc has already
+> been started. This causes gadget->ops->pullup to be called through
+> usb_gadget_connect when invoked from usb_udc_vbus_handler even before
+> usb_gadget_udc_start is called. Guard this by checking for udc->started
+> in usb_udc_connect_control before invoking usb_gadget_connect.
+> 
+> Guarding udc->vbus, udc->started, gadget->connect, gadget->deactivate
+> related functions with connect_lock. usb_gadget_connect_locked,
+> usb_gadget_disconnect_locked, usb_udc_connect_control_locked,
+> usb_gadget_udc_start_locked, usb_gadget_udc_stop_locked are called with
+> this lock held as they can be simulataneously invoked from different code
+> paths.
+> 
+> Adding an additional check to make sure udc is started(udc->started)
+> before pullup callback is invoked.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 628ef0d273a6 ("usb: udc: add usb_udc_vbus_handler")
+> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+> ---
+> * Fixed commit message comments.
+> * Renamed udc_connect_control_lock to connect_lock and made it per
+> device.
+> * udc->vbus, udc->started, gadget->connect, gadget->deactivate are all
+> now guarded by connect_lock.
+> * Code now checks for udc->started to be set before invoking pullup
+> callback.
+> ---
+>  drivers/usb/gadget/udc/core.c | 140 +++++++++++++++++++++++-----------
+>  1 file changed, 96 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/core.c
+> index 3dcbba739db6..41d3a1998cff 100644
+> --- a/drivers/usb/gadget/udc/core.c
+> +++ b/drivers/usb/gadget/udc/core.c
+> @@ -37,6 +37,10 @@ static struct bus_type gadget_bus_type;
+>   * @vbus: for udcs who care about vbus status, this value is real vbus status;
+>   * for udcs who do not care about vbus status, this value is always true
+>   * @started: the UDC's started state. True if the UDC had started.
+> + * @connect_lock: protects udc->vbus, udc->started, gadget->connect, gadget->deactivate related
+> + * functions. usb_gadget_connect_locked, usb_gadget_disconnect_locked,
+> + * usb_udc_connect_control_locked, usb_gadget_udc_start_locked, usb_gadget_udc_stop_locked are
+> + * called with this lock held.
+>   *
+>   * This represents the internal data structure which is used by the UDC-class
+>   * to hold information about udc driver and gadget together.
+> @@ -48,6 +52,7 @@ struct usb_udc {
+>  	struct list_head		list;
+>  	bool				vbus;
+>  	bool				started;
+> +	struct mutex			connect_lock;
+>  };
+>  
+>  static struct class *udc_class;
+> @@ -687,17 +692,8 @@ int usb_gadget_vbus_disconnect(struct usb_gadget *gadget)
+>  }
+>  EXPORT_SYMBOL_GPL(usb_gadget_vbus_disconnect);
+>  
+> -/**
+> - * usb_gadget_connect - software-controlled connect to USB host
+> - * @gadget:the peripheral being connected
+> - *
+> - * Enables the D+ (or potentially D-) pullup.  The host will start
+> - * enumerating this gadget when the pullup is active and a VBUS session
+> - * is active (the link is powered).
+> - *
+> - * Returns zero on success, else negative errno.
+> - */
+> -int usb_gadget_connect(struct usb_gadget *gadget)
+> +/* Internal version of usb_gadget_connect needs to be called with udc_connect_control_lock held. */
 
->
-> > ---
-> >  drivers/usb/gadget/udc/core.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/cor=
-e.c
-> > index 890f92cb6344..7eeaf7dbb350 100644
-> > --- a/drivers/usb/gadget/udc/core.c
-> > +++ b/drivers/usb/gadget/udc/core.c
-> > @@ -708,6 +708,9 @@ int usb_gadget_connect(struct usb_gadget *gadget)
-> >               goto out;
-> >       }
-> >
-> > +     if (gadget->connected)
-> > +             goto out;
-> > +
->
-> What prevents this connected value from changing right after you check
-> this?
+Shouldn't you just use the __must_hold() marking here to document this
+so that the tools can properly check and validate it as well?
 
-Nothing in V1 :) However, in v2, the newly introduced mutex guards
-gadget->connected
-as well.
+thanks,
 
->
-> thanks,
->
-> greg k-h
+greg k-h
