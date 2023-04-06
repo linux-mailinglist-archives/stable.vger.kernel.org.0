@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E2F6D8C75
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879C76D8C76
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 03:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234598AbjDFBHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Apr 2023 21:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45184 "EHLO
+        id S230108AbjDFBHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Apr 2023 21:07:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234455AbjDFBHR (ORCPT
+        with ESMTP id S231346AbjDFBHR (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 5 Apr 2023 21:07:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61497ABA;
-        Wed,  5 Apr 2023 18:07:05 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C27E7EC5;
+        Wed,  5 Apr 2023 18:07:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4330764293;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C9A86429C;
+        Thu,  6 Apr 2023 01:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A663AC433EF;
         Thu,  6 Apr 2023 01:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D9EDC433EF;
-        Thu,  6 Apr 2023 01:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1680743224;
-        bh=tHnu4caCXt9HC0iXdNAvbS2jQxEmHBcElV8xYk86ET8=;
+        s=korg; t=1680743225;
+        bh=OuxK0USvona3H4ggOimygifJStv3YIXlK4DCzGnCwA4=;
         h=Date:To:From:Subject:From;
-        b=fdf6jVgq5oXkWRQnc3IFa6n5fo6Pojym2+ZXGh+KVKeGTPx5tNjRiBbyzx9fPukJ2
-         w1HeFK6JeCmUzIS4F3yRzUfVS2C0SL/QS/9hauwQjecnVyCrb84GY8WH+gQIB9UGc7
-         SaQml4AzXoe9zF5ppGDWyxGiiNvPTwnBdkvP+v7w=
-Date:   Wed, 05 Apr 2023 18:07:04 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        wb-yyc939293@alibaba-inc.com, stable@vger.kernel.org,
-        bagasdotme@gmail.com, aaron.lu@intel.com,
-        rongwei.wang@linux.alibaba.com, akpm@linux-foundation.org
+        b=N0oCNEb4V2+to00BcYr8r7Q8rwWx9HJl0FwpgEHGxcg4AyITr2YF79QoHzqMAiFyl
+         CGxLiv6PoufhVmOH3lQQV5KjBgMDKIkY9hoTBFIwwZmL4HmtZznJfyGdQDYgG9A0U3
+         fPRMkO0OwTYqNluWeqbwhRxhpB3pe+5WuxtiPqwc=
+Date:   Wed, 05 Apr 2023 18:07:05 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        Liam.Howlett@oracle.com, zhangpeng.00@bytedance.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-swap-fix-swap_info_struct-race-between-swapoff-and-get_swap_pages.patch removed from -mm tree
-Message-Id: <20230406010704.9D9EDC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
+Subject: [merged mm-hotfixes-stable] maple_tree-fix-get-wrong-data_end-in-mtree_lookup_walk.patch removed from -mm tree
+Message-Id: <20230406010705.A663AC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,130 +46,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+     Subject: maple_tree: fix get wrong data_end in mtree_lookup_walk()
 has been removed from the -mm tree.  Its filename was
-     mm-swap-fix-swap_info_struct-race-between-swapoff-and-get_swap_pages.patch
+     maple_tree-fix-get-wrong-data_end-in-mtree_lookup_walk.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Subject: mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
-Date: Tue, 4 Apr 2023 23:47:16 +0800
+From: Peng Zhang <zhangpeng.00@bytedance.com>
+Subject: maple_tree: fix get wrong data_end in mtree_lookup_walk()
+Date: Tue, 14 Mar 2023 20:42:01 +0800
 
-The si->lock must be held when deleting the si from the available list. 
-Otherwise, another thread can re-add the si to the available list, which
-can lead to memory corruption.  The only place we have found where this
-happens is in the swapoff path.  This case can be described as below:
+if (likely(offset > end))
+	max = pivots[offset];
 
-core 0                       core 1
-swapoff
+The above code should be changed to if (likely(offset < end)), which is
+correct.  This affects the correctness of ma_data_end().  Now it seems
+that the final result will not be wrong, but it is best to change it. 
+This patch does not change the code as above, because it simplifies the
+code by the way.
 
-del_from_avail_list(si)      waiting
-
-try lock si->lock            acquire swap_avail_lock
-                             and re-add si into
-                             swap_avail_head
-
-acquire si->lock but missing si already being added again, and continuing
-to clear SWP_WRITEOK, etc.
-
-It can be easily found that a massive warning messages can be triggered
-inside get_swap_pages() by some special cases, for example, we call
-madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
-run much swapon-swapoff operations (e.g.  stress-ng-swap).
-
-However, in the worst case, panic can be caused by the above scene.  In
-swapoff(), the memory used by si could be kept in swap_info[] after
-turning off a swap.  This means memory corruption will not be caused
-immediately until allocated and reset for a new swap in the swapon path. 
-A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
-
-------------[ cut here ]------------
-top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
-prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
-next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
-WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
-Modules linked in: rfkill(E) crct10dif_ce(E)...
-CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
-Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-pc : plist_check_prev_next_node+0x50/0x70
-lr : plist_check_prev_next_node+0x50/0x70
-sp : ffff0018009d3c30
-x29: ffff0018009d3c40 x28: ffff800011b32a98
-x27: 0000000000000000 x26: ffff001803908000
-x25: ffff8000128ea088 x24: ffff800011b32a48
-x23: 0000000000000028 x22: ffff001800875c00
-x21: ffff800010f9e520 x20: ffff001800875c00
-x19: ffff001800fdc6e0 x18: 0000000000000030
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0736076307640766 x14: 0730073007380731
-x13: 0736076307640766 x12: 0730073007380731
-x11: 000000000004058d x10: 0000000085a85b76
-x9 : ffff8000101436e4 x8 : ffff800011c8ce08
-x7 : 0000000000000000 x6 : 0000000000000001
-x5 : ffff0017df9ed338 x4 : 0000000000000001
-x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- plist_check_prev_next_node+0x50/0x70
- plist_check_head+0x80/0xf0
- plist_add+0x28/0x140
- add_to_avail_list+0x9c/0xf0
- _enable_swap_info+0x78/0xb4
- __do_sys_swapon+0x918/0xa10
- __arm64_sys_swapon+0x20/0x30
- el0_svc_common+0x8c/0x220
- do_el0_svc+0x2c/0x90
- el0_svc+0x1c/0x30
- el0_sync_handler+0xa8/0xb0
- el0_sync+0x148/0x180
-irq event stamp: 2082270
-
-Now, si->lock locked before calling 'del_from_avail_list()' to make sure
-other thread see the si had been deleted and SWP_WRITEOK cleared together,
-will not reinsert again.
-
-This problem exists in versions after stable 5.10.y.
-
-Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
-Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node") 
-Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Cc: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aaron Lu <aaron.lu@intel.com>
+Link: https://lkml.kernel.org/r/20230314124203.91572-1-zhangpeng.00@bytedance.com
+Link: https://lkml.kernel.org/r/20230314124203.91572-2-zhangpeng.00@bytedance.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/swapfile.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/maple_tree.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/mm/swapfile.c~mm-swap-fix-swap_info_struct-race-between-swapoff-and-get_swap_pages
-+++ a/mm/swapfile.c
-@@ -679,6 +679,7 @@ static void __del_from_avail_list(struct
- {
- 	int nid;
+--- a/lib/maple_tree.c~maple_tree-fix-get-wrong-data_end-in-mtree_lookup_walk
++++ a/lib/maple_tree.c
+@@ -3941,18 +3941,13 @@ static inline void *mtree_lookup_walk(st
+ 		end = ma_data_end(node, type, pivots, max);
+ 		if (unlikely(ma_dead_node(node)))
+ 			goto dead_node;
+-
+-		if (pivots[offset] >= mas->index)
+-			goto next;
+-
+ 		do {
+-			offset++;
+-		} while ((offset < end) && (pivots[offset] < mas->index));
+-
+-		if (likely(offset > end))
+-			max = pivots[offset];
++			if (pivots[offset] >= mas->index) {
++				max = pivots[offset];
++				break;
++			}
++		} while (++offset < end);
  
-+	assert_spin_locked(&p->lock);
- 	for_each_node(nid)
- 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
- }
-@@ -2434,8 +2435,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
- 		spin_unlock(&swap_lock);
- 		goto out_dput;
- 	}
--	del_from_avail_list(p);
- 	spin_lock(&p->lock);
-+	del_from_avail_list(p);
- 	if (p->prio < 0) {
- 		struct swap_info_struct *si = p;
- 		int nid;
+-next:
+ 		slots = ma_slots(node, type);
+ 		next = mt_slot(mas->tree, slots, offset);
+ 		if (unlikely(ma_dead_node(node)))
 _
 
-Patches currently in -mm which might be from rongwei.wang@linux.alibaba.com are
+Patches currently in -mm which might be from zhangpeng.00@bytedance.com are
 
+mm-kfence-improve-the-performance-of-__kfence_alloc-and-__kfence_free.patch
+maple_tree-simplify-mas_wr_node_walk.patch
 
