@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED3C96D95CE
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:37:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A536D95D4
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 13:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238335AbjDFLhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 07:37:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34180 "EHLO
+        id S238506AbjDFLhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 07:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238324AbjDFLg4 (ORCPT
+        with ESMTP id S238342AbjDFLg4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 07:36:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0DFB74D;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D14B455;
         Thu,  6 Apr 2023 04:34:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83ADE6446D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5360646C9;
+        Thu,  6 Apr 2023 11:34:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B08C433A1;
         Thu,  6 Apr 2023 11:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF81BC4339C;
-        Thu,  6 Apr 2023 11:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680780858;
-        bh=F//45VwgUYwqnq/zqqoCuZrjr2a4lXeB7zZZmi+WW18=;
+        s=k20201202; t=1680780859;
+        bh=AuQed94okVMlXbK/C2TI9oKbtZEPc2oR0xqx1JrqKuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjpANuLvEv8wYMhfcH1BzehDpOlVM2JAfnTpA+bF56oMze6QGPIRRPPDVJgT25Vho
-         HerEpRu28xDTJCqiqE+hBepoyBTs/0caF6LMRlTXmBY+Wrr8eGgZWhftOD+1WuYstV
-         x53jy/2EzyjnXmCD1xeS2I/tTcgnjSrpMysES3HJwlf2uWVqYqLCS2bmViUE6dWhyg
-         qh7w76/ufXhqvzgOgN4bnfuCXQuRVpeJ/2XJRxYMo3SzaMVeBq72hrjcT2abS0lGLR
-         m9P5m6QRD4IoTHOBfidarXqpQFHEZAI6xeYOWXEc2JOZDwQKoSFn8EycWcsgyIDzuY
-         87tZrzQpaxWtw==
+        b=RBOMzIJEzJSE+nql7cyJICIKO6efuglxOcnYaVx/PfTRBargUK6/dzwq0eh70jfw6
+         PRzcBUDffabhRxypWLCTBdTYvLoV8qJ7CdcbIBxhf1rM8yO7cnPCjuibUjsdGjwyt6
+         Fl4yJwsYyHv0jOceVbxu3S9A8IfBJuNEGb5dSc+COfXNbW3mODQxOxp15xxjmDtBOe
+         gGnPmfUYEqb00wtdJAwgSPMJ5Q68pfENSc5B2oBVaPTJOHJAwEbDrDaK74w+rY99gG
+         /OihRjYB4Ui/DTnDXYKvBsO8FUnGE7m8zlGZ3X6N0rS/wcBq2wEUF6hNlloW8K7Zqm
+         CQ6S+7/rrjNuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
-        olteanv@gmail.com, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 6/8] net: dsa: b53: mmap: add phy ops
-Date:   Thu,  6 Apr 2023 07:33:58 -0400
-Message-Id: <20230406113400.649038-6-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, oleg@redhat.com,
+        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 7/8] s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
+Date:   Thu,  6 Apr 2023 07:33:59 -0400
+Message-Id: <20230406113400.649038-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230406113400.649038-1-sashal@kernel.org>
 References: <20230406113400.649038-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,54 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
+[ Upstream commit f9bbf25e7b2b74b52b2f269216a92657774f239c ]
 
-Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
-B53_PORT_MII_PAGE registers which hangs the device.
-This access should be done through the MDIO Mux bus controller.
+Return -EFAULT if put_user() for the PTRACE_GET_LAST_BREAK
+request fails, instead of silently ignoring it.
 
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/s390/kernel/ptrace.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
-index c628d0980c0b1..1d52cb3e46d52 100644
---- a/drivers/net/dsa/b53/b53_mmap.c
-+++ b/drivers/net/dsa/b53/b53_mmap.c
-@@ -215,6 +215,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
- 	return 0;
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 3ffa2847c110b..c36289a3ad500 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -503,9 +503,7 @@ long arch_ptrace(struct task_struct *child, long request,
+ 		}
+ 		return 0;
+ 	case PTRACE_GET_LAST_BREAK:
+-		put_user(child->thread.last_break,
+-			 (unsigned long __user *) data);
+-		return 0;
++		return put_user(child->thread.last_break, (unsigned long __user *)data);
+ 	case PTRACE_ENABLE_TE:
+ 		if (!MACHINE_HAS_TE)
+ 			return -EIO;
+@@ -857,9 +855,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+ 		}
+ 		return 0;
+ 	case PTRACE_GET_LAST_BREAK:
+-		put_user(child->thread.last_break,
+-			 (unsigned int __user *) data);
+-		return 0;
++		return put_user(child->thread.last_break, (unsigned int __user *)data);
+ 	}
+ 	return compat_ptrace_request(child, request, addr, data);
  }
- 
-+static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
-+			       u16 *value)
-+{
-+	return -EIO;
-+}
-+
-+static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
-+				u16 value)
-+{
-+	return -EIO;
-+}
-+
- static const struct b53_io_ops b53_mmap_ops = {
- 	.read8 = b53_mmap_read8,
- 	.read16 = b53_mmap_read16,
-@@ -226,6 +238,8 @@ static const struct b53_io_ops b53_mmap_ops = {
- 	.write32 = b53_mmap_write32,
- 	.write48 = b53_mmap_write48,
- 	.write64 = b53_mmap_write64,
-+	.phy_read16 = b53_mmap_phy_read16,
-+	.phy_write16 = b53_mmap_phy_write16,
- };
- 
- static int b53_mmap_probe(struct platform_device *pdev)
 -- 
 2.39.2
 
