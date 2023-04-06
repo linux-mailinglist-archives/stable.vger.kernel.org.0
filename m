@@ -2,111 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E266F6D9887
-	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 15:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B03C6D98DB
+	for <lists+stable@lfdr.de>; Thu,  6 Apr 2023 16:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237180AbjDFNrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Apr 2023 09:47:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51826 "EHLO
+        id S238214AbjDFODW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Apr 2023 10:03:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238761AbjDFNrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 09:47:19 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B526F6EAF
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 06:47:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680788838; x=1712324838;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=rx6NRwCG3zzfbrT+I88OAD+AeQRS8XmAJrho0BU1D98=;
-  b=FcyCVRKjU7p2q8j5kLzgXty7SUmwh1OrmM/KOqSZndrPBaCkkbd4/VDW
-   nKq+QGwJAqW4PXz+icCgpAdh284smBN+Y0UgaHDMjQFbvXRJ79vKwpsNt
-   uRCcr7WUC9Lb9fmf1cjkPNPUpzJmnUguMm5qW+zHXuv7Hg3upS0bElUhV
-   ctcmXRM1YSAchicDajtlawwy3rQJn0XJq+7ixxpMrtD3U1jbQ8vRs4M1s
-   GX94bNXQsEVgh50AmGYBUJjEVOtUnUkUN7a4e3Hf3scYfOD4C3Sa5d/fq
-   pN5DUI0KlBrQSiysyveMTcOuDkBAbVBIhKBgpr2cfTF9TAfeasgbLnesR
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10672"; a="331372142"
-X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
-   d="scan'208";a="331372142"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 06:46:23 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10672"; a="798328155"
-X-IronPort-AV: E=Sophos;i="5.98,323,1673942400"; 
-   d="scan'208";a="798328155"
-Received: from unknown (HELO localhost) ([10.237.66.160])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2023 06:46:21 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@intel.com>,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
-        Manasi Navare <navaremanasi@google.com>,
-        Anusha Srivatsa <anusha.srivatsa@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] drm/dsc: fix drm_edp_dsc_sink_output_bpp() DPCD high byte usage
-Date:   Thu,  6 Apr 2023 16:46:14 +0300
-Message-Id: <20230406134615.1422509-1-jani.nikula@intel.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S230029AbjDFODV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Apr 2023 10:03:21 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF7749CE;
+        Thu,  6 Apr 2023 07:03:19 -0700 (PDT)
+Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.53])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Psjmj68qcznb9n;
+        Thu,  6 Apr 2023 21:59:49 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by dggpeml500021.china.huawei.com
+ (7.185.36.21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.23; Thu, 6 Apr
+ 2023 22:03:16 +0800
+From:   Baokun Li <libaokun1@huawei.com>
+To:     <linux-fsdevel@vger.kernel.org>
+CC:     <viro@zeniv.linux.org.uk>, <brauner@kernel.org>, <tj@kernel.org>,
+        <tytso@mit.edu>, <adilger.kernel@dilger.ca>, <jack@suse.cz>,
+        <ritesh.list@gmail.com>, <linux-ext4@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <yi.zhang@huawei.com>,
+        <yangerkun@huawei.com>, <yukuai3@huawei.com>,
+        <libaokun1@huawei.com>, <stable@vger.kernel.org>
+Subject: [RFC PATCH] writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
+Date:   Thu, 6 Apr 2023 22:02:47 +0800
+Message-ID: <20230406140247.1936541-1-libaokun1@huawei.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500021.china.huawei.com (7.185.36.21)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The operator precedence between << and & is wrong, leading to the high
-byte being completely ignored. For example, with the 6.4 format, 32
-becomes 0 and 24 becomes 8. Fix it, and remove the slightly confusing
-and unnecessary DP_DSC_MAX_BITS_PER_PIXEL_HI_SHIFT macro while at it.
+KASAN report null-ptr-deref:
+==================================================================
+BUG: KASAN: null-ptr-deref in bdi_split_work_to_wbs+0x6ce/0x6e0
+Write of size 8 at addr 0000000000000000 by task syz-executor.3/3514
 
-Fixes: 0575650077ea ("drm/dp: DRM DP helper/macros to get DP sink DSC parameters")
-Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Cc: Manasi Navare <navaremanasi@google.com>
-Cc: Anusha Srivatsa <anusha.srivatsa@intel.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+CPU: 3 PID: 3514 Comm: syz-executor.3 Not tainted 5.10.0-dirty #1
+Call Trace:
+ dump_stack+0xbe/0xfd
+ __kasan_report.cold+0x34/0x84
+ kasan_report+0x3a/0x50
+ check_memory_region+0xfd/0x1f0
+ bdi_split_work_to_wbs+0x6ce/0x6e0
+ __writeback_inodes_sb_nr+0x184/0x1f0
+ try_to_writeback_inodes_sb+0x7f/0xa0
+ ext4_nonda_switch+0x125/0x130
+ ext4_da_write_begin+0x126/0x6e0
+ generic_perform_write+0x199/0x3a0
+ ext4_buffered_write_iter+0x16d/0x2b0
+ ext4_file_write_iter+0xea/0x140
+ new_sync_write+0x2fa/0x430
+ vfs_write+0x4a1/0x570
+ ksys_write+0xf6/0x1f0
+ do_syscall_64+0x30/0x40
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
+RIP: 0033:0x45513d
+[...]
+==================================================================
+
+Above issue may happen as follows:
+
+            cpu1                        cpu2
+----------------------------|----------------------------
+ext4_nonda_switch
+ try_to_writeback_inodes_sb
+  __writeback_inodes_sb_nr
+   bdi_split_work_to_wbs
+    kmalloc(sizeof(*work), GFP_ATOMIC)  ---> alloc mem failed
+                                inode_switch_wbs
+                                 inode_switch_wbs_work_fn
+                                  wb_put_many
+                                   percpu_ref_put_many
+                                    ref->data->release(ref)
+                                     cgwb_release
+                                      &wb->release_work
+                                       cgwb_release_workfn
+                                        percpu_ref_exit
+                                         ref->data = NULL
+                                         kfree(data)
+    wb_get(wb)
+     percpu_ref_get(&wb->refcnt)
+      percpu_ref_get_many(ref, 1)
+       atomic_long_add(nr, &ref->data->count) ---> ref->data = NULL
+        atomic64_add(i, v) ---> trigger null-ptr-deref
+
+bdi_split_work_to_wbs() traverses &bdi->wb_list to split work into all wbs.
+If the allocation of new work fails, the on-stack fallback will be used and
+the reference count of the current wb is increased afterwards. If cgroup
+writeback membership switches occur before getting the reference count and
+the current wb is released as old_wd, then calling wb_get() or wb_put()
+will trigger the null pointer dereference above.
+
+A similar problem is fixed in commit 7fc5854f8c6e ("writeback: synchronize
+sync(2) against cgroup writeback membership switches"), but the patch only
+adds locks to sync_inodes_sb() and not to the __writeback_inodes_sb_nr()
+function that also calls bdi_split_work_to_wbs() function. So avoid the
+above race by adding the same lock to __writeback_inodes_sb_nr() and
+expanding the range of wb_switch_rwsem held in inode_switch_wbs_work_fn().
+
+Fixes: b817525a4a80 ("writeback: bdi_writeback iteration must not skip dying ones")
+Cc: stable@vger.kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
 ---
- include/drm/display/drm_dp.h        | 1 -
- include/drm/display/drm_dp_helper.h | 5 ++---
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ fs/fs-writeback.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/include/drm/display/drm_dp.h b/include/drm/display/drm_dp.h
-index 358db4a9f167..89d5a700b04d 100644
---- a/include/drm/display/drm_dp.h
-+++ b/include/drm/display/drm_dp.h
-@@ -286,7 +286,6 @@
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 195dc23e0d83..52825aaf549b 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -506,13 +506,13 @@ static void inode_switch_wbs_work_fn(struct work_struct *work)
+ 	spin_unlock(&new_wb->list_lock);
+ 	spin_unlock(&old_wb->list_lock);
  
- #define DP_DSC_MAX_BITS_PER_PIXEL_HI        0x068   /* eDP 1.4 */
- # define DP_DSC_MAX_BITS_PER_PIXEL_HI_MASK  (0x3 << 0)
--# define DP_DSC_MAX_BITS_PER_PIXEL_HI_SHIFT 8
- # define DP_DSC_MAX_BPP_DELTA_VERSION_MASK  0x06
- # define DP_DSC_MAX_BPP_DELTA_AVAILABILITY  0x08
+-	up_read(&bdi->wb_switch_rwsem);
+-
+ 	if (nr_switched) {
+ 		wb_wakeup(new_wb);
+ 		wb_put_many(old_wb, nr_switched);
+ 	}
  
-diff --git a/include/drm/display/drm_dp_helper.h b/include/drm/display/drm_dp_helper.h
-index 533d3ee7fe05..86f24a759268 100644
---- a/include/drm/display/drm_dp_helper.h
-+++ b/include/drm/display/drm_dp_helper.h
-@@ -181,9 +181,8 @@ static inline u16
- drm_edp_dsc_sink_output_bpp(const u8 dsc_dpcd[DP_DSC_RECEIVER_CAP_SIZE])
- {
- 	return dsc_dpcd[DP_DSC_MAX_BITS_PER_PIXEL_LOW - DP_DSC_SUPPORT] |
--		(dsc_dpcd[DP_DSC_MAX_BITS_PER_PIXEL_HI - DP_DSC_SUPPORT] &
--		 DP_DSC_MAX_BITS_PER_PIXEL_HI_MASK <<
--		 DP_DSC_MAX_BITS_PER_PIXEL_HI_SHIFT);
-+		((dsc_dpcd[DP_DSC_MAX_BITS_PER_PIXEL_HI - DP_DSC_SUPPORT] &
-+		  DP_DSC_MAX_BITS_PER_PIXEL_HI_MASK) << 8);
++	up_read(&bdi->wb_switch_rwsem);
++
+ 	for (inodep = isw->inodes; *inodep; inodep++)
+ 		iput(*inodep);
+ 	wb_put(new_wb);
+@@ -936,6 +936,11 @@ static long wb_split_bdi_pages(struct bdi_writeback *wb, long nr_pages)
+  * have dirty inodes.  If @base_work->nr_page isn't %LONG_MAX, it's
+  * distributed to the busy wbs according to each wb's proportion in the
+  * total active write bandwidth of @bdi.
++ *
++ * Called under &bdi->wb_switch_rwsem, otherwise bdi_split_work_to_wbs()
++ * may race against cgwb (cgroup writeback) membership switches, which may
++ * cause some inodes to fail to write back, or even trigger a null pointer
++ * dereference using a freed wb.
+  */
+ static void bdi_split_work_to_wbs(struct backing_dev_info *bdi,
+ 				  struct wb_writeback_work *base_work,
+@@ -2637,8 +2642,11 @@ static void __writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr,
+ 		return;
+ 	WARN_ON(!rwsem_is_locked(&sb->s_umount));
+ 
++	/* protect against inode wb switch, see inode_switch_wbs_work_fn() */
++	bdi_down_write_wb_switch_rwsem(bdi);
+ 	bdi_split_work_to_wbs(sb->s_bdi, &work, skip_if_busy);
+ 	wb_wait_for_completion(&done);
++	bdi_up_write_wb_switch_rwsem(bdi);
  }
  
- static inline u32
+ /**
 -- 
-2.39.2
+2.31.1
 
