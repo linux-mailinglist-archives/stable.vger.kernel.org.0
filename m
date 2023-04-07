@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4AB6DB062
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 18:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092206DB0A2
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 18:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232399AbjDGQOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 12:14:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56210 "EHLO
+        id S229650AbjDGQdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 12:33:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229802AbjDGQOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 12:14:38 -0400
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2100.outbound.protection.outlook.com [40.107.236.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71710A5CE;
-        Fri,  7 Apr 2023 09:14:37 -0700 (PDT)
+        with ESMTP id S229581AbjDGQdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 12:33:33 -0400
+Received: from DM6FTOPR00CU001.outbound.protection.outlook.com (mail-cusazon11020020.outbound.protection.outlook.com [52.101.61.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F68346B3;
+        Fri,  7 Apr 2023 09:33:24 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=J1VYx8ZXTnaErrJcM/WSM1fvIHSrigH55N6Icqi5kLJyKyMa+SaItJ7mxJRbRkR/U+6TrdKRxLOh/dumk4YrvGW4X9IZh3qTqwKze0uHDPn/8irnlv/iVvrwymCNJrWVc7QaoYnSerhXUuiBWl6etG6FEpUcD2cWUBVYETZmqFJKKgk5L9EeGQ/Yhjxy2r5OmARBPRtoYTBQ7LZ0zsL96uMwtodh8XIzR9YS9LxBh3H2n99cxW32nNiq2+BPygzyIHT1bNAR6uaEQLXTrviubf+LnYZLr3i1gdClYBtpVcgimD/ruwsmAT7tePBWdUfZLr+uWY1vECa7J0+T6h4TmA==
+ b=FKNtV0jn0JoCYkM/NcAbMvBWzxT42/eIFWJ+OZo7vwoovkamt/0IkBzJw4SNJdC0uZ0kxqsO1ylYP5LADvmJL7Z9kv8/PXm1v6D7uSJE1kJ6Eo+qlSz5fPElofN4bOjyifH2XqJAq2Mimiu9PKo03oEchSiDDLIYuckTHMCDP9XxHkMyTdxPxWnEifwSQlw6JOWlen1GYeDfpZc58UDS9I5CF1lT+5q40FMuQo+smoQYpjGJdiHpHn6ieqgFVusr+83MMyczzNG9KsSNPH02WIgIICnxQTwuERPTYdooItd8cD08YUKLmbPUl1H2nPZEJGdT/dzAyKLdfpVe/t16Xg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Ia4BmKg2SULcZS5fmSsXFx243m7uPVj3dpVBAwAxgV0=;
- b=aIWYqD5tVQ/WEukmV06kYVQ3B+DAKAOvfOljOUN5augZfmbRg17taldAvM9neXgaBz/tDhZfdK90/qKkX+NAinNoc2TZG7nPLltXA8MjSqMMRKAXPdkd7rsNymSZ2MGCNd1J20YLi2D2iRaakQZd1WRoQHpaSKEx1vmCN3K+D2/jy5vO2ZEXTo3d5h4XenOaGPBxfJNot1uoD2x6t7XNNVTaCnOJs7oNOhKeJm4nYHdjpdl2gOvfCp5m6zbBnLn3wHJZWq0Vox6S1k8lGiXS0Y2aiXLjt1uInQ4bSteLsS6x/pNE74Y5OnDTh5rXU9KZgU8iiUILZtQf5ngkdqFLhA==
+ bh=OaxRUfVwr0B4GhbaRw2ixKbe8Ce4kFEaMx/imqMjom8=;
+ b=NNO0V6fOi7da6T7upSd5Xr8YgnVPL9QBqzfdKX4YMKI3utGdz42hsMacRBslTsISQvArPr/ONUwL0Yz9SbzNVoZIGqFJJaAhNxNBMS6pHaYwaTFVjXbBjJ2ak0s1HDD6AmXQVOtQzYKe2zMPXl1Q5I5r+5n7RavoGPSzUKVAlYWQjkWJcpKqY9ChCVbPopP44VIsajuAxRUsdQu+glxJFFd5S9Kkvn3bOCntQVCXw5v+Q6Wxs+S0RadS1JunKfAF01qKZ8bD5gOTLD4UQMDML+J1q4k6bmn0w2eWiudr1G/znXmVOOaXbYojcRTD6c6ZtVXVgU1KFdv4J1xxlmanYA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ia4BmKg2SULcZS5fmSsXFx243m7uPVj3dpVBAwAxgV0=;
- b=KGEZ+v3Kn7heBoTtRcOPaAVOSaKkdaB0ewdvNekbZUdOUUwvdndgGXpoTCTwWPgibs+vt3O9swDzWLU+TR8pSH0/QJbAGMRmsPNj118imLKMSkHKshR0ZBTnd/F+YJ5eOm0aUNwDoQ7fKLJSy4/NZyaFXMaZS1pqxjPVXujqsAU=
+ bh=OaxRUfVwr0B4GhbaRw2ixKbe8Ce4kFEaMx/imqMjom8=;
+ b=XHIOAAhlkBvTK404uoTm+9laqWTa8h5y23o2WlnI31tO9Gj7PFOZVJiprHJBGPDhJKae65yu+mZ7k+clsxLVI5pdjaOTViyRa+k3y45WmAseKEtcWyTuo/P1FFIfqs9+IFyaEgw0UdqONOEYnW2yvzKjZq8fj4jD10QIfOSpedY=
 Received: from BYAPR21MB1688.namprd21.prod.outlook.com (2603:10b6:a02:bf::26)
- by CH2PR21MB1397.namprd21.prod.outlook.com (2603:10b6:610:8d::7) with
+ by BL1PR21MB3138.namprd21.prod.outlook.com (2603:10b6:208:396::5) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.20; Fri, 7 Apr
- 2023 16:14:34 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.16; Fri, 7 Apr
+ 2023 16:33:21 +0000
 Received: from BYAPR21MB1688.namprd21.prod.outlook.com
  ([fe80::acd0:6aec:7be2:719c]) by BYAPR21MB1688.namprd21.prod.outlook.com
  ([fe80::acd0:6aec:7be2:719c%7]) with mapi id 15.20.6298.018; Fri, 7 Apr 2023
- 16:14:34 +0000
+ 16:33:21 +0000
 From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
-To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
-        Dexuan Cui <decui@microsoft.com>,
+To:     Dexuan Cui <decui@microsoft.com>,
         "bhelgaas@google.com" <bhelgaas@google.com>,
         "davem@davemloft.net" <davem@davemloft.net>,
         "edumazet@google.com" <edumazet@google.com>,
@@ -64,116 +63,115 @@ CC:     "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
         "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
         "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2 6/6] PCI: hv: Use async probing to reduce boot time
-Thread-Topic: [PATCH v2 6/6] PCI: hv: Use async probing to reduce boot time
-Thread-Index: AQHZZposgluJ48qtKkybpggwYjZPaq8gCcZggAAAu1A=
-Date:   Fri, 7 Apr 2023 16:14:34 +0000
-Message-ID: <BYAPR21MB168864316A9E2523BD74F270D7969@BYAPR21MB1688.namprd21.prod.outlook.com>
+Subject: RE: [PATCH v2 4/6] Revert "PCI: hv: Fix a timing issue which causes
+ kdump to fail occasionally"
+Thread-Topic: [PATCH v2 4/6] Revert "PCI: hv: Fix a timing issue which causes
+ kdump to fail occasionally"
+Thread-Index: AQHZZpopUQZ8ge3HAEe7nozotRXSl68gDtTw
+Date:   Fri, 7 Apr 2023 16:33:21 +0000
+Message-ID: <BYAPR21MB168827C0DBCB46B8159873CDD7969@BYAPR21MB1688.namprd21.prod.outlook.com>
 References: <20230404020545.32359-1-decui@microsoft.com>
- <20230404020545.32359-7-decui@microsoft.com>
- <BYAPR21MB168842E38534BD00CB1D27ABD7969@BYAPR21MB1688.namprd21.prod.outlook.com>
-In-Reply-To: <BYAPR21MB168842E38534BD00CB1D27ABD7969@BYAPR21MB1688.namprd21.prod.outlook.com>
+ <20230404020545.32359-5-decui@microsoft.com>
+In-Reply-To: <20230404020545.32359-5-decui@microsoft.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=4268d2ca-a28f-4b1b-ac19-612f0da0821a;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2023-04-07T16:10:36Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=0646763c-c920-4a7d-929b-d542dcfd3725;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2023-04-07T16:28:42Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=microsoft.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|CH2PR21MB1397:EE_
-x-ms-office365-filtering-correlation-id: 153bae6e-1817-4ac1-179c-08db37832d6a
+x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|BL1PR21MB3138:EE_
+x-ms-office365-filtering-correlation-id: 8e2888a6-f3b4-40a3-f0f7-08db3785ccf2
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: qI5hFKAAuUdOILrLnvl33smNqpuDXh0kejrntzsVNQt7pF5a+yz3tNCYFUFD8lb5BR205+IpOvEArCU0xB0NXrgAhUrw18G1KVd1j8Uj/8s/uF0BfKift3TwkO2ffevw9Y4yAaLiJblphQUqm8YoImwj7WbnzTkXxoK47o0gFMFAQrAbVIcAiiZcKb1P63AcD/g6khPg/M60SUGWWMA+yENZPSr2ZdPYx217mijNg0bFkbGVZy2a10Lc8g1yl4TJgCz8oZFFUVAWZHSl6ETVd4DfekzYwrzk6cvMLeySz/zj5RxjX4Gcc+3qYICTgOabXgWF85102V/9tu66zP+ochjS0cBnvPpG9iePitlJjK/iSH0M+LRjjbJSkjwY388pqUS7oQMockX/eueWQ+YkfOwZ0rfSQKCxBSIVzXQp+QR4qkOaBZrPtuHYs8RtW+UCmOVKkgNXSC0RWnJiaXwSYf59nppyR6TSgWOFpJma8hzyPWTIgUzSjOqiYjBkM+vImXO+Czk1h16T9wODHk48Z418coHsiC1uVwSBRrZBOIbfDcOBr68A00SVCSpLVmj/tDhrNUrT/7MP4y3vd1LkJQYon72nVyA9N3zetmIB1ICJgJYxglfG2j3SFlSe3h8lKgjD8bTKB80/0KmExG0RrIJHE8DYYl56KsDuRhYqWwjFOpHC/a6vpYByzZ46lW62
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:cs;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR21MB1688.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(346002)(136003)(376002)(366004)(451199021)(86362001)(33656002)(316002)(110136005)(76116006)(786003)(41300700001)(8676002)(478600001)(4326008)(66446008)(64756008)(66946007)(7696005)(66476007)(66556008)(71200400001)(54906003)(8990500004)(55016003)(52536014)(5660300002)(7416002)(10290500003)(8936002)(2906002)(921005)(82950400001)(82960400001)(38100700002)(122000001)(2940100002)(38070700005)(186003)(9686003)(6506007)(26005)(83380400001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: KX7KniZCgV+vD49iSTmmlWgJ1dw1jCpj0qQqZsUIxqYv9nHTec63O8WaWbOQQ9jwyLek6VNvvOvE8uKUaOYTjd6QdiNIqpgH1kRVcIXQjFtQwq8nnY+oNKfOrYLK0umSccnl9p5kPTLI9JwgGU2rf6k7fx2S63OTuwhoLg0HAIBStPKtns3RG+FsayQ+yekYIbsJVkOW0ZpvEkZdO8eKNsA8Ke0scIoUoSZE4bpIWUuGkVmTpLOZlhdZUETPBRk5TgTQvktth57Ez6MozcWfs72nP5selSmy4hF9wIunafcIRUGEP4vFyFyMEk4CP+1uwpmamm+k1nF9OctK8lz7mue1WuVimakWm1aEI+OFA+fWdZBzyZD84HTL/iChw3dUJ08GkXfsEmZrME5ATO/KrTOQMS4TcjLWQix6Vl+uWvAaFZmhad6RmjwoWlVjdjBYeaVjwQD5zAIn4renEllLfQXIIdo8S1GMo1pxwcZdmy6ugsOqPJ52gmXK3q2bl18FjSqz+XVd55C+qHuS5z1Nl8ABvruFfcVNmbCav+UDel9BrQjj10XwFpZ0GMskCfRNcjGHhTpbJ1XqLfYIJ7stw7G9LnHuA0J0kCpmlru279MmBCwKtQ/QAaqUoQgz0lmGK6bQ4GBZdB/J8Mre1B+A7KOQ1zXsPTZqaN1D8rXvpGExftw5gMNTHtsMZ3H3ASS0
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:cs;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR21MB1688.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(346002)(396003)(39860400002)(376002)(366004)(451199021)(55016003)(122000001)(66446008)(38100700002)(33656002)(38070700005)(2906002)(7416002)(5660300002)(52536014)(786003)(66946007)(8936002)(86362001)(8676002)(66556008)(41300700001)(921005)(82950400001)(64756008)(76116006)(66476007)(82960400001)(4326008)(83380400001)(110136005)(54906003)(26005)(9686003)(8990500004)(6506007)(316002)(71200400001)(10290500003)(7696005)(478600001)(186003);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?yV39tILWDq+TqgfyxTWkG7hw9xFBsuwISxbJBpbkkiv8n0T6RXl56O2e2ert?=
- =?us-ascii?Q?IiReCJbg4H2hkQbRCha4kebjjeHWylg9o9gJP7wPY2f6a22Y61CKlFBchL0B?=
- =?us-ascii?Q?mA27rRQOJUn9grjHtbKo8GHDytwHkB3bhbTBSXZQIoHLfY1BBxphG4WZv9sm?=
- =?us-ascii?Q?ZXx9f1W3V3uZjGHbjT0AnJ1ZqhiaCEXGJclGeTXQM3kGptGG73bP61BdrJwx?=
- =?us-ascii?Q?NAknA2h2GMR7GklZxXIxpx1QpG4FAcvEOPURaICOfUhaNrD8cIzh3JACJmrJ?=
- =?us-ascii?Q?x3qAQNzcAuzraLedbSP7H5RRNUb2YA/xOTRth0X9oE4lS8aBJJxso3y8sLi4?=
- =?us-ascii?Q?Htk48yN3OmlTT4R4aQ8pIr1w+qKrKzxZOk2qmYAfAplfWtmhHxAKhZsJV7Ov?=
- =?us-ascii?Q?i9QPGap1V3eg6BrONZYqxfNEixzC2OaLhiEdH9F7cVtJ48THQnRB5BJU+lKH?=
- =?us-ascii?Q?WK4gjPK9sDK8H4lA52aS/vYtdr+3ecbd910uThdvR0rkcblfaekU94Qhb9uD?=
- =?us-ascii?Q?Nvgxz8sI8z0/Qdiu+WQAIYdxzGnBC3rBF25sMd4sA1IByZ1lRxLfnjdCpgHB?=
- =?us-ascii?Q?htPUIAIN91hF8kRZa6b8VZbqVBpqZT82Hlc9bPrRYXYUXorrxfEklg6KGAmI?=
- =?us-ascii?Q?IPVdfA08Y/i8q0N8eP6fZeA2QJ7UMxxpUY9ooVVC0Z/5CCVE2IK6Cemf0kxl?=
- =?us-ascii?Q?zKTd2I8R/KJGPn88fh8paAcb+h7iXVXUqTRRwtugNveVgrftK2YBMkUDf+yc?=
- =?us-ascii?Q?Ar3vZpCe9kMQea+GyXiNTRuQA5ZLcqU9PZxP8RUeczVBrSqsQSsFZ0Uk+s8O?=
- =?us-ascii?Q?SZkoUGnzNTUXDe4CwcLHOv+WDQ4WO8ussKD+Xw9MzxBvKKbXnSRG6jiz2cei?=
- =?us-ascii?Q?D7nKJcHlLXSN+rjUlzI0wbiqN7qR/sUF3osXFPKR4B7D1JxcEoxRsMdRlf2Z?=
- =?us-ascii?Q?uLJuw0W0JCMpAsfenGtyoKTi3dxkXBX1uTErD62tKvatQRWHqDinQUoxQaei?=
- =?us-ascii?Q?X5QbeYRbws6om+IsiywPYgSfLiTwC/K10rQX3Yy8XrWD6zSfBPmMsuBtgJRb?=
- =?us-ascii?Q?DuLGgTuLQ8Wjj01QLnAlPBa6mhKq630k2yrnb9TXmtHTwIibn9vkbtjIYXTz?=
- =?us-ascii?Q?UkXt3g9CEiNFVOVgMomD1D0l2JNJE42+OyY+gwx2ykzTFKurykjIREq+BbPW?=
- =?us-ascii?Q?tcEY+iZbfYId4eaz5dhBRLBGSldwmXD5uwe/Ucr72lBc18ZSAZ9cfM/ndMlK?=
- =?us-ascii?Q?si9ROvISqhMIWAQpv4cIS36lXn0uKwAKCIjNFeKen9JWOWj8Jr5l5dgR+Afw?=
- =?us-ascii?Q?ux0drpP95bjQ/eGqHeCjK6CkzHJ7+h1lFfwgAfgebCE6GpN1dDvWcXtEuW5s?=
- =?us-ascii?Q?512wuzD0vKlIKXxYx6k6aljBFb3UyDVAD/Bjh1mEWsdYQiWsFHYsxQJWv8hH?=
- =?us-ascii?Q?feTLec5o2H7MoW/GQy+OmSLT2FW49YyB3a0iPcdU9HY6OXAQfnschWaG51rf?=
- =?us-ascii?Q?yUXJ4JwdNjtSCMWvsIH7eGbAD9+6GmyL7Bydb+RkC8VCvJMquAImQUHI/yBK?=
- =?us-ascii?Q?8TJVL5hPNcY+MRjz1vSVb+1QcltiQmDjcy3nWUlcFI9xoLBLRDL+AWZnsGPm?=
- =?us-ascii?Q?sw=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?9nj8Xji5801wmyc6GnsHHM7/k5tn/Y9PO9VvmMEP/emshvglZLWafuroLoa7?=
+ =?us-ascii?Q?/dCAtmEX5fGgLp1ikiHBS9yyQS3h6Kyf9lrGvRw2OIGXFm5FsKkB2ck7g0Fd?=
+ =?us-ascii?Q?YpYqymlRvytayx/FuqRmapdkrmHFeChN1jqs4rcs9ZgeduhkRxGyyJKjEKex?=
+ =?us-ascii?Q?/2oEoeArLIhMN9EyellpfczYs5kGyhfEOibOgd2R2p8AAyrh6vIjSdoS+e0c?=
+ =?us-ascii?Q?7IFt5x6R+bK6In7L+YLJuTJpXS0onOogsoJFjMeCm3oJOhCWh9XCC+KRD42v?=
+ =?us-ascii?Q?z6Lp9BsUrQuATMosiuxxXeXCdDbnR33WAcOJoNYCVpMmQNVa2C7cKHGyDgJD?=
+ =?us-ascii?Q?HQKlYPbE19jnXczX0qDKWB+NHd+kNc0H1VKPbTQ/VnBntVhcy29JpxdzG92o?=
+ =?us-ascii?Q?FTNll+xF9NEQS1J1vkWLP403OAQLEIUemDHyaOxSV9f8jBeZo97hgKbo06b2?=
+ =?us-ascii?Q?2UKEoS+7kb4VaCzGJE0EEPeFbVLsRUM7BPNaLPG/L/UyiDXVOf9Gxs0eQRwI?=
+ =?us-ascii?Q?qZEkr8LvxaNjuFBSeGbzkZ28yX5HLGb832c7bSvAghoQ7oqywyZlFVVIwClm?=
+ =?us-ascii?Q?1OGhlVv9AAcKnkB2rJwtVmoqkVm08/0AG9AA5UrGOZJE37ouuBYFyJWkBy4Z?=
+ =?us-ascii?Q?thSGhgbQFbjAjhB0Z6O96Wbwh0ZptSMpTqE+TZsJ82OrGyoxgMUcFVxUea4g?=
+ =?us-ascii?Q?YqvfWrIDOtwwn5+Up0YaW4tTvwzerZrn6hPn6rmiLqEZWCynzrwbmLMrOh2u?=
+ =?us-ascii?Q?ad5Q2Pm/cKauZRLVngc0oizhdxDtlNYaaQYGhiCaREnJ+NJKcM7LZrf6vGDr?=
+ =?us-ascii?Q?iXL9QBaJLR5CPm4FKWeKx6RMUF35h9Nd9Exa4G8pMtHyhRciQg5kriTOcmeL?=
+ =?us-ascii?Q?x8FtlSmokSEynCCAnIWxSuzQDFAu8wOmTCjoBi8Pmv+HVgZ7DJUBgjfmcfg2?=
+ =?us-ascii?Q?XnDOUzuhesF6l7s6QCtKCYgJZcLUuo/IrPf0DaiqOsGo2Nc3z2a6CwzHlUdS?=
+ =?us-ascii?Q?WMMf0RJ40OL205USdDdM1oEllk2FQ1S18BpwtyHYN0ReF0jAyhRcFdJBKf5u?=
+ =?us-ascii?Q?N88qAYyuKbOpYmqVTq4FZ6zyg7MmjrWmC6ZfxgCPDw4pmGzXvgXeF+Kh0Q/X?=
+ =?us-ascii?Q?+WMqmBQh+VuCpRvnYWt+Uk6zUX+dyH2KM52xjfhyWWo5N8FZDJGVmGTmeogC?=
+ =?us-ascii?Q?soYfZ4eeRHMc/TqfKTZsk05aaJf8VJNov695OBnWaDbxChxJ3vLUmjZK9N3R?=
+ =?us-ascii?Q?Nn0UAhJkIMunaYeqfy5MEt42TmRStZBvkLBXfaCPeDhj94j3uusqIoKFXqFe?=
+ =?us-ascii?Q?/PaTCypX8gfj4FnoXRdhgWgIM0j62WlYIs+M1pmsvTXuBIIEtymyCD/r8lmZ?=
+ =?us-ascii?Q?HNlzSmC+u4y3lzaD5Qthyp5HstNNYRM69fgfZtv+4q4C+G+1czJIVDUrf77T?=
+ =?us-ascii?Q?XDYFQmGObqaBxAiBIuyLPeHD3PDmFFMFJ6hwvKTKWDrkO6W0MBGUZkrJeUcS?=
+ =?us-ascii?Q?UyCMn2ldBxFEc9x5ceTKZ6vrZUBiufATNLnRn1f4dHFpYONfH+rG4XwjCTk/?=
+ =?us-ascii?Q?7pHCnBNs2QinM508rHad2qXQIEgBiPu7Tqpl7RoYiUfkur9hKlJUEB404TzY?=
+ =?us-ascii?Q?dA=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR21MB1688.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 153bae6e-1817-4ac1-179c-08db37832d6a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Apr 2023 16:14:34.5094
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8e2888a6-f3b4-40a3-f0f7-08db3785ccf2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Apr 2023 16:33:21.1462
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: KVKEcn8SUyq4aKP84wIYcISiwtp8MZfPb0KXnHMG8V2Qp5IrJvA8nO6wCqIyWSS4gAGzrsG2QBNU9FAZy408N4pGVvVrzbGHaQ4lfTFxtek=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR21MB1397
-X-Spam-Status: No, score=0.8 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
-        autolearn=no autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-userprincipalname: cCNJRowe1oPyNpxH0ECvF7YexIf/OgNseZjW7Y6WYw4eNGFwMnU82Ef1lromVJZbnb9ZSkL/VEtqLPP3wDp8QcI3Xwcr5uNudIWQmwE6Fg8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR21MB3138
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley (LINUX) <mikelley@microsoft.com> Sent: Friday, April 7=
-, 2023 9:12 AM
+From: Dexuan Cui <decui@microsoft.com> Sent: Monday, April 3, 2023 7:06 PM
 >=20
-> From: Dexuan Cui <decui@microsoft.com> Sent: Monday, April 3, 2023 7:06 P=
-M
-> >
-> > Commit 414428c5da1c ("PCI: hv: Lock PCI bus on device eject") added
-> > pci_lock_rescan_remove() and pci_unlock_rescan_remove() in
-> > create_root_hv_pci_bus() and in hv_eject_device_work() to address the
-> > race between create_root_hv_pci_bus() and hv_eject_device_work(), but i=
-t
-> > turns that grubing the pci_rescan_remove_lock mutex is not enough:
+> This reverts commit d6af2ed29c7c1c311b96dac989dcb991e90ee195.
+>=20
+> The statement "the hv_pci_bus_exit() call releases structures of all its
+> child devices" in commit d6af2ed29c7c is not true: in the path
+> hv_pci_probe() -> hv_pci_enter_d0() -> hv_pci_bus_exit(hdev, true): the
+> parameter "keep_devs" is true, so hv_pci_bus_exit() does *not* release th=
+e
+> child "struct hv_pci_dev *hpdev" that is created earlier in
+> pci_devices_present_work() -> new_pcichild_device().
+>=20
+> The commit d6af2ed29c7c was originally made in July 2020 for RHEL 7.7,
+> where the old version of hv_pci_bus_exit() was used; when the commit was
+> rebased and merged into the upstream, people didn't notice that it's
+> not really necessary. The commit itself doesn't cause any issue, but it
+> makes hv_pci_probe() more complicated. Revert it to facilitate some
+> upcoming changes to hv_pci_probe().
+>=20
+> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+> Acked-by: Wei Hu <weh@microsoft.com>
+> Cc: stable@vger.kernel.org
+> ---
+>=20
+> v2:
+>   No change to the patch body.
+>   Added Wei Hu's Acked-by.
+>   Added Cc:stable
+>=20
+>  drivers/pci/controller/pci-hyperv.c | 71 ++++++++++++++---------------
+>  1 file changed, 34 insertions(+), 37 deletions(-)
+>=20
 
-There's some kind of spelling error or typo above.  Should "grubing" be
-"grabbing"?  Or did you intend something else?
-
-Michael
-
-
-> > refer to the earlier fix "PCI: hv: Add a per-bus mutex state_lock".
-> >
-> > Now with hbus->state_lock and other fixes, the race is resolved, so
-> > remove pci_{lock,unlock}_rescan_remove() in create_root_hv_pci_bus():
-> > this removes the serialization in hv_pci_probe() and hence allows
-> > async-probing (PROBE_PREFER_ASYNCHRONOUS) to work.
-> >
-> > Add the async-probing flag to hv_pci_drv.
-> >
-> > pci_{lock,unlock}_rescan_remove() in hv_eject_device_work() and in
-> > hv_pci_remove() are still kept: according to the comment before
-> > drivers/pci/probe.c: static DEFINE_MUTEX(pci_rescan_remove_lock),
-> > "PCI device removal routines should always be executed under this mutex=
-".
-> >
-> > Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> > Cc: stable@vger.kernel.org
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
