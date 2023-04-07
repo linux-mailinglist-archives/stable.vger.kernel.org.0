@@ -2,136 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 986F76DAC8C
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 14:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ADC16DAEA7
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 16:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240655AbjDGMOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 08:14:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44406 "EHLO
+        id S231528AbjDGOO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 10:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230211AbjDGMOF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 08:14:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E4F902D
-        for <stable@vger.kernel.org>; Fri,  7 Apr 2023 05:14:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C56FC65021
-        for <stable@vger.kernel.org>; Fri,  7 Apr 2023 12:14:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFC20C433EF;
-        Fri,  7 Apr 2023 12:14:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680869643;
-        bh=G1IlEJktf8aHYscJpiEvM9nPG5cHp7XjR+h6qJYI0t0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jAOCK1dS+ESWNzpqskQ6BuIhICqiVqikpQC5U7To2K3em4xRyLDWEh3iR5/1y2Eyu
-         WsGYKEnZ/GL/5cH9cSY26PTpFxoXsQcT9mi6fW+1oh31vwboEi6QneuhF6SOyYW0At
-         GSG04kR79FizCQV/GFYCRWoukwt3MXeOI2q++LxA=
-Date:   Fri, 7 Apr 2023 14:14:00 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rainer Fiebig <jrf@mailbox.org>
-Cc:     Linux regressions mailing list <regressions@lists.linux.dev>,
-        stable@vger.kernel.org, tim.huang@amd.com,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: Re: 6.1.22: Resume from hibernate fails; bisected
-Message-ID: <2023040709-register-feminize-d452@gregkh>
-References: <b52bfd11-0d90-739b-be3e-058e246478f7@mailbox.org>
- <c87add10-3e8f-b17e-f3f5-067431a23e16@leemhuis.info>
- <d3ac4ff5-863f-2179-1120-191774d80a27@mailbox.org>
- <ZC8m_gjbB4oVlO5t@kroah.com>
- <635357ce-8793-1788-e47e-369ed8ded673@mailbox.org>
+        with ESMTP id S240100AbjDGOOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 10:14:52 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1536E95;
+        Fri,  7 Apr 2023 07:14:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=R4TH8iF3XRJ1DlarsE3NhkPLoUGzWdq0m7N8occ5vGM=; b=qfkEn4cpxPYcnc/95fxARsn6kI
+        zpeKmQ0mwVKakCrF1WP0MnojedLNPejElAIifeijWYvYqjdQZTh60gwiU0Xsy2Ap2RGQay0bQcUiy
+        dxMAKj5eXZTpqTBy81xujjnLuNvcS+U+6pm7Q33vb32HQDNLy8D9RKY5TOcInHbQItWE=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1pkmrM-009jDL-2x; Fri, 07 Apr 2023 16:14:36 +0200
+Date:   Fri, 7 Apr 2023 16:14:36 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
+Cc:     hkallweit1@gmail.com, linux@armlinux.org.uk, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net] net: phy: nxp-c45-tja11xx: disable port and global
+ interrupts
+Message-ID: <47d0347d-02a1-48a3-8553-d6ab2be731e8@lunn.ch>
+References: <20230406095546.74351-1-radu-nicolae.pirea@oss.nxp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <635357ce-8793-1788-e47e-369ed8ded673@mailbox.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <20230406095546.74351-1-radu-nicolae.pirea@oss.nxp.com>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 07, 2023 at 01:56:49PM +0200, Rainer Fiebig wrote:
-> Am 06.04.23 um 22:09 schrieb Greg KH:
-> > On Thu, Apr 06, 2023 at 05:39:07PM +0200, Rainer Fiebig wrote:
-> >> Am 06.04.23 um 15:30 schrieb Linux regression tracking (Thorsten Leemhuis):
-> >>> [CCing the regression list, as it should be in the loop for regressions:
-> >>> https://docs.kernel.org/admin-guide/reporting-regressions.html]
-> >>>
-> >>> On 06.04.23 14:06, Rainer Fiebig wrote:
-> >>>> Hi! Since kernel 6.1.22 starting a resume from hibernate by hitting a
-> >>>> key on the keyboard fails. However, if the PC was switched off and on
-> >>>> again (or reset), the resume is OK. The APU  is a Ryzen 5600G.
-> >>>>
-> >>>> Bisecting between 6.1.21/22 turned up this:
-> >>>>
-> >>>>
-> >>>> Author: Tim Huang <tim.huang@amd.com>
-> >>>> Date:   Thu Mar 9 16:27:51 2023 +0800
-> >>>>
-> >>>>     drm/amdgpu: skip ASIC reset for APUs when go to S4
-> >>>>
-> >>>>     commit b589626674de94d977e81c99bf7905872b991197 upstream.
-> >>>>
-> >>>>     For GC IP v11.0.4/11, PSP TMR need to be reserved
-> >>>>     for ASIC mode2 reset. But for S4, when psp suspend,
-> >>>>     it will destroy the TMR that fails the ASIC reset.
-> >>>> [...]
-> >>>>
-> >>>>
-> >>>> Reverting the commit solves the problem.
-> >>>> Thanks.
-> >>>
-> >>> Please try 6.1.23 and report back, because from the thread
-> >>> https://lore.kernel.org/all/20230330160740.1dbff94b@schienar/
-> >>> it sounds a lot like "drm/amdgpu: allow more APUs to do mode2 reset when
-> >>> go to S4" might be fixing this, which went into 6.1.23.
-> >> Yes, 6.1.23 seems OK so far.
-> >>
-> >> I think, however, that rc-kernels and LTS-kernels are different matters.
-> >>  With a bleeding edge kernel, problems are to be expected.  But an
-> >> LTS-kernel is chosen for stability.  And this is the second time within
-> >> just a few weeks that I've been bitten by a time-consuming hibernate-bug
-> >> caused by a backport of a commit in amdgpu.
-> >>
-> >> So I'm asking the devs to either test their patches more thoroughly or
-> >> to be a bit more conservative with what they recommend for backporting
-> >> to LTS-kernels.  Thanks.
-> > 
-> > Please feel free to suggest better ways to have automated tests for
-> > stuff like this, or to help provide testing for the -rc LTS/stable
-> > kernel releases.
-> Well, I'm afraid I can't offer a panacea or the ultimate automated
-> quality assurance system.  But for the two cases that I've encountered
-> lately, a simple hibernate/resume would have shown that there's a
-> problem.  After all, that's how I and other users noticed it.
+On Thu, Apr 06, 2023 at 12:55:46PM +0300, Radu Pirea (OSS) wrote:
+> Disabling only the link event irq is not enough to disable the
+> interrupts. PTP will still be able to generate interrupts.
 > 
-> So I think the primary line of defence against regressions remains the
-> developer himself who should try hard to imagine what ramifications his
-> patch might have and test it accordingly.  But I'm aware of the fact
-> that we are all only humans.
+> The interrupts are organised in a tree on the C45 TJA11XX PHYs. To
+> completely disable the interrupts, they are disable from the top of the
+> interrupt tree.
 > 
-> Another idea might be to give patches that introduce new features or
-> only minimal improvements ample time to mature in the latest stable
-> kernel before backporting them to LTS-kernels, say three or four
-> point-releases.  Or to only backport fixes for bugs or security issues.
+> Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
+> CC: stable@vger.kernel.org # 5.15+
+> Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+> ---
+>  drivers/net/phy/nxp-c45-tja11xx.c | 22 ++++++++++++++++------
+>  1 file changed, 16 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
+> index 029875a59ff8..ce718a5865a4 100644
+> --- a/drivers/net/phy/nxp-c45-tja11xx.c
+> +++ b/drivers/net/phy/nxp-c45-tja11xx.c
+> @@ -31,6 +31,10 @@
+>  #define DEVICE_CONTROL_CONFIG_GLOBAL_EN	BIT(14)
+>  #define DEVICE_CONTROL_CONFIG_ALL_EN	BIT(13)
+>  
+> +#define VEND1_PORT_IRQ_ENABLES		0x0072
+> +#define PORT1_IRQ			BIT(1)
+> +#define GLOBAL_IRQ			BIT(0)
 
-This is a long-running discussion.  How do you determine that a "bug
-fix" should not be backported now?  For example, this bugfix that caused
-a problem was a reported fix for something else, and it had passed the
-automated testing system that the DRM developers have.  So why wait on
-it?
+I find the PORT1 confusing there, it suggests there is a port0? What
+is port0? There is no other reference to numbered ports in the driver.
 
-There's always going to be slip ups, and fixes needed for fixes as we
-can't test all hardware configurations or use-cases, all we can do is
-react quickly to fix problems when reported.
+> -static bool nxp_c45_poll_txts(struct phy_device *phydev)
+> +static bool nxp_c45_poll(struct phy_device *phydev)
+>  {
+>  	return phydev->irq <= 0;
+>  }
 
-And in this case, it was fixed _before_ you reported it, which to be
-honest, is pretty fast :)
+Maybe as a new patch, but phy_interrupt_is_valid() can be used here.
 
-thanks,
+Maybe also extend the commit message to include a comment that
+functions names are changed to reflect that all interrupts are now
+disabled, not just _txts interrupts. Otherwise this rename might be
+considered an unrelated change.
 
-greg k-h
+> @@ -448,7 +452,7 @@ static void nxp_c45_process_txts(struct nxp_c45_phy *priv,
+>  static long nxp_c45_do_aux_work(struct ptp_clock_info *ptp)
+>  {
+>  	struct nxp_c45_phy *priv = container_of(ptp, struct nxp_c45_phy, caps);
+> -	bool poll_txts = nxp_c45_poll_txts(priv->phydev);
+> +	bool poll_txts = nxp_c45_poll(priv->phydev);
+>  	struct skb_shared_hwtstamps *shhwtstamps_rx;
+>  	struct ptp_clock_event event;
+>  	struct nxp_c45_hwts hwts;
+> @@ -699,7 +703,7 @@ static void nxp_c45_txtstamp(struct mii_timestamper *mii_ts,
+>  		NXP_C45_SKB_CB(skb)->header = ptp_parse_header(skb, type);
+>  		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+>  		skb_queue_tail(&priv->tx_queue, skb);
+> -		if (nxp_c45_poll_txts(priv->phydev))
+> +		if (nxp_c45_poll(priv->phydev))
+>  			ptp_schedule_worker(priv->ptp_clock, 0);
+>  		break;
+>  	case HWTSTAMP_TX_OFF:
+> @@ -772,7 +776,7 @@ static int nxp_c45_hwtstamp(struct mii_timestamper *mii_ts,
+>  				 PORT_PTP_CONTROL_BYPASS);
+>  	}
+>  
+> -	if (nxp_c45_poll_txts(priv->phydev))
+> +	if (nxp_c45_poll(priv->phydev))
+>  		goto nxp_c45_no_ptp_irq;
+>  
+>  	if (priv->hwts_tx)
+> @@ -892,10 +896,12 @@ static int nxp_c45_config_intr(struct phy_device *phydev)
+>  {
+>  	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
+>  		return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
+> -					VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
+> +					VEND1_PORT_IRQ_ENABLES,
+> +					PORT1_IRQ | GLOBAL_IRQ);
+>  	else
+>  		return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1,
+> -					  VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
+> +					  VEND1_PORT_IRQ_ENABLES,
+> +					  PORT1_IRQ | GLOBAL_IRQ);
+>  }
+>  
+>  static irqreturn_t nxp_c45_handle_interrupt(struct phy_device *phydev)
+> @@ -1290,6 +1296,10 @@ static int nxp_c45_config_init(struct phy_device *phydev)
+>  	phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, VEND1_PORT_FUNC_ENABLES,
+>  			 PTP_ENABLE);
+>  
+> +	if (!nxp_c45_poll(phydev))
+> +		phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
+> +				 VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
+> +
+
+It seems odd to be touching interrupt configuration outside of
+nxp_c45_config_intr(). Is there a reason this cannot be part of
+phydev->interrupts == PHY_INTERRUPT_ENABLED ?
+
+	Andrew
