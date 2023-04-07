@@ -2,151 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A976DA888
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 07:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C026DA8B3
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 08:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231747AbjDGFfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 01:35:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
+        id S232823AbjDGGFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 02:05:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229933AbjDGFfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 01:35:11 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD09383CE
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 22:35:10 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id l11so1341017qtj.4
-        for <stable@vger.kernel.org>; Thu, 06 Apr 2023 22:35:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1680845710;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=hlBbZOK/yS2JtjyHytP0uElRbQtRrIX5P2+4m2sD1WE=;
-        b=MfmkaqB2Q2hts1YNVBfvVsls58I1/V7RUHVmJFJqJKllaf1ZHqB6D4SDM8tP68XMaT
-         1BhdMXv1FfdLbBxQRT81n3ON1I3ClN01MFn0G4EXFCY7B4Ob7HxV++ONgiFTJ7zpyS4h
-         lXOutGYmCyyGYDRLWM4wdfgqUEBmw7rY9jUln4XWDNTpKKsyp8+J4bTWibcaB44a7f6b
-         lR1M8YVFJlvvrSQsMMg/2k64pT4fKlRKGQA5MVT2h5dBdCLwIGcs4Gcc0HHmmfFA9i4h
-         RyuM3mNUxZgQmDOGCqMBJluFXCHwwA9vLikdfLduF++ioJ44DEvgsP0mB3VSDhaaqunr
-         skbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680845710;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hlBbZOK/yS2JtjyHytP0uElRbQtRrIX5P2+4m2sD1WE=;
-        b=oQl1r4792YNaSV07Ro4PuJJj7KQF3viBuMmuYakXBfzvh3f1hU22Ame3R962JbyCxH
-         jeU+/M6ifzgl5LcRuGtxEJ7F+vXihw8yUmHVPl0uJ0mXS5pr/Tx6GluWvJkonPaaxJua
-         XrMw8U3aIn8uN2vV/LzbBvizUcfElE0amvSl4dBMz6iiD4qpRvRXwORAo9mjAyLmuvbQ
-         nN/+2FPaNeTZw+YP6dAtody8QyS4/M6pZXeXbg1+28zzEHe4mqRshMTkuneYxuqt1p0K
-         krXubF8G8nKl2h3a4j1SRzCdZQafTXhjE0vqTda3f053Ah2WTHj1H6btXHXlMiyX65Ar
-         neJQ==
-X-Gm-Message-State: AAQBX9evavIp7jAKvNxBcI2Fy2cs7iSpJIb/kiliczV8l4qb2wSqcmLa
-        +WWV4tdI8JDWE4hn0S/ajLHf6+33DpOeJilDSXbLyYxJAbI9h3xI6Vlm4A==
-X-Google-Smtp-Source: AKy350YRNy4ZqxVOES1jE+f9fvmRW8A+Gv8SCijN2J/tj7O7f3KIjD5cuXvmxx1MfND7ZUaMaK7yrkXKlKKvaFabf0c=
-X-Received: by 2002:a05:622a:152:b0:3de:d15a:847f with SMTP id
- v18-20020a05622a015200b003ded15a847fmr528638qtw.0.1680845709596; Thu, 06 Apr
- 2023 22:35:09 -0700 (PDT)
-MIME-Version: 1.0
-From:   Khazhy Kumykov <khazhy@google.com>
-Date:   Thu, 6 Apr 2023 22:34:56 -0700
-Message-ID: <CACGdZYJ97rBX5JO-605WT50uEYefF4MW5HLq30cHz6QskqKPPg@mail.gmail.com>
-Subject: blk-throttle hierarchical throttling fix
+        with ESMTP id S232953AbjDGGF3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 02:05:29 -0400
+X-Greylist: delayed 60 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 06 Apr 2023 23:05:28 PDT
+Received: from bigo.sg (mail.bigo.sg [202.168.101.78])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 248E361BE
+        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 23:05:27 -0700 (PDT)
+Received: from localhost.localdomain (unknown [169.136.75.194])
+        by sg-mail1 (Coremail) with SMTP id U2SSCgAnYDthsi9k7Dq_AA--.39940S2;
+        Fri, 07 Apr 2023 14:04:24 +0800 (CST)
+From:   linminggui <linminggui1@bigo.sg>
 To:     stable@vger.kernel.org
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-        boundary="00000000000077dd2905f8b863eb"
-X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
-        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Cc:     shli@kernel.org, linminggui <linminggui1@bigo.sg>
+Subject: [PATCH] md/raid10: fix deadlock when handle read error and running data-check at same time
+Date:   Fri,  7 Apr 2023 14:04:11 +0800
+Message-Id: <1680847451-71593-1-git-send-email-linminggui1@bigo.sg>
+X-Mailer: git-send-email 2.7.4
+X-CM-TRANSID: U2SSCgAnYDthsi9k7Dq_AA--.39940S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWr1xWFWDXF17JFW3ZF1rtFb_yoWrWrWkp3
+        y3t3ZxJrWUAwn0vws8JFWUCFyFy34ktay3JrWxKw1xXFnF9rZ3AFy7GFyrWryDuFZ5ua47
+        Xrn8Cw4DGr10yaDanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUgv1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l8cAvFVAK
+        0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4
+        x0Y4vE2Ix0cI8IcVCY1x0267AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28E
+        F7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F4
+        0EFcxC0VAKzVAqx4xG6I80ewAv7VCjz48v1sIEY20_Gr4UJr1UMcvjeVCFs4IE7xkEbVWU
+        JVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lc2xSY4AK6xAfMx
+        AIw28IcxkI7VAKI48JMxAIw28IcVCjz48v1sIEY20_Gr4UJr1UMxC20s026xCaFVCjc4AY
+        6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17
+        CEb7AF67AKxVWUXVWUAwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF
+        0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIx
+        AIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIev
+        Ja73UjIFyTuYvjfUxzuWDUUUU
+X-CM-SenderInfo: 5olqzx5qjj3x2r6exwnrovw/
+X-Spam-Status: No, score=-0.0 required=5.0 tests=SPF_HELO_PASS,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---00000000000077dd2905f8b863eb
-Content-Type: text/plain; charset="UTF-8"
+when running data-check and ecounter a normal IO errror, raid10d handle
+the error, one resync IO added into conf->retry_list waiting for
+raid10d to handle it, so barrier will not drop to zero and the normal
+IO(read error) will stuck in wait_barrier in raid10_read_request.
+after this, resyc thread will stuck in raise_barrier, other process
+will stuck in wait_barrier. Ignore barrier for read error retry in
+raid10_read_request to avoid deadlock. for kernel linux-4.19.y
 
-Please take 84aca0a7e039 ("blk-throttle: Fix that bps of child could
-exceed bps limited in parent") for stable 6.1
+processA      md0_raid10          md0_resync               processB
+-------------------------------------------------------------------------
+        |         |                     |                      |
+read io error     |                     |                      |
+        |   handle_read_error     raise_barrier                |
+        |         |               (nr_pending=1,barrier=1)     |
+                  |                     |                 wait_barrier
+                  |                     |       (nr_waiting=1,barrier=1)
+           allow_barrier                |                      |
+          (nr_pending=0)                |                      |
+                  |                     |                      
+                  |                conf->retry_list
+                  |                     |
+                  |                     |
+            wait_barrier
+          (nr_waiting=2,barrier=1)
 
-Cherry pick claims that the patch applies cleanly to previous trees.
-Don't believe it. This fixes a regression introduced in 5.18 abouts
+[ 1452.065519] INFO: task md0_raid10:381 blocked for more than 120 seconds.
+[ 1452.065852]       Tainted: G           OE K   4.19.280 #2
+[ 1452.066018] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[ 1452.066189] md0_raid10      D    0   381      2 0x80000000
+[ 1452.066191] Call Trace:
+[ 1452.066197]  __schedule+0x3f8/0x8b0
+[ 1452.066199]  schedule+0x36/0x80
+[ 1452.066201]  wait_barrier+0x150/0x1b0
+[ 1452.066203]  ? wait_woken+0x80/0x80
+[ 1452.066205]  raid10_read_request+0xa8/0x510
+[ 1452.066206]  handle_read_error+0xa9/0x220
+[ 1452.066207]  ? pick_next_task_fair+0x15d/0x610
+[ 1452.066208]  raid10d+0xa01/0x1510
+[ 1452.066210]  ? schedule+0x36/0x80
+[ 1452.066211]  md_thread+0x133/0x180
+[ 1452.066212]  ? md_thread+0x133/0x180
+[ 1452.066213]  ? wait_woken+0x80/0x80
+[ 1452.066214]  kthread+0x105/0x140
 
---00000000000077dd2905f8b863eb
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+Signed-off-by: linminggui <linminggui1@bigo.sg>
+---
+ drivers/md/raid10.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-MIIPmwYJKoZIhvcNAQcCoIIPjDCCD4gCAQExDzANBglghkgBZQMEAgEFADALBgkqhkiG9w0BBwGg
-ggz1MIIEtjCCA56gAwIBAgIQeAMYYHb81ngUVR0WyMTzqzANBgkqhkiG9w0BAQsFADBMMSAwHgYD
-VQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UE
-AxMKR2xvYmFsU2lnbjAeFw0yMDA3MjgwMDAwMDBaFw0yOTAzMTgwMDAwMDBaMFQxCzAJBgNVBAYT
-AkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFz
-IFIzIFNNSU1FIENBIDIwMjAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvLe9xPU9W
-dpiHLAvX7kFnaFZPuJLey7LYaMO8P/xSngB9IN73mVc7YiLov12Fekdtn5kL8PjmDBEvTYmWsuQS
-6VBo3vdlqqXZ0M9eMkjcKqijrmDRleudEoPDzTumwQ18VB/3I+vbN039HIaRQ5x+NHGiPHVfk6Rx
-c6KAbYceyeqqfuJEcq23vhTdium/Bf5hHqYUhuJwnBQ+dAUcFndUKMJrth6lHeoifkbw2bv81zxJ
-I9cvIy516+oUekqiSFGfzAqByv41OrgLV4fLGCDH3yRh1tj7EtV3l2TngqtrDLUs5R+sWIItPa/4
-AJXB1Q3nGNl2tNjVpcSn0uJ7aFPbAgMBAAGjggGKMIIBhjAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0l
-BBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFHzM
-CmjXouseLHIb0c1dlW+N+/JjMB8GA1UdIwQYMBaAFI/wS3+oLkUkrk1Q+mOai97i3Ru8MHsGCCsG
-AQUFBwEBBG8wbTAuBggrBgEFBQcwAYYiaHR0cDovL29jc3AyLmdsb2JhbHNpZ24uY29tL3Jvb3Ry
-MzA7BggrBgEFBQcwAoYvaHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLmNvbS9jYWNlcnQvcm9vdC1y
-My5jcnQwNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9yb290LXIz
-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
-79dydvRvmvj3iOMwTAYDVR0gBEUwQzBBBgkrBgEEAaAyASgwNDAyBggrBgEFBQcCARYmaHR0cHM6
-Ly93d3cuZ2xvYmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wDAYDVR0TAQH/BAIwADCBmgYIKwYBBQUH
-AQEEgY0wgYowPgYIKwYBBQUHMAGGMmh0dHA6Ly9vY3NwLmdsb2JhbHNpZ24uY29tL2NhL2dzYXRs
-YXNyM3NtaW1lY2EyMDIwMEgGCCsGAQUFBzAChjxodHRwOi8vc2VjdXJlLmdsb2JhbHNpZ24uY29t
-L2NhY2VydC9nc2F0bGFzcjNzbWltZWNhMjAyMC5jcnQwHwYDVR0jBBgwFoAUfMwKaNei6x4schvR
-zV2Vb4378mMwRgYDVR0fBD8wPTA7oDmgN4Y1aHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9jYS9n
-c2F0bGFzcjNzbWltZWNhMjAyMC5jcmwwDQYJKoZIhvcNAQELBQADggEBAAGnXU1ZiVtfDel8V5Gu
-zLG4WAXkeOocZbaQLxMU5feXzEkBi9FsW/dimVGtpWlhHCt6EFKWj47cJIAf4FbcsZGksqwaEanw
-AnYkE13+a2FcNcY39KIX2Jq+WEIaqJMZdEHUNgMA6RZ57HHfuwwYv0vpuH7wPZq+g86FLEAdWMf8
-jOTcRWOfNGc1TvLIunL1SLCwWbxvmz7XbXvHBeesFACzShCWrLWLJU2ynbWPQ50fD7VyLF1hmoh1
-yRYhUSah9MWOcjE2cv+RaQ4tpZFaylpeF3MKpzfV/oTBD4fc+fOvhrc4jTTZ4jifPwmXnH6+XP4V
-DTqxVuiAl9HipVxiQnoxggJqMIICZgIBATBoMFQxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9i
-YWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFzIFIzIFNNSU1FIENBIDIwMjAC
-EAEurwvH4YF1ESpB5qmUbowwDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEIP3FwzZ2
-drXFw4SyeG9sAcvc6Hem8rNA2DGU5dRD4UpRMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJ
-KoZIhvcNAQkFMQ8XDTIzMDQwNzA1MzUxMFowaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQMEASow
-CwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQowCwYJKoZI
-hvcNAQEHMAsGCWCGSAFlAwQCATANBgkqhkiG9w0BAQEFAASCAQBi9itChCEsNogWIRRLxAMo4Cdu
-pXW9vlyQiAHcPLtptt2xbiS5sibBxUxSXodioOOd2JX0WpYyPVUFfDY1FfWyKomiUvFEqtqlJgew
-KCsAOQoWD7GGkSWC9JJaeGBbmEtDK9jBINMnbS7wCGDhN7N9czrv1XrvUphrdFFcxtEf0RywkVPE
-ibYEyLN9QCkb69nXXtxkbO2AbVI4UlVOAd9+X6qaj63CVcogMddQZWY+RR3J3+Oaxcr8Iox27ycn
-f+SJiXnJgL8TCB017yzYFNHifrk1THaMbNRFK7I8acHsReb4/CQgxfZHR2aryYnIQXvAHillqpLB
-RUWwQ+heIjT9
---00000000000077dd2905f8b863eb--
+diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
+index 9f9cd2f..9f00400 100644
+--- a/drivers/md/raid10.c
++++ b/drivers/md/raid10.c
+@@ -1137,6 +1137,7 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
+ 	int slot = r10_bio->read_slot;
+ 	struct md_rdev *err_rdev = NULL;
+ 	gfp_t gfp = GFP_NOIO;
++	bool error_retry = false;
+ 
+ 	if (slot >= 0 && r10_bio->devs[slot].rdev) {
+ 		/*
+@@ -1153,6 +1154,9 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
+ 		 */
+ 		gfp = GFP_NOIO | __GFP_HIGH;
+ 
++		error_retry = true;
++		atomic_inc(&conf->nr_pending);
++
+ 		rcu_read_lock();
+ 		disk = r10_bio->devs[slot].devnum;
+ 		err_rdev = rcu_dereference(conf->mirrors[disk].rdev);
+@@ -1169,8 +1173,10 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
+ 	 * Register the new request and wait if the reconstruction
+ 	 * thread has put up a bar for new requests.
+ 	 * Continue immediately if no resync is active currently.
++	 * Ignore barrier if this is an error retry.
+ 	 */
+-	wait_barrier(conf);
++	if (!error_retry)
++		wait_barrier(conf);
+ 
+ 	sectors = r10_bio->sectors;
+ 	while (test_bit(MD_RECOVERY_RESHAPE, &mddev->recovery) &&
+@@ -1181,12 +1187,14 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
+ 		 * pass
+ 		 */
+ 		raid10_log(conf->mddev, "wait reshape");
+-		allow_barrier(conf);
++		if (!error_retry)
++			allow_barrier(conf);
+ 		wait_event(conf->wait_barrier,
+ 			   conf->reshape_progress <= bio->bi_iter.bi_sector ||
+ 			   conf->reshape_progress >= bio->bi_iter.bi_sector +
+ 			   sectors);
+-		wait_barrier(conf);
++		if (!error_retry)
++			wait_barrier(conf);
+ 	}
+ 
+ 	rdev = read_balance(conf, r10_bio, &max_sectors);
+@@ -1208,9 +1216,11 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
+ 		struct bio *split = bio_split(bio, max_sectors,
+ 					      gfp, &conf->bio_split);
+ 		bio_chain(split, bio);
+-		allow_barrier(conf);
++		if (!error_retry)
++			allow_barrier(conf);
+ 		generic_make_request(bio);
+-		wait_barrier(conf);
++		if (!error_retry)
++			wait_barrier(conf);
+ 		bio = split;
+ 		r10_bio->master_bio = bio;
+ 		r10_bio->sectors = max_sectors;
+-- 
+2.7.4
+
