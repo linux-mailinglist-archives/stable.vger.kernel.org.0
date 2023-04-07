@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7986DB04D
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 18:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4AB6DB062
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 18:14:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232354AbjDGQLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 12:11:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51110 "EHLO
+        id S232399AbjDGQOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 12:14:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231153AbjDGQLv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 12:11:51 -0400
-Received: from BN3PR00CU001.outbound.protection.outlook.com (mail-eastus2azon11020021.outbound.protection.outlook.com [52.101.56.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C0E09749;
-        Fri,  7 Apr 2023 09:11:34 -0700 (PDT)
+        with ESMTP id S229802AbjDGQOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 12:14:38 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2100.outbound.protection.outlook.com [40.107.236.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71710A5CE;
+        Fri,  7 Apr 2023 09:14:37 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=W6edX9EIsbR4ZfUZQHatUOe9NIL6SPYI0pEMlv3uoNO7L04VFkWo0uVU/70tB+6H4jz3KN/B1GwdvrYmhs7GsOcqshT560i41GE4GCeKGPLUSdzZijVPpg+nQYlfoK3lyt1kHDqPiDrlyQjGhOJWBnLi3gye0wFgHPuTgAiuoo1WZawlnDYWHz2G9zndfva1/p82N25+XUW88PVo2aR8FTN+dP2qttR+wT1tBRaAqau6e/x9j5ZNMGKD3tlRPVUaqwJ4UKZxEcd+8h7zTNYmk7ktISy0jocQ971GAcdP2etUAfM/rmC7ErIdxLxhfbTUOAXw1E0iUKK7XyWLZoIzYw==
+ b=J1VYx8ZXTnaErrJcM/WSM1fvIHSrigH55N6Icqi5kLJyKyMa+SaItJ7mxJRbRkR/U+6TrdKRxLOh/dumk4YrvGW4X9IZh3qTqwKze0uHDPn/8irnlv/iVvrwymCNJrWVc7QaoYnSerhXUuiBWl6etG6FEpUcD2cWUBVYETZmqFJKKgk5L9EeGQ/Yhjxy2r5OmARBPRtoYTBQ7LZ0zsL96uMwtodh8XIzR9YS9LxBh3H2n99cxW32nNiq2+BPygzyIHT1bNAR6uaEQLXTrviubf+LnYZLr3i1gdClYBtpVcgimD/ruwsmAT7tePBWdUfZLr+uWY1vECa7J0+T6h4TmA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2EwOwqaBzTWpoCb1sgib2IIhbLLGxSsnZKpggPuZ+ac=;
- b=jgeFgLdta3RT5LqNsvzj60U6ItN037dWpSVYkG/K07WokJUv5Feo2QCAFCunxYB8JavTVFC8SJeaCTzTfDLvaEiBkpcJtx/7sUDGzd8CndaHaL7/J8a+vFMqbWRb82FFwPjt7BhNlvlNV2wWKF166/wE0Kox+x7wYqg1n+OlM3icUmIZRSpszlmzeaHp0lCL6OKF2/QfDpUw8i0B3lPJjL7B9YYnhPo7XcxAL0nqeSesHKqW8GacSwpzikF7yj5chEpLSGeieq5MC2k5DMNWGbhnN0KLKlNDM9GrcZMFfUGOEz6Fktg0Ag23OlPo89+JJU+nEXYwtjjoR0LEewMhEA==
+ bh=Ia4BmKg2SULcZS5fmSsXFx243m7uPVj3dpVBAwAxgV0=;
+ b=aIWYqD5tVQ/WEukmV06kYVQ3B+DAKAOvfOljOUN5augZfmbRg17taldAvM9neXgaBz/tDhZfdK90/qKkX+NAinNoc2TZG7nPLltXA8MjSqMMRKAXPdkd7rsNymSZ2MGCNd1J20YLi2D2iRaakQZd1WRoQHpaSKEx1vmCN3K+D2/jy5vO2ZEXTo3d5h4XenOaGPBxfJNot1uoD2x6t7XNNVTaCnOJs7oNOhKeJm4nYHdjpdl2gOvfCp5m6zbBnLn3wHJZWq0Vox6S1k8lGiXS0Y2aiXLjt1uInQ4bSteLsS6x/pNE74Y5OnDTh5rXU9KZgU8iiUILZtQf5ngkdqFLhA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2EwOwqaBzTWpoCb1sgib2IIhbLLGxSsnZKpggPuZ+ac=;
- b=G6ZHjWE+M31H/sp+LXsAbF0KOBHzAcNrQwh4bsOXIWDZv0o+e2U1w9UU2DNFABoov1IlJmsKF0CbcFFZHpUX6vJayXDKIUT3ivzl1SDCmSLZieSbmx6I5KDbwoHIxJMuTZsbbgeYpe3mVIK+TMBwyArbEEY8lhx9BCapxZ7YwBM=
+ bh=Ia4BmKg2SULcZS5fmSsXFx243m7uPVj3dpVBAwAxgV0=;
+ b=KGEZ+v3Kn7heBoTtRcOPaAVOSaKkdaB0ewdvNekbZUdOUUwvdndgGXpoTCTwWPgibs+vt3O9swDzWLU+TR8pSH0/QJbAGMRmsPNj118imLKMSkHKshR0ZBTnd/F+YJ5eOm0aUNwDoQ7fKLJSy4/NZyaFXMaZS1pqxjPVXujqsAU=
 Received: from BYAPR21MB1688.namprd21.prod.outlook.com (2603:10b6:a02:bf::26)
  by CH2PR21MB1397.namprd21.prod.outlook.com (2603:10b6:610:8d::7) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.20; Fri, 7 Apr
- 2023 16:11:31 +0000
+ 2023 16:14:34 +0000
 Received: from BYAPR21MB1688.namprd21.prod.outlook.com
  ([fe80::acd0:6aec:7be2:719c]) by BYAPR21MB1688.namprd21.prod.outlook.com
  ([fe80::acd0:6aec:7be2:719c%7]) with mapi id 15.20.6298.018; Fri, 7 Apr 2023
- 16:11:31 +0000
+ 16:14:34 +0000
 From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
-To:     Dexuan Cui <decui@microsoft.com>,
+To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
         "bhelgaas@google.com" <bhelgaas@google.com>,
         "davem@davemloft.net" <davem@davemloft.net>,
         "edumazet@google.com" <edumazet@google.com>,
@@ -65,12 +66,13 @@ CC:     "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
 Subject: RE: [PATCH v2 6/6] PCI: hv: Use async probing to reduce boot time
 Thread-Topic: [PATCH v2 6/6] PCI: hv: Use async probing to reduce boot time
-Thread-Index: AQHZZposgluJ48qtKkybpggwYjZPaq8gCcZg
-Date:   Fri, 7 Apr 2023 16:11:31 +0000
-Message-ID: <BYAPR21MB168842E38534BD00CB1D27ABD7969@BYAPR21MB1688.namprd21.prod.outlook.com>
+Thread-Index: AQHZZposgluJ48qtKkybpggwYjZPaq8gCcZggAAAu1A=
+Date:   Fri, 7 Apr 2023 16:14:34 +0000
+Message-ID: <BYAPR21MB168864316A9E2523BD74F270D7969@BYAPR21MB1688.namprd21.prod.outlook.com>
 References: <20230404020545.32359-1-decui@microsoft.com>
  <20230404020545.32359-7-decui@microsoft.com>
-In-Reply-To: <20230404020545.32359-7-decui@microsoft.com>
+ <BYAPR21MB168842E38534BD00CB1D27ABD7969@BYAPR21MB1688.namprd21.prod.outlook.com>
+In-Reply-To: <BYAPR21MB168842E38534BD00CB1D27ABD7969@BYAPR21MB1688.namprd21.prod.outlook.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -80,135 +82,98 @@ authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=microsoft.com;
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|CH2PR21MB1397:EE_
-x-ms-office365-filtering-correlation-id: 6aaa74dc-80ce-45bf-2cdb-08db3782c081
+x-ms-office365-filtering-correlation-id: 153bae6e-1817-4ac1-179c-08db37832d6a
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: QVrj1KMBi2xHJW+FAgsjbf56UbaNfCh8Ksx//O5+Gq+DgI+PipYhD4MfVWyxbY5lwm8jl8WLi7dw+dz9AeGjJyI/qyjjkXIFv59QvWff69REmceUmKod4N/kSO3fqZPKlG1r08zg2h9zQboHUjCYvAsodNDYqa23BZGNFvrhZED6MymP2Xv6Xt9E+NjhOYDYXV3OzpNcL7SReuE5jbAUHdJ3RlhJ44pXLXnYMmmefY44BVotGbxVcLD3FMMcj66iC3GE9yaRZCP2mCS8pe65AVTfb3+GYmL2yE8xHHjBgTswXNOQ4bObj4fJZ81AiKYPVcsehFm1AsLUmQVUUQcSYjKFL5bdPKxwFKs4YHyZCyiaeU1wYDul3N2xXQ2xFYUWENBtkjAcfpIpfUSNF3v4IitaxSfgxgyNPdGPvCcW7VxbT5uoCl18MWI7EzPrs+K+fgA8eJLK/jV1WkpJl9gBf8H9bS+aIHu+zk2kPCvMKP+NkeVoPMi5/unDzgA3uQbdGXFMmxJgMdfcV7BWcREKrOocrG01nkXXXxjODpLEALioZkiPBbg32FxRk4SK3nJIv5uTommWVIzhZhgvDPsoQPpg1tdc7qvKAlzAQDgfabcqJ+AP3u5buHnP0xLzoSxiD+/OmCbpWA8Yr7xVJ2HbsJ+lhuf/eU5ccWRJcLPJ/xfiiH+Fq4ICQtlkiph11YeZ
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:cs;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR21MB1688.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(346002)(136003)(376002)(366004)(451199021)(86362001)(33656002)(316002)(110136005)(76116006)(786003)(41300700001)(8676002)(478600001)(4326008)(66446008)(64756008)(66946007)(7696005)(66476007)(66556008)(71200400001)(54906003)(8990500004)(55016003)(52536014)(5660300002)(7416002)(10290500003)(8936002)(2906002)(921005)(82950400001)(82960400001)(38100700002)(122000001)(38070700005)(186003)(9686003)(6506007)(26005)(83380400001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: qI5hFKAAuUdOILrLnvl33smNqpuDXh0kejrntzsVNQt7pF5a+yz3tNCYFUFD8lb5BR205+IpOvEArCU0xB0NXrgAhUrw18G1KVd1j8Uj/8s/uF0BfKift3TwkO2ffevw9Y4yAaLiJblphQUqm8YoImwj7WbnzTkXxoK47o0gFMFAQrAbVIcAiiZcKb1P63AcD/g6khPg/M60SUGWWMA+yENZPSr2ZdPYx217mijNg0bFkbGVZy2a10Lc8g1yl4TJgCz8oZFFUVAWZHSl6ETVd4DfekzYwrzk6cvMLeySz/zj5RxjX4Gcc+3qYICTgOabXgWF85102V/9tu66zP+ochjS0cBnvPpG9iePitlJjK/iSH0M+LRjjbJSkjwY388pqUS7oQMockX/eueWQ+YkfOwZ0rfSQKCxBSIVzXQp+QR4qkOaBZrPtuHYs8RtW+UCmOVKkgNXSC0RWnJiaXwSYf59nppyR6TSgWOFpJma8hzyPWTIgUzSjOqiYjBkM+vImXO+Czk1h16T9wODHk48Z418coHsiC1uVwSBRrZBOIbfDcOBr68A00SVCSpLVmj/tDhrNUrT/7MP4y3vd1LkJQYon72nVyA9N3zetmIB1ICJgJYxglfG2j3SFlSe3h8lKgjD8bTKB80/0KmExG0RrIJHE8DYYl56KsDuRhYqWwjFOpHC/a6vpYByzZ46lW62
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:cs;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR21MB1688.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(346002)(136003)(376002)(366004)(451199021)(86362001)(33656002)(316002)(110136005)(76116006)(786003)(41300700001)(8676002)(478600001)(4326008)(66446008)(64756008)(66946007)(7696005)(66476007)(66556008)(71200400001)(54906003)(8990500004)(55016003)(52536014)(5660300002)(7416002)(10290500003)(8936002)(2906002)(921005)(82950400001)(82960400001)(38100700002)(122000001)(2940100002)(38070700005)(186003)(9686003)(6506007)(26005)(83380400001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?NBg7muN4ytweR6Hsvaa0SPxNYLsRlhmBPFLcyNqXLyyW/i8WntFytBa6xKxR?=
- =?us-ascii?Q?bzSFChOnj9Gu+mNcTwENLXMKz5bz27AYrjJg+jK+DoJ1xhpHDwzybS0OzXfK?=
- =?us-ascii?Q?dtk8cepiPxbC3JnIi7WVQDrsbcDGM3Nj/6KPP9Ak5694GrPPQD62GGIwax8C?=
- =?us-ascii?Q?8VPj9+htH0bcZwpsLlNjH75kVqf+Oj7YG4EKvp7vKEWH324fnX7GrGjwiHNh?=
- =?us-ascii?Q?qeRTBxdHm3ERKh6QTtq1oKw5fMYX7OwwlEDQZTGyKZgh5Dm1XSnxtJeVjyvz?=
- =?us-ascii?Q?QHz10CbOvsrKzWTrQN45lFOtEU91MnCURN/+bzzaZNErXwOxhll9VvMAcDNm?=
- =?us-ascii?Q?4q+qEKLK0rIEP/Cs3SuPlJ/Btnr+iWR+Qlwg/Bt5kL9m8Yi/ftz3oGhgy4P6?=
- =?us-ascii?Q?IocESaRmAs88D2OLcmD1RqSrIsfuF3jrSFfhs8+kjhSwtt7ZM9RAZkE8ip5b?=
- =?us-ascii?Q?Npyib5OCDAVypWCbf4tz4zR1bOujTCEbL2zihWdfFWeBtYQu3emhN6kqfPcs?=
- =?us-ascii?Q?15FJjQBredd4WTB2tXaDI4eyxBbSIPxX2l8Sf0la82ZMskbTBtgCmpEvUW0+?=
- =?us-ascii?Q?Z0kNHIHGOFHLdMUFxV/GN0amNuVXQfvPQiH5L1pfh7+shGACy4O2KxFM4fok?=
- =?us-ascii?Q?SRkAhvL0sDt3u/6ENG8o8CZ9Ehy5MmLgXdJAgz75VO3D9E51Cprc6FNDEo43?=
- =?us-ascii?Q?KT2ubO0RVDF9sXwOKUtxIO4W5PyiLKFDp3SJYQycckR8xuvKNEQ1alyxiogy?=
- =?us-ascii?Q?nuJuz2G/L4SMJD6pXWd/KjZjsFzDcGmYGGfyePKlN42Pw0iJmBOICf1mdd27?=
- =?us-ascii?Q?qFVi6ZfQq2vF5OREMZrun42CBHnBVeJHgymlkho2ebMdSHdZ4bUGjifXePUf?=
- =?us-ascii?Q?yKwvLproCVP4yrD063wx9bGioAmEo5OWzgSsUtKix9CDluYl1UyUtDJqFCHL?=
- =?us-ascii?Q?MzhIgVwaNRuqrni0yFCjkw1XYdc12FrpntgfkNZqwWCRSj3AyvUEosfHb3s5?=
- =?us-ascii?Q?xonUrxOQffW4uEhYD+FZS0OOp73VG+us21ayi3WsRElOcSG7rctk+eXK6rdN?=
- =?us-ascii?Q?Py3VkN/IRdpXYTalpe54qR1PcnHv9H0QfJbjBlZBChJfrnplI7AvhXfds+6M?=
- =?us-ascii?Q?1Dlx0Vxpg7Nw6K7lo6VLI8zLmm2VCdeYfD9CpZMLQR/ej5K290Q29DU8+cZX?=
- =?us-ascii?Q?gGibbRKXrip7FA9m9CWC0ULh/Y3F+ewLPQ/7/FUgSLnwuiFiK2lZQC/L3J2c?=
- =?us-ascii?Q?02/d3uH74e7enDrVW/97w89loXh0xqzf4RNFhhhvwF50Mo+g/LO+8btAzovU?=
- =?us-ascii?Q?oVk1puyE4Lx7P/FN6WbigfsVuBwO3QnSDqPrdjufJfXgq3E2OxQ/19VpH42Y?=
- =?us-ascii?Q?2lKMnVHLJP4UizXDeLLXxkTXTbsT7ROoTKyeWT9dJZAG2ibZcj6ZWiRmKSUn?=
- =?us-ascii?Q?meuf/mhz0Hv/a6WTtRiEgF0tiwoBvzqYCUmh9FSFgRQwNXjASJiFfeGU2NuV?=
- =?us-ascii?Q?NYwEPH8jcAClxav94uV5YcpLjo/tpWI4ANSu7XcTxKPlUct9XDj8N70+jgt5?=
- =?us-ascii?Q?NtMiqcQr5tP5cviH34RV1TdBA49xoELRi9GewPmSr/HpVhDMyrLYtzYwpKKb?=
- =?us-ascii?Q?AA=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?yV39tILWDq+TqgfyxTWkG7hw9xFBsuwISxbJBpbkkiv8n0T6RXl56O2e2ert?=
+ =?us-ascii?Q?IiReCJbg4H2hkQbRCha4kebjjeHWylg9o9gJP7wPY2f6a22Y61CKlFBchL0B?=
+ =?us-ascii?Q?mA27rRQOJUn9grjHtbKo8GHDytwHkB3bhbTBSXZQIoHLfY1BBxphG4WZv9sm?=
+ =?us-ascii?Q?ZXx9f1W3V3uZjGHbjT0AnJ1ZqhiaCEXGJclGeTXQM3kGptGG73bP61BdrJwx?=
+ =?us-ascii?Q?NAknA2h2GMR7GklZxXIxpx1QpG4FAcvEOPURaICOfUhaNrD8cIzh3JACJmrJ?=
+ =?us-ascii?Q?x3qAQNzcAuzraLedbSP7H5RRNUb2YA/xOTRth0X9oE4lS8aBJJxso3y8sLi4?=
+ =?us-ascii?Q?Htk48yN3OmlTT4R4aQ8pIr1w+qKrKzxZOk2qmYAfAplfWtmhHxAKhZsJV7Ov?=
+ =?us-ascii?Q?i9QPGap1V3eg6BrONZYqxfNEixzC2OaLhiEdH9F7cVtJ48THQnRB5BJU+lKH?=
+ =?us-ascii?Q?WK4gjPK9sDK8H4lA52aS/vYtdr+3ecbd910uThdvR0rkcblfaekU94Qhb9uD?=
+ =?us-ascii?Q?Nvgxz8sI8z0/Qdiu+WQAIYdxzGnBC3rBF25sMd4sA1IByZ1lRxLfnjdCpgHB?=
+ =?us-ascii?Q?htPUIAIN91hF8kRZa6b8VZbqVBpqZT82Hlc9bPrRYXYUXorrxfEklg6KGAmI?=
+ =?us-ascii?Q?IPVdfA08Y/i8q0N8eP6fZeA2QJ7UMxxpUY9ooVVC0Z/5CCVE2IK6Cemf0kxl?=
+ =?us-ascii?Q?zKTd2I8R/KJGPn88fh8paAcb+h7iXVXUqTRRwtugNveVgrftK2YBMkUDf+yc?=
+ =?us-ascii?Q?Ar3vZpCe9kMQea+GyXiNTRuQA5ZLcqU9PZxP8RUeczVBrSqsQSsFZ0Uk+s8O?=
+ =?us-ascii?Q?SZkoUGnzNTUXDe4CwcLHOv+WDQ4WO8ussKD+Xw9MzxBvKKbXnSRG6jiz2cei?=
+ =?us-ascii?Q?D7nKJcHlLXSN+rjUlzI0wbiqN7qR/sUF3osXFPKR4B7D1JxcEoxRsMdRlf2Z?=
+ =?us-ascii?Q?uLJuw0W0JCMpAsfenGtyoKTi3dxkXBX1uTErD62tKvatQRWHqDinQUoxQaei?=
+ =?us-ascii?Q?X5QbeYRbws6om+IsiywPYgSfLiTwC/K10rQX3Yy8XrWD6zSfBPmMsuBtgJRb?=
+ =?us-ascii?Q?DuLGgTuLQ8Wjj01QLnAlPBa6mhKq630k2yrnb9TXmtHTwIibn9vkbtjIYXTz?=
+ =?us-ascii?Q?UkXt3g9CEiNFVOVgMomD1D0l2JNJE42+OyY+gwx2ykzTFKurykjIREq+BbPW?=
+ =?us-ascii?Q?tcEY+iZbfYId4eaz5dhBRLBGSldwmXD5uwe/Ucr72lBc18ZSAZ9cfM/ndMlK?=
+ =?us-ascii?Q?si9ROvISqhMIWAQpv4cIS36lXn0uKwAKCIjNFeKen9JWOWj8Jr5l5dgR+Afw?=
+ =?us-ascii?Q?ux0drpP95bjQ/eGqHeCjK6CkzHJ7+h1lFfwgAfgebCE6GpN1dDvWcXtEuW5s?=
+ =?us-ascii?Q?512wuzD0vKlIKXxYx6k6aljBFb3UyDVAD/Bjh1mEWsdYQiWsFHYsxQJWv8hH?=
+ =?us-ascii?Q?feTLec5o2H7MoW/GQy+OmSLT2FW49YyB3a0iPcdU9HY6OXAQfnschWaG51rf?=
+ =?us-ascii?Q?yUXJ4JwdNjtSCMWvsIH7eGbAD9+6GmyL7Bydb+RkC8VCvJMquAImQUHI/yBK?=
+ =?us-ascii?Q?8TJVL5hPNcY+MRjz1vSVb+1QcltiQmDjcy3nWUlcFI9xoLBLRDL+AWZnsGPm?=
+ =?us-ascii?Q?sw=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR21MB1688.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6aaa74dc-80ce-45bf-2cdb-08db3782c081
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Apr 2023 16:11:31.7502
+X-MS-Exchange-CrossTenant-Network-Message-Id: 153bae6e-1817-4ac1-179c-08db37832d6a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Apr 2023 16:14:34.5094
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: D7NLZ4iWr5nMRGph/zvYWGRVRxmhp7mBnGU043iSWTLmps8FQqlvo/0NRVopaVsS5ffOAtobmD4ygreVa8Rsbec4piCK/861wr2Aos8CfHE=
+X-MS-Exchange-CrossTenant-userprincipalname: KVKEcn8SUyq4aKP84wIYcISiwtp8MZfPb0KXnHMG8V2Qp5IrJvA8nO6wCqIyWSS4gAGzrsG2QBNU9FAZy408N4pGVvVrzbGHaQ4lfTFxtek=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR21MB1397
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=0.8 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com> Sent: Monday, April 3, 2023 7:06 PM
+From: Michael Kelley (LINUX) <mikelley@microsoft.com> Sent: Friday, April 7=
+, 2023 9:12 AM
 >=20
-> Commit 414428c5da1c ("PCI: hv: Lock PCI bus on device eject") added
-> pci_lock_rescan_remove() and pci_unlock_rescan_remove() in
-> create_root_hv_pci_bus() and in hv_eject_device_work() to address the
-> race between create_root_hv_pci_bus() and hv_eject_device_work(), but it
-> turns that grubing the pci_rescan_remove_lock mutex is not enough:
-> refer to the earlier fix "PCI: hv: Add a per-bus mutex state_lock".
->=20
-> Now with hbus->state_lock and other fixes, the race is resolved, so
-> remove pci_{lock,unlock}_rescan_remove() in create_root_hv_pci_bus():
-> this removes the serialization in hv_pci_probe() and hence allows
-> async-probing (PROBE_PREFER_ASYNCHRONOUS) to work.
->=20
-> Add the async-probing flag to hv_pci_drv.
->=20
-> pci_{lock,unlock}_rescan_remove() in hv_eject_device_work() and in
-> hv_pci_remove() are still kept: according to the comment before
-> drivers/pci/probe.c: static DEFINE_MUTEX(pci_rescan_remove_lock),
-> "PCI device removal routines should always be executed under this mutex".
->=20
-> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> Cc: stable@vger.kernel.org
-> ---
->=20
-> v2:
->   No change to the patch body.
->   Improved the commit message [Michael Kelley]
->   Added Cc:stable
->=20
->  drivers/pci/controller/pci-hyperv.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller=
-/pci-hyperv.c
-> index 3ae2f99dea8c2..2ea2b1b8a4c9a 100644
-> --- a/drivers/pci/controller/pci-hyperv.c
-> +++ b/drivers/pci/controller/pci-hyperv.c
-> @@ -2312,12 +2312,16 @@ static int create_root_hv_pci_bus(struct
-> hv_pcibus_device *hbus)
->  	if (error)
->  		return error;
->=20
-> -	pci_lock_rescan_remove();
-> +	/*
-> +	 * pci_lock_rescan_remove() and pci_unlock_rescan_remove() are
-> +	 * unnecessary here, because we hold the hbus->state_lock, meaning
-> +	 * hv_eject_device_work() and pci_devices_present_work() can't race
-> +	 * with create_root_hv_pci_bus().
-> +	 */
->  	hv_pci_assign_numa_node(hbus);
->  	pci_bus_assign_resources(bridge->bus);
->  	hv_pci_assign_slots(hbus);
->  	pci_bus_add_devices(bridge->bus);
-> -	pci_unlock_rescan_remove();
->  	hbus->state =3D hv_pcibus_installed;
->  	return 0;
->  }
-> @@ -4003,6 +4007,9 @@ static struct hv_driver hv_pci_drv =3D {
->  	.remove		=3D hv_pci_remove,
->  	.suspend	=3D hv_pci_suspend,
->  	.resume		=3D hv_pci_resume,
-> +	.driver =3D {
-> +		.probe_type =3D PROBE_PREFER_ASYNCHRONOUS,
-> +	},
->  };
->=20
->  static void __exit exit_hv_pci_drv(void)
-> --
-> 2.25.1
+> From: Dexuan Cui <decui@microsoft.com> Sent: Monday, April 3, 2023 7:06 P=
+M
+> >
+> > Commit 414428c5da1c ("PCI: hv: Lock PCI bus on device eject") added
+> > pci_lock_rescan_remove() and pci_unlock_rescan_remove() in
+> > create_root_hv_pci_bus() and in hv_eject_device_work() to address the
+> > race between create_root_hv_pci_bus() and hv_eject_device_work(), but i=
+t
+> > turns that grubing the pci_rescan_remove_lock mutex is not enough:
 
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+There's some kind of spelling error or typo above.  Should "grubing" be
+"grabbing"?  Or did you intend something else?
 
+Michael
+
+
+> > refer to the earlier fix "PCI: hv: Add a per-bus mutex state_lock".
+> >
+> > Now with hbus->state_lock and other fixes, the race is resolved, so
+> > remove pci_{lock,unlock}_rescan_remove() in create_root_hv_pci_bus():
+> > this removes the serialization in hv_pci_probe() and hence allows
+> > async-probing (PROBE_PREFER_ASYNCHRONOUS) to work.
+> >
+> > Add the async-probing flag to hv_pci_drv.
+> >
+> > pci_{lock,unlock}_rescan_remove() in hv_eject_device_work() and in
+> > hv_pci_remove() are still kept: according to the comment before
+> > drivers/pci/probe.c: static DEFINE_MUTEX(pci_rescan_remove_lock),
+> > "PCI device removal routines should always be executed under this mutex=
+".
+> >
+> > Signed-off-by: Dexuan Cui <decui@microsoft.com>
+> > Cc: stable@vger.kernel.org
