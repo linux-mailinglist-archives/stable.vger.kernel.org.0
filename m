@@ -2,233 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 938866DAB96
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 12:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E6566DAC69
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 13:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231617AbjDGKpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 06:45:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37336 "EHLO
+        id S238567AbjDGL4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 07:56:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231459AbjDGKpn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 06:45:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F3C86A8;
-        Fri,  7 Apr 2023 03:45:41 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231758AbjDGL4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 07:56:52 -0400
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [IPv6:2001:67c:2050:0:465::201])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514A649CE
+        for <stable@vger.kernel.org>; Fri,  7 Apr 2023 04:56:50 -0700 (PDT)
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 419FA61015;
-        Fri,  7 Apr 2023 10:45:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A828CC433EF;
-        Fri,  7 Apr 2023 10:45:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680864340;
-        bh=muu+JIlK5fHa6J8PR8unxJYJv48OaEoAfH6LrCt/btI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=A8zTIcVawhMgzhWmdn9y9FiYTrsAEZ1bCKWm6xiV1xDE7k9AayjLPQI9QL//zFsWT
-         E1RZvo2e3ezfVF4y+pUX3VtQYtKC6PFJJ7T2ByKjJGudRmfK+Jl0xsmlZvEqjtEBXm
-         cv7JZfA359wqpeKUC0mgfvY0bGMkkFA+eK13VeH4wqLkSyFvJ3udTiDCfdGs0vws43
-         GB8+6FX8fk/WJUM9Uq7XOzL6xZncdPW3pGH6P80dOcMm1TUTroQgm+M683GFqz3j3M
-         grlY2iThEVbkMZOD60oLbG2dQgcSTFFJbwEQ8mbbljIo/vbmsI75dvCPMY/K8pocU8
-         ktOE0aRSjVzGw==
-Received: by mail-lj1-f169.google.com with SMTP id b6so23151417ljr.1;
-        Fri, 07 Apr 2023 03:45:40 -0700 (PDT)
-X-Gm-Message-State: AAQBX9fzkw3w84OYWyMqttOVjkpRbD+NwDyKYvQBRHAHgxMYy4P8TYCL
-        xY6G/jazBkbr+BW0NclNJQb1obEUni3WMSuvdDQ=
-X-Google-Smtp-Source: AKy350bOLCKKqmE65Wr+ZeKb7BWxqw9i1ccVmclFMyLlJMcKQiRf/sSWiDlgIgpyMW36rAKF11wKzbpx9XMEfpl5Dg4=
-X-Received: by 2002:a2e:a307:0:b0:2a5:f850:c356 with SMTP id
- l7-20020a2ea307000000b002a5f850c356mr461087lje.2.1680864338726; Fri, 07 Apr
- 2023 03:45:38 -0700 (PDT)
+        by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4PtH0F3LbLz9scK;
+        Fri,  7 Apr 2023 13:56:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1680868605;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=5xFptS78ryJWQ9T89ayX33Yedi3fouqi4tSdbu3AxuE=;
+        b=J13gtFY7eoNVRQGOHjplbmWA2ftAwVNrSdN5OL5sqyWWrrMk03NpeToaS2plg6eT+H5wW+
+        TiK+0MjzDDav0pEhQqYjMTBSG5V+L4wS26DQV/lbF62K8aASAxVyrfcaZBbluyD+exlf15
+        ppWRQqBvZSax0F7eTv8whTZTpcfPIzWrPey/BgMo75euWlgDNNDA7sM68yrx/7lJTdFaGy
+        fL/KEG9DqFYhewUg83KFZtL7GaefbX9eywSRPf+cRGDsTfki8D5UXwFuPwwBJUJ7DIPnHx
+        45sNlZIxOwAwAtSv7eNsgD7G4VdzKx5al4yaPnqASDmv9mPXMqGaNygs53vdxA==
+Subject: Re: 6.1.22: Resume from hibernate fails; bisected
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        stable@vger.kernel.org, tim.huang@amd.com,
+        Alex Deucher <alexander.deucher@amd.com>
+References: <b52bfd11-0d90-739b-be3e-058e246478f7@mailbox.org>
+ <c87add10-3e8f-b17e-f3f5-067431a23e16@leemhuis.info>
+ <d3ac4ff5-863f-2179-1120-191774d80a27@mailbox.org>
+ <ZC8m_gjbB4oVlO5t@kroah.com>
+From:   Rainer Fiebig <jrf@mailbox.org>
+Autocrypt: addr=jrf@mailbox.org; prefer-encrypt=mutual; keydata=
+ mQINBFohwNMBEADSyoSeizfx3D4yl2vTXfNamkLDCuXDN+7P5/UbB+Kj/d4RTbA/w0fqu3S3
+ Kdc/mff99ypi59ryf8VAwd3XM19beUrDZVTU1/3VHn/gVYaI0/k7cnPpEaOgYseemBX5P2OV
+ ZE/MjfQrdxs80ThMqFs2dV1eHnDyNiI3FRV8zZ5xPeOkwvXakAOcWQA7Jkxmdc3Zmc1s1q8p
+ ZWz77UQ5RRMUFw7Z9l0W1UPhOwr/sBPMuKQvGdW+eui3xOpMKDYYgs7uN4Ftg4vsiMEo03i5
+ qrK0mfueA73NADuVIf9cB2STDywF/tF1I27r+fWns1x9j/hKEPOAf4ACrNUdwQ9qzu7Nj9rz
+ 2WU8sjneqiiED2nKdzV0gDnFkvXY9HCFZR2YUC2BZNvLiUJ1PROFDdNxmdbLZAKok17mPyOR
+ MU0VQ61+PNjS8nsnAml8jnpzpcvLcQxR7ejRAV6w+Dc7JwnuQOiPS6M7x5FTk3QTPL+rvLFJ
+ 09Nb3ooeIQ/OUQoeM7pW8ll8Tmu2qSAJJ+3O002ADRVU1Nrc9tM5Ry9ht5zjmsSnFcSe2GoJ
+ Knu1hyXHDAvcq/IffOwzdeVstdhotBpf058jlhFlfnaqXcOaaHZrlHtrKOfQQZrxXMfcrvyv
+ iE2yhO8lUpoDOVuC1EhSidLd/IkCyfPjfIEBjQsQts7lepDgpQARAQABtB9SYWluZXIgRmll
+ YmlnIDxqcmZAbWFpbGJveC5vcmc+iQJWBBMBCABAAhsjBwsJCAcDAgEGFQgCCQoLBBYCAwEC
+ HgECF4AWIQTrLHk+ME24YHaolcbw4fcmJYr49QUCYVlg+QUJGnvH3QAKCRDw4fcmJYr49Wta
+ EADHXEnPxIsw5dM0Brphds0y12D0YGc2fBuTeyEDltuJIJNNLkzRw3wTOJ/muUHePlyWQigf
+ cTieAP4UZmZkR+HtZdbasop+cIqjNrjeU1i+aiNaDf/j6JMKaXVtaXfTbwA0DFJ2olS7Ito/
+ v7WPf5zJa7BnWFa5VbMQw2T68gOGpMuQky9se58ylQcpjBD2QVJiL5w36JTZpG84GfvQnFdl
+ Fu9dh6/bYDUiTVYWbWCYNoDiEam3GEgsPxWMyb2R9nkBDEUKp9jDxu/iJl5nbX2+hoLDcD7v
+ zM+sEeXLgwn5OyRxKiFYLAaNPUow+J8JG7NUWHVvuHtiu4ykNfoIghyxPENs5N/nndJt5KDq
+ kWHlXhJOyC6eDCt/47Ylykau/bDlfrmgfoEoLt8X59sZaQAgkV0yjrPl4bEW61eGvcjracj5
+ lsDP15MITm+OND3LLSg9Jxz8LOYs6enLxy7OmFIJF685XDhtDdvGSVCbdB4Ndhygw8HiDxnZ
+ hh4ByX+N/v60g3IdoFXc7v8GIDMTtSukOwKlm44jENcFZBjjC518OH1ugLcbnR/f+vT9L7tO
+ fDNahD1nrLNsOtZKkW1Ieztl7EEz8IUZzjMqXuEWSEZn0luE8j6FnuTr1JId8WL9AqM/vcVY
+ /UN8v4d4bUvjQ2+k0U3aMsumw+Y5PUsiFfy+gLkCDQRaIcDTARAAwhbtQAUmZG/rkpR/6/xr
+ 7jRqi5Z3M5LZNw4lW9k4nBpQDAP/rLVuREnz/upm314P9i5iN9g2wsbReZBJ9KiUxT39KD5p
+ 99KZGIH0elgZy+nDnb3oQLbtAr8+ox1ThOyOEJ7iX378txc1JD9IWJuv6YLMlkXa4ZuuAMCq
+ KUvCChEjcHhZ+Ecb8OX8GwIKUoklWhoHR7OcMqAkjdhA698FkWNkgIeqMiTN/hBJ9u010ZeB
+ 82ibDAKSMetMRxflCwThrVrfrOr5+ZkJvoN5r+Jy1ulk8OOnDOjvqXoUcee5zdloZymeY3f7
+ zebddvPmuiR0qXX0KYeSbhNF1GugLgbYeU2ev0nZ74F6vTwLUraRjKUzk0bq6SELlNMriS2x
+ Wj7zDB2XtzUdTHPYSgFDKGYxRqiM7KJbheCL7gD1wxUGRf14yJISXmDX/fZhsFrZ/NF3UqxJ
+ nLCz9lqyMCvT8prJjlAQu0zcFcrGAYVBNeJMAKlukMllRMgWdSLmJQiDC5JMaXoEeXdGpIv8
+ LgH+yU3tkKjXvkjwGywcXuL28ZScap3iJj08B8HWHmlL5b3pCkZv1w87SSF+FarrWl4F4u4U
+ j+u2r7/NEZVmJ0GpNHNwkYFQiX1Coky6+Ga1/gXUBP6grI9eZOMD+qtsJC1JVPY8VIsjq/47
+ R1tBTKoiANQ/M+MAEQEAAYkCPAQYAQgAJgIbDBYhBOsseT4wTbhgdqiVxvDh9yYlivj1BQJh
+ WuePBQkae8fdAAoJEPDh9yYlivj1GmsP/AwKF5WPyg3M1e7YPAYc3vsp2RQccnIjQ62MYxbz
+ VWFs32GT0FyeIBzzT5aaVNyWzumNSyp51LC29AeqL/LXel9bUCzg3v0g5UutXAh9XYnWvgD6
+ 12U4WlFUPmSVKz7B1kf9fwFfOUyRnT1Ayf91GDW9vTP2yWboXqelQdawa1Wl7G+C+unyuu3q
+ OoPkNu65g6ZanO66ycXz6BDOlfCP7WPhcdyi85PuaJhXGbOysKS/m+tptS7XStqp+9Hvj1pj
+ 3pajr5Nktufg3+QLQTj7iUowMnHdClY5d5c34gayzXHIZw9pSM4u4NStEGUTHk9JVRNd09A0
+ J3PzCngz9isv6Cdi7dZH4ivjOqXnD3Wq6Dwmu2RaBciQx8fuM58o6VBQ2cQa00QRT96UPWph
+ G5BEGryzI0IxAmQtNDwneJx+jscGmMWvm4PkTViBnRcJtlJVO0lR5tWjscVG4TgBIo1M5qmi
+ t0GfVUkS4E8AhVNtPG1Z5vl7JkfX3irc4ld58j1STfhLuos5l4X+7lRncpbYCsuk9rz1Bjh8
+ r/bUbqMkpj7m27JXi7cHIOtZ4up9O0O8WFdPpLRmy6GS67czo5dpV3CowY9LtZ0+0JmnUd59
+ kutl2mu4Qd3cGFbZB4J8J3p+wtsx7bujP38lQvmqpyGTUtyoGO9nOL0X5Xi95CAqapnE
+Message-ID: <635357ce-8793-1788-e47e-369ed8ded673@mailbox.org>
+Date:   Fri, 7 Apr 2023 13:56:49 +0200
 MIME-Version: 1.0
-References: <20230406040515.383238-1-jhubbard@nvidia.com> <CAMj1kXHxyntweiq76CdW=ov2_CkEQUbdPekGNDtFp7rBCJJE2w@mail.gmail.com>
- <a421b96a-ed4b-ae7d-2fe9-ed5f5f8deacf@nvidia.com>
-In-Reply-To: <a421b96a-ed4b-ae7d-2fe9-ed5f5f8deacf@nvidia.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 7 Apr 2023 12:45:27 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXGtFyugzi9MZW=4_oVTy==eAF6283fwvX9fdZhO98ZA3g@mail.gmail.com>
-Message-ID: <CAMj1kXGtFyugzi9MZW=4_oVTy==eAF6283fwvX9fdZhO98ZA3g@mail.gmail.com>
-Subject: Re: [PATCH] arm64/mm: don't WARN when alloc/free-ing device private pages
-To:     John Hubbard <jhubbard@nvidia.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Feiyang Chen <chenfeiyang@loongson.cn>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        linux-arm-kernel@lists.infradead.org,
-        LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <ZC8m_gjbB4oVlO5t@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-MBO-RS-META: 9durk4ohq9xzbiw5udisk8a8no5irb91
+X-MBO-RS-ID: bb264dcb417217733be
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 7 Apr 2023 at 02:13, John Hubbard <jhubbard@nvidia.com> wrote:
->
-> On 4/6/23 00:31, Ard Biesheuvel wrote:
-> > Hello John,
-> >
-> > On Thu, 6 Apr 2023 at 06:05, John Hubbard <jhubbard@nvidia.com> wrote:
-> >>
-> >> Although CONFIG_DEVICE_PRIVATE and hmm_range_fault() and related
-> >> functionality was first developed on x86, it also works on arm64.
-> >> However, when trying this out on an arm64 system, it turns out that
-> >> there is a massive slowdown during the setup and teardown phases.
-> >>
-> >> This slowdown is due to lots of calls to WARN_ON()'s that are checking
-> >> for pages that are out of the physical range for the CPU. However,
-> >> that's a design feature of device private pages: they are specfically
-> >> chosen in order to be outside of the range of the CPU's true physical
-> >> pages.
-> >>
->
-> Hi Ard,
->
-> Thank you for looking at this so soon, I've been working on filling
-> in some details and studying what you said.
->
-> By the way, to address an implicit question from Andrew on the other
-> thread, the reason that this slows things down is due to a loop in
-> __add_pages() that repeatedly calls through to vmemmap_populate(),
-> like this:
->
-> device driver setup: allocate struct pages for the device (GPU)
->     memremap_pages(pagemap.type = MEMORY_DEVICE_PRIVATE)
->         pagemap_range()
->         __add_pages() /* device private case does this */
->             for (; pfn < end_pfn; pfn += cur_nr_pages) {
->                 /* this loops 125 times on an x86 test machine: */
->                 sparse_add_section()
->                     section_activate()
->                         populate_section_memmap()
->                             __populate_section_memmap()
->                                 vmemmap_populate()
->
-> >
-> > Currently, the vmemmap region is dimensioned to only cover the PFN
-> > range that backs the linear map. So the WARN() seems appropriate here:
-> > you are mapping struct page[] ranges outside of the allocated window,
-> > and afaict, you might actually wrap around and corrupt the linear map
-> > at the start of the kernel VA space like this.
-> >
->
-> Well...it's only doing a partial hotplug of these pages, just enough to get
-> ZONE_DEVICE to work. As I understand it so far, only the struct pages
-> themselves are ever accessed, not any mappings.
->
+Am 06.04.23 um 22:09 schrieb Greg KH:
+> On Thu, Apr 06, 2023 at 05:39:07PM +0200, Rainer Fiebig wrote:
+>> Am 06.04.23 um 15:30 schrieb Linux regression tracking (Thorsten Leemhuis):
+>>> [CCing the regression list, as it should be in the loop for regressions:
+>>> https://docs.kernel.org/admin-guide/reporting-regressions.html]
+>>>
+>>> On 06.04.23 14:06, Rainer Fiebig wrote:
+>>>> Hi! Since kernel 6.1.22 starting a resume from hibernate by hitting a
+>>>> key on the keyboard fails. However, if the PC was switched off and on
+>>>> again (or reset), the resume is OK. The APU  is a Ryzen 5600G.
+>>>>
+>>>> Bisecting between 6.1.21/22 turned up this:
+>>>>
+>>>>
+>>>> Author: Tim Huang <tim.huang@amd.com>
+>>>> Date:   Thu Mar 9 16:27:51 2023 +0800
+>>>>
+>>>>     drm/amdgpu: skip ASIC reset for APUs when go to S4
+>>>>
+>>>>     commit b589626674de94d977e81c99bf7905872b991197 upstream.
+>>>>
+>>>>     For GC IP v11.0.4/11, PSP TMR need to be reserved
+>>>>     for ASIC mode2 reset. But for S4, when psp suspend,
+>>>>     it will destroy the TMR that fails the ASIC reset.
+>>>> [...]
+>>>>
+>>>>
+>>>> Reverting the commit solves the problem.
+>>>> Thanks.
+>>>
+>>> Please try 6.1.23 and report back, because from the thread
+>>> https://lore.kernel.org/all/20230330160740.1dbff94b@schienar/
+>>> it sounds a lot like "drm/amdgpu: allow more APUs to do mode2 reset when
+>>> go to S4" might be fixing this, which went into 6.1.23.
+>> Yes, 6.1.23 seems OK so far.
+>>
+>> I think, however, that rc-kernels and LTS-kernels are different matters.
+>>  With a bleeding edge kernel, problems are to be expected.  But an
+>> LTS-kernel is chosen for stability.  And this is the second time within
+>> just a few weeks that I've been bitten by a time-consuming hibernate-bug
+>> caused by a backport of a commit in amdgpu.
+>>
+>> So I'm asking the devs to either test their patches more thoroughly or
+>> to be a bit more conservative with what they recommend for backporting
+>> to LTS-kernels.  Thanks.
+> 
+> Please feel free to suggest better ways to have automated tests for
+> stuff like this, or to help provide testing for the -rc LTS/stable
+> kernel releases.
+Well, I'm afraid I can't offer a panacea or the ultimate automated
+quality assurance system.  But for the two cases that I've encountered
+lately, a simple hibernate/resume would have shown that there's a
+problem.  After all, that's how I and other users noticed it.
 
-That is what I am talking about - the struct pages are allocated in a
-region that is reserved for something else.
+So I think the primary line of defence against regressions remains the
+developer himself who should try hard to imagine what ramifications his
+patch might have and test it accordingly.  But I'm aware of the fact
+that we are all only humans.
 
-Maybe an example helps here:
+Another idea might be to give patches that introduce new features or
+only minimal improvements ample time to mature in the latest stable
+kernel before backporting them to LTS-kernels, say three or four
+point-releases.  Or to only backport fixes for bugs or security issues.
 
-When running the 39-bit VA kernel build on a AMD Seatte board, we will
-have (assuming sizeof(struct page) == 64)
+> 
+> We can't do this alone :)
+Right.  For now I can't commit to testing release-candidates because of
+a lack in time.  But I try to bisect and report problems as soon as
+possible so that they can be resolved quickly.
 
-memstart_addr := 0x80_0000_0000
-
-PAGE_OFFSET := 0xffff_ff80_0000_0000
-
-VMEMMAP_SHIFT := 6
-VMEMMAP_START := 0xffff_fffe_0000_0000
-VMEMMAP_SIZE := 0x1_0000_0000
-
-pfn_to_page() conversions are based on ordinary array indexing
-involving vemmap[], where vmemmap is defined as
-
-#define vmemmap \
-    ((struct page *)VMEMMAP_START - (memstart_addr >> PAGE_SHIFT))
-
-So the PFN associated with the first usable DRAM address is
-0x800_0000, and pfn_to_page(0x800_0000) will return VMEMMAP_START.
-
-pfn_to_page(x) for any x < 0x800_0000 will produce a kernel VA that
-points into the vmalloc area, and may conflict with the kernel
-mapping, modules mappings, per-CPU mappings, IO mappings, etc etc.
-
-pfn_to_page(x) for values 0xc00_0000 < x < 0x1000_0000 will produce a
-kernel VA that points outside the region set aside for the vmemmap.
-This region is currently unused, but that will likely change soon.
-
-pfn_to_page(x) for any x >= 0x1000_0000 will wrap around and produce a
-bogus address in the user range.
-
-The bottom line is that the VMEMMAP region is dimensioned to cover
-system memory only, i.e., what can be covered by the kernel direct
-map. If you want to allocate struct pages for thing that are not
-system memory, you will need to enlarge the VMEMMAP region, and ensure
-that request_mem_region() produces a region that is covered by it.
-
-This is going to be tricky with LPA2, because there, the 4k pages
-configuration already uses up half of the vmalloc region to cover the
-linear map, so we have to consider this carefully.
+To avoid a false impression: kernelwise - and including amdgpu - I'm
+rather happy with the current state of affairs.  Thanks to all!
 
 
-> More below:
->
-> ...
-> >>                 /* arch/x86/mm/init_64.c */
-> >>                 vmemmap_free()
-> >>                 {
-> >>                   VM_BUG_ON(!PAGE_ALIGNED(start));
-> >>                   VM_BUG_ON(!PAGE_ALIGNED(end));
-> >>                   ...
-> >>                 }
-> >>
-> >> So, the warning is a false positive for this case. Therefore, skip the
-> >> warning if CONFIG_DEVICE_PRIVATE is set.
-> >>
-> >
-> > I don't think this is a false positive. We'll need to adjust
-> > VMEMMAP_SIZE to account for this.
-> >
->
-> Looking at the (new to me) arm64 code for this, VMEMMAP_SIZE is only
-> ever used to calculate VMEMMAP_END, which in turn is used for the
-> WARN_ON()'s in question, plus as the "ceiling" arg to free_empty_tables().
->
-> It seems Mostly Harmless. How would you feel about changing it to a
-> WARN_ON_ONCE() as Andrew suggested? That would completely fix the
-> user-visible symptoms:
->
-
-Actually, it should be a hard error, given the above.
-
-> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-> index 6f9d8898a025..82d4205af9f2 100644
-> --- a/arch/arm64/mm/mmu.c
-> +++ b/arch/arm64/mm/mmu.c
-> @@ -1157,7 +1157,7 @@ int __meminit vmemmap_check_pmd(pmd_t *pmdp, int node,
->  int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
->                 struct vmem_altmap *altmap)
->  {
-> -       WARN_ON((start < VMEMMAP_START) || (end > VMEMMAP_END));
-> +       WARN_ON_ONCE((start < VMEMMAP_START) || (end > VMEMMAP_END));
->
->         if (!IS_ENABLED(CONFIG_ARM64_4K_PAGES))
->                 return vmemmap_populate_basepages(start, end, node, altmap);
-> @@ -1169,7 +1169,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
->  void vmemmap_free(unsigned long start, unsigned long end,
->                 struct vmem_altmap *altmap)
->  {
-> -       WARN_ON((start < VMEMMAP_START) || (end > VMEMMAP_END));
-> +       WARN_ON_ONCE((start < VMEMMAP_START) || (end > VMEMMAP_END));
->
->         unmap_hotplug_range(start, end, true, altmap);
->         free_empty_tables(start, end, VMEMMAP_START, VMEMMAP_END);
->
->
->
-> thanks,
-> --
-> John Hubbard
-> NVIDIA
->
+Rainer Fiebig
