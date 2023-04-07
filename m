@@ -2,132 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7433B6DA829
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 06:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A976DA888
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 07:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229455AbjDGEKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 00:10:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59922 "EHLO
+        id S231747AbjDGFfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 01:35:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231919AbjDGEKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 00:10:23 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F268658B
-        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 21:09:58 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id 60-20020a17090a09c200b0023fcc8ce113so427453pjo.4
-        for <stable@vger.kernel.org>; Thu, 06 Apr 2023 21:09:58 -0700 (PDT)
+        with ESMTP id S229933AbjDGFfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 01:35:11 -0400
+Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD09383CE
+        for <stable@vger.kernel.org>; Thu,  6 Apr 2023 22:35:10 -0700 (PDT)
+Received: by mail-qt1-x82e.google.com with SMTP id l11so1341017qtj.4
+        for <stable@vger.kernel.org>; Thu, 06 Apr 2023 22:35:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1680840597; x=1683432597;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0Aui47sYym6eUyJHeRSbvJzsgj2hZgpPMPWCUjUt8JA=;
-        b=btjxM/o5y/IqXBtaNZ/DMdaeS8q7W0fcBp996++PmoaYGUmmjxC5+4oxxfu8uCia4a
-         z/9uPMy8aZ4wrmYFHh2isoSkOuu3PIg3rh383oHcggyXy6bZxTcORAPuWHS5LL/Al5r5
-         tXN5pQdxmZ5pkQi7wWoAQom/VP4xuGT4xhjUe/dVi62TP9vf4COSlJGWAQTN8BpSyVKW
-         KIKCIGH0wEmaOYsU5v7ipz4jT+4WhkeRS1iUYCLZo5dIJxNNUL7r1dnCoydWF9tqIer9
-         2NURW97pKYXL+4qBdxTgPc1pPH1xF8JNcAsebHvKj73WL9Q0ZH2c9FKM600UDK0L7Qwj
-         IYIA==
+        d=google.com; s=20210112; t=1680845710;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hlBbZOK/yS2JtjyHytP0uElRbQtRrIX5P2+4m2sD1WE=;
+        b=MfmkaqB2Q2hts1YNVBfvVsls58I1/V7RUHVmJFJqJKllaf1ZHqB6D4SDM8tP68XMaT
+         1BhdMXv1FfdLbBxQRT81n3ON1I3ClN01MFn0G4EXFCY7B4Ob7HxV++ONgiFTJ7zpyS4h
+         lXOutGYmCyyGYDRLWM4wdfgqUEBmw7rY9jUln4XWDNTpKKsyp8+J4bTWibcaB44a7f6b
+         lR1M8YVFJlvvrSQsMMg/2k64pT4fKlRKGQA5MVT2h5dBdCLwIGcs4Gcc0HHmmfFA9i4h
+         RyuM3mNUxZgQmDOGCqMBJluFXCHwwA9vLikdfLduF++ioJ44DEvgsP0mB3VSDhaaqunr
+         skbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680840597; x=1683432597;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0Aui47sYym6eUyJHeRSbvJzsgj2hZgpPMPWCUjUt8JA=;
-        b=5ErtwtcXT01NlhCx0BIWRYFCK230pnnFAreAvDd8vTafzcbMn+fELxgv1Z2hKm7oPD
-         4YREigMDs86okiElRkO2nzaZmcSYvPOBMWmb4HjcMMAOFr/0lxFWO2uAvcAdyj9mKKQd
-         R6Qpkrp3FRcPXbZ9hZLqFLqtpocdk1YSw+qJHNy8cdmNEQWwS1vLgJ4TutebGqb4eK3k
-         aC75VOMw0MCk/Mp9oKaJgbAyLc91h6u4EGJ8GoeL4rCGBoi3A4nJqhUQ7auI0o+o8uIp
-         QE5PFdQ2+S7WP8t0USdzfWZv4MQ/0FAUNbl430qZfW66ARxR187qjTQmtnFSWCh7Np+R
-         jsCw==
-X-Gm-Message-State: AAQBX9fyqxZaHXRBxCkBnZY7GR4NsruND5ECzlvBPkGy71TRb3nYeHPS
-        zz/Rur5gitdKgp9TNb57P4JyVw==
-X-Google-Smtp-Source: AKy350YkWXtm+VROzrrxuPlktSa0hkQnxbc7VvFkG/dSGtIFvCZEnuJ6s72HKtPIIwquDBJqY8RjhQ==
-X-Received: by 2002:a05:6a20:38a2:b0:de:5082:c9ec with SMTP id n34-20020a056a2038a200b000de5082c9ecmr756627pzf.2.1680840597673;
-        Thu, 06 Apr 2023 21:09:57 -0700 (PDT)
-Received: from GL4FX4PXWL.bytedance.net ([139.177.225.248])
-        by smtp.gmail.com with ESMTPSA id b8-20020aa78108000000b0062d7c0dc4f4sm2058010pfi.80.2023.04.06.21.09.54
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 06 Apr 2023 21:09:57 -0700 (PDT)
-From:   Peng Zhang <zhangpeng.00@bytedance.com>
-To:     Liam.Howlett@oracle.com
-Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, maple-tree@lists.infradead.org,
-        Peng Zhang <zhangpeng.00@bytedance.com>, stable@vger.kernel.org
-Subject: [PATCH 2/2] maple_tree: Fix a potential memory leak, OOB access, or other unpredictable bug
-Date:   Fri,  7 Apr 2023 12:07:18 +0800
-Message-Id: <20230407040718.99064-2-zhangpeng.00@bytedance.com>
-X-Mailer: git-send-email 2.37.0 (Apple Git-136)
-In-Reply-To: <20230407040718.99064-1-zhangpeng.00@bytedance.com>
-References: <20230407040718.99064-1-zhangpeng.00@bytedance.com>
+        d=1e100.net; s=20210112; t=1680845710;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hlBbZOK/yS2JtjyHytP0uElRbQtRrIX5P2+4m2sD1WE=;
+        b=oQl1r4792YNaSV07Ro4PuJJj7KQF3viBuMmuYakXBfzvh3f1hU22Ame3R962JbyCxH
+         jeU+/M6ifzgl5LcRuGtxEJ7F+vXihw8yUmHVPl0uJ0mXS5pr/Tx6GluWvJkonPaaxJua
+         XrMw8U3aIn8uN2vV/LzbBvizUcfElE0amvSl4dBMz6iiD4qpRvRXwORAo9mjAyLmuvbQ
+         nN/+2FPaNeTZw+YP6dAtody8QyS4/M6pZXeXbg1+28zzEHe4mqRshMTkuneYxuqt1p0K
+         krXubF8G8nKl2h3a4j1SRzCdZQafTXhjE0vqTda3f053Ah2WTHj1H6btXHXlMiyX65Ar
+         neJQ==
+X-Gm-Message-State: AAQBX9evavIp7jAKvNxBcI2Fy2cs7iSpJIb/kiliczV8l4qb2wSqcmLa
+        +WWV4tdI8JDWE4hn0S/ajLHf6+33DpOeJilDSXbLyYxJAbI9h3xI6Vlm4A==
+X-Google-Smtp-Source: AKy350YRNy4ZqxVOES1jE+f9fvmRW8A+Gv8SCijN2J/tj7O7f3KIjD5cuXvmxx1MfND7ZUaMaK7yrkXKlKKvaFabf0c=
+X-Received: by 2002:a05:622a:152:b0:3de:d15a:847f with SMTP id
+ v18-20020a05622a015200b003ded15a847fmr528638qtw.0.1680845709596; Thu, 06 Apr
+ 2023 22:35:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+From:   Khazhy Kumykov <khazhy@google.com>
+Date:   Thu, 6 Apr 2023 22:34:56 -0700
+Message-ID: <CACGdZYJ97rBX5JO-605WT50uEYefF4MW5HLq30cHz6QskqKPPg@mail.gmail.com>
+Subject: blk-throttle hierarchical throttling fix
+To:     stable@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+        boundary="00000000000077dd2905f8b863eb"
+X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
+        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In mas_alloc_nodes(), there is such a piece of code:
-while (requested) {
-	...
-	node->node_count = 0;
-	...
-}
-"node->node_count = 0" means to initialize the node_count field of the
-new node, but the node may not be a new node. It may be a node that
-existed before and node_count has a value, setting it to 0 will cause a
-memory leak. At this time, mas->alloc->total will be greater than the
-actual number of nodes in the linked list, which may cause many other
-errors. For example, out-of-bounds access in mas_pop_node(), and
-mas_pop_node() may return addresses that should not be used.
-Fix it by initializing node_count only for new nodes.
+--00000000000077dd2905f8b863eb
+Content-Type: text/plain; charset="UTF-8"
 
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
-Cc: <stable@vger.kernel.org>
----
- lib/maple_tree.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+Please take 84aca0a7e039 ("blk-throttle: Fix that bps of child could
+exceed bps limited in parent") for stable 6.1
 
-diff --git a/lib/maple_tree.c b/lib/maple_tree.c
-index 65fd861b30e1..9e25b3215803 100644
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -1249,26 +1249,18 @@ static inline void mas_alloc_nodes(struct ma_state *mas, gfp_t gfp)
- 	node = mas->alloc;
- 	node->request_count = 0;
- 	while (requested) {
--		max_req = MAPLE_ALLOC_SLOTS;
--		if (node->node_count) {
--			unsigned int offset = node->node_count;
--
--			slots = (void **)&node->slot[offset];
--			max_req -= offset;
--		} else {
--			slots = (void **)&node->slot;
--		}
--
-+		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
-+		slots = (void **)&node->slot[node->node_count];
- 		max_req = min(requested, max_req);
- 		count = mt_alloc_bulk(gfp, max_req, slots);
- 		if (!count)
- 			goto nomem_bulk;
- 
-+		if (node->node_count == 0)
-+			node->slot[0]->node_count = 0;
- 		node->node_count += count;
- 		allocated += count;
- 		node = node->slot[0];
--		node->node_count = 0;
--		node->request_count = 0;
- 		requested -= count;
- 	}
- 	mas->alloc->total = allocated;
--- 
-2.20.1
+Cherry pick claims that the patch applies cleanly to previous trees.
+Don't believe it. This fixes a regression introduced in 5.18 abouts
 
+--00000000000077dd2905f8b863eb
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIIPmwYJKoZIhvcNAQcCoIIPjDCCD4gCAQExDzANBglghkgBZQMEAgEFADALBgkqhkiG9w0BBwGg
+ggz1MIIEtjCCA56gAwIBAgIQeAMYYHb81ngUVR0WyMTzqzANBgkqhkiG9w0BAQsFADBMMSAwHgYD
+VQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UE
+AxMKR2xvYmFsU2lnbjAeFw0yMDA3MjgwMDAwMDBaFw0yOTAzMTgwMDAwMDBaMFQxCzAJBgNVBAYT
+AkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFz
+IFIzIFNNSU1FIENBIDIwMjAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCvLe9xPU9W
+dpiHLAvX7kFnaFZPuJLey7LYaMO8P/xSngB9IN73mVc7YiLov12Fekdtn5kL8PjmDBEvTYmWsuQS
+6VBo3vdlqqXZ0M9eMkjcKqijrmDRleudEoPDzTumwQ18VB/3I+vbN039HIaRQ5x+NHGiPHVfk6Rx
+c6KAbYceyeqqfuJEcq23vhTdium/Bf5hHqYUhuJwnBQ+dAUcFndUKMJrth6lHeoifkbw2bv81zxJ
+I9cvIy516+oUekqiSFGfzAqByv41OrgLV4fLGCDH3yRh1tj7EtV3l2TngqtrDLUs5R+sWIItPa/4
+AJXB1Q3nGNl2tNjVpcSn0uJ7aFPbAgMBAAGjggGKMIIBhjAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0l
+BBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFHzM
+CmjXouseLHIb0c1dlW+N+/JjMB8GA1UdIwQYMBaAFI/wS3+oLkUkrk1Q+mOai97i3Ru8MHsGCCsG
+AQUFBwEBBG8wbTAuBggrBgEFBQcwAYYiaHR0cDovL29jc3AyLmdsb2JhbHNpZ24uY29tL3Jvb3Ry
+MzA7BggrBgEFBQcwAoYvaHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLmNvbS9jYWNlcnQvcm9vdC1y
+My5jcnQwNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9yb290LXIz
+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
+79dydvRvmvj3iOMwTAYDVR0gBEUwQzBBBgkrBgEEAaAyASgwNDAyBggrBgEFBQcCARYmaHR0cHM6
+Ly93d3cuZ2xvYmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wDAYDVR0TAQH/BAIwADCBmgYIKwYBBQUH
+AQEEgY0wgYowPgYIKwYBBQUHMAGGMmh0dHA6Ly9vY3NwLmdsb2JhbHNpZ24uY29tL2NhL2dzYXRs
+YXNyM3NtaW1lY2EyMDIwMEgGCCsGAQUFBzAChjxodHRwOi8vc2VjdXJlLmdsb2JhbHNpZ24uY29t
+L2NhY2VydC9nc2F0bGFzcjNzbWltZWNhMjAyMC5jcnQwHwYDVR0jBBgwFoAUfMwKaNei6x4schvR
+zV2Vb4378mMwRgYDVR0fBD8wPTA7oDmgN4Y1aHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9jYS9n
+c2F0bGFzcjNzbWltZWNhMjAyMC5jcmwwDQYJKoZIhvcNAQELBQADggEBAAGnXU1ZiVtfDel8V5Gu
+zLG4WAXkeOocZbaQLxMU5feXzEkBi9FsW/dimVGtpWlhHCt6EFKWj47cJIAf4FbcsZGksqwaEanw
+AnYkE13+a2FcNcY39KIX2Jq+WEIaqJMZdEHUNgMA6RZ57HHfuwwYv0vpuH7wPZq+g86FLEAdWMf8
+jOTcRWOfNGc1TvLIunL1SLCwWbxvmz7XbXvHBeesFACzShCWrLWLJU2ynbWPQ50fD7VyLF1hmoh1
+yRYhUSah9MWOcjE2cv+RaQ4tpZFaylpeF3MKpzfV/oTBD4fc+fOvhrc4jTTZ4jifPwmXnH6+XP4V
+DTqxVuiAl9HipVxiQnoxggJqMIICZgIBATBoMFQxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9i
+YWxTaWduIG52LXNhMSowKAYDVQQDEyFHbG9iYWxTaWduIEF0bGFzIFIzIFNNSU1FIENBIDIwMjAC
+EAEurwvH4YF1ESpB5qmUbowwDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEIP3FwzZ2
+drXFw4SyeG9sAcvc6Hem8rNA2DGU5dRD4UpRMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJ
+KoZIhvcNAQkFMQ8XDTIzMDQwNzA1MzUxMFowaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQMEASow
+CwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQowCwYJKoZI
+hvcNAQEHMAsGCWCGSAFlAwQCATANBgkqhkiG9w0BAQEFAASCAQBi9itChCEsNogWIRRLxAMo4Cdu
+pXW9vlyQiAHcPLtptt2xbiS5sibBxUxSXodioOOd2JX0WpYyPVUFfDY1FfWyKomiUvFEqtqlJgew
+KCsAOQoWD7GGkSWC9JJaeGBbmEtDK9jBINMnbS7wCGDhN7N9czrv1XrvUphrdFFcxtEf0RywkVPE
+ibYEyLN9QCkb69nXXtxkbO2AbVI4UlVOAd9+X6qaj63CVcogMddQZWY+RR3J3+Oaxcr8Iox27ycn
+f+SJiXnJgL8TCB017yzYFNHifrk1THaMbNRFK7I8acHsReb4/CQgxfZHR2aryYnIQXvAHillqpLB
+RUWwQ+heIjT9
+--00000000000077dd2905f8b863eb--
