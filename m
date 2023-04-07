@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3DB36DAEC8
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 16:20:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D8336DAED4
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 16:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231199AbjDGOU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 10:20:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
+        id S232803AbjDGOYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 10:24:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230198AbjDGOU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 10:20:57 -0400
+        with ESMTP id S232542AbjDGOYO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 10:24:14 -0400
 Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C916EB7;
-        Fri,  7 Apr 2023 07:20:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4EC97DBF;
+        Fri,  7 Apr 2023 07:24:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
         s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
         References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
         Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
         Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-        bh=5Jyxr04qP9yFskbtHvux860ZyuoRYgOEjQbVknhtYPI=; b=0lHHBpxrC5+/w8dHhvSG8dNBBh
-        aZidgqKoGEaptfpJ2EFaNVCQelR+TSAO+D5o+Y0HfgfOxG8Ddz4yDSqsWoJNLH1PbeS0iOqa1y6mY
-        zdcje5RYubX6deXGY+vsjP2ej3PnxkmZCBkbHD7UyZijfJ1WeAR+NLAAlv69qaoXtTUQ=;
+        bh=KycbUd/6x6o2XMOQ7vp0xd2R5KmHrk0z1iFYchVzsqg=; b=j6fm2Ak1KD8Kw3gq3gVDuUSzZc
+        MpRIm0tUIamuAwJwXUwtwFaLJhk00G3vAAS22MqmHDNT5Fp6S7u1GZ0NjuwH83h4gIjc+iwVkwU4G
+        lAh9z9xviV+I/qiIlkvHqbh27YrIgWsHe+P5M4mvJw4dcMjUZJ9/9Trmx9z52SBvijvo=;
 Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
         (envelope-from <andrew@lunn.ch>)
-        id 1pkmxB-009jGH-FI; Fri, 07 Apr 2023 16:20:37 +0200
-Date:   Fri, 7 Apr 2023 16:20:37 +0200
+        id 1pkn0Y-009jHJ-Gv; Fri, 07 Apr 2023 16:24:06 +0200
+Date:   Fri, 7 Apr 2023 16:24:06 +0200
 From:   Andrew Lunn <andrew@lunn.ch>
 To:     "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
 Cc:     hkallweit1@gmail.com, linux@armlinux.org.uk, davem@davemloft.net,
         edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH net] net: phy: nxp-c45-tja11xx: add remove callback
-Message-ID: <cf1dd1a9-2e2d-473e-89f0-8e2c51226dfe@lunn.ch>
-References: <20230406095904.75456-1-radu-nicolae.pirea@oss.nxp.com>
+Subject: Re: [PATCH net] net: phy: nxp-c45-tja11xx: fix unsigned long
+ multiplication overflow
+Message-ID: <ab26b875-c10a-47af-a1e9-591812d4113f@lunn.ch>
+References: <20230406095953.75622-1-radu-nicolae.pirea@oss.nxp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230406095904.75456-1-radu-nicolae.pirea@oss.nxp.com>
+In-Reply-To: <20230406095953.75622-1-radu-nicolae.pirea@oss.nxp.com>
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
         DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
@@ -48,36 +49,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 06, 2023 at 12:59:04PM +0300, Radu Pirea (OSS) wrote:
-> Unregister PTP clock when the driver is removed.
-> Purge the RX and TX skb queues.
+On Thu, Apr 06, 2023 at 12:59:53PM +0300, Radu Pirea (OSS) wrote:
+> Any multiplication between GENMASK(31, 0) and a number bigger than 1
+> will be truncated because of the overflow, if the size of unsigned long
+> is 32 bits.
 > 
+> Replaced GENMASK with GENMASK_ULL to make sure that multiplication will
+> be between 64 bits values.
+> 
+> Cc: <stable@vger.kernel.org> # 5.15+
 > Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
-> CC: stable@vger.kernel.org # 5.15+
 > Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
-> ---
->  drivers/net/phy/nxp-c45-tja11xx.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
-> index 5813b07242ce..27738d1ae9ea 100644
-> --- a/drivers/net/phy/nxp-c45-tja11xx.c
-> +++ b/drivers/net/phy/nxp-c45-tja11xx.c
-> @@ -1337,6 +1337,17 @@ static int nxp_c45_probe(struct phy_device *phydev)
->  	return ret;
->  }
->  
-> +static void nxp_c45_remove(struct phy_device *phydev)
-> +{
-> +	struct nxp_c45_phy *priv = phydev->priv;
-> +
-> +	if (priv->ptp_clock)
-> +		ptp_clock_unregister(priv->ptp_clock);
-> +
-> +	skb_queue_purge(&priv->tx_queue);
-> +	skb_queue_purge(&priv->rx_queue);
 
-Do you need to disable interrupts? I suppose the real question is, is
-it guaranteed phy_disconnect() is called before the driver is removed?
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-   Andrew
+    Andrew
