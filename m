@@ -2,124 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B2C36DAA3E
-	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 10:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800266DAAAC
+	for <lists+stable@lfdr.de>; Fri,  7 Apr 2023 11:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239613AbjDGIfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Apr 2023 04:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53206 "EHLO
+        id S232023AbjDGJKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Apr 2023 05:10:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239379AbjDGIfP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 04:35:15 -0400
-Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C162F46B0;
-        Fri,  7 Apr 2023 01:35:10 -0700 (PDT)
-Received: from loongson.cn (unknown [10.20.42.153])
-        by gateway (Coremail) with SMTP id _____8DxEzS91S9kxccXAA--.37008S3;
-        Fri, 07 Apr 2023 16:35:09 +0800 (CST)
-Received: from loongson-pc.loongson.cn (unknown [10.20.42.153])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8AxGL2t1S9kKRwYAA--.21995S7;
-        Fri, 07 Apr 2023 16:35:08 +0800 (CST)
-From:   Jianmin Lv <lvjianmin@loongson.cn>
-To:     Thomas Gleixner <tglx@linutronix.de>, Marc Zyngier <maz@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        loongson-kernel@lists.loongnix.cn, stable@vger.kernel.org
-Subject: [PATCH V3 5/5] irqchip/loongson-pch-pic: Fix pch_pic_acpi_init calling
-Date:   Fri,  7 Apr 2023 16:34:53 +0800
-Message-Id: <20230407083453.6305-6-lvjianmin@loongson.cn>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20230407083453.6305-1-lvjianmin@loongson.cn>
-References: <20230407083453.6305-1-lvjianmin@loongson.cn>
+        with ESMTP id S231652AbjDGJKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Apr 2023 05:10:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7C8E9;
+        Fri,  7 Apr 2023 02:10:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 794BE64DCC;
+        Fri,  7 Apr 2023 09:10:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B41C433EF;
+        Fri,  7 Apr 2023 09:10:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680858635;
+        bh=dywClRW4j4O7p5Ksngwq5/7eKvi5yJ/JMWGVgSMfKrg=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=SmhaHTMKberTU3jKu/cfFjAJAG4UHco3QrSttH7hJZqRCRyIcVo3F80q0nz6JkUvP
+         vX7lMtkivLpN3WBMUTJ/kkpjy4fs7hbX5LX9uJDNFaMYlFnTc+EBZZtKnGT7hjSYUA
+         W37a6TvPdIkIzB7uq7PgjTGyGqwPvFYU0JRzitIAQMywYcxpe/AJw8tmL+bIP83asE
+         /BNe2ylBj+xj9lLo1/v1AnYPcyptpEts2o+V3b0T0qdviAbFEDBAoztYWwx0vsNuWz
+         33hwVAjpZNl0ZULCEw6Z6b0qRQJA7xc4px5V4LhwO28FNP3yD2G2kJ94dmr1UKTMiZ
+         ZFjCeqObG6xSg==
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-9341434fe3cso188299566b.1;
+        Fri, 07 Apr 2023 02:10:35 -0700 (PDT)
+X-Gm-Message-State: AAQBX9cZqEdfuaZZTmXE6nuPcNq3PZBW8ho1/c6HxZfYCq4CifaGRHCt
+        BFLPQDn6VB+KU7PKavswXDnKD9pCCwIf1Fd5INQ=
+X-Google-Smtp-Source: AKy350Ysf2bvaTDCE0nhTKwRJBgdESkqgUVFGtmCYhNIxwm561HQuPCCCZq00XDF/RWNan1UbPnBpWVe5WNIueNg+jo=
+X-Received: by 2002:a05:6402:14d5:b0:501:e26e:502b with SMTP id
+ f21-20020a05640214d500b00501e26e502bmr1687603edx.29.1680858634187; Fri, 07
+ Apr 2023 02:10:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8AxGL2t1S9kKRwYAA--.21995S7
-X-CM-SenderInfo: 5oymxthqpl0qxorr0wxvrqhubq/
-X-Coremail-Antispam: 1Uk129KBjvJXoW7tw17uw1xJw4DGF1UCFy7Awb_yoW8ur47pF
-        W2q39Iyr48JFyxCFZ2kw45Xry3A3sxC3y2gF4rC3yrZr4qka4kCr1xAa1Uur4kCFsrGF4a
-        vF4FqF1jk3WUAaDanT9S1TB71UUUUjDqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
-        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
-        bS8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
-        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
-        wVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1l84
-        ACjcxK6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAa
-        w2AFwI0_JF0_Jw1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44
-        I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Wrv_ZF1lYx0Ex4A2
-        jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262
-        kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km
-        07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r
-        1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVW7
-        JVWDJwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r
-        1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1U
-        YxBIdaVFxhVjvjDU0xZFpf9x07j6rWOUUUUU=
-X-Spam-Status: No, score=-0.0 required=5.0 tests=SPF_HELO_PASS,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20230406025036.3022894-1-chenhuacai@loongson.cn>
+In-Reply-To: <20230406025036.3022894-1-chenhuacai@loongson.cn>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Fri, 7 Apr 2023 17:10:22 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTRjYra4yhWq0UYMmLYfSZ84fHJjC9JcCVpS4NQho7rvGw@mail.gmail.com>
+Message-ID: <CAJF2gTRjYra4yhWq0UYMmLYfSZ84fHJjC9JcCVpS4NQho7rvGw@mail.gmail.com>
+Subject: Re: [PATCH] LoongArch: module: set section addresses to 0x0
+To:     Huacai Chen <chenhuacai@loongson.cn>
+Cc:     Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+        Xuefeng Li <lixuefeng@loongson.cn>,
+        Xuerui Wang <kernel@xen0n.name>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-kernel@vger.kernel.org, loongson-kernel@lists.loongnix.cn,
+        stable@vger.kernel.org, Chong Qiao <qiaochong@loongson.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For dual-bridges scenario, pch_pic_acpi_init() will be called
-in following path:
+On Thu, Apr 6, 2023 at 10:51=E2=80=AFAM Huacai Chen <chenhuacai@loongson.cn=
+> wrote:
+>
+> These got*, plt* and .text.ftrace_trampoline sections specified for
+> LoongArch have non-zero addressses. Non-zero section addresses in a
+> relocatable ELF would confuse GDB when it tries to compute the section
+> offsets and it ends up printing wrong symbol addresses. Therefore, set
+> them to zero, which mirrors the change in commit 5d8591bc0fbaeb6ded
+> ("arm64 module: set plt* section addresses to 0x0").
+Good point, maybe I would check RISC-V!
 
-cpuintc_acpi_init
-  acpi_cascade_irqdomain_init(in cpuintc driver)
-    acpi_table_parse_madt
-      eiointc_parse_madt
-        eiointc_acpi_init /* this will be called two times
-                             correspondingto parsing two
-                             eiointc entries in MADT under
-                             dual-bridges scenario*/
-          acpi_cascade_irqdomain_init(in eiointc driver)
-            acpi_table_parse_madt
-              pch_pic_parse_madt
-                pch_pic_acpi_init /* this will be called depend
-                                     on valid parent IRQ domain
-                                     handle for one or two times
-                                     corresponding to parsing
-                                     two pchpic entries in MADT
-                                     druring calling
-                                     eiointc_acpi_init() under
-                                     dual-bridges scenario*/
+Thx.
 
-During the first eiointc_acpi_init() calling, the
-pch_pic_acpi_init() will be called just one time since only
-one valid parent IRQ domain handle will be found for current
-eiointc IRQ domain.
+Reviewed-by: Guo Ren <guoren@kernel.org>
 
-During the second eiointc_acpi_init() calling, the
-pch_pic_acpi_init() will be called two times since two valid
-parent IRQ domain handles will be found. So in pch_pic_acpi_init(),
-we must have a reasonable way to prevent from creating second same
-pch_pic IRQ domain.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Chong Qiao <qiaochong@loongson.cn>
+> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+> ---
+>  arch/loongarch/include/asm/module.lds.h | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/arch/loongarch/include/asm/module.lds.h b/arch/loongarch/inc=
+lude/asm/module.lds.h
+> index 438f09d4ccf4..88554f92e010 100644
+> --- a/arch/loongarch/include/asm/module.lds.h
+> +++ b/arch/loongarch/include/asm/module.lds.h
+> @@ -2,8 +2,8 @@
+>  /* Copyright (C) 2020-2022 Loongson Technology Corporation Limited */
+>  SECTIONS {
+>         . =3D ALIGN(4);
+> -       .got : { BYTE(0) }
+> -       .plt : { BYTE(0) }
+> -       .plt.idx : { BYTE(0) }
+> -       .ftrace_trampoline : { BYTE(0) }
+> +       .got 0 : { BYTE(0) }
+> +       .plt 0 : { BYTE(0) }
+> +       .plt.idx 0 : { BYTE(0) }
+> +       .ftrace_trampoline 0 : { BYTE(0) }
+>  }
+> --
+> 2.39.1
+>
 
-The patch matches gsi base information in created pch_pic IRQ
-domains to check if the target domain has been created to avoid the
-bug mentioned above.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
----
- drivers/irqchip/irq-loongson-pch-pic.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
-index 64fa67d4ee7a..e5fe4d50be05 100644
---- a/drivers/irqchip/irq-loongson-pch-pic.c
-+++ b/drivers/irqchip/irq-loongson-pch-pic.c
-@@ -404,6 +404,9 @@ int __init pch_pic_acpi_init(struct irq_domain *parent,
- 	int ret, vec_base;
- 	struct fwnode_handle *domain_handle;
- 
-+	if (find_pch_pic(acpi_pchpic->gsi_base) >= 0)
-+		return 0;
-+
- 	vec_base = acpi_pchpic->gsi_base - GSI_MIN_PCH_IRQ;
- 
- 	domain_handle = irq_domain_alloc_fwnode(&acpi_pchpic->address);
--- 
-2.31.1
-
+--=20
+Best Regards
+ Guo Ren
