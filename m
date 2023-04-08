@@ -2,127 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DC96DBBB9
-	for <lists+stable@lfdr.de>; Sat,  8 Apr 2023 17:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDBAB6DBCFF
+	for <lists+stable@lfdr.de>; Sat,  8 Apr 2023 22:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbjDHPFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Apr 2023 11:05:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44084 "EHLO
+        id S229477AbjDHUtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Apr 2023 16:49:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjDHPFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 11:05:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7860CC178
-        for <stable@vger.kernel.org>; Sat,  8 Apr 2023 08:05:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680966313;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=w9sryqDLxXFtiPfudnwB2Hm3EkTYwVipdp4/U/AgJig=;
-        b=RcOPCeKgx8JjcoOFSF1luYPGl/HTMvhAhhamhjwJ6/EhPfDkniaDRvYA79NUwO8TQ/euo+
-        w5dnoTijSfV1pAlXlXlrddTcrkfsQRHFGdl0NhK3cwZLEo2b/xrADofevtmCcK87qeenY1
-        FXApBzQO/C2ZwMNn0weJCYJgRsnT2/M=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-454-ivSFPhLdN6aC4AY9QSxdqw-1; Sat, 08 Apr 2023 11:05:11 -0400
-X-MC-Unique: ivSFPhLdN6aC4AY9QSxdqw-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5024a72b054so1689444a12.0
-        for <stable@vger.kernel.org>; Sat, 08 Apr 2023 08:05:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680966310;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=w9sryqDLxXFtiPfudnwB2Hm3EkTYwVipdp4/U/AgJig=;
-        b=1rr0nLPgEUMtB5VtDReGElkfkWprscUo3R/B1/Hh0GlwV4tLdq5NVqlxBXQImdh+Up
-         99esLmKyWcr42ZkieH0sdwIJdBNPYa+b1bTU2NCM1sxAemGDriyIwb6MywC9cChBgpCD
-         f1zMDFFocK37rg++e2Va/mq/4IpgEV3XL+8/AqITs8tfadC9VmT7qZPo7M4pwvRs0spx
-         ZH1Cdra9zn6j9LJvn7gMhm00eyguyEy8ryvYPeJ0RbcdJ/SJW1zL4U3CMD3BwQb3WKVI
-         ie+ByUJS2zLrnG0hp9eyHP3IvmpU04RPDtW4F62nF6gdycs9A6agM0bfU/5WiK8lcAlZ
-         PV7Q==
-X-Gm-Message-State: AAQBX9cH95G2L2Fpc8CXTzqwyOlMB95qETaCuzKPR56w+EasRZn3FklW
-        17fqf+Ynv6AV/AzYSAX1BPWlbRGKPjNoiTVCWb9K+yNoVRvT55glNOUbHk0jaObaTRo+4ZXBy1I
-        j4q9MwdeCeKbfmpktwMW5fgRtTr+/J71g
-X-Received: by 2002:aa7:d590:0:b0:4fd:2675:3785 with SMTP id r16-20020aa7d590000000b004fd26753785mr1389715edq.22.1680966310625;
-        Sat, 08 Apr 2023 08:05:10 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YEXZM04gfrG0zUHYkHUTtzon3Nz0PuH2lQDJcHf0ICTIe5pJAzOGzTF1m/FMXP9xJ9r7stdvgILRdsVA9Ke24=
-X-Received: by 2002:aa7:d590:0:b0:4fd:2675:3785 with SMTP id
- r16-20020aa7d590000000b004fd26753785mr1389692edq.22.1680966310343; Sat, 08
- Apr 2023 08:05:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230408081934.54002-1-chenaotian2@163.com>
-In-Reply-To: <20230408081934.54002-1-chenaotian2@163.com>
-From:   Alexander Aring <aahringo@redhat.com>
-Date:   Sat, 8 Apr 2023 11:04:58 -0400
-Message-ID: <CAK-6q+j4aDoA2KG3Qzxg2XMu6nPxUuExuBw=sQ3+VqJuB5cj0A@mail.gmail.com>
-Subject: Re: [PATH wpan v2] ieee802154: hwsim: Fix possible memory leaks
-To:     Chen Aotian <chenaotian2@163.com>
-Cc:     alex.aring@gmail.com, stefan@datenfreihafen.org,
-        miquel.raynal@bootlin.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-wpan@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229451AbjDHUtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 16:49:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 308F17D90;
+        Sat,  8 Apr 2023 13:49:07 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C05F660AC1;
+        Sat,  8 Apr 2023 20:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2419FC433EF;
+        Sat,  8 Apr 2023 20:49:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1680986946;
+        bh=dsDHteCIgBQ2FJqeZyvejZHKBHJc3D6BH6VHQHSM5fA=;
+        h=Date:To:From:Subject:From;
+        b=IrEEhA8zJFYJI4v6+ZxZspCtXJ04QD3U32rNYAtEjgMqNp291KgdRAVbcdXsLFu3W
+         cDX5Hntb1F14qq67ho89sACjdLMVlTWdQizA5HyuxAIprHIZdif3iULY5jh3j4o4IG
+         J3HUQc/xMz1a45lhC8wyfTV4/XJUxKAFiXyuCQgI=
+Date:   Sat, 08 Apr 2023 13:49:05 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        kbingham@kernel.org, jan.kiszka@siemens.com, f.fainelli@gmail.com,
+        liupeng17@lenovo.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + scripts-gdb-fix-lx-timerlist-for-python3.patch added to mm-nonmm-unstable branch
+Message-Id: <20230408204906.2419FC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On Sat, Apr 8, 2023 at 4:22=E2=80=AFAM Chen Aotian <chenaotian2@163.com> wr=
-ote:
->
-> After replacing e->info, it is necessary to free the old einfo.
->
-> Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-> Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-> Signed-off-by: Chen Aotian <chenaotian2@163.com>
-> ---
->
-> V1 -> V2:
-> * Using rcu_replace_pointer() is better then rcu_dereference()
->   and rcu_assign_pointer().
->
->  drivers/net/ieee802154/mac802154_hwsim.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee8=
-02154/mac802154_hwsim.c
-> index 8445c2189..6ffcadb9d 100644
-> --- a/drivers/net/ieee802154/mac802154_hwsim.c
-> +++ b/drivers/net/ieee802154/mac802154_hwsim.c
-> @@ -685,7 +685,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, str=
-uct genl_info *info)
->  static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *inf=
-o)
->  {
->         struct nlattr *edge_attrs[MAC802154_HWSIM_EDGE_ATTR_MAX + 1];
-> -       struct hwsim_edge_info *einfo;
-> +       struct hwsim_edge_info *einfo, *einfo_old;
->         struct hwsim_phy *phy_v0;
->         struct hwsim_edge *e;
->         u32 v0, v1;
-> @@ -723,8 +723,10 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, s=
-truct genl_info *info)
->         list_for_each_entry_rcu(e, &phy_v0->edges, list) {
->                 if (e->endpoint->idx =3D=3D v1) {
->                         einfo->lqi =3D lqi;
-> -                       rcu_assign_pointer(e->info, einfo);
-> +                       einfo_old =3D rcu_replace_pointer(e->info, einfo,
-> +                                                       lock_is_held(&hws=
-im_phys_lock));
+The patch titled
+     Subject: scripts/gdb: fix lx-timerlist for Python3
+has been added to the -mm mm-nonmm-unstable branch.  Its filename is
+     scripts-gdb-fix-lx-timerlist-for-python3.patch
 
-I think lockdep_is_held() should be correct here.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/scripts-gdb-fix-lx-timerlist-for-python3.patch
 
-- Alex
+This patch will later appear in the mm-nonmm-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Peng Liu <liupeng17@lenovo.com>
+Subject: scripts/gdb: fix lx-timerlist for Python3
+Date: Tue, 21 Mar 2023 14:19:29 +0800
+
+Below incompatibilities between Python2 and Python3 made lx-timerlist fail
+to run under Python3.
+
+o xrange() is replaced by range() in Python3
+o bytes and str are different types in Python3
+o the return value of Inferior.read_memory() is memoryview object in
+  Python3
+
+akpm: cc stable so that older kernels are properly debuggable under newer
+Python.
+
+Link: https://lkml.kernel.org/r/TYCP286MB2146EE1180A4D5176CBA8AB2C6819@TYCP286MB2146.JPNP286.PROD.OUTLOOK.COM
+Signed-off-by: Peng Liu <liupeng17@lenovo.com>
+Reviewed-by: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Kieran Bingham <kbingham@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ scripts/gdb/linux/timerlist.py |    4 +++-
+ scripts/gdb/linux/utils.py     |    5 ++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+--- a/scripts/gdb/linux/timerlist.py~scripts-gdb-fix-lx-timerlist-for-python3
++++ a/scripts/gdb/linux/timerlist.py
+@@ -72,7 +72,7 @@ def print_cpu(hrtimer_bases, cpu, max_cl
+     ts = cpus.per_cpu(tick_sched_ptr, cpu)
+ 
+     text = "cpu: {}\n".format(cpu)
+-    for i in xrange(max_clock_bases):
++    for i in range(max_clock_bases):
+         text += " clock {}:\n".format(i)
+         text += print_base(cpu_base['clock_base'][i])
+ 
+@@ -157,6 +157,8 @@ def pr_cpumask(mask):
+     num_bytes = (nr_cpu_ids + 7) / 8
+     buf = utils.read_memoryview(inf, bits, num_bytes).tobytes()
+     buf = binascii.b2a_hex(buf)
++    if type(buf) is not str:
++        buf=buf.decode()
+ 
+     chunks = []
+     i = num_bytes
+--- a/scripts/gdb/linux/utils.py~scripts-gdb-fix-lx-timerlist-for-python3
++++ a/scripts/gdb/linux/utils.py
+@@ -88,7 +88,10 @@ def get_target_endianness():
+ 
+ 
+ def read_memoryview(inf, start, length):
+-    return memoryview(inf.read_memory(start, length))
++    m = inf.read_memory(start, length)
++    if type(m) is memoryview:
++        return m
++    return memoryview(m)
+ 
+ 
+ def read_u16(buffer, offset):
+_
+
+Patches currently in -mm which might be from liupeng17@lenovo.com are
+
+scripts-gdb-fix-lx-timerlist-for-struct-timequeue_head-change.patch
+scripts-gdb-fix-lx-timerlist-for-python3.patch
+scripts-gdb-fix-lx-timerlist-for-hrtimer_max_clock_bases-printing.patch
 
