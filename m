@@ -2,249 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0EE6DB9F6
-	for <lists+stable@lfdr.de>; Sat,  8 Apr 2023 11:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 259286DBA2F
+	for <lists+stable@lfdr.de>; Sat,  8 Apr 2023 12:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbjDHJ5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Apr 2023 05:57:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55908 "EHLO
+        id S230078AbjDHKr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Apr 2023 06:47:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbjDHJ5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 05:57:49 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA206A67;
-        Sat,  8 Apr 2023 02:57:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680947867; x=1712483867;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=yVhRaml7AsllbdxM7IiG7fKmnog0vHKgWdc+YYx0oMQ=;
-  b=L8baVNtdsriqar3klRid+lDbzT6vEcq6lIpyxzo99zH953NV2SARCxo0
-   W7IiZQ9n5cwMFKHR/101Ogk3JpWONTHO+Yp3k+YD4KVk3XklfNC6o8N25
-   Rxnoi7t4shKQjZHF/UDL9yIowNc74DrLZNBK+tmI22obUt74BeJfoziwR
-   lPuKqf4CeSlM8LIYqlG2EgRu2+KI6w8hQKr1VnLxhmD6LMJ1FvbEbBLs0
-   ATalLkmtFrGMIGin37OGvuNFkYi4JRcUU/XckQOJ3n+qk1X9lXM7P+xTD
-   ABWsDF+Hop2biQH+hBSA+LPBEcE1Y5jkikpxtYxsuP/miJYRKK0MPVf5h
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10673"; a="429414071"
-X-IronPort-AV: E=Sophos;i="5.98,329,1673942400"; 
-   d="scan'208";a="429414071"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2023 02:57:47 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10673"; a="756952505"
-X-IronPort-AV: E=Sophos;i="5.98,329,1673942400"; 
-   d="scan'208";a="756952505"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
-  by fmsmga004.fm.intel.com with ESMTP; 08 Apr 2023 02:57:43 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pl5KJ-000Tbr-0L;
-        Sat, 08 Apr 2023 09:57:43 +0000
-Date:   Sat, 8 Apr 2023 17:57:29 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Chen Aotian <chenaotian2@163.com>, alex.aring@gmail.com
-Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-        stefan@datenfreihafen.org, miquel.raynal@bootlin.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Chen Aotian <chenaotian2@163.com>
-Subject: Re: [PATH wpan v2] ieee802154: hwsim: Fix possible memory leaks
-Message-ID: <202304081742.rOfPXJln-lkp@intel.com>
-References: <20230408081934.54002-1-chenaotian2@163.com>
+        with ESMTP id S230080AbjDHKrk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 06:47:40 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D67ABBDE5;
+        Sat,  8 Apr 2023 03:46:58 -0700 (PDT)
+Date:   Sat, 08 Apr 2023 10:45:13 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1680950714;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6HIDf+LY2qkTT6cx/+olkS5apHXrkrXcUlGG2J0qmuc=;
+        b=qijBNPJV09tPRPMIMlIC388LQ590WbbWv6m2eDG3EtlzAkqpwg172vXY/qEGB2vDQgbOFz
+        cadeCQ85uZVgAXlDWg6Qws1bp/KLTjc/17dHcbPvDFk+p1xdRlTzmuCwscPupUzQU7p3z2
+        y0WA/p1BTJDEIdUNc741XhKUdL/qlDXqHxY5dqO4gHjvSC8KSfTMrfxxEXrveNUqNkS6Pc
+        5zY7kLvZxTqtOk5jE+kVFyjkU9b+HP+pOCIHsVIO99XU7731ERZlhEnNk8FARGWDUKNM6L
+        UtCxChfMZxzyUXhlNX+DK8NH7HVc1Gl1HLxGZrg1j/waTr206CejSsPddo+MLg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1680950714;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6HIDf+LY2qkTT6cx/+olkS5apHXrkrXcUlGG2J0qmuc=;
+        b=foYMrjsAmiHST4xxfpxHdjBS9KepAEFLPDHbcv0Z5zr4IwHqJWhIgZuV0JtIEnrVvYyHFn
+        Lzg8b3relgz9koAQ==
+From:   "irqchip-bot for Jianmin Lv" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
+Subject: [irqchip: irq/irqchip-next] irqchip/loongson-pch-pic: Fix
+ pch_pic_acpi_init calling
+Cc:     stable@vger.kernel.org, Jianmin Lv <lvjianmin@loongson.cn>,
+        Marc Zyngier <maz@kernel.org>, tglx@linutronix.de
+In-Reply-To: <20230407083453.6305-6-lvjianmin@loongson.cn>
+References: <20230407083453.6305-6-lvjianmin@loongson.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230408081934.54002-1-chenaotian2@163.com>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+Message-ID: <168095071385.404.4377714261555782246.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chen,
+The following commit has been merged into the irq/irqchip-next branch of irqchip:
 
-kernel test robot noticed the following build errors:
+Commit-ID:     48ce2d722f7f108f27bedddf54bee3423a57ce57
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms/48ce2d722f7f108f27bedddf54bee3423a57ce57
+Author:        Jianmin Lv <lvjianmin@loongson.cn>
+AuthorDate:    Fri, 07 Apr 2023 16:34:53 +08:00
+Committer:     Marc Zyngier <maz@kernel.org>
+CommitterDate: Sat, 08 Apr 2023 11:29:18 +01:00
 
-[auto build test ERROR on net-next/main]
-[also build test ERROR on net/main linus/master v6.3-rc5 next-20230406]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+irqchip/loongson-pch-pic: Fix pch_pic_acpi_init calling
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Chen-Aotian/ieee802154-hwsim-Fix-possible-memory-leaks/20230408-162130
-patch link:    https://lore.kernel.org/r/20230408081934.54002-1-chenaotian2%40163.com
-patch subject: [PATH wpan v2] ieee802154: hwsim: Fix possible memory leaks
-config: hexagon-randconfig-r015-20230406 (https://download.01.org/0day-ci/archive/20230408/202304081742.rOfPXJln-lkp@intel.com/config)
-compiler: clang version 17.0.0 (https://github.com/llvm/llvm-project 2c57868e2e877f73c339796c3374ae660bb77f0d)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/1a9fcf2d1438f9603039670041da5ed90471a4e5
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Chen-Aotian/ieee802154-hwsim-Fix-possible-memory-leaks/20230408-162130
-        git checkout 1a9fcf2d1438f9603039670041da5ed90471a4e5
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash drivers/net/ieee802154/
+For dual-bridges scenario, pch_pic_acpi_init() will be called
+in following path:
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202304081742.rOfPXJln-lkp@intel.com/
+cpuintc_acpi_init
+  acpi_cascade_irqdomain_init(in cpuintc driver)
+    acpi_table_parse_madt
+      eiointc_parse_madt
+        eiointc_acpi_init /* this will be called two times
+                             correspondingto parsing two
+                             eiointc entries in MADT under
+                             dual-bridges scenario*/
+          acpi_cascade_irqdomain_init(in eiointc driver)
+            acpi_table_parse_madt
+              pch_pic_parse_madt
+                pch_pic_acpi_init /* this will be called depend
+                                     on valid parent IRQ domain
+                                     handle for one or two times
+                                     corresponding to parsing
+                                     two pchpic entries in MADT
+                                     druring calling
+                                     eiointc_acpi_init() under
+                                     dual-bridges scenario*/
 
-All errors (new ones prefixed by >>):
+During the first eiointc_acpi_init() calling, the
+pch_pic_acpi_init() will be called just one time since only
+one valid parent IRQ domain handle will be found for current
+eiointc IRQ domain.
 
-   In file included from drivers/net/ieee802154/mac802154_hwsim.c:17:
-   In file included from include/linux/rtnetlink.h:7:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:12:
-   In file included from include/linux/hardirq.h:11:
-   In file included from ./arch/hexagon/include/generated/asm/hardirq.h:1:
-   In file included from include/asm-generic/hardirq.h:17:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/hexagon/include/asm/io.h:334:
-   include/asm-generic/io.h:547:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:560:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/little_endian.h:37:51: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
-                                                     ^
-   In file included from drivers/net/ieee802154/mac802154_hwsim.c:17:
-   In file included from include/linux/rtnetlink.h:7:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:12:
-   In file included from include/linux/hardirq.h:11:
-   In file included from ./arch/hexagon/include/generated/asm/hardirq.h:1:
-   In file included from include/asm-generic/hardirq.h:17:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/hexagon/include/asm/io.h:334:
-   include/asm-generic/io.h:573:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/little_endian.h:35:51: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
-                                                     ^
-   In file included from drivers/net/ieee802154/mac802154_hwsim.c:17:
-   In file included from include/linux/rtnetlink.h:7:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:12:
-   In file included from include/linux/hardirq.h:11:
-   In file included from ./arch/hexagon/include/generated/asm/hardirq.h:1:
-   In file included from include/asm-generic/hardirq.h:17:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/hexagon/include/asm/io.h:334:
-   include/asm-generic/io.h:584:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:594:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:604:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
->> drivers/net/ieee802154/mac802154_hwsim.c:727:21: error: incompatible pointer types passing 'struct mutex *' to parameter of type 'const struct lockdep_map *' [-Werror,-Wincompatible-pointer-types]
-                                                           lock_is_held(&hwsim_phys_lock));
-                                                                        ^~~~~~~~~~~~~~~~
-   include/linux/rcupdate.h:542:60: note: expanded from macro 'rcu_replace_pointer'
-           typeof(ptr) __tmp = rcu_dereference_protected((rcu_ptr), (c));  \
-                                                                     ^
-   include/linux/rcupdate.h:673:54: note: expanded from macro 'rcu_dereference_protected'
-           __rcu_dereference_protected((p), __UNIQUE_ID(rcu), (c), __rcu)
-                                                               ^
-   include/linux/rcupdate.h:469:21: note: expanded from macro '__rcu_dereference_protected'
-           RCU_LOCKDEP_WARN(!(c), "suspicious rcu_dereference_protected() usage"); \
-                              ^
-   include/linux/rcupdate.h:389:39: note: expanded from macro 'RCU_LOCKDEP_WARN'
-                   if (debug_lockdep_rcu_enabled() && (c) &&               \
-                                                       ^
-   include/linux/lockdep.h:281:58: note: passing argument to parameter 'lock' here
-   static inline int lock_is_held(const struct lockdep_map *lock)
-                                                            ^
-   6 warnings and 1 error generated.
+During the second eiointc_acpi_init() calling, the
+pch_pic_acpi_init() will be called two times since two valid
+parent IRQ domain handles will be found. So in pch_pic_acpi_init(),
+we must have a reasonable way to prevent from creating second same
+pch_pic IRQ domain.
 
+The patch matches gsi base information in created pch_pic IRQ
+domains to check if the target domain has been created to avoid the
+bug mentioned above.
 
-vim +727 drivers/net/ieee802154/mac802154_hwsim.c
+Cc: stable@vger.kernel.org
+Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230407083453.6305-6-lvjianmin@loongson.cn
+---
+ drivers/irqchip/irq-loongson-pch-pic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-   684	
-   685	static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
-   686	{
-   687		struct nlattr *edge_attrs[MAC802154_HWSIM_EDGE_ATTR_MAX + 1];
-   688		struct hwsim_edge_info *einfo, *einfo_old;
-   689		struct hwsim_phy *phy_v0;
-   690		struct hwsim_edge *e;
-   691		u32 v0, v1;
-   692		u8 lqi;
-   693	
-   694		if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
-   695		    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
-   696			return -EINVAL;
-   697	
-   698		if (nla_parse_nested_deprecated(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX, info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE], hwsim_edge_policy, NULL))
-   699			return -EINVAL;
-   700	
-   701		if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] ||
-   702		    !edge_attrs[MAC802154_HWSIM_EDGE_ATTR_LQI])
-   703			return -EINVAL;
-   704	
-   705		v0 = nla_get_u32(info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID]);
-   706		v1 = nla_get_u32(edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID]);
-   707		lqi = nla_get_u8(edge_attrs[MAC802154_HWSIM_EDGE_ATTR_LQI]);
-   708	
-   709		mutex_lock(&hwsim_phys_lock);
-   710		phy_v0 = hwsim_get_radio_by_id(v0);
-   711		if (!phy_v0) {
-   712			mutex_unlock(&hwsim_phys_lock);
-   713			return -ENOENT;
-   714		}
-   715	
-   716		einfo = kzalloc(sizeof(*einfo), GFP_KERNEL);
-   717		if (!einfo) {
-   718			mutex_unlock(&hwsim_phys_lock);
-   719			return -ENOMEM;
-   720		}
-   721	
-   722		rcu_read_lock();
-   723		list_for_each_entry_rcu(e, &phy_v0->edges, list) {
-   724			if (e->endpoint->idx == v1) {
-   725				einfo->lqi = lqi;
-   726				einfo_old = rcu_replace_pointer(e->info, einfo,
- > 727								lock_is_held(&hwsim_phys_lock));
-   728				rcu_read_unlock();
-   729				kfree_rcu(einfo_old, rcu);
-   730				mutex_unlock(&hwsim_phys_lock);
-   731				return 0;
-   732			}
-   733		}
-   734		rcu_read_unlock();
-   735	
-   736		kfree(einfo);
-   737		mutex_unlock(&hwsim_phys_lock);
-   738	
-   739		return -ENOENT;
-   740	}
-   741	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
+index 64fa67d..e5fe4d5 100644
+--- a/drivers/irqchip/irq-loongson-pch-pic.c
++++ b/drivers/irqchip/irq-loongson-pch-pic.c
+@@ -404,6 +404,9 @@ int __init pch_pic_acpi_init(struct irq_domain *parent,
+ 	int ret, vec_base;
+ 	struct fwnode_handle *domain_handle;
+ 
++	if (find_pch_pic(acpi_pchpic->gsi_base) >= 0)
++		return 0;
++
+ 	vec_base = acpi_pchpic->gsi_base - GSI_MIN_PCH_IRQ;
+ 
+ 	domain_handle = irq_domain_alloc_fwnode(&acpi_pchpic->address);
