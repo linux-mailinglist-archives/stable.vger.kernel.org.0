@@ -2,119 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EDB6DBA28
-	for <lists+stable@lfdr.de>; Sat,  8 Apr 2023 12:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBE296DBAD3
+	for <lists+stable@lfdr.de>; Sat,  8 Apr 2023 14:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbjDHKrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Apr 2023 06:47:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47728 "EHLO
+        id S229721AbjDHMVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Apr 2023 08:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229924AbjDHKrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 06:47:05 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C33B4C17;
-        Sat,  8 Apr 2023 03:46:27 -0700 (PDT)
-Date:   Sat, 08 Apr 2023 10:45:15 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1680950716;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2aWNdqWCH6ooG7ZKCY8CAmB8Wk506YvYsyDSFqRjWL0=;
-        b=2uf8x+Al4PhQgvInEDLMteVLg2UdgF1YLfOJ7GL3LYqyRTg1DP/IxYIu5A+goI7Qmv9fXV
-        1TOlVSTkZys69TIEbVeWATSf8qSWtUxDZzfOK+d9bTMWR1En5NF0f/en4tl6bf3oQuVbKC
-        dSewnGyyoLGjbNS1EcyR+x5WnMQe9anfWtnhaZYpajMVW5kQ4iFaF23Hhawy64q09KjL7w
-        cxh9x6JLnYvINTixi9tgAuThPsu0w9FsmKWYhcOnNx6r388KZTUUwk6PSkvmar5a3NQH/+
-        7Nr3clHpzlKwn1ymt72MwzlxUgcQsN0mV0nt5/0a6/efZJ4EgjXp5HWesS+oqQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1680950716;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2aWNdqWCH6ooG7ZKCY8CAmB8Wk506YvYsyDSFqRjWL0=;
-        b=XywPNYzKt5qoF8plW89y4YstY9GNgyqI4/cmdMr7sorJbjiD42e689Cn6evI3hfiYaCG+1
-        lShr76qa4+jZGjDw==
-From:   "irqchip-bot for Jianmin Lv" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-kernel@vger.kernel.org
-Subject: [irqchip: irq/irqchip-next] irqchip/loongson-eiointc: Fix returned
- value on parsing MADT
-Cc:     stable@vger.kernel.org, Jianmin Lv <lvjianmin@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>, tglx@linutronix.de
-In-Reply-To: <20230407083453.6305-2-lvjianmin@loongson.cn>
-References: <20230407083453.6305-2-lvjianmin@loongson.cn>
+        with ESMTP id S229647AbjDHMVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 08:21:53 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B169F4;
+        Sat,  8 Apr 2023 05:21:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680956511; x=1712492511;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=eW13kTIIAfgyJU8/U8MXPKMLhPp5eP1G5Lfen3ZIMtc=;
+  b=VBI1VWlLlICHD5offjd5ZLtQphwSd3h66zRvIKRrF3TnRihiMLVch79f
+   Mhgyc5xbb4vQxNBuTqsECdsHuT4T5RN4FYPebPxr4i9kuhSC7yWzpu2o5
+   9elKmxbnbS1Dn2qgpZ5LcgqqDpeSdkPrDgiqj2DZz+9ZdYrL+h7v7mgju
+   3KEYmXDR1e095vRZSsrgnWZEysgQWgd+eX4wYTX8yhABz4Y0pCkfmoGcA
+   SHg4qacsGZJTWpD2RtS67BGE9lZvM8iI01UhcAy+3Tn+scG8FjrXXqSaw
+   NmrBOA6GSE+H0xM3a1Ks9K7j+ur+WYYZf+BXYKuZN7AkHU205fF7/n/hi
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10673"; a="322769829"
+X-IronPort-AV: E=Sophos;i="5.98,329,1673942400"; 
+   d="scan'208";a="322769829"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2023 05:21:51 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10673"; a="681274312"
+X-IronPort-AV: E=Sophos;i="5.98,329,1673942400"; 
+   d="scan'208";a="681274312"
+Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
+  by orsmga007.jf.intel.com with ESMTP; 08 Apr 2023 05:21:48 -0700
+Received: from kbuild by b613635ddfff with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pl7Zj-000TiP-1t;
+        Sat, 08 Apr 2023 12:21:47 +0000
+Date:   Sat, 8 Apr 2023 20:20:52 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Tze-nan Wu <Tze-nan.Wu@mediatek.com>, rostedt@goodmis.org,
+        mhiramat@kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev, bobule.chang@mediatek.com,
+        wsd_upstream@mediatek.com, Tze-nan.Wu@mediatek.com,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH] ring-buffer: Prevent inconsistent operation on
+ cpu_buffer->resize_disabled
+Message-ID: <202304082051.Dp50upfS-lkp@intel.com>
+References: <20230408052226.25268-1-Tze-nan.Wu@mediatek.com>
 MIME-Version: 1.0
-Message-ID: <168095071596.404.15580990145239593807.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230408052226.25268-1-Tze-nan.Wu@mediatek.com>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/irqchip-next branch of irqchip:
+Hi Tze-nan,
 
-Commit-ID:     112eaa8fec5ea75f1be003ec55760b09a86799f8
-Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms/112eaa8fec5ea75f1be003ec55760b09a86799f8
-Author:        Jianmin Lv <lvjianmin@loongson.cn>
-AuthorDate:    Fri, 07 Apr 2023 16:34:49 +08:00
-Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Sat, 08 Apr 2023 11:29:18 +01:00
+kernel test robot noticed the following build warnings:
 
-irqchip/loongson-eiointc: Fix returned value on parsing MADT
+[auto build test WARNING on linus/master]
+[cannot apply to rostedt-trace/for-next-urgent]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-In pch_pic_parse_madt(), a NULL parent pointer will be
-returned from acpi_get_vec_parent() for second pch-pic domain
-related to second bridge while calling eiointc_acpi_init() at
-first time, where the parent of it has not been initialized
-yet, and will be initialized during second time calling
-eiointc_acpi_init(). So, it's reasonable to return zero so
-that failure of acpi_table_parse_madt() will be avoided, or else
-acpi_cascade_irqdomain_init() will return and initialization of
-followed pch_msi domain will be skipped.
+url:    https://github.com/intel-lab-lkp/linux/commits/Tze-nan-Wu/ring-buffer-Prevent-inconsistent-operation-on-cpu_buffer-resize_disabled/20230408-132502
+patch link:    https://lore.kernel.org/r/20230408052226.25268-1-Tze-nan.Wu%40mediatek.com
+patch subject: [PATCH] ring-buffer: Prevent inconsistent operation on cpu_buffer->resize_disabled
+config: s390-allyesconfig (https://download.01.org/0day-ci/archive/20230408/202304082051.Dp50upfS-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/d404bc0af0a4bde3aa20704642d69a78bdc154f8
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Tze-nan-Wu/ring-buffer-Prevent-inconsistent-operation-on-cpu_buffer-resize_disabled/20230408-132502
+        git checkout d404bc0af0a4bde3aa20704642d69a78bdc154f8
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash kernel/
 
-Although it does not matter when pch_msi_parse_madt() returns
--EINVAL if no invalid parent is found, it's also reasonable to
-return zero for that.
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202304082051.Dp50upfS-lkp@intel.com/
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230407083453.6305-2-lvjianmin@loongson.cn
----
- drivers/irqchip/irq-loongson-eiointc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+All warnings (new ones prefixed by >>):
 
-diff --git a/drivers/irqchip/irq-loongson-eiointc.c b/drivers/irqchip/irq-loongson-eiointc.c
-index d15fd38..62a632d 100644
---- a/drivers/irqchip/irq-loongson-eiointc.c
-+++ b/drivers/irqchip/irq-loongson-eiointc.c
-@@ -343,7 +343,7 @@ static int __init pch_pic_parse_madt(union acpi_subtable_headers *header,
- 	if (parent)
- 		return pch_pic_acpi_init(parent, pchpic_entry);
- 
--	return -EINVAL;
-+	return 0;
- }
- 
- static int __init pch_msi_parse_madt(union acpi_subtable_headers *header,
-@@ -355,7 +355,7 @@ static int __init pch_msi_parse_madt(union acpi_subtable_headers *header,
- 	if (parent)
- 		return pch_msi_acpi_init(parent, pchmsi_entry);
- 
--	return -EINVAL;
-+	return 0;
- }
- 
- static int __init acpi_cascade_irqdomain_init(void)
+   kernel/trace/ring_buffer.c: In function 'ring_buffer_reset_online_cpus':
+>> kernel/trace/ring_buffer.c:5359:9: warning: 'reset_online_mask' is used uninitialized [-Wuninitialized]
+    5359 |         cpumask_copy(reset_online_mask, cpu_online_mask);
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   kernel/trace/ring_buffer.c:5353:23: note: 'reset_online_mask' was declared here
+    5353 |         cpumask_var_t reset_online_mask;
+         |                       ^~~~~~~~~~~~~~~~~
+
+
+vim +/reset_online_mask +5359 kernel/trace/ring_buffer.c
+
+  5344	
+  5345	/**
+  5346	 * ring_buffer_reset_online_cpus - reset a ring buffer per CPU buffer
+  5347	 * @buffer: The ring buffer to reset a per cpu buffer of
+  5348	 * @cpu: The CPU buffer to be reset
+  5349	 */
+  5350	void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
+  5351	{
+  5352		struct ring_buffer_per_cpu *cpu_buffer;
+  5353		cpumask_var_t reset_online_mask;
+  5354		int cpu;
+  5355	
+  5356		/* prevent another thread from changing buffer sizes */
+  5357		mutex_lock(&buffer->mutex);
+  5358	
+> 5359		cpumask_copy(reset_online_mask, cpu_online_mask);
+  5360	
+  5361		for_each_cpu_and(cpu, buffer->cpumask, reset_online_mask) {
+  5362			cpu_buffer = buffer->buffers[cpu];
+  5363	
+  5364			atomic_inc(&cpu_buffer->resize_disabled);
+  5365			atomic_inc(&cpu_buffer->record_disabled);
+  5366		}
+  5367	
+  5368		/* Make sure all commits have finished */
+  5369		synchronize_rcu();
+  5370	
+  5371		for_each_cpu_and(cpu, buffer->cpumask, reset_online_mask) {
+  5372			cpu_buffer = buffer->buffers[cpu];
+  5373	
+  5374			reset_disabled_cpu_buffer(cpu_buffer);
+  5375	
+  5376			atomic_dec(&cpu_buffer->record_disabled);
+  5377			atomic_dec(&cpu_buffer->resize_disabled);
+  5378		}
+  5379	
+  5380		mutex_unlock(&buffer->mutex);
+  5381	}
+  5382	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
