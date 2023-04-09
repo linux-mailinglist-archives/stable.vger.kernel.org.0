@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D03776DC076
-	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 16:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52CC36DC082
+	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 17:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbjDIOuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Apr 2023 10:50:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37718 "EHLO
+        id S229595AbjDIPNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Apr 2023 11:13:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbjDIOuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Apr 2023 10:50:00 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D49A535AE
-        for <stable@vger.kernel.org>; Sun,  9 Apr 2023 07:49:56 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id nh20-20020a17090b365400b0024496d637e1so7762416pjb.5
-        for <stable@vger.kernel.org>; Sun, 09 Apr 2023 07:49:56 -0700 (PDT)
+        with ESMTP id S229600AbjDIPNO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Apr 2023 11:13:14 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AD7E3C30
+        for <stable@vger.kernel.org>; Sun,  9 Apr 2023 08:13:07 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id nh20-20020a17090b365400b0024496d637e1so7787177pjb.5
+        for <stable@vger.kernel.org>; Sun, 09 Apr 2023 08:13:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1681051796; x=1683643796;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1681053186; x=1683645186;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=2KK5Q0jX86kl/HjEm85Sxi40x1r2oe/97jrYu3ac3TA=;
-        b=hjf5OfX/cBOCNQV23DkGDC9X3XM8sEhOHQAGVxu9cReQv7tmdDx1Bk1PjI37wRXQA3
-         DhNUVG7r5F3xKoVRepgrlz08JiWVVWzrT372AkNwLY6VYFnLKjIp6oA4y8IDrNO1ast+
-         yN3Qeq31L51nElAmiTaQZZXq7lIJCxjlPXdD9/zK15xr3Pt1KSwCkAYr+u6yajoK3BUg
-         I9+hEt/jEfIya+aAKRfduENkdZFlvEqwdJSnSDq4K+My9Fe2oNBS86Z/5LLN6BIluCTF
-         ZNzQg318bGkZQfzSz3yYRVQUbK1GE5nZ/3mwZH+ddXZhtJbGRS1oyNCX5JlcZv4IBsmA
-         SZyw==
+        bh=wNAF/ojEEofigkFej/xOMohSUiAnuh0EkWr1ex+Q2EE=;
+        b=EUY5Eb6GEpuIF1RMcUilt24jQxXTwK3h+6UIYwJGShVCVosTtGj1lZUWioQXLaCRe0
+         vVNVuvZacaKIjyYBKUeGfGGyf+BTrkLU5y0Zd1De8+pbXQ/5gC5XAh1ZtaAP80Gss5DE
+         w2kAb3ixzKZxtR1dCC6ggQZU9IFJG8Ugp/SNxDEn/yPh8aq8xYaf+GHuvj0ft/uidr5Y
+         qctbtaZeGX8dssqA6S5DwViNAD1Fb3uN6/kKh+t3a6Gn+9JJeiNAXY9QZzneDCNzPq8F
+         2SccZ294SX9h87M1c0FYwJlLfnCQnsths98+DCh3q/fsaXrDaiZ4IyH+Fe2rufXC5YFR
+         0fIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681051796; x=1683643796;
+        d=1e100.net; s=20210112; t=1681053186; x=1683645186;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=2KK5Q0jX86kl/HjEm85Sxi40x1r2oe/97jrYu3ac3TA=;
-        b=MclFjROXc0656Djg7zeyS7RNpwrcyeOvUi5XnikyDJIpv982yhuXugPii1XQzNJ52C
-         riWJ7i69LI9GkVqCrn2bOVVg72UI3jkx/6Es8haERI3QECNdzN5LfTjGPwtrL5bdAECs
-         n75ziybt3XQT3VxOFaVpHpv6SJqUtfsjQrfOzLoEtVDoLsTTJYTPDaXzn3Fso0LXoBiJ
-         ZvWaruRWk0UhCw5kavkYYusmMyJnxUmvLls6abdEw8O3GcBJu2DdNcmZpXUr8y9YYc7f
-         TVnyl4ZxDLKvI01YW0ZG7D1A8IeCPnLKYApcCJUvl/lrz6LHb1phfFcz4kYohJ3XVuRY
-         pinA==
-X-Gm-Message-State: AAQBX9e+x0mr5W9JP2A5exNgKqgTQSRqaLlEdZORNs/gxW2pI3OOff/g
-        9AbiCFLew3lof/QsJZkwZXcQHooiz+jVw+JMXRQ=
-X-Google-Smtp-Source: AKy350bSMnj1NplDUZdJGZ7uCZDnYZ3zv5i1/YyRSYOUn9WZIZ444L3dG2+RVjG9iNFEGrSrkj0gHA==
-X-Received: by 2002:a17:90a:5d01:b0:23f:81c0:eadd with SMTP id s1-20020a17090a5d0100b0023f81c0eaddmr10589458pji.47.1681051795550;
-        Sun, 09 Apr 2023 07:49:55 -0700 (PDT)
+        bh=wNAF/ojEEofigkFej/xOMohSUiAnuh0EkWr1ex+Q2EE=;
+        b=0BzBXTVbShhtLbPen0qUYCBs5nIQYuPUmgHjrk6yMfb12U4a8W5SS+8shiWAL6AziW
+         1DCRCdJXvNq4x2/8VGPxQN8AWg8qwhvuhYVGLzZsc0iimkBrfJ4o8c23ClJ4DxvC9GGH
+         d8Stj1XdEMpA9XLsQFL9qLf7JWpIKidXTXSPhyTYbN3bkZApnhgLVrPuqUWiM+2o9LOo
+         a/hSp78tyomDzoFstQFSFex5scyQd2Z1z5gbv8QZ+boI6yLyZ36zwme9E6H/GdhOX3YW
+         mus20Zzl73nDOoNkMG//tW2QFJbnkRWIuPOiV3M3ytKuKhZFlEVyXttZ7Sfej4eTO9rL
+         Ihtw==
+X-Gm-Message-State: AAQBX9cuEsKSrEiRCmD69r9+yez24kAVtbNzombx1OjB+imc86TMvZMm
+        tnocsXs4mD0nT4qOWS4SpfdrBOOF6nSWy4MRFNg=
+X-Google-Smtp-Source: AKy350ZGRI9cRJdmNjxgmzzcXfV8UBbIsG/6fo7TAEcOCTQYuvQMYyVAio2lHKbHTx/jntHZNkAAkQ==
+X-Received: by 2002:a17:902:7fc5:b0:1a1:cce7:94ed with SMTP id t5-20020a1709027fc500b001a1cce794edmr7959874plb.67.1681053185471;
+        Sun, 09 Apr 2023 08:13:05 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t6-20020a17090a950600b0023f786a64ebsm7591432pjo.57.2023.04.09.07.49.54
+        by smtp.gmail.com with ESMTPSA id o3-20020a1709026b0300b0019f27fd7cecsm5996944plk.197.2023.04.09.08.13.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Apr 2023 07:49:55 -0700 (PDT)
-Message-ID: <6432d093.170a0220.b1e9d.eaad@mx.google.com>
-Date:   Sun, 09 Apr 2023 07:49:55 -0700 (PDT)
+        Sun, 09 Apr 2023 08:13:04 -0700 (PDT)
+Message-ID: <6432d600.170a0220.69fb3.b344@mx.google.com>
+Date:   Sun, 09 Apr 2023 08:13:04 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
+X-Kernelci-Branch: queue/5.15
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.19.279-99-g26ae7439eaa0
-Subject: stable-rc/queue/4.19 build: 197 builds: 5 failed, 192 passed,
- 28 warnings (v4.19.279-99-g26ae7439eaa0)
+X-Kernelci-Kernel: v5.15.105-152-g55b8fb5a47fc
+Subject: stable-rc/queue/5.15 build: 178 builds: 6 failed, 172 passed,
+ 75 errors, 7 warnings (v5.15.105-152-g55b8fb5a47fc)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,87 +71,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 197 builds: 5 failed, 192 passed, 28 warnings (=
-v4.19.279-99-g26ae7439eaa0)
+stable-rc/queue/5.15 build: 178 builds: 6 failed, 172 passed, 75 errors, 7 =
+warnings (v5.15.105-152-g55b8fb5a47fc)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.279-99-g26ae7439eaa0/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+5/kernel/v5.15.105-152-g55b8fb5a47fc/
 
 Tree: stable-rc
-Branch: queue/4.19
-Git Describe: v4.19.279-99-g26ae7439eaa0
-Git Commit: 26ae7439eaa0a21d6c0ce2e1c608ccf917a14c78
+Branch: queue/5.15
+Git Describe: v5.15.105-152-g55b8fb5a47fc
+Git Commit: 55b8fb5a47fcf1314c67d9c84dbb2fb29a9bef5c
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
 Build Failures Detected:
 
+arm64:
+    defconfig: (gcc-10) FAIL
+    defconfig+arm64-chromebook: (gcc-10) FAIL
+
+arm:
+    imx_v6_v7_defconfig: (gcc-10) FAIL
+
 mips:
+    decstation_64_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
 
-riscv:
-    allnoconfig: (gcc-10) FAIL
-    defconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-
-Warnings Detected:
+Errors and Warnings Detected:
 
 arc:
+    tinyconfig (gcc-10): 1 warning
 
 arm64:
-    defconfig (gcc-10): 3 warnings
-    defconfig+arm64-chromebook (gcc-10): 3 warnings
+    defconfig (gcc-10): 32 errors, 1 warning
+    defconfig+arm64-chromebook (gcc-10): 32 errors, 1 warning
 
 arm:
-    omap1_defconfig (gcc-10): 1 warning
+    imx_v6_v7_defconfig (gcc-10): 1 error
 
 i386:
-    allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
 
 mips:
-    lemote2f_defconfig (gcc-10): 1 warning
-    loongson3_defconfig (gcc-10): 1 warning
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 3 warnings
-    nlm_xlp_defconfig (gcc-10): 1 warning
+    32r2el_defconfig (gcc-10): 1 warning
+    bigsur_defconfig (gcc-10): 1 error
+    cavium_octeon_defconfig (gcc-10): 1 error
+    decstation_64_defconfig (gcc-10): 1 error
+    fuloong2e_defconfig (gcc-10): 1 error
+    ip32_defconfig (gcc-10): 1 error
+    lemote2f_defconfig (gcc-10): 1 error
+    loongson2k_defconfig (gcc-10): 1 error
+    loongson3_defconfig (gcc-10): 1 error
+    nlm_xlp_defconfig (gcc-10): 1 error
+    rm200_defconfig (gcc-10): 1 warning
+    sb1250_swarm_defconfig (gcc-10): 1 error
 
 riscv:
 
 x86_64:
-    allnoconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-    x86_64_defconfig (gcc-10): 2 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
+    x86_64_defconfig (gcc-10): 1 warning
+    x86_64_defconfig+x86-chromebook (gcc-10): 1 warning
 
+Errors summary:
+
+    62   arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=
+=98int (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm=
+_one_reg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*=
+)(struct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=
+=80=98int (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long uns=
+igned int *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    10   expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
+0=E2=80=99
+    2    arch/arm64/kvm/sys_regs.c:1671:36: error: initialization of =E2=80=
+=98int (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm=
+_one_reg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*=
+)(struct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=
+=80=98int (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long uns=
+igned int *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    1    drivers/clk/imx/clk-imx8mp.c:680:6: error: =E2=80=98IMX8MP_CLK_USB=
+_SUSP=E2=80=99 undeclared (first use in this function); did you mean =E2=80=
+=98IMX8MP_CLK_USB_ROOT=E2=80=99?
 
 Warnings summary:
 
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    6    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    {standard input}:132: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
+    2    cc1: some warnings being treated as errors
+    2    arch/x86/kernel/smp.o: warning: objtool: sysvec_reboot()+0x45: unr=
+eachable instruction
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
+s unknown, fallback to ''
 
 Section mismatches summary:
 
-    13   WARNING: modpost: Found 1 section mismatch(es).
+    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
+ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
+ the function .init.text:ixp4xx_irq_init()
+    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
+ Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
+emory to the function .init.text:prom_init_numa_memory()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -162,48 +183,28 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
-mismatches
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -282,8 +283,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -302,8 +307,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -314,11 +323,6 @@ ction mismatches
 -----
 ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -352,6 +356,16 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
@@ -362,39 +376,431 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
 decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 FAIL, 32 errors, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    arch/arm64/kvm/sys_regs.c:1671:36: error: initialization of =E2=80=98in=
+t (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_=
+reg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(str=
+uct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98=
+int (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned =
+int *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 FAIL, 32 errors, 1 war=
+ning, 0 section mismatches
+
+Errors:
+    arch/arm64/kvm/sys_regs.c:1671:36: error: initialization of =E2=80=98in=
+t (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_=
+reg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(str=
+uct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98=
+int (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned =
+int *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
+    arch/arm64/kvm/sys_regs.c:999:41: error: initialization of =E2=80=98int=
+ (*)(struct kvm_vcpu *, const struct sys_reg_desc *, const struct kvm_one_r=
+eg *, void *)=E2=80=99 from incompatible pointer type =E2=80=98int (*)(stru=
+ct kvm_vcpu *, const struct sys_reg_desc *, u64 *)=E2=80=99 {aka =E2=80=98i=
+nt (*)(struct kvm_vcpu *, const struct sys_reg_desc *, long long unsigned i=
+nt *)=E2=80=99} [-Werror=3Dincompatible-pointer-types]
 
 Warnings:
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warn=
-ings, 0 section mismatches
-
-Warnings:
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -408,26 +814,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -451,8 +839,12 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -506,13 +898,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -526,30 +913,22 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    drivers/clk/imx/clk-imx8mp.c:680:6: error: =E2=80=98IMX8MP_CLK_USB_SUSP=
+=E2=80=99 undeclared (first use in this function); did you mean =E2=80=98IM=
+X8MP_CLK_USB_ROOT=E2=80=99?
 
 ---------------------------------------------------------------------------=
 -----
 integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
 ---------------------------------------------------------------------------=
 -----
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -569,13 +948,22 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
+n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
+function .init.text:ixp4xx_irq_init()
 
 ---------------------------------------------------------------------------=
 -----
@@ -589,18 +977,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -609,17 +987,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 se=
 ction mismatches
 
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -633,12 +1006,26 @@ loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
 ection mismatches
 
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
+ to the function .init.text:prom_init_numa_memory()
 
 ---------------------------------------------------------------------------=
 -----
@@ -682,17 +1069,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
 gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:132: Warning: macro instruction expanded into multiple=
- instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -721,18 +1099,13 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
 mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -756,21 +1129,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -781,9 +1141,6 @@ ection mismatches
 -----
 multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -817,28 +1174,17 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
 nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -847,13 +1193,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -867,27 +1213,8 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -926,23 +1253,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -981,11 +1293,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
 rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -1001,13 +1308,26 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
 rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1019,16 +1339,10 @@ tion mismatches
 s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1037,8 +1351,17 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
+0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -1070,16 +1393,10 @@ ection mismatches
 spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1095,11 +1412,6 @@ on mismatches
 -----
 sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1128,46 +1440,27 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
- mismatches
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
 
 Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
+nown, fallback to ''
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
 trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1188,9 +1481,6 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 -----
 versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1224,23 +1514,21 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
-ection mismatches
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
 
 Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/x86/kernel/smp.o: warning: objtool: sysvec_reboot()+0x45: unreacha=
+ble instruction
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-2 warnings, 0 section mismatches
+1 warning, 0 section mismatches
 
 Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/x86/kernel/smp.o: warning: objtool: sysvec_reboot()+0x45: unreacha=
+ble instruction
 
 ---------------------------------------------------------------------------=
 -----
@@ -1251,11 +1539,6 @@ n mismatches
 -----
 zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---
 For more info write to <info@kernelci.org>
