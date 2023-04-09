@@ -2,101 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 716756DBE43
-	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 03:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BE16DBE4B
+	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 04:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229445AbjDIBpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Apr 2023 21:45:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
+        id S229497AbjDICWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Apr 2023 22:22:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjDIBpK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 21:45:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8638340F0;
-        Sat,  8 Apr 2023 18:45:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0134360A0B;
-        Sun,  9 Apr 2023 01:45:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E15C433D2;
-        Sun,  9 Apr 2023 01:45:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681004706;
-        bh=3SYGLnydrT6U3B3mbzApI6UyguCUIgtRBx1wg6L0WIs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=A3abUllHd6tUByytut79S+//VAgNDqJXSYBaTqKQA7IhA3ZfyylmeWIoFNPST1izu
-         xC8VuRzoFgpb+EtqAuGi0H6p0g/hIoCuQfd8C9hnZIXdSWNfk6XDYGUV18e5LMkmdV
-         j0PvKSwvbieJlOV+V/o9YEudIvUXhSYSGfnPhN/2gNtM/g9TUtVX6ucfEkRMPvCawx
-         qAEvtIA5Bz6kzTYcJOlFizhw+as8JQCdwFXClP9/LNgEa00rZrgL+zb9WFH6BpgiRp
-         2MUNjdOqZTXq2ji1D8FgnJtQ0sf38JmOTpJSbEhaV/lRFfP7Ewt/tvbA7y91OLHzOE
-         c1l04UaL/D/SA==
-Received: by mail-ej1-f43.google.com with SMTP id jg21so4755867ejc.2;
-        Sat, 08 Apr 2023 18:45:06 -0700 (PDT)
-X-Gm-Message-State: AAQBX9d1um+yeSOLzVXArhwhRofpW4fajRuo+N0r0oB83gpAFXqpGcwd
-        hXRShqF7iv8jtx/7f+C6CYDd733HHWHFsYqm4F0=
-X-Google-Smtp-Source: AKy350aXfl3i+ozWe0us1Eu0tkBIFe3pvFanAx5pvJQuBpocgywnM8ZhqLVq3vPmuQw+A6MtrsYrbypt3OdposEHMUM=
-X-Received: by 2002:a17:907:7207:b0:942:3d67:34bc with SMTP id
- dr7-20020a170907720700b009423d6734bcmr1882126ejc.10.1681004704599; Sat, 08
- Apr 2023 18:45:04 -0700 (PDT)
+        with ESMTP id S229436AbjDICWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 22:22:16 -0400
+Received: from m12.mail.163.com (m12.mail.163.com [220.181.12.215])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DF7C244A6;
+        Sat,  8 Apr 2023 19:22:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=M8QCb
+        APQ91Luys/tZ3T5cmD1TCXThdGmPzqhMp80W1Q=; b=UftpdCQaB6QW6KUYb6dVj
+        kCnTqDxxhJfTUiMz74Gw0UcDuNP7PggNk0sDQHUlJfDEDV93YIEq8X2lCfhZeGk8
+        Wj3hEqvTxrZ5rHY+CyA5HYGGyEvaiOEur9jJYgKxISD8cGY0mkVCxhgyNYiPaWtO
+        LkuKB7ou/ymBuG2OWYdVeE=
+Received: from localhost.localdomain (unknown [106.39.149.90])
+        by zwqz-smtp-mta-g2-4 (Coremail) with SMTP id _____wBXFc4RITJk217AAw--.5040S2;
+        Sun, 09 Apr 2023 10:21:05 +0800 (CST)
+From:   Chen Aotian <chenaotian2@163.com>
+To:     alex.aring@gmail.com
+Cc:     stefan@datenfreihafen.org, miquel.raynal@bootlin.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Chen Aotian <chenaotian2@163.com>,
+        Alexander Aring <aahringo@redhat.com>
+Subject: [PATH wpan v3] ieee802154: hwsim: Fix possible memory leaks
+Date:   Sun,  9 Apr 2023 10:20:48 +0800
+Message-Id: <20230409022048.61223-1-chenaotian2@163.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20230407083453.6305-1-lvjianmin@loongson.cn>
-In-Reply-To: <20230407083453.6305-1-lvjianmin@loongson.cn>
-From:   Huacai Chen <chenhuacai@kernel.org>
-Date:   Sun, 9 Apr 2023 09:44:49 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H40eg-cufG87k_vGbAShuSu3ceTn9uqFjwS+kqT+SYzhw@mail.gmail.com>
-Message-ID: <CAAhV-H40eg-cufG87k_vGbAShuSu3ceTn9uqFjwS+kqT+SYzhw@mail.gmail.com>
-Subject: Re: [PATCH V3 0/5] Fix some issues of irq controllers for
- dual-bridges scenario
-To:     Jianmin Lv <lvjianmin@loongson.cn>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, linux-kernel@vger.kernel.org,
-        loongarch@lists.linux.dev,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        loongson-kernel@lists.loongnix.cn, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: _____wBXFc4RITJk217AAw--.5040S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7Zw4DAF1UJw4UuF4UtFWrZrb_yoW8Ar4kpF
+        Wj9asrtr48tr18WayDXa1kAa4SqayrW348urWfKa93ZF12qr409r17GF1Fvr45ArZ7C3Wf
+        AF4qqwnIqw1DArDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jOvtZUUUUU=
+X-Originating-IP: [106.39.149.90]
+X-CM-SenderInfo: xfkh0tprwlt0qs6rljoofrz/1tbiHRFLwGI69rXLIwACs2
+X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For the whole series
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+After replacing e->info, it is necessary to free the old einfo.
 
-On Fri, Apr 7, 2023 at 4:35=E2=80=AFPM Jianmin Lv <lvjianmin@loongson.cn> w=
-rote:
->
-> In dual-bridges scenario, some bugs were found for irq
-> controllers drivers, so the patch serie is used to fix them.
->
-> V2->V3:
-> 1. Add Cc: stable@vger.kernel.org to make them be backported to stable br=
-anch
->
-> V1->V2:
-> 1. Remove all of ChangeID in patches
-> 2. Exchange the sequence of some patches
-> 3. Adjust code style of if...else... in patch[2]
->
-> Jianmin Lv (5):
->   irqchip/loongson-eiointc: Fix returned value on parsing MADT
->   irqchip/loongson-eiointc: Fix incorrect use of acpi_get_vec_parent
->   irqchip/loongson-eiointc: Fix registration of syscore_ops
->   irqchip/loongson-pch-pic: Fix registration of syscore_ops
->   irqchip/loongson-pch-pic: Fix pch_pic_acpi_init calling
->
->  drivers/irqchip/irq-loongson-eiointc.c | 32 ++++++++++++++++++--------
->  drivers/irqchip/irq-loongson-pch-pic.c |  6 ++++-
->  2 files changed, 27 insertions(+), 11 deletions(-)
->
-> --
-> 2.31.1
->
->
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: Chen Aotian <chenaotian2@163.com>
+---
+
+V2 -> V3:
+* lock_is_held() => lockdep_is_held().(thanks for Alexander)
+
+V1 -> V2:
+* Using rcu_replace_pointer() is better then rcu_dereference()
+  and rcu_assign_pointer().
+
+ drivers/net/ieee802154/mac802154_hwsim.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index 8445c2189..31cba9aa7 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -685,7 +685,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
+ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
+ {
+ 	struct nlattr *edge_attrs[MAC802154_HWSIM_EDGE_ATTR_MAX + 1];
+-	struct hwsim_edge_info *einfo;
++	struct hwsim_edge_info *einfo, *einfo_old;
+ 	struct hwsim_phy *phy_v0;
+ 	struct hwsim_edge *e;
+ 	u32 v0, v1;
+@@ -723,8 +723,10 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
+ 	list_for_each_entry_rcu(e, &phy_v0->edges, list) {
+ 		if (e->endpoint->idx == v1) {
+ 			einfo->lqi = lqi;
+-			rcu_assign_pointer(e->info, einfo);
++			einfo_old = rcu_replace_pointer(e->info, einfo,
++							lockdep_is_held(&hwsim_phys_lock));
+ 			rcu_read_unlock();
++			kfree_rcu(einfo_old, rcu);
+ 			mutex_unlock(&hwsim_phys_lock);
+ 			return 0;
+ 		}
+-- 
+2.25.1
+
