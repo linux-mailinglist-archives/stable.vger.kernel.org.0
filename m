@@ -2,73 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B30B16DBF6B
-	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 12:18:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30FEC6DBFD6
+	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 14:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229532AbjDIKSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Apr 2023 06:18:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42974 "EHLO
+        id S229511AbjDIMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Apr 2023 08:31:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjDIKSP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Apr 2023 06:18:15 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1054239
-        for <stable@vger.kernel.org>; Sun,  9 Apr 2023 03:18:14 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id g19so46247996lfr.9
-        for <stable@vger.kernel.org>; Sun, 09 Apr 2023 03:18:14 -0700 (PDT)
+        with ESMTP id S229445AbjDIMbG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Apr 2023 08:31:06 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FBB3A9B;
+        Sun,  9 Apr 2023 05:31:02 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id 20so4313026plk.10;
+        Sun, 09 Apr 2023 05:31:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1681035492; x=1683627492;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vE40mJuVkISt0zg8IVAmmNvtPq9ArtEbvKSLEgCOttk=;
-        b=e2gcPU+jHaX3nrJ3GX7Jg13jdLT1Xx7hmlSERzL4krlvO+NF/daZPRK5JffwtcBdzb
-         6AaYAQVWTUgw9JK0ErVvMius5wyJWqk/2z0bmsCeSMbag6E8F4/8Fk7WQpSFsgeS2VHU
-         hNfmOez4e1tu2VmF75yH5WK1FDVJR7o+WYkG2ObIRZn2TKpDFpk8Ccf0Yll3DErxvcBd
-         3GNirHeWKa8x7OkXHBZrnwF5zqzili/5q7zm4OJ50RC2kGtXUcQV2HLuvBirZxXIS6wD
-         f8ihX/CQM+HO+s+p39CVJaS+wcY9O0uUpxII60EVk4G65ysENdLxZy7qA/6Z8a+D+ue6
-         4Yfw==
+        d=gmail.com; s=20210112; t=1681043462;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/sjCjsfv26tkwL33cYuaCIiIygw6W5wLP/nI9o69MBE=;
+        b=knP/zr0lg3cA56UTp147xq5KaWNFpUT6fj2NAYVrCspJgHf4+T0aw8tQvplFo3+jmS
+         LCh467KwtrloXokQo8xWWqOPNQ6JOlg0A34GEvR3dmNAQ5jduLziBGAIG9CudtsJxtrV
+         7Zm9Ku+FslXcMzQXg0nL0++Wpx+UTYz90ybiY7f+oRQ62Gs9C3FxxCCNA33pzI6oJi4C
+         pjFiZLfcPa0Ay3qxbdwc9K//Y096/OoOvuNqVONyK8anac2vGYTs2bLtE1nykBBHqS6C
+         lLImrVfpaBLIwYI59opSsLjCDKL8nUc13223uPWh+aMbkpJDjf8IH+heZ9a9YXGJGnig
+         VAIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681035492; x=1683627492;
-        h=to:subject:message-id:date:from:reply-to:mime-version
+        d=1e100.net; s=20210112; t=1681043462;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vE40mJuVkISt0zg8IVAmmNvtPq9ArtEbvKSLEgCOttk=;
-        b=HbfvLxUe8NDaeU7aa5jYpbrQtZaiKpu0e6fD/0MUr8r6dru5eNa5xOJ7dM1MuqTCj4
-         MpmN2MoxPZYjmFRywyGQzvqq4yBHD9jPavn/vcBHSuMg+OoerUhU1D5pKKieZifUzlTt
-         blCDcHd5DdaA6/PS/hdJjLix9k5/dGa4InkwUZOx+eOfjhlbzOaFWQHnoPhZ2arvlqI/
-         4JoEAXXBg3G+v2qVh4l9+uKylDfys4yyT7z5pQZUe9nT1WBYCcQxm1aqjDtDvAwQe7Q2
-         ERl1fRYYg/rZVfLwSlAo75CXAZcQ9XE4nGnkdEcEKIcjAPTNnX/jjiA8wSRS3zFQ/r4v
-         kQqQ==
-X-Gm-Message-State: AAQBX9eVwY3yQv0KfBNeO9thMlzHCbuLQEBMPX01qFjFH7u7zwtWEamM
-        ovFh+tyoWFSuYtMYDCm5yIzpFB2XYP3mqWHQLIc=
-X-Google-Smtp-Source: AKy350bSsSjyBv0ibwuVq4bhpcUY5ArvjB0zxgQjKFZ523JgZqENTbUzQ1vIpL4dW2bk7Z60cvuQosOTGUMiCPcX17g=
-X-Received: by 2002:ac2:4908:0:b0:4e9:b146:1fc9 with SMTP id
- n8-20020ac24908000000b004e9b1461fc9mr1099787lfi.8.1681035492268; Sun, 09 Apr
- 2023 03:18:12 -0700 (PDT)
+        bh=/sjCjsfv26tkwL33cYuaCIiIygw6W5wLP/nI9o69MBE=;
+        b=Od6mE6m6m4MYEMfN+uWugL9KaIPeyU4zyxS/hRwEuTr1K6s80YTfHkGT+euqEn5qap
+         /ZPmxkt+slmz/icZkikcG9FKW6q9dC750NOwy8zUX9A9woIbp7lvPI5A4eb7SYT4AbSM
+         rFlmqvaf44tsWh5sUOttR0eOviJ4Se7kr9RYPB4DoFawXxbYEAoqzl7MHmKMa39hd3qo
+         3TtUAjet02UmWdE0mUkpDz3Otkqtu38qNs16LJxwQPiMjVIno/zPWrV6oNRt9sPYVVzL
+         KO7ZwuHzSnN42JRry42+0h9FFcexynxcVomH3bpK9Hz/3/grfqOBEzP373VjORjJCNi3
+         GXng==
+X-Gm-Message-State: AAQBX9cETVLP+NgTjZmyH2sZcjXB2aGRgrMmf1W/DKQHq01wEQpdM5U6
+        b5A7vsBaE0Qof3X/DIG20IyqwW8s7cQ=
+X-Google-Smtp-Source: AKy350Zi0/jHiXU7qIaSCN3O1DJL5eFsyUZRuJgq7cd2DopUoKCuA1EtplmHA8nvTTwnIYiRy6P0Sw==
+X-Received: by 2002:a17:903:7cd:b0:19e:674a:1fb9 with SMTP id ko13-20020a17090307cd00b0019e674a1fb9mr8024227plb.69.1681043461624;
+        Sun, 09 Apr 2023 05:31:01 -0700 (PDT)
+Received: from [192.168.43.80] (subs32-116-206-28-11.three.co.id. [116.206.28.11])
+        by smtp.gmail.com with ESMTPSA id s31-20020a63ff5f000000b005182bfef363sm2034215pgk.34.2023.04.09.05.30.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 09 Apr 2023 05:31:00 -0700 (PDT)
+Message-ID: <b05d80ab-fd72-1346-f5d9-b80ae9b5cd1a@gmail.com>
+Date:   Sun, 9 Apr 2023 19:30:53 +0700
 MIME-Version: 1.0
-Received: by 2002:ab3:63cf:0:b0:224:2f90:549e with HTTP; Sun, 9 Apr 2023
- 03:18:11 -0700 (PDT)
-Reply-To: saguadshj564@gmail.com
-From:   MS NADAGE LASSOU <pjihin96@gmail.com>
-Date:   Sun, 9 Apr 2023 11:18:11 +0100
-Message-ID: <CADXuY1chRaA7EYjtbTVe_0zcrBtr8=nwwQTiJQHKo+BUbfqBMg@mail.gmail.com>
-Subject: PLEASE REPLY BACK URGENT
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.8 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [PATCH v2] ring-buffer: Prevent inconsistent operation on
+ cpu_buffer->resize_disabled
+To:     Tze-nan Wu <Tze-nan.Wu@mediatek.com>, rostedt@goodmis.org,
+        mhiramat@kernel.org
+Cc:     bobule.chang@mediatek.com, wsd_upstream@mediatek.com,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+References: <20230408052226.25268-1-Tze-nan.Wu@mediatek.com>
+ <20230409024616.31099-1-Tze-nan.Wu@mediatek.com>
+Content-Language: en-US
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20230409024616.31099-1-Tze-nan.Wu@mediatek.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.6 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings.
+On 4/9/23 09:46, Tze-nan Wu wrote:
+> This issue can be reproduced by "echo 0 > trace" and hotplug cpu at the
+> same time. After reproducing success, we can find out buffer_size_kb
+> will not be functional anymore.
+> 
 
-I am Ms Nadage Lassou,I have something important to discuss with you.
-i will send you the details once i hear from you.
-Thanks,
-Ms Nadage Lassou
+Do you mean disabling tracing while hotplugging CPU? Or disabling both
+tracing and hotplug CPU?
+
+> This patch uses cpus_read_lock() to prevent cpu_online_mask being changed
+> between two different "for_each_online_buffer_cpu".
+> 
+
+"Use cpu_read_lock() to prevent ..."
+
+> Changes in v2:
+>   Use cpus_read_lock() instead of copying cpu_online_mask at the entry of
+>   function
+> 
+
+To resolve kernel test robot warnings ([1] and [2])? Or have they been fixed?
+
+[1]: https://lore.kernel.org/stable/202304081615.eiaqpbV8-lkp@intel.com/
+[2]: https://lore.kernel.org/stable/202304082051.Dp50upfS-lkp@intel.com/
+
+Thanks.
+
+-- 
+An old man doll... just what I always wanted! - Clara
+
