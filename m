@@ -2,117 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 456E16DBE53
-	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 04:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30B16DBF6B
+	for <lists+stable@lfdr.de>; Sun,  9 Apr 2023 12:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbjDICqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Apr 2023 22:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
+        id S229532AbjDIKSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Apr 2023 06:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbjDICqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Apr 2023 22:46:39 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D4C5B95;
-        Sat,  8 Apr 2023 19:46:32 -0700 (PDT)
-X-UUID: b8d2775cd68011eda9a90f0bb45854f4-20230409
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=RT6t6k0uRnv8KRrBTo9piwxXohY+DCmlYMyknmWtfNY=;
-        b=XlJT9ba5DtASdgzl0yqtzF/plWLN4TQikNU5tYUbcABPolQ5egdmArdBqwZIHvlK2EsoWekcjsTTC0adODFBSrPwRi+5abfhQmB54+hu39rNJWR7seMOmcSXtI8kbAmOtUxpxKbT6NGpsmeTUynfycl0Sr67qftoDmnsQIkgxmU=;
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.22,REQID:0072c493-e98d-4941-995d-dd8cc0cc4503,IP:0,U
-        RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-        N:release,TS:-25
-X-CID-META: VersionHash:120426c,CLOUDID:5ac19eb5-beed-4dfc-bd9c-e1b22fa6ccc4,B
-        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:-3,IP:nil,U
-        RL:1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-UUID: b8d2775cd68011eda9a90f0bb45854f4-20230409
-Received: from mtkmbs13n2.mediatek.inc [(172.21.101.108)] by mailgw01.mediatek.com
-        (envelope-from <tze-nan.wu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1597067467; Sun, 09 Apr 2023 10:46:26 +0800
-Received: from mtkmbs11n1.mediatek.inc (172.21.101.185) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.25; Sun, 9 Apr 2023 10:46:24 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.1118.25 via Frontend Transport; Sun, 9 Apr 2023 10:46:24 +0800
-From:   Tze-nan Wu <Tze-nan.Wu@mediatek.com>
-To:     <rostedt@goodmis.org>, <mhiramat@kernel.org>
-CC:     <bobule.chang@mediatek.com>, <wsd_upstream@mediatek.com>,
-        <Tze-nan.Wu@mediatek.com>, <stable@vger.kernel.org>,
-        "AngeloGioacchino Del Regno" 
-        <angelogioacchino.delregno@collabora.com>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-trace-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>
-Subject: [PATCH v2] ring-buffer: Prevent inconsistent operation on cpu_buffer->resize_disabled
-Date:   Sun, 9 Apr 2023 10:46:15 +0800
-Message-ID: <20230409024616.31099-1-Tze-nan.Wu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20230408052226.25268-1-Tze-nan.Wu@mediatek.com>
-References: <20230408052226.25268-1-Tze-nan.Wu@mediatek.com>
+        with ESMTP id S229437AbjDIKSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Apr 2023 06:18:15 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1054239
+        for <stable@vger.kernel.org>; Sun,  9 Apr 2023 03:18:14 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id g19so46247996lfr.9
+        for <stable@vger.kernel.org>; Sun, 09 Apr 2023 03:18:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1681035492; x=1683627492;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vE40mJuVkISt0zg8IVAmmNvtPq9ArtEbvKSLEgCOttk=;
+        b=e2gcPU+jHaX3nrJ3GX7Jg13jdLT1Xx7hmlSERzL4krlvO+NF/daZPRK5JffwtcBdzb
+         6AaYAQVWTUgw9JK0ErVvMius5wyJWqk/2z0bmsCeSMbag6E8F4/8Fk7WQpSFsgeS2VHU
+         hNfmOez4e1tu2VmF75yH5WK1FDVJR7o+WYkG2ObIRZn2TKpDFpk8Ccf0Yll3DErxvcBd
+         3GNirHeWKa8x7OkXHBZrnwF5zqzili/5q7zm4OJ50RC2kGtXUcQV2HLuvBirZxXIS6wD
+         f8ihX/CQM+HO+s+p39CVJaS+wcY9O0uUpxII60EVk4G65ysENdLxZy7qA/6Z8a+D+ue6
+         4Yfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681035492; x=1683627492;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vE40mJuVkISt0zg8IVAmmNvtPq9ArtEbvKSLEgCOttk=;
+        b=HbfvLxUe8NDaeU7aa5jYpbrQtZaiKpu0e6fD/0MUr8r6dru5eNa5xOJ7dM1MuqTCj4
+         MpmN2MoxPZYjmFRywyGQzvqq4yBHD9jPavn/vcBHSuMg+OoerUhU1D5pKKieZifUzlTt
+         blCDcHd5DdaA6/PS/hdJjLix9k5/dGa4InkwUZOx+eOfjhlbzOaFWQHnoPhZ2arvlqI/
+         4JoEAXXBg3G+v2qVh4l9+uKylDfys4yyT7z5pQZUe9nT1WBYCcQxm1aqjDtDvAwQe7Q2
+         ERl1fRYYg/rZVfLwSlAo75CXAZcQ9XE4nGnkdEcEKIcjAPTNnX/jjiA8wSRS3zFQ/r4v
+         kQqQ==
+X-Gm-Message-State: AAQBX9eVwY3yQv0KfBNeO9thMlzHCbuLQEBMPX01qFjFH7u7zwtWEamM
+        ovFh+tyoWFSuYtMYDCm5yIzpFB2XYP3mqWHQLIc=
+X-Google-Smtp-Source: AKy350bSsSjyBv0ibwuVq4bhpcUY5ArvjB0zxgQjKFZ523JgZqENTbUzQ1vIpL4dW2bk7Z60cvuQosOTGUMiCPcX17g=
+X-Received: by 2002:ac2:4908:0:b0:4e9:b146:1fc9 with SMTP id
+ n8-20020ac24908000000b004e9b1461fc9mr1099787lfi.8.1681035492268; Sun, 09 Apr
+ 2023 03:18:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
-        T_SPF_TEMPERROR,UNPARSEABLE_RELAY autolearn=unavailable
+Received: by 2002:ab3:63cf:0:b0:224:2f90:549e with HTTP; Sun, 9 Apr 2023
+ 03:18:11 -0700 (PDT)
+Reply-To: saguadshj564@gmail.com
+From:   MS NADAGE LASSOU <pjihin96@gmail.com>
+Date:   Sun, 9 Apr 2023 11:18:11 +0100
+Message-ID: <CADXuY1chRaA7EYjtbTVe_0zcrBtr8=nwwQTiJQHKo+BUbfqBMg@mail.gmail.com>
+Subject: PLEASE REPLY BACK URGENT
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.8 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
+        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Write to buffer_size_kb can permanently fail due to cpu_online_mask changed
-between two for_each_online_buffer_cpu loops.
-The number of increasing and decreasing on cpu_buffer->resize_disable
-may be inconsistent, leading that the resize_disabled in some CPUs
-becoming none zero after ring_buffer_reset_online_cpus return.
+Greetings.
 
-This issue can be reproduced by "echo 0 > trace" and hotplug cpu at the
-same time. After reproducing success, we can find out buffer_size_kb
-will not be functional anymore.
-
-This patch uses cpus_read_lock() to prevent cpu_online_mask being changed
-between two different "for_each_online_buffer_cpu".
-
-Changes in v2:
-  Use cpus_read_lock() instead of copying cpu_online_mask at the entry of
-  function
-
-Link:
-  https://lore.kernel.org/lkml/20230408052226.25268-1-Tze-nan.Wu@mediatek.com/
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
----
- kernel/trace/ring_buffer.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 76a2d91eecad..44d833252fb0 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -5357,6 +5357,7 @@ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
- 
- 	/* prevent another thread from changing buffer sizes */
- 	mutex_lock(&buffer->mutex);
-+	cpus_read_lock();
- 
- 	for_each_online_buffer_cpu(buffer, cpu) {
- 		cpu_buffer = buffer->buffers[cpu];
-@@ -5377,6 +5378,7 @@ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
- 		atomic_dec(&cpu_buffer->resize_disabled);
- 	}
- 
-+	cpus_read_unlock();
- 	mutex_unlock(&buffer->mutex);
- }
- 
--- 
-2.18.0
-
+I am Ms Nadage Lassou,I have something important to discuss with you.
+i will send you the details once i hear from you.
+Thanks,
+Ms Nadage Lassou
