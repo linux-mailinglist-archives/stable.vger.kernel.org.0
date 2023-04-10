@@ -2,46 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 659096DC71B
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 15:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1246DC72E
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 15:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbjDJNJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 09:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44290 "EHLO
+        id S229876AbjDJNNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 09:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbjDJNJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 09:09:07 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B8D30DB;
-        Mon, 10 Apr 2023 06:09:06 -0700 (PDT)
-Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Pw8NB6P2RznbW7;
-        Mon, 10 Apr 2023 21:05:30 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by dggpeml500021.china.huawei.com
- (7.185.36.21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.23; Mon, 10 Apr
- 2023 21:09:02 +0800
-From:   Baokun Li <libaokun1@huawei.com>
-To:     <linux-fsdevel@vger.kernel.org>
-CC:     <viro@zeniv.linux.org.uk>, <brauner@kernel.org>, <jack@suse.cz>,
-        <tj@kernel.org>, <dennis@kernel.org>, <adilger.kernel@dilger.ca>,
-        <akpm@linux-foundation.org>, <linux-kernel@vger.kernel.org>,
-        <yi.zhang@huawei.com>, <yangerkun@huawei.com>,
-        <houtao1@huawei.com>, <libaokun1@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
-Date:   Mon, 10 Apr 2023 21:08:26 +0800
-Message-ID: <20230410130826.1492525-1-libaokun1@huawei.com>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S229872AbjDJNNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 09:13:31 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF78E55BA;
+        Mon, 10 Apr 2023 06:13:29 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33ACo0Qh002751;
+        Mon, 10 Apr 2023 13:13:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : content-type :
+ content-transfer-encoding : in-reply-to : mime-version; s=corp-2022-7-12;
+ bh=tqjR24dulXcubzU3N9mythttLC5Hsbq9He86L/610Ow=;
+ b=P3atcdEBgim5BOy9N7gR0KVbmv1l/vmJ1svHaMcwx7Sg1FaGpP8PuXAY5cTFb51EwD/m
+ 0q+TrG6JoKVNtOCBk5SYaEy4nyrcooXT6WWsD8nRoYRr2pBcq8d/k7uY9lr+yBh7IsBM
+ sjLdd+iasps6JEnmYPqXNetrTmC95yMCNUcFKwd2qfcPklQkNNoagvCDam9eETY6c9J9
+ 6sjvcr+ogwyGtA4mB21e1f6bdkDxb0L5zxe7990tOiEePqj8S49es1nah235sCDS0ihn
+ fYG5XXx8YBHZmZFny+l9A1A2ECsBT425y5RkGzuvRBIxFsTQY6cP5mBySZvahA3OQ94Y HQ== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pu0eq2sbj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 10 Apr 2023 13:13:04 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 33ABRvS0001726;
+        Mon, 10 Apr 2023 13:13:04 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2169.outbound.protection.outlook.com [104.47.57.169])
+        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3puwe55a2s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 10 Apr 2023 13:13:04 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Wb/Kg9izQQG7c0bnqRM28V9E9i/sM/Zt7qdOsZiLSgvPJCUI/hMicpGPWA0dNXk/gB2d873BAyW5tyRTE3yfNW5XLkpYIfO9CX21+wbh/pbKYwEpW5l6vqrFarJ+Vu/7k/eK8P0WzYJCZpMUCyvqVwV0wcmszD8ZV7C39t8V09LeDLqZcKXKVymLDSXiJwkEbwVkwoQJ5OXq8m9hVbyxG50+0Cbg+4O3WikM7yWjNG32+pAuS4EYGHiPzSOBvs01kZjGd23bFP+j0hbPJvRXaG65wbv6XlPiveO+myegmJfalfmD7AHQ0L1w1ZMlEs6lfFw7wTElUF7vQykAME6p1w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tqjR24dulXcubzU3N9mythttLC5Hsbq9He86L/610Ow=;
+ b=NnoBWBrvrM4o6IkAxY/VmAz1xQZuDouqT+YlgdmtQxPsZC9yXVuq1idmituP/KoTyiTea/3jGV1n8vjJBWtXB/NNebNgrAXK030PyI1iiPhbJCy8pIt/wNQKMARD5NRtp+/p2TxlzSJ1kMmlW1atIWrnsTsK800PmVDOo0+fsOGoXeVkV+TLeTdlm0Ze94vIhl/O8wkL2XnLk3LyGWGXRCP5SLsTzC7JzwejUh2KlKAff3sifY2kxfuxif5fOMTdZz6PI+Dz2G/e6RqTcgDLyG+kabVNT+BBDQh4uK64/0S0RUrDksfdHL891X8K8HW+AGlxRPFmTTSRlWFwg5QweA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tqjR24dulXcubzU3N9mythttLC5Hsbq9He86L/610Ow=;
+ b=MJJi9WiIl5N+bET8kxLml1NNwPYGah6MFZyIkRfSVK3dZAfIEhrqY+Vjs9D/WGRZwlMHbG90bSKBEm6ADmALyY0GDuV/MzH6LGAjciKLbdJ1FEFaxLB4QiOZzRwQMRd5VDS1doEbl1TBP9Ulawb2tkj+u6HGvuZfKb+9GaC1ZOs=
+Received: from SN6PR10MB3022.namprd10.prod.outlook.com (2603:10b6:805:d8::25)
+ by SJ0PR10MB6399.namprd10.prod.outlook.com (2603:10b6:a03:44b::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.36; Mon, 10 Apr
+ 2023 13:13:02 +0000
+Received: from SN6PR10MB3022.namprd10.prod.outlook.com
+ ([fe80::8bb9:2bb7:3930:b5da]) by SN6PR10MB3022.namprd10.prod.outlook.com
+ ([fe80::8bb9:2bb7:3930:b5da%7]) with mapi id 15.20.6277.035; Mon, 10 Apr 2023
+ 13:13:01 +0000
+Date:   Mon, 10 Apr 2023 09:12:58 -0400
+From:   "Liam R. Howlett" <Liam.Howlett@Oracle.com>
+To:     Peng Zhang <perlyzhang@gmail.com>
+Cc:     Peng Zhang <zhangpeng.00@bytedance.com>, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        maple-tree@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] maple_tree: Fix a potential memory leak, OOB access,
+ or other unpredictable bug
+Message-ID: <20230410131258.txkiqa5eudgsrmht@revolver>
+Mail-Followup-To: "Liam R. Howlett" <Liam.Howlett@Oracle.com>,
+        Peng Zhang <perlyzhang@gmail.com>,
+        Peng Zhang <zhangpeng.00@bytedance.com>, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        maple-tree@lists.infradead.org, stable@vger.kernel.org
+References: <20230407040718.99064-1-zhangpeng.00@bytedance.com>
+ <20230407040718.99064-2-zhangpeng.00@bytedance.com>
+ <20230410124331.kijufkik2qlxoxjz@revolver>
+ <84c50299-5b5b-867e-1e96-2d3a0c6ade2a@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <84c50299-5b5b-867e-1e96-2d3a0c6ade2a@gmail.com>
+User-Agent: NeoMutt/20220429
+X-ClientProxiedBy: YT1PR01CA0064.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:2e::33) To SN6PR10MB3022.namprd10.prod.outlook.com
+ (2603:10b6:805:d8::25)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpeml500021.china.huawei.com (7.185.36.21)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN6PR10MB3022:EE_|SJ0PR10MB6399:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6f61d187-f95d-49c2-6900-08db39c54fe4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: k+36yNk+qO3DaDWXM56KPyLfu2eY9DRVtR8EoOj3kxqkCgsxSFwtCnHTIMVJJBq7tMUxGzVV+Ck1M8dPH/Q2iMW4jTrfBWWTGxs157vwKiH7AAKVg/C9F6nK2cC5lOM1pcslvOc8UnrHI1GYWHdnx4wk+5IyIjsJPkESkhpHOs/KPgdI65cZazUQvY5cPzJjf3bZKhFvM175zQ9Vp0kCFMoNA5/S1SbfaxSD9+LkBofBbq2BCO54EnbzwiqZRJyzqzLRNkxu+w53ihWgRFINK5O14do+cCcjJVXCsYNVL4frWuZtP8g8qQxtIDCVA44nqs8d3vukOPiepJ5TfAgO9P0nLf6nezOk4K+qOs3epgwD1bkFytGMFuI8M3n9gnmcpVdBUe495Tukt3rlwUKd8cmwR5moPrprEhuYaGmOyRVE9WD//cA7SLLk/f63vAOPKCSmIyYekOj4Ybh2SPgzh3aF4nzIphBWX47dHOTtnEchlFO1El+P0yAblulHNdKx2RxcKs4dte3j4qng8TZrkapK4AbOj4JVLcHCeEN8THNbsCDmD2mP5LgXfINbm/2o
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR10MB3022.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(7916004)(396003)(376002)(136003)(39860400002)(346002)(366004)(451199021)(66476007)(6916009)(66946007)(66556008)(4326008)(478600001)(316002)(5660300002)(41300700001)(8936002)(38100700002)(8676002)(186003)(83380400001)(6486002)(6666004)(9686003)(6512007)(6506007)(26005)(1076003)(33716001)(86362001)(2906002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VExiYy90ZmcvcVRiZ2FoTTR3WFQxblZhTFdSaklNcFArbzFrWkVyc0d0YWFC?=
+ =?utf-8?B?YVI5bUM2NUJua0NBR1B5dE9WejQ0RlFrcUFQcktWSTVPRDlKRkNTMk94d2pn?=
+ =?utf-8?B?NnZicFd0Y1Z0djdnRDgwNkVtOVM5cEJGa1R2RG5UYU01MnBrTFRrZE14UGRI?=
+ =?utf-8?B?NXFXU0RDdHVEblF3V1BadjVicytoQXk3V3JXMzhVRm9xY1VUNlBsQWlmWUpw?=
+ =?utf-8?B?cmxMb2ZCcnl2WlNhNld3b29vczI5MzJldzdkV01YaEFBMEpEd3IwYWwzMllr?=
+ =?utf-8?B?elZQcEhoN2pXcHNqWTF5U3p0b0pWTlpaUUtDZVk4OTZZZjhjNFRhWWVFRmtq?=
+ =?utf-8?B?WXkwTlplU0pIUkpRQnNEcXFVWHVVNGczVW5VN25xd3RFUmgwNFl1aUg4VDVG?=
+ =?utf-8?B?cmdLdERZNjhvemlnVys5OWFoTGkxOUJuQVZwTjBpVmMxeDE0R0hzdDJaMitS?=
+ =?utf-8?B?SlNNZmlKYUFwdkhRbnhBVDNiQWdDSHhnWWhWWmZpMjhKeURWZHdCeUF5T1pX?=
+ =?utf-8?B?UlcvajgyeWFzZGV1eFVOOHFkWU1HcDB6Ri9nUjdBejJuUUNiSnhuRG5wQWJx?=
+ =?utf-8?B?OWd1OUZNejhMVzNDazZURGhKR0tjeFc5bXVENjVQOGhkWm9IZDZ4REVMSWdy?=
+ =?utf-8?B?VlN1UHRaN0hmdmZqV2RSM1Z5amZSOHVQTUR3OWM2RzZaTUFSQUF0eVFxTzht?=
+ =?utf-8?B?RkdBcEkrN0Q3LzIxeXFvajdSY2ZvVkpvK04ybHkwR2kyb0RseWM1Q0Q5VFFr?=
+ =?utf-8?B?Y2NhelFwNjFqNUd0NzM4aFI2YnZKUlh1dTJGVFFGdEdla0xtdE1MRkdIaWJs?=
+ =?utf-8?B?OTVyazY0RTVDTVJJbUJoTzE3NkRqT3p3cGxjMU9NbVY5Vkl0ZWRSQjAwMFBz?=
+ =?utf-8?B?UGV3eDc2czBEMWN5WkZJeDF2Mkw3NUdmZDV4N2E3UzdpQjNtN3dlOGQ0OXhC?=
+ =?utf-8?B?bkU5M3BTc21nL0w2OU1CQW9jejhPMnkrZzRJeVpmQy92L2xMc0hHNituVE42?=
+ =?utf-8?B?QTgydkdaQ1Zxd3YyblVIaFdweFhFRUNtSjhiSVRZQmJkRlBYQ2c3SXUrNVlW?=
+ =?utf-8?B?WHFXN25taDZuYVl3eW92RXQ5TVNIMy9XRFFURVh3VyttRm9XT3lvZzR1LzFt?=
+ =?utf-8?B?allpZGhwVHN5Y2RoODJCU1Vtc2FJR0VmajMzS2M4amIrKy9tS1RJV1E0eU1h?=
+ =?utf-8?B?VmFmUW0zODFaUzBudTBOR2pkaHlhVE1NTU56V2psbE5pTk5WVmR5S1djbFlU?=
+ =?utf-8?B?TEo2NW1yK0pCUzRQRHRMV3A4Y2ZIMituaWJhazIyRjRoQ3JGTnpDWjdvQU1J?=
+ =?utf-8?B?NDA0SllXd2dWemxaV3Z1NG80bWQ2WjN3Vnk1dU5HZVpIbmVnU2dmUTR3Sk5u?=
+ =?utf-8?B?NHJFRmVuYnU4aGJQTDhGcEpyWEs4SHVNdWdjQzJjdGgzeEdTcXhGWFF6cUpj?=
+ =?utf-8?B?Y1gxVVBQQUlBdzJtdDJyNnFZeTRwUldYVkg0a2xQUEtEYlF6T3lDamluOURz?=
+ =?utf-8?B?NURjc012OUlQZTZPbVVKQWlGTWh0ZjRqdHJhYml2S1AzaUhjQTJoYU8rcENV?=
+ =?utf-8?B?bENQSnd4NFJDbXJ0RTBqeElmVE9GeG96Vkw0NTNiWnByMFF2Wjdza0I3eEl5?=
+ =?utf-8?B?Ni9pZ1RNclFQZUFEemY2RkZBV0loWFBaVXVkelpGZ1Q3Q1h4SjZ1bXRQWHN5?=
+ =?utf-8?B?ZVJ4RWdRcEl1RVpkVjUyZmI5RzFnbDRYaUpzREdyVlJydnF6N0djayswZjRh?=
+ =?utf-8?B?UG8zVTZlQlVRNXlLRkpQZ3phVEkyV0dGWmtyS3pQSlRnbjNDOUNxZXVIWmw3?=
+ =?utf-8?B?K2tOOUluRXRQTDAvTG43UVJtODBrKzNVZUtTdXJjUUJySml1Mit6clUrTXRR?=
+ =?utf-8?B?b0pvK0p2Tk9aUmt0N3BiaS9oeFZaK294ejlFbHljT2VMMjA3cFNEeTdRaTU5?=
+ =?utf-8?B?bkhYM0R4eHNtV1hBSm1NTVBQR0VlallTSVBGWjFZQ1FRR1A5YkJjaWhVdWhk?=
+ =?utf-8?B?SUY0b2s5NkNHSkpWcUdEazlKbUFDMWFuNWE3cWQrMjNwZ1ZqTElKOUtOUmtU?=
+ =?utf-8?B?K2tHRzNTa2p3ZmszYnhrdHlvT1NnN1A2RXlvSk5ReVpyQlV1dHA4R2JrdjlX?=
+ =?utf-8?B?aWN1bXR0M1M2azZDY1NReFFNYWxrdXppa0I3aGlBWGVMTWpYVEVWTElsaFhW?=
+ =?utf-8?B?V1E9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?OWxpT3dTaGE0S2ZqZlZ5YmNLN2V2dWFSL2R0ck90ZGE0TnhLZWpGbE9Ock51?=
+ =?utf-8?B?ZXBlMWY2VDRCNjJUR3FBZGhvZzc5MkVRTWdGM0UybmFNV09BZWpUNW5SZ0Yr?=
+ =?utf-8?B?YjRNYjc3R005anhlVFlJemwzVjR5ZHFldzBIMXd5aTR3dktvYit1dHFlK1da?=
+ =?utf-8?B?STJ0blJFR3RydEpDSmgwTysyZXZkcWY0aDdkMFY4VmdMaUQ0Wmx6RmMyZ0dn?=
+ =?utf-8?B?LzlZb1drMGFIT0lvcEo0MzZ2eGltL2tmaDB5QUpMNkRJS1I2ektkRHdEUG9j?=
+ =?utf-8?B?eDkyQlY1Rzh3eE1VbjlVT0VHTG9JQ0VpUnNpRS9YR29lUXdKaGtsTlpKbjl6?=
+ =?utf-8?B?S2dldWV2SlUrMU5BdGZqNEhVOXQ2QStiamoyZlhlbkRKZUdvdFZlUUtoNFN5?=
+ =?utf-8?B?NzlYUzREQkN6b3A1UUFxZ2hZWHIvSldvRm9kdXBLbmhxZ2FsQ2dQZEt1clZi?=
+ =?utf-8?B?QUJtNnNYTnIydmErSlhuT1JCdlY3Z2lxMmhoUWlPMWF5bjNpN1NRSmt3cnRj?=
+ =?utf-8?B?dzM2NDBwZjlrbXNwTDVxdkNadWxhN3d3bzNDZmhkM0EwU0JyaGhsdGI5cS9S?=
+ =?utf-8?B?cWVZbmlBZFdIdW50bGdDOTJzRGpNVDFXUkcxaFN1Uk42enorS0RwQWlZRTVx?=
+ =?utf-8?B?RG5ZYlpwNXV4VEREVDJMaWxvMmZYU0pwbEFPc2NJRUpadjh3NzFhRGVJT3Vr?=
+ =?utf-8?B?di8zOVBiQUdYZlJOLzdjL0NKNWhYZ3E4aFVKMDN6WnFqMmdnMncyM0xteG1i?=
+ =?utf-8?B?MTBtRy81b0UvNUhkU1JNTGR0ekRHQ0JqVVhJb1hNOTlxUjFGYktPQUVrRVFM?=
+ =?utf-8?B?b0NlUWZvV0dpQU5EV0F5RnViM3RXSjFDckYxZG9ZaG8vaUwzVmJQWG9HMmpo?=
+ =?utf-8?B?RXNqaEtMWmxlTnhWUHdBMWcyU2Y2WWFpWlhFSEhUNXAxdm5zajErdjEydHBN?=
+ =?utf-8?B?VUViL1ozdXRhT0t5aUVqMGtYc2xzMW5CT1ZlZ1hWRVFpdkpRRndwblI2L1Zy?=
+ =?utf-8?B?TUhUSVFNNWR2RWJYQUR3b2tvRDBubENCM3ptemN4dEJ2dEYyRHBOakFSMUJz?=
+ =?utf-8?B?b04ybTJKSkxxV0JDUkRTbEFuOThQdkwwWWFUa1JkdDJ6eEFwa0tRNkh2RGg4?=
+ =?utf-8?B?bkdiazZyaXdHelRHQVpFVXBOSmF4M001UGorOEhEeFRSYmFudDZYczYvbTZm?=
+ =?utf-8?B?aTlURW9vcmhrbWRSN2N1bUlUbE82OVgzcFpSNEhXNkNhaTMwekhpYlJweU56?=
+ =?utf-8?B?dDNDTmVxWVNnME51QWtDYmlTREx0ZVpxQmM4YzVXZ0RNV3FkZz09?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6f61d187-f95d-49c2-6900-08db39c54fe4
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR10MB3022.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Apr 2023 13:13:01.6153
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: E7nSe64BtATdB905FHdhMZLyUpktwdlfICKSUT0bPwzeUK2xHrb2vFT2VOcINn74/31NkO144DjJTY+kJYfTSA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB6399
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-10_09,2023-04-06_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 phishscore=0
+ adultscore=0 spamscore=0 suspectscore=0 bulkscore=0 mlxlogscore=999
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304100111
+X-Proofpoint-GUID: CD4JBnVto8CXDckAz_yWNWch0u6w75UD
+X-Proofpoint-ORIG-GUID: CD4JBnVto8CXDckAz_yWNWch0u6w75UD
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,164 +187,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-KASAN report null-ptr-deref:
-==================================================================
-BUG: KASAN: null-ptr-deref in bdi_split_work_to_wbs+0x5c5/0x7b0
-Write of size 8 at addr 0000000000000000 by task sync/943
-CPU: 5 PID: 943 Comm: sync Tainted: 6.3.0-rc5-next-20230406-dirty #461
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7f/0xc0
- print_report+0x2ba/0x340
- kasan_report+0xc4/0x120
- kasan_check_range+0x1b7/0x2e0
- __kasan_check_write+0x24/0x40
- bdi_split_work_to_wbs+0x5c5/0x7b0
- sync_inodes_sb+0x195/0x630
- sync_inodes_one_sb+0x3a/0x50
- iterate_supers+0x106/0x1b0
- ksys_sync+0x98/0x160
-[...]
-==================================================================
+* Peng Zhang <perlyzhang@gmail.com> [230410 08:58]:
+>=20
+> =E5=9C=A8 2023/4/10 20:43, Liam R. Howlett =E5=86=99=E9=81=93:
+> > * Peng Zhang <zhangpeng.00@bytedance.com> [230407 00:10]:
+> > > In mas_alloc_nodes(), there is such a piece of code:
+> > > while (requested) {
+> > > 	...
+> > > 	node->node_count =3D 0;
+> > > 	...
+> > > }
+> > You don't need to quote code in your commit message since it is
+> > available in the change log or in the file itself.
+> Ok, I will change it in the next version.
+> >=20
+> > > "node->node_count =3D 0" means to initialize the node_count field of =
+the
+> > > new node, but the node may not be a new node. It may be a node that
+> > > existed before and node_count has a value, setting it to 0 will cause=
+ a
+> > > memory leak. At this time, mas->alloc->total will be greater than the
+> > > actual number of nodes in the linked list, which may cause many other
+> > > errors. For example, out-of-bounds access in mas_pop_node(), and
+> > > mas_pop_node() may return addresses that should not be used.
+> > > Fix it by initializing node_count only for new nodes.
+> > >=20
+> > > Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+> > > Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
+> > > Cc: <stable@vger.kernel.org>
+> > > ---
+> > >   lib/maple_tree.c | 16 ++++------------
+> > >   1 file changed, 4 insertions(+), 12 deletions(-)
+> > >=20
+> > > diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+> > > index 65fd861b30e1..9e25b3215803 100644
+> > > --- a/lib/maple_tree.c
+> > > +++ b/lib/maple_tree.c
+> > > @@ -1249,26 +1249,18 @@ static inline void mas_alloc_nodes(struct ma_=
+state *mas, gfp_t gfp)
+> > >   	node =3D mas->alloc;
+> > >   	node->request_count =3D 0;
+> > >   	while (requested) {
+> > > -		max_req =3D MAPLE_ALLOC_SLOTS;
+> > > -		if (node->node_count) {
+> > > -			unsigned int offset =3D node->node_count;
+> > > -
+> > > -			slots =3D (void **)&node->slot[offset];
+> > > -			max_req -=3D offset;
+> > > -		} else {
+> > > -			slots =3D (void **)&node->slot;
+> > > -		}
+> > > -
+> > > +		max_req =3D MAPLE_ALLOC_SLOTS - node->node_count;
+> > > +		slots =3D (void **)&node->slot[node->node_count];
+> > Thanks, this is much cleaner.
+> >=20
+> > >   		max_req =3D min(requested, max_req);
+> > >   		count =3D mt_alloc_bulk(gfp, max_req, slots);
+> > >   		if (!count)
+> > >   			goto nomem_bulk;
+> > > +		if (node->node_count =3D=3D 0)
+> > > +			node->slot[0]->node_count =3D 0;
+> > >   		node->node_count +=3D count;
+> > >   		allocated +=3D count;
+> > >   		node =3D node->slot[0];
+> > > -		node->node_count =3D 0;
+> > > -		node->request_count =3D 0;
+> > Why are we not clearing request_count anymore?
+> Because the node pointed to by the variable "node"
+> must not be the head node of the linked list at
+> this time, we only need to maintain the information
+> of the head node.
 
-The race that causes the above issue is as follows:
+Right, at this time it is not the head node, but could it become the
+head node with invalid data?  I think it can, because we don't
+explicitly set it in mas_pop_node()?
 
-           cpu1                     cpu2
--------------------------|-------------------------
-inode_switch_wbs
- INIT_WORK(&isw->work, inode_switch_wbs_work_fn)
- queue_rcu_work(isw_wq, &isw->work)
- // queue_work async
-  inode_switch_wbs_work_fn
-   wb_put_many(old_wb, nr_switched)
-    percpu_ref_put_many
-     ref->data->release(ref)
-     cgwb_release
-      queue_work(cgwb_release_wq, &wb->release_work)
-      // queue_work async
-       &wb->release_work
-       cgwb_release_workfn
-                            ksys_sync
-                             iterate_supers
-                              sync_inodes_one_sb
-                               sync_inodes_sb
-                                bdi_split_work_to_wbs
-                                 kmalloc(sizeof(*work), GFP_ATOMIC)
-                                 // alloc memory failed
-        percpu_ref_exit
-         ref->data = NULL
-         kfree(data)
-                                 wb_get(wb)
-                                  percpu_ref_get(&wb->refcnt)
-                                   percpu_ref_get_many(ref, 1)
-                                    atomic_long_add(nr, &ref->data->count)
-                                     atomic64_add(i, v)
-                                     // trigger null-ptr-deref
+In any case, be sure to mention that you make a change like this in the
+change log, like "Drop setting the resquest_count as it is unnecessary
+because.." in a new paragraph, so that it is not missed.
 
-bdi_split_work_to_wbs() traverses &bdi->wb_list to split work into all wbs.
-If the allocation of new work fails, the on-stack fallback will be used and
-the reference count of the current wb is increased afterwards. If cgroup
-writeback membership switches occur before getting the reference count and
-the current wb is released as old_wd, then calling wb_get() or wb_put()
-will trigger the null pointer dereference above.
 
-This issue was introduced in v4.3-rc7 (see fix tag1). Both sync_inodes_sb()
-and __writeback_inodes_sb_nr() calls to bdi_split_work_to_wbs() can trigger
-this issue. For scenarios called via sync_inodes_sb(), originally commit
-7fc5854f8c6e ("writeback: synchronize sync(2) against cgroup writeback
-membership switches") reduced the possibility of the issue by adding
-wb_switch_rwsem, but in v5.14-rc1 (see fix tag2) removed the
-"inode_io_list_del_locked(inode, old_wb)" from inode_switch_wbs_work_fn()
-so that wb->state contains WB_has_dirty_io, thus old_wb is not skipped
-when traversing wbs in bdi_split_work_to_wbs(), and the issue becomes
-easily reproducible again.
-
-To solve this problem, percpu_ref_exit() is called under RCU protection
-to avoid race between cgwb_release_workfn() and bdi_split_work_to_wbs().
-Moreover, replace wb_get() with wb_tryget() in bdi_split_work_to_wbs(),
-and skip the current wb if wb_tryget() fails because the wb has already
-been shutdown.
-
-Fixes: b817525a4a80 ("writeback: bdi_writeback iteration must not skip dying ones")
-Fixes: f3b6a6df38aa ("writeback, cgroup: keep list of inodes attached to bdi_writeback")
-Cc: stable@vger.kernel.org
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
----
-V1->V2:
-	Use RCU instead of wb_switch_rwsem to avoid race.
-
- fs/fs-writeback.c | 17 ++++++++++-------
- mm/backing-dev.c  | 12 ++++++++++--
- 2 files changed, 20 insertions(+), 9 deletions(-)
-
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 195dc23e0d83..1db3e3c24b43 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -978,6 +978,16 @@ static void bdi_split_work_to_wbs(struct backing_dev_info *bdi,
- 			continue;
- 		}
- 
-+		/*
-+		 * If wb_tryget fails, the wb has been shutdown, skip it.
-+		 *
-+		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
-+		 * continuing iteration from @wb after dropping and
-+		 * regrabbing rcu read lock.
-+		 */
-+		if (!wb_tryget(wb))
-+			continue;
-+
- 		/* alloc failed, execute synchronously using on-stack fallback */
- 		work = &fallback_work;
- 		*work = *base_work;
-@@ -986,13 +996,6 @@ static void bdi_split_work_to_wbs(struct backing_dev_info *bdi,
- 		work->done = &fallback_work_done;
- 
- 		wb_queue_work(wb, work);
--
--		/*
--		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
--		 * continuing iteration from @wb after dropping and
--		 * regrabbing rcu read lock.
--		 */
--		wb_get(wb);
- 		last_wb = wb;
- 
- 		rcu_read_unlock();
-diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index ad011308cebe..43b48750b491 100644
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -507,6 +507,15 @@ static LIST_HEAD(offline_cgwbs);
- static void cleanup_offline_cgwbs_workfn(struct work_struct *work);
- static DECLARE_WORK(cleanup_offline_cgwbs_work, cleanup_offline_cgwbs_workfn);
- 
-+static void cgwb_free_rcu(struct rcu_head *rcu_head)
-+{
-+	struct bdi_writeback *wb = container_of(rcu_head,
-+			struct bdi_writeback, rcu);
-+
-+	percpu_ref_exit(&wb->refcnt);
-+	kfree(wb);
-+}
-+
- static void cgwb_release_workfn(struct work_struct *work)
- {
- 	struct bdi_writeback *wb = container_of(work, struct bdi_writeback,
-@@ -529,11 +538,10 @@ static void cgwb_release_workfn(struct work_struct *work)
- 	list_del(&wb->offline_node);
- 	spin_unlock_irq(&cgwb_lock);
- 
--	percpu_ref_exit(&wb->refcnt);
- 	wb_exit(wb);
- 	bdi_put(bdi);
- 	WARN_ON_ONCE(!list_empty(&wb->b_attached));
--	kfree_rcu(wb, rcu);
-+	call_rcu(&wb->rcu, cgwb_free_rcu);
- }
- 
- static void cgwb_release(struct percpu_ref *refcnt)
--- 
-2.31.1
-
+> >=20
+> > >   		requested -=3D count;
+> > >   	}
+> > >   	mas->alloc->total =3D allocated;
+> > > --=20
+> > > 2.20.1
+> > >=20
