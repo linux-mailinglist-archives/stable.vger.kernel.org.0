@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6CE66DC4EC
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 11:13:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC7636DC4F7
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 11:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbjDJJNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 05:13:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41352 "EHLO
+        id S229838AbjDJJRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 05:17:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbjDJJNt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 05:13:49 -0400
+        with ESMTP id S229889AbjDJJRZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 05:17:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A473C23
-        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 02:13:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E105591
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 02:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3DD1619D6
-        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 09:13:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF5DC433EF;
-        Mon, 10 Apr 2023 09:13:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C34C61A0C
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 09:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE2BC4339C;
+        Mon, 10 Apr 2023 09:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681118016;
-        bh=pdljobIJ/PeFITdllCBvxUtR8U1+Q+hhJLtiGjOLavI=;
+        s=korg; t=1681118234;
+        bh=Vh0gNg+2Me46KeLh2+uwKJGDszTS9HJ/jBRkq1nU8M0=;
         h=Subject:To:Cc:From:Date:From;
-        b=AYbppaaZvdmAXnJ8vMdcL3OiUfDc3cFA/EFdedvlFdCT0VDkGqBxE/Ss4wGA2KmY7
-         Lem26xMZD6xU4V9Ks7FNxcpxKR/08jrUrJEabT0O20/qQ17nNtvjTMmnl24vNuY7Qi
-         UsO/07PVFdF0VbTn3SP10FGmA/dIM0J8rqxkO5zU=
-Subject: FAILED: patch "[PATCH] usb: typec: altmodes/displayport: Fix configure initial pin" failed to apply to 4.19-stable tree
-To:     rdbabiera@google.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com
+        b=UBZb8Lw/FIgnDEe7RU2myn3DJ16ignD8TivwLEP+dJOzXba6SXou2/neNBsOzQK6B
+         /N8tb0KXqOxwtQ5ggeLl2dNcVhEuXBc1zx4Leyjqg83JLbGvTjUC7LyDXXtmxg0jf+
+         sqc02/SHfn/VhVWp+zPG1wLKIjLuyUtbteTutiJo=
+Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: avoid checking for transfer complete" failed to apply to 4.19-stable tree
+To:     sherry.sun@nxp.com, gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 Apr 2023 11:13:32 +0200
-Message-ID: <2023041032-pasty-shifty-db8c@gregkh>
+Date:   Mon, 10 Apr 2023 11:17:11 +0200
+Message-ID: <2023041011-vanilla-unpicked-92cc@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,15 +56,15 @@ To reproduce the conflict and resubmit, you may use the following commands:
 
 git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
-git cherry-pick -x eddebe39602efe631b83ff8d03f26eba12cfd760
+git cherry-pick -x 9425914f3de6febbd6250395f56c8279676d9c3c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041032-pasty-shifty-db8c@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041011-vanilla-unpicked-92cc@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
-eddebe39602e ("usb: typec: altmodes/displayport: Fix configure initial pin assignment")
-09fed4d64d3f ("usb: typec: altmodes/displayport: Fall back to multi-func pins")
+9425914f3de6 ("tty: serial: fsl_lpuart: avoid checking for transfer complete when UARTCTRL_SBK is asserted in lpuart32_tx_empty")
+46dd6d779dcc ("serial: fsl_lpuart: consider TX FIFO too in lpuart32_tx_empty")
 
 thanks,
 
@@ -73,45 +72,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From eddebe39602efe631b83ff8d03f26eba12cfd760 Mon Sep 17 00:00:00 2001
-From: RD Babiera <rdbabiera@google.com>
-Date: Wed, 29 Mar 2023 21:51:59 +0000
-Subject: [PATCH] usb: typec: altmodes/displayport: Fix configure initial pin
- assignment
+From 9425914f3de6febbd6250395f56c8279676d9c3c Mon Sep 17 00:00:00 2001
+From: Sherry Sun <sherry.sun@nxp.com>
+Date: Thu, 23 Mar 2023 13:44:15 +0800
+Subject: [PATCH] tty: serial: fsl_lpuart: avoid checking for transfer complete
+ when UARTCTRL_SBK is asserted in lpuart32_tx_empty
 
-While determining the initial pin assignment to be sent in the configure
-message, using the DP_PIN_ASSIGN_DP_ONLY_MASK mask causes the DFP_U to
-send both Pin Assignment C and E when both are supported by the DFP_U and
-UFP_U. The spec (Table 5-7 DFP_U Pin Assignment Selection Mandates,
-VESA DisplayPort Alt Mode Standard v2.0) indicates that the DFP_U never
-selects Pin Assignment E when Pin Assignment C is offered.
+According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
+a break character by writing 1 to CTRL[SBK], so here need to avoid
+checking for transmission complete when UARTCTRL_SBK is asserted,
+otherwise the lpuart32_tx_empty may never get TIOCSER_TEMT.
 
-Update the DP_PIN_ASSIGN_DP_ONLY_MASK conditional to intially select only
-Pin Assignment C if it is available.
+Commit 2411fd94ceaa("tty: serial: fsl_lpuart: skip waiting for
+transmission complete when UARTCTRL_SBK is asserted") only fix it in
+lpuart32_set_termios(), here also fix it in lpuart32_tx_empty().
 
-Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mode")
-Cc: stable@vger.kernel.org
-Signed-off-by: RD Babiera <rdbabiera@google.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230329215159.2046932-1-rdbabiera@google.com
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20230323054415.20363-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec/altmodes/displayport.c
-index 662cd043b50e..8f3e884222ad 100644
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -112,8 +112,12 @@ static int dp_altmode_configure(struct dp_altmode *dp, u8 con)
- 		if (dp->data.status & DP_STATUS_PREFER_MULTI_FUNC &&
- 		    pin_assign & DP_PIN_ASSIGN_MULTI_FUNC_MASK)
- 			pin_assign &= DP_PIN_ASSIGN_MULTI_FUNC_MASK;
--		else if (pin_assign & DP_PIN_ASSIGN_DP_ONLY_MASK)
-+		else if (pin_assign & DP_PIN_ASSIGN_DP_ONLY_MASK) {
- 			pin_assign &= DP_PIN_ASSIGN_DP_ONLY_MASK;
-+			/* Default to pin assign C if available */
-+			if (pin_assign & BIT(DP_PIN_ASSIGN_C))
-+				pin_assign = BIT(DP_PIN_ASSIGN_C);
-+		}
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 56e6ba3250cd..edc6e35b701a 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -858,11 +858,17 @@ static unsigned int lpuart32_tx_empty(struct uart_port *port)
+ 			struct lpuart_port, port);
+ 	unsigned long stat = lpuart32_read(port, UARTSTAT);
+ 	unsigned long sfifo = lpuart32_read(port, UARTFIFO);
++	unsigned long ctrl = lpuart32_read(port, UARTCTRL);
  
- 		if (!pin_assign)
- 			return -EINVAL;
+ 	if (sport->dma_tx_in_progress)
+ 		return 0;
+ 
+-	if (stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT)
++	/*
++	 * LPUART Transmission Complete Flag may never be set while queuing a break
++	 * character, so avoid checking for transmission complete when UARTCTRL_SBK
++	 * is asserted.
++	 */
++	if ((stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT) || ctrl & UARTCTRL_SBK)
+ 		return TIOCSER_TEMT;
+ 
+ 	return 0;
 
