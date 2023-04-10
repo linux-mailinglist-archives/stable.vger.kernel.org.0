@@ -2,166 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3067D6DC6E3
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 14:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1FE6DC6F4
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 14:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229702AbjDJMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 08:49:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57434 "EHLO
+        id S229611AbjDJM63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 08:58:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbjDJMti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 08:49:38 -0400
-Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-he1eur04on2049.outbound.protection.outlook.com [40.107.7.49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8552738;
-        Mon, 10 Apr 2023 05:49:37 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=i8pSSoo52lbWL2JDUznPwd5c+Fppe9zWuzU3U/uP4YFSJvpwiRyQe3h0dge9RtF0H2oN6lkHlPLlno17I9hRNqOL+sh/+BUmfb07rxDpXs2K92e2wPKcU7H+HSCwRhqph9QeofV4xCSO7kxSgTt34Ue5x4ueWjiEYdBVdTBrjXSEG61kM0nWX9egESQEOz2itejvXgEsfgsv60w7l55+j9nRZUxqYrFO/Ux3hlfUVeTU6zW74QZmEI0msku42thr58vtEfXX4aSj1mqCg0slVwf4tF5tM3NIhQT0akD8EeITjJs8P9R4l2LObXxIaGXsaJXbWaWf9T/DRCRgZ2ujhg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5qoCUG7aIxDx9ZZ83tfYQ5fznWGb5QirS6EsyVHQgDM=;
- b=LI6PlDzBx92aRybU8Y1nzHwvHyYSzIIb5ewyLRWT0UgP6VyALh+RUqSXaq25XywwJRYNw9UpM89yAtV7+HhuwCUejqYy0ZiYHY6yP0hh6cY1ej1hbZq+nKXS3nmMSeuzTxYjdKcQOoMoRfcPlqFWy2GU18xx7xzyzmhYYljG/KR1Zhpeg8XU8OgS4trSkTr4tAGTqWgnNJCDyVJbKrFTvjXLoTf7uVij4WqOzIv+bHHLeIbpKytbY/rfu6mnh69wu52UMW5qOtMsU0ShqvqcOAW54+Jv0Wjdk0fCwjpm9FJbYxJHUuuJhqeusOJVRbC7DGvWS1UQPy2fbwoe6qJLmQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector2-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5qoCUG7aIxDx9ZZ83tfYQ5fznWGb5QirS6EsyVHQgDM=;
- b=GMji5LiSDz78VVlmGNik4syuHehM2Sm7iAWh4GU4ex/EGL+ztte/ZBOfEIwqYY42XIoH+phe2/IakdKPIp+RCp294HBI2K3hDf8FzNp8QqRkLHsjqXUpljj+4NNX/pGm/Z/3zpXjGjHkY+FOjccQcI4FAk3B7xdm0PVTnaB0R1Y=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM9PR04MB8954.eurprd04.prod.outlook.com (2603:10a6:20b:409::7)
- by AS8PR04MB8435.eurprd04.prod.outlook.com (2603:10a6:20b:346::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.35; Mon, 10 Apr
- 2023 12:49:34 +0000
-Received: from AM9PR04MB8954.eurprd04.prod.outlook.com
- ([fe80::9701:b3b3:e698:e733]) by AM9PR04MB8954.eurprd04.prod.outlook.com
- ([fe80::9701:b3b3:e698:e733%7]) with mapi id 15.20.6277.038; Mon, 10 Apr 2023
- 12:49:33 +0000
-From:   "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
-To:     andrew@lunn.ch, hkallweit1@gmail.com, linux@armlinux.org.uk,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
-        stable@vger.kernel.org
-Subject: [PATCH net] net: phy: nxp-c45-tja11xx: fix the PTP interrupt enabling/disabling
-Date:   Mon, 10 Apr 2023 15:48:56 +0300
-Message-Id: <20230410124856.287753-1-radu-nicolae.pirea@oss.nxp.com>
-X-Mailer: git-send-email 2.34.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: AM3PR03CA0062.eurprd03.prod.outlook.com
- (2603:10a6:207:5::20) To AM9PR04MB8954.eurprd04.prod.outlook.com
- (2603:10a6:20b:409::7)
+        with ESMTP id S229571AbjDJM62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 08:58:28 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8CB211E;
+        Mon, 10 Apr 2023 05:58:27 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id q2so9466721pll.7;
+        Mon, 10 Apr 2023 05:58:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1681131507;
+        h=content-transfer-encoding:in-reply-to:from:references:to:subject
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nRqvBThVRAzLt2hvr/N5oQIkVDYEQKa0Fh7bmG/pvF8=;
+        b=gBDeDejyzBC9/NDw3EaHAxRATRaL2YSA3mEJVRtsiBsNwuvoypOxxK5PbL4C3/P2Hs
+         RaabAWnky0aBX1Mbz4wpwxcANZX7XhXP8+q7BL1lPSLAaOcMRW7BpIbJcGeisbWGoEhw
+         zwYhdMiwCDtYe5WOoQEt31KUrw5YaJm8rMOIhH/XpyFFPtY1oMM16A4XEkEliv1gaohu
+         lE8cY98AxK9caETCW/YpoIH0ZEOMwnwTPoSNdSrfi1aqlSGK1OLgsccL3WSVvtVzv5q/
+         TvBO4881WlzkGm2RId1Aflh0BZcFu4KOXm/7hzFtbPRYbm1jojuMOAiqRxGypUbYoR8A
+         9rGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681131507;
+        h=content-transfer-encoding:in-reply-to:from:references:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=nRqvBThVRAzLt2hvr/N5oQIkVDYEQKa0Fh7bmG/pvF8=;
+        b=4OIVbWPRSYjBWDUqQxdrcwzFiW5Axv2caGq86fxAeH+8VpN6aPq+IFzGnpR/FqF9EA
+         Rl7VHC2RzY4swIKF2MTxOVsdYIKibwU3FWwxjxec8KVlQdhksLIKwCsTVBQT8+m2y3fC
+         yVx6Tplb7XpqK1pafm6xvSk7OoKAVNWVy7j+FBfFfLPaEa2hdnMXfber1SPk77Jd/FMv
+         vuYBgPfa0yzp3Pgj11dYgc7yvLibkIPDB/Yfueq3FzMME/Rgg8CGY3QomoALzfwL42gg
+         viK3Vo+m0Y+2/E0tjqevE8qcY8zg3+wjBNZIrA2rB7rbaQXR0Ca3m4dQpoCBCu64uWpD
+         HZxw==
+X-Gm-Message-State: AAQBX9fN8GD8HmDKB+ZzBZT2AuXQyfWT6xLKp5ojd/BL0JbY+omxYxDh
+        +Jou9BTa29+TPBCdg/8afbk=
+X-Google-Smtp-Source: AKy350YQX5KiRTfJz9GnSf5BtGpMTUVF8Nli0s8qXztaiy4KzpbLaCG1N8SSJRfD29E5CCScb0ZJ5Q==
+X-Received: by 2002:a05:6a20:3423:b0:d9:ecba:b9fc with SMTP id i35-20020a056a20342300b000d9ecbab9fcmr7340695pzd.54.1681131506298;
+        Mon, 10 Apr 2023 05:58:26 -0700 (PDT)
+Received: from [10.200.10.217] ([139.177.225.248])
+        by smtp.gmail.com with ESMTPSA id d16-20020aa78690000000b00639c1fc8766sm1153424pfo.212.2023.04.10.05.58.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Apr 2023 05:58:25 -0700 (PDT)
+Message-ID: <84c50299-5b5b-867e-1e96-2d3a0c6ade2a@gmail.com>
+Date:   Mon, 10 Apr 2023 20:58:21 +0800
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM9PR04MB8954:EE_|AS8PR04MB8435:EE_
-X-MS-Office365-Filtering-Correlation-Id: e41b0721-e529-43aa-2b30-08db39c208c5
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: AoS8oAcB67bT/gkXppYjfK0NQhEg954fxdezMgtqvg5md4R519LZvsIQB+bffXR2E05onRmeiGlLOLoA5n4lg4eDoehsKDmJ2Gl/p2qlB0WQUMHSTLWHDe9GtMWhuq5jKfHvfMWkV+DCSVM/tqeZllaSffZdovijZ3chDUEiQguwp9u74izh/9h+qYyIWoGdm9w+/0cYcN6BOWoXc79vS3++DaafS4orfaKW1P4LmtFsnVF53IvInC4TB/cNgAnCi0w9Iz5Jg2+q0vS3+weOBsNISx8puVVDjjM5mNLGVjIMpNSyEsdnzqF0n9qLpfC1EWB0upEWFru10fuR2o2MAazd8dKXkSiP+Ln//VX2w58PgM5mLR374kyjwM6XaS5FlA2eRKsfTWkwkk1VxB7fvkQsijV9P4JdwOyl+nVLOg9+H/9GT1oo7CnX8tTWmYlDXTbnjuBoId/ZJ23GFmAfTOiauL/JfMSh5c3H37GuVdprPtSBA0na+//GLIIX8ApoRa6uqbB1pp/rjpwgW4RHP4aR4kiHkOEwltYso0jXnfbu89dKlTrF1KGaplIpKoU5foCidEEkXIcogNIK9e0z3qnKrybIopuiUBgsXjieVJsHc6Yn6ufQJKnQ8Fo8vB5t
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR04MB8954.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(346002)(396003)(376002)(136003)(366004)(451199021)(52116002)(478600001)(86362001)(83380400001)(38350700002)(38100700002)(2616005)(6486002)(6666004)(2906002)(7416002)(316002)(186003)(6512007)(6506007)(1076003)(26005)(66476007)(8676002)(66556008)(8936002)(5660300002)(41300700001)(66946007)(4326008);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?sqrlGLr+HReyJ1PS4Ia8ClparUz0inc1AaPiPEnh9F6JGzOwV6G0+3yMBhD4?=
- =?us-ascii?Q?khDeMVDnZ/3WMwZZfIbO4uN5PphU1FcNRM9pYe1R3x5XjhRX9+eXHO8i/gXB?=
- =?us-ascii?Q?TjELTBdnOhmIe2WQRwrsCB0o/Gu/vHIQnZYpT46+PRlJE47/Zs2uoTOZ7nif?=
- =?us-ascii?Q?wgMI1Y7pCnGiL2NWezsdAk/hnPzKrtjBDgOKQC3HAfzzKx5XQMhPcsldbobU?=
- =?us-ascii?Q?oJpIriQGJrP6y6gD1iwk8cQ/qfqAhe/EgIHaL3576lnaCLKWfyFp8VQXS44X?=
- =?us-ascii?Q?e4mJQ5XAMd0QobrLUzOrSH2EokHy5T3ah2pHxVARjFr7AemZEivfVVivQAPq?=
- =?us-ascii?Q?DrlK25OrqFS7NJDbyvdcJQxu0blA01tyNTNvITUlA5BpN5KEyEjeeyyL/6uJ?=
- =?us-ascii?Q?I0KlUMkd2tTZhKN++f7hRT6ihDpmUcFNjgamOMO4pbXjNPpFZsoV4f2nOHeA?=
- =?us-ascii?Q?lGwp1ukB3NrKZL0x6Y43CjwBAm0qNSrNmKdHz0+LmCLYNPuVm79j9VkZdiVy?=
- =?us-ascii?Q?lFoWWrSEWdkrX4I+6T0j/+soewH3kRNFLoMVeKLSSjTpzLYrRlTEaHKXJgoz?=
- =?us-ascii?Q?5NYVcGcsv2aljG/q4ng65usJ1Jq+8/cpXqdY+1JkKvuxh2UJjFiRrJUeCHHN?=
- =?us-ascii?Q?e91QDNFBv9somolZ2QNMguhSq0hBkinll7Rghx8mrByJIBxzRNdvrmcCTRus?=
- =?us-ascii?Q?5Wsh/NL3/e16z0UHosK58vhu3lqOlbc2XbUr3Rw0M7Hpd1qFdqjzQbKhqye2?=
- =?us-ascii?Q?x+KVHc0xf49c5hFs+0U26ayMWWHS7OsRvXvEx061x/0OgWLjPdn+eQtjPGCm?=
- =?us-ascii?Q?i9epRMNWv/Oc2xfZ3XJwiXXtJUZENPJE4Fci6SxZlB6n94DlQiUBxx/4w73K?=
- =?us-ascii?Q?osmwc6ies2xC1X5z96LkSthZxPf4sN996FfqH8YLnmDfRBfKNPbyC2l1b6VD?=
- =?us-ascii?Q?z0wsjpCvbnOwmE0zBPFx3USd8Z4k8diZy6QaYIgGhqoVDAngrTtfSl+7wclA?=
- =?us-ascii?Q?WOwbzx5RAUD5KPKKq0QRytcrdv9cgQ4CnMzpr3xJYvholDGz+zSe4mHVGSXk?=
- =?us-ascii?Q?hIsdwpVH1jfmHTsDmp7TDCVFSTYzmNOGv/Y2oWudiizbwM8Fn80AyuVsfJXc?=
- =?us-ascii?Q?oilT8Q+BlfEP+Uf/YvY7XOsl+xXE+ZhHJJjAq7by3nSAuhBCI9jhAVbiuxAC?=
- =?us-ascii?Q?nvys/rVeEwQnC+k+0dbzoSXq2yI7d82YduQsE8honXUdt541TOUP+e6rsKOo?=
- =?us-ascii?Q?rJi5XZKwA5vKzROQxwPjV5OjGIbJUkSgY3moXaUAtVz+E7eIkba3ao/iMoUf?=
- =?us-ascii?Q?DE0nxlNWMgLaqwp6+Fm+e/SxukEc/2j/9VRVhqaL3LPAvi+/7kifKTrXOsMV?=
- =?us-ascii?Q?v83Dp8ELta51uFf2s5j9rs0+JI8pdZxdzIB8dB19H9im4m8b24RIsxvIVQDI?=
- =?us-ascii?Q?dlVmHjB2JA/bYVn528MPvWfWxzhQPYBQsLOdg/uMWgnai8Iod0Kwm+l0Y5TH?=
- =?us-ascii?Q?qGMj7zwQHJ0wAy3XzrGudhqwZn2eousA/6XAK399oUtu82xh8iijP2TULUAP?=
- =?us-ascii?Q?PxZRqYT5aRZjOqnY5RWwTkkGfNcE1fN5eid2dNZizznGMCGXSR+nw3eTMO9S?=
- =?us-ascii?Q?pA=3D=3D?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e41b0721-e529-43aa-2b30-08db39c208c5
-X-MS-Exchange-CrossTenant-AuthSource: AM9PR04MB8954.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Apr 2023 12:49:33.8631
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 2zzjb+CK2t1dyB8MoBbcECHEp3Cn3AQhBTEuwpmNST4GEKQ33P3249asHqrPaMgEjVl+c9q8iJwuMSEi6y9GRV5GahmaOTK0La9g4e/kJeI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB8435
-X-Spam-Status: No, score=-0.0 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.1
+Subject: Re: [PATCH 2/2] maple_tree: Fix a potential memory leak, OOB access,
+ or other unpredictable bug
+To:     "Liam R. Howlett" <Liam.Howlett@Oracle.com>,
+        Peng Zhang <zhangpeng.00@bytedance.com>,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, maple-tree@lists.infradead.org,
+        stable@vger.kernel.org
+References: <20230407040718.99064-1-zhangpeng.00@bytedance.com>
+ <20230407040718.99064-2-zhangpeng.00@bytedance.com>
+ <20230410124331.kijufkik2qlxoxjz@revolver>
+From:   Peng Zhang <perlyzhang@gmail.com>
+In-Reply-To: <20230410124331.kijufkik2qlxoxjz@revolver>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-.config_intr() handles only the link event interrupt and should also
-disable/enable the PTP interrupt.
 
-Even if the PTP irqs bit is toggled unconditionally, it is safe. This
-interrupt acts as a global switch for all PTP irqs. By default, this bit
-is set.
-
-Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
----
- drivers/net/phy/nxp-c45-tja11xx.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
-index 5813b07242ce..4d7f4cb05f89 100644
---- a/drivers/net/phy/nxp-c45-tja11xx.c
-+++ b/drivers/net/phy/nxp-c45-tja11xx.c
-@@ -63,6 +63,9 @@
- #define VEND1_PORT_ABILITIES		0x8046
- #define PTP_ABILITY			BIT(3)
- 
-+#define VEND1_PORT_FUNC_IRQ_EN		0x807A
-+#define PTP_IRQS			BIT(3)
-+
- #define VEND1_PORT_INFRA_CONTROL	0xAC00
- #define PORT_INFRA_CONTROL_EN		BIT(14)
- 
-@@ -890,12 +893,15 @@ static int nxp_c45_start_op(struct phy_device *phydev)
- 
- static int nxp_c45_config_intr(struct phy_device *phydev)
- {
--	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
-+	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-+		phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, PTP_IRQS, PTP_IRQS);
- 		return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
- 					VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
--	else
-+	} else {
-+		phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1, PTP_IRQS, PTP_IRQS);
- 		return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1,
- 					  VEND1_PHY_IRQ_EN, PHY_IRQ_LINK_EVENT);
-+	}
- }
- 
- static irqreturn_t nxp_c45_handle_interrupt(struct phy_device *phydev)
--- 
-2.34.1
-
+在 2023/4/10 20:43, Liam R. Howlett 写道:
+> * Peng Zhang <zhangpeng.00@bytedance.com> [230407 00:10]:
+>> In mas_alloc_nodes(), there is such a piece of code:
+>> while (requested) {
+>> 	...
+>> 	node->node_count = 0;
+>> 	...
+>> }
+> You don't need to quote code in your commit message since it is
+> available in the change log or in the file itself.
+Ok, I will change it in the next version.
+>
+>> "node->node_count = 0" means to initialize the node_count field of the
+>> new node, but the node may not be a new node. It may be a node that
+>> existed before and node_count has a value, setting it to 0 will cause a
+>> memory leak. At this time, mas->alloc->total will be greater than the
+>> actual number of nodes in the linked list, which may cause many other
+>> errors. For example, out-of-bounds access in mas_pop_node(), and
+>> mas_pop_node() may return addresses that should not be used.
+>> Fix it by initializing node_count only for new nodes.
+>>
+>> Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+>> Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
+>> Cc: <stable@vger.kernel.org>
+>> ---
+>>   lib/maple_tree.c | 16 ++++------------
+>>   1 file changed, 4 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+>> index 65fd861b30e1..9e25b3215803 100644
+>> --- a/lib/maple_tree.c
+>> +++ b/lib/maple_tree.c
+>> @@ -1249,26 +1249,18 @@ static inline void mas_alloc_nodes(struct ma_state *mas, gfp_t gfp)
+>>   	node = mas->alloc;
+>>   	node->request_count = 0;
+>>   	while (requested) {
+>> -		max_req = MAPLE_ALLOC_SLOTS;
+>> -		if (node->node_count) {
+>> -			unsigned int offset = node->node_count;
+>> -
+>> -			slots = (void **)&node->slot[offset];
+>> -			max_req -= offset;
+>> -		} else {
+>> -			slots = (void **)&node->slot;
+>> -		}
+>> -
+>> +		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
+>> +		slots = (void **)&node->slot[node->node_count];
+> Thanks, this is much cleaner.
+>
+>>   		max_req = min(requested, max_req);
+>>   		count = mt_alloc_bulk(gfp, max_req, slots);
+>>   		if (!count)
+>>   			goto nomem_bulk;
+>>   
+>> +		if (node->node_count == 0)
+>> +			node->slot[0]->node_count = 0;
+>>   		node->node_count += count;
+>>   		allocated += count;
+>>   		node = node->slot[0];
+>> -		node->node_count = 0;
+>> -		node->request_count = 0;
+> Why are we not clearing request_count anymore?
+Because the node pointed to by the variable "node"
+must not be the head node of the linked list at
+this time, we only need to maintain the information
+of the head node.
+>
+>>   		requested -= count;
+>>   	}
+>>   	mas->alloc->total = allocated;
+>> -- 
+>> 2.20.1
+>>
