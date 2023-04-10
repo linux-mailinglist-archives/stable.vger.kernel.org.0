@@ -2,211 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5FE6DC39D
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 08:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D91F6DC3E1
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 09:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229603AbjDJGnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 02:43:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48844 "EHLO
+        id S229778AbjDJHfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 03:35:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbjDJGnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 02:43:05 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F25271E;
-        Sun,  9 Apr 2023 23:43:03 -0700 (PDT)
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx005
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1N7QxL-1qSHZE2rc5-017n6M; Mon, 10
- Apr 2023 08:42:58 +0200
-Message-ID: <d2de6696-3aa5-df0f-edb6-064e66d9e26f@gmx.com>
-Date:   Mon, 10 Apr 2023 14:42:54 +0800
+        with ESMTP id S229642AbjDJHfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 03:35:45 -0400
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E936A2708;
+        Mon, 10 Apr 2023 00:35:40 -0700 (PDT)
+X-UUID: 47d0307ed77211edb6b9f13eb10bd0fe-20230410
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=7uzc4Gmc54T760tvEhSz8TdAybgvY+nHPJ6ttMqGCTg=;
+        b=OebQoBXaTyU94lHq2McKOGd08J4KFwMjblE9k3waiuqevD1fLF2Hd2mTOE/yxC5WZ8iosXPh19m2PXc5U97ICcFRnRGUExGOE537QMfQ8KCzsd0f9Yyevg+BDZ0sMzKkVLgFXmDSatzxWTciECmZZQ7txKIU0DcklVh/SBEvhTY=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.22,REQID:5ef009e6-f3bb-4b24-a4a5-5bf4026b70c4,IP:0,U
+        RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+        N:release,TS:-25
+X-CID-META: VersionHash:120426c,CLOUDID:a90abab5-beed-4dfc-bd9c-e1b22fa6ccc4,B
+        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:-3,IP:nil,U
+        RL:11|1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
+X-CID-BVR: 0
+X-CID-BAS: 0,_,0,_
+X-UUID: 47d0307ed77211edb6b9f13eb10bd0fe-20230410
+Received: from mtkmbs11n2.mediatek.inc [(172.21.101.187)] by mailgw02.mediatek.com
+        (envelope-from <tze-nan.wu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 331443076; Mon, 10 Apr 2023 15:35:34 +0800
+Received: from mtkmbs13n1.mediatek.inc (172.21.101.193) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.25; Mon, 10 Apr 2023 15:35:34 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs13n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.1118.25 via Frontend Transport; Mon, 10 Apr 2023 15:35:34 +0800
+From:   Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+To:     <rostedt@goodmis.org>, <mhiramat@kernel.org>
+CC:     <bobule.chang@mediatek.com>, <wsd_upstream@mediatek.com>,
+        <Tze-nan.Wu@mediatek.com>, <cheng-jui.wang@mediatek.com>,
+        <npiggin@gmail.com>, <stable@vger.kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-trace-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>
+Subject: [PATCH v3] ring-buffer: Prevent inconsistent operation on cpu_buffer->resize_disabled
+Date:   Mon, 10 Apr 2023 15:35:08 +0800
+Message-ID: <20230410073512.13362-1-Tze-nan.Wu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20230409024616.31099-1-Tze-nan.Wu@mediatek.com>
+References: <20230409024616.31099-1-Tze-nan.Wu@mediatek.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH pre-6.4] btrfs: dev-replace: error out if we have
- unrepaired metadata error during
-To:     Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
-        linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <4360e4f01d47cca45930ea74b02c5d734a9cbfbd.1681093106.git.wqu@suse.com>
- <e3d8c926-d4a4-cc3b-b845-211c40fe99a2@oracle.com>
-Content-Language: en-US
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <e3d8c926-d4a4-cc3b-b845-211c40fe99a2@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:eJB5BAUacCl/wagIpBUIVtDXZzKF0z5RkLVH+ZE+z9/4KFSOFy/
- vjDukJNdBh1xvu+sr3L9O+AmMToI/DGD7Qi+UR9fUkvICJgmPwIb8pv9YmS+OGV+wbYczGv
- zR5CMqUy7aGHhghCBTBRNi2W0B0zzWvh8e7C2HbfB4pqpCjKEVs3IFO85WCdECP6ty1yHtK
- nUaHmCKnTU+n50bf+YDrQ==
-UI-OutboundReport: notjunk:1;M01:P0:Xp8SoFAoRio=;r1iH5nHjewnHDeUlSFIvUJSoS6W
- xLo3sh3mR+WIf1tkn+OkGuT2rpYEipiprlkUSH2PY9EqzlSUlYegxgJE5zEu3WhRybLDBoYF5
- 2LnoHPSWG+cPDaygTflYd9sBt8Q6k4421Leah/ZKSdXgt6MUY8WHJuNRSd8nCi8f3mlZ8Fi8Y
- 5UK8D6gy7n6C+YHgBTwDUFnb8jNcjKZ9qx0/ueebCqoDhdp0l2bgckGio7Xk9al5sNiCr6JKn
- vcoQ63lvRUaofY8eQhgICdFH5+gSEh8BkYRWw9oSyWgof+u/Qrh+Lu3eAnlyLAm9zBOvy9Xyp
- 2LX2isH148fpmEv8jU40oKt2GXqqhfLAvglK4nKwOLNt7KSPXX+NqiYHCghkFBnZI9v5GHjP3
- fqRtK0IUMBZbtvaPi44WIfkUdZCFwQQFYGe9mlWFQCT4WrDlgOoolAMzN30pJbFCUswEh0+ZO
- +KLVyVWCezlKNPOZTsruxjjjO3ce8cqg6iEgeXPUScsy1q/Ff/1E/hPyfKRAaG5JC/rUfLAiO
- w5v4u5K/zDjEeNMq/ZPOf5b6jK6lWhcaAy/vuWRoAQepVKPTjdNdLMdDI29unldMM0ie5/lVM
- 7dfdQ6YcWf7yCW1PmInrlSFVQG1Yp2bZ6b/MXD+Q6IXhPe/E4ZThEAmUE2urFOOJNCOgQjPLg
- C5+MgHUH9eOb+Bc5bqbI6MLLcRpKNvfD9CB3Dm638QiXQJNqr/l3YB8EU9ZH3Dwkw+NyOKxIe
- MzcCmILtN43sDY8qQ2yA9zn9k0VPLyND67ERWvKDUWfXDbPOCI4ScIOBrf8z9xnB/sD2+Z34K
- /DV1X0B+9avSBMzocruZ9fTfwVlUe2ZIAMaKl++/f8E4M7ON0QvjhzzV+eH36hbcNIxtar40F
- gah5YoW/ME3Iwg6aF2u4TG7TzJxapD75om/ykPf3lMtW4ehAgWQGziwitJEBFZ8DhXSUQsRYQ
- DFV9LtfDxIxvenDcViYzY4dgaXY=
-X-Spam-Status: No, score=-3.6 required=5.0 tests=FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
+        UNPARSEABLE_RELAY autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Write to buffer_size_kb can permanently fail, due to cpu_online_mask may
+changed between two for_each_online_buffer_cpu loops.
+The number of increasing and decreasing on cpu_buffer->resize_disable
+may be inconsistent, leading that the resize_disabled in some CPUs
+becoming none zero after ring_buffer_reset_online_cpus return.
 
+This issue can be reproduced by "echo 0 > trace" while hotplugging cpu.
+After reproducing success, we can find out buffer_size_kb will not be
+functional anymore.
 
-On 2023/4/10 12:20, Anand Jain wrote:
-> On 10/4/23 10:22, Qu Wenruo wrote:
->> This is for pre-6.4 kernels, as scrub code goes through a huge rework.
->>
->> [BUG]
->> Even before the scrub rework, if we have some corrupted metadata failed
->> to be repaired during replace, we still continue replace and let it
->> finish just as there is nothing wrong:
->>
->>   BTRFS info (device dm-4): dev_replace from /dev/mapper/test-scratch1 
->> (devid 1) to /dev/mapper/test-scratch2 started
->>   BTRFS warning (device dm-4): tree block 5578752 mirror 1 has bad 
->> csum, has 0x00000000 want 0xade80ca1
->>   BTRFS warning (device dm-4): tree block 5578752 mirror 0 has bad 
->> csum, has 0x00000000 want 0xade80ca1
->>   BTRFS warning (device dm-4): checksum error at logical 5578752 on 
->> dev /dev/mapper/test-scratch1, physical 5578752: metadata leaf (level 
->> 0) in tree 5
->>   BTRFS warning (device dm-4): checksum error at logical 5578752 on 
->> dev /dev/mapper/test-scratch1, physical 5578752: metadata leaf (level 
->> 0) in tree 5
->>   BTRFS error (device dm-4): bdev /dev/mapper/test-scratch1 errs: wr 
->> 0, rd 0, flush 0, corrupt 1, gen 0
->>   BTRFS warning (device dm-4): tree block 5578752 mirror 1 has bad 
->> bytenr, has 0 want 5578752
->>   BTRFS error (device dm-4): unable to fixup (regular) error at 
->> logical 5578752 on dev /dev/mapper/test-scratch1
->>   BTRFS info (device dm-4): dev_replace from /dev/mapper/test-scratch1 
->> (devid 1) to /dev/mapper/test-scratch2 finished
->>
->> This can lead to unexpected problems for the result fs.
->>
->> [CAUSE]
->> Btrfs reuses scrub code path for dev-replace to iterate all dev extents.
->>
->> But unlike scrub, dev-replace doesn't really bother to check the scrub
->> progress, which records all the errors found during replace.
->>
->> And even if we checks the progress, we can not really determine which
->> errors are minor, which are critical just by the plain numbers.
->> (remember we don't treat metadata/data checksum error differently).
->>
->> This behavior is there from the very beginning.
->>
->> [FIX]
->> Instead of continue the replace, just error out if we hit an unrepaired
->> metadata sector.
->>
->> Now the dev-replace would be rejected with -EIO, to inform the user.
->> Although it also means, the fs has some metadata error which can not be
->> repaired, the user would be super upset anyway.
-> 
-> IMO, the original design is fair as it does not capture scrub errors
-> during the replace. Because the purpose of the scrub is different from
-> the replace from the user POV.
+Prevent the two "loops" in this function from iterating through different
+online cpus by copying cpu_online_mask at the entry of the function.
 
-The problem is, after such replace, the corrupted metadata would have 
-different content (we just don't do the writeback at all).
-Even worse, the end user is not even aware of the problem, unless dmesg 
-is manually checked.
+Changes from v1 to v3:
+  Declare the cpumask variable statically rather than dynamically.
 
-This means we changed the result fs during the replace, which removes 
-the tiny chance to do a manual repair (aka, manually re-generate the 
-checksum).
+Changes from v2 to v3:
+  Considering holding cpu_hotplug_lock too long because of the
+  synchronize_rcu(), maybe it's better to prevent the issue by copying
+  cpu_online_mask at the entry of the function as V1 does, instead of
+  using cpus_read_lock().
 
-> However, after the replace, if scrubbed it will still capture any
-> errors? No?
+Link: https://lore.kernel.org/lkml/20230408052226.25268-1-Tze-nan.Wu@mediatek.com/
+Link: https://lore.kernel.org/oe-kbuild-all/202304082051.Dp50upfS-lkp@intel.com/
+Link: https://lore.kernel.org/oe-kbuild-all/202304081615.eiaqpbV8-lkp@intel.com/
 
-It's not about scrub after scrub. Such replace should not even finish.
+Cc: stable@vger.kernel.org
+Cc: npiggin@gmail.com
+Fixes: b23d7a5f4a07 ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
+Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+---
+ kernel/trace/ring_buffer.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-Thanks,
-Qu
-> 
-> Thanks, Anand
-> 
-> 
->>
->> The new dmesg would look like this:
->>
->>   BTRFS info (device dm-4): dev_replace from /dev/mapper/test-scratch1 
->> (devid 1) to /dev/mapper/test-scratch2 started
->>   BTRFS warning (device dm-4): tree block 5578752 mirror 1 has bad 
->> csum, has 0x00000000 want 0xade80ca1
->>   BTRFS warning (device dm-4): tree block 5578752 mirror 1 has bad 
->> csum, has 0x00000000 want 0xade80ca1
->>   BTRFS error (device dm-4): unable to fixup (regular) error at 
->> logical 5570560 on dev /dev/mapper/test-scratch1 physical 5570560
->>   BTRFS warning (device dm-4): header error at logical 5570560 on dev 
->> /dev/mapper/test-scratch1, physical 5570560: metadata leaf (level 0) 
->> in tree 5
->>   BTRFS warning (device dm-4): header error at logical 5570560 on dev 
->> /dev/mapper/test-scratch1, physical 5570560: metadata leaf (level 0) 
->> in tree 5
->>   BTRFS error (device dm-4): stripe 5570560 has unrepaired metadata 
->> sector at 5578752
->>   BTRFS error (device dm-4): 
->> btrfs_scrub_dev(/dev/mapper/test-scratch1, 1, 
->> /dev/mapper/test-scratch2) failed -5
->>
->> CC: stable@vger.kernel.org
->> Signed-off-by: Qu Wenruo <wqu@suse.com>
->> ---
->> I'm not sure how should we merge this patch.
->>
->> The misc-next is already merging the new scrub code, but the problem is
->> there for all old kernels thus we need such fixes.
->>
->> Maybe we can merge this fix before the scrub rework, then the rework,
->> and finally the better fix using reworked interface?
->> ---
->>   fs/btrfs/scrub.c | 9 +++++++++
->>   1 file changed, 9 insertions(+)
->>
->> diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
->> index ef4046a2572c..71f64b9bcd9f 100644
->> --- a/fs/btrfs/scrub.c
->> +++ b/fs/btrfs/scrub.c
->> @@ -195,6 +195,7 @@ struct scrub_ctx {
->>       struct mutex            wr_lock;
->>       struct btrfs_device     *wr_tgtdev;
->>       bool                    flush_all_writes;
->> +    bool            has_meta_failed;
->>       /*
->>        * statistics
->> @@ -1380,6 +1381,8 @@ static int scrub_handle_errored_block(struct 
->> scrub_block *sblock_to_check)
->>           btrfs_err_rl_in_rcu(fs_info,
->>               "unable to fixup (regular) error at logical %llu on dev 
->> %s",
->>               logical, btrfs_dev_name(dev));
->> +        if (is_metadata)
->> +            sctx->has_meta_failed = true;
->>       }
->>   out:
->> @@ -3838,6 +3841,12 @@ static noinline_for_stack int 
->> scrub_stripe(struct scrub_ctx *sctx,
->>       blk_finish_plug(&plug);
->> +    /*
->> +     * If we have metadata unable to be repaired, we should error
->> +     * out the dev-replace.
->> +     */
->> +    if (sctx->is_dev_replace && sctx->has_meta_failed && ret >= 0)
->> +        ret = -EIO;
->>       if (sctx->is_dev_replace && ret >= 0) {
->>           int ret2;
-> 
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 76a2d91eecad..dc758930dacb 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -288,9 +288,6 @@ EXPORT_SYMBOL_GPL(ring_buffer_event_data);
+ #define for_each_buffer_cpu(buffer, cpu)		\
+ 	for_each_cpu(cpu, buffer->cpumask)
+ 
+-#define for_each_online_buffer_cpu(buffer, cpu)		\
+-	for_each_cpu_and(cpu, buffer->cpumask, cpu_online_mask)
+-
+ #define TS_SHIFT	27
+ #define TS_MASK		((1ULL << TS_SHIFT) - 1)
+ #define TS_DELTA_TEST	(~TS_MASK)
+@@ -5353,12 +5350,19 @@ EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
+ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
+ {
+ 	struct ring_buffer_per_cpu *cpu_buffer;
++	cpumask_t reset_online_cpumask;
+ 	int cpu;
+ 
++	/*
++	 * Record cpu_online_mask here to make sure we iterate through the same
++	 * online CPUs in the following two loops.
++	 */
++	cpumask_copy(&reset_online_cpumask, cpu_online_mask);
++
+ 	/* prevent another thread from changing buffer sizes */
+ 	mutex_lock(&buffer->mutex);
+ 
+-	for_each_online_buffer_cpu(buffer, cpu) {
++	for_each_cpu_and(cpu, buffer->cpumask, &reset_online_cpumask) {
+ 		cpu_buffer = buffer->buffers[cpu];
+ 
+ 		atomic_inc(&cpu_buffer->resize_disabled);
+@@ -5368,7 +5372,7 @@ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
+ 	/* Make sure all commits have finished */
+ 	synchronize_rcu();
+ 
+-	for_each_online_buffer_cpu(buffer, cpu) {
++	for_each_cpu_and(cpu, buffer->cpumask, &reset_online_cpumask) {
+ 		cpu_buffer = buffer->buffers[cpu];
+ 
+ 		reset_disabled_cpu_buffer(cpu_buffer);
+-- 
+2.18.0
+
