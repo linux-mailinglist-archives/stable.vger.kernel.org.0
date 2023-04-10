@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 156056DCA2E
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 19:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0406DCA33
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 19:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230351AbjDJRr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 13:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37726 "EHLO
+        id S230011AbjDJRtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 13:49:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230407AbjDJRrw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 13:47:52 -0400
+        with ESMTP id S230397AbjDJRtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 13:49:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7403E1710
-        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 10:47:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50D626A2
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 10:49:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F75A612BB
-        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 17:47:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F265FC433D2;
-        Mon, 10 Apr 2023 17:47:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8081861360
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 17:49:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D5FC433D2;
+        Mon, 10 Apr 2023 17:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681148870;
-        bh=2QbSZq0YMuerZZRhR4e7zT6kPDayRr5PUUS4lXi8sY4=;
+        s=korg; t=1681148976;
+        bh=KHGLoLzePgFno5kP1PXHsbUCi4D8chj8OEYjuqhhaGA=;
         h=Subject:To:Cc:From:Date:From;
-        b=CGTc1PsJS8emfFWUWf4AP21Jmsdh4MLMybWNy+wHy+KsJIKRfJ+VcA4ihOXeTJkjC
-         YyiE0GTig8ejBjVwuGsUncrsjU3Sr5m/V3AXFZGLZva8ynI1kwBQn1DDrnEBRIcUrU
-         MPLTD/ObzABgHPsk2ERpIBZyfh7CQn+CKP7s7P7c=
-Subject: FAILED: patch "[PATCH] tty: serial: sh-sci: Fix transmit end interrupt handler" failed to apply to 4.14-stable tree
-To:     biju.das.jz@bp.renesas.com, geert+renesas@glider.be,
-        gregkh@linuxfoundation.org, stable@kernel.org
+        b=HX2UfkWq9tYbYnmUg1LkyT0UVPDcA3fy5zO93ISDXw0MEHiktscUdtzBxsxYpqHx8
+         uYpi9mpEA/EWGx3b/5EicFqdslJ4LYaceloqD+OuPF8wiozqHWukBL7082WS5daAS5
+         XRKcYfdzaTLnHKWYC1SE1WaMETmLNeP3sTM3ISvA=
+Subject: FAILED: patch "[PATCH] clk: imx: imx8mp: add shared clk gate for usb suspend clk" failed to apply to 5.15-stable tree
+To:     jun.li@nxp.com, abel.vesa@linaro.org,
+        alexander.stein@ew.tq-group.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 Apr 2023 19:47:47 +0200
-Message-ID: <2023041046-synthetic-urgent-3126@gregkh>
+Date:   Mon, 10 Apr 2023 19:49:34 +0200
+Message-ID: <2023041033-paragraph-uselessly-114f@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,23 +48,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
-git cherry-pick -x b43a18647f03c87e77d50d6fe74904b61b96323e
+git cherry-pick -x ed1f4ccfe947a3e1018a3bd7325134574c7ff9b3
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041046-synthetic-urgent-3126@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041033-paragraph-uselessly-114f@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
-b43a18647f03 ("tty: serial: sh-sci: Fix transmit end interrupt handler")
+ed1f4ccfe947 ("clk: imx: imx8mp: add shared clk gate for usb suspend clk")
+cf7f3f4fa9e5 ("clk: imx8mp: fix usb_root_clk parent")
 
 thanks,
 
@@ -72,46 +73,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b43a18647f03c87e77d50d6fe74904b61b96323e Mon Sep 17 00:00:00 2001
-From: Biju Das <biju.das.jz@bp.renesas.com>
-Date: Fri, 17 Mar 2023 15:04:03 +0000
-Subject: [PATCH] tty: serial: sh-sci: Fix transmit end interrupt handler
+From ed1f4ccfe947a3e1018a3bd7325134574c7ff9b3 Mon Sep 17 00:00:00 2001
+From: Li Jun <jun.li@nxp.com>
+Date: Fri, 30 Sep 2022 22:54:22 +0800
+Subject: [PATCH] clk: imx: imx8mp: add shared clk gate for usb suspend clk
 
-The fourth interrupt on SCI port is transmit end interrupt compared to
-the break interrupt on other port types. So, shuffle the interrupts to fix
-the transmit end interrupt handler.
+32K usb suspend clock gate is shared with usb_root_clk, this
+shared clock gate was initially defined only for usb suspend
+clock, usb suspend clk is kept on while system is active or
+system sleep with usb wakeup enabled, so usb root clock is
+fine with this situation; with the commit cf7f3f4fa9e5
+("clk: imx8mp: fix usb_root_clk parent"), this clock gate is
+changed to be for usb root clock, but usb root clock will
+be off while usb is suspended, so usb suspend clock will be
+gated too, this cause some usb functionalities will not work,
+so define this clock to be a shared clock gate to conform with
+the real HW status.
 
-Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
-Cc: stable <stable@kernel.org>
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20230317150403.154094-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c140d9926761 ("clk: imx: Add support for i.MX8MP clock driver")
+Cc: stable@vger.kernel.org # v5.19+
+Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/1664549663-20364-2-git-send-email-jun.li@nxp.com
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 7bd080720929..c07663fe80bf 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -31,6 +31,7 @@
- #include <linux/ioport.h>
- #include <linux/ktime.h>
- #include <linux/major.h>
-+#include <linux/minmax.h>
- #include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/of.h>
-@@ -2864,6 +2865,13 @@ static int sci_init_single(struct platform_device *dev,
- 			sci_port->irqs[i] = platform_get_irq(dev, i);
- 	}
+diff --git a/drivers/clk/imx/clk-imx8mp.c b/drivers/clk/imx/clk-imx8mp.c
+index 652ae58c2735..5d68d975b4eb 100644
+--- a/drivers/clk/imx/clk-imx8mp.c
++++ b/drivers/clk/imx/clk-imx8mp.c
+@@ -17,6 +17,7 @@
  
-+	/*
-+	 * The fourth interrupt on SCI port is transmit end interrupt, so
-+	 * shuffle the interrupts.
-+	 */
-+	if (p->type == PORT_SCI)
-+		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
-+
- 	/* The SCI generates several interrupts. They can be muxed together or
- 	 * connected to different interrupt lines. In the muxed case only one
- 	 * interrupt resource is specified as there is only one interrupt ID.
+ static u32 share_count_nand;
+ static u32 share_count_media;
++static u32 share_count_usb;
+ 
+ static const char * const pll_ref_sels[] = { "osc_24m", "dummy", "dummy", "dummy", };
+ static const char * const audio_pll1_bypass_sels[] = {"audio_pll1", "audio_pll1_ref_sel", };
+@@ -673,7 +674,8 @@ static int imx8mp_clocks_probe(struct platform_device *pdev)
+ 	hws[IMX8MP_CLK_UART2_ROOT] = imx_clk_hw_gate4("uart2_root_clk", "uart2", ccm_base + 0x44a0, 0);
+ 	hws[IMX8MP_CLK_UART3_ROOT] = imx_clk_hw_gate4("uart3_root_clk", "uart3", ccm_base + 0x44b0, 0);
+ 	hws[IMX8MP_CLK_UART4_ROOT] = imx_clk_hw_gate4("uart4_root_clk", "uart4", ccm_base + 0x44c0, 0);
+-	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate4("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0);
++	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate2_shared2("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0, &share_count_usb);
++	hws[IMX8MP_CLK_USB_SUSP] = imx_clk_hw_gate2_shared2("usb_suspend_clk", "osc_32k", ccm_base + 0x44d0, 0, &share_count_usb);
+ 	hws[IMX8MP_CLK_USB_PHY_ROOT] = imx_clk_hw_gate4("usb_phy_root_clk", "usb_phy_ref", ccm_base + 0x44f0, 0);
+ 	hws[IMX8MP_CLK_USDHC1_ROOT] = imx_clk_hw_gate4("usdhc1_root_clk", "usdhc1", ccm_base + 0x4510, 0);
+ 	hws[IMX8MP_CLK_USDHC2_ROOT] = imx_clk_hw_gate4("usdhc2_root_clk", "usdhc2", ccm_base + 0x4520, 0);
 
