@@ -2,196 +2,284 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C5A6DC55D
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 11:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D68526DC569
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 11:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229672AbjDJJx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 05:53:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41728 "EHLO
+        id S229661AbjDJJ5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 05:57:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbjDJJxb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 05:53:31 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2059.outbound.protection.outlook.com [40.107.223.59])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A80822697;
-        Mon, 10 Apr 2023 02:53:29 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RvbnHT5AnaDGFv4UhA+Y2cK22w/xXMf6V4+NN8COSztqj65Cp1n9Bb4sWO4uQrVsqvNcZMR0gJvqSiI0YRU1dnx8j3sgO3br5Dwa+Nw17hp5cz5soZkYZ3R1HUTjyyrKtrN9MtEc8dE0aLNBQkNWTHdMbY6FANXyLEv8TL7uoIJqORM3aPhwPgMgx6EzBuXoFp6I0xVgyjFtatSNlhBy/BjdeopbkQbfk2I3wT/uKOtEaXO+hGNxITgy2EG4VOngB+gUTGis2CjcAFyKeBAk9IEFzIlCRo0W6N8JMJA3gNWfyq58R/PlbKgVcr67DWDyT7i1FRYMSLbgGIcZBBN5Ew==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FPiD4y58o7FmxPLFDaXsIbFOai38OvwCh+r+77WEFxc=;
- b=KSb/gkyqdGxghKJCxdkEWMZlOzrsQj8X7B9owBZt19WOf1BhBtdfVVCh6CZVjLxF9JIbUVGxWHaVpP6O42loYiUENNRxFpP2jD4TdFwUC+kSMRMlAkLGgv+mPLb5eq+tdYrnc2jaOXgJ21gDT/8VOlNHfebYt4FFaw0NvN81HQrAJa+zsITZjptaBiusZHBTscU18vUVx1vJKcElN+bJa0OEW8SEiBjxTHzTxXAJJSgkWX/7lZ922eaWigm5dg1TGwMO1n4fS4GePd23+08URTkSZmIknAmdcJlpquaFutxlYrz8B1HPjeWdAO7pshozn+lw7n/WX26Z9MekjX4Eiw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FPiD4y58o7FmxPLFDaXsIbFOai38OvwCh+r+77WEFxc=;
- b=YL/jyvCQvrHDwhsUIwRaC2lnwlty4TfGxx+kY9EOyI69lLmzEm32hhxiwGSgmq1o8U+Q6cvr2TX6jzrwmUJWnCGQFvRx6wS26GStp2iqqkZSyh+75Cg4TZvRW91CJwkIqu2PhBGkEGnjquP19T2hZp8sZTUYMnZwgLdKZWlXc3g=
-Received: from MW4PR04CA0314.namprd04.prod.outlook.com (2603:10b6:303:82::19)
- by PH7PR12MB6537.namprd12.prod.outlook.com (2603:10b6:510:1f2::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.30; Mon, 10 Apr
- 2023 09:53:27 +0000
-Received: from CO1NAM11FT066.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:82:cafe::d5) by MW4PR04CA0314.outlook.office365.com
- (2603:10b6:303:82::19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.35 via Frontend
- Transport; Mon, 10 Apr 2023 09:53:27 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1NAM11FT066.mail.protection.outlook.com (10.13.175.18) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6298.25 via Frontend Transport; Mon, 10 Apr 2023 09:53:27 +0000
-Received: from beas.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Mon, 10 Apr
- 2023 04:53:18 -0500
-From:   Wyes Karny <wyes.karny@amd.com>
-To:     <ray.huang@amd.com>, <rafael@kernel.org>, <viresh.kumar@linaro.org>
-CC:     <mingo@redhat.com>, <peterz@infradead.org>,
-        <juri.lelli@redhat.com>, <vincent.guittot@linaro.org>,
-        <dietmar.eggemann@arm.com>, <rostedt@goodmis.org>,
-        <bsegall@google.com>, <mgorman@suse.de>, <bristot@redhat.com>,
-        <vschneid@redhat.com>, <joel@joelfernandes.org>,
-        <gautham.shenoy@amd.com>, <linux-pm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, Wyes Karny <wyes.karny@amd.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 1/2] cpufreq/schedutil: Add fast_switch callback check
-Date:   Mon, 10 Apr 2023 09:52:50 +0000
-Message-ID: <20230410095250.14908-1-wyes.karny@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230410095045.14872-1-wyes.karny@amd.com>
-References: <20230410095045.14872-1-wyes.karny@amd.com>
+        with ESMTP id S229603AbjDJJ5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 05:57:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 345AB2728;
+        Mon, 10 Apr 2023 02:57:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6B5C612FB;
+        Mon, 10 Apr 2023 09:57:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F046C433D2;
+        Mon, 10 Apr 2023 09:57:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681120624;
+        bh=Qb9Wmug4U9+BqbWJHo9Bbrc1/cehXaMbdrrOHYrt/Sk=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=a3Qd6K9WNjaL9sCU0jBGqmkdQUiwzR8CF68FMp0t7DYxl42rv1nxllaeBuyKId8p7
+         cPWTFNwkkeIsNxxc1wjI132N7kjQ+CmFErDfvosiiJC1y8LLlvxHJeDQgFfNdWm8Ew
+         jMtXj32hgAE6iE6UmzzjRBQbZRu9OsfEnEpa2GefZGXkwEx2EDI47/GIpwUwZ9VcnF
+         N8GE1vMdcAKotPpgTqWuBqv8G331dKAlW7Sux50duSdPPbBv9qAYpquzqNJuT9nx38
+         iBdIEkoh6TDvNcHrj/cAX+koN48pEkknnEh8kxKDf5pjGlsLe4/HonZwTUbdAt2NLB
+         WCXziAQL0P4rg==
+Message-ID: <c07853c1-6512-6539-a9dd-d9681dd51727@kernel.org>
+Date:   Mon, 10 Apr 2023 17:57:00 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT066:EE_|PH7PR12MB6537:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0c5b243e-a9ab-4785-d60c-08db39a96ea9
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: j7etvTiLCCJybty4Q4weL3n+IIKHbpTH/7xbQdKuyU3vkCxIk/D4eGxIQN8GdV6g19+XweaeosxIxFHwhjIKcf9OhDGTdNzKE7XsPWiU5zIRE1H5pWW3StacVnFqBAsrIGNCizL58U/o54J8BNA5owkxZFxg6+CvMbHc59cc1TSDEBT1tdZCX9UlpKuhi+2xbkVCjIA3qeuS91LVjoVlMToRO0yEyva5tqP3KLnrqw044H1nbaTmcIO+/Q5tJfinTgYWgS7/uqyn1wVXoUHux4/6LM41CQ/o6jpiQZoYQBrJDtqW/MXiOOUukMdtU69SJ9WO+aKFX3uP8xLA9O4A5E0WT5xksFqP7C54BZCd4dwVwwlDg2Q0PS3Euk5fmOEJgBexY2y//7N5Z5cmh3vI20qhbeGa8TAiPyaCgFehwVmEPPGCwsgTxFLErPjdnjbPQKxTGYM80TDTidngeD5LcVDEYws53hXof0UgDZwNVuSqtuG930k0CrJJGiTvEsGQYK0I+hJL+9B6jNOEuRLecXCCRHmSI4UFBdhU9xmWSgcgfX44B4RQvjLSvKOgWtjc4qVqy7nFeZ3pcOjFR38/LFyzPlqs2fWUffGyCZzjSOoc3zk+meIEb9uqqgkBzs5q2dbzqA//RcQ61tyf9CNqPwIS6nEk3Gedp0ehsDVGNxJugbCHip8AOxkzmyBrxZfDwavZ7W8x8ACQRFlNYLqd8C3XrcuMohQJzowBfX+3J1Y6LMKu3fUkot9WMh8bcsfQHqTL/oBLmzguawGXAC5A1g==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(396003)(136003)(346002)(376002)(451199021)(36840700001)(40470700004)(46966006)(16526019)(186003)(66899021)(7416002)(26005)(44832011)(1076003)(40480700001)(6666004)(40460700003)(426003)(110136005)(36756003)(8676002)(81166007)(7696005)(82310400005)(36860700001)(54906003)(478600001)(70206006)(316002)(4326008)(82740400003)(83380400001)(356005)(41300700001)(70586007)(47076005)(86362001)(2906002)(336012)(5660300002)(8936002)(2616005)(2101003)(36900700001)(309714004);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Apr 2023 09:53:27.0375
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0c5b243e-a9ab-4785-d60c-08db39a96ea9
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT066.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6537
-X-Spam-Status: No, score=0.8 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [f2fs-dev] [PATCH] f2fs: get out of a repeat loop when getting a
+ locked data page
+Content-Language: en-US
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
+References: <20230323213919.1876157-1-jaegeuk@kernel.org>
+ <8aea02b0-86f9-539a-02e9-27b381e68b66@kernel.org>
+ <ZCG2mfviZfY1dqb4@google.com> <ZCHCykI/BLcfDzt7@casper.infradead.org>
+ <ZC2kSfNUXKK4PfpM@google.com>
+ <9dc4ba32-5be5-26d8-5dd2-9bd48d6b0af4@kernel.org>
+ <ZC46Ccm8xTT4OlE3@google.com>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <ZC46Ccm8xTT4OlE3@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.7 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The set value of `fast_switch_enabled` flag doesn't guarantee that
-fast_switch callback is set. For some drivers such as amd_pstate, the
-adjust_perf callback is used but it still sets `fast_switch_possible`
-flag. This is not wrong because this flag doesn't imply fast_switch
-callback is set, it implies whether the driver can guarantee that
-frequency can be changed on any CPU sharing the policy and that the
-change will affect all of the policy CPUs without the need to send any
-IPIs or issue callbacks from the notifier chain.  Therefore add an extra
-NULL check before calling fast_switch in sugov_update_single_freq
-function.
+On 2023/4/6 11:18, Jaegeuk Kim wrote:
+> On 04/06, Chao Yu wrote:
+>> On 2023/4/6 0:39, Jaegeuk Kim wrote:
+>>> On 03/27, Matthew Wilcox wrote:
+>>>> On Mon, Mar 27, 2023 at 08:30:33AM -0700, Jaegeuk Kim wrote:
+>>>>> On 03/26, Chao Yu wrote:
+>>>>>> On 2023/3/24 5:39, Jaegeuk Kim wrote:
+>>>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=216050
+>>>>>>>
+>>>>>>> Somehow we're getting a page which has a different mapping.
+>>>>>>> Let's avoid the infinite loop.
+>>>>>>>
+>>>>>>> Cc: <stable@vger.kernel.org>
+>>>>>>> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+>>>>>>> ---
+>>>>>>>     fs/f2fs/data.c | 8 ++------
+>>>>>>>     1 file changed, 2 insertions(+), 6 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+>>>>>>> index bf51e6e4eb64..80702c93e885 100644
+>>>>>>> --- a/fs/f2fs/data.c
+>>>>>>> +++ b/fs/f2fs/data.c
+>>>>>>> @@ -1329,18 +1329,14 @@ struct page *f2fs_get_lock_data_page(struct inode *inode, pgoff_t index,
+>>>>>>>     {
+>>>>>>>     	struct address_space *mapping = inode->i_mapping;
+>>>>>>>     	struct page *page;
+>>>>>>> -repeat:
+>>>>>>> +
+>>>>>>>     	page = f2fs_get_read_data_page(inode, index, 0, for_write, NULL);
+>>>>>>>     	if (IS_ERR(page))
+>>>>>>>     		return page;
+>>>>>>>     	/* wait for read completion */
+>>>>>>>     	lock_page(page);
+>>>>>>> -	if (unlikely(page->mapping != mapping)) {
+>>>>>>
+>>>>>> How about using such logic only for move_data_page() to limit affect for
+>>>>>> other paths?
+>>>>>
+>>>>> Why move_data_page() only? If this happens, we'll fall into a loop in anywhere?
+>>>>>
+>>>>>>
+>>>>>> Jaegeuk, any thoughts about why mapping is mismatch in between page's one and
+>>>>>> inode->i_mapping?
+>>>>>
+>>>>>>
+>>>>>> After several times code review, I didn't get any clue about why f2fs always
+>>>>>> get the different mapping in a loop.
+>>>>>
+>>>>> I couldn't find the path to happen this. So weird. Please check the history in the
+>>>>> bug.
+>>>>>
+>>>>>>
+>>>>>> Maybe we can loop MM guys to check whether below folio_file_page() may return
+>>>>>> page which has different mapping?
+>>>>>
+>>>>> Matthew may have some idea on this?
+>>>>
+>>>> There's a lot of comments in the bug ... hard to come into this one
+>>>> cold.
+>>>>
+>>>> I did notice this one (#119):
+>>>> : Interestingly, ref count is 514, which looks suspiciously as a binary
+>>>> : flag 1000000010. Is it possible that during 5.17/5.18 implementation
+>>>> : of a "pin", somehow binary flag was written to ref count, or something
+>>>> : like '1 << ...' happens?
+>>>>
+>>>> That indicates to me that somehow you've got hold of a THP that is in
+>>>> the page cache.  Probably shmem/tmpfs.  That indicate to me a refcount
+>>>> problem that looks something like this:
+>>>>
+>>>> f2fs allocates a page
+>>>> f2fs adds the page to the page cache
+>>>> f2fs puts the reference to the page without removing it from the
+>>>> page cache (how?)
+>>>
+>>> Is it somewhat related to setting a bit in private field?
+>>
+>> IIUC, it looks the page reference is added/removed as pair.
+>>
+>>>
+>>> When we migrate the blocks, we do:
+>>> 1) get_lock_page()
+>>
+>> - f2fs_grab_cache_page
+>>   - pagecache_get_page
+>>    - __filemap_get_folio
+>>     - no_page  -> filemap_alloc_folio  page_ref = 1 (referenced by caller)
+>>      - filemap_add_folio page_ref = 2 (referenced by radix tree)
+>>
+>>> 2) submit read
+>>> 3) lock_page()
+>>> 3) set_page_dirty()
+>>> 4) set_page_private_gcing(page)
+>>
+>> page_ref = 3 (reference by private data)
+>>
+>>>
+>>> --- in fs/f2fs/f2fs.h
+>>> 1409 #define PAGE_PRIVATE_SET_FUNC(name, flagname) \
+>>> 1410 static inline void set_page_private_##name(struct page *page) \
+>>> 1411 { \
+>>> 1412         if (!PagePrivate(page)) { \
+>>> 1413                 get_page(page); \
+>>> 1414                 SetPagePrivate(page); \
+>>> 1415                 set_page_private(page, 0); \
+>>> 1416         } \
+>>> 1417         set_bit(PAGE_PRIVATE_NOT_POINTER, &page_private(page)); \
+>>> 1418         set_bit(PAGE_PRIVATE_##flagname, &page_private(page)); \
+>>> 1419 }
+>>>
+>>>
+>>> 5) set_page_writebac()
+>>> 6) submit write
+>>> 7) unlock_page()
+>>> 8) put_page(page)
+>>
+>> page_ref = 2 (ref by caller was removed)
+>>
+>>>
+>>> Later, f2fs_invalidate_folio will do put_page again by:
+>>> clear_page_private_gcing(&folio->page);
+>>
+>> page_ref = 1 (ref by private was removed, and the last left ref is hold by radix tree)
+>>
+>>>
+>>> --- in fs/f2fs/f2fs.h
+>>> 1421 #define PAGE_PRIVATE_CLEAR_FUNC(name, flagname) \
+>>> 1422 static inline void clear_page_private_##name(struct page *page) \
+>>> 1423 { \
+>>> 1424         clear_bit(PAGE_PRIVATE_##flagname, &page_private(page)); \
+>>> 1425         if (page_private(page) == BIT(PAGE_PRIVATE_NOT_POINTER)) { \
+>>> 1426                 set_page_private(page, 0); \
+>>> 1427                 if (PagePrivate(page)) { \
+>>> 1428                         ClearPagePrivate(page); \
+>>
+>> Since PagePrivate was cleared, so folio_detach_private in
+>> f2fs_invalidate_folio()/f2fs_release_folio will just skip drop reference.
+>>
+>> static inline void *folio_detach_private(struct folio *folio)
+>> {
+>> 	void *data = folio_get_private(folio);
+>>
+>> 	if (!folio_test_private(folio))
+>> 		return NULL;
+>> 	folio_clear_private(folio);
+>> 	folio->private = NULL;
+>> 	folio_put(folio);
+>>
+>> 	return data;
+>> }
+>>
+>> Or am I missing something?
+> 
+> Ah, I missed folio_test_private() tho, can we really expect get_page(),
+> SetPagePrivate(), and set_page_private() is in pair with folio_detach_private()?
 
-Ideally `sugov_update_single_freq` function should not be called with
-amd_pstate. But in a corner case scenario, when aperf/mperf overflow
-occurs, kernel disables frequency invariance calculation which causes
-schedutil to fallback to sugov_update_single_freq which currently relies
-on the fast_switch callback.
+I guess we are trying to maintain PagePrivate and page_private w/
+inner {set,clear}_page_private_* functions, if they are called in paired correctly,
+we don't need to call folio_detach_private() additionally in .release_folio and
+.invalid_folio, right? Otherwise there must be a bug.
 
-Normal flow:
-  sugov_update_single_perf
-    cpufreq_driver_adjust_perf
-      cpufreq_driver->adjust_perf
+In this patch, I use bug_on to instead folio_detach_private().
+https://lore.kernel.org/linux-f2fs-devel/20230410022418.1843178-1-chao@kernel.org/
 
-Error case flow:
-  sugov_update_single_perf
-    sugov_update_single_freq  <-- This is chosen because the freq invariant is disabled due to aperf/mperf overflow
-      cpufreq_driver_fast_switch
-         cpufreq_driver->fast_switch <-- Here NULL pointer dereference is happening, because fast_switch is not set
+In this patch, I use {attach,detach}_page_private() to clean up openned codes.
+https://lore.kernel.org/linux-f2fs-devel/20230410022418.1843178-2-chao@kernel.org/
 
-Fix this NULL pointer dereference issue by doing a NULL check.
+With above two patches, I didn't hit any panic or use-after-free issue when testing
+xfstest until now.
 
-Fixes: a61dec744745 ("cpufreq: schedutil: Avoid missing updates for one-CPU policies")
-Signed-off-by: Wyes Karny <wyes.karny@amd.com>
+Thanks,
 
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: stable@vger.kernel.org
----
- drivers/cpufreq/cpufreq.c        | 11 +++++++++++
- include/linux/cpufreq.h          |  1 +
- kernel/sched/cpufreq_schedutil.c |  2 +-
- 3 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 6d8fd3b8dcb5..364d31b55380 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -2138,6 +2138,17 @@ unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
- }
- EXPORT_SYMBOL_GPL(cpufreq_driver_fast_switch);
- 
-+/**
-+ * cpufreq_driver_has_fast_switch - Check "fast switch" callback.
-+ *
-+ * Return 'true' if the ->fast_switch callback is present for the
-+ * current driver or 'false' otherwise.
-+ */
-+bool cpufreq_driver_has_fast_switch(void)
-+{
-+	return !!cpufreq_driver->fast_switch;
-+}
-+
- /**
-  * cpufreq_driver_adjust_perf - Adjust CPU performance level in one go.
-  * @cpu: Target CPU.
-diff --git a/include/linux/cpufreq.h b/include/linux/cpufreq.h
-index 65623233ab2f..8a9286fc718b 100644
---- a/include/linux/cpufreq.h
-+++ b/include/linux/cpufreq.h
-@@ -604,6 +604,7 @@ struct cpufreq_governor {
- /* Pass a target to the cpufreq driver */
- unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
- 					unsigned int target_freq);
-+bool cpufreq_driver_has_fast_switch(void);
- void cpufreq_driver_adjust_perf(unsigned int cpu,
- 				unsigned long min_perf,
- 				unsigned long target_perf,
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index e3211455b203..a1c449525ac2 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -364,7 +364,7 @@ static void sugov_update_single_freq(struct update_util_data *hook, u64 time,
- 	 * concurrently on two different CPUs for the same target and it is not
- 	 * necessary to acquire the lock in the fast switch case.
- 	 */
--	if (sg_policy->policy->fast_switch_enabled) {
-+	if (sg_policy->policy->fast_switch_enabled && cpufreq_driver_has_fast_switch()) {
- 		cpufreq_driver_fast_switch(sg_policy->policy, next_f);
- 	} else {
- 		raw_spin_lock(&sg_policy->update_lock);
--- 
-2.34.1
-
+> I feel attach/detach_page_private would look better?
+> 
+>>
+>> Thanks,
+>>
+>>> 1429                         put_page(page); \
+>>> 1430                 }\
+>>> 1431         } \
+>>> 1432 }
+>>>
+>>>> page is now free, gets reallocated into a THP
+>>>> lookup from the f2fs file finds the new THP
+>>>> things explode messily
+>>>>
+>>>> Checking page->mapping is going to avoid the messy explosion, but
+>>>> you'll still have a page in the page cache which doesn't actually
+>>>> belong to you, and that's going to lead to subtle data corruption.
+>>>>
+>>>> This should be caught by page_expected_state(), called from
+>>>> free_page_is_bad(), called from free_pages_prepare().  Do your testers
+>>>> have CONFIG_DEBUG_VM enabled?  That might give you a fighting chance at
+>>>> finding the last place which called put_page().  It won't necessarily be
+>>>> the _wrong_ place to call put_page() (that may have happened earlier),
+>>>> but it may give you a clue.
+>>>>
+>>>>>>
+>>>>>> struct page *pagecache_get_page(struct address_space *mapping, pgoff_t index,
+>>>>>> 		int fgp_flags, gfp_t gfp)
+>>>>>> {
+>>>>>> 	struct folio *folio;
+>>>>>>
+>>>>>> 	folio = __filemap_get_folio(mapping, index, fgp_flags, gfp);
+>>>>>> 	if (IS_ERR(folio))
+>>>>>> 		return NULL;
+>>>>>> 	return folio_file_page(folio, index);
+>>>>>> }
+>>>>>>
+>>>>>> Thanks,
+>>>>>>
+>>>>>>> -		f2fs_put_page(page, 1);
+>>>>>>> -		goto repeat;
+>>>>>>> -	}
+>>>>>>> -	if (unlikely(!PageUptodate(page))) {
+>>>>>>> +	if (unlikely(page->mapping != mapping || !PageUptodate(page))) {
+>>>>>>>     		f2fs_put_page(page, 1);
+>>>>>>>     		return ERR_PTR(-EIO);
+>>>>>>>     	}
