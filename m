@@ -2,150 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A4E6DC8EB
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 18:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17686DC92A
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 18:18:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230159AbjDJP7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 11:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38442 "EHLO
+        id S229672AbjDJQSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 12:18:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230135AbjDJP7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 11:59:00 -0400
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB40C12F;
-        Mon, 10 Apr 2023 08:58:43 -0700 (PDT)
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33AFTKoQ015004;
-        Mon, 10 Apr 2023 15:58:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=qcppdkim1;
- bh=szHzoq7tKGJqYuNdYwz346FzwL2/2yEwJcW7cR8g3iQ=;
- b=I8AlcvLnM8kdJnnzhAeXwGbl2D+R/BCyEUfLU5hBUxnXY5DRnFPaoxTxeH+tDNC5ix5k
- 4X/PRft4whmxiLDUiL574Ksmbr37iB6sGC4ggI2i5N7M6QT4G/S4iLLe2d4JWqVocgdz
- nA1MhGj0ZGHwHILmj4KFX6lH1Gm6zZhuIHxndyv+svE9JsvWLM2ISacUI/zypjruD3cx
- pBcO5xKQSuxbXyth5sCflcuWHtCrLvtVGRCS9eXb5asXWQHUfg+sltmeGFu+8cv0mrhp
- 0GBwc434cAPeZDX6SsV/3ACMs3OAm6QZJpui/2SSz+/B0igae/llybGnBeRrJ7LElWdD nA== 
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3pvgmermy1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Apr 2023 15:58:40 +0000
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-        by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 33AFwdAR015864
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Apr 2023 15:58:39 GMT
-Received: from jhugo-lnx.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.42; Mon, 10 Apr 2023 08:58:38 -0700
-From:   Jeffrey Hugo <quic_jhugo@quicinc.com>
-To:     <mani@kernel.org>
-CC:     <mhi@lists.linux.dev>, <linux-arm-msm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2 2/2] bus: mhi: host: Use mhi_tryset_pm_state() for setting fw error state
-Date:   Mon, 10 Apr 2023 09:58:12 -0600
-Message-ID: <1681142292-27571-3-git-send-email-quic_jhugo@quicinc.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1681142292-27571-1-git-send-email-quic_jhugo@quicinc.com>
-References: <1681142292-27571-1-git-send-email-quic_jhugo@quicinc.com>
+        with ESMTP id S230238AbjDJQSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 12:18:13 -0400
+Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A122A1982
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 09:17:46 -0700 (PDT)
+Received: by mail-qv1-xf30.google.com with SMTP id ld14so5505991qvb.13
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 09:17:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1681143463;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rYoNI/GBnV/XFf9cldcCfKoCMP9onvoHik7LIhPrsRg=;
+        b=Un/CIKLUsHod8NZC3q1oBYRRT1tcolo3z+esv0yEylxdbqYWgU14GIHALm5q20kE68
+         njxx99gSV2I4M7alAyutYPd7r5dSFa4sKQJu/6PU/5gWpqj7PJa8Sgd9dxI3BIQrw4Wa
+         cCr3KCflB+L3OQcCamcqC2heJxQn16w3l4/Bc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681143463;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rYoNI/GBnV/XFf9cldcCfKoCMP9onvoHik7LIhPrsRg=;
+        b=O3SupWNlm24apqlJOHDDTD3DfonmBm2hzC477TzmPpURP3Kzpi/qi5i2IE4gHQU+Qk
+         bhsIUHk6THjdpJKIk+12Wbbx3XBCuAj2tFU6n5rCQ64xMbapNZQ2oMXKYea3LGbLAi6Q
+         8G82ToN2YANeGeKrqB3FAUsWapW8GgA5N+Fn87nzX/41V/vw6gaTdP3C7tUq3T8Il8Q9
+         /D/ikKXhEnTMeEUCsAPsBPgZcu7h1cT+4WPtawSBRJpz/r+0YdHqg6bdQKDJhVQwEOn0
+         Qx0wTJ21IlYo+kca+3bMjt1qV+B1dOL8DbHwRIuL6Y5ySljmqVQl/Cqq6p70hOiZogbK
+         Yn4A==
+X-Gm-Message-State: AAQBX9eQZtb5PA89ZmH9oYrnFgVeNxi6pTE3fa2ya8kvKTglddWjXnJV
+        Fw6ZV62WkmzSnM6xwTXKJJBlMe9brPwleJaxjyRBjQ==
+X-Google-Smtp-Source: AKy350Z5GL/btiKmt5L8DyVOk+tCBRyAfZBO+ALeHIia9N+doKnoeUtifo6ZagFIU6Q+TGQa9xg+G2Sx+2VQY6ILb4Y=
+X-Received: by 2002:a05:6214:bd2:b0:56e:9f09:ee58 with SMTP id
+ ff18-20020a0562140bd200b0056e9f09ee58mr2486153qvb.8.1681143463551; Mon, 10
+ Apr 2023 09:17:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: 6qFdGaaplweUuw7U9x42DW_mRYauH-ES
-X-Proofpoint-ORIG-GUID: 6qFdGaaplweUuw7U9x42DW_mRYauH-ES
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-10_11,2023-04-06_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 phishscore=0 priorityscore=1501 mlxlogscore=816
- impostorscore=0 adultscore=0 mlxscore=0 malwarescore=0 clxscore=1015
- bulkscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304100135
-X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20230320093259.845178-1-korneld@chromium.org> <d1d39179-33a0-d35b-7593-e0a02aa3b10a@amd.com>
+ <ed840be8-b27b-191e-4122-72f62d8f1b7b@amd.com>
+In-Reply-To: <ed840be8-b27b-191e-4122-72f62d8f1b7b@amd.com>
+From:   =?UTF-8?Q?Kornel_Dul=C4=99ba?= <korneld@chromium.org>
+Date:   Mon, 10 Apr 2023 18:17:32 +0200
+Message-ID: <CAD=NsqxSDUu3wpfhUCDJgP2TaKb7dudB90snROQpPJPj3fdFgQ@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: amd: Disable and mask interrupts on resume
+To:     "Gong, Richard" <richard.gong@amd.com>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        regressions@leemhuis.info,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        upstream@semihalf.com, rad@semihalf.com, mattedavis@google.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If firmware loading fails, the controller's pm_state is updated to
-MHI_PM_FW_DL_ERR unconditionally.  This can corrupt the pm_state as the
-update is not done under the proper lock, and also does not validate
-the state transition.  The firmware loading can fail due to a detected
-syserr, but if MHI_PM_FW_DL_ERR is unconditionally set as the pm_state,
-the handling of the syserr can break when it attempts to transition from
-syserr detect, to syserr process.
+On Mon, Apr 10, 2023 at 5:29=E2=80=AFPM Gong, Richard <richard.gong@amd.com=
+> wrote:
+>
+> On 4/10/2023 12:03 AM, Mario Limonciello wrote:
+> > On 3/20/23 04:32, Kornel Dul=C4=99ba wrote:
+> >
+> >> This fixes a similar problem to the one observed in:
+> >> commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on
+> >> probe").
+> >>
+> >> On some systems, during suspend/resume cycle firmware leaves
+> >> an interrupt enabled on a pin that is not used by the kernel.
+> >> This confuses the AMD pinctrl driver and causes spurious interrupts.
+> >>
+> >> The driver already has logic to detect if a pin is used by the kernel.
+> >> Leverage it to re-initialize interrupt fields of a pin only if it's no=
+t
+> >> used by us.
+> >>
+> >> Signed-off-by: Kornel Dul=C4=99ba <korneld@chromium.org>
+> >> ---
+> >>   drivers/pinctrl/pinctrl-amd.c | 36 +++++++++++++++++++--------------=
+--
+> >>   1 file changed, 20 insertions(+), 16 deletions(-)
+> >>
+> >> diff --git a/drivers/pinctrl/pinctrl-amd.c
+> >> b/drivers/pinctrl/pinctrl-amd.c
+> >> index 9236a132c7ba..609821b756c2 100644
+> >> --- a/drivers/pinctrl/pinctrl-amd.c
+> >> +++ b/drivers/pinctrl/pinctrl-amd.c
+> >> @@ -872,32 +872,34 @@ static const struct pinconf_ops amd_pinconf_ops
+> >> =3D {
+> >>       .pin_config_group_set =3D amd_pinconf_group_set,
+> >>   };
+> >>   -static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+> >> +static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
+> >>   {
+> >> -    struct pinctrl_desc *desc =3D gpio_dev->pctrl->desc;
+> >> +    const struct pin_desc *pd;
+> >>       unsigned long flags;
+> >>       u32 pin_reg, mask;
+> >> -    int i;
+> >>         mask =3D BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+> >>           BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+> >>           BIT(WAKE_CNTRL_OFF_S4);
+> >>   -    for (i =3D 0; i < desc->npins; i++) {
+> >> -        int pin =3D desc->pins[i].number;
+> >> -        const struct pin_desc *pd =3D pin_desc_get(gpio_dev->pctrl, p=
+in);
+> >> -
+> >> -        if (!pd)
+> >> -            continue;
+> >> +    pd =3D pin_desc_get(gpio_dev->pctrl, pin);
+> >> +    if (!pd)
+> >> +        return;
+> >>   -        raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+> >> +    raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+> >> +    pin_reg =3D readl(gpio_dev->base + pin * 4);
+> >> +    pin_reg &=3D ~mask;
+> >> +    writel(pin_reg, gpio_dev->base + pin * 4);
+> >> +    raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+> >> +}
+> >>   -        pin_reg =3D readl(gpio_dev->base + i * 4);
+> >> -        pin_reg &=3D ~mask;
+> >> -        writel(pin_reg, gpio_dev->base + i * 4);
+> >> +static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+> >> +{
+> >> +    struct pinctrl_desc *desc =3D gpio_dev->pctrl->desc;
+> >> +    int i;
+> >>   -        raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+> >> -    }
+> >> +    for (i =3D 0; i < desc->npins; i++)
+> >> +        amd_gpio_irq_init_pin(gpio_dev, i);
+> >>   }
+> >>     #ifdef CONFIG_PM_SLEEP
+> >> @@ -950,8 +952,10 @@ static int amd_gpio_resume(struct device *dev)
+> >>       for (i =3D 0; i < desc->npins; i++) {
+> >>           int pin =3D desc->pins[i].number;
+> >>   -        if (!amd_gpio_should_save(gpio_dev, pin))
+> >> +        if (!amd_gpio_should_save(gpio_dev, pin)) {
+> >> +            amd_gpio_irq_init_pin(gpio_dev, pin);
+> >>               continue;
+> >> +        }
+> >>             raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+> >>           gpio_dev->saved_regs[i] |=3D readl(gpio_dev->base + pin * 4)
+> >> & PIN_IRQ_PENDING;
+> >
+> > Hello Kornel,
+> >
+> > I've found that this commit which was included in 6.3-rc5 is causing a
+> > regression waking up from lid on a Lenovo Z13.
+> observed "unable to wake from power button" on AMD based Dell platform.
+> Reverting "pinctrl: amd: Disable and mask interrupts on resume" on the
+> top of 6.3-rc6 does fix the issue.
 
-By grabbing the lock, we ensure we don't race with some other pm_state
-update.  By using mhi_try_set_pm_state(), we check that the transition
-to MHI_PM_FW_DL_ERR is valid via the state machine logic.  If it is not
-valid, then some other transition is occurring like syserr processing, and
-we assume that will resolve the firmware loading error.
+Whoops, sorry for the breakage.
+Could you please share the output of "/sys/kernel/debug/gpio" before
+and after the first suspend/resume cycle.
+I've looked at the patch again and found a rather silly mistake.
+Please try the following.
+Note that I don't have access to hardware with this controller at the
+moment, so I've only compile tested it.
 
-Fixes: 12e050c77be0 ("bus: mhi: core: Move to an error state on any firmware load failure")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Carl Vanderlip <quic_carlv@quicinc.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
----
- drivers/bus/mhi/host/boot.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index 609821b756c2..7e7770152ca8 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -899,7 +899,7 @@ static void amd_gpio_irq_init(struct amd_gpio *gpio_dev=
+)
+        int i;
 
-diff --git a/drivers/bus/mhi/host/boot.c b/drivers/bus/mhi/host/boot.c
-index 1c69fee..d2a19b07 100644
---- a/drivers/bus/mhi/host/boot.c
-+++ b/drivers/bus/mhi/host/boot.c
-@@ -391,6 +391,7 @@ void mhi_fw_load_handler(struct mhi_controller *mhi_cntrl)
- {
- 	const struct firmware *firmware = NULL;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
-+	enum mhi_pm_state new_state;
- 	const char *fw_name;
- 	void *buf;
- 	dma_addr_t dma_addr;
-@@ -508,14 +509,18 @@ void mhi_fw_load_handler(struct mhi_controller *mhi_cntrl)
- 	}
- 
- error_fw_load:
--	mhi_cntrl->pm_state = MHI_PM_FW_DL_ERR;
--	wake_up_all(&mhi_cntrl->state_event);
-+	write_lock_irq(&mhi_cntrl->pm_lock);
-+	new_state = mhi_tryset_pm_state(mhi_cntrl, MHI_PM_FW_DL_ERR);
-+	write_unlock_irq(&mhi_cntrl->pm_lock);
-+	if (new_state == MHI_PM_FW_DL_ERR)
-+		wake_up_all(&mhi_cntrl->state_event);
+        for (i =3D 0; i < desc->npins; i++)
+-               amd_gpio_irq_init_pin(gpio_dev, i);
++               amd_gpio_irq_init_pin(gpio_dev, desc->pins[i].number);
  }
- 
- int mhi_download_amss_image(struct mhi_controller *mhi_cntrl)
- {
- 	struct image_info *image_info = mhi_cntrl->fbc_image;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
-+	enum mhi_pm_state new_state;
- 	int ret;
- 
- 	if (!image_info)
-@@ -526,8 +531,11 @@ int mhi_download_amss_image(struct mhi_controller *mhi_cntrl)
- 			       &image_info->mhi_buf[image_info->entries - 1]);
- 	if (ret) {
- 		dev_err(dev, "MHI did not load AMSS, ret:%d\n", ret);
--		mhi_cntrl->pm_state = MHI_PM_FW_DL_ERR;
--		wake_up_all(&mhi_cntrl->state_event);
-+		write_lock_irq(&mhi_cntrl->pm_lock);
-+		new_state = mhi_tryset_pm_state(mhi_cntrl, MHI_PM_FW_DL_ERR);
-+		write_unlock_irq(&mhi_cntrl->pm_lock);
-+		if (new_state == MHI_PM_FW_DL_ERR)
-+			wake_up_all(&mhi_cntrl->state_event);
- 	}
- 
- 	return ret;
--- 
-2.7.4
 
+
+> >
+> > Reverting it on top of 6.3-rc6 resolves the problem.
+> >
+> > I've collected what I can into this bug report:
+> >
+> > https://bugzilla.kernel.org/show_bug.cgi?id=3D217315
+> >
+> > Linus Walleij,
+> >
+> > It looks like this was CC to stable.  If we can't get a quick solution
+> > we might want to pull this from stable.
+>
+> this commit landed into 6.1.23 as well
+>
+>          d9c63daa576b2 pinctrl: amd: Disable and mask interrupts on resum=
+e
+>
+> >
+> > Thanks,
+> >
+> >
+> Regards,
+>
+> Richard
+>
