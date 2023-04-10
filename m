@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 383FE6DC500
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 11:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256F36DC501
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 11:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbjDJJUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 05:20:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46428 "EHLO
+        id S229705AbjDJJU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 05:20:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbjDJJUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 05:20:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E554EC2
-        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 02:20:45 -0700 (PDT)
+        with ESMTP id S229740AbjDJJUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 05:20:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15134C3B
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 02:20:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD9DA61543
-        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 09:20:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C64C433EF;
-        Mon, 10 Apr 2023 09:20:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88CF161543
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 09:20:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A05C433D2;
+        Mon, 10 Apr 2023 09:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681118444;
-        bh=ucDLaDXJRmIufmJuwuYVTXYLqEL+QXAzNxDVF0gD3VM=;
+        s=korg; t=1681118453;
+        bh=ulTcaHf8E8baOBR2hVzBie5Rz4Xmy9K4GLB+GxLbBKw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Q2sOrBlr3AMXxERTq2SfhXmzq+t30HMU7w4UvLDwyU+K1Ig6qVdrgi2V/SCK7fUNu
-         nBc6dPdyKywejZSRmV6OQkUG8M/sd272XvcUzSJNpcGFmt/8whuph86Z55YMzVQ2Zi
-         uG/vY7oMsSLTifRRU2DXc4HX2wtumK2TPy6pZ2eU=
-Subject: FAILED: patch "[PATCH] ksmbd: delete asynchronous work from list" failed to apply to 6.2-stable tree
+        b=1pRO7TihOOs6q2P6ZCgzKTGBRV3/UbEHMu9bwfX6caP+fcXZLsaFURoHFXdRdRrVl
+         V6ygkpPYxecuvLcOl++SrKvf+9E2zVNWehSZ+cDCgUb9vsQinNlkNLO5R2RJN+sTYT
+         d33ygmrlPGm7OdLPy10z6F6kRGQ4PifDmW0UHkN8=
+Subject: FAILED: patch "[PATCH] ksmbd: delete asynchronous work from list" failed to apply to 5.15-stable tree
 To:     linkinjeon@kernel.org, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 Apr 2023 11:20:36 +0200
-Message-ID: <2023041036-algebra-landmark-936e@gregkh>
+Date:   Mon, 10 Apr 2023 11:20:42 +0200
+Message-ID: <2023041042-purifier-operation-399d@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,25 +47,28 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x 3a9b557f44ea8f216aab515a7db20e23f0eb51b9
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041036-algebra-landmark-936e@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041042-purifier-operation-399d@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 3a9b557f44ea ("ksmbd: delete asynchronous work from list")
 d3ca9f7aeba7 ("ksmbd: fix possible memory leak in smb2_lock()")
 f8d6e7442aa7 ("ksmbd: fix typo, syncronous->synchronous")
+edf5f0548fbb ("ksmbd: replace usage of found with dedicated list iterator variable")
+cb4517201b8a ("ksmbd: remove smb2_buf_length in smb2_hdr")
+341b16014bf8 ("ksmdb: use cmd helper variable in smb2_get_ksmbd_tcon()")
 
 thanks,
 
