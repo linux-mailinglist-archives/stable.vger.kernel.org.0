@@ -2,127 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3034F6DC87E
-	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 17:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95796DC8C2
+	for <lists+stable@lfdr.de>; Mon, 10 Apr 2023 17:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229839AbjDJP3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 11:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43548 "EHLO
+        id S230025AbjDJPv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 11:51:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229766AbjDJP3b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 11:29:31 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2077.outbound.protection.outlook.com [40.107.244.77])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151A32724;
-        Mon, 10 Apr 2023 08:29:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ih8//yjXg8/w+b2IUYcL6OaXoc8cGHpsmZtLWDyM1NdEs7RI4Ik2mC6jl5ZKlMmy7H3s7aVdjK9Rtxj9jQY9OOlEA/cEvpFJiV8phvW5iAVDNNslN8ga6y2m/ZmI9XfmlJ7SfFAgtIQ3KnS4GRsNuKT/DQv8c0CfsD9kVyeLwq6zG5PLErR7UxaQaQ2OcFg6IWEaQdHoJYoXcDU1ORLUSuLuP8TNMxsomiB+TJ7ssH82Y52hieaU+SVAIziXTZGXht8z7wmZq2RwE5ltaF4xPFC5qNPVBF+mTGKhnmC1BaW4nKNqwqFp5sxQm85VYS4p5eQUG7O0P1zzJnJOxXgEgQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Lv4ooD3MZVsYtMC+qXZik7QPJqqnbZK0ZxnR7q0oxtw=;
- b=ATd6nrVuB6ug2QnqhNZ6OSx4mn43qwCugOEru5BXXw/W6GrN16noqQpwOCZWD+BYr5FjcGXgcG06vgJANeL0rPyve8ypQ6Ncp80qR3orsoIxeW15TxSDIO+AEu3ATLrnEO9a/nzPFZG9mOyA+TDmJVGchReYu9Ly+2/Q8JrbcbQHRrHu0VTyhFyvOR8cyfJPLRdbY0XfoHkunOC9bAXbwvTD7z9sEhzPzETV2K72nZ9WNXVi32RdLH/AuklzAVUzfvfSvBKEHGx9naDAsdxVqfhh92cn7Vdh3Y50sZbOIYLLvBUfAFFvEZPG60deQXV91CqrSuMt9xnsLczE+23AEg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Lv4ooD3MZVsYtMC+qXZik7QPJqqnbZK0ZxnR7q0oxtw=;
- b=0/QkyAZl/zZj9SGp3A1UUMSjSd9CH9AILGgQ5PDWoAkEByUaKd5dIN9hbsut9qaAoYVXui5kqWnqitPIvgtqwj4lfomhLmURPNTSv3ShwjlUeTdwkSjoyecd3vIifDN8U7vxm5huTCSh3qVZstrK5sfhcb0IwHxbIy62su89S1c=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DM4PR12MB6253.namprd12.prod.outlook.com (2603:10b6:8:a6::12) by
- CY5PR12MB6324.namprd12.prod.outlook.com (2603:10b6:930:f::5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6277.35; Mon, 10 Apr 2023 15:29:27 +0000
-Received: from DM4PR12MB6253.namprd12.prod.outlook.com
- ([fe80::1e94:d88f:5829:627f]) by DM4PR12MB6253.namprd12.prod.outlook.com
- ([fe80::1e94:d88f:5829:627f%7]) with mapi id 15.20.6277.035; Mon, 10 Apr 2023
- 15:29:27 +0000
-Message-ID: <ed840be8-b27b-191e-4122-72f62d8f1b7b@amd.com>
-Date:   Mon, 10 Apr 2023 10:29:23 -0500
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.1
-Subject: Re: [PATCH] pinctrl: amd: Disable and mask interrupts on resume
-Content-Language: en-US
-To:     Mario Limonciello <mario.limonciello@amd.com>,
-        =?UTF-8?Q?Kornel_Dul=c4=99ba?= <korneld@chromium.org>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        regressions@leemhuis.info
-Cc:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        upstream@semihalf.com, rad@semihalf.com, mattedavis@google.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        richard.gong@amd.com
-References: <20230320093259.845178-1-korneld@chromium.org>
- <d1d39179-33a0-d35b-7593-e0a02aa3b10a@amd.com>
-From:   "Gong, Richard" <richard.gong@amd.com>
-In-Reply-To: <d1d39179-33a0-d35b-7593-e0a02aa3b10a@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: CH2PR02CA0019.namprd02.prod.outlook.com
- (2603:10b6:610:4e::29) To DM4PR12MB6253.namprd12.prod.outlook.com
- (2603:10b6:8:a6::12)
+        with ESMTP id S229904AbjDJPv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 11:51:27 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D2F1422A
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 08:51:18 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id 41be03b00d2f7-51b0f9d7d70so78529a12.1
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 08:51:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681141878;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=oyAMXVmyqFLn23H80OIDaqkmqJCj2pLhwh30cxgTwfw=;
+        b=NDf1zeUNBUe5j+qyF0v5ct2fM0Jm6wz1II8Wm6XB0ZegPT3GuG2fDDNjcu7DNsGHhU
+         aKmPKg5DjffX6HwGnuktvt/oivI0tgjtfiL8F1aCSClwUm3nP+95A9QGW7WOsrxSM1kF
+         69jNJJ5dq108shHGgWfWuOyUWxuqa07MAEE2hKuvrVauU/iwpDfBqqPR6Fx1uh6Z+3cO
+         r1RZMIjs+i1xpMsaa8yTWtLtTdTpFrnR6xNwsuhZbwTQuneHxtdPF0ueS+h8eO1UuyEk
+         UcklUilHXT0tf56c9ktX8kWi6KJyjfcy9ZdVvB8de4HKQhRCu6LdaYSN4dGjUjZOn8P6
+         8iCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681141878;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=oyAMXVmyqFLn23H80OIDaqkmqJCj2pLhwh30cxgTwfw=;
+        b=2ZdnoqfEYCxH1yyBLclz/deQJO92cSnn23JPriaVFxQ5SO6ULbzc16hAy1Aap2fAa8
+         9XVFBxbcHcqV/7np52gHwCzRqBIxVMZkb/mjrL362MQPn0m8MqsbW3UmGmnzVEZj77Rf
+         D7MDDGwNLo/5KDVV0pkbggA4bazs77WOs56gadt/4wRhlBmBjsCPGODz4C71qj3o4OYc
+         e4o32RXuftEYpLjElNpy2Uph6/qxBictHGxmUtAIAf3VgRUkXs7kmyTXdQBXVUhfZ2AG
+         7H68a8pT1ceMws76zIEea29sN3fg+zN+nhhFGVJCL1XIZCIrIVw/tMtY7DUpOPuC8vBf
+         nARA==
+X-Gm-Message-State: AAQBX9c5GxNuUz5DHA6h+2Ve+Iw/BUEMNh7Bsl9fHbFt8vMGf51itBwL
+        Qqek9IKf+RyUWpSGsg5nJ6LD
+X-Google-Smtp-Source: AKy350bmTnhipOLRKcwoJXuo+YgNEtUZPrGoTqXGROBHVKLL+MZ68p531+UJ2CN5IDpj+6p9H8JOsQ==
+X-Received: by 2002:a62:1bd4:0:b0:627:ede2:89ee with SMTP id b203-20020a621bd4000000b00627ede289eemr12467609pfb.25.1681141877803;
+        Mon, 10 Apr 2023 08:51:17 -0700 (PDT)
+Received: from thinkpad ([117.248.3.87])
+        by smtp.gmail.com with ESMTPSA id z9-20020aa785c9000000b006262520ac59sm3226655pfn.127.2023.04.10.08.51.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Apr 2023 08:51:17 -0700 (PDT)
+Date:   Mon, 10 Apr 2023 21:21:11 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Bjorn Andersson <andersson@kernel.org>
+Cc:     bp@alien8.de, mchehab@kernel.org, james.morse@arm.com,
+        rric@kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        quic_saipraka@quicinc.com, stable@vger.kernel.org
+Subject: Re: [PATCH v6 2/2] EDAC/qcom: Get rid of hardcoded register offsets
+Message-ID: <20230410155111.GB4630@thinkpad>
+References: <20230314064032.16433-1-manivannan.sadhasivam@linaro.org>
+ <20230314064032.16433-3-manivannan.sadhasivam@linaro.org>
+ <20230315222242.hbe3z2d3c2i6psuw@ripper>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR12MB6253:EE_|CY5PR12MB6324:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6304a197-7742-4213-4d6c-08db39d85ef3
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: MKfXdEUKR3AhPY4GXImXzmUoGwUIeaI4TUnfOkWa/5t6XRxFIH/vxjOAGQwwk1l2t3mVdvMTEvQFjUyxgiVtAJ2yEvQuX/G796vl6YK40nbZrKR+bW5sYaKwznjyTQuaYucsSpExcpxXGyvP2CDUNab8vcXob5eRj6atoXgelGajNyw6JVv/N0Zeutbfog0/hSUFhF3YoLraHuM/yH6c+vyCPVEPJ+hAnGlESm4ZjwKj1ogjBIR9aQiu0tjQNq4+rFONMorxonpQ2TuS9En4jd/AljCrvpj1TnKMPvUAh5tvBY+9Qaq33COWFrhtyAP01lTm9PikV7PVeG1kIVZIgrUNit2vZ2tMOOZ6cWGsb8ZROMbCEVzMc+0S0qMY1+tZyh9579kZrRLD+WNdVPsgR8EBVtsWHlLiy0NWZhGOB+Vq/R1FRvQbPm/Mae0wD7qd6M16USM+6Xv5viFzz02AHQhXMj5nr6wC2wh5F1aHhZpxTc84Odh6hFa4EKuaw0WBwuQv9HBvM9fu4dP8b+h8pN+ylvWM7x0I7Nq9U7ctH0ooliTkh5nnpfQldoQHkZ58f3IH73LF6lm3n9T6V5It7UqoWAGENGScH+HVPNvJOBMEF9H3Bcv6Ma97ePl8CuQo0JQZli4y6HaIAj2LgU6jgw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB6253.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(346002)(396003)(136003)(366004)(451199021)(478600001)(6666004)(54906003)(316002)(110136005)(6512007)(6506007)(26005)(53546011)(186003)(6486002)(966005)(2906002)(66476007)(5660300002)(66946007)(66556008)(41300700001)(8936002)(8676002)(4326008)(7416002)(38100700002)(86362001)(31696002)(66574015)(36756003)(83380400001)(2616005)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NG1QeDRoU1k2VWZhdmJDc0kwOExzbHZHY2VRNWpnQTdpTld6QmNySDFFWXdM?=
- =?utf-8?B?b0hPbTNDOE1Zc3dyMnV5N2pHOW9oV01sQWRwTHJGa3dFVW9tazF2SlJEY2pB?=
- =?utf-8?B?dC9jdEl0VE9oekJNZkI5TFdXaWtuZ3RyZHEvd2pmUVMrWUpDRkFjRnl4NDlp?=
- =?utf-8?B?Sy8wZnMyN25wUVpMTEhWdzZMaUxHenpEeWNxSDdyNzdtWUtkdlJzVkoxcWgx?=
- =?utf-8?B?UTlBbnloWkpvV0FNdklJdGQ5aVBHQ0Z1UXFjMTM1SVdLZnFQVGNjbFFYUDJs?=
- =?utf-8?B?YW9PMmE3NHRBVzBINkxCMFFjYnRHejNac0p5aGRrbVh6RHlBdjZmdHNPTkl5?=
- =?utf-8?B?NWlHS2lPdXZrT0huaE43dHdWWCt2OEJXbGNpZFJXODhzSjdYamc3Q0NGcGVz?=
- =?utf-8?B?UFUxYWdTSW1FMXJsQ1ZPWE9Gd1EzWHZrMWltNDZMOEptK2VscHpBMXo3bG4r?=
- =?utf-8?B?a1BxbkpzZEdZVVVXRUk5Snplalp0SFpZRXNMVGpVK3AycXJIRUJCRkl0eFpM?=
- =?utf-8?B?Tk1SL3RuRm5NSEdEY3dmSFZ0T053M3F1RHJtYXJoR2F4OEFXZXROQ1EzZ0NQ?=
- =?utf-8?B?c0JBUVlBanF5T3Ryc3N4VXhLcjdEemo5R3Ivb1pGTDJySHlmaUVGcjQzTWd0?=
- =?utf-8?B?WS9WOUlDV3FqZFhaeFU0RG1iMlkvaVl5bnJiNHV6NlhGQjVFNWtpZ29teERm?=
- =?utf-8?B?SlVZVXJzMHkyUk0zR1NIbk56NGNGLzFXYnJaV2RDY0hEZ3pZeW43QXM4VGh5?=
- =?utf-8?B?M1EzMTFNRFBRRURzRTlqVlJHLzhrekF1U0ljM0FyU1VJdWJNNFRsNVA5dE1R?=
- =?utf-8?B?dGxjd2k2VkdwRzhmSjRIMFNpWnhRRTRHblVYdUIremhkWjYzakZDd0dBZzM5?=
- =?utf-8?B?VFFzSERIMkVBWnhCT2gxTVJDdEgwK0VGdjhZY1NXUVRnem1iUDFEMURkbGpC?=
- =?utf-8?B?cXRCSHZJZnB1ODRyQUErNjl2enlZWTkwQ3NEODRpREdkMXo0QUNMYkxVakc5?=
- =?utf-8?B?ZThoT05qSlNHdlZJMGl2NnYvRHlJM3UxeW40MkdnUkNUdlh0MDNqS1g2Yi9r?=
- =?utf-8?B?elJCNzhITEd0eDRDNDlzenlXUEV2WE9BQlJqVnA3VmNZV3Fxc2x4SmdGdi9i?=
- =?utf-8?B?M1lkcXJWLzAybWMwazJ5TDUrQXJYek1VUDRtczlTTUs2R0hBZ3RPc3dQNmpy?=
- =?utf-8?B?emloc3JRdHl4Z0x6NnNzUU05TkgwcWZMTUxvMmtRdHdMd1NsT01tTlc3aTkv?=
- =?utf-8?B?WEZrT0VPZjhTMUVGQ0RzZjk3VWFONnFZOWJ2K2VYQTBnV2tLZDNtRndWOFdk?=
- =?utf-8?B?cGJKVk5hbTlmcE5rWnJ5UldJZWJHU3JHcEZlek16WSs0TG1ybk1zM0xoL3Mr?=
- =?utf-8?B?SUdyb1AwcHhEc2pIbm9JNWpIeWRxbm9RN3NhQ1JESUwxeUgrSDFabTVJVFdS?=
- =?utf-8?B?aVRQbmxhUmU5bmxnVzgwWnZWN2s1QldhRkhOTUlveWtoTlJLOHhLU2hRbEgv?=
- =?utf-8?B?SW8xeUdXdWRTVk12Sm5yU3pPa0l4eDUzK0ljODNWT0RsRVJ0Q091Zk82Mllo?=
- =?utf-8?B?Uk9jQzVieitvUjJvU3RoNE1ZcStEWDA1R1FoV0FxSlRPcFVXRHlYU3NQeFZJ?=
- =?utf-8?B?d2c5eHFlUEZoeDNSMVNzTU1QWjlDUncxOUJMdHUzeVhqWWJVU1p3Tk80VnQy?=
- =?utf-8?B?OFZUbVRaVzNMWitTUlVwZGJPYk16TUh6U1NCV2dyc0ttVE9Id3BVQ295OUIw?=
- =?utf-8?B?MXBiNmNXRkJtZmk3Ly9UZkRJM2IzYm0zRzZDVHZoZjhud04yN2s2emo1SHhD?=
- =?utf-8?B?U085QStyME9kUFpGeHR3L21SQ09LSlpzdVUxKytCSy9tc1M2RW5UZGMxU3FX?=
- =?utf-8?B?cmNOWXpRUFFpRzBzTnN4OVk3OEMrU3JZQTg0R2ZLSUtXQkJNZUdXOGRpZVBp?=
- =?utf-8?B?Q3p1c0NTTi9ONFhaQU5zaEQyUjEwSU0rM2tQdmhqZlZGaExPS2tnZzlGNmtS?=
- =?utf-8?B?TUF6ZFNoMktaNkNYbmswclFlcnNGMy82NndyWnc4Q3NEWklNV2Z2K1BvQXQ3?=
- =?utf-8?B?ZW10OU5iclhpM1JYY3lLUHBtdklFZU1ERVJNY1ZYZjFqOEcxYVozeU1yUHVS?=
- =?utf-8?Q?5MqVHi8mzz167npquPqzNqMFi?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6304a197-7742-4213-4d6c-08db39d85ef3
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB6253.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Apr 2023 15:29:27.3049
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tZ1d1Wjof4LqakQl9EsagRGybPrN/dnE3mZP4phM1uuaom3oP6H/bAw49ZbMOSc+XZxNR1BY1RMkD7hOK3wenw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6324
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230315222242.hbe3z2d3c2i6psuw@ripper>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -130,115 +75,334 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/10/2023 12:03 AM, Mario Limonciello wrote:
-> On 3/20/23 04:32, Kornel Dulęba wrote:
->
->> This fixes a similar problem to the one observed in:
->> commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on 
->> probe").
->>
->> On some systems, during suspend/resume cycle firmware leaves
->> an interrupt enabled on a pin that is not used by the kernel.
->> This confuses the AMD pinctrl driver and causes spurious interrupts.
->>
->> The driver already has logic to detect if a pin is used by the kernel.
->> Leverage it to re-initialize interrupt fields of a pin only if it's not
->> used by us.
->>
->> Signed-off-by: Kornel Dulęba <korneld@chromium.org>
->> ---
->>   drivers/pinctrl/pinctrl-amd.c | 36 +++++++++++++++++++----------------
->>   1 file changed, 20 insertions(+), 16 deletions(-)
->>
->> diff --git a/drivers/pinctrl/pinctrl-amd.c 
->> b/drivers/pinctrl/pinctrl-amd.c
->> index 9236a132c7ba..609821b756c2 100644
->> --- a/drivers/pinctrl/pinctrl-amd.c
->> +++ b/drivers/pinctrl/pinctrl-amd.c
->> @@ -872,32 +872,34 @@ static const struct pinconf_ops amd_pinconf_ops 
->> = {
->>       .pin_config_group_set = amd_pinconf_group_set,
->>   };
->>   -static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
->> +static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
->>   {
->> -    struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
->> +    const struct pin_desc *pd;
->>       unsigned long flags;
->>       u32 pin_reg, mask;
->> -    int i;
->>         mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
->>           BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
->>           BIT(WAKE_CNTRL_OFF_S4);
->>   -    for (i = 0; i < desc->npins; i++) {
->> -        int pin = desc->pins[i].number;
->> -        const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
->> -
->> -        if (!pd)
->> -            continue;
->> +    pd = pin_desc_get(gpio_dev->pctrl, pin);
->> +    if (!pd)
->> +        return;
->>   -        raw_spin_lock_irqsave(&gpio_dev->lock, flags);
->> +    raw_spin_lock_irqsave(&gpio_dev->lock, flags);
->> +    pin_reg = readl(gpio_dev->base + pin * 4);
->> +    pin_reg &= ~mask;
->> +    writel(pin_reg, gpio_dev->base + pin * 4);
->> +    raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
->> +}
->>   -        pin_reg = readl(gpio_dev->base + i * 4);
->> -        pin_reg &= ~mask;
->> -        writel(pin_reg, gpio_dev->base + i * 4);
->> +static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
->> +{
->> +    struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
->> +    int i;
->>   -        raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
->> -    }
->> +    for (i = 0; i < desc->npins; i++)
->> +        amd_gpio_irq_init_pin(gpio_dev, i);
->>   }
->>     #ifdef CONFIG_PM_SLEEP
->> @@ -950,8 +952,10 @@ static int amd_gpio_resume(struct device *dev)
->>       for (i = 0; i < desc->npins; i++) {
->>           int pin = desc->pins[i].number;
->>   -        if (!amd_gpio_should_save(gpio_dev, pin))
->> +        if (!amd_gpio_should_save(gpio_dev, pin)) {
->> +            amd_gpio_irq_init_pin(gpio_dev, pin);
->>               continue;
->> +        }
->>             raw_spin_lock_irqsave(&gpio_dev->lock, flags);
->>           gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) 
->> & PIN_IRQ_PENDING;
->
-> Hello Kornel,
->
-> I've found that this commit which was included in 6.3-rc5 is causing a 
-> regression waking up from lid on a Lenovo Z13.
-observed "unable to wake from power button" on AMD based Dell platform. 
-Reverting "pinctrl: amd: Disable and mask interrupts on resume" on the 
-top of 6.3-rc6 does fix the issue.
->
-> Reverting it on top of 6.3-rc6 resolves the problem.
->
-> I've collected what I can into this bug report:
->
-> https://bugzilla.kernel.org/show_bug.cgi?id=217315
->
-> Linus Walleij,
->
-> It looks like this was CC to stable.  If we can't get a quick solution 
-> we might want to pull this from stable.
+On Wed, Mar 15, 2023 at 03:22:42PM -0700, Bjorn Andersson wrote:
+> On Tue, Mar 14, 2023 at 12:10:32PM +0530, Manivannan Sadhasivam wrote:
+> > The LLCC EDAC register offsets varies between each SoC. Hardcoding the
+> > register offsets won't work and will often result in crash due to
+> > accessing the wrong locations.
+> > 
+> > Hence, get the register offsets from the LLCC driver matching the
+> > individual SoCs.
+> > 
+> > Cc: <stable@vger.kernel.org> # 6.0: 5365cea199c7 ("soc: qcom: llcc: Rename reg_offset structs to reflect LLCC version")
+> > Cc: <stable@vger.kernel.org> # 6.0: c13d7d261e36 ("soc: qcom: llcc: Pass LLCC version based register offsets to EDAC driver")
+> > Cc: <stable@vger.kernel.org> # 6.0
+> 
+> Why is there three Cc: stable here, is this a new format for Fixes:?
+> 
 
-this commit landed into 6.1.23 as well
+This is to specify the dependencies to the stable maintainers during backport.
 
-         d9c63daa576b2 pinctrl: amd: Disable and mask interrupts on resume
+- Mani
 
->
-> Thanks,
->
->
-Regards,
+> Regards,
+> Bjorn
+> 
+> > Fixes: a6e9d7ef252c ("soc: qcom: llcc: Add configuration data for SM8450 SoC")
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > ---
+> >  drivers/edac/qcom_edac.c           | 116 ++++++++++++++---------------
+> >  include/linux/soc/qcom/llcc-qcom.h |   6 --
+> >  2 files changed, 58 insertions(+), 64 deletions(-)
+> > 
+> > diff --git a/drivers/edac/qcom_edac.c b/drivers/edac/qcom_edac.c
+> > index 9cac49596a6f..c0fd0640d362 100644
+> > --- a/drivers/edac/qcom_edac.c
+> > +++ b/drivers/edac/qcom_edac.c
+> > @@ -21,30 +21,9 @@
+> >  #define TRP_SYN_REG_CNT                 6
+> >  #define DRP_SYN_REG_CNT                 8
+> >  
+> > -#define LLCC_COMMON_STATUS0             0x0003000c
+> >  #define LLCC_LB_CNT_MASK                GENMASK(31, 28)
+> >  #define LLCC_LB_CNT_SHIFT               28
+> >  
+> > -/* Single & double bit syndrome register offsets */
+> > -#define TRP_ECC_SB_ERR_SYN0             0x0002304c
+> > -#define TRP_ECC_DB_ERR_SYN0             0x00020370
+> > -#define DRP_ECC_SB_ERR_SYN0             0x0004204c
+> > -#define DRP_ECC_DB_ERR_SYN0             0x00042070
+> > -
+> > -/* Error register offsets */
+> > -#define TRP_ECC_ERROR_STATUS1           0x00020348
+> > -#define TRP_ECC_ERROR_STATUS0           0x00020344
+> > -#define DRP_ECC_ERROR_STATUS1           0x00042048
+> > -#define DRP_ECC_ERROR_STATUS0           0x00042044
+> > -
+> > -/* TRP, DRP interrupt register offsets */
+> > -#define DRP_INTERRUPT_STATUS            0x00041000
+> > -#define TRP_INTERRUPT_0_STATUS          0x00020480
+> > -#define DRP_INTERRUPT_CLEAR             0x00041008
+> > -#define DRP_ECC_ERROR_CNTR_CLEAR        0x00040004
+> > -#define TRP_INTERRUPT_0_CLEAR           0x00020484
+> > -#define TRP_ECC_ERROR_CNTR_CLEAR        0x00020440
+> > -
+> >  /* Mask and shift macros */
+> >  #define ECC_DB_ERR_COUNT_MASK           GENMASK(4, 0)
+> >  #define ECC_DB_ERR_WAYS_MASK            GENMASK(31, 16)
+> > @@ -60,15 +39,6 @@
+> >  #define DRP_TRP_INT_CLEAR               GENMASK(1, 0)
+> >  #define DRP_TRP_CNT_CLEAR               GENMASK(1, 0)
+> >  
+> > -/* Config registers offsets*/
+> > -#define DRP_ECC_ERROR_CFG               0x00040000
+> > -
+> > -/* Tag RAM, Data RAM interrupt register offsets */
+> > -#define CMN_INTERRUPT_0_ENABLE          0x0003001c
+> > -#define CMN_INTERRUPT_2_ENABLE          0x0003003c
+> > -#define TRP_INTERRUPT_0_ENABLE          0x00020488
+> > -#define DRP_INTERRUPT_ENABLE            0x0004100c
+> > -
+> >  #define SB_ERROR_THRESHOLD              0x1
+> >  #define SB_ERROR_THRESHOLD_SHIFT        24
+> >  #define SB_DB_TRP_INTERRUPT_ENABLE      0x3
+> > @@ -86,9 +56,6 @@ enum {
+> >  static const struct llcc_edac_reg_data edac_reg_data[] = {
+> >  	[LLCC_DRAM_CE] = {
+> >  		.name = "DRAM Single-bit",
+> > -		.synd_reg = DRP_ECC_SB_ERR_SYN0,
+> > -		.count_status_reg = DRP_ECC_ERROR_STATUS1,
+> > -		.ways_status_reg = DRP_ECC_ERROR_STATUS0,
+> >  		.reg_cnt = DRP_SYN_REG_CNT,
+> >  		.count_mask = ECC_SB_ERR_COUNT_MASK,
+> >  		.ways_mask = ECC_SB_ERR_WAYS_MASK,
+> > @@ -96,9 +63,6 @@ static const struct llcc_edac_reg_data edac_reg_data[] = {
+> >  	},
+> >  	[LLCC_DRAM_UE] = {
+> >  		.name = "DRAM Double-bit",
+> > -		.synd_reg = DRP_ECC_DB_ERR_SYN0,
+> > -		.count_status_reg = DRP_ECC_ERROR_STATUS1,
+> > -		.ways_status_reg = DRP_ECC_ERROR_STATUS0,
+> >  		.reg_cnt = DRP_SYN_REG_CNT,
+> >  		.count_mask = ECC_DB_ERR_COUNT_MASK,
+> >  		.ways_mask = ECC_DB_ERR_WAYS_MASK,
+> > @@ -106,9 +70,6 @@ static const struct llcc_edac_reg_data edac_reg_data[] = {
+> >  	},
+> >  	[LLCC_TRAM_CE] = {
+> >  		.name = "TRAM Single-bit",
+> > -		.synd_reg = TRP_ECC_SB_ERR_SYN0,
+> > -		.count_status_reg = TRP_ECC_ERROR_STATUS1,
+> > -		.ways_status_reg = TRP_ECC_ERROR_STATUS0,
+> >  		.reg_cnt = TRP_SYN_REG_CNT,
+> >  		.count_mask = ECC_SB_ERR_COUNT_MASK,
+> >  		.ways_mask = ECC_SB_ERR_WAYS_MASK,
+> > @@ -116,9 +77,6 @@ static const struct llcc_edac_reg_data edac_reg_data[] = {
+> >  	},
+> >  	[LLCC_TRAM_UE] = {
+> >  		.name = "TRAM Double-bit",
+> > -		.synd_reg = TRP_ECC_DB_ERR_SYN0,
+> > -		.count_status_reg = TRP_ECC_ERROR_STATUS1,
+> > -		.ways_status_reg = TRP_ECC_ERROR_STATUS0,
+> >  		.reg_cnt = TRP_SYN_REG_CNT,
+> >  		.count_mask = ECC_DB_ERR_COUNT_MASK,
+> >  		.ways_mask = ECC_DB_ERR_WAYS_MASK,
+> > @@ -126,7 +84,7 @@ static const struct llcc_edac_reg_data edac_reg_data[] = {
+> >  	},
+> >  };
+> >  
+> > -static int qcom_llcc_core_setup(struct regmap *llcc_bcast_regmap)
+> > +static int qcom_llcc_core_setup(struct llcc_drv_data *drv, struct regmap *llcc_bcast_regmap)
+> >  {
+> >  	u32 sb_err_threshold;
+> >  	int ret;
+> > @@ -135,31 +93,31 @@ static int qcom_llcc_core_setup(struct regmap *llcc_bcast_regmap)
+> >  	 * Configure interrupt enable registers such that Tag, Data RAM related
+> >  	 * interrupts are propagated to interrupt controller for servicing
+> >  	 */
+> > -	ret = regmap_update_bits(llcc_bcast_regmap, CMN_INTERRUPT_2_ENABLE,
+> > +	ret = regmap_update_bits(llcc_bcast_regmap, drv->edac_reg_offset->cmn_interrupt_2_enable,
+> >  				 TRP0_INTERRUPT_ENABLE,
+> >  				 TRP0_INTERRUPT_ENABLE);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > -	ret = regmap_update_bits(llcc_bcast_regmap, TRP_INTERRUPT_0_ENABLE,
+> > +	ret = regmap_update_bits(llcc_bcast_regmap, drv->edac_reg_offset->trp_interrupt_0_enable,
+> >  				 SB_DB_TRP_INTERRUPT_ENABLE,
+> >  				 SB_DB_TRP_INTERRUPT_ENABLE);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> >  	sb_err_threshold = (SB_ERROR_THRESHOLD << SB_ERROR_THRESHOLD_SHIFT);
+> > -	ret = regmap_write(llcc_bcast_regmap, DRP_ECC_ERROR_CFG,
+> > +	ret = regmap_write(llcc_bcast_regmap, drv->edac_reg_offset->drp_ecc_error_cfg,
+> >  			   sb_err_threshold);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > -	ret = regmap_update_bits(llcc_bcast_regmap, CMN_INTERRUPT_2_ENABLE,
+> > +	ret = regmap_update_bits(llcc_bcast_regmap, drv->edac_reg_offset->cmn_interrupt_2_enable,
+> >  				 DRP0_INTERRUPT_ENABLE,
+> >  				 DRP0_INTERRUPT_ENABLE);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > -	ret = regmap_write(llcc_bcast_regmap, DRP_INTERRUPT_ENABLE,
+> > +	ret = regmap_write(llcc_bcast_regmap, drv->edac_reg_offset->drp_interrupt_enable,
+> >  			   SB_DB_DRP_INTERRUPT_ENABLE);
+> >  	return ret;
+> >  }
+> > @@ -173,24 +131,28 @@ qcom_llcc_clear_error_status(int err_type, struct llcc_drv_data *drv)
+> >  	switch (err_type) {
+> >  	case LLCC_DRAM_CE:
+> >  	case LLCC_DRAM_UE:
+> > -		ret = regmap_write(drv->bcast_regmap, DRP_INTERRUPT_CLEAR,
+> > +		ret = regmap_write(drv->bcast_regmap,
+> > +				   drv->edac_reg_offset->drp_interrupt_clear,
+> >  				   DRP_TRP_INT_CLEAR);
+> >  		if (ret)
+> >  			return ret;
+> >  
+> > -		ret = regmap_write(drv->bcast_regmap, DRP_ECC_ERROR_CNTR_CLEAR,
+> > +		ret = regmap_write(drv->bcast_regmap,
+> > +				   drv->edac_reg_offset->drp_ecc_error_cntr_clear,
+> >  				   DRP_TRP_CNT_CLEAR);
+> >  		if (ret)
+> >  			return ret;
+> >  		break;
+> >  	case LLCC_TRAM_CE:
+> >  	case LLCC_TRAM_UE:
+> > -		ret = regmap_write(drv->bcast_regmap, TRP_INTERRUPT_0_CLEAR,
+> > +		ret = regmap_write(drv->bcast_regmap,
+> > +				   drv->edac_reg_offset->trp_interrupt_0_clear,
+> >  				   DRP_TRP_INT_CLEAR);
+> >  		if (ret)
+> >  			return ret;
+> >  
+> > -		ret = regmap_write(drv->bcast_regmap, TRP_ECC_ERROR_CNTR_CLEAR,
+> > +		ret = regmap_write(drv->bcast_regmap,
+> > +				   drv->edac_reg_offset->trp_ecc_error_cntr_clear,
+> >  				   DRP_TRP_CNT_CLEAR);
+> >  		if (ret)
+> >  			return ret;
+> > @@ -202,16 +164,54 @@ qcom_llcc_clear_error_status(int err_type, struct llcc_drv_data *drv)
+> >  	return ret;
+> >  }
+> >  
+> > +struct qcom_llcc_syn_regs {
+> > +	u32 synd_reg;
+> > +	u32 count_status_reg;
+> > +	u32 ways_status_reg;
+> > +};
+> > +
+> > +static void get_reg_offsets(struct llcc_drv_data *drv, int err_type,
+> > +			    struct qcom_llcc_syn_regs *syn_regs)
+> > +{
+> > +	const struct llcc_edac_reg_offset *edac_reg_offset = drv->edac_reg_offset;
+> > +
+> > +	switch (err_type) {
+> > +	case LLCC_DRAM_CE:
+> > +		syn_regs->synd_reg = edac_reg_offset->drp_ecc_sb_err_syn0;
+> > +		syn_regs->count_status_reg = edac_reg_offset->drp_ecc_error_status1;
+> > +		syn_regs->ways_status_reg = edac_reg_offset->drp_ecc_error_status0;
+> > +		break;
+> > +	case LLCC_DRAM_UE:
+> > +		syn_regs->synd_reg = edac_reg_offset->drp_ecc_db_err_syn0;
+> > +		syn_regs->count_status_reg = edac_reg_offset->drp_ecc_error_status1;
+> > +		syn_regs->ways_status_reg = edac_reg_offset->drp_ecc_error_status0;
+> > +		break;
+> > +	case LLCC_TRAM_CE:
+> > +		syn_regs->synd_reg = edac_reg_offset->trp_ecc_sb_err_syn0;
+> > +		syn_regs->count_status_reg = edac_reg_offset->trp_ecc_error_status1;
+> > +		syn_regs->ways_status_reg = edac_reg_offset->trp_ecc_error_status0;
+> > +		break;
+> > +	case LLCC_TRAM_UE:
+> > +		syn_regs->synd_reg = edac_reg_offset->trp_ecc_db_err_syn0;
+> > +		syn_regs->count_status_reg = edac_reg_offset->trp_ecc_error_status1;
+> > +		syn_regs->ways_status_reg = edac_reg_offset->trp_ecc_error_status0;
+> > +		break;
+> > +	}
+> > +}
+> > +
+> >  /* Dump Syndrome registers data for Tag RAM, Data RAM bit errors*/
+> >  static int
+> >  dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
+> >  {
+> >  	struct llcc_edac_reg_data reg_data = edac_reg_data[err_type];
+> > +	struct qcom_llcc_syn_regs regs = { };
+> >  	int err_cnt, err_ways, ret, i;
+> >  	u32 synd_reg, synd_val;
+> >  
+> > +	get_reg_offsets(drv, err_type, &regs);
+> > +
+> >  	for (i = 0; i < reg_data.reg_cnt; i++) {
+> > -		synd_reg = reg_data.synd_reg + (i * 4);
+> > +		synd_reg = regs.synd_reg + (i * 4);
+> >  		ret = regmap_read(drv->regmap, drv->offsets[bank] + synd_reg,
+> >  				  &synd_val);
+> >  		if (ret)
+> > @@ -222,7 +222,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
+> >  	}
+> >  
+> >  	ret = regmap_read(drv->regmap,
+> > -			  drv->offsets[bank] + reg_data.count_status_reg,
+> > +			  drv->offsets[bank] + regs.count_status_reg,
+> >  			  &err_cnt);
+> >  	if (ret)
+> >  		goto clear;
+> > @@ -233,7 +233,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
+> >  		    reg_data.name, err_cnt);
+> >  
+> >  	ret = regmap_read(drv->regmap,
+> > -			  drv->offsets[bank] + reg_data.ways_status_reg,
+> > +			  drv->offsets[bank] + regs.ways_status_reg,
+> >  			  &err_ways);
+> >  	if (ret)
+> >  		goto clear;
+> > @@ -296,7 +296,7 @@ llcc_ecc_irq_handler(int irq, void *edev_ctl)
+> >  	/* Iterate over the banks and look for Tag RAM or Data RAM errors */
+> >  	for (i = 0; i < drv->num_banks; i++) {
+> >  		ret = regmap_read(drv->regmap,
+> > -				  drv->offsets[i] + DRP_INTERRUPT_STATUS,
+> > +				  drv->offsets[i] + drv->edac_reg_offset->drp_interrupt_status,
+> >  				  &drp_error);
+> >  
+> >  		if (!ret && (drp_error & SB_ECC_ERROR)) {
+> > @@ -312,7 +312,7 @@ llcc_ecc_irq_handler(int irq, void *edev_ctl)
+> >  			irq_rc = IRQ_HANDLED;
+> >  
+> >  		ret = regmap_read(drv->regmap,
+> > -				  drv->offsets[i] + TRP_INTERRUPT_0_STATUS,
+> > +				  drv->offsets[i] + drv->edac_reg_offset->trp_interrupt_0_status,
+> >  				  &trp_error);
+> >  
+> >  		if (!ret && (trp_error & SB_ECC_ERROR)) {
+> > @@ -339,7 +339,7 @@ static int qcom_llcc_edac_probe(struct platform_device *pdev)
+> >  	int ecc_irq;
+> >  	int rc;
+> >  
+> > -	rc = qcom_llcc_core_setup(llcc_driv_data->bcast_regmap);
+> > +	rc = qcom_llcc_core_setup(llcc_driv_data, llcc_driv_data->bcast_regmap);
+> >  	if (rc)
+> >  		return rc;
+> >  
+> > diff --git a/include/linux/soc/qcom/llcc-qcom.h b/include/linux/soc/qcom/llcc-qcom.h
+> > index ad1fd718169d..3a2ea97e3d36 100644
+> > --- a/include/linux/soc/qcom/llcc-qcom.h
+> > +++ b/include/linux/soc/qcom/llcc-qcom.h
+> > @@ -69,9 +69,6 @@ struct llcc_slice_desc {
+> >  /**
+> >   * struct llcc_edac_reg_data - llcc edac registers data for each error type
+> >   * @name: Name of the error
+> > - * @synd_reg: Syndrome register address
+> > - * @count_status_reg: Status register address to read the error count
+> > - * @ways_status_reg: Status register address to read the error ways
+> >   * @reg_cnt: Number of registers
+> >   * @count_mask: Mask value to get the error count
+> >   * @ways_mask: Mask value to get the error ways
+> > @@ -80,9 +77,6 @@ struct llcc_slice_desc {
+> >   */
+> >  struct llcc_edac_reg_data {
+> >  	char *name;
+> > -	u64 synd_reg;
+> > -	u64 count_status_reg;
+> > -	u64 ways_status_reg;
+> >  	u32 reg_cnt;
+> >  	u32 count_mask;
+> >  	u32 ways_mask;
+> > -- 
+> > 2.25.1
+> > 
 
-Richard
-
+-- 
+மணிவண்ணன் சதாசிவம்
