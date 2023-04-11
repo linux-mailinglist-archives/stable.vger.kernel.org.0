@@ -2,82 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4106DD077
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 05:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFFA46DD07E
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 05:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbjDKDoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Apr 2023 23:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42414 "EHLO
+        id S229536AbjDKDu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Apr 2023 23:50:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229936AbjDKDoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 23:44:01 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B44E40D4;
-        Mon, 10 Apr 2023 20:42:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=23J/8FBsXEnL7p9k8s46zYOwMEms6Ik/i/msTFqEsPs=; b=OzpBgaZCyER1AUJcKzgA2bSBav
-        P6xljmei5C48FtZNQb2a5cp9EO7ZrGqw/3KfVMrKFGd7m8Wv1ZnXQelKkGEdu9uqjdpXC8D4kcOvu
-        AJRXSSVQcCuCReDfBKapzg1PANTFvST7ydHdAz2+QfBl2G9mt2/GHtJSeLE75/seGBea+1zl4OO7q
-        1XnS7WOIMhWbl7c2Kp+K9REG1FOouV+6WqYCjri7FRhw7MP5Ij64rbS/JghVLovA8HgnkgCKENkXL
-        vRjaoSxG+LbSqJkiqVFZvdHP9JIJeQrRyfDJZ75bS9+Azc2NcaaW0Soexe5re6GRZdudOPT+oX3wy
-        VaJx2qCQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pm4tX-005HBj-Uy; Tue, 11 Apr 2023 03:42:12 +0000
-Date:   Tue, 11 Apr 2023 04:42:11 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
+        with ESMTP id S229700AbjDKDu0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Apr 2023 23:50:26 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA0662118
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 20:50:02 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id y11-20020a17090a600b00b0024693e96b58so5558395pji.1
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 20:50:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1681185002; x=1683777002;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CjEAid20/hS5TioSfuhZ2hRVRcGGbWFkXT5AztmUYLU=;
+        b=LYKP57CzAcxQ5gab4YwR9v6vaxhR/4P+GionA8yCWLZ/9hlqmF6jK2Rc7Hkr+pYJ4k
+         VXiDq5ZX5hi4on79vEZq0YxeTPOC7e3+GHpqMEQGRRqjd/zSf+X9k2tX9OYO0Nnc7Uqu
+         1RusCPGRGIRm768m7eDnzYpfYH4RFQ1dLFZa//rUISjWoXkzVJWR/E6DmSvq+jgunVk0
+         GlgTAFS9vuG8ltgVdj6Uplw53WEfZZRY9R6/w0AJoTurl+/cvfqFcOH7MZoaiSEGKgsQ
+         unrBv6AgheR1VbEjJIccmEaHodDAELANBNqlpkS6ySpkAEfP43TmwlinKsO/rKzEUpYo
+         a03A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681185002; x=1683777002;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=CjEAid20/hS5TioSfuhZ2hRVRcGGbWFkXT5AztmUYLU=;
+        b=tPDONEneIo1FCeklclvde0B1l09xjfECreSx2JFcp/Wv5lxBv1UJtoO1s6KWhE3ObW
+         jGXxZ2QUxax5nVC3ShLBKKxynN/D06cNXhCigp4hdhO1G0dKJK+CeSo5TOx7ILg0HEb8
+         yZgMiRN7mkLXw4iXPL31YZ2/d2/HqEea8SbL0OSbzIuIm0W1zz7kKjz7uJNEQI2o6VY4
+         TZt6lxozRDNvkkJDM/fWLo13Y5FUaOYP8D1NkB2XcydhBlwOP6moetXYZfF9J/PikdqQ
+         EzF3NfLtgv0R02xBjAOYw57O4pvJFDzIQME3yORH9eSfGY9oYNKbVXtvX+4CDC04dtRu
+         l+Bg==
+X-Gm-Message-State: AAQBX9cV1FUEPk2Cy5P5LZjll5K+elAR/o1W2DzEIRZjBQ3Lc2LMzZe9
+        eO0IuyTyd/6VtZM1ao2B0OrTDQ==
+X-Google-Smtp-Source: AKy350YTCKN8pXK1GPOoitNCP80wKJNKIMZKz3O+cK/gOeA1J9898z6qCW9KcqZVIWDDqcWSHJd/hg==
+X-Received: by 2002:a17:90b:1644:b0:23f:7ff6:eb8 with SMTP id il4-20020a17090b164400b0023f7ff60eb8mr1994829pjb.31.1681185002391;
+        Mon, 10 Apr 2023 20:50:02 -0700 (PDT)
+Received: from [10.200.10.217] ([139.177.225.248])
+        by smtp.gmail.com with ESMTPSA id t7-20020a6549c7000000b005136b93f8e9sm7579138pgs.14.2023.04.10.20.49.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Apr 2023 20:50:02 -0700 (PDT)
+Message-ID: <f132db6d-5b5f-cf18-3e4e-2f3053c93033@bytedance.com>
+Date:   Tue, 11 Apr 2023 11:49:56 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.1
+Subject: Re: [PATCH v2] maple_tree: Use correct variable type in sizeof
+To:     Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>
 Cc:     Peng Zhang <zhangpeng.00@bytedance.com>, Liam.Howlett@oracle.com,
         linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         maple-tree@lists.infradead.org,
         David Binderman <dcb314@hotmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] maple_tree: Use correct variable type in sizeof
-Message-ID: <ZDTXE8jKMz802jqR@casper.infradead.org>
 References: <20230411023513.15227-1-zhangpeng.00@bytedance.com>
  <20230410202935.d1abf62f386eefb1efa36ce4@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230410202935.d1abf62f386eefb1efa36ce4@linux-foundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=DKIM_INVALID,DKIM_SIGNED,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+ <ZDTXE8jKMz802jqR@casper.infradead.org>
+From:   Peng Zhang <zhangpeng.00@bytedance.com>
+In-Reply-To: <ZDTXE8jKMz802jqR@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 10, 2023 at 08:29:35PM -0700, Andrew Morton wrote:
-> On Tue, 11 Apr 2023 10:35:13 +0800 Peng Zhang <zhangpeng.00@bytedance.com> wrote:
-> 
-> > The type of variable pointed to by pivs is unsigned long, but the type
-> > used in sizeof is a pointer type. Change it to unsigned long.
-> 
-> Thanks, but there's nothing in this changelog which explains why a
-> -stable backport is being proposed.  When fixing a bug, please always
-> describe the user-visible effects of that bug.
 
-There is no user-visible effect of this bug as the assembly code
-generated will be identical.
+在 2023/4/11 11:42, Matthew Wilcox 写道:
+> On Mon, Apr 10, 2023 at 08:29:35PM -0700, Andrew Morton wrote:
+>> On Tue, 11 Apr 2023 10:35:13 +0800 Peng Zhang <zhangpeng.00@bytedance.com> wrote:
+>>
+>>> The type of variable pointed to by pivs is unsigned long, but the type
+>>> used in sizeof is a pointer type. Change it to unsigned long.
+>> Thanks, but there's nothing in this changelog which explains why a
+>> -stable backport is being proposed.  When fixing a bug, please always
+>> describe the user-visible effects of that bug.
+> There is no user-visible effect of this bug as the assembly code
+> generated will be identical.
 
-> > --- a/lib/maple_tree.c
-> > +++ b/lib/maple_tree.c
-> > @@ -3255,7 +3255,7 @@ static inline void mas_destroy_rebalance(struct ma_state *mas, unsigned char end
-> >  
-> >  		if (tmp < max_p)
-> >  			memset(pivs + tmp, 0,
-> > -			       sizeof(unsigned long *) * (max_p - tmp));
-> > +			       sizeof(unsigned long) * (max_p - tmp));
-> >  
-> >  		if (tmp < mt_slots[mt])
-> >  			memset(slots + tmp, 0, sizeof(void *) * (max_s - tmp));
-> 
-> Is there any situation in which
-> sizeof(unsigned long *) != sizeof(unsigned long)?
+Therefore, if this has always been the case, cc stable
+is also unnecessary.
 
-Windows 64-bit (pointer 64-bit, unsigned long is 32 bit) is the only
-one I know.  Linux is all ILP32 or LP64.  There may be some embedded
-environments which are different, but I have no idea what they might be.
+>
+>>> --- a/lib/maple_tree.c
+>>> +++ b/lib/maple_tree.c
+>>> @@ -3255,7 +3255,7 @@ static inline void mas_destroy_rebalance(struct ma_state *mas, unsigned char end
+>>>   
+>>>   		if (tmp < max_p)
+>>>   			memset(pivs + tmp, 0,
+>>> -			       sizeof(unsigned long *) * (max_p - tmp));
+>>> +			       sizeof(unsigned long) * (max_p - tmp));
+>>>   
+>>>   		if (tmp < mt_slots[mt])
+>>>   			memset(slots + tmp, 0, sizeof(void *) * (max_s - tmp));
+>> Is there any situation in which
+>> sizeof(unsigned long *) != sizeof(unsigned long)?
+> Windows 64-bit (pointer 64-bit, unsigned long is 32 bit) is the only
+> one I know.  Linux is all ILP32 or LP64.  There may be some embedded
+> environments which are different, but I have no idea what they might be.
+>
