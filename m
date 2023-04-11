@@ -2,42 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 917416DD106
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 06:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1526DD2C9
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 08:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbjDKEhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 00:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51732 "EHLO
+        id S229688AbjDKGaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 02:30:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbjDKEhu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 00:37:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DFE10DC;
-        Mon, 10 Apr 2023 21:37:49 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D63161F27;
-        Tue, 11 Apr 2023 04:37:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C91C433EF;
-        Tue, 11 Apr 2023 04:37:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681187868;
-        bh=Gae+XT0KkZG+Xqo7hiJSie1samATP5Tw4z6ya6g8EDU=;
-        h=Date:To:From:Subject:From;
-        b=xRleMGLLzLQfN8PsWUevgCP5anxnTbYz4eZvG6V8ZWB0998NhXALDU+ikvmmR66+8
-         HbVcXdvigMhEJdovFnNyZnlT4JJzqkEHTqiQVtMLC+1vVacCVeTfGIarg+FdY6Upp5
-         HkrpNg6UBSydGCrq+UuS0LDXWjVWyonEW4UmQ1L8=
-Date:   Mon, 10 Apr 2023 21:37:47 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        Liam.Howlett@Oracle.com, zhangpeng.00@bytedance.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230411043748.95C91C433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        with ESMTP id S229910AbjDKGaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 02:30:10 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB171BDD
+        for <stable@vger.kernel.org>; Mon, 10 Apr 2023 23:30:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681194609; x=1712730609;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=hJXyQc8Ux6zE5uWjzHqikCNDXfD9NvEam2DDgAfzuP4=;
+  b=CYO8UQmJQ0bbp4S3wAwS+OuI+yO0U3HEyKpTCv5cRlXS7kJRH7DtTQGO
+   xytEZkAozMkdk/QdTem4r/wEPFjOSLSQh1kFrqjBlBFBOH7IiFpyC7A46
+   qZXoU8t1zRrx2o8wh1UOk7KLH5NUuaXqlDxsG2MbJsrqMd8SqnZHzAeBW
+   xp5A0ikFPPq52Vb1XQYiKUXn+RDN/ErKajyXFaSgcrL6yJqp+Zu0ULV0o
+   wriYW60WNXzaVj6LgPJfU/RLolVAGXTgHJ0qEDMVhtF9xeKnZa5owzg4x
+   EQR+oKVFtCMs8KzzloEecH/FhM0mVVi/PSrLHR1WxiuvEKmAnNvBXucdN
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10676"; a="429826001"
+X-IronPort-AV: E=Sophos;i="5.98,336,1673942400"; 
+   d="scan'208";a="429826001"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2023 23:30:09 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10676"; a="757701732"
+X-IronPort-AV: E=Sophos;i="5.98,336,1673942400"; 
+   d="scan'208";a="757701732"
+Received: from nirmoyda-mobl.ger.corp.intel.com (HELO [10.252.55.106]) ([10.252.55.106])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2023 23:30:07 -0700
+Message-ID: <7fc53d8f-a406-5bed-837c-f8023ed9dedb@linux.intel.com>
+Date:   Tue, 11 Apr 2023 08:30:05 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [PATCH v4 2/5] drm/i915/gt: Add intel_context_timeline_is_locked
+ helper
+Content-Language: en-US
+To:     Andi Shyti <andi.shyti@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        stable@vger.kernel.org
+Cc:     Andi Shyti <andi.shyti@kernel.org>,
+        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Chris Wilson <chris.p.wilson@linux.intel.com>,
+        Maciej Patelczyk <maciej.patelczyk@intel.com>
+References: <20230308094106.203686-1-andi.shyti@linux.intel.com>
+ <20230308094106.203686-3-andi.shyti@linux.intel.com>
+From:   "Das, Nirmoy" <nirmoy.das@linux.intel.com>
+In-Reply-To: <20230308094106.203686-3-andi.shyti@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.6 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -45,98 +70,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug.patch
+On 3/8/2023 10:41 AM, Andi Shyti wrote:
+> We have:
+>
+>   - intel_context_timeline_lock()
+>   - intel_context_timeline_unlock()
+>
+> In the next patches we will also need:
+>
+>   - intel_context_timeline_is_locked()
+>
+> Add it.
+>
+> Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+> Cc: stable@vger.kernel.org
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug.patch
+Reviewed-by: Nirmoy Das <nirmoy.das@intel.com>
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Peng Zhang <zhangpeng.00@bytedance.com>
-Subject: maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
-Date: Tue, 11 Apr 2023 12:10:04 +0800
-
-In mas_alloc_nodes(), "node->node_count = 0" means to initialize the
-node_count field of the new node, but the node may not be a new node.  It
-may be a node that existed before and node_count has a value, setting it
-to 0 will cause a memory leak.  At this time, mas->alloc->total will be
-greater than the actual number of nodes in the linked list, which may
-cause many other errors.  For example, out-of-bounds access in
-mas_pop_node(), and mas_pop_node() may return addresses that should not be
-used.  Fix it by initializing node_count only for new nodes.
-
-Also, by the way, an if-else statement was removed to simplify the code.
-
-Link: https://lkml.kernel.org/r/20230411041005.26205-1-zhangpeng.00@bytedance.com
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
-Cc: Liam R. Howlett <Liam.Howlett@Oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- lib/maple_tree.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
-
---- a/lib/maple_tree.c~maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug
-+++ a/lib/maple_tree.c
-@@ -1303,26 +1303,21 @@ static inline void mas_alloc_nodes(struc
- 	node = mas->alloc;
- 	node->request_count = 0;
- 	while (requested) {
--		max_req = MAPLE_ALLOC_SLOTS;
--		if (node->node_count) {
--			unsigned int offset = node->node_count;
--
--			slots = (void **)&node->slot[offset];
--			max_req -= offset;
--		} else {
--			slots = (void **)&node->slot;
--		}
--
-+		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
-+		slots = (void **)&node->slot[node->node_count];
- 		max_req = min(requested, max_req);
- 		count = mt_alloc_bulk(gfp, max_req, slots);
- 		if (!count)
- 			goto nomem_bulk;
- 
-+		if (node->node_count == 0) {
-+			node->slot[0]->node_count = 0;
-+			node->slot[0]->request_count = 0;
-+		}
-+
- 		node->node_count += count;
- 		allocated += count;
- 		node = node->slot[0];
--		node->node_count = 0;
--		node->request_count = 0;
- 		requested -= count;
- 	}
- 	mas->alloc->total = allocated;
-_
-
-Patches currently in -mm which might be from zhangpeng.00@bytedance.com are
-
-maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug.patch
-mm-kfence-improve-the-performance-of-__kfence_alloc-and-__kfence_free.patch
-maple_tree-simplify-mas_wr_node_walk.patch
-maple_tree-use-correct-variable-type-in-sizeof.patch
-
+> ---
+>   drivers/gpu/drm/i915/gt/intel_context.h | 6 ++++++
+>   1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_context.h b/drivers/gpu/drm/i915/gt/intel_context.h
+> index f919a66cebf5b..87d5e2d60b6db 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_context.h
+> +++ b/drivers/gpu/drm/i915/gt/intel_context.h
+> @@ -265,6 +265,12 @@ static inline void intel_context_timeline_unlock(struct intel_timeline *tl)
+>   	mutex_unlock(&tl->mutex);
+>   }
+>   
+> +static inline void intel_context_assert_timeline_is_locked(struct intel_timeline *tl)
+> +	__must_hold(&tl->mutex)
+> +{
+> +	lockdep_assert_held(&tl->mutex);
+> +}
+> +
+>   int intel_context_prepare_remote_request(struct intel_context *ce,
+>   					 struct i915_request *rq);
+>   
