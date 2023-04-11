@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66CF86DD88C
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5A76DD892
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbjDKLBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 07:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53570 "EHLO
+        id S229581AbjDKLBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 07:01:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229676AbjDKLA7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:00:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8383A85
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:00:50 -0700 (PDT)
+        with ESMTP id S229630AbjDKLBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:01:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEC740FC
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:01:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDB3F621D7
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:00:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F04B2C433D2;
-        Tue, 11 Apr 2023 11:00:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DEAE617A1
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:01:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B04C4339B;
+        Tue, 11 Apr 2023 11:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681210849;
-        bh=Zan+lJyZhl9PB9STrZKTIIzr8cmk1Mgav5kHPAbTJjM=;
+        s=korg; t=1681210866;
+        bh=66rEuPQzDYpBrcUT++vYji8/5caO24zeH/63328fj+Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ow40i/WsdJJcfgYLCXzRPWHZdNriXbyO4RjC55bOJEmIR5SslrB8e9jj+u3YsVTaD
-         y0S/C6drHpgwAAJlR9spFMBgN3x1MxccGNl5phQv+RtnkHH5LEzV/2uORz7Goq01kM
-         79D9eb6P+PPkYbNrkeJH8GXd5LiABd/tgPz/86YM=
-Subject: FAILED: patch "[PATCH] KVM: x86: Clear "has_error_code", not "error_code", for RM" failed to apply to 4.14-stable tree
+        b=UC8jaw8FNzoMWGhjbC0zQgsm5TyokftXM2v7pNHYV7Yco8wWEZGITR0/T4CI9lLjR
+         s9np9VtR4hRqzFItTyedJDAEH0THp8966P9Qt7cKZqON2UBEwf21XEyLzchlFdVmtB
+         HK2407qwrqK+rjWy9HWWmbG5O9KLIGFLmPGdHoRM=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Do not report error code when synthesizing VM-Exit" failed to apply to 5.15-stable tree
 To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 13:00:38 +0200
-Message-ID: <2023041138-dallying-idly-b9ed@gregkh>
+Date:   Tue, 11 Apr 2023 13:01:04 +0200
+Message-ID: <2023041103-bulb-unaired-ceb0@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,25 +47,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
-git cherry-pick -x 6c41468c7c12d74843bb414fc00307ea8a6318c3
+git cherry-pick -x 80962ec912db56d323883154efc2297473e692cb
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041138-dallying-idly-b9ed@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041103-bulb-unaired-ceb0@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
-6c41468c7c12 ("KVM: x86: Clear "has_error_code", not "error_code", for RM exception injection")
+80962ec912db ("KVM: nVMX: Do not report error code when synthesizing VM-Exit from Real Mode")
 d4963e319f1f ("KVM: x86: Make kvm_queued_exception a properly named, visible struct")
-6ad75c5c99f7 ("KVM: x86: Rename kvm_x86_ops.queue_exception to inject_exception")
 5623f751bd9c ("KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)")
 8d178f460772 ("KVM: nVMX: Treat General Detect #DB (DR7.GD=1) as fault-like")
 eba9799b5a6e ("KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS")
@@ -83,6 +82,7 @@ b9f3973ab3a8 ("KVM: x86: nSVM: implement nested VMLOAD/VMSAVE")
 e27bc0440ebd ("KVM: x86: Rename kvm_x86_ops pointers to align w/ preferred vendor names")
 068f7ea61895 ("KVM: SVM: improve split between svm_prepare_guest_switch and sev_es_prepare_guest_switch")
 e1779c2714c3 ("KVM: x86: nSVM: fix potential NULL derefernce on nested migration")
+54744e17f031 ("KVM: SVM: Move svm_hardware_setup() and its helpers below svm_x86_ops")
 
 thanks,
 
@@ -90,53 +90,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6c41468c7c12d74843bb414fc00307ea8a6318c3 Mon Sep 17 00:00:00 2001
+From 80962ec912db56d323883154efc2297473e692cb Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 22 Mar 2023 07:32:59 -0700
-Subject: [PATCH] KVM: x86: Clear "has_error_code", not "error_code", for RM
- exception injection
+Date: Wed, 22 Mar 2023 07:33:00 -0700
+Subject: [PATCH] KVM: nVMX: Do not report error code when synthesizing VM-Exit
+ from Real Mode
 
-When injecting an exception into a vCPU in Real Mode, suppress the error
-code by clearing the flag that tracks whether the error code is valid, not
-by clearing the error code itself.  The "typo" was introduced by recent
-fix for SVM's funky Paged Real Mode.
+Don't report an error code to L1 when synthesizing a nested VM-Exit and
+L2 is in Real Mode.  Per Intel's SDM, regarding the error code valid bit:
 
-Opportunistically hoist the logic above the tracepoint so that the trace
-is coherent with respect to what is actually injected (this was also the
-behavior prior to the buggy commit).
+  This bit is always 0 if the VM exit occurred while the logical processor
+  was in real-address mode (CR0.PE=0).
+
+The bug was introduced by a recent fix for AMD's Paged Real Mode, which
+moved the error code suppression from the common "queue exception" path
+to the "inject exception" path, but missed VMX's "synthesize VM-Exit"
+path.
 
 Fixes: b97f07458373 ("KVM: x86: determine if an exception has an error code only when injecting it.")
 Cc: stable@vger.kernel.org
 Cc: Maxim Levitsky <mlevitsk@redhat.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20230322143300.2209476-2-seanjc@google.com>
+Message-Id: <20230322143300.2209476-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 45017576ad5e..7d6f98b7635f 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9908,13 +9908,20 @@ int kvm_check_nested_events(struct kvm_vcpu *vcpu)
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 1bc2b80273c9..768487611db7 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3868,7 +3868,12 @@ static void nested_vmx_inject_exception_vmexit(struct kvm_vcpu *vcpu)
+ 		exit_qual = 0;
+ 	}
  
- static void kvm_inject_exception(struct kvm_vcpu *vcpu)
- {
+-	if (ex->has_error_code) {
 +	/*
-+	 * Suppress the error code if the vCPU is in Real Mode, as Real Mode
-+	 * exceptions don't report error codes.  The presence of an error code
-+	 * is carried with the exception and only stripped when the exception
-+	 * is injected as intercepted #PF VM-Exits for AMD's Paged Real Mode do
-+	 * report an error code despite the CPU being in Real Mode.
++	 * Unlike AMD's Paged Real Mode, which reports an error code on #PF
++	 * VM-Exits even if the CPU is in Real Mode, Intel VMX never sets the
++	 * "has error code" flags on VM-Exit if the CPU is in Real Mode.
 +	 */
-+	vcpu->arch.exception.has_error_code &= is_protmode(vcpu);
-+
- 	trace_kvm_inj_exception(vcpu->arch.exception.vector,
- 				vcpu->arch.exception.has_error_code,
- 				vcpu->arch.exception.error_code,
- 				vcpu->arch.exception.injected);
- 
--	if (vcpu->arch.exception.error_code && !is_protmode(vcpu))
--		vcpu->arch.exception.error_code = false;
- 	static_call(kvm_x86_inject_exception)(vcpu);
- }
- 
++	if (ex->has_error_code && is_protmode(vcpu)) {
+ 		/*
+ 		 * Intel CPUs do not generate error codes with bits 31:16 set,
+ 		 * and more importantly VMX disallows setting bits 31:16 in the
 
