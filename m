@@ -2,131 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA746DDBFE
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3E26DDC11
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbjDKNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:24:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34718 "EHLO
+        id S229687AbjDKN3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbjDKNYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:24:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E113449D8
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:24:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F21461DEE
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:24:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A5CC433EF;
-        Tue, 11 Apr 2023 13:24:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681219456;
-        bh=Vsrx+R/M3AmdzKNWyMot0W9sLksj1wjCBRfvDVhtfo8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=GG7uqnm7VMkgszR2538i5JYONYZ4284/h0x+6S0LHNkLKcjCe/LIP1i+5mE9loTpU
-         Un4YXUQuqpb2BtDGTgVnIUspn7lBwhlw+ccwj8DnnzRSVHlHw5qgjlgy8fPnefHZaF
-         b4v8vIgFA1clAEIBP50+5HbGdFJ8qWXPNMNf4wSw=
-Subject: FAILED: patch "[PATCH] drm/i915: fix race condition UAF in" failed to apply to 4.14-stable tree
-To:     lm0963hack@gmail.com, andi.shyti@linux.intel.com,
-        jani.nikula@intel.com, stable@vger.kernel.org,
-        tvrtko.ursulin@intel.com, umesh.nerlige.ramappa@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:24:06 +0200
-Message-ID: <2023041105-shakily-screen-fbb6@gregkh>
+        with ESMTP id S229469AbjDKN3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:29:49 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91976135;
+        Tue, 11 Apr 2023 06:29:48 -0700 (PDT)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1pmE4A-00054w-5q; Tue, 11 Apr 2023 15:29:46 +0200
+Message-ID: <36c7638f-964b-bee6-b44b-c8406e71dfec@leemhuis.info>
+Date:   Tue, 11 Apr 2023 15:29:45 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [PATCH] pinctrl: amd: Disable and mask interrupts on resume
+Content-Language: en-US, de-DE
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     gregkh@linuxfoundation.org,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        upstream@semihalf.com, rad@semihalf.com, mattedavis@google.com,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        "Gong, Richard" <richard.gong@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?Q?Kornel_Dul=c4=99ba?= <korneld@chromium.org>,
+        Linux regressions mailing list <regressions@lists.linux.dev>
+References: <20230320093259.845178-1-korneld@chromium.org>
+ <d1d39179-33a0-d35b-7593-e0a02aa3b10a@amd.com>
+ <ed840be8-b27b-191e-4122-72f62d8f1b7b@amd.com>
+ <37178398-497c-900b-361a-34b1b77517aa@leemhuis.info>
+ <CAD=NsqzFiQBxtVDmCiJ24HD0YZiwZ4PQkojHHic775EKfeuiaQ@mail.gmail.com>
+From:   "Linux regression tracking (Thorsten Leemhuis)" 
+        <regressions@leemhuis.info>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+In-Reply-To: <CAD=NsqzFiQBxtVDmCiJ24HD0YZiwZ4PQkojHHic775EKfeuiaQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1681219788;793f09b4;
+X-HE-SMSGID: 1pmE4A-00054w-5q
+X-Spam-Status: No, score=-2.2 required=5.0 tests=NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 11.04.23 15:09, Kornel Dulęba wrote:
+> On Tue, Apr 11, 2023 at 2:50 PM Linux regression tracking (Thorsten
+> Leemhuis) <regressions@leemhuis.info> wrote:
+>> On 10.04.23 17:29, Gong, Richard wrote:
+>>> On 4/10/2023 12:03 AM, Mario Limonciello wrote:
+>>>> On 3/20/23 04:32, Kornel Dulęba wrote:
+>>>>
+>>>>> This fixes a similar problem to the one observed in:
+>>>>> commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on
+>>>>> probe").
+>>>>>
+>>>>> On some systems, during suspend/resume cycle firmware leaves
+>>>>> an interrupt enabled on a pin that is not used by the kernel.
+>>>>> This confuses the AMD pinctrl driver and causes spurious interrupts.
+>>>>>
+>>>>> The driver already has logic to detect if a pin is used by the kernel.
+>>>>> Leverage it to re-initialize interrupt fields of a pin only if it's not
+>>>>> used by us.
+>>>>>
+>>>>> Signed-off-by: Kornel Dulęba <korneld@chromium.org>
+>>>>> ---
+>>>>>   drivers/pinctrl/pinctrl-amd.c | 36 +++++++++++++++++++----------------
+>>>>>   1 file changed, 20 insertions(+), 16 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/pinctrl/pinctrl-amd.c
+>>>>> b/drivers/pinctrl/pinctrl-amd.c
+>>>>> index 9236a132c7ba..609821b756c2 100644
+>>>>> --- a/drivers/pinctrl/pinctrl-amd.c
+>>>>> +++ b/drivers/pinctrl/pinctrl-amd.c
+>>>>> @@ -872,32 +872,34 @@ static const struct pinconf_ops amd_pinconf_ops
+>>>>> = {
+>>>>>       .pin_config_group_set = amd_pinconf_group_set,
+>>>>>   };
+>>>>>   -static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+>>>>> +static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
+>>>>>   {
+>>>>> -    struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+>>>>> +    const struct pin_desc *pd;
+>>>>>       unsigned long flags;
+>>>>>       u32 pin_reg, mask;
+>>>>> -    int i;
+>>>>>         mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+>>>>>           BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+>>>>>           BIT(WAKE_CNTRL_OFF_S4);
+>>>>>   -    for (i = 0; i < desc->npins; i++) {
+>>>>> -        int pin = desc->pins[i].number;
+>>>>> -        const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+>>>>> -
+>>>>> -        if (!pd)
+>>>>> -            continue;
+>>>>> +    pd = pin_desc_get(gpio_dev->pctrl, pin);
+>>>>> +    if (!pd)
+>>>>> +        return;
+>>>>>   -        raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+>>>>> +    raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+>>>>> +    pin_reg = readl(gpio_dev->base + pin * 4);
+>>>>> +    pin_reg &= ~mask;
+>>>>> +    writel(pin_reg, gpio_dev->base + pin * 4);
+>>>>> +    raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+>>>>> +}
+>>>>>   -        pin_reg = readl(gpio_dev->base + i * 4);
+>>>>> -        pin_reg &= ~mask;
+>>>>> -        writel(pin_reg, gpio_dev->base + i * 4);
+>>>>> +static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+>>>>> +{
+>>>>> +    struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+>>>>> +    int i;
+>>>>>   -        raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+>>>>> -    }
+>>>>> +    for (i = 0; i < desc->npins; i++)
+>>>>> +        amd_gpio_irq_init_pin(gpio_dev, i);
+>>>>>   }
+>>>>>     #ifdef CONFIG_PM_SLEEP
+>>>>> @@ -950,8 +952,10 @@ static int amd_gpio_resume(struct device *dev)
+>>>>>       for (i = 0; i < desc->npins; i++) {
+>>>>>           int pin = desc->pins[i].number;
+>>>>>   -        if (!amd_gpio_should_save(gpio_dev, pin))
+>>>>> +        if (!amd_gpio_should_save(gpio_dev, pin)) {
+>>>>> +            amd_gpio_irq_init_pin(gpio_dev, pin);
+>>>>>               continue;
+>>>>> +        }
+>>>>>             raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+>>>>>           gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4)
+>>>>> & PIN_IRQ_PENDING;
+>>>>
+>>>> Hello Kornel,
+>>>>
+>>>> I've found that this commit which was included in 6.3-rc5 is causing a
+>>>> regression waking up from lid on a Lenovo Z13.
+>>> observed "unable to wake from power button" on AMD based Dell platform.
+>>
+>> This sounds like something that we want to fix quickly.
+>>
+>>> Reverting "pinctrl: amd: Disable and mask interrupts on resume" on the
+>>> top of 6.3-rc6 does fix the issue.
+>>>>
+>>>> Reverting it on top of 6.3-rc6 resolves the problem.
+>>>>
+>>>> I've collected what I can into this bug report:
+>>>>
+>>>> https://bugzilla.kernel.org/show_bug.cgi?id=217315
+>>>>
+>>>> Linus Walleij,
+>>>>
+>>>> It looks like this was CC to stable.  If we can't get a quick solution
+>>>> we might want to pull this from stable.
+>>>
+>>> this commit landed into 6.1.23 as well
+>>>
+>>>         d9c63daa576b2 pinctrl: amd: Disable and mask interrupts on resume
+>>
+>> It made it back up to 5.10.y afaics.
+>>
+>> The culprit has no fixes tag, which makes me wonder: should we quickly
+>> (e.g. today) revert this in mainline to get back to the previous state,
+>> so that Greg can pick up the revert for the next stable releases he
+>> apparently currently prepares?
+>>
+>> Greg, is there another way to make you quickly fix this in the stable
+>> trees? One option obviously would be "revert this now in stable, reapply
+>> it later together with a fix ". But I'm under the impression that this
+>> is too much of a hassle and thus something you only do in dire situations?
+>>
+>> I'm asking because I over time noticed that quite a few regressions are
+>> in a similar situation -- and quite a few of them take quite some time
+>> to get fixed even when a developer provided a fix, because reviewing and
+>> mainlining the fix takes a week or two (sometimes more). And that is a
+>> situation that is more and more hitting a nerve here. :-/
+> 
+> I've looked into this and at this moment I can't really find a quick fix.
+> See https://bugzilla.kernel.org/show_bug.cgi?id=217315#c3.
+> It seems that reverting this might be the best solution for now.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Great, thx for the update (and BTW: Greg, thx for your answer, too).
 
-To reproduce the conflict and resubmit, you may use the following commands:
+To speed things up a quick question:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
-git checkout FETCH_HEAD
-git cherry-pick -x dc30c011469165d57af9adac5baff7d767d20e5c
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041105-shakily-screen-fbb6@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
+Linusw, what's your preferred course to realize this revert quickly?
 
-Possible dependencies:
+ * someone (Kornel?) sends a revert with a commit msg for review, which
+you then apply and pass on to the other Linus?
 
-dc30c0114691 ("drm/i915: fix race condition UAF in i915_perf_add_config_ioctl")
-2fec539112e8 ("i915/perf: Replace DRM_DEBUG with driver specific drm_dbg call")
-046d1660daee ("drm/i915/gem: Return an error ptr from context_lookup")
-a4839cb1137b ("drm/i915: Stop manually RCU banging in reset_stats_ioctl (v2)")
-651e7d48577a ("drm/i915: replace IS_GEN and friends with GRAPHICS_VER")
-ec2b1485a065 ("drm/i915/dmc: s/HAS_CSR/HAS_DMC")
-c24760cf42c3 ("drm/i915/dmc: s/intel_csr/intel_dmc")
-93e7e61eb448 ("drm/i915/display: rename display version macros")
-4df9c1ae7a4b ("drm/i915: rename display.version to display.ver")
-6c51f288b41f ("drm/i915: Don't use {skl, cnl}_hpd_pin() for bxt/glk")
-0fe6637d9852 ("drm/i915: Restore lost glk ccs w/a")
-87b8c3bc8d27 ("drm/i915: Restore lost glk FBC 16bpp w/a")
-2446e1d6433b ("drm/i915/display: Eliminate IS_GEN9_{BC,LP}")
-9c0fed84d575 ("Merge tag 'drm-intel-next-2021-04-01' of git://anongit.freedesktop.org/drm/drm-intel into drm-next")
+ * someone (Kornel?) sends a revert with a commit msg for review that
+immediately asks the other Linus to pick this up directly?
 
-thanks,
+ * we ask the other Linus directly to revert this (who then has to come
+up with a commit msg on his own)?
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From dc30c011469165d57af9adac5baff7d767d20e5c Mon Sep 17 00:00:00 2001
-From: Min Li <lm0963hack@gmail.com>
-Date: Tue, 28 Mar 2023 17:36:27 +0800
-Subject: [PATCH] drm/i915: fix race condition UAF in
- i915_perf_add_config_ioctl
-
-Userspace can guess the id value and try to race oa_config object creation
-with config remove, resulting in a use-after-free if we dereference the
-object after unlocking the metrics_lock.  For that reason, unlocking the
-metrics_lock must be done after we are done dereferencing the object.
-
-Signed-off-by: Min Li <lm0963hack@gmail.com>
-Fixes: f89823c21224 ("drm/i915/perf: Implement I915_PERF_ADD/REMOVE_CONFIG interface")
-Cc: <stable@vger.kernel.org> # v4.14+
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Reviewed-by: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230328093627.5067-1-lm0963hack@gmail.com
-[tursulin: Manually added stable tag.]
-(cherry picked from commit 49f6f6483b652108bcb73accd0204a464b922395)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
-index 283a4a3c6862..004074936300 100644
---- a/drivers/gpu/drm/i915/i915_perf.c
-+++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -4638,13 +4638,13 @@ int i915_perf_add_config_ioctl(struct drm_device *dev, void *data,
- 		err = oa_config->id;
- 		goto sysfs_err;
- 	}
--
--	mutex_unlock(&perf->metrics_lock);
-+	id = oa_config->id;
- 
- 	drm_dbg(&perf->i915->drm,
- 		"Added config %s id=%i\n", oa_config->uuid, oa_config->id);
-+	mutex_unlock(&perf->metrics_lock);
- 
--	return oa_config->id;
-+	return id;
- 
- sysfs_err:
- 	mutex_unlock(&perf->metrics_lock);
-
+Ciao, Thorsten
