@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6C46DD8BE
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7350B6DD8C7
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229821AbjDKLDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 07:03:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58316 "EHLO
+        id S229513AbjDKLEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 07:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229895AbjDKLDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:03:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E7C3A85
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:03:00 -0700 (PDT)
+        with ESMTP id S229642AbjDKLEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:04:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 498834228
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:03:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8C6E622D5
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE07FC433D2;
-        Tue, 11 Apr 2023 11:02:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90D0E6240E
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:02:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B80C433A7;
+        Tue, 11 Apr 2023 11:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681210949;
-        bh=Rtz3KiyLDw6SKqvAfkkOVwea02gJ1kagnt3T2F0kv8I=;
+        s=korg; t=1681210958;
+        bh=ICVX4bQcu+vzlnrCB2qTfHWxxpWXLK9tZCf1lJ1QTC0=;
         h=Subject:To:Cc:From:Date:From;
-        b=TaBBdEh8ILv306Ac9mNV7MlLyp/XzbE0su3D2Y+7Pwcnvo9PNQxoYqhsm+njEaMEI
-         rNMxIcomMdgEdlJvSTwt7otJw/kwupCPpDx9v+BTJFKWkHI0gg+1noGxTR9LUJs6pV
-         a7/nBb3AMqswlxGpwdxHHZXAtFc92IkdBF2UigGY=
-Subject: FAILED: patch "[PATCH] coresight-etm4: Fix for() loop drvdata->nr_addr_cmp range bug" failed to apply to 5.10-stable tree
+        b=fkxU4EFeRe1QZmLYdPqZXZR32L0Ey8EDwC0DtQpyyw4moCdHrqxIRDiiCU3SEQFW0
+         Q1SU0rqWYEWJKPiN/sM7gyfiMt4c0rQb1AEuIzOKbpYcOLb4X1cHJB4ES0BhZyOZ9E
+         RB+E1M5c25Qwv1jJEJ8Pk5r2u2yLA5GWjQGVHTAw=
+Subject: FAILED: patch "[PATCH] coresight-etm4: Fix for() loop drvdata->nr_addr_cmp range bug" failed to apply to 5.4-stable tree
 To:     scclevenger@os.amperecomputing.com, james.clark@arm.com,
         suzuki.poulose@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 13:02:26 +0200
-Message-ID: <2023041126-requisite-reproach-b981@gregkh>
+Date:   Tue, 11 Apr 2023 13:02:27 +0200
+Message-ID: <2023041127-facedown-bonehead-4f10@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x bf84937e882009075f57fd213836256fc65d96bc
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041126-requisite-reproach-b981@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041127-facedown-bonehead-4f10@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -72,6 +72,18 @@ f6a18f354c58 ("coresight: etm4x: Handle access to TRCSSPCICRn")
 6288b4ceca86 ("coresight: etm4x: Fix accesses to TRCPROCSELR")
 f2603b22e3d2 ("coresight: etm4x: Fix accesses to TRCCIDCTLR1")
 93dd64404cbe ("coresight: etm4x: Fix accesses to TRCVMIDCTLR1")
+347732627745 ("coresight: etm4x: Fix save and restore of TRCVMIDCCTLR1 register")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
+685d84a7862e ("coresight: etm4x: Fix mis-usage of nr_resource in sysfs interface")
 
 thanks,
 
