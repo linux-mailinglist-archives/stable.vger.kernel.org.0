@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0DA6DDFF7
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0FF6DDFF8
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229977AbjDKPwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 11:52:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39852 "EHLO
+        id S230009AbjDKPwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 11:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbjDKPwW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:52:22 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A42E32723
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 08:52:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681228341; x=1712764341;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=Ri6BdLcbofHzHWjjX8OZ2Xio0NKVZwWQQFOvtQQoVC4=;
-  b=PL6sULII823aTq4mIm2QJVw+bSABFnK579vkmV2srDFOGA0E7VY1LNBf
-   06qIoZhOs+2YZXQuNjdaJGm8dNqjfTHPSjaBhIlSC/1al3kqXeMTdeOTo
-   eQJiorovGoNa9eKCWAgvm6OO01SsUFKmUV7QSaO2edEcvMmo9LoHHHsDE
-   M4RlrRPoWPfRUtFfLw/Bp19Yw/QEkSsJDlud9haLIIScT0ZhKcdXUsd4X
-   8Apj9qdlZBrvx+If9EjKXKYW7E5zfbaAeHcw3r/ydToDR9tit2Wtht0RY
-   LHucDasx3Tik5Y7m8Q7PHsAUGh6O5IlT/Q0VWLR1dL50QfFhzdFWfCXYe
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10677"; a="429945077"
-X-IronPort-AV: E=Sophos;i="5.98,336,1673942400"; 
-   d="scan'208";a="429945077"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2023 08:51:56 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10677"; a="753187790"
-X-IronPort-AV: E=Sophos;i="5.98,336,1673942400"; 
-   d="scan'208";a="753187790"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
-  by fmsmga008.fm.intel.com with SMTP; 11 Apr 2023 08:51:53 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 11 Apr 2023 18:51:52 +0300
-Date:   Tue, 11 Apr 2023 18:51:52 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Manasi Navare <navaremanasi@google.com>,
-        Drew Davenport <ddavenport@chromium.org>,
-        Imre Deak <imre.deak@intel.com>,
-        Jouni =?iso-8859-1?Q?H=F6gander?= <jouni.hogander@intel.com>
-Subject: Re: [PATCH 6.1.y 1/3] drm/i915: Split icl_color_commit_noarm() from
- skl_color_commit_noarm()
-Message-ID: <ZDWCGGgxGvcsFXhi@intel.com>
-References: <2023040313-periscope-celery-403f@gregkh>
- <20230403162618.18469-1-ville.syrjala@linux.intel.com>
- <2023041117-cannot-sensuous-6f62@gregkh>
+        with ESMTP id S229477AbjDKPwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:52:34 -0400
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271E62723
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 08:52:33 -0700 (PDT)
+Received: by mail-yb1-xb29.google.com with SMTP id v7so7169639ybi.0
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 08:52:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681228352; x=1683820352;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7DQjB9jjSniX8WUn0hxZzli/VJttza7GiVrQjQV9IoA=;
+        b=dpyrf0ifpUMeAEvu8Wf578r8CUr/1v6SAD7UgK0B3YcGvaSKQ3g2wlO2F7wbE09ACW
+         +80MxGqHgY9PUMgzKrtA96in292vvDoNetsu6pJHqDaTXVDcvi3MtnqLQvRbFfrpNlAv
+         tPzlU1PvUacXf3sd3OYkdq8l3tlDRsxDMoZKBNZx/SAzrJU1TGZjUnflNmA0x6Y0OIic
+         d2ucXIikHJeU5BYCm6xr1EQNtKZ1uW+nyqt+OCFJ/qE8LtMyQLupVNMTfdiEOgFkyd1T
+         cp3Ih6v/GvBGoKcgEQfJaAUiglhOk/x/Z8zMh/bvqd2VJlzkCgzAX+FN3WJWEsHM5PX/
+         hW4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681228352; x=1683820352;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7DQjB9jjSniX8WUn0hxZzli/VJttza7GiVrQjQV9IoA=;
+        b=qCAtjiEv34WXTfVLoD5uvcewt6f24hSrlvynCZyDUSUboGnlfBOpDA1MuVJ+yPleLr
+         S8Gpsk0sdhG3fJLpMi2+hwL6qsqD+bqa62LXi5zuEHw9xn+97xofccs6xubTXeuxVm3k
+         PKski5GP2vhd5O9nZBviR5aYLCweZN9+xb8t2CaJS13pNmoanhVX7d6oOcekjws1Eg+j
+         oR58P8S9wQIjP+sW2+ghWwfaIzGFgHEJq3l/nsPFH63PMhR8oq5zdd9kzD8QN0BbNHIs
+         +DM5tverK83hXZ168FF1fkXiAXNUnU7noHpHSuU3QtzSf2XNEWhA6fZhP2Meu/zxCa7L
+         OHqg==
+X-Gm-Message-State: AAQBX9d4bZS7XsJVz5ycRhwrV5UNEqZR7NehfiMrT/RIu0K/5VmBEvRS
+        i1SLbswb4gncVuka2Wx54MgitsE7j1SZIRjBUW6NYw==
+X-Google-Smtp-Source: AKy350bvU9oF7Z3oiDlXBWDjKnr5iukeWwTFd1dtkT3Gt8bLaR4FVVNT+wSpGQYLJwyBBI20EpbPWw==
+X-Received: by 2002:a25:e78e:0:b0:b8e:e4be:923a with SMTP id e136-20020a25e78e000000b00b8ee4be923amr6238760ybh.4.1681228352348;
+        Tue, 11 Apr 2023 08:52:32 -0700 (PDT)
+Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
+        by smtp.gmail.com with ESMTPSA id i13-20020a056902068d00b00b7767ca749fsm3683390ybt.60.2023.04.11.08.52.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Apr 2023 08:52:31 -0700 (PDT)
+From:   William Breathitt Gray <william.gray@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jonathan Cameron <jic23@kernel.org>,
+        William Breathitt Gray <william.gray@linaro.org>,
+        stable@vger.kernel.org
+Subject: [RESEND PATCH 4.14 v3 1/5] iio: counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+Date:   Tue, 11 Apr 2023 11:52:16 -0400
+Message-Id: <20230411155220.9754-1-william.gray@linaro.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <2023041117-cannot-sensuous-6f62@gregkh>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,46 +69,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 11, 2023 at 03:58:49PM +0200, Greg KH wrote:
-> On Mon, Apr 03, 2023 at 07:26:16PM +0300, Ville Syrjala wrote:
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > 
-> > We're going to want different behavior for skl/glk vs. icl
-> > in .color_commit_noarm(), so split the hook into two. Arguably
-> > we already had slightly different behaviour since
-> > csc_enable/gamma_enable are never set on icl+, so the old
-> > code was perhaps a bit confusing as well.
-> > 
-> > Cc: <stable@vger.kernel.org> #v5.19+
-> > Cc: <stable@vger.kernel.org> # 05ca98523481: drm/i915: Use _MMIO_PIPE() for SKL_BOTTOM_COLOR
-> > Cc: Manasi Navare <navaremanasi@google.com>
-> > Cc: Drew Davenport <ddavenport@chromium.org>
-> > Cc: Imre Deak <imre.deak@intel.com>
-> > Cc: Jouni Högander <jouni.hogander@intel.com>
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-2-ville.syrjala@linux.intel.com
-> > Reviewed-by: Imre Deak <imre.deak@intel.com>
-> > (cherry picked from commit f161eb01f50ab31f2084975b43bce54b7b671e17)
-> > Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-> > (cherry picked from commit 76b767d4d1cd052e455cf18e06929e8b2b70101d)
-> > ---
-> >  drivers/gpu/drm/i915/display/intel_color.c | 21 ++++++++++++++++++++-
-> >  1 file changed, 20 insertions(+), 1 deletion(-)
-> 
-> This commit breaks the build.
+commit 4aa3b75c74603c3374877d5fd18ad9cc3a9a62ed upstream.
 
-You did cherry pick all the dependencies I listed?
+The Counter (CNTR) register is 24 bits wide, but we can have an
+effective 25-bit count value by setting bit 24 to the XOR of the Borrow
+flag and Carry flag. The flags can be read from the FLAG register, but a
+race condition exists: the Borrow flag and Carry flag are instantaneous
+and could change by the time the count value is read from the CNTR
+register.
 
-> 
-> Always test-build the stuff you send out.  please.
+Since the race condition could result in an incorrect 25-bit count
+value, remove support for 25-bit count values from this driver.
 
-I did.
+Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
+Cc: <stable@vger.kernel.org> # 4.14.x
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+---
+ drivers/iio/counter/104-quad-8.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-> 
-> Whole series dropped from my review queue.
-> 
-> greg k-h
+diff --git a/drivers/iio/counter/104-quad-8.c b/drivers/iio/counter/104-quad-8.c
+index 181585ae6..bdb07694e 100644
+--- a/drivers/iio/counter/104-quad-8.c
++++ b/drivers/iio/counter/104-quad-8.c
+@@ -64,9 +64,6 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
+ {
+ 	struct quad8_iio *const priv = iio_priv(indio_dev);
+ 	const int base_offset = priv->base + 2 * chan->channel;
+-	unsigned int flags;
+-	unsigned int borrow;
+-	unsigned int carry;
+ 	int i;
+ 
+ 	switch (mask) {
+@@ -76,12 +73,7 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
+ 			return IIO_VAL_INT;
+ 		}
+ 
+-		flags = inb(base_offset + 1);
+-		borrow = flags & BIT(0);
+-		carry = !!(flags & BIT(1));
+-
+-		/* Borrow XOR Carry effectively doubles count range */
+-		*val = (borrow ^ carry) << 24;
++		*val = 0;
+ 
+ 		/* Reset Byte Pointer; transfer Counter to Output Latch */
+ 		outb(0x11, base_offset + 1);
 
+base-commit: f03c8bbaf6d9cbebee390e8353c5df75293aff7c
 -- 
-Ville Syrjälä
-Intel
+2.39.2
+
