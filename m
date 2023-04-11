@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D43906DD8C5
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE496DD8CF
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230030AbjDKLED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 07:04:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
+        id S229920AbjDKLFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 07:05:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230014AbjDKLD6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:03:58 -0400
+        with ESMTP id S230040AbjDKLFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:05:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8A246A0
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:03:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E3AF468F
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:04:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1648F6241A
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9ACC433D2;
-        Tue, 11 Apr 2023 11:03:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBC8D62408
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:03:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 085ACC433EF;
+        Tue, 11 Apr 2023 11:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681210984;
-        bh=6LYPWlCbPf0ji/SbWCuGhGQxv+Uo5gvxuxBfM+KPn+Q=;
+        s=korg; t=1681210996;
+        bh=Fv3MjpCXHy3Z6txQf0zKIq2Ec3puSidp7LbvOnRXcQ8=;
         h=Subject:To:Cc:From:Date:From;
-        b=MENiiXKcb8H/Q1uffhOXdqOUYkjq4ub7mV6H6Z1y3WjPRxn0YYn3yh0S+A36WT9fL
-         Y0PEfqCA4DNfQYUSVYf8ZqLXUfJiKvqrqzWiDhZnerPQPvZRKz6J3qVWOfOP/4rQDh
-         bbUBJ/IXvA5yzuy5bdDkvUvek/o/cCad6hV54JcY=
-Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix Synapse action reported for Index" failed to apply to 5.15-stable tree
+        b=W3FxjzIx7cwxbCmBab//LSCv5gstJJ6KgUFKwMDUI3iR1OHHn5kSHPNv64mwXbTYG
+         VV9e8D9/7NmjCLJ/Kcwd1Sh36pYRiDmxQkt8KzsXLE9JSEexvdPSgSlXPREFLiD0F1
+         lNTQmz+F9R8KNSF3HUYXoZ6FZfjUioKkJDcp+7R4=
+Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix Synapse action reported for Index" failed to apply to 5.4-stable tree
 To:     william.gray@linaro.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 13:03:02 +0200
-Message-ID: <2023041101-politely-properly-fe73@gregkh>
+Date:   Tue, 11 Apr 2023 13:03:03 +0200
+Message-ID: <2023041103-squeegee-calcium-abaa@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 00f4bc5184c19cb33f468f1ea409d70d19f8f502
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041101-politely-properly-fe73@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041103-squeegee-calcium-abaa@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -67,6 +67,22 @@ Possible dependencies:
 aaec1a0f76ec ("counter: Internalize sysfs interface code")
 ea434ff82649 ("counter: stm32-timer-cnt: Provide defines for slave mode selection")
 05593a3fd103 ("counter: stm32-lptimer-cnt: Provide defines for clock polarities")
+394a0150a064 ("counter: Rename counter_count_function to counter_function")
+493b938a14ed ("counter: Rename counter_signal_value to counter_signal_level")
+b11eed1554e8 ("counter: Return error code on invalid modes")
+728246e8f726 ("counter: 104-quad-8: Return error when invalid mode during ceiling_write")
+d0ce3d5cf77d ("counter: stm32-timer-cnt: Add const qualifier for actions_list array")
+f83e6e59366b ("counter: stm32-lptimer-cnt: Add const qualifier for actions_list array")
+0056a405c7ad ("counter: microchip-tcb-capture: Add const qualifier for actions_list array")
+9b2574f61c49 ("counter: ftm-quaddec: Add const qualifier for actions_list array")
+6a9eb0e31044 ("counter: 104-quad-8: Add const qualifier for actions_list array")
+45af9ae84c60 ("counter: stm32-timer-cnt: Add const qualifier for functions_list array")
+8a00fed665ad ("counter: stm32-lptimer-cnt: Add const qualifier for functions_list array")
+7e0dcfcefeca ("counter: microchip-tcb-capture: Add const qualifier for functions_list array")
+891b58b35fd6 ("counter: interrupt-cnt: Add const qualifier for functions_list array")
+fca2534fddfa ("counter: 104-quad-8: Add const qualifier for functions_list array")
+b711f687a1c1 ("counter: Add support for Intel Quadrature Encoder Peripheral")
+9c15db92a8e5 ("Merge tag 'iio-for-5.13a' of https://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio into staging-next")
 
 thanks,
 
