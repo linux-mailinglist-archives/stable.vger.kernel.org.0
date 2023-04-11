@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 355156DDBFB
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 376176DDBFC
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229676AbjDKNYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:24:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34568 "EHLO
+        id S229450AbjDKNYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:24:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjDKNYJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:24:09 -0400
+        with ESMTP id S229667AbjDKNYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:24:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA7AB49DC
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:24:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9DE5594
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 438F462641
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 540C7C433D2;
-        Tue, 11 Apr 2023 13:24:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF16061DEE
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05DCC433EF;
+        Tue, 11 Apr 2023 13:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681219447;
-        bh=dvsDfvWALW2YLUl8lV9H9xJZst4br6aQch6+aUMx1BQ=;
+        s=korg; t=1681219450;
+        bh=COe5mP7G6tZvwANo61d4e3cJvBEJLwzV+ZF13659yes=;
         h=Subject:To:Cc:From:Date:From;
-        b=SlFvOhn6o9CQzPUIkYAzDeu2kD9FTbwxG6zQU3HG3sQIS5Czj57MBySIk2CN2wuDl
-         H7FHwwhpM9Rb1YXlJfA2EyHyAxxepc9AaE4/oWnrTqFMRxTn0H9LyEKSzDxq6gVota
-         U7SvsEvbGkD23FjI/DCmuZVCNpqXhSM+xmP4jenk=
-Subject: FAILED: patch "[PATCH] drm/i915: fix race condition UAF in" failed to apply to 5.10-stable tree
+        b=QO5fGmzT09exjLqlDUqJ129U1rx9tBeRRJU6jf9qu3Y2yrcrHZl3DY/NLhwo6dVXV
+         PTI2Nzx0kSwvuFGRsRML8Wv/xg7Tre2PhiBcaC7Gsq1669Efz/P+ACLFVtmoQoQ7yW
+         CR20rHgJihBv0EXjaHhKoEsS8dC/6NkXGAwqJJd0=
+Subject: FAILED: patch "[PATCH] drm/i915: fix race condition UAF in" failed to apply to 5.4-stable tree
 To:     lm0963hack@gmail.com, andi.shyti@linux.intel.com,
         jani.nikula@intel.com, stable@vger.kernel.org,
         tvrtko.ursulin@intel.com, umesh.nerlige.ramappa@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:24:02 +0200
-Message-ID: <2023041102-expenses-unwoven-6355@gregkh>
+Date:   Tue, 11 Apr 2023 15:24:04 +0200
+Message-ID: <2023041103-fading-coexist-fbc0@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,19 +49,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x dc30c011469165d57af9adac5baff7d767d20e5c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041102-expenses-unwoven-6355@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041103-fading-coexist-fbc0@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
