@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F3596DDBFD
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA746DDBFE
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbjDKNYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:24:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
+        id S229822AbjDKNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:24:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbjDKNYO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:24:14 -0400
+        with ESMTP id S229667AbjDKNYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:24:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF180559A
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:24:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E113449D8
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:24:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A9BF62641
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EDB2C433EF;
-        Tue, 11 Apr 2023 13:24:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F21461DEE
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A5CC433EF;
+        Tue, 11 Apr 2023 13:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681219452;
-        bh=4DPbRJsxBTD8qXOk6dUkUrKLJVcoR/tE5vZkvMe/fPs=;
+        s=korg; t=1681219456;
+        bh=Vsrx+R/M3AmdzKNWyMot0W9sLksj1wjCBRfvDVhtfo8=;
         h=Subject:To:Cc:From:Date:From;
-        b=VpRfCFvWSqMvmMqR7xexYGHh3oBGdGopCLufD3KQFU/DHxCXWPDQmihRq8nFngQ8a
-         ziz9DTW76fksr4r/B8/Bp9fEiwWhEiwsMLU43O6X3GiHRrbHd3Pdy87aytchO9Yy18
-         QieggPeFR0iOEING8KhAqL6L8b7vp3HdU+soVOws=
-Subject: FAILED: patch "[PATCH] drm/i915: fix race condition UAF in" failed to apply to 4.19-stable tree
+        b=GG7uqnm7VMkgszR2538i5JYONYZ4284/h0x+6S0LHNkLKcjCe/LIP1i+5mE9loTpU
+         Un4YXUQuqpb2BtDGTgVnIUspn7lBwhlw+ccwj8DnnzRSVHlHw5qgjlgy8fPnefHZaF
+         b4v8vIgFA1clAEIBP50+5HbGdFJ8qWXPNMNf4wSw=
+Subject: FAILED: patch "[PATCH] drm/i915: fix race condition UAF in" failed to apply to 4.14-stable tree
 To:     lm0963hack@gmail.com, andi.shyti@linux.intel.com,
         jani.nikula@intel.com, stable@vger.kernel.org,
         tvrtko.ursulin@intel.com, umesh.nerlige.ramappa@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:24:05 +0200
-Message-ID: <2023041104-implant-passport-b83d@gregkh>
+Date:   Tue, 11 Apr 2023 15:24:06 +0200
+Message-ID: <2023041105-shakily-screen-fbb6@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,19 +49,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x dc30c011469165d57af9adac5baff7d767d20e5c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041104-implant-passport-b83d@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041105-shakily-screen-fbb6@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
