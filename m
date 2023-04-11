@@ -2,142 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 255526DE001
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C4F6DE012
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229477AbjDKPwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 11:52:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
+        id S230253AbjDKPzP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 Apr 2023 11:55:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbjDKPwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:52:37 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C43C24EC3
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 08:52:35 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id i20so12334465ybg.10
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 08:52:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1681228355; x=1683820355;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YVnzCMuG8yOr6jsr0GEp0cpvdQzZRFZZBcpuklzVomM=;
-        b=MP3/MBQD+/KeXIGk4Kq2i951jxW+nIqkXxpC4/5Ve3x6RHWDhUhRiLM5bhHVzAz46J
-         LFwbUIMhG2IhEDlG6Bp9RQgJvMtkye5PzZldbGZQr83UyNzvyAGjI9GGIpKwkLGnk8Mf
-         CdkJ7zJAWpyapByQSRGQuo/SKPvlSNySk6iZx5Lj9bZdfVe0xLA5YGLtJYlgS5NnJm5v
-         Ms4LeTJoxunl2EvuENwyZtsEqQRqF4PkpNd9nbQLBsV/jE/muQ5JsmgmvjIqBPT+iuHP
-         2e4YxRUUIUkWKgSUKkgkPCiOn1ZVvVdNlEVI0AVljrjWP8g+8TTBwpiaq78o4KOsRrEV
-         cNIA==
+        with ESMTP id S229953AbjDKPzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:55:14 -0400
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62FF9E58;
+        Tue, 11 Apr 2023 08:55:13 -0700 (PDT)
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-94a34a0baf9so202023366b.1;
+        Tue, 11 Apr 2023 08:55:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681228355; x=1683820355;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20210112; t=1681228512;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YVnzCMuG8yOr6jsr0GEp0cpvdQzZRFZZBcpuklzVomM=;
-        b=OEtF//SVmZGdvEQ40dtXIu0v50qt6kdpWVh0d7Mhbk26O8fvAYkXXbUNC1LohM9YhA
-         dB/Nh0ksBq/gJNCklA3AX5WG/j9XyzfIlFuh/F2l6korSN9XNm3muNf/3BTUFP+8rJOi
-         dSTADkliBlIxBnVOxNzYZ3DN5BaEF6nm8K+tkj6qKSL1be6KQ33JTY4BnvCY7BhKzBHT
-         lePipG/tmMYBHymj9tzHng06nUUHAt4MEzDH/T0eEpqKbKkikBsnxGiGl32sIU+Tw8Ty
-         MlnvN4O0j67vUeArFnaSFXEz9SITo9m07E6rvP7tXMx8SzzVMxSuZqSMlwblNu3KU7Rg
-         0gNQ==
-X-Gm-Message-State: AAQBX9cAZmJO7/0+oP13KIRsfXEwGv7WX7v7eHafgYWwy6QQ05RRnbBS
-        7vLVyEcYE8VR+7Xl2wUqen/Hzg==
-X-Google-Smtp-Source: AKy350a2r0p6xSocXox5/NbH6U0w0MyqWWZVnRpVrTTXIQZjimC9nR1mrVSwDRzh9GaQCiZHx2TSIQ==
-X-Received: by 2002:a25:ab0a:0:b0:b72:245f:4411 with SMTP id u10-20020a25ab0a000000b00b72245f4411mr2396336ybi.46.1681228355448;
-        Tue, 11 Apr 2023 08:52:35 -0700 (PDT)
-Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
-        by smtp.gmail.com with ESMTPSA id i13-20020a056902068d00b00b7767ca749fsm3683390ybt.60.2023.04.11.08.52.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Apr 2023 08:52:35 -0700 (PDT)
-From:   William Breathitt Gray <william.gray@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jonathan Cameron <jic23@kernel.org>,
-        William Breathitt Gray <william.gray@linaro.org>,
-        stable@vger.kernel.org
-Subject: [RESEND PATCH 5.15 v3 5/5] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
-Date:   Tue, 11 Apr 2023 11:52:20 -0400
-Message-Id: <20230411155220.9754-5-william.gray@linaro.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230411155220.9754-1-william.gray@linaro.org>
-References: <20230411155220.9754-1-william.gray@linaro.org>
+        bh=bn1y14BjDhP//nrN2QdcKOf1bYDsUrxiG7mmqhmvXP0=;
+        b=XQPWg3R6XjwCEpTTLKpLxgiyI1fIXNaBuu3/m/KN3rRdUsvN+vEl1Kb8iTBxGSd1z0
+         OmyV/AU8EgaMFYTizq3fxPRieIizcFW5Re1Wztw15my8SBDcQiPh/cfR6Xt7OAsMQ6g+
+         GyBUirl2y6rt34kmJI55nly+zWWhi0goTs9iscvWQfrJeQ4g5z9zBXH4Dy+Ahp9qMvbM
+         VLy+M7/PC9XhCpQNj5Sc4QyEJ9Sa4sIjUn8l6d5FKYpr9UYwlojlGpwCj9UggvCMVxDo
+         N9vnxyZahn56d4eJbWVi3gcNqZ8vdhff7EwqVl6KAd7ZpHw80T9oUdz+GKm43BqinGD9
+         V0QA==
+X-Gm-Message-State: AAQBX9cZ50E2jTkYLgcL6K2i9499I71AOOLyJIpBXkuZG1jJFB7rbY/T
+        3eadqD0cMHd6nOJys6ka3nvM9s/ZkFrSDOWDN+UdhpSwBG4=
+X-Google-Smtp-Source: AKy350a1iBepfUVKkwKC63B/e2nAl1t2cKQisZ8M8ijwWnXhvgEiEzp0dKjhhj4DeCQBJNMvVIoF9tAprPRT8NzpLo8=
+X-Received: by 2002:a50:d0d9:0:b0:4fb:f19:87f with SMTP id g25-20020a50d0d9000000b004fb0f19087fmr6811181edf.3.1681228511745;
+ Tue, 11 Apr 2023 08:55:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20230410095045.14872-1-wyes.karny@amd.com> <20230410095250.14908-1-wyes.karny@amd.com>
+In-Reply-To: <20230410095250.14908-1-wyes.karny@amd.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 11 Apr 2023 17:55:00 +0200
+Message-ID: <CAJZ5v0jH4uatAR7HiGY_MYASOcdwxvwkUZaMCHcznd-0idLCUA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] cpufreq/schedutil: Add fast_switch callback check
+To:     Wyes Karny <wyes.karny@amd.com>
+Cc:     ray.huang@amd.com, rafael@kernel.org, viresh.kumar@linaro.org,
+        mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, joel@joelfernandes.org,
+        gautham.shenoy@amd.com, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=0.5 required=5.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+        FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 4aa3b75c74603c3374877d5fd18ad9cc3a9a62ed upstream.
+On Mon, Apr 10, 2023 at 11:53 AM Wyes Karny <wyes.karny@amd.com> wrote:
+>
+> The set value of `fast_switch_enabled` flag doesn't guarantee that
+> fast_switch callback is set. For some drivers such as amd_pstate, the
+> adjust_perf callback is used but it still sets `fast_switch_possible`
+> flag. This is not wrong because this flag doesn't imply fast_switch
+> callback is set, it implies whether the driver can guarantee that
+> frequency can be changed on any CPU sharing the policy and that the
+> change will affect all of the policy CPUs without the need to send any
+> IPIs or issue callbacks from the notifier chain.  Therefore add an extra
+> NULL check before calling fast_switch in sugov_update_single_freq
+> function.
+>
+> Ideally `sugov_update_single_freq` function should not be called with
+> amd_pstate. But in a corner case scenario, when aperf/mperf overflow
+> occurs, kernel disables frequency invariance calculation which causes
+> schedutil to fallback to sugov_update_single_freq which currently relies
+> on the fast_switch callback.
 
-The Counter (CNTR) register is 24 bits wide, but we can have an
-effective 25-bit count value by setting bit 24 to the XOR of the Borrow
-flag and Carry flag. The flags can be read from the FLAG register, but a
-race condition exists: the Borrow flag and Carry flag are instantaneous
-and could change by the time the count value is read from the CNTR
-register.
+Yes, it does.  Which is why that callback must be provided if the
+driver sets fast_switch_enabled.
 
-Since the race condition could result in an incorrect 25-bit count
-value, remove support for 25-bit count values from this driver.
+Overall, adjust_perf is optional, but fast_switch_enabled can only be
+set if fast_switch is actually present.
 
-Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
----
- drivers/counter/104-quad-8.c | 18 +++---------------
- 1 file changed, 3 insertions(+), 15 deletions(-)
+Please fix the driver.
 
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 0caa60537b..643aae0c9f 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -61,10 +61,6 @@ struct quad8 {
- #define QUAD8_REG_CHAN_OP 0x11
- #define QUAD8_REG_INDEX_INPUT_LEVELS 0x16
- #define QUAD8_DIFF_ENCODER_CABLE_STATUS 0x17
--/* Borrow Toggle flip-flop */
--#define QUAD8_FLAG_BT BIT(0)
--/* Carry Toggle flip-flop */
--#define QUAD8_FLAG_CT BIT(1)
- /* Error flag */
- #define QUAD8_FLAG_E BIT(4)
- /* Up/Down flag */
-@@ -121,17 +117,9 @@ static int quad8_count_read(struct counter_device *counter,
- {
- 	struct quad8 *const priv = counter->priv;
- 	const int base_offset = priv->base + 2 * count->id;
--	unsigned int flags;
--	unsigned int borrow;
--	unsigned int carry;
- 	int i;
- 
--	flags = inb(base_offset + 1);
--	borrow = flags & QUAD8_FLAG_BT;
--	carry = !!(flags & QUAD8_FLAG_CT);
--
--	/* Borrow XOR Carry effectively doubles count range */
--	*val = (unsigned long)(borrow ^ carry) << 24;
-+	*val = 0;
- 
- 	mutex_lock(&priv->lock);
- 
-@@ -699,8 +687,8 @@ static ssize_t quad8_count_ceiling_read(struct counter_device *counter,
- 
- 	mutex_unlock(&priv->lock);
- 
--	/* By default 0x1FFFFFF (25 bits unsigned) is maximum count */
--	return sprintf(buf, "33554431\n");
-+	/* By default 0xFFFFFF (24 bits unsigned) is maximum count */
-+	return sprintf(buf, "16777215\n");
- }
- 
- static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
-
-base-commit: d86dfc4d95cd218246b10ca7adf22c8626547599
--- 
-2.39.2
-
+>
+> Normal flow:
+>   sugov_update_single_perf
+>     cpufreq_driver_adjust_perf
+>       cpufreq_driver->adjust_perf
+>
+> Error case flow:
+>   sugov_update_single_perf
+>     sugov_update_single_freq  <-- This is chosen because the freq invariant is disabled due to aperf/mperf overflow
+>       cpufreq_driver_fast_switch
+>          cpufreq_driver->fast_switch <-- Here NULL pointer dereference is happening, because fast_switch is not set
+>
+> Fix this NULL pointer dereference issue by doing a NULL check.
+>
+> Fixes: a61dec744745 ("cpufreq: schedutil: Avoid missing updates for one-CPU policies")
+> Signed-off-by: Wyes Karny <wyes.karny@amd.com>
+>
+> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/cpufreq/cpufreq.c        | 11 +++++++++++
+>  include/linux/cpufreq.h          |  1 +
+>  kernel/sched/cpufreq_schedutil.c |  2 +-
+>  3 files changed, 13 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+> index 6d8fd3b8dcb5..364d31b55380 100644
+> --- a/drivers/cpufreq/cpufreq.c
+> +++ b/drivers/cpufreq/cpufreq.c
+> @@ -2138,6 +2138,17 @@ unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
+>  }
+>  EXPORT_SYMBOL_GPL(cpufreq_driver_fast_switch);
+>
+> +/**
+> + * cpufreq_driver_has_fast_switch - Check "fast switch" callback.
+> + *
+> + * Return 'true' if the ->fast_switch callback is present for the
+> + * current driver or 'false' otherwise.
+> + */
+> +bool cpufreq_driver_has_fast_switch(void)
+> +{
+> +       return !!cpufreq_driver->fast_switch;
+> +}
+> +
+>  /**
+>   * cpufreq_driver_adjust_perf - Adjust CPU performance level in one go.
+>   * @cpu: Target CPU.
+> diff --git a/include/linux/cpufreq.h b/include/linux/cpufreq.h
+> index 65623233ab2f..8a9286fc718b 100644
+> --- a/include/linux/cpufreq.h
+> +++ b/include/linux/cpufreq.h
+> @@ -604,6 +604,7 @@ struct cpufreq_governor {
+>  /* Pass a target to the cpufreq driver */
+>  unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
+>                                         unsigned int target_freq);
+> +bool cpufreq_driver_has_fast_switch(void);
+>  void cpufreq_driver_adjust_perf(unsigned int cpu,
+>                                 unsigned long min_perf,
+>                                 unsigned long target_perf,
+> diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+> index e3211455b203..a1c449525ac2 100644
+> --- a/kernel/sched/cpufreq_schedutil.c
+> +++ b/kernel/sched/cpufreq_schedutil.c
+> @@ -364,7 +364,7 @@ static void sugov_update_single_freq(struct update_util_data *hook, u64 time,
+>          * concurrently on two different CPUs for the same target and it is not
+>          * necessary to acquire the lock in the fast switch case.
+>          */
+> -       if (sg_policy->policy->fast_switch_enabled) {
+> +       if (sg_policy->policy->fast_switch_enabled && cpufreq_driver_has_fast_switch()) {
+>                 cpufreq_driver_fast_switch(sg_policy->policy, next_f);
+>         } else {
+>                 raw_spin_lock(&sg_policy->update_lock);
+> --
+> 2.34.1
+>
