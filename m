@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 876866DDC8E
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B4C6DDC8F
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbjDKNqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:46:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33412 "EHLO
+        id S229999AbjDKNqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:46:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbjDKNqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:46:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 616C9C4
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:46:50 -0700 (PDT)
+        with ESMTP id S230302AbjDKNqz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:46:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 701E9E48
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5C1B626A4
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:46:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD98CC4339B;
-        Tue, 11 Apr 2023 13:46:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED39D626A7
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:46:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F13C433A0;
+        Tue, 11 Apr 2023 13:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681220809;
-        bh=RFnpiSIFiKKI/NUzgsr8IO3/B99/gwumO2pARTepsO8=;
+        s=korg; t=1681220812;
+        bh=0CnalbmoM6+cTqEhSL0hb/+hpRF/hUNp784XehGL7fs=;
         h=Subject:To:Cc:From:Date:From;
-        b=ICYXcsStpiwPMBz5t8MjddX6RcvD0TnRQpk5o+RZfXe4RrlrhhWPi2/qfzGWZSDBH
-         58Wy8YEUXPqCYlsM6zDlHg+Ca9bYBZik6HvL+2xz39dgfeFx2awhTt+2QjodFWpItl
-         dvvMbH/gNo9TVlhHyKd/rdYsr0hMUrhlphff7MN4=
-Subject: FAILED: patch "[PATCH] maple_tree: be more cautious about dead nodes" failed to apply to 6.2-stable tree
+        b=SQgORYipK3wOl5YaalWe5Objx2atr6yWIWKIxgT5EVc/wS0OzcuYPLuSd8VRm99IS
+         /rOgKKIXCoXKlSOGBvjfc7SDhEVTZppX+3xjZ07VSQ0mPXb8jZCHlSqwyBxhz80996
+         W9XNWV2YK3qyGWB4iYYDfdlY/XN1XdZPuHs5xHSI=
+Subject: FAILED: patch "[PATCH] maple_tree: be more cautious about dead nodes" failed to apply to 6.1-stable tree
 To:     Liam.Howlett@oracle.com, akpm@linux-foundation.org,
         arjunroy@google.com, axelrasmussen@google.com,
         bigeasy@linutronix.de, chriscli@google.com, dave@stgolabs.net,
@@ -46,13 +46,13 @@ To:     Liam.Howlett@oracle.com, akpm@linux-foundation.org,
         willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:46:46 +0200
-Message-ID: <2023041146-spout-exterior-7270@gregkh>
+Date:   Tue, 11 Apr 2023 15:46:49 +0200
+Message-ID: <2023041149-mashed-decompose-eca7@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,19 +61,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
 git cherry-pick -x 39d0bd86c499ecd6abae42a9b7112056c5560691
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041146-spout-exterior-7270@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041149-mashed-decompose-eca7@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
