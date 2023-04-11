@@ -2,45 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 967136DDC8B
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 876866DDC8E
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbjDKNqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:46:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
+        id S230299AbjDKNqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:46:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbjDKNqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:46:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50701421E
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:46:10 -0700 (PDT)
+        with ESMTP id S229999AbjDKNqw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:46:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 616C9C4
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:46:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7AB1626B0
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:46:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D80E5C433D2;
-        Tue, 11 Apr 2023 13:46:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5C1B626A4
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:46:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD98CC4339B;
+        Tue, 11 Apr 2023 13:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681220769;
-        bh=fWgR2AZE7LhbEMIFzTq17gSxEyTJAWjgS7eIaeNES9Q=;
+        s=korg; t=1681220809;
+        bh=RFnpiSIFiKKI/NUzgsr8IO3/B99/gwumO2pARTepsO8=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z0vFHiDxsjeto+L4Y48gLVOLSdyo2JC/2qMrtOnZlMJGW9t+eowKzEBRwhXCaDkQs
-         2n6B5GHiYJ13YoNxeMQkqeRGkX+XRfZNutSBuAX6aqO9BNqTzgpxEYQpp1fSpQKq3k
-         2wjAUOAmbErJaEaC/05fHaBAoZIC4FVm48RXnyKY=
-Subject: FAILED: patch "[PATCH] mm: take a page reference when removing device exclusive" failed to apply to 5.15-stable tree
-To:     apopple@nvidia.com, akpm@linux-foundation.org, david@redhat.com,
-        hch@infradead.org, jhubbard@nvidia.com, rcampbell@nvidia.com,
-        stable@vger.kernel.org, willy@infradead.org
+        b=ICYXcsStpiwPMBz5t8MjddX6RcvD0TnRQpk5o+RZfXe4RrlrhhWPi2/qfzGWZSDBH
+         58Wy8YEUXPqCYlsM6zDlHg+Ca9bYBZik6HvL+2xz39dgfeFx2awhTt+2QjodFWpItl
+         dvvMbH/gNo9TVlhHyKd/rdYsr0hMUrhlphff7MN4=
+Subject: FAILED: patch "[PATCH] maple_tree: be more cautious about dead nodes" failed to apply to 6.2-stable tree
+To:     Liam.Howlett@oracle.com, akpm@linux-foundation.org,
+        arjunroy@google.com, axelrasmussen@google.com,
+        bigeasy@linutronix.de, chriscli@google.com, dave@stgolabs.net,
+        david@redhat.com, dhowells@redhat.com, edumazet@google.com,
+        gthelen@google.com, hannes@cmpxchg.org, hughd@google.com,
+        jannh@google.com, joelaf@google.com, kent.overstreet@linux.dev,
+        ldufour@linux.ibm.com, lstoakes@gmail.com, luto@kernel.org,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        michalechner92@googlemail.com, minchan@google.com,
+        mingo@redhat.com, paulmck@kernel.org, peterx@redhat.com,
+        peterz@infradead.org, posk@google.com, punit.agrawal@bytedance.com,
+        rientjes@google.com, rppt@kernel.org, shakeelb@google.com,
+        soheil@google.com, songliubraving@fb.com, stable@vger.kernel.org,
+        surenb@google.com, vbabka@suse.cz, will@kernel.org,
+        willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:45:57 +0200
-Message-ID: <2023041157-hyperlink-prognosis-e6db@gregkh>
+Date:   Tue, 11 Apr 2023 15:46:46 +0200
+Message-ID: <2023041146-spout-exterior-7270@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,42 +61,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
-git cherry-pick -x 7c7b962938ddda6a9cd095de557ee5250706ea88
+git cherry-pick -x 39d0bd86c499ecd6abae42a9b7112056c5560691
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041157-hyperlink-prognosis-e6db@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041146-spout-exterior-7270@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
-7c7b962938dd ("mm: take a page reference when removing device exclusive entries")
-7d4a8be0c4b2 ("mm/mmu_notifier: remove unused mmu_notifier_range_update_to_read_only export")
-369258ce41c6 ("hugetlb: remove duplicate mmu notifications")
-f268f6cf875f ("mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths")
-2ba99c5e0881 ("mm/khugepaged: fix GUP-fast interaction by sending IPI")
-8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
-21b85b09527c ("madvise: use zap_page_range_single for madvise dontneed")
-131a79b474e9 ("hugetlb: fix vma lock handling during split vma and range unmapping")
-34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
-58ac9a8993a1 ("mm/khugepaged: attempt to map file/shmem-backed pte-mapped THPs by pmds")
-780a4b6fb865 ("mm/khugepaged: check compound_order() in collapse_pte_mapped_thp()")
-40549ba8f8e0 ("hugetlb: use new vma_lock for pmd sharing synchronization")
-378397ccb8e5 ("hugetlb: create hugetlb_unmap_file_folio to unmap single file folio")
-8d9bfb260814 ("hugetlb: add vma based lock for pmd sharing")
-12710fd69634 ("hugetlb: rename vma_shareable() and refactor code")
-c86272287bc6 ("hugetlb: create remove_inode_single_folio to remove single file folio")
-7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
-3a47c54f09c4 ("hugetlbfs: revert use i_mmap_rwsem for more pmd sharing synchronization")
-188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
-19672a9e4a75 ("mm: convert lock_page_or_retry() to folio_lock_or_retry()")
+39d0bd86c499 ("maple_tree: be more cautious about dead nodes")
+65be6f058b0e ("maple_tree: fix potential rcu issue")
 
 thanks,
 
@@ -92,83 +86,259 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7c7b962938ddda6a9cd095de557ee5250706ea88 Mon Sep 17 00:00:00 2001
-From: Alistair Popple <apopple@nvidia.com>
-Date: Thu, 30 Mar 2023 12:25:19 +1100
-Subject: [PATCH] mm: take a page reference when removing device exclusive
- entries
+From 39d0bd86c499ecd6abae42a9b7112056c5560691 Mon Sep 17 00:00:00 2001
+From: Liam Howlett <Liam.Howlett@oracle.com>
+Date: Mon, 27 Feb 2023 09:36:00 -0800
+Subject: [PATCH] maple_tree: be more cautious about dead nodes
 
-Device exclusive page table entries are used to prevent CPU access to a
-page whilst it is being accessed from a device.  Typically this is used to
-implement atomic operations when the underlying bus does not support
-atomic access.  When a CPU thread encounters a device exclusive entry it
-locks the page and restores the original entry after calling mmu notifiers
-to signal drivers that exclusive access is no longer available.
+Patch series "Fix VMA tree modification under mmap read lock".
 
-The device exclusive entry holds a reference to the page making it safe to
-access the struct page whilst the entry is present.  However the fault
-handling code does not hold the PTL when taking the page lock.  This means
-if there are multiple threads faulting concurrently on the device
-exclusive entry one will remove the entry whilst others will wait on the
-page lock without holding a reference.
+Syzbot reported a BUG_ON in mm/mmap.c which was found to be caused by an
+inconsistency between threads walking the VMA maple tree.  The
+inconsistency is caused by the page fault handler modifying the maple tree
+while holding the mmap_lock for read.
 
-This can lead to threads locking or waiting on a folio with a zero
-refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
-they may still be freed by a migration.  This leads to warnings such as
-PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
-drops to zero.
+This only happens for stack VMAs.  We had thought this was safe as it only
+modifies a single pivot in the tree.  Unfortunately, syzbot constructed a
+test case where the stack had no guard page and grew the stack to abut the
+next VMA.  This causes us to delete the NULL entry between the two VMAs
+and rewrite the node.
 
-Fix this by trying to take a reference on the folio before locking it.
-The code already checks the PTE under the PTL and aborts if the entry is
-no longer there.  It is also possible the folio has been unmapped, freed
-and re-allocated allowing a reference to be taken on an unrelated folio.
-This case is also detected by the PTE check and the folio is unlocked
-without further changes.
+We considered several options for fixing this, including dropping the
+mmap_lock, then reacquiring it for write; and relaxing the definition of
+the tree to permit a zero-length NULL entry in the node.  We decided the
+best option was to backport some of the RCU patches from -next, which
+solve the problem by allocating a new node and RCU-freeing the old node.
+Since the problem exists in 6.1, we preferred a solution which is similar
+to the one we intended to merge next merge window.
 
-Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
-Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>
+These patches have been in -next since next-20230301, and have received
+intensive testing in Android as part of the RCU page fault patchset.  They
+were also sent as part of the "Per-VMA locks" v4 patch series.  Patches 1
+to 7 are bug fixes for RCU mode of the tree and patch 8 enables RCU mode
+for the tree.
+
+Performance v6.3-rc3 vs patched v6.3-rc3: Running these changes through
+mmtests showed there was a 15-20% performance decrease in
+will-it-scale/brk1-processes.  This tests creating and inserting a single
+VMA repeatedly through the brk interface and isn't representative of any
+real world applications.
+
+
+This patch (of 8):
+
+ma_pivots() and ma_data_end() may be called with a dead node.  Ensure to
+that the node isn't dead before using the returned values.
+
+This is necessary for RCU mode of the maple tree.
+
+Link: https://lkml.kernel.org/r/20230327185532.2354250-1-Liam.Howlett@oracle.com
+Link: https://lkml.kernel.org/r/20230227173632.3292573-1-surenb@google.com
+Link: https://lkml.kernel.org/r/20230227173632.3292573-2-surenb@google.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam Howlett <Liam.Howlett@oracle.com>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arjun Roy <arjunroy@google.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Chris Li <chriscli@google.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: freak07 <michalechner92@googlemail.com>
+Cc: Greg Thelen <gthelen@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Kent Overstreet <kent.overstreet@linux.dev>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Lorenzo Stoakes <lstoakes@gmail.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Minchan Kim <minchan@google.com>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Peter Oskolkov <posk@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Punit Agrawal <punit.agrawal@bytedance.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Will Deacon <will@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/mm/memory.c b/mm/memory.c
-index f456f3b5049c..01a23ad48a04 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3563,8 +3563,21 @@ static vm_fault_t remove_device_exclusive_entry(struct vm_fault *vmf)
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct mmu_notifier_range range;
+diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+index 9e2735cbc2b4..095b9cb1f4f1 100644
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -544,6 +544,7 @@ static inline bool ma_dead_node(const struct maple_node *node)
  
--	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags))
-+	/*
-+	 * We need a reference to lock the folio because we don't hold
-+	 * the PTL so a racing thread can remove the device-exclusive
-+	 * entry and unmap it. If the folio is free the entry must
-+	 * have been removed already. If it happens to have already
-+	 * been re-allocated after being freed all we do is lock and
-+	 * unlock it.
-+	 */
-+	if (!folio_try_get(folio))
+ 	return (parent == node);
+ }
++
+ /*
+  * mte_dead_node() - check if the @enode is dead.
+  * @enode: The encoded maple node
+@@ -625,6 +626,8 @@ static inline unsigned int mas_alloc_req(const struct ma_state *mas)
+  * @node - the maple node
+  * @type - the node type
+  *
++ * In the event of a dead node, this array may be %NULL
++ *
+  * Return: A pointer to the maple node pivots
+  */
+ static inline unsigned long *ma_pivots(struct maple_node *node,
+@@ -1096,8 +1099,11 @@ static int mas_ascend(struct ma_state *mas)
+ 		a_type = mas_parent_enum(mas, p_enode);
+ 		a_node = mte_parent(p_enode);
+ 		a_slot = mte_parent_slot(p_enode);
+-		pivots = ma_pivots(a_node, a_type);
+ 		a_enode = mt_mk_node(a_node, a_type);
++		pivots = ma_pivots(a_node, a_type);
++
++		if (unlikely(ma_dead_node(a_node)))
++			return 1;
+ 
+ 		if (!set_min && a_slot) {
+ 			set_min = true;
+@@ -1401,6 +1407,9 @@ static inline unsigned char ma_data_end(struct maple_node *node,
+ {
+ 	unsigned char offset;
+ 
++	if (!pivots)
 +		return 0;
 +
-+	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags)) {
-+		folio_put(folio);
- 		return VM_FAULT_RETRY;
+ 	if (type == maple_arange_64)
+ 		return ma_meta_end(node, type);
+ 
+@@ -1436,6 +1445,9 @@ static inline unsigned char mas_data_end(struct ma_state *mas)
+ 		return ma_meta_end(node, type);
+ 
+ 	pivots = ma_pivots(node, type);
++	if (unlikely(ma_dead_node(node)))
++		return 0;
++
+ 	offset = mt_pivots[type] - 1;
+ 	if (likely(!pivots[offset]))
+ 		return ma_meta_end(node, type);
+@@ -4505,6 +4517,9 @@ static inline int mas_prev_node(struct ma_state *mas, unsigned long min)
+ 	node = mas_mn(mas);
+ 	slots = ma_slots(node, mt);
+ 	pivots = ma_pivots(node, mt);
++	if (unlikely(ma_dead_node(node)))
++		return 1;
++
+ 	mas->max = pivots[offset];
+ 	if (offset)
+ 		mas->min = pivots[offset - 1] + 1;
+@@ -4526,6 +4541,9 @@ static inline int mas_prev_node(struct ma_state *mas, unsigned long min)
+ 		slots = ma_slots(node, mt);
+ 		pivots = ma_pivots(node, mt);
+ 		offset = ma_data_end(node, mt, pivots, mas->max);
++		if (unlikely(ma_dead_node(node)))
++			return 1;
++
+ 		if (offset)
+ 			mas->min = pivots[offset - 1] + 1;
+ 
+@@ -4574,6 +4592,7 @@ static inline int mas_next_node(struct ma_state *mas, struct maple_node *node,
+ 	struct maple_enode *enode;
+ 	int level = 0;
+ 	unsigned char offset;
++	unsigned char node_end;
+ 	enum maple_type mt;
+ 	void __rcu **slots;
+ 
+@@ -4597,7 +4616,11 @@ static inline int mas_next_node(struct ma_state *mas, struct maple_node *node,
+ 		node = mas_mn(mas);
+ 		mt = mte_node_type(mas->node);
+ 		pivots = ma_pivots(node, mt);
+-	} while (unlikely(offset == ma_data_end(node, mt, pivots, mas->max)));
++		node_end = ma_data_end(node, mt, pivots, mas->max);
++		if (unlikely(ma_dead_node(node)))
++			return 1;
++
++	} while (unlikely(offset == node_end));
+ 
+ 	slots = ma_slots(node, mt);
+ 	pivot = mas_safe_pivot(mas, pivots, ++offset, mt);
+@@ -4613,6 +4636,9 @@ static inline int mas_next_node(struct ma_state *mas, struct maple_node *node,
+ 		mt = mte_node_type(mas->node);
+ 		slots = ma_slots(node, mt);
+ 		pivots = ma_pivots(node, mt);
++		if (unlikely(ma_dead_node(node)))
++			return 1;
++
+ 		offset = 0;
+ 		pivot = pivots[0];
+ 	}
+@@ -4659,11 +4685,14 @@ static inline void *mas_next_nentry(struct ma_state *mas,
+ 		return NULL;
+ 	}
+ 
+-	pivots = ma_pivots(node, type);
+ 	slots = ma_slots(node, type);
+-	mas->index = mas_safe_min(mas, pivots, mas->offset);
++	pivots = ma_pivots(node, type);
+ 	count = ma_data_end(node, type, pivots, mas->max);
+-	if (ma_dead_node(node))
++	if (unlikely(ma_dead_node(node)))
++		return NULL;
++
++	mas->index = mas_safe_min(mas, pivots, mas->offset);
++	if (unlikely(ma_dead_node(node)))
+ 		return NULL;
+ 
+ 	if (mas->index > max)
+@@ -4817,6 +4846,11 @@ static inline void *mas_prev_nentry(struct ma_state *mas, unsigned long limit,
+ 
+ 	slots = ma_slots(mn, mt);
+ 	pivots = ma_pivots(mn, mt);
++	if (unlikely(ma_dead_node(mn))) {
++		mas_rewalk(mas, index);
++		goto retry;
 +	}
- 	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0,
- 				vma->vm_mm, vmf->address & PAGE_MASK,
- 				(vmf->address & PAGE_MASK) + PAGE_SIZE, NULL);
-@@ -3577,6 +3590,7 @@ static vm_fault_t remove_device_exclusive_entry(struct vm_fault *vmf)
++
+ 	if (offset == mt_pivots[mt])
+ 		pivot = mas->max;
+ 	else
+@@ -6617,11 +6651,11 @@ static inline void *mas_first_entry(struct ma_state *mas, struct maple_node *mn,
+ 	while (likely(!ma_is_leaf(mt))) {
+ 		MT_BUG_ON(mas->tree, mte_dead_node(mas->node));
+ 		slots = ma_slots(mn, mt);
+-		pivots = ma_pivots(mn, mt);
+-		max = pivots[0];
+ 		entry = mas_slot(mas, slots, 0);
++		pivots = ma_pivots(mn, mt);
+ 		if (unlikely(ma_dead_node(mn)))
+ 			return NULL;
++		max = pivots[0];
+ 		mas->node = entry;
+ 		mn = mas_mn(mas);
+ 		mt = mte_node_type(mas->node);
+@@ -6641,13 +6675,13 @@ static inline void *mas_first_entry(struct ma_state *mas, struct maple_node *mn,
+ 	if (likely(entry))
+ 		return entry;
  
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
- 	folio_unlock(folio);
-+	folio_put(folio);
+-	pivots = ma_pivots(mn, mt);
+-	mas->index = pivots[0] + 1;
+ 	mas->offset = 1;
+ 	entry = mas_slot(mas, slots, 1);
++	pivots = ma_pivots(mn, mt);
+ 	if (unlikely(ma_dead_node(mn)))
+ 		return NULL;
  
- 	mmu_notifier_invalidate_range_end(&range);
- 	return 0;
++	mas->index = pivots[0] + 1;
+ 	if (mas->index > limit)
+ 		goto none;
+ 
 
