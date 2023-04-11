@@ -2,223 +2,489 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C48436DE64E
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 23:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A9636DE688
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 23:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbjDKVRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 17:17:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
+        id S229450AbjDKVfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 17:35:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbjDKVRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 17:17:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B81440E4;
-        Tue, 11 Apr 2023 14:17:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D2EA62C35;
-        Tue, 11 Apr 2023 21:17:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A72C433D2;
-        Tue, 11 Apr 2023 21:17:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681247849;
-        bh=bQZEPHlQ4mwxUTcA7M0c7JjGT91srUSraIxBuqHbvQQ=;
-        h=Date:To:From:Subject:From;
-        b=c/jFPAodGpgNg63ZrbGFQSFX/0FfMIQtBSqUnL8nDHSSQ2VyFptbD2ze0oGMhmAz/
-         Qrg4MfuvJgMkVKPfLhmLo6JlCv5yUraKfE9BxSW8h4uJU3dWtonbtObxfstz40DZhz
-         PVvLCy9BqzTHvQgA2KVK14jBXNBxyTndNbG7yRm8=
-Date:   Tue, 11 Apr 2023 14:17:28 -0700
-To:     mm-commits@vger.kernel.org, tsahu@linux.ibm.com,
-        stable@vger.kernel.org, songmuchun@bytedance.com,
-        joao.m.martins@oracle.com, dan.j.williams@intel.com,
-        aneesh.kumar@linux.ibm.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230411211729.90A72C433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229947AbjDKVfS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 17:35:18 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F388559A
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 14:35:12 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id y11-20020a17090a600b00b0024693e96b58so8383369pji.1
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 14:35:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1681248912; x=1683840912;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=MwLidB+NPtaQ+0p96ZlxzXLajIZhk2tB9A6p05iVCYg=;
+        b=6e10WREqhDt+byh+EbEoJtHo8AXNi3CsDc/w0z89BNhnkOtPlrSGDIyvA7Tu6EK6sA
+         SABns+kAMN3G3PEEA3GmutNwWqtoXr2/t0NwgDxCYgHf1MnPRtvyi67/5LYvc6kStbaw
+         RYTsf6BWX6IdPx5sc5Skr8cR7CEzOimyMbaekQzrxL2XOP6rXmkxtLNsN4Xy+TvkLr6/
+         3GtcbnlGCLykB7grlzCLkTQtq9G1tI/eRP3zkounq8LOyV1Q2fh58uRaK+xLu2k0Vkyl
+         MSsefof4Ly45a/gWny2zFghgxsfd/WGEX2x9xPa/B4poaPjfdWSMHsNag+OUAm+K2Vc+
+         FTIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1681248912; x=1683840912;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MwLidB+NPtaQ+0p96ZlxzXLajIZhk2tB9A6p05iVCYg=;
+        b=JqSuYN8c+eAntzHi7EL2KYVIyx9R+1eMWIjpzh+aSKdcElQdRq+IOdvpqHrdI2MVBz
+         wIL8jPlVAdWFFgdHvxmNAC4RhgTY3NLpMjx1c8LVMpvdqWvpZ4As0D/rcfOhQebRA5cU
+         n2LZMby2AX5mrTHF92ww4WTOGUbHt3clu/FbrH1t1cb2pBh+HNDi8JGbQzVjsNZRjJ2e
+         KeGNrcyrL0DGRxYad/HM1zPBZc++rAG6ddv0bqIOzUMyaAtOWkpYKAWBteIqkmUxpgap
+         sbkFT6ubJMAQKpqcAcZlWmJUdkhqvylve1mlrM5WAJjI+JdVW6NtNz40REj1WQ9CFvHF
+         CwIw==
+X-Gm-Message-State: AAQBX9dqTKQjC3LiTlQQsckgKap58KGUAIZsnpDm0r8Yde9nEEk0a8nn
+        Pi2WTx2+HUkHXanTWA0dzsqRX4CMHYWX+qCLktH3PA==
+X-Google-Smtp-Source: AKy350Zr0Gp82BdARILjxMWJ7YmPSVlLsCkrrUl2VfDX/yQDjJp1CgAW2rGHwEEtK31zCnKfT/uMfg==
+X-Received: by 2002:a17:90a:4289:b0:246:ac68:d4e9 with SMTP id p9-20020a17090a428900b00246ac68d4e9mr609740pjg.6.1681248911632;
+        Tue, 11 Apr 2023 14:35:11 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n15-20020a17090a2fcf00b0023f786a64ebsm24536pjm.57.2023.04.11.14.35.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Apr 2023 14:35:11 -0700 (PDT)
+Message-ID: <6435d28f.170a0220.5d236.0120@mx.google.com>
+Date:   Tue, 11 Apr 2023 14:35:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.176-223-gfbdc537713e0
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 181 runs,
+ 8 regressions (v5.10.176-223-gfbdc537713e0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 181 runs, 8 regressions (v5.10.176-223-gfbdc=
+537713e0)
 
-The patch titled
-     Subject: mm/vmemmap/devdax: fix kernel crash when probing devdax devices
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch
+Regressions Summary
+-------------------
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+bcm2711-rpi-4-b              | arm64  | lab-linaro-lkft | gcc-10   | defcon=
+fig                    | 1          =
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+beaglebone-black             | arm    | lab-broonie     | gcc-10   | omap2p=
+lus_defconfig          | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+cubietruck                   | arm    | lab-baylibre    | gcc-10   | multi_=
+v7_defconfig           | 1          =
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora   | gcc-10   | x86_64=
+_defcon...6-chromebook | 1          =
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
+hp-x360-14-G1-sona           | x86_64 | lab-collabora   | gcc-10   | x86_64=
+_defcon...6-chromebook | 1          =
 
-------------------------------------------------------
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/vmemmap/devdax: fix kernel crash when probing devdax devices
-Date: Tue, 11 Apr 2023 19:52:13 +0530
+rk3399-gru-kevin             | arm64  | lab-collabora   | gcc-10   | defcon=
+fig+arm64-chromebook   | 2          =
 
-commit 4917f55b4ef9 ("mm/sparse-vmemmap: improve memory savings for
-compound devmaps") added support for using optimized vmmemap for devdax
-devices.  But how vmemmap mappings are created are architecture specific. 
-For example, powerpc with hash translation doesn't have vmemmap mappings
-in init_mm page table instead they are bolted table entries in the
-hardware page table
+sun8i-h3-libretech-all-h3-cc | arm    | lab-baylibre    | gcc-10   | multi_=
+v7_defconfig           | 1          =
 
-vmemmap_populate_compound_pages() used by vmemmap optimization code is not
-aware of these architecture-specific mapping.  Hence allow architecture to
-opt for this feature.  I selected architectures supporting
-HUGETLB_PAGE_OPTIMIZE_VMEMMAP option as also supporting this feature.
 
-This patch fixes the below crash on ppc64.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.176-223-gfbdc537713e0/plan/baseline/
 
-BUG: Unable to handle kernel data access on write at 0xc00c000100400038
-Faulting instruction address: 0xc000000001269d90
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in:
-CPU: 7 PID: 1 Comm: swapper/0 Not tainted 6.3.0-rc5-150500.34-default+ #2 5c90a668b6bbd142599890245c2fb5de19d7d28a
-Hardware name: IBM,9009-42G POWER9 (raw) 0x4e0202 0xf000005 of:IBM,FW950.40 (VL950_099) hv:phyp pSeries
-NIP:  c000000001269d90 LR: c0000000004c57d4 CTR: 0000000000000000
-REGS: c000000003632c30 TRAP: 0300   Not tainted  (6.3.0-rc5-150500.34-default+)
-MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24842228  XER: 00000000
-CFAR: c0000000004c57d0 DAR: c00c000100400038 DSISR: 42000000 IRQMASK: 0
-....
-NIP [c000000001269d90] __init_single_page.isra.74+0x14/0x4c
-LR [c0000000004c57d4] __init_zone_device_page+0x44/0xd0
-Call Trace:
-[c000000003632ed0] [c000000003632f60] 0xc000000003632f60 (unreliable)
-[c000000003632f10] [c0000000004c5ca0] memmap_init_zone_device+0x170/0x250
-[c000000003632fe0] [c0000000005575f8] memremap_pages+0x2c8/0x7f0
-[c0000000036330c0] [c000000000557b5c] devm_memremap_pages+0x3c/0xa0
-[c000000003633100] [c000000000d458a8] dev_dax_probe+0x108/0x3e0
-[c0000000036331a0] [c000000000d41430] dax_bus_probe+0xb0/0x140
-[c0000000036331d0] [c000000000cef27c] really_probe+0x19c/0x520
-[c000000003633260] [c000000000cef6b4] __driver_probe_device+0xb4/0x230
-[c0000000036332e0] [c000000000cef888] driver_probe_device+0x58/0x120
-[c000000003633320] [c000000000cefa6c] __device_attach_driver+0x11c/0x1e0
-[c0000000036333a0] [c000000000cebc58] bus_for_each_drv+0xa8/0x130
-[c000000003633400] [c000000000ceefcc] __device_attach+0x15c/0x250
-[c0000000036334a0] [c000000000ced458] bus_probe_device+0x108/0x110
-[c0000000036334f0] [c000000000ce92dc] device_add+0x7fc/0xa10
-[c0000000036335b0] [c000000000d447c8] devm_create_dev_dax+0x1d8/0x530
-[c000000003633640] [c000000000d46b60] __dax_pmem_probe+0x200/0x270
-[c0000000036337b0] [c000000000d46bf0] dax_pmem_probe+0x20/0x70
-[c0000000036337d0] [c000000000d2279c] nvdimm_bus_probe+0xac/0x2b0
-[c000000003633860] [c000000000cef27c] really_probe+0x19c/0x520
-[c0000000036338f0] [c000000000cef6b4] __driver_probe_device+0xb4/0x230
-[c000000003633970] [c000000000cef888] driver_probe_device+0x58/0x120
-[c0000000036339b0] [c000000000cefd08] __driver_attach+0x1d8/0x240
-[c000000003633a30] [c000000000cebb04] bus_for_each_dev+0xb4/0x130
-[c000000003633a90] [c000000000cee564] driver_attach+0x34/0x50
-[c000000003633ab0] [c000000000ced878] bus_add_driver+0x218/0x300
-[c000000003633b40] [c000000000cf1144] driver_register+0xa4/0x1b0
-[c000000003633bb0] [c000000000d21a0c] __nd_driver_register+0x5c/0x100
-[c000000003633c10] [c00000000206a2e8] dax_pmem_init+0x34/0x48
-[c000000003633c30] [c0000000000132d0] do_one_initcall+0x60/0x320
-[c000000003633d00] [c0000000020051b0] kernel_init_freeable+0x360/0x400
-[c000000003633de0] [c000000000013764] kernel_init+0x34/0x1d0
-[c000000003633e50] [c00000000000de14] ret_from_kernel_thread+0x5c/0x64
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.176-223-gfbdc537713e0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fbdc537713e0b33afb98fe87cbdb62e843ca2ff5 =
 
-Link: https://lkml.kernel.org/r/20230411142214.64464-1-aneesh.kumar@linux.ibm.com
-Fixes: 4917f55b4ef9 ("mm/sparse-vmemmap: improve memory savings for compound devmaps")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reported-by: Tarun Sahu <tsahu@linux.ibm.com>
-Cc: Joao Martins <joao.m.martins@oracle.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- include/linux/mm.h  |   16 ++++++++++++++++
- mm/page_alloc.c     |    9 ++++++---
- mm/sparse-vmemmap.c |    3 +--
- 3 files changed, 23 insertions(+), 5 deletions(-)
 
---- a/include/linux/mm.h~mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices
-+++ a/include/linux/mm.h
-@@ -3425,6 +3425,22 @@ void vmemmap_populate_print_last(void);
- void vmemmap_free(unsigned long start, unsigned long end,
- 		struct vmem_altmap *altmap);
- #endif
-+
-+#ifdef CONFIG_ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP
-+static inline bool vmemmap_can_optimize(struct vmem_altmap *altmap,
-+					   struct dev_pagemap *pgmap)
-+{
-+	return is_power_of_2(sizeof(struct page)) &&
-+		pgmap && (pgmap_vmemmap_nr(pgmap) > 1) && !altmap;
-+}
-+#else
-+static inline bool vmemmap_can_optimize(struct vmem_altmap *altmap,
-+					   struct dev_pagemap *pgmap)
-+{
-+	return false;
-+}
-+#endif
-+
- void register_page_bootmem_memmap(unsigned long section_nr, struct page *map,
- 				  unsigned long nr_pages);
- 
---- a/mm/page_alloc.c~mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices
-+++ a/mm/page_alloc.c
-@@ -6905,10 +6905,13 @@ static void __ref __init_zone_device_pag
-  * of an altmap. See vmemmap_populate_compound_pages().
-  */
- static inline unsigned long compound_nr_pages(struct vmem_altmap *altmap,
-+					      struct dev_pagemap *pgmap,
- 					      unsigned long nr_pages)
- {
--	return is_power_of_2(sizeof(struct page)) &&
--		!altmap ? 2 * (PAGE_SIZE / sizeof(struct page)) : nr_pages;
-+	if (vmemmap_can_optimize(altmap, pgmap))
-+		return 2 * (PAGE_SIZE / sizeof(struct page));
-+	else
-+		return nr_pages;
- }
- 
- static void __ref memmap_init_compound(struct page *head,
-@@ -6973,7 +6976,7 @@ void __ref memmap_init_zone_device(struc
- 			continue;
- 
- 		memmap_init_compound(page, pfn, zone_idx, nid, pgmap,
--				     compound_nr_pages(altmap, pfns_per_compound));
-+				     compound_nr_pages(altmap, pgmap, pfns_per_compound));
- 	}
- 
- 	pr_info("%s initialised %lu pages in %ums\n", __func__,
---- a/mm/sparse-vmemmap.c~mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices
-+++ a/mm/sparse-vmemmap.c
-@@ -458,8 +458,7 @@ struct page * __meminit __populate_secti
- 		!IS_ALIGNED(nr_pages, PAGES_PER_SUBSECTION)))
- 		return NULL;
- 
--	if (is_power_of_2(sizeof(struct page)) &&
--	    pgmap && pgmap_vmemmap_nr(pgmap) > 1 && !altmap)
-+	if (vmemmap_can_optimize(altmap, pgmap))
- 		r = vmemmap_populate_compound_pages(pfn, start, end, nid, pgmap);
- 	else
- 		r = vmemmap_populate(start, end, nid, altmap);
-_
+Test Regressions
+---------------- =
 
-Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
 
-mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch
 
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+bcm2711-rpi-4-b              | arm64  | lab-linaro-lkft | gcc-10   | defcon=
+fig                    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/64359fa7ac01bf2fa32e8613
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm64/defconfig/gcc-10/lab-linaro-lkft/baseline-bcm2711-=
+rpi-4-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm64/defconfig/gcc-10/lab-linaro-lkft/baseline-bcm2711-=
+rpi-4-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/64359fa7ac01bf2fa32e8=
+614
+        new failure (last pass: v5.10.176-223-gb73b161a0e35) =
+
+ =
+
+
+
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+beaglebone-black             | arm    | lab-broonie     | gcc-10   | omap2p=
+lus_defconfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/64359f28ac07986a652e85e6
+
+  Results:     51 PASS, 4 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-beag=
+lebone-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-beag=
+lebone-black.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/64359f28ac07986a652e861c
+        failing since 56 days (last pass: v5.10.167-127-g921934d621e4, firs=
+t fail: v5.10.167-139-gf9519a5a1701)
+
+    2023-04-11T17:55:25.494755  <8>[   18.802610] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 312994_1.5.2.4.1>
+    2023-04-11T17:55:25.602148  / # #
+    2023-04-11T17:55:25.704415  export SHELL=3D/bin/sh
+    2023-04-11T17:55:25.705216  #
+    2023-04-11T17:55:25.807289  / # export SHELL=3D/bin/sh. /lava-312994/en=
+vironment
+    2023-04-11T17:55:25.808158  =
+
+    2023-04-11T17:55:25.910395  / # . /lava-312994/environment/lava-312994/=
+bin/lava-test-runner /lava-312994/1
+    2023-04-11T17:55:25.911654  =
+
+    2023-04-11T17:55:25.915327  / # /lava-312994/bin/lava-test-runner /lava=
+-312994/1
+    2023-04-11T17:55:26.013785  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+cubietruck                   | arm    | lab-baylibre    | gcc-10   | multi_=
+v7_defconfig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6435a21bfa79b3a6e42e8641
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6435a21bfa79b3a6e42e8646
+        failing since 75 days (last pass: v5.10.165-76-g5c2e982fcf18, first=
+ fail: v5.10.165-77-g4600242c13ed)
+
+    2023-04-11T18:08:07.427430  <8>[   11.013563] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3486434_1.5.2.4.1>
+    2023-04-11T18:08:07.537089  / # #
+    2023-04-11T18:08:07.640090  export SHELL=3D/bin/sh
+    2023-04-11T18:08:07.640882  #
+    2023-04-11T18:08:07.742531  / # export SHELL=3D/bin/sh. /lava-3486434/e=
+nvironment
+    2023-04-11T18:08:07.743111  =
+
+    2023-04-11T18:08:07.844854  / # . /lava-3486434/environment/lava-348643=
+4/bin/lava-test-runner /lava-3486434/1
+    2023-04-11T18:08:07.846148  =
+
+    2023-04-11T18:08:07.851256  / # /lava-3486434/bin/lava-test-runner /lav=
+a-3486434/1
+    2023-04-11T18:08:07.895351  <3>[   11.451384] Bluetooth: hci0: command =
+0xfc18 tx timeout =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora   | gcc-10   | x86_64=
+_defcon...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6435a53930e5929f332e8623
+
+  Results:     6 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-12b-ca0010nr-n4020-octopus.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-12b-ca0010nr-n4020-octopus.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6435a53930e5929f332e8628
+        failing since 12 days (last pass: v5.10.176-61-g2332301f1fab4, firs=
+t fail: v5.10.176-104-g2b4187983740)
+
+    2023-04-11T18:21:29.228513  + set +x
+
+    2023-04-11T18:21:29.235340  <8>[   10.737115] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 9941495_1.4.2.3.1>
+
+    2023-04-11T18:21:29.340077  / # #
+
+    2023-04-11T18:21:29.441176  export SHELL=3D/bin/sh
+
+    2023-04-11T18:21:29.441401  #
+
+    2023-04-11T18:21:29.542296  / # export SHELL=3D/bin/sh. /lava-9941495/e=
+nvironment
+
+    2023-04-11T18:21:29.542543  =
+
+
+    2023-04-11T18:21:29.643500  / # . /lava-9941495/environment/lava-994149=
+5/bin/lava-test-runner /lava-9941495/1
+
+    2023-04-11T18:21:29.643855  =
+
+
+    2023-04-11T18:21:29.648123  / # /lava-9941495/bin/lava-test-runner /lav=
+a-9941495/1
+ =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+hp-x360-14-G1-sona           | x86_64 | lab-collabora   | gcc-10   | x86_64=
+_defcon...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6435a30d1ee6f6a8bf2e85f6
+
+  Results:     6 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-14-G1-sona.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-14-G1-sona.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6435a30d1ee6f6a8bf2e85fb
+        failing since 12 days (last pass: v5.10.176-61-g2332301f1fab4, firs=
+t fail: v5.10.176-104-g2b4187983740)
+
+    2023-04-11T18:12:11.384631  + set +x<8>[   12.888932] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 9941535_1.4.2.3.1>
+
+    2023-04-11T18:12:11.385065  =
+
+
+    2023-04-11T18:12:11.492532  /#
+
+    2023-04-11T18:12:11.595625   # #export SHELL=3D/bin/sh
+
+    2023-04-11T18:12:11.596328  =
+
+
+    2023-04-11T18:12:11.698287  / # export SHELL=3D/bin/sh. /lava-9941535/e=
+nvironment
+
+    2023-04-11T18:12:11.699118  =
+
+
+    2023-04-11T18:12:11.801253  / # . /lava-9941535/environment/lava-994153=
+5/bin/lava-test-runner /lava-9941535/1
+
+    2023-04-11T18:12:11.802456  =
+
+
+    2023-04-11T18:12:11.807581  / # /lava-9941535/bin/lava-test-runner /lav=
+a-9941535/1
+ =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+rk3399-gru-kevin             | arm64  | lab-collabora   | gcc-10   | defcon=
+fig+arm64-chromebook   | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6435a09cb150f8cbe42e8656
+
+  Results:     84 PASS, 2 FAIL, 1 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-usb2phy1-probed: https://kernelci.org/test/cas=
+e/id/6435a09cb150f8cbe42e865c
+        failing since 28 days (last pass: v5.10.172-529-g06956b9e9396, firs=
+t fail: v5.10.173-69-gfcbe6bd469ed)
+
+    2023-04-11T18:01:48.909824  <8>[   61.042851] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-usb2phy0-probed RESULT=3Dfail>
+
+    2023-04-11T18:01:49.935492  /lava-9941655/1/../bin/lava-test-case
+   =
+
+
+  * baseline.bootrr.rockchip-usb2phy0-probed: https://kernelci.org/test/cas=
+e/id/6435a09cb150f8cbe42e865d
+        failing since 28 days (last pass: v5.10.172-529-g06956b9e9396, firs=
+t fail: v5.10.173-69-gfcbe6bd469ed)
+
+    2023-04-11T18:01:47.873525  <8>[   60.005389] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-usb2phy-driver-present RESULT=3Dpass>
+
+    2023-04-11T18:01:48.898535  /lava-9941655/1/../bin/lava-test-case
+   =
+
+ =
+
+
+
+platform                     | arch   | lab             | compiler | defcon=
+fig                    | regressions
+-----------------------------+--------+-----------------+----------+-------=
+-----------------------+------------
+sun8i-h3-libretech-all-h3-cc | arm    | lab-baylibre    | gcc-10   | multi_=
+v7_defconfig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6435a1bb36e838891d2e8607
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8=
+i-h3-libretech-all-h3-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-223-gfbdc537713e0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8=
+i-h3-libretech-all-h3-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230407.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6435a1bb36e838891d2e860c
+        failing since 68 days (last pass: v5.10.165-139-gefb57ce0f880, firs=
+t fail: v5.10.165-149-ge30e8271d674)
+
+    2023-04-11T18:06:30.872978  / # #
+    2023-04-11T18:06:30.974889  export SHELL=3D/bin/sh
+    2023-04-11T18:06:30.975647  #
+    2023-04-11T18:06:31.077284  / # export SHELL=3D/bin/sh. /lava-3486427/e=
+nvironment
+    2023-04-11T18:06:31.078017  =
+
+    2023-04-11T18:06:31.179776  / # . /lava-3486427/environment/lava-348642=
+7/bin/lava-test-runner /lava-3486427/1
+    2023-04-11T18:06:31.180700  =
+
+    2023-04-11T18:06:31.199251  / # /lava-3486427/bin/lava-test-runner /lav=
+a-3486427/1
+    2023-04-11T18:06:31.304334  + export 'TESTRUN_ID=3D1_bootrr'
+    2023-04-11T18:06:31.305018  + cd /lava-3486427/1/tests/1_bootrr =
+
+    ... (10 line(s) more)  =
+
+ =20
