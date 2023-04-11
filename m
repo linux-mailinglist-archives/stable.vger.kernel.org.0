@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3806DDD79
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 16:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA256DDD90
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 16:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230014AbjDKORP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 10:17:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49412 "EHLO
+        id S230037AbjDKOTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 10:19:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229927AbjDKORN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 10:17:13 -0400
+        with ESMTP id S230186AbjDKOTV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 10:19:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C4A525B
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 07:16:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50AB7212F;
+        Tue, 11 Apr 2023 07:19:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED8BE6185C
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 14:16:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F8DC433D2;
-        Tue, 11 Apr 2023 14:16:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681222591;
-        bh=UijI6JTMeVHaWhdVMBMKOQ1zr7BB5Gw8phzqH/wody8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SU9LwCD4UBr1kBKU6KL78GlV7CLAlYctAgncyq4aXvr9sf2HAJMuyu/+oDJ+TbKhI
-         P+oOYeMeNz4mE72QuAtyi6EYqcslseDFO/dGkMTnDMHmrm9e5jQfq5zwmEzIQI0YhN
-         jQnFQOPiUX97EtFSa+nRZRWkEYvZBR99iLdK03E4=
-Date:   Tue, 11 Apr 2023 16:16:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yang Bo <yyyeer.bo@gmail.com>
-Cc:     stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: Re: [PATCH 1/6] virtiofs: clean up error handling in
- virtio_fs_get_tree()
-Message-ID: <2023041147-mooing-uncut-9b7f@gregkh>
-References: <20230411032111.1213-1-yb203166@antfin.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7BBA6258A;
+        Tue, 11 Apr 2023 14:19:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77521C4339B;
+        Tue, 11 Apr 2023 14:19:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681222749;
+        bh=YFzILxpIYiv63ImDz5bEYdEX92IZXgELxHml31Egi9w=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=tYOiw23H9xCmwv7lxuKfWTY+u4Mr5SGESCD2nPbHJQCm2POY2NGFGv1XyMgGIjBwN
+         RF9vFT9yZeJo8zU+1NLC9D5UiGRuaZ9af5tlexNI0bUYZEicW4ImdNIZIpeM0ZRra8
+         TgOExksGs1nvAIlN1e7AFAXnP6vqMpDI0GImVGOnwKf6mbLagutxCgHiXz1151Wu14
+         6SE+QQNwzDbqIVlUjZFEd/CB39nw5qYURnH5G0CB6AM87y5jsJkefxLhSDlJJqKhsF
+         VK+zn0woJV6CKxrcHQVxILYIvjGTY/+vBj5w88G4w8J9q3rQD8isiPp/w1cpHSXaFW
+         489SQA60dewPg==
+From:   Mark Brown <broonie@kernel.org>
+To:     tiwai@suse.com, perex@perex.cz, Cem Kaya <cemkaya.boun@gmail.com>
+Cc:     mario.limonciello@amd.com, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org, lgirdwood@gmail.com,
+        stable@vger.kernel.org
+In-Reply-To: <20230410183814.260518-1-cemkaya.boun@gmail.com>
+References: <20230410183814.260518-1-cemkaya.boun@gmail.com>
+Subject: Re: [PATCH v5] ASoC: amd: Add Dell G15 5525 to quirks list
+Message-Id: <168122274720.54453.13789305143841583675.b4-ty@kernel.org>
+Date:   Tue, 11 Apr 2023 15:19:07 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230411032111.1213-1-yb203166@antfin.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13-dev-00303
 X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
@@ -49,26 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 11, 2023 at 11:21:06AM +0800, Yang Bo wrote:
-> From: Miklos Szeredi <mszeredi@redhat.com>
+On Mon, 10 Apr 2023 20:38:15 +0200, Cem Kaya wrote:
+> Add Dell G15 5525 Ryzen Edition to quirks list for acp6x so that
+> internal mic works.
 > 
-> commit 833c5a42e28beeefa1f9bd476a63fe8050c1e8ca upstream.
 > 
-> [backport for 5.10.y]
-> 
-> Avoid duplicating error cleanup.
-> 
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> ---
->  fs/fuse/virtio_fs.c | 25 ++++++++++++-------------
->  1 file changed, 12 insertions(+), 13 deletions(-)
 
-When forwarding patches on, you have to also sign off on them as per our
-documentation.
+Applied to
 
-Please fix up and resend if you still think these are needed in the
-5.10.y tree, AND explain why they are needed in a 0/X email.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
 
-thanks,
+Thanks!
 
-greg k-h
+[1/1] ASoC: amd: Add Dell G15 5525 to quirks list
+      commit: faf15233e59052f4d61cad2da6e56daf33124d96
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
