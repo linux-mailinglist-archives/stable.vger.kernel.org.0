@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ECC46DDA9B
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 14:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 558D86DDB1A
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 14:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230025AbjDKMRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 08:17:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38238 "EHLO
+        id S229692AbjDKMpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 08:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229877AbjDKMRU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 08:17:20 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05EB135BB
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 05:17:14 -0700 (PDT)
-Received: from [192.168.1.137] (unknown [213.194.153.37])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: rcn)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 76B3466031E4;
-        Tue, 11 Apr 2023 13:17:13 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1681215433;
-        bh=VJOBebOwlBrpg0CW9pmMsHUudQCbRXBFnYlaGggDbRg=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=lkKHLZj0Rwh8twSgtkH0u8M7N5OB8It94Z1jqTnMapo45RKGP9uDOVirTEQkR0rVm
-         /bGfqYqZ35NfsjEDdDokfnCeCpBnn0rXjfwWaByYpa995N8/ueOghz0ELcORhYU+dW
-         0sVYoVGNJyc/7DAIR+zD5M+cslZqroYRbnO8Xert2JTCjdHFNE29IKLzZxgZ8pQoY4
-         3/rgPLt9Axvzp3kR7mzNu/zrt1C2cITVpVND/cdqW/h7CIGCk2HpG3x/2D4eHcRV08
-         0ri+1upTLagdG8E3rAhqpxWE5KllD9eYXlQ/jNqlgBr1bJxkUu7LkO9PItcw/7evsQ
-         OMhMKP8ELDXzw==
-Message-ID: <a3047b2d-3de4-f419-968b-e1109a62309a@collabora.com>
-Date:   Tue, 11 Apr 2023 14:17:10 +0200
+        with ESMTP id S229525AbjDKMpO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 08:45:14 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D801FE4;
+        Tue, 11 Apr 2023 05:45:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=WFvtgGXh6gURF2Ev8feAnNkTzSGu1PeynGl1ztZC3/I=; b=gw+qtOn3J1iPbXBg2DgKVfkTEC
+        79ACsGlkgXxvRmhNY5wt1JchiB3un/eyM8Hf4s0Pxuz+2F/Lv2Zf5/KlHzd+9IC4W0556rKPCnpo0
+        hAk7kt750ykZHjkb42MktCR8H3kdxs/8rCXjG/RDO+ySDO9PBio2O70PMvqETxsLE6bM=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1pmDMt-009zMV-54; Tue, 11 Apr 2023 14:45:03 +0200
+Date:   Tue, 11 Apr 2023 14:45:03 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        hkallweit1@gmail.com, linux@armlinux.org.uk, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net] net: phy: nxp-c45-tja11xx: add remove callback
+Message-ID: <1c4c3085-f7e3-443b-8dfe-4cc19e85d9ad@lunn.ch>
+References: <20230406095904.75456-1-radu-nicolae.pirea@oss.nxp.com>
+ <e8b3646710d5fbedbe73449e5a1a7bd83fb1fa61.camel@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH] selftests: intel_pstate: ftime() is deprecated
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <20230411111533.1442349-1-ricardo.canuelo@collabora.com>
- <2023041111-rewrap-cabana-3966@gregkh>
-From:   =?UTF-8?Q?Ricardo_Ca=c3=b1uelo?= <ricardo.canuelo@collabora.com>
-In-Reply-To: <2023041111-rewrap-cabana-3966@gregkh>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8b3646710d5fbedbe73449e5a1a7bd83fb1fa61.camel@redhat.com>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,13 +49,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+> Andrew: my understanding is that a connected phy, maintains a reference
+> to the relevant driver via phydev->mdio.dev.driver->owner, and such
+> reference is dropped by phy_disconnect() via phy_detach().
+> 
+> So remove can invoked only after phy_disconnect
+> 
+> Does the above sounds reasonable/answer your question?
 
-On 11/4/23 13:39, Greg KH wrote:
-> As you are passing this on to us, you need to also sign off on it as per
-> our documentation.
+Yes, that does seem logical.
 
-Thanks, I sent v2 with the new tag.
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-Cheers,
-Ricardo
+    Andrew
