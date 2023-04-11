@@ -2,87 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C84386DDF5D
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B91046DDF8C
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231344AbjDKPQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 11:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43070 "EHLO
+        id S229892AbjDKPZV convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 Apr 2023 11:25:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231177AbjDKPQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:16:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696A5619B;
-        Tue, 11 Apr 2023 08:15:56 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229720AbjDKPZU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:25:20 -0400
+X-Greylist: delayed 16772 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 11 Apr 2023 08:25:17 PDT
+Received: from hotel-smtp.varnion.net (unknown [175.176.161.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63388129
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 08:25:17 -0700 (PDT)
+Received: from mx2.lv8bali.com (mx2.lv8bali.com [111.68.124.138])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A39236285C;
-        Tue, 11 Apr 2023 15:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C7E3C433D2;
-        Tue, 11 Apr 2023 15:14:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681226080;
-        bh=3YqIy9422W4j5TAiKhuwgA4sZIXX6+PQPhFS0rtef+I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cyirtFO/mCjXYL12aZzM/ARuJs3BAEh/6mAwWNpSNDiHwLJXFmMxnndVk0mdQJ94H
-         QbvIzQk6nPI866muT6LeB+lXXsPmNyqGIl+G/0x+s/OqrPMmyuZJ54cLd5gRwv7kTN
-         65zNRwUVN7eV+pjUA+OT/8qqLwlgWV3kOwHy1hZM=
-Date:   Tue, 11 Apr 2023 17:14:37 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lorenz Bauer <lmb@isovalent.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Martin KaFai Lau <martin.lau@kernel.org>,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        shuah@kernel.org, yhs@fb.com, eddyz87@gmail.com, sdf@google.com,
-        error27@gmail.com, iii@linux.ibm.com, memxor@gmail.com,
-        bpf@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.2 08/30] selftests/bpf: check that modifier
- resolves after pointer
-Message-ID: <2023041100-oblong-enamel-5893@gregkh>
-References: <20230320005258.1428043-1-sashal@kernel.org>
- <20230320005258.1428043-8-sashal@kernel.org>
- <CAN+4W8g6AcQQWe7rrBVOFYoqeQA-1VbUP_W7DPS3q0k-czOLfg@mail.gmail.com>
- <ZBiAPngOtzSwDhFz@kroah.com>
- <CAN+4W8jAyJTdFL=tgp3wCpYAjGOs5ggo6vyOg8PbaW+tJP8TKA@mail.gmail.com>
- <CAN+4W8j5qe6p3YV90g-E0VhV7AmYyAvt0z50dfDSombbGghkww@mail.gmail.com>
+        by hotel-smtp.varnion.net (Postfix) with ESMTPS id 072E61EAE0B7;
+        Tue, 11 Apr 2023 22:25:13 +0700 (WIB)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mx2.lv8bali.com (Postfix) with ESMTP id EC14621F009;
+        Tue, 11 Apr 2023 23:23:47 +0800 (WITA)
+Received: from mx2.lv8bali.com ([127.0.0.1])
+        by localhost (mx2.lv8bali.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id hPU9esFActaZ; Tue, 11 Apr 2023 23:23:47 +0800 (WITA)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mx2.lv8bali.com (Postfix) with ESMTP id 7BCDC211BE8;
+        Tue, 11 Apr 2023 23:23:47 +0800 (WITA)
+X-Virus-Scanned: amavisd-new at mx2.lv8bali.com
+Received: from mx2.lv8bali.com ([127.0.0.1])
+        by localhost (mx2.lv8bali.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id bPQTINH9Jqb7; Tue, 11 Apr 2023 23:23:47 +0800 (WITA)
+Received: from [172.20.10.2] (unknown [102.88.35.181])
+        by mx2.lv8bali.com (Postfix) with ESMTPSA id 8CCA52049D4;
+        Tue, 11 Apr 2023 23:22:57 +0800 (WITA)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAN+4W8j5qe6p3YV90g-E0VhV7AmYyAvt0z50dfDSombbGghkww@mail.gmail.com>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Hi there(OFFER)
+To:     me <unicef-management@unicef.com>
+From:   "Unicef" <unicef-management@unicef.com>
+Date:   Tue, 11 Apr 2023 16:21:39 +0100
+Reply-To: justinmccarthy.esq@gmail.com
+Message-Id: <20230411152257.8CCA52049D4@mx2.lv8bali.com>
+X-Spam-Status: No, score=4.7 required=5.0 tests=FREEMAIL_FORGED_REPLYTO,
+        RCVD_IN_VALIDITY_RPBL,SPF_FAIL,SPF_HELO_NONE,TO_EQ_FM_DOM_SPF_FAIL,
+        TO_EQ_FM_SPF_FAIL autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 11, 2023 at 04:08:32PM +0100, Lorenz Bauer wrote:
-> On Tue, Mar 28, 2023 at 11:18 AM Lorenz Bauer <lmb@isovalent.com> wrote:
-> >
-> > On Mon, Mar 20, 2023 at 3:48 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > Why would it break?  Is that because the test is buggy, or the kernel is
-> > > buggy?
-> >
-> > This test will be fine, but there have been several times when
-> > selftests/bpf for stable kernel releases didn't actually compile due
-> > to backported tests. This is because macros we're redefined, etc.
-> > Unless those also get picked (seems like a sisyphean task) we'll keep
-> > seeing broken selftests/bpf on stable.
-> 
-> Hi Greg, Sasha,
-> 
-> Following up on this since it seems to have fallen through the cracks.
-
-I didn't see anything to do here.
-
-And selftests should NOT be broken on stable releases, if so, something
-is wrong as no other subsystem has that happen.
-
-confused,
-
-greg k-h
+UNICEF is looking for a Personal assistant to Justin McCarthy, Esq. who is currently in the Ukraine assisting the Justice for children Program. You will be responsible for handling Mr McCarthy's purchase of items such as computed learning materials, food items and shelter related items for UNICEF specific affairs in the City while he is away. You will be paid $59 per hour and your hours will be flexible with a minimum of 1 hours every week day remotely. Please submit your Resume to: justinmccarthy.esq@gmail.com to apply for this position.
