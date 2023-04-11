@@ -2,148 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705896DE5E4
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 22:42:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA846DE5EF
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 22:45:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbjDKUmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 16:42:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47482 "EHLO
+        id S229692AbjDKUpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 16:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229971AbjDKUmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 16:42:40 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07699526C
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:42:29 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id n19-20020a05600c501300b003f064936c3eso10070767wmr.0
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:42:28 -0700 (PDT)
+        with ESMTP id S229670AbjDKUpL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 16:45:11 -0400
+Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26A85247
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:45:03 -0700 (PDT)
+Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-54f64b29207so73367677b3.8
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:45:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares.net; s=google; t=1681245747;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2Qg0UfDgtzM4SSag2U8RERLst0NUUqYRmB2P1uH49t4=;
-        b=IGWcpTfjatCz3Eqo5P30S165MgQ8L4VYNgUdGlU7f47eKTaqEl/N0R2Bxijvo4pFg9
-         uanbjdbEphIkQDQQEZvaB8ooRWJVv+h7h963uEFJa7dXYDHWqUkAkmm6bTqrjLsz277H
-         UfMjUqNzcQZXhCGgsQ+UXxRYJqbcxdztwMq4/Kb7HKNGlv5gphgCTsS1rVR+qx7kEFxk
-         4jo+TQgpaCUpe07hKrVaVHQwTUPQyulQDEQVgAPyCj9SbQ6jucUN9bCwfQby51IPFwAY
-         ZBAqhQ/EKWaGtG/XvskTPwGou2g8oRoiWi9RLipLyDVoSETAxYgTDlezEF5ORVgAIoJ5
-         bLkA==
+        d=linaro.org; s=google; t=1681245903;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DgS6IEmvWs5WBVd7nSRmmrb6udze83mNz8YT1MPLDCw=;
+        b=GdSPoHYWHmtNABB1G6TVf4ymN/dF9UJquIdJ9tvM9Pasonho5T92PYWxjrVhIzKZHD
+         Q/cLvb85bMTzJm2p11YMPa+cGC3qfFX+DkR43XX3h0egvZZIGgk+YWA8gqQwfMBTqV1C
+         C5PD4IP02UVOLhnsrrbHimnVveJssROD44RQliKa5z+Ev8ItEzhsf484wS/ns35KWdFA
+         quyneT7fHRJRKAGktD67mL5ym+yG+uH7A9UwT6Qz7AMTTdC24SuvBoHMs+0FLeIgzqhd
+         DOCDqTik0rBEP9xTCjVRPCttcH0ltT+H75ispCFOk8gFL42yLf/1FDDwe0dwlRzmgPwQ
+         KbQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681245747;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20210112; t=1681245903;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2Qg0UfDgtzM4SSag2U8RERLst0NUUqYRmB2P1uH49t4=;
-        b=RrO9ATNlQvxnPJGEYSifBtfhlAhHMmhGpeOO0YuxRNjIQfqWERHjZ3GS3+JWGGrZly
-         CyuJN+mYxDa7fbZtPCBeLIuXJvGjZ/h/aeYz6IKHsJdXOU0t5CPSDssltlpJe0YeWfj+
-         PtbRsC4h8JE/XgU0Qzx4FguEPXy5ZwwqOZAp6s6KhJz8AMaWGxS4SjYZ+dSyCKGYHSoK
-         LxGaE9jvlT8tNX+kKRt1jMu5vtJgUVN5vMNJjcX27QyEvLVOII7Z4FwwVII66j9WtmeM
-         5odgMj7q/JdhG8KQ3arK9dLpcNy23I1fGYQ5N2t2L5gAq8v/+Y4MiTPuHqu6nR7etkJn
-         UnFQ==
-X-Gm-Message-State: AAQBX9f+w0jTHFTmKjWoNNSBnDiuDxO+OVxFn3+usu46/CagRYup5hnA
-        GwsdoUEbs4qln0c0fcOt4+NmtQ==
-X-Google-Smtp-Source: AKy350YOhcv/3WdKElepCqK9tqJwEaQ5hRFPchVWdToziQmNHv5rNkdb33WZI77d1usKv9fmjcp+nA==
-X-Received: by 2002:a7b:cb51:0:b0:3eb:38e6:f650 with SMTP id v17-20020a7bcb51000000b003eb38e6f650mr9930062wmj.41.1681245747534;
-        Tue, 11 Apr 2023 13:42:27 -0700 (PDT)
-Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
-        by smtp.gmail.com with ESMTPSA id p23-20020a1c7417000000b003f0824e8c92sm86887wmc.7.2023.04.11.13.42.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Apr 2023 13:42:27 -0700 (PDT)
-From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-Date:   Tue, 11 Apr 2023 22:42:12 +0200
-Subject: [PATCH net 4/4] selftests: mptcp: userspace pm: uniform verify
- events
+        bh=DgS6IEmvWs5WBVd7nSRmmrb6udze83mNz8YT1MPLDCw=;
+        b=szPI+3/lq6w9K6JX0RsDyJ8m93aObrbRNkTDrDTr/S0zvAPvGq2gxduYxJ0IGXkOfM
+         HrjWbLL+6BIIO2OnreS1+xaZ/BzsPv5Tr7tDRZISXmBAsIFjWldaamC7Iw/x83DRWnHn
+         X1b5k0zO4133S8EVp77iCQdpttLK1eh+q+8Bdc9oxlCJC7ZK0MYAB1vkhjSc2gZjbPui
+         ciRfG/Zh9TOyISDsAfLb4r3+LEO43ZySsp57jP0mkywu6QL7RWL1oWZR4gky204MvA4j
+         VAv+mN2lVuha04s80Mk9Dn4qyPyv7rEWjXRf9yH+ibjAJOGUMo+cfR/9VLG9PXfqfRLd
+         Lqgg==
+X-Gm-Message-State: AAQBX9c6jmOX9OCuTs3A9FapD2n/4K2qaQtGh85DHYx4XXGxzIEI6r87
+        U2r2Zj90u3swxrtqmOuD921LDyhvZqBNYBkE7PlajQ==
+X-Google-Smtp-Source: AKy350Z+vv84TfPXjGXWUbXDW7zPAcZWRO2q/uRnM/9iQT/1/Y97Z4uyZuZxOjgZXA883a13iohrKJ6ZnyDUyKogSXc=
+X-Received: by 2002:a81:ae5b:0:b0:541:693f:cdd1 with SMTP id
+ g27-20020a81ae5b000000b00541693fcdd1mr8623016ywk.9.1681245902804; Tue, 11 Apr
+ 2023 13:45:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230411-upstream-net-20230411-mptcp-fixes-v1-4-ca540f3ef986@tessares.net>
-References: <20230411-upstream-net-20230411-mptcp-fixes-v1-0-ca540f3ef986@tessares.net>
-In-Reply-To: <20230411-upstream-net-20230411-mptcp-fixes-v1-0-ca540f3ef986@tessares.net>
-To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Dmytro Shytyi <dmytro@shytyi.net>,
-        Shuah Khan <shuah@kernel.org>,
-        Mat Martineau <martineau@kernel.org>,
-        Geliang Tang <geliang.tang@suse.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        stable@vger.kernel.org
-X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1921;
- i=matthieu.baerts@tessares.net; h=from:subject:message-id;
- bh=1MrCCJJ5GEMq7hx3eoZhKgDEbgVWmBJ0bqSM6h+3CbQ=;
- b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBkNcYubzn7jx0MUsvw+rle5p4XlZD7yypcKbS9P
- oImjRChXFKJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCZDXGLgAKCRD2t4JPQmmg
- c0o6EAChDN8Dhftr1GID9h82qJ9Na9va86JfYFDLY2V766qElhR28T/K7pa+W3+oDlE92GSkmV5
- aHUjNUjxBY4iXgRL4LSfUXTF7A1J+lGDCevgl32h+RzgO/G49ZehMU8zw7g+yHDKFNd3GtBDtpC
- R+LBTS015DkEdUwdzPvOebCKu8Wd6CUINI8GlN3G3Cf37UzMmRFEAaDsjszwx5cCC946OXjpLOW
- dEsD8yWQUc1g0zTKTYYtc+HGkLoAyYYNpyJWIf6JMubGo4Jwjjx51CNtIH6OXywmy7Pfk8Eheai
- UCYP7amDN0J930qgXB/SgTqj3x0xZPWu/QDgoMFQTck7lAPjwPTxp2979RJ14OopFnrY9HcI1wb
- rxqTrDLiIqk9j96BoFSn7KediHPoJANBsCGIxhGxRbsTi21fCINZVWV0IK5538i4G2yanRSUZmC
- kyOv6gRNIQLz1qvdpbVrUZkwk//osw5vnhQqY304o/hf3qAJcxr2zGWJM++ja6J1LXHNW1dFqU0
- tdqxoTDaBSwQbdYJ2Hh6qakprbN1mA9OJAUB6ohe4Rpc2qpGGuxqj6yzdigrmhhGp9PVk1GRvvK
- MruZNp6pcMVP+TPt00b5CD+VdeE3l3UsoEOS8+FVdUSLIPFdN1BH0X2dJ/WDooyMNqIGBa2XEIa
- H9xLIt5le1z8XlA==
-X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
- fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
+References: <20230320093259.845178-1-korneld@chromium.org> <d1d39179-33a0-d35b-7593-e0a02aa3b10a@amd.com>
+ <ed840be8-b27b-191e-4122-72f62d8f1b7b@amd.com> <37178398-497c-900b-361a-34b1b77517aa@leemhuis.info>
+ <CAD=NsqzFiQBxtVDmCiJ24HD0YZiwZ4PQkojHHic775EKfeuiaQ@mail.gmail.com>
+ <36c7638f-964b-bee6-b44b-c8406e71dfec@leemhuis.info> <CAD=Nsqx2Gy08HHzjRoWxS7u559hUgi_GGRis0UDFxrUqLYjTfg@mail.gmail.com>
+In-Reply-To: <CAD=Nsqx2Gy08HHzjRoWxS7u559hUgi_GGRis0UDFxrUqLYjTfg@mail.gmail.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 11 Apr 2023 22:44:51 +0200
+Message-ID: <CACRpkdYoALVKFPoxxac=c9x3vRhYge+VAUSqKdkqSvgvS+PiXw@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: amd: Disable and mask interrupts on resume
+To:     =?UTF-8?Q?Kornel_Dul=C4=99ba?= <korneld@chromium.org>
+Cc:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        gregkh@linuxfoundation.org,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        upstream@semihalf.com, rad@semihalf.com, mattedavis@google.com,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        "Gong, Richard" <richard.gong@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Simply adding a "sleep" before checking something is usually not a good
-idea because the time that has been picked can not be enough or too
-much. The best is to wait for events with a timeout.
+On Tue, Apr 11, 2023 at 3:35=E2=80=AFPM Kornel Dul=C4=99ba <korneld@chromiu=
+m.org> wrote:
+> On Tue, Apr 11, 2023 at 3:29=E2=80=AFPM Linux regression tracking (Thorst=
+en
+> Leemhuis) <regressions@leemhuis.info> wrote:
 
-In this selftest, 'sleep 0.5' is used more than 40 times. It is always
-used before calling a 'verify_*' function except for this
-verify_listener_events which has been added later.
+> > Linusw, what's your preferred course to realize this revert quickly?
+> >
+> >  * someone (Kornel?) sends a revert with a commit msg for review, which
+> > you then apply and pass on to the other Linus?
+> >
+> >  * someone (Kornel?) sends a revert with a commit msg for review that
+> > immediately asks the other Linus to pick this up directly?
+> >
+> >  * we ask the other Linus directly to revert this (who then has to come
+> > up with a commit msg on his own)?
+>
+> Would you like me to send a reverting change?
+> I can do this right away.
 
-At the end, using all these 'sleep 0.5' seems to work: the slow CIs
-don't complain so far. Also because it doesn't take too much time, we
-can just add two more 'sleep 0.5' to uniform what is done before calling
-a 'verify_*' function. For the same reasons, we can also delay a bigger
-refactoring to replace all these 'sleep 0.5' by functions waiting for
-events instead of waiting for a fix time and hope for the best.
+Yeah that is best.
 
-Fixes: 6c73008aa301 ("selftests: mptcp: listener test for userspace PM")
-Cc: stable@vger.kernel.org
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
----
- tools/testing/selftests/net/mptcp/userspace_pm.sh | 2 ++
- 1 file changed, 2 insertions(+)
+> The commit message would contain something like:
+>
+> This patch introduces a regression on Lenovo Z13, which can't wake
+> from the lid with it applied.
 
-diff --git a/tools/testing/selftests/net/mptcp/userspace_pm.sh b/tools/testing/selftests/net/mptcp/userspace_pm.sh
-index 48e52f995a98..b1eb7bce599d 100755
---- a/tools/testing/selftests/net/mptcp/userspace_pm.sh
-+++ b/tools/testing/selftests/net/mptcp/userspace_pm.sh
-@@ -913,6 +913,7 @@ test_listener()
- 		$client4_port > /dev/null 2>&1 &
- 	local listener_pid=$!
- 
-+	sleep 0.5
- 	verify_listener_events $client_evts $LISTENER_CREATED $AF_INET 10.0.2.2 $client4_port
- 
- 	# ADD_ADDR from client to server machine reusing the subflow port
-@@ -928,6 +929,7 @@ test_listener()
- 	# Delete the listener from the client ns, if one was created
- 	kill_wait $listener_pid
- 
-+	sleep 0.5
- 	verify_listener_events $client_evts $LISTENER_CLOSED $AF_INET 10.0.2.2 $client4_port
- }
- 
+Looks good!
 
--- 
-2.39.2
+Thorsten: thanks for watching over this issue, we'll have it
+resolved pronto.
 
+Yours,
+Linus Walleij
