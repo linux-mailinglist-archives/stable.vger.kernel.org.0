@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF5716DDC90
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874D96DDC91
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229776AbjDKNrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:47:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33564 "EHLO
+        id S230302AbjDKNrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:47:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230281AbjDKNrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:47:07 -0400
+        with ESMTP id S230281AbjDKNrP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:47:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244BCC4
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:47:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9EE4E48
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:47:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABAFD61F78
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5AF0C433EF;
-        Tue, 11 Apr 2023 13:47:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73DA9626A4
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:47:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81506C433EF;
+        Tue, 11 Apr 2023 13:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681220825;
-        bh=x1dY8wWDajH9tEyMgOpQEWZVtZQLwU8vgGEZXuWAse8=;
+        s=korg; t=1681220833;
+        bh=1KOfcPJrV7QzWaCNrczO2gv93Qce6ALZeIWQpMQtTVM=;
         h=Subject:To:Cc:From:Date:From;
-        b=MuxM7lFUDl0bJErDBczdulvoMYtzqScujWLVenP3ZvYz7GFu5QnysBAARQ0WmgkZC
-         TVMH+l8OKb03mfa1Y/6gVsAR2L7VBqLP6/7HviZSaRBOjEvv+I6GsW1YSieSaznRjv
-         eK2E7cLRPojl90CUXJh8J7EbfgzWKdQIriPQv1i8=
-Subject: FAILED: patch "[PATCH] maple_tree: detect dead nodes in mas_start()" failed to apply to 6.1-stable tree
+        b=nycDm1Z/P4/PmAorMwgpild/E8v3va1voDaY1EO5FUOYEcbjBGG98cN6Advs0HuB6
+         8SOZ2a9EQbQ1MuX80W/8/EMn2h/C9rVDI0D/9ex8VJUs8w0U3ce65LVy40KrMcYDV1
+         wXJ4rAF5l7Q2ecz2h2gShdBNB0qNZ585cqewGbFY=
+Subject: FAILED: patch "[PATCH] maple_tree: detect dead nodes in mas_start()" failed to apply to 6.2-stable tree
 To:     Liam.Howlett@oracle.com, akpm@linux-foundation.org,
         stable@vger.kernel.org, surenb@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:47:02 +0200
-Message-ID: <2023041102-dust-ecosystem-f498@gregkh>
+Date:   Tue, 11 Apr 2023 15:47:03 +0200
+Message-ID: <2023041103-washcloth-overplay-32db@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
 git cherry-pick -x a7b92d59c885018cb7bb88539892278e4fd64b29
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041102-dust-ecosystem-f498@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041103-washcloth-overplay-32db@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
