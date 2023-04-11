@@ -2,83 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7826DE182
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 18:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CF606DE256
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 19:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbjDKQxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 12:53:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
+        id S229535AbjDKRVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 13:21:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230241AbjDKQxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 12:53:09 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25599E5E;
-        Tue, 11 Apr 2023 09:53:05 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pmHEs-00051b-Qy; Tue, 11 Apr 2023 18:53:02 +0200
-Message-ID: <10076b2c-1f20-378d-6eb0-d7c352b4660e@leemhuis.info>
-Date:   Tue, 11 Apr 2023 18:53:02 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [PATCH 1/3] ARM: dts: meson: Fix the UART compatible strings
-Content-Language: en-US, de-DE
-To:     =?UTF-8?Q?Ricardo_Ca=c3=b1uelo?= <ricardo.canuelo@collabora.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20211227180026.4068352-1-martin.blumenstingl@googlemail.com>
- <20211227180026.4068352-2-martin.blumenstingl@googlemail.com>
- <20230405132900.ci35xji3xbb3igar@rcn-XPS-13-9305>
- <fdffc009-47cf-e88d-5b9e-d6301f7f73f2@leemhuis.info>
- <44556911-e56e-6171-07dd-05cc0e30c732@collabora.com>
- <71816e38-f919-11a4-1ac9-71416b54b243@leemhuis.info>
- <2023040604-washtub-undivided-5763@gregkh>
- <d7f389ab-914b-c48e-dc8e-290fb72f345e@collabora.com>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <d7f389ab-914b-c48e-dc8e-290fb72f345e@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1681231986;901f67e3;
-X-HE-SMSGID: 1pmHEs-00051b-Qy
-X-Spam-Status: No, score=-2.2 required=5.0 tests=NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229499AbjDKRVX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 13:21:23 -0400
+X-Greylist: delayed 1033 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 11 Apr 2023 10:21:21 PDT
+Received: from www.linuxtv.org (www.linuxtv.org [130.149.80.248])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B943122
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 10:21:21 -0700 (PDT)
+Received: from hverkuil by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <hverkuil@linuxtv.org>)
+        id 1pmHPb-00Gs2a-4l; Tue, 11 Apr 2023 17:04:07 +0000
+From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Date:   Tue, 11 Apr 2023 16:54:00 +0000
+Subject: [git:media_stage/master] media: ov8856: Do not check for for module version
+To:     linuxtv-commits@linuxtv.org
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1pmHPb-00Gs2a-4l@www.linuxtv.org>
+X-Spam-Status: No, score=-2.0 required=5.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10.04.23 08:09, Ricardo Cañuelo wrote:
-> 
-> I sent the original report to stable@vger.kernel.org. 
+This is an automatic generated email to let you know that the following patch were queued:
 
-thx! let me tell regzbot about it:
+Subject: media: ov8856: Do not check for for module version
+Author:  Ricardo Ribalda <ribalda@chromium.org>
+Date:    Thu Mar 23 23:44:20 2023 +0100
 
-#regzbot monitor:
-https://lore.kernel.org/all/1fcff522-337a-c334-42a7-bc9b4f0daec4@collabora.com/
-#regzbot ignore-activity
+It the device is probed in non-zero ACPI D state, the module
+identification is delayed until the first streamon.
 
-> Sorry for
-> the confusion, I'm still learning about how report regressions
-> properly using regzbot, specially for stable branches. Thorsten's
-> guidelines are being very helpful here.
+The module identification has two parts: deviceID and version. To rea
+the version we have to enable OTP read. This cannot be done during
+streamon, becase it modifies REG_MODE_SELECT.
 
-Great to hear! But FWIW, I really should try to find some time to fine
-tune reporting-issues.rst, reporting-regressions.rst, and
-handling-regressions.rst some more, as there are quite a few things that
-afaics could or need to be improved. Especially the aspect
-"stable/longterm is handled by different set of people (but regular
-developers might help)" is something that needs to become clearer afaics.
+Since the driver has the same behaviour for all the module versions, do
+not read the module version from the sensor's OTP.
 
-But there is still this "there are only 24 hours in a day, but so many
-things to do" problem...
+Cc: stable@vger.kernel.org
+Fixes: 0e014f1a8d54 ("media: ov8856: support device probe in non-zero ACPI D state")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-Ciao, Thorsten
+ drivers/media/i2c/ov8856.c | 40 ----------------------------------------
+ 1 file changed, 40 deletions(-)
+
+---
+
+diff --git a/drivers/media/i2c/ov8856.c b/drivers/media/i2c/ov8856.c
+index cf8384e09413..b5c7881383ca 100644
+--- a/drivers/media/i2c/ov8856.c
++++ b/drivers/media/i2c/ov8856.c
+@@ -1709,46 +1709,6 @@ static int ov8856_identify_module(struct ov8856 *ov8856)
+ 		return -ENXIO;
+ 	}
+ 
+-	ret = ov8856_write_reg(ov8856, OV8856_REG_MODE_SELECT,
+-			       OV8856_REG_VALUE_08BIT, OV8856_MODE_STREAMING);
+-	if (ret)
+-		return ret;
+-
+-	ret = ov8856_write_reg(ov8856, OV8856_OTP_MODE_CTRL,
+-			       OV8856_REG_VALUE_08BIT, OV8856_OTP_MODE_AUTO);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to set otp mode");
+-		return ret;
+-	}
+-
+-	ret = ov8856_write_reg(ov8856, OV8856_OTP_LOAD_CTRL,
+-			       OV8856_REG_VALUE_08BIT,
+-			       OV8856_OTP_LOAD_CTRL_ENABLE);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to enable load control");
+-		return ret;
+-	}
+-
+-	ret = ov8856_read_reg(ov8856, OV8856_MODULE_REVISION,
+-			      OV8856_REG_VALUE_08BIT, &val);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to read module revision");
+-		return ret;
+-	}
+-
+-	dev_info(&client->dev, "OV8856 revision %x (%s) at address 0x%02x\n",
+-		 val,
+-		 val == OV8856_2A_MODULE ? "2A" :
+-		 val == OV8856_1B_MODULE ? "1B" : "unknown revision",
+-		 client->addr);
+-
+-	ret = ov8856_write_reg(ov8856, OV8856_REG_MODE_SELECT,
+-			       OV8856_REG_VALUE_08BIT, OV8856_MODE_STANDBY);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to exit streaming mode");
+-		return ret;
+-	}
+-
+ 	ov8856->identified = true;
+ 
+ 	return 0;
