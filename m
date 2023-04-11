@@ -2,96 +2,264 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F6C46DD7CA
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 12:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 849BF6DD7DB
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 12:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbjDKKWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 06:22:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48820 "EHLO
+        id S229564AbjDKK02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 06:26:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229493AbjDKKWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 06:22:17 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3094F2D61;
-        Tue, 11 Apr 2023 03:22:09 -0700 (PDT)
-X-UUID: b467e4dad85211eda9a90f0bb45854f4-20230411
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=0NtnqZs2P9N8mSYcOTQ44Mza0LeqD4/w26LdwETFfqg=;
-        b=mpwTKkQFNUUoptZe1QXFNKL2KpdmLn+xO4hDUYhYnnMULktUATSW3hHUmeq1R4wjbotr64YPVsH3lnUBFF1o2QXa9ZgZqm9jb7lDzK1vsYd7VmdZDmBlh43ts284Xp45yQ2drVJ2VRB7YoFuYSOIO1pW6KId9SoP3PtIyGG0CZs=;
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.22,REQID:18fd0a10-ad8d-4820-8d83-52a4ef39f813,IP:0,U
-        RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-        release,TS:0
-X-CID-META: VersionHash:120426c,CLOUDID:0ce2f4a0-8fcb-430b-954a-ba3f00fa94a5,B
-        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0|-5,EDM:-3,IP:ni
-        l,URL:1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
-X-CID-BVR: 1,FCT|NGT
-X-CID-BAS: 1,FCT|NGT,0,_
-X-UUID: b467e4dad85211eda9a90f0bb45854f4-20230411
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <mark-pk.tsai@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 938440688; Tue, 11 Apr 2023 18:22:04 +0800
-Received: from mtkmbs13n1.mediatek.inc (172.21.101.193) by
- mtkmbs11n1.mediatek.inc (172.21.101.185) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.25; Tue, 11 Apr 2023 18:22:03 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs13n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.1118.25 via Frontend Transport; Tue, 11 Apr 2023 18:22:03 +0800
-From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-To:     <mark-pk.tsai@mediatek.com>
-CC:     <gregkh@linuxfoundation.org>, <johan+linaro@kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <matthias.bgg@gmail.com>,
-        <maz@kernel.org>, <stable@vger.kernel.org>, <tglx@linutronix.de>
-Subject: [PATCH 5.4 3/3] irqdomain: Fix mapping-creation race
-Date:   Tue, 11 Apr 2023 18:22:03 +0800
-Message-ID: <20230411102203.29646-1-mark-pk.tsai@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20230322124550.29812-1-mark-pk.tsai@mediatek.com>
-References: <20230322124550.29812-1-mark-pk.tsai@mediatek.com>
+        with ESMTP id S229577AbjDKK01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 06:26:27 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13318F2
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 03:26:26 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pmBCX-00077U-29; Tue, 11 Apr 2023 12:26:13 +0200
+Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pmBCT-0001IE-Ha; Tue, 11 Apr 2023 12:26:09 +0200
+Date:   Tue, 11 Apr 2023 12:26:09 +0200
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     Ping-Ke Shih <pkshih@realtek.com>
+Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
+        Hans Ulli Kroll <linux@ulli-kroll.de>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Tim K <tpkuester@gmail.com>, "Alex G ." <mr.nuke.me@gmail.com>,
+        Nick Morrow <morrownr@gmail.com>,
+        Viktor Petrenko <g0000ga@gmail.com>,
+        Andreas Henriksson <andreas@fatal.se>,
+        ValdikSS <iam@valdikss.org.ru>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
+Message-ID: <20230411102609.GB19113@pengutronix.de>
+References: <20230404072508.578056-1-s.hauer@pengutronix.de>
+ <20230404072508.578056-3-s.hauer@pengutronix.de>
+ <e9c9b7d470904d9f8c8d6892cb8efd7d@realtek.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=0.2 required=5.0 tests=DKIM_INVALID,DKIM_SIGNED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,T_SPF_TEMPERROR,UNPARSEABLE_RELAY
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e9c9b7d470904d9f8c8d6892cb8efd7d@realtek.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Johan Hovold <johan+linaro@kernel.org>
+On Thu, Apr 06, 2023 at 01:54:55AM +0000, Ping-Ke Shih wrote:
 > 
-> [ Upstream commit 601363cc08da25747feb87c55573dd54de91d66a ]
 > 
-> Parallel probing of devices that share interrupts (e.g. when a driver
-> uses asynchronous probing) can currently result in two mappings for the
-> same hardware interrupt to be created due to missing serialisation.
+> > -----Original Message-----
+> > From: Sascha Hauer <s.hauer@pengutronix.de>
+> > Sent: Tuesday, April 4, 2023 3:25 PM
+> > To: linux-wireless <linux-wireless@vger.kernel.org>
+> > Cc: Hans Ulli Kroll <linux@ulli-kroll.de>; Larry Finger <Larry.Finger@lwfinger.net>; Ping-Ke Shih
+> > <pkshih@realtek.com>; Tim K <tpkuester@gmail.com>; Alex G . <mr.nuke.me@gmail.com>; Nick Morrow
+> > <morrownr@gmail.com>; Viktor Petrenko <g0000ga@gmail.com>; Andreas Henriksson <andreas@fatal.se>;
+> > ValdikSS <iam@valdikss.org.ru>; kernel@pengutronix.de; Sascha Hauer <s.hauer@pengutronix.de>;
+> > stable@vger.kernel.org
+> > Subject: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
+> > 
+> > On my RTW8821CU chipset rfe_option reads as 0x22. Looking at the
+> > downstream driver suggests that the field width of rfe_option is 5 bit,
+> > so rfe_option should be masked with 0x1f.
 > 
-> Make sure to hold the irq_domain_mutex when creating mappings so that
-> looking for an existing mapping before creating a new one is done
-> atomically.
-> 
-> Fixes: 765230b5f084 ("driver-core: add asynchronous probing support for drivers")
-> Fixes: b62b2cf5759b ("irqdomain: Fix handling of type settings for existing mappings")
-> Link: https://lore.kernel.org/r/YuJXMHoT4ijUxnRb@hovoldconsulting.com
-> Cc: stable@vger.kernel.org      # 4.8
-> Cc: Dmitry Torokhov <dtor@chromium.org>
-> Cc: Jon Hunter <jonathanh@nvidia.com>
-> Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-> Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Link: https://lore.kernel.org/r/20230213104302.17307-7-johan+linaro@kernel.org
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+> I don't aware of this. Could you point where you get it?
 
-5.4 also need this patch.
-Could someone please help to review it?
+See
+https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c1ant.c#L2480
+and
+https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c2ant.c#L2519
 
-Thanks,
-Mark-PK Tsai
+But I now see that this masked value is only used at the places I
+pointed to, there are other places in the driver that use the unmasked
+value.
+
+> 
+> As I check it internally, 0x22 is expected, so I suggest to have 0x22 entry
+> as below
+> 
+> -       [34] = RTW_DEF_RFE(8821c, 0, 0),
+> +       [34] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),  // copy from type 2
+
+That alone is not enough. There are other places in rtw8821c.c that
+compare with rfe_option. See below for a patch with annotations where to
+find the corresponding code in the downstream driver. Note how BIT(5) is
+irrelevant for all decisions. I can't tell of course if that's just by
+chance or by intent.
+
+I don't know where to go from here. It looks like we really only want to
+make a decision between SWITCH_TO_WLG and SWITCH_TO_BTG at most places,
+so it might be better to store a flag somewhere rather than having the
+big switch/case in multiple places.
+
+Sascha
+
+-------------------------------8<---------------------------------
+
+diff --git a/drivers/net/wireless/realtek/rtw88/rtw8821c.c b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
+index 17f800f6efbd0..5da7787cea129 100644
+--- a/drivers/net/wireless/realtek/rtw88/rtw8821c.c
++++ b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
+@@ -317,11 +317,32 @@ static void rtw8821c_set_channel_rf(struct rtw_dev *rtwdev, u8 channel, u8 bw)
+ 	}
+ 
+ 	if (channel <= 14) {
+-		if (rtwdev->efuse.rfe_option == 0)
+-			rtw8821c_switch_rf_set(rtwdev, SWITCH_TO_WLG);
+-		else if (rtwdev->efuse.rfe_option == 2 ||
+-			 rtwdev->efuse.rfe_option == 4)
++		/*
++		 * see:
++		 * https://github.com/morrownr/8821cu-20210916/blob/main/hal/phydm/rtl8821c/phydm_hal_api8821c.c#L338
++		 */
++		switch (rtwdev->efuse.rfe_option) {
++		case 0x02: case 0x22:
++		case 0x04: case 0x24:
++		case 0x07: case 0x27:
++		case 0x2a:
++		case 0x2c:
++		case 0x2f:
+ 			rtw8821c_switch_rf_set(rtwdev, SWITCH_TO_BTG);
++			break;
++		case 0x00: case 0x20:
++		case 0x01: case 0x21:
++		case 0x03: case 0x23:
++		case 0x05: case 0x25:
++		case 0x06: case 0x26:
++		case 0x28:
++		case 0x29:
++		case 0x2b:
++		case 0x2d:
++		case 0x2e:
++		default:
++			rtw8821c_switch_rf_set(rtwdev, SWITCH_TO_WLG);
++		}
+ 		rtw_write_rf(rtwdev, RF_PATH_A, RF_LUTDBG, BIT(6), 0x1);
+ 		rtw_write_rf(rtwdev, RF_PATH_A, 0x64, 0xf, 0xf);
+ 	} else {
+@@ -501,12 +522,35 @@ static s8 get_cck_rx_pwr(struct rtw_dev *rtwdev, u8 lna_idx, u8 vga_idx)
+ 	s8 rx_pwr_all = 0;
+ 	s8 lna_gain = 0;
+ 
+-	if (efuse->rfe_option == 0) {
+-		lna_gain_table = lna_gain_table_0;
+-		lna_gain_table_size = ARRAY_SIZE(lna_gain_table_0);
+-	} else {
++	/*
++	 * see:
++	 * https://github.com/morrownr/8821cu-20210916/blob/main/hal/phydm/rtl8821c/phydm_hal_api8821c.c#L52
++	 * https://github.com/morrownr/8821cu-20210916/blob/main/hal/phydm/phydm.c#L178
++	 */
++	switch (rtwdev->efuse.rfe_option) {
++	case 0x02: case 0x22:
++	case 0x04: case 0x24:
++	case 0x07: case 0x27:
++	case 0x2a:
++	case 0x2c:
++	case 0x2f:
+ 		lna_gain_table = lna_gain_table_1;
+ 		lna_gain_table_size = ARRAY_SIZE(lna_gain_table_1);
++		break;
++	case 0x00: case 0x20:
++	case 0x01: case 0x21:
++	case 0x03: case 0x23:
++	case 0x05: case 0x25:
++	case 0x06: case 0x26:
++	case 0x28:
++	case 0x29:
++	case 0x2b:
++	case 0x2d:
++	case 0x2e:
++	default:
++		lna_gain_table = lna_gain_table_0;
++		lna_gain_table_size = ARRAY_SIZE(lna_gain_table_0);
++		break;
+ 	}
+ 
+ 	if (lna_idx >= lna_gain_table_size) {
+@@ -821,6 +865,9 @@ static void rtw8821c_coex_cfg_ant_switch(struct rtw_dev *rtwdev, u8 ctrl_type,
+ 				DPDT_CTRL_PIN);
+ 
+ 		if (pos_type == COEX_SWITCH_TO_WLG_BT) {
++			/*
++			 * What here? Cannot find refval = 0x3 in downstream driver
++			 */
+ 			if (coex_rfe->rfe_module_type != 0x4 &&
+ 			    coex_rfe->rfe_module_type != 0x2)
+ 				regval = 0x3;
+@@ -902,7 +949,12 @@ static void rtw8821c_coex_cfg_rfe_type(struct rtw_dev *rtwdev)
+ 	coex_rfe->ant_switch_exist = true;
+ 	coex_rfe->wlg_at_btg = false;
+ 
+-	switch (coex_rfe->rfe_module_type) {
++	/*
++	 * see:
++	 * https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c1ant.c#L2480
++	 * https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c2ant.c#L2519
++	 */
++	switch (coex_rfe->rfe_module_type & 0x1f) {
+ 	case 0:
+ 	case 8:
+ 	case 1:
+@@ -1533,11 +1585,30 @@ static const struct rtw_intf_phy_para_table phy_para_table_8821c = {
+ };
+ 
+ static const struct rtw_rfe_def rtw8821c_rfe_defs[] = {
+-	[0] = RTW_DEF_RFE(8821c, 0, 0),
+-	[2] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
+-	[4] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
+-	[6] = RTW_DEF_RFE(8821c, 0, 0),
+-	[34] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x00] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x01] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x02] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x03] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x04] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x05] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x06] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x07] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x20] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x21] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x22] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x23] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x24] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x25] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x26] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x27] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x28] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x29] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x2a] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x2b] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x2c] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
++	[0x2d] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x2e] = RTW_DEF_RFE(8821c, 0, 0),
++	[0x2f] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
+ };
+ 
+ static struct rtw_hw_reg rtw8821c_dig[] = {
+-- 
+2.39.2
+
+
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
