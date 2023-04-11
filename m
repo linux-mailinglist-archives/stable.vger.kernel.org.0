@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E056DDC89
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967136DDC8B
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 15:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbjDKNqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 09:46:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33032 "EHLO
+        id S229848AbjDKNqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 09:46:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229848AbjDKNqM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:46:12 -0400
+        with ESMTP id S230302AbjDKNqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 09:46:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B71140E8
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:46:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50701421E
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 06:46:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F18A5626AD
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12E17C433EF;
-        Tue, 11 Apr 2023 13:46:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7AB1626B0
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:46:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D80E5C433D2;
+        Tue, 11 Apr 2023 13:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681220766;
-        bh=axIJCQM1DQB7dcl29T2Yaij6YMhjDWAPUOo3v1k0xag=;
+        s=korg; t=1681220769;
+        bh=fWgR2AZE7LhbEMIFzTq17gSxEyTJAWjgS7eIaeNES9Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=VdWjszretr79sJLt1jeBclNXJSPfF0SCy7OGa9b4i/qPPL6QmVAcfXX74YaJBTXVK
-         mA5MRb/DSvgfs0Zb+uygeBuESkrs0OFqUGVUN51O6tJuI1a3pEGBCRlHbHBu85ze0Z
-         0Ei3hqPjQpOg6fLyW9ZSdCliAA+MvMJoE3C13YRw=
-Subject: FAILED: patch "[PATCH] mm: take a page reference when removing device exclusive" failed to apply to 6.1-stable tree
+        b=Z0vFHiDxsjeto+L4Y48gLVOLSdyo2JC/2qMrtOnZlMJGW9t+eowKzEBRwhXCaDkQs
+         2n6B5GHiYJ13YoNxeMQkqeRGkX+XRfZNutSBuAX6aqO9BNqTzgpxEYQpp1fSpQKq3k
+         2wjAUOAmbErJaEaC/05fHaBAoZIC4FVm48RXnyKY=
+Subject: FAILED: patch "[PATCH] mm: take a page reference when removing device exclusive" failed to apply to 5.15-stable tree
 To:     apopple@nvidia.com, akpm@linux-foundation.org, david@redhat.com,
         hch@infradead.org, jhubbard@nvidia.com, rcampbell@nvidia.com,
         stable@vger.kernel.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 11 Apr 2023 15:45:55 +0200
-Message-ID: <2023041155-spiny-taking-d67f@gregkh>
+Date:   Tue, 11 Apr 2023 15:45:57 +0200
+Message-ID: <2023041157-hyperlink-prognosis-e6db@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,25 +49,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x 7c7b962938ddda6a9cd095de557ee5250706ea88
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041155-spiny-taking-d67f@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041157-hyperlink-prognosis-e6db@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 7c7b962938dd ("mm: take a page reference when removing device exclusive entries")
 7d4a8be0c4b2 ("mm/mmu_notifier: remove unused mmu_notifier_range_update_to_read_only export")
 369258ce41c6 ("hugetlb: remove duplicate mmu notifications")
+f268f6cf875f ("mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths")
+2ba99c5e0881 ("mm/khugepaged: fix GUP-fast interaction by sending IPI")
+8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
+21b85b09527c ("madvise: use zap_page_range_single for madvise dontneed")
+131a79b474e9 ("hugetlb: fix vma lock handling during split vma and range unmapping")
+34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
+58ac9a8993a1 ("mm/khugepaged: attempt to map file/shmem-backed pte-mapped THPs by pmds")
+780a4b6fb865 ("mm/khugepaged: check compound_order() in collapse_pte_mapped_thp()")
+40549ba8f8e0 ("hugetlb: use new vma_lock for pmd sharing synchronization")
+378397ccb8e5 ("hugetlb: create hugetlb_unmap_file_folio to unmap single file folio")
+8d9bfb260814 ("hugetlb: add vma based lock for pmd sharing")
+12710fd69634 ("hugetlb: rename vma_shareable() and refactor code")
+c86272287bc6 ("hugetlb: create remove_inode_single_folio to remove single file folio")
+7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
+3a47c54f09c4 ("hugetlbfs: revert use i_mmap_rwsem for more pmd sharing synchronization")
+188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
+19672a9e4a75 ("mm: convert lock_page_or_retry() to folio_lock_or_retry()")
 
 thanks,
 
