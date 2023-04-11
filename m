@@ -2,163 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C4F6DE012
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563146DE026
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 17:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230253AbjDKPzP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 Apr 2023 11:55:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
+        id S229977AbjDKP6H convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 Apr 2023 11:58:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbjDKPzO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:55:14 -0400
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62FF9E58;
-        Tue, 11 Apr 2023 08:55:13 -0700 (PDT)
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-94a34a0baf9so202023366b.1;
-        Tue, 11 Apr 2023 08:55:13 -0700 (PDT)
+        with ESMTP id S230218AbjDKP6E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 11:58:04 -0400
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0CFE59;
+        Tue, 11 Apr 2023 08:58:01 -0700 (PDT)
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-54f6a796bd0so51666827b3.12;
+        Tue, 11 Apr 2023 08:58:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681228512;
+        d=1e100.net; s=20210112; t=1681228681;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=bn1y14BjDhP//nrN2QdcKOf1bYDsUrxiG7mmqhmvXP0=;
-        b=XQPWg3R6XjwCEpTTLKpLxgiyI1fIXNaBuu3/m/KN3rRdUsvN+vEl1Kb8iTBxGSd1z0
-         OmyV/AU8EgaMFYTizq3fxPRieIizcFW5Re1Wztw15my8SBDcQiPh/cfR6Xt7OAsMQ6g+
-         GyBUirl2y6rt34kmJI55nly+zWWhi0goTs9iscvWQfrJeQ4g5z9zBXH4Dy+Ahp9qMvbM
-         VLy+M7/PC9XhCpQNj5Sc4QyEJ9Sa4sIjUn8l6d5FKYpr9UYwlojlGpwCj9UggvCMVxDo
-         N9vnxyZahn56d4eJbWVi3gcNqZ8vdhff7EwqVl6KAd7ZpHw80T9oUdz+GKm43BqinGD9
-         V0QA==
-X-Gm-Message-State: AAQBX9cZ50E2jTkYLgcL6K2i9499I71AOOLyJIpBXkuZG1jJFB7rbY/T
-        3eadqD0cMHd6nOJys6ka3nvM9s/ZkFrSDOWDN+UdhpSwBG4=
-X-Google-Smtp-Source: AKy350a1iBepfUVKkwKC63B/e2nAl1t2cKQisZ8M8ijwWnXhvgEiEzp0dKjhhj4DeCQBJNMvVIoF9tAprPRT8NzpLo8=
-X-Received: by 2002:a50:d0d9:0:b0:4fb:f19:87f with SMTP id g25-20020a50d0d9000000b004fb0f19087fmr6811181edf.3.1681228511745;
- Tue, 11 Apr 2023 08:55:11 -0700 (PDT)
+        bh=f+3w89leq3eEIkwoZcDVhq9F0DoH4q/Sj2floJIfCG0=;
+        b=b9hehx53Rg1EmjVFQKFOlDYTgMzfZofyjGHtV0ndEj55dn89EllA85Aom8EwOYhVCu
+         my3dyoOmI5qiqEygWwSkJkm5Nkbp6MqvsufxT9U1u8rGpVQsM9KwllGzyDNSN5QhFsMR
+         u2Z5XNGfnMplnsdh3r28I7D6ooZYTU7ExBZVnKpuktkmvPz4tc5e9LxCppiTnr+t6QXj
+         ygYXge5T22CRuKa4YYMjV0u2/Z3tH/1tEwQL1BqhvA087agkxE2oe1U6KNdMXu6pUQiV
+         e3zB6mLFUTVBByfSUUXQtQKPutPqmKox6k+nmwyxN8i0UmHBnKgqOGbbtsrmvdlfAs/v
+         16mA==
+X-Gm-Message-State: AAQBX9eB+24gNh4orGEYLNl8L+Uz5gvo91G0YMZDq3rDuID2KfMuJZGS
+        xDF/99C7M+8zz0+8EnMkDojSE7YcHOsrAQ==
+X-Google-Smtp-Source: AKy350aq7hf0rfi34qVVccbfpKSa6XDOF8m7qcps4XHyA956RA44VLNIX8EXuK/mJncZPV5K12GKjg==
+X-Received: by 2002:a0d:ddcc:0:b0:54f:baa:2c with SMTP id g195-20020a0dddcc000000b0054f0baa002cmr2455815ywe.0.1681228680749;
+        Tue, 11 Apr 2023 08:58:00 -0700 (PDT)
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com. [209.85.219.172])
+        by smtp.gmail.com with ESMTPSA id s189-20020a819bc6000000b00545a0818483sm3592683ywg.19.2023.04.11.08.57.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Apr 2023 08:57:58 -0700 (PDT)
+Received: by mail-yb1-f172.google.com with SMTP id a13so8716783ybl.11;
+        Tue, 11 Apr 2023 08:57:58 -0700 (PDT)
+X-Received: by 2002:a25:7654:0:b0:b8e:e0db:5b9d with SMTP id
+ r81-20020a257654000000b00b8ee0db5b9dmr4304677ybc.12.1681228677832; Tue, 11
+ Apr 2023 08:57:57 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230410095045.14872-1-wyes.karny@amd.com> <20230410095250.14908-1-wyes.karny@amd.com>
-In-Reply-To: <20230410095250.14908-1-wyes.karny@amd.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 11 Apr 2023 17:55:00 +0200
-Message-ID: <CAJZ5v0jH4uatAR7HiGY_MYASOcdwxvwkUZaMCHcznd-0idLCUA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] cpufreq/schedutil: Add fast_switch callback check
-To:     Wyes Karny <wyes.karny@amd.com>
-Cc:     ray.huang@amd.com, rafael@kernel.org, viresh.kumar@linaro.org,
-        mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
-        bristot@redhat.com, vschneid@redhat.com, joel@joelfernandes.org,
-        gautham.shenoy@amd.com, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20230404193934.472457-1-daniel.vetter@ffwll.ch> <ZDVkSaskEvwix8Bz@phenom.ffwll.local>
+In-Reply-To: <ZDVkSaskEvwix8Bz@phenom.ffwll.local>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 11 Apr 2023 17:57:44 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUVME6RnXkq-0FsUdH6-hqe5BqeT2UzgtW1uK+sg0GsQg@mail.gmail.com>
+Message-ID: <CAMuHMdUVME6RnXkq-0FsUdH6-hqe5BqeT2UzgtW1uK+sg0GsQg@mail.gmail.com>
+Subject: Re: [PATCH] fbmem: Reject FB_ACTIVATE_KD_TEXT from userspace
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Alex Deucher <alexander.deucher@amd.com>, shlomo@fastmail.com,
+        =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>,
+        =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Qiujun Huang <hqjagain@gmail.com>,
+        Peter Rosin <peda@axentia.se>, linux-fbdev@vger.kernel.org,
+        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Shigeru Yoshida <syoshida@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 X-Spam-Status: No, score=0.5 required=5.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
         FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 10, 2023 at 11:53 AM Wyes Karny <wyes.karny@amd.com> wrote:
->
-> The set value of `fast_switch_enabled` flag doesn't guarantee that
-> fast_switch callback is set. For some drivers such as amd_pstate, the
-> adjust_perf callback is used but it still sets `fast_switch_possible`
-> flag. This is not wrong because this flag doesn't imply fast_switch
-> callback is set, it implies whether the driver can guarantee that
-> frequency can be changed on any CPU sharing the policy and that the
-> change will affect all of the policy CPUs without the need to send any
-> IPIs or issue callbacks from the notifier chain.  Therefore add an extra
-> NULL check before calling fast_switch in sugov_update_single_freq
-> function.
->
-> Ideally `sugov_update_single_freq` function should not be called with
-> amd_pstate. But in a corner case scenario, when aperf/mperf overflow
-> occurs, kernel disables frequency invariance calculation which causes
-> schedutil to fallback to sugov_update_single_freq which currently relies
-> on the fast_switch callback.
+Hi Daniel,
 
-Yes, it does.  Which is why that callback must be provided if the
-driver sets fast_switch_enabled.
+On Tue, Apr 11, 2023 at 3:44 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> On Tue, Apr 04, 2023 at 09:39:34PM +0200, Daniel Vetter wrote:
+> > This is an oversight from dc5bdb68b5b3 ("drm/fb-helper: Fix vt
+> > restore") - I failed to realize that nasty userspace could set this.
+> >
+> > It's not pretty to mix up kernel-internal and userspace uapi flags
+> > like this, but since the entire fb_var_screeninfo structure is uapi
+> > we'd need to either add a new parameter to the ->fb_set_par callback
+> > and fb_set_par() function, which has a _lot_ of users. Or some other
+> > fairly ugly side-channel int fb_info. Neither is a pretty prospect.
+> >
+> > Instead just correct the issue at hand by filtering out this
+> > kernel-internal flag in the ioctl handling code.
+> >
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > Fixes: dc5bdb68b5b3 ("drm/fb-helper: Fix vt restore")
 
-Overall, adjust_perf is optional, but fast_switch_enabled can only be
-set if fast_switch is actually present.
+> An Ack on this (or a better idea) would be great, so I can stuff it into
+> -fixes.
 
-Please fix the driver.
+I don't understand what the original commit this fixes is doing anyway...
 
->
-> Normal flow:
->   sugov_update_single_perf
->     cpufreq_driver_adjust_perf
->       cpufreq_driver->adjust_perf
->
-> Error case flow:
->   sugov_update_single_perf
->     sugov_update_single_freq  <-- This is chosen because the freq invariant is disabled due to aperf/mperf overflow
->       cpufreq_driver_fast_switch
->          cpufreq_driver->fast_switch <-- Here NULL pointer dereference is happening, because fast_switch is not set
->
-> Fix this NULL pointer dereference issue by doing a NULL check.
->
-> Fixes: a61dec744745 ("cpufreq: schedutil: Avoid missing updates for one-CPU policies")
-> Signed-off-by: Wyes Karny <wyes.karny@amd.com>
->
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/cpufreq/cpufreq.c        | 11 +++++++++++
->  include/linux/cpufreq.h          |  1 +
->  kernel/sched/cpufreq_schedutil.c |  2 +-
->  3 files changed, 13 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-> index 6d8fd3b8dcb5..364d31b55380 100644
-> --- a/drivers/cpufreq/cpufreq.c
-> +++ b/drivers/cpufreq/cpufreq.c
-> @@ -2138,6 +2138,17 @@ unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
->  }
->  EXPORT_SYMBOL_GPL(cpufreq_driver_fast_switch);
->
-> +/**
-> + * cpufreq_driver_has_fast_switch - Check "fast switch" callback.
-> + *
-> + * Return 'true' if the ->fast_switch callback is present for the
-> + * current driver or 'false' otherwise.
-> + */
-> +bool cpufreq_driver_has_fast_switch(void)
-> +{
-> +       return !!cpufreq_driver->fast_switch;
-> +}
-> +
->  /**
->   * cpufreq_driver_adjust_perf - Adjust CPU performance level in one go.
->   * @cpu: Target CPU.
-> diff --git a/include/linux/cpufreq.h b/include/linux/cpufreq.h
-> index 65623233ab2f..8a9286fc718b 100644
-> --- a/include/linux/cpufreq.h
-> +++ b/include/linux/cpufreq.h
-> @@ -604,6 +604,7 @@ struct cpufreq_governor {
->  /* Pass a target to the cpufreq driver */
->  unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
->                                         unsigned int target_freq);
-> +bool cpufreq_driver_has_fast_switch(void);
->  void cpufreq_driver_adjust_perf(unsigned int cpu,
->                                 unsigned long min_perf,
->                                 unsigned long target_perf,
-> diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-> index e3211455b203..a1c449525ac2 100644
-> --- a/kernel/sched/cpufreq_schedutil.c
-> +++ b/kernel/sched/cpufreq_schedutil.c
-> @@ -364,7 +364,7 @@ static void sugov_update_single_freq(struct update_util_data *hook, u64 time,
->          * concurrently on two different CPUs for the same target and it is not
->          * necessary to acquire the lock in the fast switch case.
->          */
-> -       if (sg_policy->policy->fast_switch_enabled) {
-> +       if (sg_policy->policy->fast_switch_enabled && cpufreq_driver_has_fast_switch()) {
->                 cpufreq_driver_fast_switch(sg_policy->policy, next_f);
->         } else {
->                 raw_spin_lock(&sg_policy->update_lock);
-> --
-> 2.34.1
->
+> > --- a/drivers/video/fbdev/core/fbmem.c
+> > +++ b/drivers/video/fbdev/core/fbmem.c
+> > @@ -1116,6 +1116,8 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
+> >       case FBIOPUT_VSCREENINFO:
+> >               if (copy_from_user(&var, argp, sizeof(var)))
+> >                       return -EFAULT;
+> > +             /* only for kernel-internal use */
+> > +             var.activate &= ~FB_ACTIVATE_KD_TEXT;
+> >               console_lock();
+> >               lock_fb_info(info);
+> >               ret = fbcon_modechange_possible(info, &var);
+
+Perhaps FB_ACTIVATE_KD_TEXT should be removed (marked as
+reserved) from include/uapi/linux/fb.h, too?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
