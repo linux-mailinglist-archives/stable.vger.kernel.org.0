@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F876DDA96
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 14:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECC46DDA9B
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 14:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbjDKMQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 08:16:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37276 "EHLO
+        id S230025AbjDKMRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 08:17:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229916AbjDKMQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 08:16:36 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120A23AA3
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 05:16:34 -0700 (PDT)
-Received: from localhost.localdomain (unknown [213.194.153.37])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+        with ESMTP id S229877AbjDKMRU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 08:17:20 -0400
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05EB135BB
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 05:17:14 -0700 (PDT)
+Received: from [192.168.1.137] (unknown [213.194.153.37])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: rcn)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 571D566031E0
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 13:16:33 +0100 (BST)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 76B3466031E4;
+        Tue, 11 Apr 2023 13:17:13 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1681215393;
-        bh=gGQoU+ue6gDIOZp8K55gtALTkZRkbPLHKFz5IySsPI8=;
-        h=From:To:Subject:Date:From;
-        b=DwAXM+QzYnOnKt3qubyg9hbyr28N51ffRr2s2km3LBc14nJNQDBfym8fz1xUZjk7R
-         3dUgf9u+W24nnxjErhI7yTdANFSv03rNEi8vRtw3AO1+tqv28lOy5o1L9h7y959pBD
-         IXoWcosECm55DJQEq0AhN9SD7oHj/cLQJPCVIW7KAs3gKtFmdT7Byylzq81Dl+lsTU
-         bqmoCRmq/tS0HStXTu8LtNhhDr6X6aX/9E/D5w8xqjI1WXvTzvBalD5z9vP81xU7GZ
-         hIEBx3fpwcguKPoRoO7TG8wLkyPmaePtF9lrQEBNitW9UO2O828YfdAtKIW+Ixlvuh
-         89ZnpJg/2bfIA==
-From:   =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH v2] selftests: intel_pstate: ftime() is deprecated
-Date:   Tue, 11 Apr 2023 14:16:24 +0200
-Message-Id: <20230411121624.1449498-1-ricardo.canuelo@collabora.com>
-X-Mailer: git-send-email 2.25.1
-selftests: intel_pstate: ftime() is deprecated
+        s=mail; t=1681215433;
+        bh=VJOBebOwlBrpg0CW9pmMsHUudQCbRXBFnYlaGggDbRg=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=lkKHLZj0Rwh8twSgtkH0u8M7N5OB8It94Z1jqTnMapo45RKGP9uDOVirTEQkR0rVm
+         /bGfqYqZ35NfsjEDdDokfnCeCpBnn0rXjfwWaByYpa995N8/ueOghz0ELcORhYU+dW
+         0sVYoVGNJyc/7DAIR+zD5M+cslZqroYRbnO8Xert2JTCjdHFNE29IKLzZxgZ8pQoY4
+         3/rgPLt9Axvzp3kR7mzNu/zrt1C2cITVpVND/cdqW/h7CIGCk2HpG3x/2D4eHcRV08
+         0ri+1upTLagdG8E3rAhqpxWE5KllD9eYXlQ/jNqlgBr1bJxkUu7LkO9PItcw/7evsQ
+         OMhMKP8ELDXzw==
+Message-ID: <a3047b2d-3de4-f419-968b-e1109a62309a@collabora.com>
+Date:   Tue, 11 Apr 2023 14:17:10 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH] selftests: intel_pstate: ftime() is deprecated
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <20230411111533.1442349-1-ricardo.canuelo@collabora.com>
+ <2023041111-rewrap-cabana-3966@gregkh>
+From:   =?UTF-8?Q?Ricardo_Ca=c3=b1uelo?= <ricardo.canuelo@collabora.com>
+In-Reply-To: <2023041111-rewrap-cabana-3966@gregkh>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -50,99 +55,13 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+Hi Greg,
 
-commit fc4a3a1bf9ad799181e4d4ec9c2598c0405bc27d upstream.
+On 11/4/23 13:39, Greg KH wrote:
+> As you are passing this on to us, you need to also sign off on it as per
+> our documentation.
 
-Use clock_gettime() instead of deprecated ftime().
+Thanks, I sent v2 with the new tag.
 
-  aperf.c: In function ‘main’:
-  aperf.c:58:2: warning: ‘ftime’ is deprecated [-Wdeprecated-declarations]
-     58 |  ftime(&before);
-        |  ^~~~~
-  In file included from aperf.c:9:
-  /usr/include/sys/timeb.h:39:12: note: declared here
-     39 | extern int ftime (struct timeb *__timebuf)
-        |            ^~~~~
-
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/oe-kbuild-all/202304060514.ELO1BqLI-lkp@intel.com/
-Cc: <stable@vger.kernel.org> # 5.10.x
----
-V1->V2:
-        Set a Signed-off-by tag for myself
-
- tools/testing/selftests/intel_pstate/aperf.c | 22 ++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
-
-diff --git a/tools/testing/selftests/intel_pstate/aperf.c b/tools/testing/selftests/intel_pstate/aperf.c
-index f6cd03a87493..a8acf3996973 100644
---- a/tools/testing/selftests/intel_pstate/aperf.c
-+++ b/tools/testing/selftests/intel_pstate/aperf.c
-@@ -10,8 +10,12 @@
- #include <sched.h>
- #include <errno.h>
- #include <string.h>
-+#include <time.h>
- #include "../kselftest.h"
- 
-+#define MSEC_PER_SEC	1000L
-+#define NSEC_PER_MSEC	1000000L
-+
- void usage(char *name) {
- 	printf ("Usage: %s cpunum\n", name);
- }
-@@ -22,7 +26,7 @@ int main(int argc, char **argv) {
- 	long long tsc, old_tsc, new_tsc;
- 	long long aperf, old_aperf, new_aperf;
- 	long long mperf, old_mperf, new_mperf;
--	struct timeb before, after;
-+	struct timespec before, after;
- 	long long int start, finish, total;
- 	cpu_set_t cpuset;
- 
-@@ -55,7 +59,10 @@ int main(int argc, char **argv) {
- 		return 1;
- 	}
- 
--	ftime(&before);
-+	if (clock_gettime(CLOCK_MONOTONIC, &before) < 0) {
-+		perror("clock_gettime");
-+		return 1;
-+	}
- 	pread(fd, &old_tsc,  sizeof(old_tsc), 0x10);
- 	pread(fd, &old_aperf,  sizeof(old_mperf), 0xe7);
- 	pread(fd, &old_mperf,  sizeof(old_aperf), 0xe8);
-@@ -64,7 +71,10 @@ int main(int argc, char **argv) {
- 		sqrt(i);
- 	}
- 
--	ftime(&after);
-+	if (clock_gettime(CLOCK_MONOTONIC, &after) < 0) {
-+		perror("clock_gettime");
-+		return 1;
-+	}
- 	pread(fd, &new_tsc,  sizeof(new_tsc), 0x10);
- 	pread(fd, &new_aperf,  sizeof(new_mperf), 0xe7);
- 	pread(fd, &new_mperf,  sizeof(new_aperf), 0xe8);
-@@ -73,11 +83,11 @@ int main(int argc, char **argv) {
- 	aperf = new_aperf-old_aperf;
- 	mperf = new_mperf-old_mperf;
- 
--	start = before.time*1000 + before.millitm;
--	finish = after.time*1000 + after.millitm;
-+	start = before.tv_sec*MSEC_PER_SEC + before.tv_nsec/NSEC_PER_MSEC;
-+	finish = after.tv_sec*MSEC_PER_SEC + after.tv_nsec/NSEC_PER_MSEC;
- 	total = finish - start;
- 
--	printf("runTime: %4.2f\n", 1.0*total/1000);
-+	printf("runTime: %4.2f\n", 1.0*total/MSEC_PER_SEC);
- 	printf("freq: %7.0f\n", tsc / (1.0*aperf / (1.0 * mperf)) / total);
- 	return 0;
- }
--- 
-2.25.1
-
+Cheers,
+Ricardo
