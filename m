@@ -2,144 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD216DD92E
-	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 481E06DD95A
+	for <lists+stable@lfdr.de>; Tue, 11 Apr 2023 13:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbjDKLQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 07:16:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55288 "EHLO
+        id S229666AbjDKL1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 07:27:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229997AbjDKLQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:16:09 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B78BD49E1
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:15:46 -0700 (PDT)
-Received: from localhost.localdomain (unknown [213.194.153.37])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S229532AbjDKL1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 07:27:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 504613AAE
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 04:27:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: rcn)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id CA04766031AD
-        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 12:15:44 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1681211745;
-        bh=lyYOmrmdVRpPU4SHSyq/vn0Txp8gN1H+tDixvba7Sfw=;
-        h=From:To:Subject:Date:From;
-        b=F/29y7PE1NdzmJkidQkRPfYWG/ymwF4ZSFBsKAc3tvJmtuIpYsPjjmm1GSYmVf2Ch
-         3zK04sjEjXbYBwIrX7T6gjz70NDYhrKPNzkEUWpkCaxzBlVhwREwN06+cbRSe1+BPB
-         BOfraeQcAdaTRPNGTx6gmHVZCPl3hpqfFEFVqo/de1XckufzQu/qEnmf3FYZ8zLIV+
-         KFL+Hr4qQ7EsVDxtIsYftyoxPq2IJL5M4zitnDK2yR2ByyPs+oauzDJRtoCt0woxmH
-         FR10+pmG+659a0LyKVyKZCYUvdmpekUs0YLznp6LfA1Zp4eNtmiUdhZ21wik44qdGI
-         1Ftc5tdwSPtVQ==
-From:   =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH] selftests: intel_pstate: ftime() is deprecated
-Date:   Tue, 11 Apr 2023 13:15:33 +0200
-Message-Id: <20230411111533.1442349-1-ricardo.canuelo@collabora.com>
-X-Mailer: git-send-email 2.25.1
-selftests: intel_pstate: ftime() is deprecated
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13C32624B4
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 11:27:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B38EC433D2;
+        Tue, 11 Apr 2023 11:27:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681212457;
+        bh=RZ52/S1rMxdHqOrcsxqINogegsvEkKQ8xrVuXjlhCQI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ZprChznJ0EUG/cgpBs5NjCVkKUS5UI+zTgsLAUocgy+0cWuKHX9xFff1J6nQi/hm3
+         PONH5EkxkbFCRzIEDOA/gF06iqFTe8B6apS707FcNZFLc193Kaai6QdRW6FKh8OzkN
+         tWo2IVoIOCPrOhiGmKWNBfnhK5D3RTHWvbSsSq6Y=
+Subject: FAILED: patch "[PATCH] tracing: Have tracing_snapshot_instance_cond() write errors" failed to apply to 6.2-stable tree
+To:     rostedt@goodmis.org, akpm@linux-foundation.org,
+        mark.rutland@arm.com, mhiramat@kernel.org, zwisler@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 11 Apr 2023 13:27:34 +0200
+Message-ID: <2023041134-deploy-disparity-5f63@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
 
-commit fc4a3a1bf9ad799181e4d4ec9c2598c0405bc27d upstream.
+The patch below does not apply to the 6.2-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Use clock_gettime() instead of deprecated ftime().
+To reproduce the conflict and resubmit, you may use the following commands:
 
-  aperf.c: In function ‘main’:
-  aperf.c:58:2: warning: ‘ftime’ is deprecated [-Wdeprecated-declarations]
-     58 |  ftime(&before);
-        |  ^~~~~
-  In file included from aperf.c:9:
-  /usr/include/sys/timeb.h:39:12: note: declared here
-     39 | extern int ftime (struct timeb *__timebuf)
-        |            ^~~~~
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git checkout FETCH_HEAD
+git cherry-pick -x 9d52727f8043cfda241ae96896628d92fa9c50bb
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041134-deploy-disparity-5f63@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Reviewed-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/oe-kbuild-all/202304060514.ELO1BqLI-lkp@intel.com/
-Cc: <stable@vger.kernel.org> # 5.10.x
----
- tools/testing/selftests/intel_pstate/aperf.c | 22 ++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+Possible dependencies:
 
-diff --git a/tools/testing/selftests/intel_pstate/aperf.c b/tools/testing/selftests/intel_pstate/aperf.c
-index f6cd03a87493..a8acf3996973 100644
---- a/tools/testing/selftests/intel_pstate/aperf.c
-+++ b/tools/testing/selftests/intel_pstate/aperf.c
-@@ -10,8 +10,12 @@
- #include <sched.h>
- #include <errno.h>
- #include <string.h>
-+#include <time.h>
- #include "../kselftest.h"
+9d52727f8043 ("tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 9d52727f8043cfda241ae96896628d92fa9c50bb Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Tue, 4 Apr 2023 22:21:14 -0400
+Subject: [PATCH] tracing: Have tracing_snapshot_instance_cond() write errors
+ to the appropriate instance
+
+If a trace instance has a failure with its snapshot code, the error
+message is to be written to that instance's buffer. But currently, the
+message is written to the top level buffer. Worse yet, it may also disable
+the top level buffer and not the instance that had the issue.
+
+Link: https://lkml.kernel.org/r/20230405022341.688730321@goodmis.org
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ross Zwisler <zwisler@google.com>
+Fixes: 2824f50332486 ("tracing: Make the snapshot trigger work with instances")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 937e9676dfd4..ed1d1093f5e9 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1149,22 +1149,22 @@ static void tracing_snapshot_instance_cond(struct trace_array *tr,
+ 	unsigned long flags;
  
-+#define MSEC_PER_SEC	1000L
-+#define NSEC_PER_MSEC	1000000L
-+
- void usage(char *name) {
- 	printf ("Usage: %s cpunum\n", name);
- }
-@@ -22,7 +26,7 @@ int main(int argc, char **argv) {
- 	long long tsc, old_tsc, new_tsc;
- 	long long aperf, old_aperf, new_aperf;
- 	long long mperf, old_mperf, new_mperf;
--	struct timeb before, after;
-+	struct timespec before, after;
- 	long long int start, finish, total;
- 	cpu_set_t cpuset;
- 
-@@ -55,7 +59,10 @@ int main(int argc, char **argv) {
- 		return 1;
+ 	if (in_nmi()) {
+-		internal_trace_puts("*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
+-		internal_trace_puts("*** snapshot is being ignored        ***\n");
++		trace_array_puts(tr, "*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
++		trace_array_puts(tr, "*** snapshot is being ignored        ***\n");
+ 		return;
  	}
  
--	ftime(&before);
-+	if (clock_gettime(CLOCK_MONOTONIC, &before) < 0) {
-+		perror("clock_gettime");
-+		return 1;
-+	}
- 	pread(fd, &old_tsc,  sizeof(old_tsc), 0x10);
- 	pread(fd, &old_aperf,  sizeof(old_mperf), 0xe7);
- 	pread(fd, &old_mperf,  sizeof(old_aperf), 0xe8);
-@@ -64,7 +71,10 @@ int main(int argc, char **argv) {
- 		sqrt(i);
+ 	if (!tr->allocated_snapshot) {
+-		internal_trace_puts("*** SNAPSHOT NOT ALLOCATED ***\n");
+-		internal_trace_puts("*** stopping trace here!   ***\n");
+-		tracing_off();
++		trace_array_puts(tr, "*** SNAPSHOT NOT ALLOCATED ***\n");
++		trace_array_puts(tr, "*** stopping trace here!   ***\n");
++		tracer_tracing_off(tr);
+ 		return;
  	}
  
--	ftime(&after);
-+	if (clock_gettime(CLOCK_MONOTONIC, &after) < 0) {
-+		perror("clock_gettime");
-+		return 1;
-+	}
- 	pread(fd, &new_tsc,  sizeof(new_tsc), 0x10);
- 	pread(fd, &new_aperf,  sizeof(new_mperf), 0xe7);
- 	pread(fd, &new_mperf,  sizeof(new_aperf), 0xe8);
-@@ -73,11 +83,11 @@ int main(int argc, char **argv) {
- 	aperf = new_aperf-old_aperf;
- 	mperf = new_mperf-old_mperf;
+ 	/* Note, snapshot can not be used when the tracer uses it */
+ 	if (tracer->use_max_tr) {
+-		internal_trace_puts("*** LATENCY TRACER ACTIVE ***\n");
+-		internal_trace_puts("*** Can not use snapshot (sorry) ***\n");
++		trace_array_puts(tr, "*** LATENCY TRACER ACTIVE ***\n");
++		trace_array_puts(tr, "*** Can not use snapshot (sorry) ***\n");
+ 		return;
+ 	}
  
--	start = before.time*1000 + before.millitm;
--	finish = after.time*1000 + after.millitm;
-+	start = before.tv_sec*MSEC_PER_SEC + before.tv_nsec/NSEC_PER_MSEC;
-+	finish = after.tv_sec*MSEC_PER_SEC + after.tv_nsec/NSEC_PER_MSEC;
- 	total = finish - start;
- 
--	printf("runTime: %4.2f\n", 1.0*total/1000);
-+	printf("runTime: %4.2f\n", 1.0*total/MSEC_PER_SEC);
- 	printf("freq: %7.0f\n", tsc / (1.0*aperf / (1.0 * mperf)) / total);
- 	return 0;
- }
--- 
-2.25.1
 
