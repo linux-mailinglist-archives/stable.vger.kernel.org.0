@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 661B16DEE07
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 445236DEDF3
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230270AbjDLIjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46196 "EHLO
+        id S229867AbjDLIim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbjDLIjR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:17 -0400
+        with ESMTP id S230320AbjDLIi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B9383ED
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895DB8A74
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1838162FD3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA5DC433EF;
-        Wed, 12 Apr 2023 08:35:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AADD462FE7
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE3B6C433D2;
+        Wed, 12 Apr 2023 08:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288532;
-        bh=2aZKfhnBmLxKu17DkLyVIaMOiOhGJ6Zjj+QcSaKiKIk=;
+        s=korg; t=1681288535;
+        bh=yTNLAF/N82RWqW09CItoj+J4UBdtT8qT2Cp4fGF6yP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qxzs1peUcar272DwooCSDhOPFtSzfpfnRK5S5ikmXcdi+3wcMBNuddc99+hvSUCxo
-         de/0otOLiXuzHHLwYqghWvi/N+n0OUTshCZGbMq7QrQhxRI5uDTM/NaSHTpn9+v9Qh
-         QAkSpPdiBQBTQjgh0Oa4l6mXD7BnVhrcGJWWwZEY=
+        b=NuPtg8VI3peHG2AIqKU7XU4yBkTNYypbq/26Vp40+a2wnZl7dTslvCcIHosal+Kmp
+         T8UXBNAgX7/t+dmoOlDuS8S6Vj3+Yp0nfoTgNGE2nBD72kGGsgGQskWH/W3oQgIZQY
+         UFX0KvPsi9+Ey6Sm1z4KIRUCl+1x+7WY8/ZyYWek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Daniel Scally <djrscally@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 14/93] platform/x86: int3472: Split into 2 drivers
-Date:   Wed, 12 Apr 2023 10:33:15 +0200
-Message-Id: <20230412082823.645923238@linuxfoundation.org>
+Subject: [PATCH 5.15 15/93] platform/x86: int3472/discrete: Ensure the clk/power enable pins are in output mode
+Date:   Wed, 12 Apr 2023 10:33:16 +0200
+Message-Id: <20230412082823.688521197@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
 References: <20230412082823.045155996@linuxfoundation.org>
@@ -57,376 +58,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a2f9fbc247eea0ad1b0b59bc29bec144c5ead03c ]
+[ Upstream commit cf5ac2d45f6e4d11ad78e7b10ae9a4121ba5e995 ]
 
-The intel_skl_int3472.ko module contains 2 separate drivers,
-the int3472_discrete platform driver and the int3472_tps68470
-I2C-driver.
+acpi_get_and_request_gpiod() does not take a gpio_lookup_flags argument
+specifying that the pins direction should be initialized to a specific
+value.
 
-These 2 drivers contain very little shared code, only
-skl_int3472_get_acpi_buffer() and skl_int3472_fill_cldb() are
-shared.
+This means that in some cases the pins might be left in input mode, causing
+the gpiod_set() calls made to enable the clk / regulator to not work.
 
-Split the module into 2 drivers, linking the little shared code
-directly into both.
+One example of this problem is the clk-enable GPIO for the ov01a1s sensor
+on a Dell Latitude 9420 being left in input mode causing the clk to
+never get enabled.
 
-This will allow us to add soft-module dependencies for the
-tps68470 clk, gpio and regulator drivers to the new
-intel_skl_int3472_tps68470.ko to help with probe ordering issues
-without causing these modules to get loaded on boards which only
-use the int3472_discrete platform driver.
+Explicitly set the direction of the pins to output to fix this.
 
-While at it also rename the .c and .h files to remove the
-cumbersome intel_skl_int3472_ prefix.
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: 5de691bffe57 ("platform/x86: Add intel_skl_int3472 driver")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20211203102857.44539-8-hdegoede@redhat.com
-Stable-dep-of: cf5ac2d45f6e ("platform/x86: int3472/discrete: Ensure the clk/power enable pins are in output mode")
+Reviewed-by: Andy Shevchenko <andy@kernel.org>
+Reviewed-by: Daniel Scally <djrscally@gmail.com>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Link: https://lore.kernel.org/r/20230111201426.947853-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/int3472/Makefile   |   9 +-
- ...lk_and_regulator.c => clk_and_regulator.c} |   2 +-
- drivers/platform/x86/intel/int3472/common.c   |  54 +++++++++
- .../{intel_skl_int3472_common.h => common.h}  |   3 -
- ...ntel_skl_int3472_discrete.c => discrete.c} |  28 ++++-
- .../intel/int3472/intel_skl_int3472_common.c  | 106 ------------------
- ...ntel_skl_int3472_tps68470.c => tps68470.c} |  23 +++-
- 7 files changed, 105 insertions(+), 120 deletions(-)
- rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_clk_and_regulator.c => clk_and_regulator.c} (99%)
- create mode 100644 drivers/platform/x86/intel/int3472/common.c
- rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_common.h => common.h} (94%)
- rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_discrete.c => discrete.c} (93%)
- delete mode 100644 drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c
- rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_tps68470.c => tps68470.c} (85%)
+ drivers/platform/x86/intel/int3472/clk_and_regulator.c | 3 +++
+ drivers/platform/x86/intel/int3472/discrete.c          | 4 ++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/platform/x86/intel/int3472/Makefile b/drivers/platform/x86/intel/int3472/Makefile
-index 2362e04db18d5..771e720528a06 100644
---- a/drivers/platform/x86/intel/int3472/Makefile
-+++ b/drivers/platform/x86/intel/int3472/Makefile
-@@ -1,5 +1,4 @@
--obj-$(CONFIG_INTEL_SKL_INT3472)		+= intel_skl_int3472.o
--intel_skl_int3472-y			:= intel_skl_int3472_common.o \
--					   intel_skl_int3472_discrete.o \
--					   intel_skl_int3472_tps68470.o \
--					   intel_skl_int3472_clk_and_regulator.o
-+obj-$(CONFIG_INTEL_SKL_INT3472)		+= intel_skl_int3472_discrete.o \
-+					   intel_skl_int3472_tps68470.o
-+intel_skl_int3472_discrete-y		:= discrete.o clk_and_regulator.o common.o
-+intel_skl_int3472_tps68470-y		:= tps68470.o common.o
-diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-similarity index 99%
-rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_clk_and_regulator.c
-rename to drivers/platform/x86/intel/int3472/clk_and_regulator.c
-index 1700e7557a824..1cf958983e868 100644
---- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_clk_and_regulator.c
+diff --git a/drivers/platform/x86/intel/int3472/clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
+index 1cf958983e868..28353addffa7f 100644
+--- a/drivers/platform/x86/intel/int3472/clk_and_regulator.c
 +++ b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-@@ -9,7 +9,7 @@
- #include <linux/regulator/driver.h>
- #include <linux/slab.h>
+@@ -181,6 +181,9 @@ int skl_int3472_register_regulator(struct int3472_discrete_device *int3472,
+ 		return PTR_ERR(int3472->regulator.gpio);
+ 	}
  
--#include "intel_skl_int3472_common.h"
-+#include "common.h"
- 
- /*
-  * The regulators have to have .ops to be valid, but the only ops we actually
-diff --git a/drivers/platform/x86/intel/int3472/common.c b/drivers/platform/x86/intel/int3472/common.c
-new file mode 100644
-index 0000000000000..350655a9515b1
---- /dev/null
-+++ b/drivers/platform/x86/intel/int3472/common.c
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Author: Dan Scally <djrscally@gmail.com> */
++	/* Ensure the pin is in output mode and non-active state */
++	gpiod_direction_output(int3472->regulator.gpio, 0);
 +
-+#include <linux/acpi.h>
-+#include <linux/slab.h>
-+
-+#include "common.h"
-+
-+union acpi_object *skl_int3472_get_acpi_buffer(struct acpi_device *adev, char *id)
-+{
-+	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
-+	acpi_handle handle = adev->handle;
-+	union acpi_object *obj;
-+	acpi_status status;
-+
-+	status = acpi_evaluate_object(handle, id, NULL, &buffer);
-+	if (ACPI_FAILURE(status))
-+		return ERR_PTR(-ENODEV);
-+
-+	obj = buffer.pointer;
-+	if (!obj)
-+		return ERR_PTR(-ENODEV);
-+
-+	if (obj->type != ACPI_TYPE_BUFFER) {
-+		acpi_handle_err(handle, "%s object is not an ACPI buffer\n", id);
-+		kfree(obj);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	return obj;
-+}
-+
-+int skl_int3472_fill_cldb(struct acpi_device *adev, struct int3472_cldb *cldb)
-+{
-+	union acpi_object *obj;
-+	int ret;
-+
-+	obj = skl_int3472_get_acpi_buffer(adev, "CLDB");
-+	if (IS_ERR(obj))
-+		return PTR_ERR(obj);
-+
-+	if (obj->buffer.length > sizeof(*cldb)) {
-+		acpi_handle_err(adev->handle, "The CLDB buffer is too large\n");
-+		ret = -EINVAL;
-+		goto out_free_obj;
-+	}
-+
-+	memcpy(cldb, obj->buffer.pointer, obj->buffer.length);
-+	ret = 0;
-+
-+out_free_obj:
-+	kfree(obj);
-+	return ret;
-+}
-diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.h b/drivers/platform/x86/intel/int3472/common.h
-similarity index 94%
-rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_common.h
-rename to drivers/platform/x86/intel/int3472/common.h
-index 714fde73b5247..d14944ee85861 100644
---- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.h
-+++ b/drivers/platform/x86/intel/int3472/common.h
-@@ -105,9 +105,6 @@ struct int3472_discrete_device {
- 	struct gpiod_lookup_table gpios;
- };
- 
--int skl_int3472_discrete_probe(struct platform_device *pdev);
--int skl_int3472_discrete_remove(struct platform_device *pdev);
--int skl_int3472_tps68470_probe(struct i2c_client *client);
- union acpi_object *skl_int3472_get_acpi_buffer(struct acpi_device *adev,
- 					       char *id);
- int skl_int3472_fill_cldb(struct acpi_device *adev, struct int3472_cldb *cldb);
-diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_discrete.c b/drivers/platform/x86/intel/int3472/discrete.c
-similarity index 93%
-rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_discrete.c
-rename to drivers/platform/x86/intel/int3472/discrete.c
-index e59d79c7e82f8..d2e8a87a077e7 100644
---- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_discrete.c
+ 	cfg.dev = &int3472->adev->dev;
+ 	cfg.init_data = &init_data;
+ 	cfg.ena_gpiod = int3472->regulator.gpio;
+diff --git a/drivers/platform/x86/intel/int3472/discrete.c b/drivers/platform/x86/intel/int3472/discrete.c
+index d2e8a87a077e7..401fa8f223d62 100644
+--- a/drivers/platform/x86/intel/int3472/discrete.c
 +++ b/drivers/platform/x86/intel/int3472/discrete.c
-@@ -14,7 +14,7 @@
- #include <linux/platform_device.h>
- #include <linux/uuid.h>
+@@ -169,6 +169,8 @@ static int skl_int3472_map_gpio_to_clk(struct int3472_discrete_device *int3472,
+ 			return (PTR_ERR(gpio));
  
--#include "intel_skl_int3472_common.h"
-+#include "common.h"
+ 		int3472->clock.ena_gpio = gpio;
++		/* Ensure the pin is in output mode and non-active state */
++		gpiod_direction_output(int3472->clock.ena_gpio, 0);
+ 		break;
+ 	case INT3472_GPIO_TYPE_PRIVACY_LED:
+ 		gpio = acpi_get_and_request_gpiod(path, pin, "int3472,privacy-led");
+@@ -176,6 +178,8 @@ static int skl_int3472_map_gpio_to_clk(struct int3472_discrete_device *int3472,
+ 			return (PTR_ERR(gpio));
  
- /*
-  * 79234640-9e10-4fea-a5c1-b5aa8b19756f
-@@ -332,7 +332,9 @@ static int skl_int3472_parse_crs(struct int3472_discrete_device *int3472)
- 	return 0;
- }
- 
--int skl_int3472_discrete_probe(struct platform_device *pdev)
-+static int skl_int3472_discrete_remove(struct platform_device *pdev);
-+
-+static int skl_int3472_discrete_probe(struct platform_device *pdev)
- {
- 	struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
- 	struct int3472_discrete_device *int3472;
-@@ -395,7 +397,7 @@ int skl_int3472_discrete_probe(struct platform_device *pdev)
- 	return ret;
- }
- 
--int skl_int3472_discrete_remove(struct platform_device *pdev)
-+static int skl_int3472_discrete_remove(struct platform_device *pdev)
- {
- 	struct int3472_discrete_device *int3472 = platform_get_drvdata(pdev);
- 
-@@ -411,3 +413,23 @@ int skl_int3472_discrete_remove(struct platform_device *pdev)
- 
- 	return 0;
- }
-+
-+static const struct acpi_device_id int3472_device_id[] = {
-+	{ "INT3472", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, int3472_device_id);
-+
-+static struct platform_driver int3472_discrete = {
-+	.driver = {
-+		.name = "int3472-discrete",
-+		.acpi_match_table = int3472_device_id,
-+	},
-+	.probe = skl_int3472_discrete_probe,
-+	.remove = skl_int3472_discrete_remove,
-+};
-+module_platform_driver(int3472_discrete);
-+
-+MODULE_DESCRIPTION("Intel SkyLake INT3472 ACPI Discrete Device Driver");
-+MODULE_AUTHOR("Daniel Scally <djrscally@gmail.com>");
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c b/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c
-deleted file mode 100644
-index 497e74fba75fb..0000000000000
---- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c
-+++ /dev/null
-@@ -1,106 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/* Author: Dan Scally <djrscally@gmail.com> */
--
--#include <linux/acpi.h>
--#include <linux/i2c.h>
--#include <linux/platform_device.h>
--#include <linux/slab.h>
--
--#include "intel_skl_int3472_common.h"
--
--union acpi_object *skl_int3472_get_acpi_buffer(struct acpi_device *adev, char *id)
--{
--	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
--	acpi_handle handle = adev->handle;
--	union acpi_object *obj;
--	acpi_status status;
--
--	status = acpi_evaluate_object(handle, id, NULL, &buffer);
--	if (ACPI_FAILURE(status))
--		return ERR_PTR(-ENODEV);
--
--	obj = buffer.pointer;
--	if (!obj)
--		return ERR_PTR(-ENODEV);
--
--	if (obj->type != ACPI_TYPE_BUFFER) {
--		acpi_handle_err(handle, "%s object is not an ACPI buffer\n", id);
--		kfree(obj);
--		return ERR_PTR(-EINVAL);
--	}
--
--	return obj;
--}
--
--int skl_int3472_fill_cldb(struct acpi_device *adev, struct int3472_cldb *cldb)
--{
--	union acpi_object *obj;
--	int ret;
--
--	obj = skl_int3472_get_acpi_buffer(adev, "CLDB");
--	if (IS_ERR(obj))
--		return PTR_ERR(obj);
--
--	if (obj->buffer.length > sizeof(*cldb)) {
--		acpi_handle_err(adev->handle, "The CLDB buffer is too large\n");
--		ret = -EINVAL;
--		goto out_free_obj;
--	}
--
--	memcpy(cldb, obj->buffer.pointer, obj->buffer.length);
--	ret = 0;
--
--out_free_obj:
--	kfree(obj);
--	return ret;
--}
--
--static const struct acpi_device_id int3472_device_id[] = {
--	{ "INT3472", 0 },
--	{ }
--};
--MODULE_DEVICE_TABLE(acpi, int3472_device_id);
--
--static struct platform_driver int3472_discrete = {
--	.driver = {
--		.name = "int3472-discrete",
--		.acpi_match_table = int3472_device_id,
--	},
--	.probe = skl_int3472_discrete_probe,
--	.remove = skl_int3472_discrete_remove,
--};
--
--static struct i2c_driver int3472_tps68470 = {
--	.driver = {
--		.name = "int3472-tps68470",
--		.acpi_match_table = int3472_device_id,
--	},
--	.probe_new = skl_int3472_tps68470_probe,
--};
--
--static int skl_int3472_init(void)
--{
--	int ret;
--
--	ret = platform_driver_register(&int3472_discrete);
--	if (ret)
--		return ret;
--
--	ret = i2c_register_driver(THIS_MODULE, &int3472_tps68470);
--	if (ret)
--		platform_driver_unregister(&int3472_discrete);
--
--	return ret;
--}
--module_init(skl_int3472_init);
--
--static void skl_int3472_exit(void)
--{
--	platform_driver_unregister(&int3472_discrete);
--	i2c_del_driver(&int3472_tps68470);
--}
--module_exit(skl_int3472_exit);
--
--MODULE_DESCRIPTION("Intel SkyLake INT3472 ACPI Device Driver");
--MODULE_AUTHOR("Daniel Scally <djrscally@gmail.com>");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_tps68470.c b/drivers/platform/x86/intel/int3472/tps68470.c
-similarity index 85%
-rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_tps68470.c
-rename to drivers/platform/x86/intel/int3472/tps68470.c
-index c05b4cf502fef..fd3bef449137c 100644
---- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_tps68470.c
-+++ b/drivers/platform/x86/intel/int3472/tps68470.c
-@@ -7,7 +7,7 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- 
--#include "intel_skl_int3472_common.h"
-+#include "common.h"
- 
- #define DESIGNED_FOR_CHROMEOS		1
- #define DESIGNED_FOR_WINDOWS		2
-@@ -95,7 +95,7 @@ static int skl_int3472_tps68470_calc_type(struct acpi_device *adev)
- 	return DESIGNED_FOR_WINDOWS;
- }
- 
--int skl_int3472_tps68470_probe(struct i2c_client *client)
-+static int skl_int3472_tps68470_probe(struct i2c_client *client)
- {
- 	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
- 	struct regmap *regmap;
-@@ -135,3 +135,22 @@ int skl_int3472_tps68470_probe(struct i2c_client *client)
- 
- 	return ret;
- }
-+
-+static const struct acpi_device_id int3472_device_id[] = {
-+	{ "INT3472", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, int3472_device_id);
-+
-+static struct i2c_driver int3472_tps68470 = {
-+	.driver = {
-+		.name = "int3472-tps68470",
-+		.acpi_match_table = int3472_device_id,
-+	},
-+	.probe_new = skl_int3472_tps68470_probe,
-+};
-+module_i2c_driver(int3472_tps68470);
-+
-+MODULE_DESCRIPTION("Intel SkyLake INT3472 ACPI TPS68470 Device Driver");
-+MODULE_AUTHOR("Daniel Scally <djrscally@gmail.com>");
-+MODULE_LICENSE("GPL v2");
+ 		int3472->clock.led_gpio = gpio;
++		/* Ensure the pin is in output mode and non-active state */
++		gpiod_direction_output(int3472->clock.led_gpio, 0);
+ 		break;
+ 	default:
+ 		dev_err(int3472->dev, "Invalid GPIO type 0x%02x for clock\n", type);
 -- 
 2.39.2
 
