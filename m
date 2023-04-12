@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A09C16DEFCB
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 825636DEF0A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbjDLIxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43504 "EHLO
+        id S231221AbjDLIrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:47:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231448AbjDLIxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A935A266
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:27 -0700 (PDT)
+        with ESMTP id S231207AbjDLIq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B419746
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E08E631CF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA4DC433D2;
-        Wed, 12 Apr 2023 08:53:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E60B63090
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B00C4339B;
+        Wed, 12 Apr 2023 08:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289595;
-        bh=R553NeeqXzX/6Dy+1psUqDRfzAFY9v96xArde1rthyo=;
+        s=korg; t=1681289176;
+        bh=1HKHTnioBqhIecFAvO85C+FIo2QjsHhQJpAl8NQzCmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxhVszrpI3aQjDRQn39WF8TQF7hTRuTAIl4RJthfJpCA+QjQEAQgO4xRIyslA0MB/
-         RWUnS9nuQyELTP8y0OYUMr0IVRjlenvY8JJCr/KyPQIOlDufB/8lcRLfUVR/MoPKaU
-         6G2ri7/nPKYUs9nooD5iDPUeN0MNSuAzwPowDqLo=
+        b=gZIukoKLQitQ+rXtzzxcmULp4gaIhX7IDQS+jJoUeutOblsk7R6BEXNIgWa1EhyuO
+         mVp9oTuTC3MOrvMFv6mznjwvq6KTqFFH700XulQFvxMXSAMO4ttksznZ5s4WEwydJ/
+         daMO6HStqI7NcWSNAHlbQBNn4K6R09q/g4KZqYoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 160/173] mm: take a page reference when removing device exclusive entries
+        patches@lists.linux.dev,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        syzbot+8d95422d3537159ca390@syzkaller.appspotmail.com
+Subject: [PATCH 6.1 164/164] mm: enable maple tree RCU mode by default.
 Date:   Wed, 12 Apr 2023 10:34:46 +0200
-Message-Id: <20230412082844.598782741@linuxfoundation.org>
+Message-Id: <20230412082843.570250345@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,84 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Popple <apopple@nvidia.com>
+From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
 
-commit 7c7b962938ddda6a9cd095de557ee5250706ea88 upstream.
+commit 3dd4432549415f3c65dd52d5c687629efbf4ece1 upstream.
 
-Device exclusive page table entries are used to prevent CPU access to a
-page whilst it is being accessed from a device.  Typically this is used to
-implement atomic operations when the underlying bus does not support
-atomic access.  When a CPU thread encounters a device exclusive entry it
-locks the page and restores the original entry after calling mmu notifiers
-to signal drivers that exclusive access is no longer available.
+Use the maple tree in RCU mode for VMA tracking.
 
-The device exclusive entry holds a reference to the page making it safe to
-access the struct page whilst the entry is present.  However the fault
-handling code does not hold the PTL when taking the page lock.  This means
-if there are multiple threads faulting concurrently on the device
-exclusive entry one will remove the entry whilst others will wait on the
-page lock without holding a reference.
+The maple tree tracks the stack and is able to update the pivot
+(lower/upper boundary) in-place to allow the page fault handler to write
+to the tree while holding just the mmap read lock.  This is safe as the
+writes to the stack have a guard VMA which ensures there will always be
+a NULL in the direction of the growth and thus will only update a pivot.
 
-This can lead to threads locking or waiting on a folio with a zero
-refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
-they may still be freed by a migration.  This leads to warnings such as
-PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
-drops to zero.
+It is possible, but not recommended, to have VMAs that grow up/down
+without guard VMAs.  syzbot has constructed a testcase which sets up a
+VMA to grow and consume the empty space.  Overwriting the entire NULL
+entry causes the tree to be altered in a way that is not safe for
+concurrent readers; the readers may see a node being rewritten or one
+that does not match the maple state they are using.
 
-Fix this by trying to take a reference on the folio before locking it.
-The code already checks the PTE under the PTL and aborts if the entry is
-no longer there.  It is also possible the folio has been unmapped, freed
-and re-allocated allowing a reference to be taken on an unrelated folio.
-This case is also detected by the PTE check and the folio is unlocked
-without further changes.
+Enabling RCU mode allows the concurrent readers to see a stable node and
+will return the expected result.
 
-Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
-Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20230227173632.3292573-9-surenb@google.com
+Cc: stable@vger.kernel.org
+Fixes: d4af56c5c7c6 ("mm: start tracking VMAs with maple tree")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: syzbot+8d95422d3537159ca390@syzkaller.appspotmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ include/linux/mm_types.h |    3 ++-
+ kernel/fork.c            |    3 +++
+ mm/mmap.c                |    3 ++-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3580,8 +3580,21 @@ static vm_fault_t remove_device_exclusiv
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct mmu_notifier_range range;
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -725,7 +725,8 @@ struct mm_struct {
+ 	unsigned long cpu_bitmap[];
+ };
  
--	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags))
-+	/*
-+	 * We need a reference to lock the folio because we don't hold
-+	 * the PTL so a racing thread can remove the device-exclusive
-+	 * entry and unmap it. If the folio is free the entry must
-+	 * have been removed already. If it happens to have already
-+	 * been re-allocated after being freed all we do is lock and
-+	 * unlock it.
-+	 */
-+	if (!folio_try_get(folio))
-+		return 0;
-+
-+	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags)) {
-+		folio_put(folio);
- 		return VM_FAULT_RETRY;
-+	}
- 	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0, vma,
- 				vma->vm_mm, vmf->address & PAGE_MASK,
- 				(vmf->address & PAGE_MASK) + PAGE_SIZE, NULL);
-@@ -3594,6 +3607,7 @@ static vm_fault_t remove_device_exclusiv
+-#define MM_MT_FLAGS	(MT_FLAGS_ALLOC_RANGE | MT_FLAGS_LOCK_EXTERN)
++#define MM_MT_FLAGS	(MT_FLAGS_ALLOC_RANGE | MT_FLAGS_LOCK_EXTERN | \
++			 MT_FLAGS_USE_RCU)
+ extern struct mm_struct init_mm;
  
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
- 	folio_unlock(folio);
-+	folio_put(folio);
+ /* Pointer magic because the dynamic array size confuses some compilers. */
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -617,6 +617,7 @@ static __latent_entropy int dup_mmap(str
+ 	if (retval)
+ 		goto out;
  
- 	mmu_notifier_invalidate_range_end(&range);
- 	return 0;
++	mt_clear_in_rcu(mas.tree);
+ 	mas_for_each(&old_mas, mpnt, ULONG_MAX) {
+ 		struct file *file;
+ 
+@@ -703,6 +704,8 @@ static __latent_entropy int dup_mmap(str
+ 	retval = arch_dup_mmap(oldmm, mm);
+ loop_out:
+ 	mas_destroy(&mas);
++	if (!retval)
++		mt_set_in_rcu(mas.tree);
+ out:
+ 	mmap_write_unlock(mm);
+ 	flush_tlb_mm(oldmm);
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2308,7 +2308,7 @@ do_mas_align_munmap(struct ma_state *mas
+ 	int count = 0;
+ 	int error = -ENOMEM;
+ 	MA_STATE(mas_detach, &mt_detach, 0, 0);
+-	mt_init_flags(&mt_detach, MT_FLAGS_LOCK_EXTERN);
++	mt_init_flags(&mt_detach, mas->tree->ma_flags & MT_FLAGS_LOCK_MASK);
+ 	mt_set_external_lock(&mt_detach, &mm->mmap_lock);
+ 
+ 	if (mas_preallocate(mas, vma, GFP_KERNEL))
+@@ -3095,6 +3095,7 @@ void exit_mmap(struct mm_struct *mm)
+ 	 */
+ 	set_bit(MMF_OOM_SKIP, &mm->flags);
+ 	mmap_write_lock(mm);
++	mt_clear_in_rcu(&mm->mm_mt);
+ 	free_pgtables(&tlb, &mm->mm_mt, vma, FIRST_USER_ADDRESS,
+ 		      USER_PGTABLES_CEILING);
+ 	tlb_finish_mmu(&tlb);
 
 
