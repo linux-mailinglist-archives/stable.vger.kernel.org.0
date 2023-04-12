@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ADB66DEE23
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E57C66DEF83
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230420AbjDLIky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
+        id S231356AbjDLIvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230389AbjDLIjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912BC83F7
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:05 -0700 (PDT)
+        with ESMTP id S231346AbjDLIvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89CC974F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FC0E63011
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A10C433EF;
-        Wed, 12 Apr 2023 08:37:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D06B863159
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9FFC4339B;
+        Wed, 12 Apr 2023 08:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288650;
-        bh=nS414579cCkCyebrkAtx/4frSjcIZbbiJFvk+50Bu24=;
+        s=korg; t=1681289457;
+        bh=sYd6ICRjhfCK/+Zoza1/9PMmL5WhMZ0xzQHAveKZHDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NADxYFKOFSVLg2V4xH5Oc4Vx3LJqLMyEc0uQ4ZlK9+cqTyJggVtodqw82RZyH1lF+
-         MzpV2waPlXKc4OHxlyfhFSum21qQksIabkpq/9uJneWt6yV7c5gtk+rxOIKog/TuWR
-         F9S6zDe0LUIJmhUYELlvTcVofTNbncRVwfZOJvzw=
+        b=MvSZn7qPd7QwwYcXOCsTXrvJTpgywCtshoNnUef7aRFpNz3J8Y1auew9thrhj1HsY
+         P2Tg6JadOLWC7q5/Iz4j+foGDXi1EV1HaqJl0a3zVrzVk4hxhbRXaDLVYmjDnGpc5R
+         WiHEZn+v6BZJPSWrSJgZKjVTBb27k9Gz9XAkIsio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Chang <waynec@nvidia.com>,
-        Haotien Hsu <haotienh@nvidia.com>
-Subject: [PATCH 5.15 51/93] usb: xhci: tegra: fix sleep in atomic call
+        patches@lists.linux.dev,
+        William Breathitt Gray <william.gray@linaro.org>
+Subject: [PATCH 6.2 106/173] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
 Date:   Wed, 12 Apr 2023 10:33:52 +0200
-Message-Id: <20230412082825.294526028@linuxfoundation.org>
+Message-Id: <20230412082842.347218359@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,76 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Chang <waynec@nvidia.com>
+From: William Breathitt Gray <william.gray@linaro.org>
 
-commit 4c7f9d2e413dc06a157c4e5dccde84aaf4655eb3 upstream.
+commit 4aa3b75c74603c3374877d5fd18ad9cc3a9a62ed upstream.
 
-When we set the dual-role port to Host mode, we observed the following
-splat:
-[  167.057718] BUG: sleeping function called from invalid context at
-include/linux/sched/mm.h:229
-[  167.057872] Workqueue: events tegra_xusb_usb_phy_work
-[  167.057954] Call trace:
-[  167.057962]  dump_backtrace+0x0/0x210
-[  167.057996]  show_stack+0x30/0x50
-[  167.058020]  dump_stack_lvl+0x64/0x84
-[  167.058065]  dump_stack+0x14/0x34
-[  167.058100]  __might_resched+0x144/0x180
-[  167.058140]  __might_sleep+0x64/0xd0
-[  167.058171]  slab_pre_alloc_hook.constprop.0+0xa8/0x110
-[  167.058202]  __kmalloc_track_caller+0x74/0x2b0
-[  167.058233]  kvasprintf+0xa4/0x190
-[  167.058261]  kasprintf+0x58/0x90
-[  167.058285]  tegra_xusb_find_port_node.isra.0+0x58/0xd0
-[  167.058334]  tegra_xusb_find_port+0x38/0xa0
-[  167.058380]  tegra_xusb_padctl_get_usb3_companion+0x38/0xd0
-[  167.058430]  tegra_xhci_id_notify+0x8c/0x1e0
-[  167.058473]  notifier_call_chain+0x88/0x100
-[  167.058506]  atomic_notifier_call_chain+0x44/0x70
-[  167.058537]  tegra_xusb_usb_phy_work+0x60/0xd0
-[  167.058581]  process_one_work+0x1dc/0x4c0
-[  167.058618]  worker_thread+0x54/0x410
-[  167.058650]  kthread+0x188/0x1b0
-[  167.058672]  ret_from_fork+0x10/0x20
+The Counter (CNTR) register is 24 bits wide, but we can have an
+effective 25-bit count value by setting bit 24 to the XOR of the Borrow
+flag and Carry flag. The flags can be read from the FLAG register, but a
+race condition exists: the Borrow flag and Carry flag are instantaneous
+and could change by the time the count value is read from the CNTR
+register.
 
-The function tegra_xusb_padctl_get_usb3_companion eventually calls
-tegra_xusb_find_port and this in turn calls kasprintf which might sleep
-and so cannot be called from an atomic context.
+Since the race condition could result in an incorrect 25-bit count
+value, remove support for 25-bit count values from this driver;
+hard-coded maximum count values are replaced by a LS7267_CNTR_MAX define
+for consistency and clarity.
 
-Fix this by moving the call to tegra_xusb_padctl_get_usb3_companion to
-the tegra_xhci_id_work function where it is really needed.
-
-Fixes: f836e7843036 ("usb: xhci-tegra: Add OTG support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Wayne Chang <waynec@nvidia.com>
-Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
-Link: https://lore.kernel.org/r/20230327095548.1599470-1-haotienh@nvidia.com
+Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
+Cc: <stable@vger.kernel.org> # 6.1.x
+Cc: <stable@vger.kernel.org> # 6.2.x
+Link: https://lore.kernel.org/r/20230312231554.134858-1-william.gray@linaro.org/
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/counter/104-quad-8.c |   29 ++++++++---------------------
+ 1 file changed, 8 insertions(+), 21 deletions(-)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1225,6 +1225,9 @@ static void tegra_xhci_id_work(struct wo
+--- a/drivers/counter/104-quad-8.c
++++ b/drivers/counter/104-quad-8.c
+@@ -97,10 +97,6 @@ struct quad8 {
+ 	struct quad8_reg __iomem *reg;
+ };
  
- 	mutex_unlock(&tegra->lock);
+-/* Borrow Toggle flip-flop */
+-#define QUAD8_FLAG_BT BIT(0)
+-/* Carry Toggle flip-flop */
+-#define QUAD8_FLAG_CT BIT(1)
+ /* Error flag */
+ #define QUAD8_FLAG_E BIT(4)
+ /* Up/Down flag */
+@@ -133,6 +129,9 @@ struct quad8 {
+ #define QUAD8_CMR_QUADRATURE_X2 0x10
+ #define QUAD8_CMR_QUADRATURE_X4 0x18
  
-+	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(tegra->padctl,
-+								    tegra->otg_usb2_port);
++/* Each Counter is 24 bits wide */
++#define LS7267_CNTR_MAX GENMASK(23, 0)
 +
- 	if (tegra->host_mode) {
- 		/* switch to host mode */
- 		if (tegra->otg_usb3_port >= 0) {
-@@ -1339,9 +1342,6 @@ static int tegra_xhci_id_notify(struct n
+ static int quad8_signal_read(struct counter_device *counter,
+ 			     struct counter_signal *signal,
+ 			     enum counter_signal_level *level)
+@@ -156,18 +155,10 @@ static int quad8_count_read(struct count
+ {
+ 	struct quad8 *const priv = counter_priv(counter);
+ 	struct channel_reg __iomem *const chan = priv->reg->channel + count->id;
+-	unsigned int flags;
+-	unsigned int borrow;
+-	unsigned int carry;
+ 	unsigned long irqflags;
+ 	int i;
+ 
+-	flags = ioread8(&chan->control);
+-	borrow = flags & QUAD8_FLAG_BT;
+-	carry = !!(flags & QUAD8_FLAG_CT);
+-
+-	/* Borrow XOR Carry effectively doubles count range */
+-	*val = (unsigned long)(borrow ^ carry) << 24;
++	*val = 0;
+ 
+ 	spin_lock_irqsave(&priv->lock, irqflags);
+ 
+@@ -191,8 +182,7 @@ static int quad8_count_write(struct coun
+ 	unsigned long irqflags;
+ 	int i;
+ 
+-	/* Only 24-bit values are supported */
+-	if (val > 0xFFFFFF)
++	if (val > LS7267_CNTR_MAX)
+ 		return -ERANGE;
+ 
+ 	spin_lock_irqsave(&priv->lock, irqflags);
+@@ -806,8 +796,7 @@ static int quad8_count_preset_write(stru
+ 	struct quad8 *const priv = counter_priv(counter);
+ 	unsigned long irqflags;
+ 
+-	/* Only 24-bit values are supported */
+-	if (preset > 0xFFFFFF)
++	if (preset > LS7267_CNTR_MAX)
+ 		return -ERANGE;
+ 
+ 	spin_lock_irqsave(&priv->lock, irqflags);
+@@ -834,8 +823,7 @@ static int quad8_count_ceiling_read(stru
+ 		*ceiling = priv->preset[count->id];
+ 		break;
+ 	default:
+-		/* By default 0x1FFFFFF (25 bits unsigned) is maximum count */
+-		*ceiling = 0x1FFFFFF;
++		*ceiling = LS7267_CNTR_MAX;
+ 		break;
  	}
  
- 	tegra->otg_usb2_port = tegra_xusb_get_usb2_port(tegra, usbphy);
--	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(
--							tegra->padctl,
--							tegra->otg_usb2_port);
+@@ -850,8 +838,7 @@ static int quad8_count_ceiling_write(str
+ 	struct quad8 *const priv = counter_priv(counter);
+ 	unsigned long irqflags;
  
- 	tegra->host_mode = (usbphy->last_event == USB_EVENT_ID) ? true : false;
+-	/* Only 24-bit values are supported */
+-	if (ceiling > 0xFFFFFF)
++	if (ceiling > LS7267_CNTR_MAX)
+ 		return -ERANGE;
  
+ 	spin_lock_irqsave(&priv->lock, irqflags);
 
 
