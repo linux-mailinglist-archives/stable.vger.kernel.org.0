@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 662E16DEE0B
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C43926DEEBC
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230095AbjDLIji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45628 "EHLO
+        id S231156AbjDLIok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230415AbjDLIjZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0049D72A0
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:32 -0700 (PDT)
+        with ESMTP id S231185AbjDLIo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA5283C2
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D5D3629BC
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72050C433EF;
-        Wed, 12 Apr 2023 08:36:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FDC563090
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75F08C4339B;
+        Wed, 12 Apr 2023 08:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288613;
-        bh=Ni5WgqAd/x+43oEnTth3WHu4cNR8PvwnKPSmFqQL+ZY=;
+        s=korg; t=1681289013;
+        bh=4LXR3GzVJNVTrw2a6OWBwyLQ30AyTCXqbV5i6lZaGUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Inkd7/GRNsXRFrwdifD2n1m8oGJg4b6ysgrhlNYGYHXjgXTDpfaxT5nvD761Vnzdj
-         V3tK/uuPKh5GMWRuIC5TrC8CJrp4EOtHcEuUM4Sk7AldAkXTgQmOFp0ur5Pvacv+AU
-         BFMSF500R8Nj/x0xRcEsHmi86/3PxotfyuL+zTvc=
+        b=Nu7t6orI/fVlPe/L5seL5Px6liDNKMLNawnI0y9ZRtQq2uUVPvFZgm2RGalEKEuAW
+         Cul/+s+IAu/70CXXFTa+WVOeTyxd6pBYRb/AUcu4iw0myKXxkrgrJaj7sixZ8nLgFP
+         4F/ZiJNfxQ803vMCP1+WFAULhCYsWSkZnCbOyxsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhi Li <yieli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 44/93] sunrpc: only free unix grouplist after RCU settles
+        patches@lists.linux.dev, Wojciech Lukowicz <wlukowicz01@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 103/164] io_uring: fix memory leak when removing provided buffers
 Date:   Wed, 12 Apr 2023 10:33:45 +0200
-Message-Id: <20230412082825.001176111@linuxfoundation.org>
+Message-Id: <20230412082840.994467329@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,56 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Wojciech Lukowicz <wlukowicz01@gmail.com>
 
-[ Upstream commit 5085e41f9e83a1bec51da1f20b54f2ec3a13a3fe ]
+[ Upstream commit b4a72c0589fdea6259720375426179888969d6a2 ]
 
-While the unix_gid object is rcu-freed, the group_info list that it
-contains is not. Ensure that we only put the group list reference once
-we are really freeing the unix_gid object.
+When removing provided buffers, io_buffer structs are not being disposed
+of, leading to a memory leak. They can't be freed individually, because
+they are allocated in page-sized groups. They need to be added to some
+free list instead, such as io_buffers_cache. All callers already hold
+the lock protecting it, apart from when destroying buffers, so had to
+extend the lock there.
 
-Reported-by: Zhi Li <yieli@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2183056
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Fixes: fd5d2f78261b ("SUNRPC: Make server side AUTH_UNIX use lockless lookups")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: cc3cec8367cb ("io_uring: speedup provided buffer handling")
+Signed-off-by: Wojciech Lukowicz <wlukowicz01@gmail.com>
+Link: https://lore.kernel.org/r/20230401195039.404909-2-wlukowicz01@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/svcauth_unix.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ io_uring/io_uring.c | 2 +-
+ io_uring/kbuf.c     | 5 ++++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/svcauth_unix.c b/net/sunrpc/svcauth_unix.c
-index d7ed7d49115ac..a7d107167c05c 100644
---- a/net/sunrpc/svcauth_unix.c
-+++ b/net/sunrpc/svcauth_unix.c
-@@ -415,14 +415,23 @@ static int unix_gid_hash(kuid_t uid)
- 	return hash_long(from_kuid(&init_user_ns, uid), GID_HASHBITS);
- }
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index ce4969d3e20de..cc35aba1e4957 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2585,8 +2585,8 @@ static __cold void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ 	io_eventfd_unregister(ctx);
+ 	io_alloc_cache_free(&ctx->apoll_cache, io_apoll_cache_free);
+ 	io_alloc_cache_free(&ctx->netmsg_cache, io_netmsg_cache_free);
+-	mutex_unlock(&ctx->uring_lock);
+ 	io_destroy_buffers(ctx);
++	mutex_unlock(&ctx->uring_lock);
+ 	if (ctx->sq_creds)
+ 		put_cred(ctx->sq_creds);
+ 	if (ctx->submitter_task)
+diff --git a/io_uring/kbuf.c b/io_uring/kbuf.c
+index 9a9db1fcdc14d..acc37e5a6d4e1 100644
+--- a/io_uring/kbuf.c
++++ b/io_uring/kbuf.c
+@@ -228,11 +228,14 @@ static int __io_remove_buffers(struct io_ring_ctx *ctx,
+ 		return i;
+ 	}
  
--static void unix_gid_put(struct kref *kref)
-+static void unix_gid_free(struct rcu_head *rcu)
- {
--	struct cache_head *item = container_of(kref, struct cache_head, ref);
--	struct unix_gid *ug = container_of(item, struct unix_gid, h);
-+	struct unix_gid *ug = container_of(rcu, struct unix_gid, rcu);
-+	struct cache_head *item = &ug->h;
++	/* protects io_buffers_cache */
++	lockdep_assert_held(&ctx->uring_lock);
 +
- 	if (test_bit(CACHE_VALID, &item->flags) &&
- 	    !test_bit(CACHE_NEGATIVE, &item->flags))
- 		put_group_info(ug->gi);
--	kfree_rcu(ug, rcu);
-+	kfree(ug);
-+}
-+
-+static void unix_gid_put(struct kref *kref)
-+{
-+	struct cache_head *item = container_of(kref, struct cache_head, ref);
-+	struct unix_gid *ug = container_of(item, struct unix_gid, h);
-+
-+	call_rcu(&ug->rcu, unix_gid_free);
- }
+ 	while (!list_empty(&bl->buf_list)) {
+ 		struct io_buffer *nxt;
  
- static int unix_gid_match(struct cache_head *corig, struct cache_head *cnew)
+ 		nxt = list_first_entry(&bl->buf_list, struct io_buffer, list);
+-		list_del(&nxt->list);
++		list_move(&nxt->list, &ctx->io_buffers_cache);
+ 		if (++i == nbufs)
+ 			return i;
+ 		cond_resched();
 -- 
 2.39.2
 
