@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F41936DEE04
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9715C6DEF60
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbjDLIj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
+        id S231311AbjDLIuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230073AbjDLIjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:16 -0400
+        with ESMTP id S231322AbjDLIuC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 142A883EA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A58C976C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 128F162FFA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20CFBC433EF;
-        Wed, 12 Apr 2023 08:36:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E8256314E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E81C4339B;
+        Wed, 12 Apr 2023 08:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288595;
-        bh=4MpD9K1viLKj1tqX2ZdomU2qThJJePFPEfyFO3QQ25E=;
+        s=korg; t=1681289378;
+        bh=04ytoBOGqFml9HH5bQ3aHTX76z7gfY5bCP/TJPK7dZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDaWjHbu3GLXZlGJixFENs9I4bsOLy06RkUSx3tWO5xVq/ae/IQJEfzB3yt5Dhy8q
-         +G0mJFfMZR1bSqVdtsElRL0OM3slShYtoh+iB48k4jCd44M0lkbIQEp8KDftG5X8wt
-         Pe3/qEfXr/hyOjfBaU9UC9LAkwxEC6kGeRAUS5tA=
+        b=DLo/67GTItbZDT/Se3o/9AoIn7su3KPdFhWTVSbECG42wLkG6LcbUaiy3DFo8gRBH
+         fnmicqvQ0voOv4BDGc2e2q5y1Ji70MOiTwliMZU4qjrPG2p1yK8gJHvlChhAFWsL47
+         okr7bBt+7H0i9pBgAwYXYOm7Rk28+YxVz/XbQKTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 20/93] drm/amdgpu: Prevent race between late signaled fences and GPU reset.
-Date:   Wed, 12 Apr 2023 10:33:21 +0200
-Message-Id: <20230412082823.908025238@linuxfoundation.org>
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.2 076/173] iio: adc: max11410: fix read_poll_timeout() usage
+Date:   Wed, 12 Apr 2023 10:33:22 +0200
+Message-Id: <20230412082841.135528121@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,99 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit 9e225fb9e636b31b97e9d35324c2f9e43ee0aab4 ]
+commit 7b3825e9487d77e83bf1e27b10a74cd729b8f972 upstream.
 
-Problem:
-After we start handling timed out jobs we assume there fences won't be
-signaled but we cannot be sure and sometimes they fire late. We need
-to prevent concurrent accesses to fence array from
-amdgpu_fence_driver_clear_job_fences during GPU reset and amdgpu_fence_process
-from a late EOP interrupt.
+Even though we are passing 'ret' as stop condition for
+read_poll_timeout(), that return code is still being ignored. The reason
+is that the poll will stop if the passed condition is true which will
+happen if the passed op() returns error. However, read_poll_timeout()
+returns 0 if the *complete* condition evaluates to true. Therefore, the
+error code returned by op() will be ignored.
 
-Fix:
-Before accessing fence array in GPU disable EOP interrupt and flush
-all pending interrupt handlers for amdgpu device's interrupt line.
+To fix this we need to check for both error codes:
+ * The one returned by read_poll_timeout() which is either 0 or
+ETIMEDOUT.
+ * The one returned by the passed op().
 
-v2: Switch from irq_get/put to full enable/disable_irq for amdgpu
-
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Stable-dep-of: 1427a7202739 ("drm/amdgpu: fix amdgpu_job_free_resources v2")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a44ef7c46097 ("iio: adc: add max11410 adc driver")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Acked-by: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
+Link: https://lore.kernel.org/r/20230307095303.713251-1-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |  4 ++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c  | 18 ++++++++++++++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h   |  1 +
- 3 files changed, 23 insertions(+)
+ drivers/iio/adc/max11410.c |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 2f51789d98181..8711d39fc2f71 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -4609,6 +4609,8 @@ int amdgpu_device_pre_asic_reset(struct amdgpu_device *adev,
- 		amdgpu_virt_fini_data_exchange(adev);
- 	}
- 
-+	amdgpu_fence_driver_isr_toggle(adev, true);
+--- a/drivers/iio/adc/max11410.c
++++ b/drivers/iio/adc/max11410.c
+@@ -413,13 +413,17 @@ static int max11410_sample(struct max114
+ 		if (!ret)
+ 			return -ETIMEDOUT;
+ 	} else {
++		int ret2;
 +
- 	/* block all schedulers and reset given job's ring */
- 	for (i = 0; i < AMDGPU_MAX_RINGS; ++i) {
- 		struct amdgpu_ring *ring = adev->rings[i];
-@@ -4631,6 +4633,8 @@ int amdgpu_device_pre_asic_reset(struct amdgpu_device *adev,
- 		amdgpu_fence_driver_force_completion(ring);
+ 		/* Wait for status register Conversion Ready flag */
+-		ret = read_poll_timeout(max11410_read_reg, ret,
+-					ret || (val & MAX11410_STATUS_CONV_READY_BIT),
++		ret = read_poll_timeout(max11410_read_reg, ret2,
++					ret2 || (val & MAX11410_STATUS_CONV_READY_BIT),
+ 					5000, MAX11410_CONVERSION_TIMEOUT_MS * 1000,
+ 					true, st, MAX11410_REG_STATUS, &val);
+ 		if (ret)
+ 			return ret;
++		if (ret2)
++			return ret2;
  	}
  
-+	amdgpu_fence_driver_isr_toggle(adev, false);
+ 	/* Read ADC Data */
+@@ -850,17 +854,21 @@ static int max11410_init_vref(struct dev
+ 
+ static int max11410_calibrate(struct max11410_state *st, u32 cal_type)
+ {
+-	int ret, val;
++	int ret, ret2, val;
+ 
+ 	ret = max11410_write_reg(st, MAX11410_REG_CAL_START, cal_type);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* Wait for status register Calibration Ready flag */
+-	return read_poll_timeout(max11410_read_reg, ret,
+-				 ret || (val & MAX11410_STATUS_CAL_READY_BIT),
+-				 50000, MAX11410_CALIB_TIMEOUT_MS * 1000, true,
+-				 st, MAX11410_REG_STATUS, &val);
++	ret = read_poll_timeout(max11410_read_reg, ret2,
++				ret2 || (val & MAX11410_STATUS_CAL_READY_BIT),
++				50000, MAX11410_CALIB_TIMEOUT_MS * 1000, true,
++				st, MAX11410_REG_STATUS, &val);
++	if (ret)
++		return ret;
 +
- 	if (job && job->vm)
- 		drm_sched_increase_karma(&job->base);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index bbd6f7a123033..f3d7094184530 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -569,6 +569,24 @@ void amdgpu_fence_driver_hw_fini(struct amdgpu_device *adev)
- 	}
++	return ret2;
  }
  
-+/* Will either stop and flush handlers for amdgpu interrupt or reanble it */
-+void amdgpu_fence_driver_isr_toggle(struct amdgpu_device *adev, bool stop)
-+{
-+	int i;
-+
-+	for (i = 0; i < AMDGPU_MAX_RINGS; i++) {
-+		struct amdgpu_ring *ring = adev->rings[i];
-+
-+		if (!ring || !ring->fence_drv.initialized || !ring->fence_drv.irq_src)
-+			continue;
-+
-+		if (stop)
-+			disable_irq(adev->irq.irq);
-+		else
-+			enable_irq(adev->irq.irq);
-+	}
-+}
-+
- void amdgpu_fence_driver_sw_fini(struct amdgpu_device *adev)
- {
- 	unsigned int i, j;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
-index e713d31619fe7..fc87a1fea8b44 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ring.h
-@@ -131,6 +131,7 @@ signed long amdgpu_fence_wait_polling(struct amdgpu_ring *ring,
- 				      uint32_t wait_seq,
- 				      signed long timeout);
- unsigned amdgpu_fence_count_emitted(struct amdgpu_ring *ring);
-+void amdgpu_fence_driver_isr_toggle(struct amdgpu_device *adev, bool stop);
- 
- /*
-  * Rings.
--- 
-2.39.2
-
+ static int max11410_self_calibrate(struct max11410_state *st)
 
 
