@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A106DEF42
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CBE66DEE8A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231250AbjDLItV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S231206AbjDLImX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:42:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbjDLItU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:20 -0400
+        with ESMTP id S231140AbjDLImK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F035A93D1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA93C83D9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FCF6313C
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EFBC433D2;
-        Wed, 12 Apr 2023 08:48:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7A7A6302F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA8EDC433D2;
+        Wed, 12 Apr 2023 08:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289311;
-        bh=5cY+KYllyQz3wkeEM6rYhYYVqe7C1LBhwHvgXUr+uno=;
+        s=korg; t=1681288886;
+        bh=SKUL8imNZiCgQgP1mALozW1haxGmUZgmW3q8UItzt9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoI328+CjLkTieZfVg072dXgu0DL1BIdsPGRLBZ+q0B4ou6MQTuzvGWrftf5mRZNd
-         Fbl388FR9pwno4ErptARjJK1k6FONkOXioMVK+SH2qucYiJnwBh9gLNrx7fUiuFCT0
-         zv+6uW1423EOyKP3OstzyFkGkpCs5cWAf5Sr4b3Q=
+        b=VT1snO94zATyfoeHYbgOR1Hh6iR2YMIu1Utl9P7Fv0mUFnaLKXjfyI17v9Osr7Ff6
+         gCsBOweRPhdB6H0qQ0pcAuN27EeQSr4vR0RiB3OouQO3Eg0cHuxAiTzhdyoJuGpvwQ
+         th3tlT8y3uYWjz0TZnXQNHO4UI3SE3Wf5JFSzgP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Roulin <aroulin@nvidia.com>,
-        Danielle Ratson <danieller@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
+        patches@lists.linux.dev,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shahab Vahedi <shahab@synopsys.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 050/173] ethtool: reset #lanes when lanes is omitted
-Date:   Wed, 12 Apr 2023 10:32:56 +0200
-Message-Id: <20230412082840.132555507@linuxfoundation.org>
+Subject: [PATCH 6.1 055/164] net: stmmac: check fwnode for phy device before scanning for phy
+Date:   Wed, 12 Apr 2023 10:32:57 +0200
+Message-Id: <20230412082839.175252569@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,91 +60,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Roulin <aroulin@nvidia.com>
+From: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
 
-[ Upstream commit e847c7675e19ef344913724dc68f83df31ad6a17 ]
+[ Upstream commit 8fbc10b995a506e173f1080dfa2764f232a65e02 ]
 
-If the number of lanes was forced and then subsequently the user
-omits this parameter, the ksettings->lanes is reset. The driver
-should then reset the number of lanes to the device's default
-for the specified speed.
+Some DT devices already have phy device configured in the DT/ACPI.
+Current implementation scans for a phy unconditionally even though
+there is a phy listed in the DT/ACPI and already attached.
 
-However, although the ksettings->lanes is set to 0, the mod variable
-is not set to true to indicate the driver and userspace should be
-notified of the changes.
+We should check the fwnode if there is any phy device listed in
+fwnode and decide whether to scan for a phy to attach to.
 
-The consequence is that the same ethtool operation will produce
-different results based on the initial state.
-
-If the initial state is:
-$ ethtool swp1 | grep -A 3 'Speed: '
-        Speed: 500000Mb/s
-        Lanes: 2
-        Duplex: Full
-        Auto-negotiation: on
-
-then executing 'ethtool -s swp1 speed 50000 autoneg off' will yield:
-$ ethtool swp1 | grep -A 3 'Speed: '
-        Speed: 500000Mb/s
-        Lanes: 2
-        Duplex: Full
-        Auto-negotiation: off
-
-While if the initial state is:
-$ ethtool swp1 | grep -A 3 'Speed: '
-        Speed: 500000Mb/s
-        Lanes: 1
-        Duplex: Full
-        Auto-negotiation: off
-
-executing the same 'ethtool -s swp1 speed 50000 autoneg off' results in:
-$ ethtool swp1 | grep -A 3 'Speed: '
-        Speed: 500000Mb/s
-        Lanes: 1
-        Duplex: Full
-        Auto-negotiation: off
-
-This patch fixes this behavior. Omitting lanes will always results in
-the driver choosing the default lane width for the chosen speed. In this
-scenario, regardless of the initial state, the end state will be, e.g.,
-
-$ ethtool swp1 | grep -A 3 'Speed: '
-        Speed: 500000Mb/s
-        Lanes: 2
-        Duplex: Full
-        Auto-negotiation: off
-
-Fixes: 012ce4dd3102 ("ethtool: Extend link modes settings uAPI with lanes")
-Signed-off-by: Andy Roulin <aroulin@nvidia.com>
-Reviewed-by: Danielle Ratson <danieller@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/ac238d6b-8726-8156-3810-6471291dbc7f@nvidia.com
+Fixes: fe2cfbc96803 ("net: stmmac: check if MAC needs to attach to a PHY")
+Reported-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/lkml/20230403212434.296975-1-martin.blumenstingl@googlemail.com/
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Shahab Vahedi <shahab@synopsys.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
+Link: https://lore.kernel.org/r/20230406024541.3556305-1-michael.wei.hong.sit@intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ethtool/linkmodes.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/net/ethtool/linkmodes.c b/net/ethtool/linkmodes.c
-index 126e06c713a3a..2d91f2a8c7626 100644
---- a/net/ethtool/linkmodes.c
-+++ b/net/ethtool/linkmodes.c
-@@ -282,11 +282,12 @@ static int ethnl_update_linkmodes(struct genl_info *info, struct nlattr **tb,
- 					    "lanes configuration not supported by device");
- 			return -EOPNOTSUPP;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 3f35399657da2..05607c1ab3319 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1132,22 +1132,26 @@ static void stmmac_check_pcs_mode(struct stmmac_priv *priv)
+ static int stmmac_init_phy(struct net_device *dev)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
++	struct fwnode_handle *phy_fwnode;
+ 	struct fwnode_handle *fwnode;
+-	bool phy_needed;
+ 	int ret;
+ 
++	if (!phylink_expects_phy(priv->phylink))
++		return 0;
++
+ 	fwnode = of_fwnode_handle(priv->plat->phylink_node);
+ 	if (!fwnode)
+ 		fwnode = dev_fwnode(priv->device);
+ 
+ 	if (fwnode)
+-		ret = phylink_fwnode_phy_connect(priv->phylink, fwnode, 0);
++		phy_fwnode = fwnode_get_phy_node(fwnode);
++	else
++		phy_fwnode = NULL;
+ 
+-	phy_needed = phylink_expects_phy(priv->phylink);
+ 	/* Some DT bindings do not set-up the PHY handle. Let's try to
+ 	 * manually parse it
+ 	 */
+-	if (!fwnode || phy_needed || ret) {
++	if (!phy_fwnode || IS_ERR(phy_fwnode)) {
+ 		int addr = priv->plat->phy_addr;
+ 		struct phy_device *phydev;
+ 
+@@ -1163,6 +1167,9 @@ static int stmmac_init_phy(struct net_device *dev)
  		}
--	} else if (!lsettings->autoneg) {
--		/* If autoneg is off and lanes parameter is not passed from user,
--		 * set the lanes parameter to 0.
-+	} else if (!lsettings->autoneg && ksettings->lanes) {
-+		/* If autoneg is off and lanes parameter is not passed from user but
-+		 * it was defined previously then set the lanes parameter to 0.
- 		 */
- 		ksettings->lanes = 0;
-+		*mod = true;
+ 
+ 		ret = phylink_connect_phy(priv->phylink, phydev);
++	} else {
++		fwnode_handle_put(phy_fwnode);
++		ret = phylink_fwnode_phy_connect(priv->phylink, fwnode, 0);
  	}
  
- 	ret = ethnl_update_bitset(ksettings->link_modes.advertising,
+ 	if (!priv->plat->pmt) {
 -- 
 2.39.2
 
