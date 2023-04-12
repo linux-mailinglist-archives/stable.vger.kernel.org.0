@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3F76DEEC4
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 313276DEE44
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230447AbjDLIo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56804 "EHLO
+        id S231131AbjDLIlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbjDLIof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:35 -0400
+        with ESMTP id S231342AbjDLIkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D51883F3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBCC6591
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C6A162AE3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC27C433EF;
-        Wed, 12 Apr 2023 08:43:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7AF963030
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD13C433D2;
+        Wed, 12 Apr 2023 08:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289032;
-        bh=QxS97UowRHVVPDBHnO2wX1hpErq1U7N0AtxbogtNIIg=;
+        s=korg; t=1681288734;
+        bh=64g9qhaXqLFVJLT4MseXGb2oTZhdPdjB/lowPRGvwME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwOAYEp1S9ql20KxEqNe5KKtdhNMNXS5bAVkS9OaLO6gAO/+tLy1r9O2/ASUGBYTi
-         NAMSCfey9O9h/cz/mpigZRqKu0TEdv7nSvPSw5kDXIAwbBX7R1REQ6gf2AD9pBjlvr
-         sXXB14kLwbD9CuUgra7U7h8maHPAR5tBJ9uuo2lk=
+        b=KujdfvmpMDNPlPR65ebMCBeuZBAWka+VZDNyBcztRDa8W65/roKms5cbz4hYRub6u
+         AsM9ozq974uc5XzTE2pp8F46Hqbm1XczTT/d3yuzxOngfeCyem9Xc0LUljnBr01TOp
+         TJ3dpqjU/vAhLaxcTJW2KwaeYhVNR/BQ68ZJfHnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Ming Lei <ming.lei@redhat.com>, Yu Kuai <yukuai3@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 109/164] block: dont set GD_NEED_PART_SCAN if scan partition failed
+        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 50/93] kbuild: refactor single builds of *.ko
 Date:   Wed, 12 Apr 2023 10:33:51 +0200
-Message-Id: <20230412082841.256175754@linuxfoundation.org>
+Message-Id: <20230412082825.263712578@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 3723091ea1884d599cc8b8bf719d6f42e8d4d8b1 ]
+[ Upstream commit f110e5a250e3c5db417e094b3dd86f1c135291ca ]
 
-Currently if disk_scan_partitions() failed, GD_NEED_PART_SCAN will still
-set, and partition scan will be proceed again when blkdev_get_by_dev()
-is called. However, this will cause a problem that re-assemble partitioned
-raid device will creat partition for underlying disk.
+Remove the potentially invalid modules.order instead of using
+the temporary file.
 
-Test procedure:
+Also, KBUILD_MODULES is don't care for single builds. No need to
+cancel it.
 
-mdadm -CR /dev/md0 -l 1 -n 2 /dev/sda /dev/sdb -e 1.0
-sgdisk -n 0:0:+100MiB /dev/md0
-blockdev --rereadpt /dev/sda
-blockdev --rereadpt /dev/sdb
-mdadm -S /dev/md0
-mdadm -A /dev/md0 /dev/sda /dev/sdb
-
-Test result: underlying disk partition and raid partition can be
-observed at the same time
-
-Note that this can still happen in come corner cases that
-GD_NEED_PART_SCAN can be set for underlying disk while re-assemble raid
-device.
-
-Fixes: e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Stable-dep-of: ed1f4ccfe947 ("clk: imx: imx8mp: add shared clk gate for usb suspend clk")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ Makefile | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 0b6928e948f31..62a61388e752d 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -368,7 +368,6 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
- 	if (disk->open_partitions)
- 		return -EBUSY;
+diff --git a/Makefile b/Makefile
+index 6459e91369fdb..4de8cd300451d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1850,6 +1850,8 @@ modules modules_install:
+ 	@echo >&2 '***'
+ 	@exit 1
  
--	set_bit(GD_NEED_PART_SCAN, &disk->state);
- 	/*
- 	 * If the device is opened exclusively by current thread already, it's
- 	 * safe to scan partitons, otherwise, use bd_prepare_to_claim() to
-@@ -381,12 +380,19 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
- 			return ret;
- 	}
++KBUILD_MODULES :=
++
+ endif # CONFIG_MODULES
  
-+	set_bit(GD_NEED_PART_SCAN, &disk->state);
- 	bdev = blkdev_get_by_dev(disk_devt(disk), mode & ~FMODE_EXCL, NULL);
- 	if (IS_ERR(bdev))
- 		ret =  PTR_ERR(bdev);
- 	else
- 		blkdev_put(bdev, mode & ~FMODE_EXCL);
+ # Single targets
+@@ -1875,18 +1877,12 @@ $(single-ko): single_modpost
+ $(single-no-ko): descend
+ 	@:
  
-+	/*
-+	 * If blkdev_get_by_dev() failed early, GD_NEED_PART_SCAN is still set,
-+	 * and this will cause that re-assemble partitioned raid device will
-+	 * creat partition for underlying disk.
-+	 */
-+	clear_bit(GD_NEED_PART_SCAN, &disk->state);
- 	if (!(mode & FMODE_EXCL))
- 		bd_abort_claiming(disk->part0, disk_scan_partitions);
- 	return ret;
+-ifeq ($(KBUILD_EXTMOD),)
+-# For the single build of in-tree modules, use a temporary file to avoid
+-# the situation of modules_install installing an invalid modules.order.
+-MODORDER := .modules.tmp
+-endif
+-
++# Remove MODORDER when done because it is not the real one.
+ PHONY += single_modpost
+ single_modpost: $(single-no-ko) modules_prepare
+ 	$(Q){ $(foreach m, $(single-ko), echo $(extmod_prefix)$m;) } > $(MODORDER)
+ 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
+-
+-KBUILD_MODULES := 1
++	$(Q)rm -f $(MODORDER)
+ 
+ export KBUILD_SINGLE_TARGETS := $(addprefix $(extmod_prefix), $(single-no-ko))
+ 
+@@ -1896,10 +1892,6 @@ build-dirs := $(foreach d, $(build-dirs), \
+ 
+ endif
+ 
+-ifndef CONFIG_MODULES
+-KBUILD_MODULES :=
+-endif
+-
+ # Handle descending into subdirectories listed in $(build-dirs)
+ # Preset locale variables to speed up the build process. Limit locale
+ # tweaks to this spot to avoid wrong language settings when running
 -- 
 2.39.2
 
