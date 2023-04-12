@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E9B6DEFC6
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0536DEED3
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231441AbjDLIxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42976 "EHLO
+        id S230424AbjDLIpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231232AbjDLIxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:38 -0400
+        with ESMTP id S230189AbjDLIo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B66EA251
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 894E67A80
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29A4E631C8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C9ECC433EF;
-        Wed, 12 Apr 2023 08:52:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D0563090
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F69EC4339B;
+        Wed, 12 Apr 2023 08:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289577;
-        bh=OpCqSmB2KGNKYp4UT7PsVELkb4AQtCutdujDYdVQPBY=;
+        s=korg; t=1681289074;
+        bh=8HeqEwN9bz79Z34xpNI0lFd2kG0CISYLc/kdcOkTMdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYSc98XgS6/sP/ZPtb+tr9RtAX+7V3ViONq3oHfJaoowod3ya2UDLf204EuPL5czX
-         Cq1pPfD1HaOn7r6G64mFZ6tH9T1iokYhbjOHan5RnsLf+B5GVtm1Jf+OYpeTFMh9aj
-         RSBNrpMwl4OgBPuAV53+h+V5/6JYuUhV4wWvLs1w=
+        b=2ZyvOjfZuWly+SaLSUodWp99NzbvyaNcWBmMuj/llfrhr6/ekHtWH4XElyqlmdqr4
+         vnN8Omd795/CXvqYVPgsD9FFv+eZdf266BmAfNB+j+LXX8IolAJs87YAPsfzn5c0e9
+         TYCtDwn2yJ7sOVnT1sckB2DmhQKn8bx3f2kL7tPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.2 123/173] tracing/osnoise: Fix notify new tracing_max_latency
+        patches@lists.linux.dev, Jason Montleon <jmontleo@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.1 127/164] ASoC: hdac_hdmi: use set_stream() instead of set_tdm_slots()
 Date:   Wed, 12 Apr 2023 10:34:09 +0200
-Message-Id: <20230412082843.109095719@linuxfoundation.org>
+Message-Id: <20230412082842.015997850@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Jason Montleon <jmontleo@redhat.com>
 
-commit d3cba7f02cd82118c32651c73374d8a5a459d9a6 upstream.
+commit f6887a71bdd2f0dcba9b8180dd2223cfa8637e85 upstream.
 
-osnoise/timerlat tracers are reporting new max latency on instances
-where the tracing is off, creating inconsistencies between the max
-reported values in the trace and in the tracing_max_latency. Thus
-only report new tracing_max_latency on active tracing instances.
-
-Link: https://lkml.kernel.org/r/ecd109fde4a0c24ab0f00ba1e9a144ac19a91322.1680104184.git.bristot@kernel.org
+hdac_hdmi was not updated to use set_stream() instead of set_tdm_slots()
+in the original commit so HDMI no longer produces audio.
 
 Cc: stable@vger.kernel.org
-Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/regressions/CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com/
+Fixes: 636110411ca7 ("ASoC: Intel/SOF: use set_stream() instead of set_tdm_slots() for HDAudio")
+Signed-off-by: Jason Montleon <jmontleo@redhat.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20230324170711.2526-1-jmontleo@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/hdac_hdmi.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1296,7 +1296,7 @@ static void notify_new_max_latency(u64 l
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(inst, &osnoise_instances, list) {
- 		tr = inst->tr;
--		if (tr->max_latency < latency) {
-+		if (tracer_tracing_is_on(tr) && tr->max_latency < latency) {
- 			tr->max_latency = latency;
- 			latency_fsnotify(tr);
- 		}
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -436,23 +436,28 @@ static int hdac_hdmi_setup_audio_infofra
+ 	return 0;
+ }
+ 
+-static int hdac_hdmi_set_tdm_slot(struct snd_soc_dai *dai,
+-		unsigned int tx_mask, unsigned int rx_mask,
+-		int slots, int slot_width)
++static int hdac_hdmi_set_stream(struct snd_soc_dai *dai,
++				void *stream, int direction)
+ {
+ 	struct hdac_hdmi_priv *hdmi = snd_soc_dai_get_drvdata(dai);
+ 	struct hdac_device *hdev = hdmi->hdev;
+ 	struct hdac_hdmi_dai_port_map *dai_map;
+ 	struct hdac_hdmi_pcm *pcm;
++	struct hdac_stream *hstream;
+ 
+-	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, tx_mask);
++	if (!stream)
++		return -EINVAL;
++
++	hstream = (struct hdac_stream *)stream;
++
++	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, hstream->stream_tag);
+ 
+ 	dai_map = &hdmi->dai_map[dai->id];
+ 
+ 	pcm = hdac_hdmi_get_pcm_from_cvt(hdmi, dai_map->cvt);
+ 
+ 	if (pcm)
+-		pcm->stream_tag = (tx_mask << 4);
++		pcm->stream_tag = (hstream->stream_tag << 4);
+ 
+ 	return 0;
+ }
+@@ -1544,7 +1549,7 @@ static const struct snd_soc_dai_ops hdmi
+ 	.startup = hdac_hdmi_pcm_open,
+ 	.shutdown = hdac_hdmi_pcm_close,
+ 	.hw_params = hdac_hdmi_set_hw_params,
+-	.set_tdm_slot = hdac_hdmi_set_tdm_slot,
++	.set_stream = hdac_hdmi_set_stream,
+ };
+ 
+ /*
 
 
