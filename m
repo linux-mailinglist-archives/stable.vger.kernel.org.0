@@ -2,129 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC52D6DED10
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9551D6DED17
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229532AbjDLH5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 03:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44102 "EHLO
+        id S229531AbjDLH7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 03:59:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbjDLH5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 03:57:42 -0400
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CD11BDA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 00:57:41 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id DA53F3200950;
-        Wed, 12 Apr 2023 03:57:37 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Wed, 12 Apr 2023 03:57:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1681286257; x=1681372657; bh=WmkHcZRTGtB6jkXxSxv2JVs8qUDKxOapllo
-        cf5kvOV0=; b=QtzUh+Pmyt8iXQnqEbPjJRR0n5CyudwuRpdlbuugImC3iZwtzEb
-        x4Frg50shpXF+PtYFUCwpaYCZdQDBcggEkZq0hJlz5EHepmYxS31JDtcZGOX9Ow/
-        X2N4UNLs9PTvf033njTY0vbWkTWZaRv7WAvauX8lyHpr40PwU2krjDOsROYpg63A
-        /1upTuvYaC7Epv+uhPX0kcmTC3HFjB8TXLGBClF8Vi4qxSfRrsNhW8DvBHVq6lhE
-        CCRujvdlsBVU7EAz2uQZVX9yJc91bLzuG5lDdSWHQ2cYfpkC3xz0QpcGLQk4aOER
-        T+7OoEnW2zgpt1eiT58reNfvdLFkUCyqAkA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-        1681286257; x=1681372657; bh=WmkHcZRTGtB6jkXxSxv2JVs8qUDKxOapllo
-        cf5kvOV0=; b=OAIwRyia6VW9cYfjmTsMB/8iBvMtxayI+SrtWdW7bubVducGnjL
-        bO4YEAAtjJJdobpf/0NXVttaBqf5hgN8wPB94mJwq30a/8gS5YrfrQpuA274rk2A
-        LLYH767pB18yU1PaI9Ntv1Bu9P1Ino0Fs/RvwdS3x/i91WAbqoIt1NGm7TieIcXR
-        kVUBLAKsD8uc1mIqWZDqgjQGyooVKco8BnxdMXwOPuMtGhFwAPuj948J/XVzSEMp
-        pI6cSi6x7B5G1q43ewasiYuv6Gz44guYgzRHbEPtj8vU0HKVHoq1Tt4Ar7VhV48c
-        Mb0plSZG4P+odpAzPyVNlxWLRJQonofp5rg==
-X-ME-Sender: <xms:cWQ2ZJyrvGSmBI06qeHq9PDqknWFx3gIVGdbj0_XxZ2BO-xAEP09uA>
-    <xme:cWQ2ZJRVSSqAdvpTENBDh7OMZOjtDjfSQrucMBleo5vfICe7udVc-NPYXAj8UhMB2
-    xkr8FlHgvA10A>
-X-ME-Received: <xmr:cWQ2ZDXA7BeM8KgDBFBvf2VuEStQhbyl4liTJVJrOYNQlH-hHwLoco869mExJesy09a8xZOjIpVg2pL7heMD1PVIDudOD0-A_e1Tcg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdekhedguddvjecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvvefukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhr
-    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepge
-    evleehjedtgfethfetveetheejtdeugeekgeevleetkeehvefghfdtueegteeknecuffho
-    mhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
-    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:cWQ2ZLjgPFDLhO3Hj-S6YqZhAISMgWTRLjSEBj_p8PBFW8m3p4HwVA>
-    <xmx:cWQ2ZLDCtNFeCrsaDhlT92ZeugqFSW8-hTj3G0wlLziV8h8nU0nQ3g>
-    <xmx:cWQ2ZEKhB0x6e9naslAk_GolkghDb7U3mGvn0HwEOhle527ncrSgEg>
-    <xmx:cWQ2ZP5gkXAzKj8QbG0r2yS-E6xEgydlRyOF2pGm0bEPh1V011dp0Q>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 12 Apr 2023 03:57:36 -0400 (EDT)
-Date:   Wed, 12 Apr 2023 09:57:33 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     stable@vger.kernel.org, Manasi Navare <navaremanasi@google.com>,
-        Drew Davenport <ddavenport@chromium.org>,
-        Imre Deak <imre.deak@intel.com>,
-        Jouni =?iso-8859-1?Q?H=F6gander?= <jouni.hogander@intel.com>
-Subject: Re: [PATCH 2/3] drm/i915: Add a .color_post_update() hook
-Message-ID: <2023041254-wok-shine-8aaf@gregkh>
-References: <20230403162618.18469-2-ville.syrjala@linux.intel.com>
+        with ESMTP id S229521AbjDLH7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 03:59:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B4214EE8
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 00:59:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0322F62F0C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 07:59:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1574FC433EF;
+        Wed, 12 Apr 2023 07:59:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681286368;
+        bh=cS4JdMy9GiXSblOzE4DQfk+smFmAd7Kirm5hwYXwYw8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=p9TtDn7lnMfy5gYgE+zfVW8V4y4T3Td5NzgM42L3SbxIa5GoNpqKVkv/+hW5+DZzm
+         tsUCojahAU/XLKOPH83SDxxSJcJJu9ClzOsIxh/Tx7+4DawHRojEheJoxGzvxcQA5a
+         vH77zjMEYk88cRx7feZjqzYwMJcSRyx+CwkGmVms=
+Date:   Wed, 12 Apr 2023 09:59:26 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alistair Popple <apopple@nvidia.com>
+Cc:     stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 6.2.y] mm: take a page reference when removing device
+ exclusive entries
+Message-ID: <2023041216-catalyze-query-7282@gregkh>
+References: <2023041153-unlikable-steam-cf2b@gregkh>
+ <20230412011831.152625-1-apopple@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230403162618.18469-2-ville.syrjala@linux.intel.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230412011831.152625-1-apopple@nvidia.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 03, 2023 at 07:26:17PM +0300, Ville Syrjälä wrote:
-> We're going to need stuff after the color management
-> register latching has happened. Add a corresponding hook.
+On Wed, Apr 12, 2023 at 11:18:31AM +1000, Alistair Popple wrote:
+> Device exclusive page table entries are used to prevent CPU access to a
+> page whilst it is being accessed from a device.  Typically this is used to
+> implement atomic operations when the underlying bus does not support
+> atomic access.  When a CPU thread encounters a device exclusive entry it
+> locks the page and restores the original entry after calling mmu notifiers
+> to signal drivers that exclusive access is no longer available.
 > 
-> (cherry picked from commit 3962ca4e080a525fc9eae87aa6b2286f1fae351d)
-> (cherry picked from commit c880f855d1e240a956dcfce884269bad92fc849c)
+> The device exclusive entry holds a reference to the page making it safe to
+> access the struct page whilst the entry is present.  However the fault
+> handling code does not hold the PTL when taking the page lock.  This means
+> if there are multiple threads faulting concurrently on the device
+> exclusive entry one will remove the entry whilst others will wait on the
+> page lock without holding a reference.
 > 
-> Cc: <stable@vger.kernel.org> #v5.19+
-> Cc: <stable@vger.kernel.org> # 52a90349f2ed: drm/i915: Introduce intel_crtc_needs_fastset()
-> Cc: <stable@vger.kernel.org> # 925ac8bc33bf: drm/i915: Remove some local 'mode_changed' bools
-> Cc: <stable@vger.kernel.org> # f5e674e92e95: drm/i915: Introduce intel_crtc_needs_color_update()
-> Cc: <stable@vger.kernel.org> # 4c35e5d11900: drm/i915: Activate DRRS after state readout
-> Cc: Manasi Navare <navaremanasi@google.com>
-> Cc: Drew Davenport <ddavenport@chromium.org>
-> Cc: Imre Deak <imre.deak@intel.com>
-> Cc: Jouni Högander <jouni.hogander@intel.com>
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-4-ville.syrjala@linux.intel.com
-> Reviewed-by: Imre Deak <imre.deak@intel.com>
-> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+> This can lead to threads locking or waiting on a folio with a zero
+> refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
+> they may still be freed by a migration.  This leads to warnings such as
+> PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
+> drops to zero.
+> 
+> Fix this by trying to take a reference on the folio before locking it.
+> The code already checks the PTE under the PTL and aborts if the entry is
+> no longer there.  It is also possible the folio has been unmapped, freed
+> and re-allocated allowing a reference to be taken on an unrelated folio.
+> This case is also detected by the PTE check and the folio is unlocked
+> without further changes.
+> 
+> Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
+> Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
+> Signed-off-by: Alistair Popple <apopple@nvidia.com>
+> Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
+> Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+> Acked-by: David Hildenbrand <david@redhat.com>
+> Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+> Cc: Christoph Hellwig <hch@infradead.org>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> (cherry picked from commit 7c7b962938ddda6a9cd095de557ee5250706ea88)
 > ---
->  drivers/gpu/drm/i915/display/intel_color.c   | 13 +++++++++++++
->  drivers/gpu/drm/i915/display/intel_color.h   |  1 +
->  drivers/gpu/drm/i915/display/intel_display.c |  3 +++
->  3 files changed, 17 insertions(+)
+>  mm/memory.c | 16 +++++++++++++++-
+>  1 file changed, 15 insertions(+), 1 deletion(-)
 
-This patch fails to apply:
-
-checking file drivers/gpu/drm/i915/display/intel_color.c
-checking file drivers/gpu/drm/i915/display/intel_color.h
-Hunk #1 succeeded at 16 (offset -2 lines).
-checking file drivers/gpu/drm/i915/display/intel_display.c
-Hunk #1 FAILED at 1252.
-1 out of 1 hunk FAILED
-
-Can you rebase this, and 3/3, against the next 6.1.y release (which
-contains other patches for this driver) and resend just the two missing
-patches?
-
-thanks,
+All backports now queued up, thanks.
 
 greg k-h
