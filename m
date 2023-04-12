@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 316736DEEE5
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B88B6DEE45
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230464AbjDLIqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58680 "EHLO
+        id S231136AbjDLIlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230144AbjDLIp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CABED10D1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:45:38 -0700 (PDT)
+        with ESMTP id S231361AbjDLIkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E313E7AB0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA19A62AE9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE19FC433EF;
-        Wed, 12 Apr 2023 08:45:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E3DD63032
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 892F7C433D2;
+        Wed, 12 Apr 2023 08:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289138;
-        bh=41NGmFq+tNbRraKltE7oNfRk/f9Q2R2YCmjrh0HQkdQ=;
+        s=korg; t=1681288736;
+        bh=mSyg4tg5boZp2/djK30YWARMI8q9pHgCOE3s7moXNYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=diaXTexJP/n89YrluR5olV5Q22cSVoXrQCUdPthw5p7ZfvDDPkBIcCP9ATwZ/goCo
-         WgmfWEdV6piVALIe+7jreIlI4dT532CAhL/AUT1uHZKMjud/NvokHdVdX1AA/Fn5na
-         ORo4Y0Ocfr0e6UGbRamgfPB/Q6NZBSEnadeIi+AQ=
+        b=AeqCp5L8KH/DqRUGY5XJLDuz9pGiJvgPHEShKecr6rDEjkUCyvpzSj3tUvPXeyavo
+         60tJyhXGC2yZFzAxMuPx31LnIeV4RKkSansIdAkYUlcWM3tVuxxxZ70xKGc8IbgCvz
+         Ee/D/jo1qDk/2fCftcSTd1+H83MfRX6NLLbPr938=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Lin <Wayne.Lin@amd.com>,
-        Jasdeep Dhillon <jdhillon@amd.com>,
-        Roman Li <roman.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 6.1 143/164] drm/amd/display: Clear MST topology if it fails to resume
+        patches@lists.linux.dev, Michal Sojka <michal.sojka@cvut.cz>,
+        Jakub Jira <jirajak2@fel.cvut.cz>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 84/93] can: isotp: isotp_ops: fix poll() to not report false EPOLLOUT events
 Date:   Wed, 12 Apr 2023 10:34:25 +0200
-Message-Id: <20230412082842.685824975@linuxfoundation.org>
+Message-Id: <20230412082826.710797251@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <roman.li@amd.com>
+From: Michal Sojka <michal.sojka@cvut.cz>
 
-commit 3f6752b4de41896c7f1609b1585db2080e8150d8 upstream.
+commit 79e19fa79cb5d5f1b3bf3e3ae24989ccb93c7b7b upstream.
 
-[Why]
-In case of failure to resume MST topology after suspend, an emtpty
-mst tree prevents further mst hub detection on the same connector.
-That causes the issue with MST hub hotplug after it's been unplug in
-suspend.
+When using select()/poll()/epoll() with a non-blocking ISOTP socket to
+wait for when non-blocking write is possible, a false EPOLLOUT event
+is sometimes returned. This can happen at least after sending a
+message which must be split to multiple CAN frames.
 
-[How]
-Stop topology manager on the connector after detecting DM_MST failure.
+The reason is that isotp_sendmsg() returns -EAGAIN when tx.state is
+not equal to ISOTP_IDLE and this behavior is not reflected in
+datagram_poll(), which is used in isotp_ops.
 
-Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
-Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Signed-off-by: Roman Li <roman.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+This is fixed by introducing ISOTP-specific poll function, which
+suppresses the EPOLLOUT events in that case.
+
+v2: https://lore.kernel.org/all/20230302092812.320643-1-michal.sojka@cvut.cz
+v1: https://lore.kernel.org/all/20230224010659.48420-1-michal.sojka@cvut.cz
+    https://lore.kernel.org/all/b53a04a2-ba1f-3858-84c1-d3eb3301ae15@hartkopp.net
+
+Signed-off-by: Michal Sojka <michal.sojka@cvut.cz>
+Reported-by: Jakub Jira <jirajak2@fel.cvut.cz>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/20230331125511.372783-1-michal.sojka@cvut.cz
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/can/isotp.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2175,6 +2175,8 @@ static int detect_mst_link_for_all_conne
- 				DRM_ERROR("DM_MST: Failed to start MST\n");
- 				aconnector->dc_link->type =
- 					dc_connection_single;
-+				ret = dm_helpers_dp_mst_stop_top_mgr(aconnector->dc_link->ctx,
-+								     aconnector->dc_link);
- 				break;
- 			}
- 		}
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1482,6 +1482,21 @@ static int isotp_init(struct sock *sk)
+ 	return 0;
+ }
+ 
++static __poll_t isotp_poll(struct file *file, struct socket *sock, poll_table *wait)
++{
++	struct sock *sk = sock->sk;
++	struct isotp_sock *so = isotp_sk(sk);
++
++	__poll_t mask = datagram_poll(file, sock, wait);
++	poll_wait(file, &so->wait, wait);
++
++	/* Check for false positives due to TX state */
++	if ((mask & EPOLLWRNORM) && (so->tx.state != ISOTP_IDLE))
++		mask &= ~(EPOLLOUT | EPOLLWRNORM);
++
++	return mask;
++}
++
+ static int isotp_sock_no_ioctlcmd(struct socket *sock, unsigned int cmd,
+ 				  unsigned long arg)
+ {
+@@ -1497,7 +1512,7 @@ static const struct proto_ops isotp_ops
+ 	.socketpair = sock_no_socketpair,
+ 	.accept = sock_no_accept,
+ 	.getname = isotp_getname,
+-	.poll = datagram_poll,
++	.poll = isotp_poll,
+ 	.ioctl = isotp_sock_no_ioctlcmd,
+ 	.gettstamp = sock_gettstamp,
+ 	.listen = sock_no_listen,
 
 
