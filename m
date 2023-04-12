@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 022416DEF6F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A956DEE0A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230292AbjDLIvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
+        id S230417AbjDLIjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231350AbjDLIuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26559756
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:39 -0700 (PDT)
+        with ESMTP id S230428AbjDLIjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA8C76AB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C00326312D
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D57CBC433EF;
-        Wed, 12 Apr 2023 08:50:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC58663000
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE6D1C433D2;
+        Wed, 12 Apr 2023 08:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289431;
-        bh=mXPxwdqctaWuvNo3Mr/rvXBuSKg6oqk9IDTnsDFszDQ=;
+        s=korg; t=1681288611;
+        bh=LBFkbRKE7UvqvL1Ox66o5n/j4Yxn0+6vCZC53yElL68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktIdVB/emozLCgvjYkzoeWgnZmvMrMQg0Pu6kvc3OIdLN/RHEKZA4tjtO6rDCc+oM
-         uNB7ep6eOV3f04qpmdsmhoa1iBamhAVJFV11ySvmqkT4t5SKRBXht5x1PwIGQ9V21Y
-         j3acj9payoA/x+MPO2BK4cBoUZTUSwDv9hjf8ru0=
+        b=dQpgsYV1UrlU1F5h4Fsto98p7+yhAEID8eEi+9hAM5dVcilYzjnDWflLDCzeBxA2Y
+         7UChkCyNAJVe0yxPPGs83V8JqSqk9XvLSzYCkXyXYjhVcaQBrQ9d1ECnFMCFN34pap
+         0HnysVsED5at2qlPw3tLn/N0hi0tUbd2DBr0WkY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miguel Luis <miguel.luis@oracle.com>,
-        Boris Ostrovsky <boris.ovstrosky@oracle.com>,
-        Eric DeVolder <eric.devolder@oracle.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        David R <david@unsolicited.net>, stable@kernel.org
-Subject: [PATCH 6.2 097/173] x86/acpi/boot: Correct acpi_is_processor_usable() check
-Date:   Wed, 12 Apr 2023 10:33:43 +0200
-Message-Id: <20230412082841.994927947@linuxfoundation.org>
+        patches@lists.linux.dev, Corinna Vinschen <vinschen@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 43/93] net: stmmac: fix up RX flow hash indirection table when setting channels
+Date:   Wed, 12 Apr 2023 10:33:44 +0200
+Message-Id: <20230412082824.950894177@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,45 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric DeVolder <eric.devolder@oracle.com>
+From: Corinna Vinschen <vinschen@redhat.com>
 
-commit fed8d8773b8ea68ad99d9eee8c8343bef9da2c2c upstream.
+[ Upstream commit 218c597325f4faf7b7a6049233a30d7842b5b2dc ]
 
-The logic in acpi_is_processor_usable() requires the online capable
-bit be set for hotpluggable CPUs.  The online capable bit has been
-introduced in ACPI 6.3.
+stmmac_reinit_queues() fails to fix up the RX hash.  Even if the number
+of channels gets restricted, the output of `ethtool -x' indicates that
+all RX queues are used:
 
-However, for ACPI revisions < 6.3 which do not support that bit, CPUs
-should be reported as usable, not the other way around.
+  $ ethtool -l enp0s29f2
+  Channel parameters for enp0s29f2:
+  Pre-set maximums:
+  RX:		8
+  TX:		8
+  Other:		n/a
+  Combined:	n/a
+  Current hardware settings:
+  RX:		8
+  TX:		8
+  Other:		n/a
+  Combined:	n/a
+  $ ethtool -x enp0s29f2
+  RX flow hash indirection table for enp0s29f2 with 8 RX ring(s):
+      0:      0     1     2     3     4     5     6     7
+      8:      0     1     2     3     4     5     6     7
+  [...]
+  $ ethtool -L enp0s29f2 rx 3
+  $ ethtool -x enp0s29f2
+  RX flow hash indirection table for enp0s29f2 with 3 RX ring(s):
+      0:      0     1     2     3     4     5     6     7
+      8:      0     1     2     3     4     5     6     7
+  [...]
 
-Reverse the check.
+Fix this by setting the indirection table according to the number
+of specified queues.  The result is now as expected:
 
-  [ bp: Rewrite commit message. ]
+  $ ethtool -L enp0s29f2 rx 3
+  $ ethtool -x enp0s29f2
+  RX flow hash indirection table for enp0s29f2 with 3 RX ring(s):
+      0:      0     1     2     0     1     2     0     1
+      8:      2     0     1     2     0     1     2     0
+  [...]
 
-Fixes: e2869bd7af60 ("x86/acpi/boot: Do not register processors that cannot be onlined for x2APIC")
-Suggested-by: Miguel Luis <miguel.luis@oracle.com>
-Suggested-by: Boris Ostrovsky <boris.ovstrosky@oracle.com>
-Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Tested-by: David R <david@unsolicited.net>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/20230327191026.3454-2-eric.devolder@oracle.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested on Intel Elkhart Lake.
+
+Fixes: 0366f7e06a6b ("net: stmmac: add ethtool support for get/set channels")
+Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
+Link: https://lore.kernel.org/r/20230403121120.489138-1-vinschen@redhat.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/acpi/boot.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -193,7 +193,8 @@ static bool __init acpi_is_processor_usa
- 	if (lapic_flags & ACPI_MADT_ENABLED)
- 		return true;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 728e68971c397..a3bd5396c2f87 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -6893,7 +6893,7 @@ static void stmmac_napi_del(struct net_device *dev)
+ int stmmac_reinit_queues(struct net_device *dev, u32 rx_cnt, u32 tx_cnt)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+-	int ret = 0;
++	int ret = 0, i;
  
--	if (acpi_support_online_capable && (lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
-+	if (!acpi_support_online_capable ||
-+	    (lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
- 		return true;
+ 	if (netif_running(dev))
+ 		stmmac_release(dev);
+@@ -6902,6 +6902,10 @@ int stmmac_reinit_queues(struct net_device *dev, u32 rx_cnt, u32 tx_cnt)
  
- 	return false;
+ 	priv->plat->rx_queues_to_use = rx_cnt;
+ 	priv->plat->tx_queues_to_use = tx_cnt;
++	if (!netif_is_rxfh_configured(dev))
++		for (i = 0; i < ARRAY_SIZE(priv->rss.table); i++)
++			priv->rss.table[i] = ethtool_rxfh_indir_default(i,
++									rx_cnt);
+ 
+ 	stmmac_napi_add(dev);
+ 
+-- 
+2.39.2
+
 
 
