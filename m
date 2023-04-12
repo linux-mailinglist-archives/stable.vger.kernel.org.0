@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8126DEFCC
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FDF26DEFCE
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231454AbjDLIxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43094 "EHLO
+        id S231450AbjDLIxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231450AbjDLIxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE81A269
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:27 -0700 (PDT)
+        with ESMTP id S231455AbjDLIxr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151169EF5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE07C62FF1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E71C433EF;
-        Wed, 12 Apr 2023 08:53:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85201631AB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96165C433EF;
+        Wed, 12 Apr 2023 08:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289598;
-        bh=8Vz31qR/1EZSbmuq+T4mdiC1zhZx/0gsEHu3tqXI9n8=;
+        s=korg; t=1681289600;
+        bh=b676YNVygXNPx4p2FXBDlKhAEcUuqOftBp4wKET9x1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDGXW9lpIHDgw+kEW5PS5/pTmeuCy8zgAQbyC+q3DwrpcAU177E+vSk3d/IrFGiow
-         9x6FWAbXLWAUGOzZkU8mdsJr2yi0V4GHw56zVtTybnmKTT+CvQkuCr1lhCGBxjY7Pu
-         +NyHaU/Jva9shGPPiFC0dPhhOebPuziCdhwuhLNo=
+        b=drZpVhjyQAvxgnJbWJZLsR6UnZ1TnC3Xr0UhFHRB7FSmxhqj2LA7Q13FIUSEG4Q/d
+         jB38iibrnaPDtGUpXU+ycGozdYf9RCDR31TYumkjV4C+FgMPmHkHVbveAqY6TgmX2s
+         OgR4LaLuL0jx+OK+82qngtYDDt8kSf4FgGEVr/RU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liam Howlett <Liam.Howlett@oracle.com>,
-        Jirka Hladky <jhladky@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 6.2 161/173] maple_tree: remove GFP_ZERO from kmem_cache_alloc() and kmem_cache_alloc_bulk()
-Date:   Wed, 12 Apr 2023 10:34:47 +0200
-Message-Id: <20230412082844.648360014@linuxfoundation.org>
+        patches@lists.linux.dev, Stable@vger.kernel.org,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Subject: [PATCH 6.2 162/173] maple_tree: fix potential rcu issue
+Date:   Wed, 12 Apr 2023 10:34:48 +0200
+Message-Id: <20230412082844.683063551@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,289 +55,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
 
-commit 541e06b772c1aaffb3b6a245ccface36d7107af2 upstream.
+commit 65be6f058b0eba98dc6c6f197ea9f62c9b6a519f upstream.
 
-Preallocations are common in the VMA code to avoid allocating under
-certain locking conditions.  The preallocations must also cover the
-worst-case scenario.  Removing the GFP_ZERO flag from the
-kmem_cache_alloc() (and bulk variant) calls will reduce the amount of time
-spent zeroing memory that may not be used.  Only zero out the necessary
-area to keep track of the allocations in the maple state.  Zero the entire
-node prior to using it in the tree.
+Ensure the node isn't dead after reading the node end.
 
-This required internal changes to node counting on allocation, so the test
-code is also updated.
-
-This restores some micro-benchmark performance: up to +9% in mmtests mmap1
-by my testing +10% to +20% in mmap, mmapaddr, mmapmany tests reported by
-Red Hat
-
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2149636
-Link: https://lkml.kernel.org/r/20230105160427.2988454-1-Liam.Howlett@oracle.com
-Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20230120162650.984577-3-Liam.Howlett@oracle.com
+Cc: <Stable@vger.kernel.org>
 Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Liam Howlett <Liam.Howlett@oracle.com>
-Reported-by: Jirka Hladky <jhladky@redhat.com>
-Suggested-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/maple_tree.c                 |   80 ++++++++++++++++++++-------------------
- tools/testing/radix-tree/maple.c |   18 ++++----
- 2 files changed, 52 insertions(+), 46 deletions(-)
+ lib/maple_tree.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/lib/maple_tree.c
 +++ b/lib/maple_tree.c
-@@ -149,13 +149,12 @@ struct maple_subtree_state {
- /* Functions */
- static inline struct maple_node *mt_alloc_one(gfp_t gfp)
- {
--	return kmem_cache_alloc(maple_node_cache, gfp | __GFP_ZERO);
-+	return kmem_cache_alloc(maple_node_cache, gfp);
- }
- 
- static inline int mt_alloc_bulk(gfp_t gfp, size_t size, void **nodes)
- {
--	return kmem_cache_alloc_bulk(maple_node_cache, gfp | __GFP_ZERO, size,
--				     nodes);
-+	return kmem_cache_alloc_bulk(maple_node_cache, gfp, size, nodes);
- }
- 
- static inline void mt_free_bulk(size_t size, void __rcu **nodes)
-@@ -1128,9 +1127,10 @@ static inline struct maple_node *mas_pop
- {
- 	struct maple_alloc *ret, *node = mas->alloc;
- 	unsigned long total = mas_allocated(mas);
-+	unsigned int req = mas_alloc_req(mas);
- 
- 	/* nothing or a request pending. */
--	if (unlikely(!total))
-+	if (WARN_ON(!total))
+@@ -4655,13 +4655,13 @@ static inline void *mas_next_nentry(stru
+ 	pivots = ma_pivots(node, type);
+ 	slots = ma_slots(node, type);
+ 	mas->index = mas_safe_min(mas, pivots, mas->offset);
++	count = ma_data_end(node, type, pivots, mas->max);
+ 	if (ma_dead_node(node))
  		return NULL;
  
- 	if (total == 1) {
-@@ -1140,27 +1140,25 @@ static inline struct maple_node *mas_pop
- 		goto single_node;
- 	}
+ 	if (mas->index > max)
+ 		return NULL;
  
--	if (!node->node_count) {
-+	if (node->node_count == 1) {
- 		/* Single allocation in this node. */
- 		mas->alloc = node->slot[0];
--		node->slot[0] = NULL;
- 		mas->alloc->total = node->total - 1;
- 		ret = node;
- 		goto new_head;
- 	}
--
- 	node->total--;
--	ret = node->slot[node->node_count];
--	node->slot[node->node_count--] = NULL;
-+	ret = node->slot[--node->node_count];
-+	node->slot[node->node_count] = NULL;
+-	count = ma_data_end(node, type, pivots, mas->max);
+ 	if (mas->offset > count)
+ 		return NULL;
  
- single_node:
- new_head:
--	ret->total = 0;
--	ret->node_count = 0;
--	if (ret->request_count) {
--		mas_set_alloc_req(mas, ret->request_count + 1);
--		ret->request_count = 0;
-+	if (req) {
-+		req++;
-+		mas_set_alloc_req(mas, req);
- 	}
-+
-+	memset(ret, 0, sizeof(*ret));
- 	return (struct maple_node *)ret;
- }
- 
-@@ -1179,21 +1177,20 @@ static inline void mas_push_node(struct
- 	unsigned long count;
- 	unsigned int requested = mas_alloc_req(mas);
- 
--	memset(reuse, 0, sizeof(*reuse));
- 	count = mas_allocated(mas);
- 
--	if (count && (head->node_count < MAPLE_ALLOC_SLOTS - 1)) {
--		if (head->slot[0])
--			head->node_count++;
--		head->slot[head->node_count] = reuse;
-+	reuse->request_count = 0;
-+	reuse->node_count = 0;
-+	if (count && (head->node_count < MAPLE_ALLOC_SLOTS)) {
-+		head->slot[head->node_count++] = reuse;
- 		head->total++;
- 		goto done;
- 	}
- 
- 	reuse->total = 1;
- 	if ((head) && !((unsigned long)head & 0x1)) {
--		head->request_count = 0;
- 		reuse->slot[0] = head;
-+		reuse->node_count = 1;
- 		reuse->total += head->total;
- 	}
- 
-@@ -1212,7 +1209,6 @@ static inline void mas_alloc_nodes(struc
- {
- 	struct maple_alloc *node;
- 	unsigned long allocated = mas_allocated(mas);
--	unsigned long success = allocated;
- 	unsigned int requested = mas_alloc_req(mas);
- 	unsigned int count;
- 	void **slots = NULL;
-@@ -1228,24 +1224,29 @@ static inline void mas_alloc_nodes(struc
- 		WARN_ON(!allocated);
- 	}
- 
--	if (!allocated || mas->alloc->node_count == MAPLE_ALLOC_SLOTS - 1) {
-+	if (!allocated || mas->alloc->node_count == MAPLE_ALLOC_SLOTS) {
- 		node = (struct maple_alloc *)mt_alloc_one(gfp);
- 		if (!node)
- 			goto nomem_one;
- 
--		if (allocated)
-+		if (allocated) {
- 			node->slot[0] = mas->alloc;
-+			node->node_count = 1;
-+		} else {
-+			node->node_count = 0;
-+		}
- 
--		success++;
- 		mas->alloc = node;
-+		node->total = ++allocated;
- 		requested--;
- 	}
- 
- 	node = mas->alloc;
-+	node->request_count = 0;
- 	while (requested) {
- 		max_req = MAPLE_ALLOC_SLOTS;
--		if (node->slot[0]) {
--			unsigned int offset = node->node_count + 1;
-+		if (node->node_count) {
-+			unsigned int offset = node->node_count;
- 
- 			slots = (void **)&node->slot[offset];
- 			max_req -= offset;
-@@ -1259,15 +1260,13 @@ static inline void mas_alloc_nodes(struc
- 			goto nomem_bulk;
- 
- 		node->node_count += count;
--		/* zero indexed. */
--		if (slots == (void **)&node->slot)
--			node->node_count--;
--
--		success += count;
-+		allocated += count;
- 		node = node->slot[0];
-+		node->node_count = 0;
-+		node->request_count = 0;
- 		requested -= count;
- 	}
--	mas->alloc->total = success;
-+	mas->alloc->total = allocated;
- 	return;
- 
- nomem_bulk:
-@@ -1276,7 +1275,7 @@ nomem_bulk:
- nomem_one:
- 	mas_set_alloc_req(mas, requested);
- 	if (mas->alloc && !(((unsigned long)mas->alloc & 0x1)))
--		mas->alloc->total = success;
-+		mas->alloc->total = allocated;
- 	mas_set_err(mas, -ENOMEM);
- 	return;
- 
-@@ -5725,6 +5724,7 @@ int mas_preallocate(struct ma_state *mas
- void mas_destroy(struct ma_state *mas)
- {
- 	struct maple_alloc *node;
-+	unsigned long total;
- 
- 	/*
- 	 * When using mas_for_each() to insert an expected number of elements,
-@@ -5747,14 +5747,20 @@ void mas_destroy(struct ma_state *mas)
- 	}
- 	mas->mas_flags &= ~(MA_STATE_BULK|MA_STATE_PREALLOC);
- 
--	while (mas->alloc && !((unsigned long)mas->alloc & 0x1)) {
-+	total = mas_allocated(mas);
-+	while (total) {
- 		node = mas->alloc;
- 		mas->alloc = node->slot[0];
--		if (node->node_count > 0)
--			mt_free_bulk(node->node_count,
--				     (void __rcu **)&node->slot[1]);
-+		if (node->node_count > 1) {
-+			size_t count = node->node_count - 1;
-+
-+			mt_free_bulk(count, (void __rcu **)&node->slot[1]);
-+			total -= count;
-+		}
- 		kmem_cache_free(maple_node_cache, node);
-+		total--;
- 	}
-+
- 	mas->alloc = NULL;
- }
- EXPORT_SYMBOL_GPL(mas_destroy);
---- a/tools/testing/radix-tree/maple.c
-+++ b/tools/testing/radix-tree/maple.c
-@@ -173,11 +173,11 @@ static noinline void check_new_node(stru
- 
- 		if (!MAPLE_32BIT) {
- 			if (i >= 35)
--				e = i - 35;
-+				e = i - 34;
- 			else if (i >= 5)
--				e = i - 5;
-+				e = i - 4;
- 			else if (i >= 2)
--				e = i - 2;
-+				e = i - 1;
- 		} else {
- 			if (i >= 4)
- 				e = i - 4;
-@@ -305,17 +305,17 @@ static noinline void check_new_node(stru
- 	MT_BUG_ON(mt, mas.node != MA_ERROR(-ENOMEM));
- 	MT_BUG_ON(mt, !mas_nomem(&mas, GFP_KERNEL));
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 1);
--	MT_BUG_ON(mt, mas.alloc->node_count != MAPLE_ALLOC_SLOTS - 1);
-+	MT_BUG_ON(mt, mas.alloc->node_count != MAPLE_ALLOC_SLOTS);
- 
- 	mn = mas_pop_node(&mas); /* get the next node. */
- 	MT_BUG_ON(mt, mn == NULL);
- 	MT_BUG_ON(mt, not_empty(mn));
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS);
--	MT_BUG_ON(mt, mas.alloc->node_count != MAPLE_ALLOC_SLOTS - 2);
-+	MT_BUG_ON(mt, mas.alloc->node_count != MAPLE_ALLOC_SLOTS - 1);
- 
- 	mas_push_node(&mas, mn);
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 1);
--	MT_BUG_ON(mt, mas.alloc->node_count != MAPLE_ALLOC_SLOTS - 1);
-+	MT_BUG_ON(mt, mas.alloc->node_count != MAPLE_ALLOC_SLOTS);
- 
- 	/* Check the limit of pop/push/pop */
- 	mas_node_count(&mas, MAPLE_ALLOC_SLOTS + 2); /* Request */
-@@ -323,14 +323,14 @@ static noinline void check_new_node(stru
- 	MT_BUG_ON(mt, mas.node != MA_ERROR(-ENOMEM));
- 	MT_BUG_ON(mt, !mas_nomem(&mas, GFP_KERNEL));
- 	MT_BUG_ON(mt, mas_alloc_req(&mas));
--	MT_BUG_ON(mt, mas.alloc->node_count);
-+	MT_BUG_ON(mt, mas.alloc->node_count != 1);
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 2);
- 	mn = mas_pop_node(&mas);
- 	MT_BUG_ON(mt, not_empty(mn));
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 1);
--	MT_BUG_ON(mt, mas.alloc->node_count  != MAPLE_ALLOC_SLOTS - 1);
-+	MT_BUG_ON(mt, mas.alloc->node_count  != MAPLE_ALLOC_SLOTS);
- 	mas_push_node(&mas, mn);
--	MT_BUG_ON(mt, mas.alloc->node_count);
-+	MT_BUG_ON(mt, mas.alloc->node_count != 1);
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 2);
- 	mn = mas_pop_node(&mas);
- 	MT_BUG_ON(mt, not_empty(mn));
 
 
