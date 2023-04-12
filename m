@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6566DEDF2
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:38:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77F636DEF59
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230406AbjDLIil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:38:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
+        id S230030AbjDLItn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230319AbjDLIi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C4483E5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:13 -0700 (PDT)
+        with ESMTP id S231246AbjDLItl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D395086A0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A2B262FE8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587BDC433EF;
-        Wed, 12 Apr 2023 08:35:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FDC963158
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE696C433EF;
+        Wed, 12 Apr 2023 08:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288537;
-        bh=CAV92dUJEaWzF2rsEApT8/n2gspYX3igZNIpCkHQtcI=;
+        s=korg; t=1681289363;
+        bh=8IB+ucdDt31Jyifm0bLFn77fP6TY3eYS8Tp5eLHf5DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gE6kAhad+oLBSvQBPD/Wrgbq5aI0ZAbPxfEBSz+IoXQYFrCWecgEoWU2wqhBZofTb
-         4vko20phUnJuqDHRn72FzhIEQ3l8MgrPREW5JXlhrndIXJjjaobcexF4rgA1HRqiur
-         G9NJ5YIPJ5UQeCL94h4TAYqhRZjIR+IFOlRERg3I=
+        b=TTRSKfZ7FLGVYDbLO4Fo3DoVItocU/+sl9RYEe8WFlBAnON1CyQcxPqss0Cr7Ez5m
+         q3QCwYpZe7WcnFRuferSBrJV7eMgT7xplU7zGI6Tvmjxl973R17kjI54EO93szRpQ/
+         ryelm53i6DyWoHv2zUS5Sgd1T0wIFtuaQAf8OZ3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jacob Keller <jacob.e.keller@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 16/93] iavf: return errno code instead of status code
+        patches@lists.linux.dev, Ian Ray <ian.ray@ge.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.2 071/173] drivers: iio: adc: ltc2497: fix LSB shift
 Date:   Wed, 12 Apr 2023 10:33:17 +0200
-Message-Id: <20230412082823.721667346@linuxfoundation.org>
+Message-Id: <20230412082840.927722073@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,119 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Ian Ray <ian.ray@ge.com>
 
-[ Upstream commit 9f4651ea3e07339b460d403ff01b7cc2178fef7b ]
+commit 6327a930ab7bfa1ab33bcdffd5f5f4b1e7131504 upstream.
 
-The iavf_parse_cls_flower function returns an integer error code, and
-not an iavf_status enumeration.
+Correct the "sub_lsb" shift for the ltc2497 and drop the sub_lsb element
+which is now constant.
 
-Fix the function to use the standard errno value EINVAL as its return
-instead of using IAVF_ERR_CONFIG.
+An earlier version of the code shifted by 14 but this was a consequence
+of reading three bytes into a __be32 buffer and using be32_to_cpu(), so
+eight extra bits needed to be skipped.  Now we use get_unaligned_be24()
+and thus the additional skip is wrong.
 
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Stable-dep-of: 6650c8e906ce ("iavf/iavf_main: actually log ->src mask when talking about it")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2187cfeb3626 ("drivers: iio: adc: ltc2497: LTC2499 support")
+Signed-off-by: Ian Ray <ian.ray@ge.com>
+Link: https://lore.kernel.org/r/20230127125714.44608-1-ian.ray@ge.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/iio/adc/ltc2497.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index f5e6ae2c683f4..bafccf61c654f 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3103,7 +3103,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad ether dest mask %pM\n",
- 					match.mask->dst);
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
+--- a/drivers/iio/adc/ltc2497.c
++++ b/drivers/iio/adc/ltc2497.c
+@@ -28,7 +28,6 @@ struct ltc2497_driverdata {
+ 	struct ltc2497core_driverdata common_ddata;
+ 	struct i2c_client *client;
+ 	u32 recv_size;
+-	u32 sub_lsb;
+ 	/*
+ 	 * DMA (thus cache coherency maintenance) may require the
+ 	 * transfer buffers to live in their own cache lines.
+@@ -65,10 +64,10 @@ static int ltc2497_result_and_measure(st
+ 		 * equivalent to a sign extension.
+ 		 */
+ 		if (st->recv_size == 3) {
+-			*val = (get_unaligned_be24(st->data.d8) >> st->sub_lsb)
++			*val = (get_unaligned_be24(st->data.d8) >> 6)
+ 				- BIT(ddata->chip_info->resolution + 1);
+ 		} else {
+-			*val = (be32_to_cpu(st->data.d32) >> st->sub_lsb)
++			*val = (be32_to_cpu(st->data.d32) >> 6)
+ 				- BIT(ddata->chip_info->resolution + 1);
  		}
  
-@@ -3113,7 +3113,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad ether src mask %pM\n",
- 					match.mask->src);
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
- 		}
+@@ -122,7 +121,6 @@ static int ltc2497_probe(struct i2c_clie
+ 	st->common_ddata.chip_info = chip_info;
  
-@@ -3148,7 +3148,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad vlan mask %u\n",
- 					match.mask->vlan_id);
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
- 		}
- 		vf->mask.tcp_spec.vlan_id |= cpu_to_be16(0xffff);
-@@ -3172,7 +3172,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad ip dst mask 0x%08x\n",
- 					be32_to_cpu(match.mask->dst));
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
- 		}
+ 	resolution = chip_info->resolution;
+-	st->sub_lsb = 31 - (resolution + 1);
+ 	st->recv_size = BITS_TO_BYTES(resolution) + 1;
  
-@@ -3182,13 +3182,13 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad ip src mask 0x%08x\n",
- 					be32_to_cpu(match.mask->dst));
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
- 		}
- 
- 		if (field_flags & IAVF_CLOUD_FIELD_TEN_ID) {
- 			dev_info(&adapter->pdev->dev, "Tenant id not allowed for ip filter\n");
--			return IAVF_ERR_CONFIG;
-+			return -EINVAL;
- 		}
- 		if (match.key->dst) {
- 			vf->mask.tcp_spec.dst_ip[0] |= cpu_to_be32(0xffffffff);
-@@ -3209,7 +3209,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 		if (ipv6_addr_any(&match.mask->dst)) {
- 			dev_err(&adapter->pdev->dev, "Bad ipv6 dst mask 0x%02x\n",
- 				IPV6_ADDR_ANY);
--			return IAVF_ERR_CONFIG;
-+			return -EINVAL;
- 		}
- 
- 		/* src and dest IPv6 address should not be LOOPBACK
-@@ -3219,7 +3219,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 		    ipv6_addr_loopback(&match.key->src)) {
- 			dev_err(&adapter->pdev->dev,
- 				"ipv6 addr should not be loopback\n");
--			return IAVF_ERR_CONFIG;
-+			return -EINVAL;
- 		}
- 		if (!ipv6_addr_any(&match.mask->dst) ||
- 		    !ipv6_addr_any(&match.mask->src))
-@@ -3244,7 +3244,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad src port mask %u\n",
- 					be16_to_cpu(match.mask->src));
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
- 		}
- 
-@@ -3254,7 +3254,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad dst port mask %u\n",
- 					be16_to_cpu(match.mask->dst));
--				return IAVF_ERR_CONFIG;
-+				return -EINVAL;
- 			}
- 		}
- 		if (match.key->dst) {
--- 
-2.39.2
-
+ 	return ltc2497core_probe(dev, indio_dev);
 
 
