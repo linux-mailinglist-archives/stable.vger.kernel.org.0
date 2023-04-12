@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DAA26DEE0D
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 053046DEF79
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbjDLIjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
+        id S231343AbjDLIvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229777AbjDLIj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:27 -0400
+        with ESMTP id S231354AbjDLIvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D4F7DAF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F609ED8
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8864263009
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B69AC433EF;
-        Wed, 12 Apr 2023 08:36:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 296D96312E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D68FC433D2;
+        Wed, 12 Apr 2023 08:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288619;
-        bh=q1DQk/1pjkmNJsf5daQsG6IumlFBB/C9fgO6YQ7Nafs=;
+        s=korg; t=1681289441;
+        bh=JFLHhSMSXYGuZz+WKuoMUdkm8+kexttvGEBCNwrEtXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KC77IQaV9m4SqMJQASI2m9szw9Y0CgUjGRf5o9cnRQGgFHPG1gVu9gR58kLqa9Kxb
-         xOI8OTyL2TyhlSGicJs/YT4NoXEoewy6CtOYk0DBi9XEDv4RTz2f72qu+eizD92P4g
-         E7tpS0BDXazkH3iBRlckQu/RkMhVYycTO1ooWmfg=
+        b=KMmxUHRrgIbSQThUhmnJcca5fBdWlHhuN3iPcrroTRmSlruFYS+wbpikquGN0gzhz
+         CK7Fh1ngFTBRdc+81lZSc3Njxd5wD8R/WmsQLSBcj09nOWsTSzwOuXBppVOZN4Y0O7
+         eka8hDXfzy9prF1OZahjeSoDB874fj3YGC1vYy5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simei Su <simei.su@intel.com>,
-        Rafal Romanowski <rafal.romanowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 46/93] ice: fix wrong fallback logic for FDIR
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.2 101/173] KVM: SVM: Flush Hyper-V TLB when required
 Date:   Wed, 12 Apr 2023 10:33:47 +0200
-Message-Id: <20230412082825.090000139@linuxfoundation.org>
+Message-Id: <20230412082842.164450040@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simei Su <simei.su@intel.com>
+From: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
 
-[ Upstream commit b4a01ace20f5c93c724abffc0a83ec84f514b98d ]
+commit e5c972c1fadacc858b6a564d056f177275238040 upstream.
 
-When adding a FDIR filter, if ice_vc_fdir_set_irq_ctx returns failure,
-the inserted fdir entry will not be removed and if ice_vc_fdir_write_fltr
-returns failure, the fdir context info for irq handler will not be cleared
-which may lead to inconsistent or memory leak issue. This patch refines
-failure cases to resolve this issue.
+The Hyper-V "EnlightenedNptTlb" enlightenment is always enabled when KVM
+is running on top of Hyper-V and Hyper-V exposes support for it (which
+is always). On AMD CPUs this enlightenment results in ASID invalidations
+not flushing TLB entries derived from the NPT. To force the underlying
+(L0) hypervisor to rebuild its shadow page tables, an explicit hypercall
+is needed.
 
-Fixes: 1f7ea1cd6a37 ("ice: Enable FDIR Configure for AVF")
-Signed-off-by: Simei Su <simei.su@intel.com>
-Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The original KVM implementation of Hyper-V's "EnlightenedNptTlb" on SVM
+only added remote TLB flush hooks. This worked out fine for a while, as
+sufficient remote TLB flushes where being issued in KVM to mask the
+problem. Since v5.17, changes in the TDP code reduced the number of
+flushes and the out-of-sync TLB prevents guests from booting
+successfully.
+
+Split svm_flush_tlb_current() into separate callbacks for the 3 cases
+(guest/all/current), and issue the required Hyper-V hypercall when a
+Hyper-V TLB flush is needed. The most important case where the TLB flush
+was missing is when loading a new PGD, which is followed by what is now
+svm_flush_tlb_current().
+
+Cc: stable@vger.kernel.org # v5.17+
+Fixes: 1e0c7d40758b ("KVM: SVM: hyper-v: Remote TLB flush for SVM")
+Link: https://lore.kernel.org/lkml/43980946-7bbf-dcef-7e40-af904c456250@linux.microsoft.com/
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20230324145233.4585-1-jpiotrowski@linux.microsoft.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kvm/kvm_onhyperv.h     |    5 +++++
+ arch/x86/kvm/svm/svm.c          |   37 ++++++++++++++++++++++++++++++++++---
+ arch/x86/kvm/svm/svm_onhyperv.h |   15 +++++++++++++++
+ 3 files changed, 54 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-index 4b738f7391097..2254cae817c16 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-@@ -2136,7 +2136,7 @@ int ice_vc_add_fdir_fltr(struct ice_vf *vf, u8 *msg)
- 		v_ret = VIRTCHNL_STATUS_SUCCESS;
- 		stat->status = VIRTCHNL_FDIR_FAILURE_RULE_NORESOURCE;
- 		dev_dbg(dev, "VF %d: set FDIR context failed\n", vf->vf_id);
--		goto err_free_conf;
-+		goto err_rem_entry;
- 	}
+--- a/arch/x86/kvm/kvm_onhyperv.h
++++ b/arch/x86/kvm/kvm_onhyperv.h
+@@ -12,6 +12,11 @@ int hv_remote_flush_tlb_with_range(struc
+ int hv_remote_flush_tlb(struct kvm *kvm);
+ void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp);
+ #else /* !CONFIG_HYPERV */
++static inline int hv_remote_flush_tlb(struct kvm *kvm)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp)
+ {
+ }
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3718,7 +3718,7 @@ static void svm_enable_nmi_window(struct
+ 	svm->vmcb->save.rflags |= (X86_EFLAGS_TF | X86_EFLAGS_RF);
+ }
  
- 	ret = ice_vc_fdir_write_fltr(vf, conf, true, is_tun);
-@@ -2145,15 +2145,16 @@ int ice_vc_add_fdir_fltr(struct ice_vf *vf, u8 *msg)
- 		stat->status = VIRTCHNL_FDIR_FAILURE_RULE_NORESOURCE;
- 		dev_err(dev, "VF %d: writing FDIR rule failed, ret:%d\n",
- 			vf->vf_id, ret);
--		goto err_rem_entry;
-+		goto err_clr_irq;
- 	}
+-static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
++static void svm_flush_tlb_asid(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
  
- exit:
- 	kfree(stat);
- 	return ret;
+@@ -3742,6 +3742,37 @@ static void svm_flush_tlb_current(struct
+ 		svm->current_vmcb->asid_generation--;
+ }
  
--err_rem_entry:
-+err_clr_irq:
- 	ice_vc_fdir_clear_irq_ctx(vf);
-+err_rem_entry:
- 	ice_vc_fdir_remove_entry(vf, conf, conf->flow_id);
- err_free_conf:
- 	devm_kfree(dev, conf);
--- 
-2.39.2
-
++static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
++{
++	hpa_t root_tdp = vcpu->arch.mmu->root.hpa;
++
++	/*
++	 * When running on Hyper-V with EnlightenedNptTlb enabled, explicitly
++	 * flush the NPT mappings via hypercall as flushing the ASID only
++	 * affects virtual to physical mappings, it does not invalidate guest
++	 * physical to host physical mappings.
++	 */
++	if (svm_hv_is_enlightened_tlb_enabled(vcpu) && VALID_PAGE(root_tdp))
++		hyperv_flush_guest_mapping(root_tdp);
++
++	svm_flush_tlb_asid(vcpu);
++}
++
++static void svm_flush_tlb_all(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * When running on Hyper-V with EnlightenedNptTlb enabled, remote TLB
++	 * flushes should be routed to hv_remote_flush_tlb() without requesting
++	 * a "regular" remote flush.  Reaching this point means either there's
++	 * a KVM bug or a prior hv_remote_flush_tlb() call failed, both of
++	 * which might be fatal to the guest.  Yell, but try to recover.
++	 */
++	if (WARN_ON_ONCE(svm_hv_is_enlightened_tlb_enabled(vcpu)))
++		hv_remote_flush_tlb(vcpu->kvm);
++
++	svm_flush_tlb_asid(vcpu);
++}
++
+ static void svm_flush_tlb_gva(struct kvm_vcpu *vcpu, gva_t gva)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+@@ -4747,10 +4778,10 @@ static struct kvm_x86_ops svm_x86_ops __
+ 	.set_rflags = svm_set_rflags,
+ 	.get_if_flag = svm_get_if_flag,
+ 
+-	.flush_tlb_all = svm_flush_tlb_current,
++	.flush_tlb_all = svm_flush_tlb_all,
+ 	.flush_tlb_current = svm_flush_tlb_current,
+ 	.flush_tlb_gva = svm_flush_tlb_gva,
+-	.flush_tlb_guest = svm_flush_tlb_current,
++	.flush_tlb_guest = svm_flush_tlb_asid,
+ 
+ 	.vcpu_pre_run = svm_vcpu_pre_run,
+ 	.vcpu_run = svm_vcpu_run,
+--- a/arch/x86/kvm/svm/svm_onhyperv.h
++++ b/arch/x86/kvm/svm/svm_onhyperv.h
+@@ -6,6 +6,8 @@
+ #ifndef __ARCH_X86_KVM_SVM_ONHYPERV_H__
+ #define __ARCH_X86_KVM_SVM_ONHYPERV_H__
+ 
++#include <asm/mshyperv.h>
++
+ #if IS_ENABLED(CONFIG_HYPERV)
+ 
+ #include "kvm_onhyperv.h"
+@@ -15,6 +17,14 @@ static struct kvm_x86_ops svm_x86_ops;
+ 
+ int svm_hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu);
+ 
++static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
++{
++	struct hv_vmcb_enlightenments *hve = &to_svm(vcpu)->vmcb->control.hv_enlightenments;
++
++	return ms_hyperv.nested_features & HV_X64_NESTED_ENLIGHTENED_TLB &&
++	       !!hve->hv_enlightenments_control.enlightened_npt_tlb;
++}
++
+ static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
+ {
+ 	struct hv_vmcb_enlightenments *hve = &vmcb->control.hv_enlightenments;
+@@ -80,6 +90,11 @@ static inline void svm_hv_update_vp_id(s
+ }
+ #else
+ 
++static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
++
+ static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
+ {
+ }
 
 
