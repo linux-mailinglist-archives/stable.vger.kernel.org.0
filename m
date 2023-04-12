@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 843756DEF54
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B2A6DEFF1
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231312AbjDLIth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36090 "EHLO
+        id S231491AbjDLI6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:58:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231320AbjDLItd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D7683D9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:14 -0700 (PDT)
+        with ESMTP id S231477AbjDLI6N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:58:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13197DAF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:57:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 424D06313F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5820DC4339B;
-        Wed, 12 Apr 2023 08:49:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56ADE63097
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E77C4339B;
+        Wed, 12 Apr 2023 08:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289352;
-        bh=SLpOfQEjPlGpbHjo3wIAyVQkF2NdFTx7+4xJkm4r93s=;
+        s=korg; t=1681288932;
+        bh=/M7FauTKNI/uieWKNJQK7SCkeaUc92i/wKAtMeba600=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xIn8yZhEkqzZCC6xkkYXK2PWeh3biVMnEbNE2fDJFARY6X8HZMUdAZHITQJtL4zwY
-         e2Z8CXZ9SNihF+6pNTnzOhzwDV2ye7IFIW4y6ROAg3r2dnU/5rO3vxd7SYUo7gpZ+n
-         Ii2H6HFvfJkD6ZAR8gld/W3pO247NdPWOSW3zRNI=
+        b=dOHZ7+20zzeLda/NmD69obPHJYPcDsvUHAElThagA9WWRBWkTdj0uIeUdde3MDqen
+         FGd2ttMJDJFhGz0JnYfQ9NeWs55ZqEdCvU/UJIDJ9E+20KgjI3ep7NZns7xm3+GPVj
+         sH0FQWUHSn7C1GbSOoAF9rnxIjolH5HQl2tEPfag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kees Jan Koster <kjkoster@kjkoster.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.2 067/173] USB: serial: cp210x: add Silicon Labs IFS-USB-DATACABLE IDs
-Date:   Wed, 12 Apr 2023 10:33:13 +0200
-Message-Id: <20230412082840.775588286@linuxfoundation.org>
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.1 072/164] iio: adis16480: select CONFIG_CRC32
+Date:   Wed, 12 Apr 2023 10:33:14 +0200
+Message-Id: <20230412082839.832154210@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,31 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Jan Koster <kjkoster@kjkoster.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 71f8afa2b66e356f435b6141b4a9ccf953e18356 upstream.
+commit d9b540ee461cca7edca0dd2c2a42625c6b9ffb8f upstream.
 
-The Silicon Labs IFS-USB-DATACABLE is used in conjunction with for example
-the Quint UPSes. It is used to enable Modbus communication with the UPS to
-query configuration, power and battery status.
+In rare randconfig builds, the missing CRC32 helper causes
+a link error:
 
-Signed-off-by: Kees Jan Koster <kjkoster@kjkoster.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+ld.lld: error: undefined symbol: crc32_le
+>>> referenced by usercopy_64.c
+>>>               vmlinux.o:(adis16480_trigger_handler)
+
+Fixes: 941f130881fa ("iio: adis16480: support burst read function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20230131094616.130238-1-arnd@kernel.org
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
+ drivers/iio/imu/Kconfig |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -120,6 +120,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x826B) }, /* Cygnal Integrated Products, Inc., Fasttrax GPS demonstration module */
- 	{ USB_DEVICE(0x10C4, 0x8281) }, /* Nanotec Plug & Drive */
- 	{ USB_DEVICE(0x10C4, 0x8293) }, /* Telegesis ETRX2USB */
-+	{ USB_DEVICE(0x10C4, 0x82AA) }, /* Silicon Labs IFS-USB-DATACABLE used with Quint UPS */
- 	{ USB_DEVICE(0x10C4, 0x82EF) }, /* CESINEL FALCO 6105 AC Power Supply */
- 	{ USB_DEVICE(0x10C4, 0x82F1) }, /* CESINEL MEDCAL EFD Earth Fault Detector */
- 	{ USB_DEVICE(0x10C4, 0x82F2) }, /* CESINEL MEDCAL ST Network Analyzer */
+--- a/drivers/iio/imu/Kconfig
++++ b/drivers/iio/imu/Kconfig
+@@ -47,6 +47,7 @@ config ADIS16480
+ 	depends on SPI
+ 	select IIO_ADIS_LIB
+ 	select IIO_ADIS_LIB_BUFFER if IIO_BUFFER
++	select CRC32
+ 	help
+ 	  Say yes here to build support for Analog Devices ADIS16375, ADIS16480,
+ 	  ADIS16485, ADIS16488 inertial sensors.
 
 
