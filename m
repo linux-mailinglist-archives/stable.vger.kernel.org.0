@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 718066DEE63
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5B46DEE77
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbjDLIlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
+        id S230523AbjDLIlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230500AbjDLIlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:09 -0400
+        with ESMTP id S231130AbjDLIlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C1F7769B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703911991
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B44E662FE7
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C34AAC433EF;
-        Wed, 12 Apr 2023 08:40:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ADA462F41
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAACC4339B;
+        Wed, 12 Apr 2023 08:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288818;
-        bh=d6SfSzroS3PhQ+bfyKRfetIkzFFtPKIlAUM3BekxO1I=;
+        s=korg; t=1681288820;
+        bh=/XuG8WJ5/8MNd1emT/SRegmSk9/UipX369hYL5hBIWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9qDbIu2CyDtezPDLFLPLC2ddZ3BLt4KjOxqJ1zjFIXHyw5hErSXyFQxXU1UdEWfX
-         trpACT1RVClWOBs7jqXVclXx3cMuVGy8O8OL6uip7mo95w5ABMnsQIAYY2HaS0S905
-         W0WDtsrtr8whoVKmHAK8vdciHdi67Zzugrh50Oaw=
+        b=PNUU/jk6l/A0Y9toAqO90KyX5E6h/GAXtyEveJ9JKmzD7DvSxiOspDjW/lhKEKLlf
+         ZTjGr+XKm+zv7W1I3RWbTulXxjMfIvw7sk1rmQNybMPxecvbiHednCph/KIgyWbpyO
+         e89494KO1CzlI/A3hxj/Hl756LEkd/XMRSqDQ3Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhi Li <yieli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev,
+        syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 029/164] nfsd: call op_release, even when op_func returns an error
-Date:   Wed, 12 Apr 2023 10:32:31 +0200
-Message-Id: <20230412082838.162285504@linuxfoundation.org>
+Subject: [PATCH 6.1 030/164] icmp: guard against too small mtu
+Date:   Wed, 12 Apr 2023 10:32:32 +0200
+Message-Id: <20230412082838.196572314@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
 References: <20230412082836.695875037@linuxfoundation.org>
@@ -55,80 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 15a8b55dbb1ba154d82627547c5761cac884d810 ]
+[ Upstream commit 7d63b67125382ff0ffdfca434acbc94a38bd092b ]
 
-For ops with "trivial" replies, nfsd4_encode_operation will shortcut
-most of the encoding work and skip to just marshalling up the status.
-One of the things it skips is calling op_release. This could cause a
-memory leak in the layoutget codepath if there is an error at an
-inopportune time.
+syzbot was able to trigger a panic [1] in icmp_glue_bits(), or
+more exactly in skb_copy_and_csum_bits()
 
-Have the compound processing engine always call op_release, even when
-op_func sets an error in op->status. With this change, we also need
-nfsd4_block_get_device_info_scsi to set the gd_device pointer to NULL
-on error to avoid a double free.
+There is no repro yet, but I think the issue is that syzbot
+manages to lower device mtu to a small value, fooling __icmp_send()
 
-Reported-by: Zhi Li <yieli@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2181403
-Fixes: 34b1744c91cc ("nfsd4: define ->op_release for compound ops")
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+__icmp_send() must make sure there is enough room for the
+packet to include at least the headers.
+
+We might in the future refactor skb_copy_and_csum_bits() and its
+callers to no longer crash when something bad happens.
+
+[1]
+kernel BUG at net/core/skbuff.c:3343 !
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 15766 Comm: syz-executor.0 Not tainted 6.3.0-rc4-syzkaller-00039-gffe78bbd5121 #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+RIP: 0010:skb_copy_and_csum_bits+0x798/0x860 net/core/skbuff.c:3343
+Code: f0 c1 c8 08 41 89 c6 e9 73 ff ff ff e8 61 48 d4 f9 e9 41 fd ff ff 48 8b 7c 24 48 e8 52 48 d4 f9 e9 c3 fc ff ff e8 c8 27 84 f9 <0f> 0b 48 89 44 24 28 e8 3c 48 d4 f9 48 8b 44 24 28 e9 9d fb ff ff
+RSP: 0018:ffffc90000007620 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000000001e8 RCX: 0000000000000100
+RDX: ffff8880276f6280 RSI: ffffffff87fdd138 RDI: 0000000000000005
+RBP: 0000000000000000 R08: 0000000000000005 R09: 0000000000000000
+R10: 00000000000001e8 R11: 0000000000000001 R12: 000000000000003c
+R13: 0000000000000000 R14: ffff888028244868 R15: 0000000000000b0e
+FS: 00007fbc81f1c700(0000) GS:ffff88802ca00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2df43000 CR3: 00000000744db000 CR4: 0000000000150ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<IRQ>
+icmp_glue_bits+0x7b/0x210 net/ipv4/icmp.c:353
+__ip_append_data+0x1d1b/0x39f0 net/ipv4/ip_output.c:1161
+ip_append_data net/ipv4/ip_output.c:1343 [inline]
+ip_append_data+0x115/0x1a0 net/ipv4/ip_output.c:1322
+icmp_push_reply+0xa8/0x440 net/ipv4/icmp.c:370
+__icmp_send+0xb80/0x1430 net/ipv4/icmp.c:765
+ipv4_send_dest_unreach net/ipv4/route.c:1239 [inline]
+ipv4_link_failure+0x5a9/0x9e0 net/ipv4/route.c:1246
+dst_link_failure include/net/dst.h:423 [inline]
+arp_error_report+0xcb/0x1c0 net/ipv4/arp.c:296
+neigh_invalidate+0x20d/0x560 net/core/neighbour.c:1079
+neigh_timer_handler+0xc77/0xff0 net/core/neighbour.c:1166
+call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
+expire_timers+0x29b/0x4b0 kernel/time/timer.c:1751
+__run_timers kernel/time/timer.c:2022 [inline]
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230330174502.1915328-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/blocklayout.c |  1 +
- fs/nfsd/nfs4xdr.c     | 11 +++++------
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ net/ipv4/icmp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/nfsd/blocklayout.c b/fs/nfsd/blocklayout.c
-index b6d01d51a7465..e7e6e78d965db 100644
---- a/fs/nfsd/blocklayout.c
-+++ b/fs/nfsd/blocklayout.c
-@@ -296,6 +296,7 @@ nfsd4_block_get_device_info_scsi(struct super_block *sb,
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index d5d745c3e345b..2b09ef70752f9 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -746,6 +746,11 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
+ 		room = 576;
+ 	room -= sizeof(struct iphdr) + icmp_param.replyopts.opt.opt.optlen;
+ 	room -= sizeof(struct icmphdr);
++	/* Guard against tiny mtu. We need to include at least one
++	 * IP network header for this message to make any sense.
++	 */
++	if (room <= (int)sizeof(struct iphdr))
++		goto ende;
  
- out_free_dev:
- 	kfree(dev);
-+	gdp->gd_device = NULL;
- 	return ret;
- }
- 
-diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
-index 405087bda8cc1..8f5b41dc07734 100644
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -5353,10 +5353,8 @@ nfsd4_encode_operation(struct nfsd4_compoundres *resp, struct nfsd4_op *op)
- 	__be32 *p;
- 
- 	p = xdr_reserve_space(xdr, 8);
--	if (!p) {
--		WARN_ON_ONCE(1);
--		return;
--	}
-+	if (!p)
-+		goto release;
- 	*p++ = cpu_to_be32(op->opnum);
- 	post_err_offset = xdr->buf->len;
- 
-@@ -5371,8 +5369,6 @@ nfsd4_encode_operation(struct nfsd4_compoundres *resp, struct nfsd4_op *op)
- 	op->status = encoder(resp, op->status, &op->u);
- 	if (op->status)
- 		trace_nfsd_compound_encode_err(rqstp, op->opnum, op->status);
--	if (opdesc && opdesc->op_release)
--		opdesc->op_release(&op->u);
- 	xdr_commit_encode(xdr);
- 
- 	/* nfsd4_check_resp_size guarantees enough room for error status */
-@@ -5413,6 +5409,9 @@ nfsd4_encode_operation(struct nfsd4_compoundres *resp, struct nfsd4_op *op)
- 	}
- status:
- 	*p = op->status;
-+release:
-+	if (opdesc && opdesc->op_release)
-+		opdesc->op_release(&op->u);
- }
- 
- /* 
+ 	icmp_param.data_len = skb_in->len - icmp_param.offset;
+ 	if (icmp_param.data_len > room)
 -- 
 2.39.2
 
