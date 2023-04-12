@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0BE86DEA4F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 06:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FBE76DEA51
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 06:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbjDLEUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 00:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49346 "EHLO
+        id S229536AbjDLEU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 00:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbjDLEUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 00:20:14 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDD4268A;
-        Tue, 11 Apr 2023 21:20:13 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id m18so10057570plx.5;
-        Tue, 11 Apr 2023 21:20:13 -0700 (PDT)
+        with ESMTP id S229516AbjDLEUY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 00:20:24 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850DE268A;
+        Tue, 11 Apr 2023 21:20:23 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id y11-20020a17090a600b00b0024693e96b58so9267722pji.1;
+        Tue, 11 Apr 2023 21:20:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681273212; x=1683865212;
+        d=gmail.com; s=20221208; t=1681273223; x=1683865223;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uGMbkSZGnB4vRnSioRaJ2s6u2Xm9RnldP/euTgVDyHc=;
-        b=Mbcd7M9MHOPCJIIkTdXgGzwe5v9KK948NEv1C2hvbOBBvNwYSKBQJshjLky9UPK3l9
-         O3zTzqVuAI03TLd8/T/CoKSVf8MvKqESifNZ6DpFeJ/AmRTpxC+tXmcWbDGlwfmOcH41
-         y9o/f2xmFoHE2L5U6vg+YCphxLAY5bdpg75elZEd2HRDqrqFU6IMBOqsom0196X/KBFP
-         oDp1o3pfBif6VyYJ1woeJpWSqcKgitbYa78athdorO7VH5QVkeJlRyVj+BC7mSL4sWGA
-         cVvGFKrqIj9U7MdweqVxI1g/Mwz7NZ/rPsIUTxDZERku+o0zY1CE56YNmap6lHJacJAD
-         g62g==
+        bh=Y4IOmy3b56e4fr9kImeRiAKyUprXNmIrwZPgWk/ZeOk=;
+        b=dafrD2NrCOk26li468Xsgot84smh8BLDTUdYDWr3D/p55vYOuemvPTHGnZygXfR2M2
+         fQ5C6T83yKDDfhLgjgRVXbU+1PfKDbFig7d7461nNb2hBAQ6rUwckfxk/lBT9mJOoU6x
+         9N+MbmA8znk1NnZe8GfV2y8PLAzK7u2k8dB2ZutKoDcCmeTg8VY5uThJ0xGW/79S9XEG
+         RyUcCCAuGOipOf0ikQkHkrPB+WB0IpfNi5T/E3sqhzMTOlhLdr5mfC5EI+G9z5htv8rG
+         N2Vm4k84+bdtYDKf071fHK8+kzm7j/iPrawTGisLB1vOFhJgtnDRv39dbe5QnzbY773j
+         Z6gg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681273212; x=1683865212;
+        d=1e100.net; s=20210112; t=1681273223; x=1683865223;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=uGMbkSZGnB4vRnSioRaJ2s6u2Xm9RnldP/euTgVDyHc=;
-        b=SyuCkCk3lxeVDO4sERjebI3qci8KFdipgepZ+EZyHvjCK2+6zM5NJr9uy0A/78u8aM
-         gJym/Kwf9gZuoI8+RUyJrcjrz/H5IS6sE6EzH5OdfVgf1l62fq+gjv0G4PHTgxYrV91w
-         kJz+rtaZVH0LTSsO+4uudNAuAomjpIx5BWy84bZvWbBI31kpckVae1PQDOcohznuuWUh
-         uwmSzaOhUw+PDh+6eTzk+8Q2W1skdznaVJ1AZMGGs5lhHbjWhiHsl3Lb8+a72aVghUja
-         uW8eaKqFKPoFH5p96ddG1Y4RP+RKobulzEvP0wcAuzTbZDL3gV0dct7b11UoWijkz3/P
-         nOJQ==
-X-Gm-Message-State: AAQBX9dFbc/bSaG8toC1za8XXZyNcOIcxzH5CEPSO99Frtxt1mFnqQ70
-        JgP6pZsGaFes4s2js0f4e3lLRpCAeXocgQ==
-X-Google-Smtp-Source: AKy350aMRdBzdgg0H41GtB5Vn39rhilewLc4HCasggLcP70Y3g7ViBcFA2/wiQd2ViNXGcMgNb6STQ==
-X-Received: by 2002:a17:902:fb50:b0:1a5:5927:2232 with SMTP id lf16-20020a170902fb5000b001a559272232mr4006482plb.53.1681273212441;
-        Tue, 11 Apr 2023 21:20:12 -0700 (PDT)
+        bh=Y4IOmy3b56e4fr9kImeRiAKyUprXNmIrwZPgWk/ZeOk=;
+        b=u7OaJTMT++am1hVplJnBtXG++KzVzYeBjvwZooLSTOX1PiqaS5X2FtXZTZldEFdURZ
+         EbXkjs1X3dOLBI8BGHyoeTv6NtL6LVZwTY5+AjZghrq+vOa++kptdF4HHSpvwup4E/bI
+         NQqxv8s6PAXfWBxMQNlWAmmxliMgZ5LdWcH73Y8MYSpFsNEVJrrri6O90cIvf0can7/G
+         +QzJyzVc1RJSN2O8h4vzjmp9y1JkwPIi7UZrJSJozN8u+hO6h8MiEUOTlcD5Cax2tIwr
+         mU9kQshhaRHuxWej1KJJQb4+OKjyFqHsrzM9N8PEMZrmiWI3LGI/98tnMfwUSwywVLCi
+         3Dzg==
+X-Gm-Message-State: AAQBX9cuI9kqbq3+PMI6tseepgYhg4Wxxd4ZHe75Sohg9xhGqbGTe5gv
+        3L7x1MkN0JH2aYtBJmDPwWqc0eQ5K9lVIA==
+X-Google-Smtp-Source: AKy350anle5fekcfSDTPpaFOciAdChyPE+/RMnJfCpMLBXYaAOVzt1S5VhispkFplPQV7yqKnYU9RA==
+X-Received: by 2002:a17:903:186:b0:19d:20a:a219 with SMTP id z6-20020a170903018600b0019d020aa219mr5229941plg.66.1681273222785;
+        Tue, 11 Apr 2023 21:20:22 -0700 (PDT)
 Received: from virtualbox.www.tendawifi.com ([47.96.236.37])
-        by smtp.gmail.com with ESMTPSA id t13-20020a1709028c8d00b001a19196af48sm10412381plo.64.2023.04.11.21.20.09
+        by smtp.gmail.com with ESMTPSA id t13-20020a1709028c8d00b001a19196af48sm10412381plo.64.2023.04.11.21.20.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Apr 2023 21:20:11 -0700 (PDT)
+        Tue, 11 Apr 2023 21:20:22 -0700 (PDT)
 From:   Yang Bo <yyyeer.bo@gmail.com>
 X-Google-Original-From: Yang Bo <yb203166@antfin.com>
 To:     stable@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, mszeredi@redhat.com,
         Yang Bo <yb203166@antfin.com>
-Subject: [PATCH 3/6] fuse: check s_root when destroying sb
-Date:   Wed, 12 Apr 2023 12:19:32 +0800
-Message-Id: <20230412041935.1556-4-yb203166@antfin.com>
+Subject: [PATCH 4/6] fuse: fix attr version comparison in fuse_read_update_size()
+Date:   Wed, 12 Apr 2023 12:19:33 +0800
+Message-Id: <20230412041935.1556-5-yb203166@antfin.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412041935.1556-1-yb203166@antfin.com>
 References: <20230412041935.1556-1-yb203166@antfin.com>
@@ -74,49 +74,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit d534d31d6a45d71de61db22090b4820afb68fddc upstream.
+commit 484ce65715b06aead8c4901f01ca32c5a240bc71 upstream.
 
 [backport for 5.10.y]
 
-Checking "fm" works because currently sb->s_fs_info is cleared on error
-paths; however, sb->s_root is what generic_shutdown_super() checks to
-determine whether the sb was fully initialized or not.
+A READ request returning a short count is taken as indication of EOF, and
+the cached file size is modified accordingly.
 
-This change will allow cleanup of sb setup error paths.
+Fix the attribute version checking to allow for changes to fc->attr_version
+on other inodes.
 
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Yang Bo <yb203166@antfin.com>
 ---
- fs/fuse/inode.c     | 2 +-
- fs/fuse/virtio_fs.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/fuse/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 058bb82dee40..7a86db768117 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -1572,7 +1572,7 @@ static void fuse_kill_sb_anon(struct super_block *sb)
- 	struct fuse_mount *fm = get_fuse_mount_super(sb);
- 	bool last;
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 504389568dac..94fe2c690676 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -782,7 +782,7 @@ static void fuse_read_update_size(struct inode *inode, loff_t size,
+ 	struct fuse_inode *fi = get_fuse_inode(inode);
  
--	if (fm) {
-+	if (sb->s_root) {
- 		last = fuse_mount_remove(fm);
- 		if (last)
- 			fuse_conn_destroy(fm);
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 6aaaa74438f3..faadc80485e7 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1399,7 +1399,7 @@ static void virtio_kill_sb(struct super_block *sb)
- 	bool last;
- 
- 	/* If mount failed, we can still be called without any fc */
--	if (fm) {
-+	if (sb->s_root) {
- 		last = fuse_mount_remove(fm);
- 		if (last)
- 			virtio_fs_conn_destroy(fm);
+ 	spin_lock(&fi->lock);
+-	if (attr_ver == fi->attr_version && size < inode->i_size &&
++	if (attr_ver >= fi->attr_version && size < inode->i_size &&
+ 	    !test_bit(FUSE_I_SIZE_UNSTABLE, &fi->state)) {
+ 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
+ 		i_size_write(inode, size);
 -- 
 2.40.0
 
