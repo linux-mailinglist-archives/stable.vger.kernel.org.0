@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CBE66DEE8A
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D365B6DEF43
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbjDLImX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:42:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52912 "EHLO
+        id S231276AbjDLItX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231140AbjDLImK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:10 -0400
+        with ESMTP id S231260AbjDLItV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA93C83D9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D32FD
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7A7A6302F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA8EDC433D2;
-        Wed, 12 Apr 2023 08:41:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D513962FEB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92C2C433EF;
+        Wed, 12 Apr 2023 08:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288886;
-        bh=SKUL8imNZiCgQgP1mALozW1haxGmUZgmW3q8UItzt9U=;
+        s=korg; t=1681289316;
+        bh=PfxVeX4BeRvBqoR0Z/ZWR0+L6pTTbxS+U60wJ1qhpYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VT1snO94zATyfoeHYbgOR1Hh6iR2YMIu1Utl9P7Fv0mUFnaLKXjfyI17v9Osr7Ff6
-         gCsBOweRPhdB6H0qQ0pcAuN27EeQSr4vR0RiB3OouQO3Eg0cHuxAiTzhdyoJuGpvwQ
-         th3tlT8y3uYWjz0TZnXQNHO4UI3SE3Wf5JFSzgP8=
+        b=BE8oEpUgHMJmNMFFVNEHel49rjETaJWPQdy9wklkaFeNJKuY2kOyo3CZ4WETC+wkR
+         0Dxs1pmPhazr5AYxflqddWIMnQIm1sxE7bS5XVyx/cY6m5j7kgBXMuqNIlNL1PfvJJ
+         pGun9HjaL79qGJ879pbh58dykYgA8hEf0ScyWlqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shahab Vahedi <shahab@synopsys.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Simon Horman <simon.horman@corigine.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 055/164] net: stmmac: check fwnode for phy device before scanning for phy
+Subject: [PATCH 6.2 051/173] netlink: annotate lockless accesses to nlk->max_recvmsg_len
 Date:   Wed, 12 Apr 2023 10:32:57 +0200
-Message-Id: <20230412082839.175252569@linuxfoundation.org>
+Message-Id: <20230412082840.180183564@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,78 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 8fbc10b995a506e173f1080dfa2764f232a65e02 ]
+[ Upstream commit a1865f2e7d10dde00d35a2122b38d2e469ae67ed ]
 
-Some DT devices already have phy device configured in the DT/ACPI.
-Current implementation scans for a phy unconditionally even though
-there is a phy listed in the DT/ACPI and already attached.
+syzbot reported a data-race in data-race in netlink_recvmsg() [1]
 
-We should check the fwnode if there is any phy device listed in
-fwnode and decide whether to scan for a phy to attach to.
+Indeed, netlink_recvmsg() can be run concurrently,
+and netlink_dump() also needs protection.
 
-Fixes: fe2cfbc96803 ("net: stmmac: check if MAC needs to attach to a PHY")
-Reported-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/lkml/20230403212434.296975-1-martin.blumenstingl@googlemail.com/
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Shahab Vahedi <shahab@synopsys.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
-Link: https://lore.kernel.org/r/20230406024541.3556305-1-michael.wei.hong.sit@intel.com
+[1]
+BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
+
+read to 0xffff888141840b38 of 8 bytes by task 23057 on cpu 0:
+netlink_recvmsg+0xea/0x730 net/netlink/af_netlink.c:1988
+sock_recvmsg_nosec net/socket.c:1017 [inline]
+sock_recvmsg net/socket.c:1038 [inline]
+__sys_recvfrom+0x1ee/0x2e0 net/socket.c:2194
+__do_sys_recvfrom net/socket.c:2212 [inline]
+__se_sys_recvfrom net/socket.c:2208 [inline]
+__x64_sys_recvfrom+0x78/0x90 net/socket.c:2208
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x41/0xc0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+write to 0xffff888141840b38 of 8 bytes by task 23037 on cpu 1:
+netlink_recvmsg+0x114/0x730 net/netlink/af_netlink.c:1989
+sock_recvmsg_nosec net/socket.c:1017 [inline]
+sock_recvmsg net/socket.c:1038 [inline]
+____sys_recvmsg+0x156/0x310 net/socket.c:2720
+___sys_recvmsg net/socket.c:2762 [inline]
+do_recvmmsg+0x2e5/0x710 net/socket.c:2856
+__sys_recvmmsg net/socket.c:2935 [inline]
+__do_sys_recvmmsg net/socket.c:2958 [inline]
+__se_sys_recvmmsg net/socket.c:2951 [inline]
+__x64_sys_recvmmsg+0xe2/0x160 net/socket.c:2951
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x41/0xc0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0x0000000000000000 -> 0x0000000000001000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 23037 Comm: syz-executor.2 Not tainted 6.3.0-rc4-syzkaller-00195-g5a57b48fdfcb #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/02/2023
+
+Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230403214643.768555-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ net/netlink/af_netlink.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 3f35399657da2..05607c1ab3319 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1132,22 +1132,26 @@ static void stmmac_check_pcs_mode(struct stmmac_priv *priv)
- static int stmmac_init_phy(struct net_device *dev)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
-+	struct fwnode_handle *phy_fwnode;
- 	struct fwnode_handle *fwnode;
--	bool phy_needed;
- 	int ret;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index c642776597531..f365dfdd672d7 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1952,7 +1952,7 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	struct scm_cookie scm;
+ 	struct sock *sk = sock->sk;
+ 	struct netlink_sock *nlk = nlk_sk(sk);
+-	size_t copied;
++	size_t copied, max_recvmsg_len;
+ 	struct sk_buff *skb, *data_skb;
+ 	int err, ret;
  
-+	if (!phylink_expects_phy(priv->phylink))
-+		return 0;
-+
- 	fwnode = of_fwnode_handle(priv->plat->phylink_node);
- 	if (!fwnode)
- 		fwnode = dev_fwnode(priv->device);
+@@ -1985,9 +1985,10 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ #endif
  
- 	if (fwnode)
--		ret = phylink_fwnode_phy_connect(priv->phylink, fwnode, 0);
-+		phy_fwnode = fwnode_get_phy_node(fwnode);
-+	else
-+		phy_fwnode = NULL;
+ 	/* Record the max length of recvmsg() calls for future allocations */
+-	nlk->max_recvmsg_len = max(nlk->max_recvmsg_len, len);
+-	nlk->max_recvmsg_len = min_t(size_t, nlk->max_recvmsg_len,
+-				     SKB_WITH_OVERHEAD(32768));
++	max_recvmsg_len = max(READ_ONCE(nlk->max_recvmsg_len), len);
++	max_recvmsg_len = min_t(size_t, max_recvmsg_len,
++				SKB_WITH_OVERHEAD(32768));
++	WRITE_ONCE(nlk->max_recvmsg_len, max_recvmsg_len);
  
--	phy_needed = phylink_expects_phy(priv->phylink);
- 	/* Some DT bindings do not set-up the PHY handle. Let's try to
- 	 * manually parse it
- 	 */
--	if (!fwnode || phy_needed || ret) {
-+	if (!phy_fwnode || IS_ERR(phy_fwnode)) {
- 		int addr = priv->plat->phy_addr;
- 		struct phy_device *phydev;
+ 	copied = data_skb->len;
+ 	if (len < copied) {
+@@ -2236,6 +2237,7 @@ static int netlink_dump(struct sock *sk)
+ 	struct netlink_ext_ack extack = {};
+ 	struct netlink_callback *cb;
+ 	struct sk_buff *skb = NULL;
++	size_t max_recvmsg_len;
+ 	struct module *module;
+ 	int err = -ENOBUFS;
+ 	int alloc_min_size;
+@@ -2258,8 +2260,9 @@ static int netlink_dump(struct sock *sk)
+ 	cb = &nlk->cb;
+ 	alloc_min_size = max_t(int, cb->min_dump_alloc, NLMSG_GOODSIZE);
  
-@@ -1163,6 +1167,9 @@ static int stmmac_init_phy(struct net_device *dev)
- 		}
- 
- 		ret = phylink_connect_phy(priv->phylink, phydev);
-+	} else {
-+		fwnode_handle_put(phy_fwnode);
-+		ret = phylink_fwnode_phy_connect(priv->phylink, fwnode, 0);
- 	}
- 
- 	if (!priv->plat->pmt) {
+-	if (alloc_min_size < nlk->max_recvmsg_len) {
+-		alloc_size = nlk->max_recvmsg_len;
++	max_recvmsg_len = READ_ONCE(nlk->max_recvmsg_len);
++	if (alloc_min_size < max_recvmsg_len) {
++		alloc_size = max_recvmsg_len;
+ 		skb = alloc_skb(alloc_size,
+ 				(GFP_KERNEL & ~__GFP_DIRECT_RECLAIM) |
+ 				__GFP_NOWARN | __GFP_NORETRY);
 -- 
 2.39.2
 
