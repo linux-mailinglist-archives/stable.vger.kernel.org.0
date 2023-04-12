@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B306A6DEEC6
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D286DEE14
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230519AbjDLIpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
+        id S230318AbjDLIjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231145AbjDLIog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863A783FF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:15 -0700 (PDT)
+        with ESMTP id S230388AbjDLIjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E416EB3;
+        Wed, 12 Apr 2023 01:38:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D83196303A
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8BDEC433EF;
-        Wed, 12 Apr 2023 08:43:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D13962FE3;
+        Wed, 12 Apr 2023 08:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA84C4339B;
+        Wed, 12 Apr 2023 08:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289037;
-        bh=X3v1Du2kXgEipHjKRqV75GcJkfM8lK6TZ4VZvLt08uI=;
+        s=korg; t=1681288634;
+        bh=5+faxszAFZdrXUNZjgsmc+Dq96ra8ZVb34UEnmOihPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fo6Jlmly8ZJFXWpF5oxkAOFbP7F7iX1m0XFljCi0G7EetwOEH5RxV+0wZA9GNHW/f
-         A+fy071xvcleoN2jV76Us+hxnzIab2k0HsAcS9Oy4u6gQnHBCWQmBjXB7F/g6seVaX
-         SV05EdNPJfn/5jke9SYEqXducpfJ0ZrtMXU8LkR0=
+        b=SxH56es0kafpwhprOtDNL0TtbeDLGgn3tq0cvxZEdA+xFBb4uUBmW99pZyJFqCuVa
+         J+m95amnBr2vPNs3OiETfcVuOUS50054zK9GycpWbdPC/mcHVkHKWmhWVkfhnNdQFD
+         TxS2YfCILrbNttibWjO1nE3ilJ80TTS9HYAFHcJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 082/164] nilfs2: fix potential UAF of struct nilfs_sc_info in nilfs_segctor_thread()
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Michael Walle <michael@walle.cc>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        linux-gpio@vger.kernel.org,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 23/93] gpio: GPIO_REGMAP: select REGMAP instead of depending on it
 Date:   Wed, 12 Apr 2023 10:33:24 +0200
-Message-Id: <20230412082840.235800886@linuxfoundation.org>
+Message-Id: <20230412082824.034062670@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,55 +58,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 6be49d100c22ffea3287a4b19d7639d259888e33 upstream.
+[ Upstream commit d49765b5f4320a402fbc4ed5edfd73d87640f27c ]
 
-The finalization of nilfs_segctor_thread() can race with
-nilfs_segctor_kill_thread() which terminates that thread, potentially
-causing a use-after-free BUG as KASAN detected.
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-At the end of nilfs_segctor_thread(), it assigns NULL to "sc_task" member
-of "struct nilfs_sc_info" to indicate the thread has finished, and then
-notifies nilfs_segctor_kill_thread() of this using waitqueue
-"sc_wait_task" on the struct nilfs_sc_info.
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
 
-However, here, immediately after the NULL assignment to "sc_task", it is
-possible that nilfs_segctor_kill_thread() will detect it and return to
-continue the deallocation, freeing the nilfs_sc_info structure before the
-thread does the notification.
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
 
-This fixes the issue by protecting the NULL assignment to "sc_task" and
-its notification, with spinlock "sc_state_lock" of the struct
-nilfs_sc_info.  Since nilfs_segctor_kill_thread() does a final check to
-see if "sc_task" is NULL with "sc_state_lock" locked, this can eliminate
-the race.
-
-Link: https://lkml.kernel.org/r/20230327175318.8060-1-konishi.ryusuke@gmail.com
-Reported-by: syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com
-Link: https://lkml.kernel.org/r/00000000000000660d05f7dfa877@google.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ebe363197e52 ("gpio: add a reusable generic gpio_chip using regmap")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Michael Walle <michael@walle.cc>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-gpio@vger.kernel.org
+Acked-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/segment.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2607,11 +2607,10 @@ static int nilfs_segctor_thread(void *ar
- 	goto loop;
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 947474f6abb45..7b9def6b10047 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -100,7 +100,7 @@ config GPIO_GENERIC
+ 	tristate
  
-  end_thread:
--	spin_unlock(&sci->sc_state_lock);
--
- 	/* end sync. */
- 	sci->sc_task = NULL;
- 	wake_up(&sci->sc_wait_task); /* for nilfs_segctor_kill_thread() */
-+	spin_unlock(&sci->sc_state_lock);
- 	return 0;
- }
+ config GPIO_REGMAP
+-	depends on REGMAP
++	select REGMAP
+ 	tristate
  
+ # put drivers in the right section, in alphabetical order
+-- 
+2.39.2
+
 
 
