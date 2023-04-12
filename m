@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4A86DEEBD
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1866DEF78
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbjDLIol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52910 "EHLO
+        id S231327AbjDLIvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231209AbjDLIo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2015A83C1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:06 -0700 (PDT)
+        with ESMTP id S231351AbjDLIvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 569E19741
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 016AB630AE
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1426DC433EF;
-        Wed, 12 Apr 2023 08:43:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FBD86317F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1FD4C433D2;
+        Wed, 12 Apr 2023 08:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289016;
-        bh=ttKwdByJ6eeroWi/fURXXfWHftS/NU3Ypy5OpLCfu94=;
+        s=korg; t=1681289439;
+        bh=sddEuKU4VUbzVx0wQNn1BnzPMxQ388nNWKkeANiIyi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3V7nWst6RTFkzrk3jM6TEWlwe45nf/eKHpA16wfNTfuEsoVCv5ZNXCXbhudP/54l
-         sPEUqPCuusF93O++v34YD507Ockz/47a3aZZFqroJEPuN8PtD267NHNaeBb/HtK3eG
-         R+vAsBzr5pPgznoaPaOnTtZcKdvZLEx7BtQSNs3E=
+        b=pl3GCL6zJzGsH/ozIbkC8R+TJKu8Gtl4b7g7uf0+AHsMF6ci87jUkLmc7SDhJjFfM
+         x+iurvl57XsikYERRPZf57mxuaO7Ps1mi0NKX5OCk6oVhNMsNlCYGXJ1CdhnExYU3Y
+         sWpcpSdMN3Jgm3i83jm8/V5uFE1MitUPOWN5Elqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 104/164] scsi: qla2xxx: Fix memory leak in qla2x00_probe_one()
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.2 100/173] KVM: nVMX: Do not report error code when synthesizing VM-Exit from Real Mode
 Date:   Wed, 12 Apr 2023 10:33:46 +0200
-Message-Id: <20230412082841.042690784@linuxfoundation.org>
+Message-Id: <20230412082842.119583117@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,58 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 85ade4010e13ef152ea925c74d94253db92e5428 ]
+commit 80962ec912db56d323883154efc2297473e692cb upstream.
 
-There is a memory leak reported by kmemleak:
+Don't report an error code to L1 when synthesizing a nested VM-Exit and
+L2 is in Real Mode.  Per Intel's SDM, regarding the error code valid bit:
 
-  unreferenced object 0xffffc900003f0000 (size 12288):
-    comm "modprobe", pid 19117, jiffies 4299751452 (age 42490.264s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000629261a8>] __vmalloc_node_range+0xe56/0x1110
-      [<0000000001906886>] __vmalloc_node+0xbd/0x150
-      [<000000005bb4dc34>] vmalloc+0x25/0x30
-      [<00000000a2dc1194>] qla2x00_create_host+0x7a0/0xe30 [qla2xxx]
-      [<0000000062b14b47>] qla2x00_probe_one+0x2eb8/0xd160 [qla2xxx]
-      [<00000000641ccc04>] local_pci_probe+0xeb/0x1a0
+  This bit is always 0 if the VM exit occurred while the logical processor
+  was in real-address mode (CR0.PE=0).
 
-The root cause is traced to an error-handling path in qla2x00_probe_one()
-when the adapter "base_vha" initialize failed. The fab_scan_rp "scan.l" is
-used to record the port information and it is allocated in
-qla2x00_create_host(). However, it is not released in the error handling
-path "probe_failed".
+The bug was introduced by a recent fix for AMD's Paged Real Mode, which
+moved the error code suppression from the common "queue exception" path
+to the "inject exception" path, but missed VMX's "synthesize VM-Exit"
+path.
 
-Fix this by freeing the memory of "scan.l" when an error occurs in the
-adapter initialization process.
-
-Fixes: a4239945b8ad ("scsi: qla2xxx: Add switch command to simplify fabric discovery")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Link: https://lore.kernel.org/r/20230325110004.363898-1-lizetao1@huawei.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b97f07458373 ("KVM: x86: determine if an exception has an error code only when injecting it.")
+Cc: stable@vger.kernel.org
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20230322143300.2209476-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/vmx/nested.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 7d2d872bae3c5..08dc825fbf4f6 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3608,6 +3608,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- probe_failed:
- 	qla_enode_stop(base_vha);
- 	qla_edb_stop(base_vha);
-+	vfree(base_vha->scan.l);
- 	if (base_vha->gnl.l) {
- 		dma_free_coherent(&ha->pdev->dev, base_vha->gnl.size,
- 				base_vha->gnl.l, base_vha->gnl.ldma);
--- 
-2.39.2
-
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3873,7 +3873,12 @@ static void nested_vmx_inject_exception_
+ 		exit_qual = 0;
+ 	}
+ 
+-	if (ex->has_error_code) {
++	/*
++	 * Unlike AMD's Paged Real Mode, which reports an error code on #PF
++	 * VM-Exits even if the CPU is in Real Mode, Intel VMX never sets the
++	 * "has error code" flags on VM-Exit if the CPU is in Real Mode.
++	 */
++	if (ex->has_error_code && is_protmode(vcpu)) {
+ 		/*
+ 		 * Intel CPUs do not generate error codes with bits 31:16 set,
+ 		 * and more importantly VMX disallows setting bits 31:16 in the
 
 
