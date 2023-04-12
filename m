@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 205B76DEEC5
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0191D6DEF62
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230489AbjDLIpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57108 "EHLO
+        id S231319AbjDLIuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231161AbjDLIoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869AA8A50
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:16 -0700 (PDT)
+        with ESMTP id S231382AbjDLIuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F2A9ECC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2418630A5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50A6C433EF;
-        Wed, 12 Apr 2023 08:43:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 633206313B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A388C433EF;
+        Wed, 12 Apr 2023 08:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289040;
-        bh=Wgc+uXACuvOJerjVPlegHD8mMmjz8y+qUt0YA9WlrwI=;
+        s=korg; t=1681289386;
+        bh=lxjy0herTY3nPIjIN7MHtjRmv7Ula2S2rl7YYIm7pzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Af9m3cTIlsbT6ouy1vBJLEak/ajAluBRL62mJP6je6I2B8WRzvKWCMzW73SoqYpuU
-         ZUdpxDz4CcPRIL6XfxPQpNnEFNnAFCIheODEEU+cpb7QzrCzsHO8Qo71Cp+k77ran2
-         m8wensC55GLC+g9gGdvmVq8MvYQsprsZVM1t7RoY=
+        b=rTx4gIrzjHAztc20IR40SdR4xdxiXMH8HAVS61sMiW0NlEtVH16wQ3rJzyD9qe12O
+         IKECnFpbn45CYQeR2aqYRRuPGyXeK9LEhf9bzNVbrqNKHuXaDzBpZsiJXLaP7chGXf
+         KbX+PX6ATVWA+vzBHZSAtHdkzJeyKgI3VudZQX5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
-        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 083/164] nilfs2: fix sysfs interface lifetime
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.2 079/173] iio: buffer: make sure O_NONBLOCK is respected
 Date:   Wed, 12 Apr 2023 10:33:25 +0200
-Message-Id: <20230412082840.273279080@linuxfoundation.org>
+Message-Id: <20230412082841.251538433@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,118 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
+commit 3da1814184582ed0faf039275a3f02e6f69944ee upstream.
 
-The current nilfs2 sysfs support has issues with the timing of creation
-and deletion of sysfs entries, potentially leading to null pointer
-dereferences, use-after-free, and lockdep warnings.
+For output buffers, there's no guarantee that the buffer won't be full
+in the first iteration of the loop in which case we would block
+independently of userspace passing O_NONBLOCK or not. Fix it by always
+checking the flag before going to sleep.
 
-Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
-metadata file "cpfile", "sufile", or "dat", but
-nilfs_sysfs_create_device_group that creates those attributes is executed
-before the inodes for these metadata files are loaded, and
-nilfs_sysfs_delete_device_group which deletes these sysfs entries is
-called after releasing their metadata file inodes.
+While at it (and as it's a bit related), refactored the loop so that the
+stop condition is 'written != n', i.e, run the loop until all data has
+been copied into the IIO buffers. This makes the code a bit simpler.
 
-Therefore, access to some of these sysfs attributes may occur outside of
-the lifetime of these metadata files, resulting in inode NULL pointer
-dereferences or use-after-free.
-
-In addition, the call to nilfs_sysfs_create_device_group() is made during
-the locking period of the semaphore "ns_sem" of nilfs object, so the
-shrinker call caused by the memory allocation for the sysfs entries, may
-derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
-nilfs_evict_inode()".
-
-Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
-locks via its error handler __nilfs_error(), this causes lockdep to report
-circular locking.  This is a false positive and no circular locking
-actually occurs as no inodes exist yet when
-nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
-warnings can be resolved by simply moving the call to
-nilfs_sysfs_create_device_group() out of "ns_sem".
-
-This fixes these sysfs issues by revising where the device's sysfs
-interface is created/deleted and keeping its lifetime within the lifetime
-of the metadata files above.
-
-Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
-Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
-Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 9eeee3b0bf190 ("iio: Add output buffer support")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20230216101452.591805-3-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/super.c     |    2 ++
- fs/nilfs2/the_nilfs.c |   12 +++++++-----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/iio/industrialio-buffer.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -482,6 +482,7 @@ static void nilfs_put_super(struct super
- 		up_write(&nilfs->ns_sem);
- 	}
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -203,21 +203,24 @@ static ssize_t iio_buffer_write(struct f
+ 				break;
+ 			}
  
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
-@@ -1105,6 +1106,7 @@ nilfs_fill_super(struct super_block *sb,
- 	nilfs_put_root(fsroot);
- 
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
- {
- 	might_sleep();
- 	if (nilfs_init(nilfs)) {
--		nilfs_sysfs_delete_device_group(nilfs);
- 		brelse(nilfs->ns_sbh[0]);
- 		brelse(nilfs->ns_sbh[1]);
- 	}
-@@ -305,6 +304,10 @@ int load_nilfs(struct the_nilfs *nilfs,
- 		goto failed;
- 	}
- 
-+	err = nilfs_sysfs_create_device_group(sb);
-+	if (unlikely(err))
-+		goto sysfs_error;
++			if (filp->f_flags & O_NONBLOCK) {
++				if (!written)
++					ret = -EAGAIN;
++				break;
++			}
 +
- 	if (valid_fs)
- 		goto skip_recovery;
+ 			wait_woken(&wait, TASK_INTERRUPTIBLE,
+ 					MAX_SCHEDULE_TIMEOUT);
+ 			continue;
+ 		}
  
-@@ -366,6 +369,9 @@ int load_nilfs(struct the_nilfs *nilfs,
- 	goto failed;
+ 		ret = rb->access->write(rb, n - written, buf + written);
+-		if (ret == 0 && (filp->f_flags & O_NONBLOCK))
+-			ret = -EAGAIN;
++		if (ret < 0)
++			break;
  
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
+-		if (ret > 0) {
+-			written += ret;
+-			if (written != n && !(filp->f_flags & O_NONBLOCK))
+-				continue;
+-		}
+-	} while (ret == 0);
++		written += ret;
 +
-+ sysfs_error:
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_dat);
-@@ -697,10 +703,6 @@ int init_nilfs(struct the_nilfs *nilfs,
- 	if (err)
- 		goto failed_sbh;
++	} while (written != n);
+ 	remove_wait_queue(&rb->pollq, &wait);
  
--	err = nilfs_sysfs_create_device_group(sb);
--	if (err)
--		goto failed_sbh;
--
- 	set_nilfs_init(nilfs);
- 	err = 0;
-  out:
+ 	return ret < 0 ? ret : written;
 
 
