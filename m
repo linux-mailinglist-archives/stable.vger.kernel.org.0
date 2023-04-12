@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59BBB6DEFC2
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A306DEE28
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231244AbjDLIxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42974 "EHLO
+        id S230462AbjDLIlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231447AbjDLIxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE83D9EE9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:16 -0700 (PDT)
+        with ESMTP id S231147AbjDLIj7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23196A64
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78DBA631C5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89FC3C4339B;
-        Wed, 12 Apr 2023 08:52:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 326C862FE6
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 411DFC4339B;
+        Wed, 12 Apr 2023 08:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289574;
-        bh=BsQhlXOU3gi2fp/Whl3nIHnlYUTBWl+v7UA3NtmQJm8=;
+        s=korg; t=1681288671;
+        bh=Wgc+uXACuvOJerjVPlegHD8mMmjz8y+qUt0YA9WlrwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSEGDRec3XkM7wYYs2nz72LTg7+/Ksy+sr4c0G0+kqz4p4tCQJwjdLGJ3rxgSlRwg
-         bGuxsocLGm1IVbiOdExdUc6uGiwFH22xbVgQhn6twyXnD9Gh97iv7Vnn884hBPd8ai
-         tIY2Dno90XI3LV80wZlEeZ9yZUUVITBFpJ2WwO5s=
+        b=S6N13Cz6/mjNcIzSBFdtRTsHDrNVFSm3KyxG0wrmNMnGOwaguY/r5KCzBXkEcfdX2
+         SFAMRxsfPUtxKPcHVs4jUyMg0328Wes3zG76KWGDICKqIXQmhOu/wXucjCKzPgUE5K
+         +MoYXQzJp2pHSWWjN2Iau9i7d4dDeZU49TLnK40o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.2 122/173] tracing/timerlat: Notify new max thread latency
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
+        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 67/93] nilfs2: fix sysfs interface lifetime
 Date:   Wed, 12 Apr 2023 10:34:08 +0200
-Message-Id: <20230412082843.062355003@linuxfoundation.org>
+Message-Id: <20230412082825.937966031@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,37 +57,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit b9f451a9029a16eb7913ace09b92493d00f2e564 upstream.
+commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
 
-timerlat is not reporting a new tracing_max_latency for the thread
-latency. The reason is that it is not calling notify_new_max_latency()
-function after the new thread latency is sampled.
+The current nilfs2 sysfs support has issues with the timing of creation
+and deletion of sysfs entries, potentially leading to null pointer
+dereferences, use-after-free, and lockdep warnings.
 
-Call notify_new_max_latency() after computing the thread latency.
+Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
+metadata file "cpfile", "sufile", or "dat", but
+nilfs_sysfs_create_device_group that creates those attributes is executed
+before the inodes for these metadata files are loaded, and
+nilfs_sysfs_delete_device_group which deletes these sysfs entries is
+called after releasing their metadata file inodes.
 
-Link: https://lkml.kernel.org/r/16e18d61d69073d0192ace07bf61e405cca96e9c.1680104184.git.bristot@kernel.org
+Therefore, access to some of these sysfs attributes may occur outside of
+the lifetime of these metadata files, resulting in inode NULL pointer
+dereferences or use-after-free.
 
-Cc: stable@vger.kernel.org
-Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+In addition, the call to nilfs_sysfs_create_device_group() is made during
+the locking period of the semaphore "ns_sem" of nilfs object, so the
+shrinker call caused by the memory allocation for the sysfs entries, may
+derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
+nilfs_evict_inode()".
+
+Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
+locks via its error handler __nilfs_error(), this causes lockdep to report
+circular locking.  This is a false positive and no circular locking
+actually occurs as no inodes exist yet when
+nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
+warnings can be resolved by simply moving the call to
+nilfs_sysfs_create_device_group() out of "ns_sem".
+
+This fixes these sysfs issues by revising where the device's sysfs
+interface is created/deleted and keeping its lifetime within the lifetime
+of the metadata files above.
+
+Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
+Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
+Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nilfs2/super.c     |    2 ++
+ fs/nilfs2/the_nilfs.c |   12 +++++++-----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1738,6 +1738,8 @@ static int timerlat_main(void *data)
+--- a/fs/nilfs2/super.c
++++ b/fs/nilfs2/super.c
+@@ -482,6 +482,7 @@ static void nilfs_put_super(struct super
+ 		up_write(&nilfs->ns_sem);
+ 	}
  
- 		trace_timerlat_sample(&s);
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+@@ -1105,6 +1106,7 @@ nilfs_fill_super(struct super_block *sb,
+ 	nilfs_put_root(fsroot);
  
-+		notify_new_max_latency(diff);
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
+ {
+ 	might_sleep();
+ 	if (nilfs_init(nilfs)) {
+-		nilfs_sysfs_delete_device_group(nilfs);
+ 		brelse(nilfs->ns_sbh[0]);
+ 		brelse(nilfs->ns_sbh[1]);
+ 	}
+@@ -305,6 +304,10 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 		goto failed;
+ 	}
+ 
++	err = nilfs_sysfs_create_device_group(sb);
++	if (unlikely(err))
++		goto sysfs_error;
 +
- 		timerlat_dump_stack(time_to_us(diff));
+ 	if (valid_fs)
+ 		goto skip_recovery;
  
- 		tlat->tracing_thread = false;
+@@ -366,6 +369,9 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 	goto failed;
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
++
++ sysfs_error:
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_dat);
+@@ -697,10 +703,6 @@ int init_nilfs(struct the_nilfs *nilfs,
+ 	if (err)
+ 		goto failed_sbh;
+ 
+-	err = nilfs_sysfs_create_device_group(sb);
+-	if (err)
+-		goto failed_sbh;
+-
+ 	set_nilfs_init(nilfs);
+ 	err = 0;
+  out:
 
 
