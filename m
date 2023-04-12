@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 597776DEE4D
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F0D6DEF06
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231146AbjDLIlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46046 "EHLO
+        id S231225AbjDLIq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231440AbjDLIkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54CC07AB4
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:11 -0700 (PDT)
+        with ESMTP id S231228AbjDLIqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989AE83F0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6DE062F99
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCDFCC433EF;
-        Wed, 12 Apr 2023 08:39:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34EA363093
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4224DC433D2;
+        Wed, 12 Apr 2023 08:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288755;
-        bh=wrGwefMKvjLj0uO3JD0zJMQUnFaqQGD6y4EcYZ4oJX4=;
+        s=korg; t=1681289189;
+        bh=YWyD+qEB/dXKPhzA0Ydochg7X9UnwWMvHIbeeWJylg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3LS9qUo2sDHbTrdIaek6v3P2qkE0jxik73lCz6n0KrKIslXPxGCOWJ/aBg6NPREH
-         EtYVU25QTGam/ZcL2JLVSCLXt/pzjAtqrVxFtBVOhakUxqRFbUAOhgbIvmma8mzQZy
-         kONckvP9BV6NHkk5T3pNZrcxCJDi7UtD7CkdDsh0=
+        b=YQiZAMzNw31dtvsFLrd2bGgSKOA0cfeLy6oLsuqjyGVB29EmBo75NsGEYPhzSGYAC
+         MMiSoECpq+hF35XaEN4sThxRTgTfVaCqJUxDGt6f6JXeDFvonEmR6hVjZUKUJ1cLXd
+         kJFClZdqjyUMyerShXBajxGEAkQSx6qPktpOTtr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 5.15 90/93] ring-buffer: Fix race while reader and writer are on the same page
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Subject: [PATCH 6.1 149/164] drm/i915: Use _MMIO_PIPE() for SKL_BOTTOM_COLOR
 Date:   Wed, 12 Apr 2023 10:34:31 +0200
-Message-Id: <20230412082826.943222173@linuxfoundation.org>
+Message-Id: <20230412082842.938632535@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,103 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 6455b6163d8c680366663cdb8c679514d55fc30c upstream.
+commit 05ca98523481aa687c5a8dce8939fec539632153 upstream.
 
-When user reads file 'trace_pipe', kernel keeps printing following logs
-that warn at "cpu_buffer->reader_page->read > rb_page_size(reader)" in
-rb_get_reader_page(). It just looks like there's an infinite loop in
-tracing_read_pipe(). This problem occurs several times on arm64 platform
-when testing v5.10 and below.
+No need to use _MMIO_PIPE2() for SKL_BOTTOM_COLOR
+since all pipe registers are evenly spread on skl+.
+Switch to _MMIO_PIPE() and thus avoid the hidden dev_priv.
 
-  Call trace:
-   rb_get_reader_page+0x248/0x1300
-   rb_buffer_peek+0x34/0x160
-   ring_buffer_peek+0xbc/0x224
-   peek_next_entry+0x98/0xbc
-   __find_next_entry+0xc4/0x1c0
-   trace_find_next_entry_inc+0x30/0x94
-   tracing_read_pipe+0x198/0x304
-   vfs_read+0xb4/0x1e0
-   ksys_read+0x74/0x100
-   __arm64_sys_read+0x24/0x30
-   el0_svc_common.constprop.0+0x7c/0x1bc
-   do_el0_svc+0x2c/0x94
-   el0_svc+0x20/0x30
-   el0_sync_handler+0xb0/0xb4
-   el0_sync+0x160/0x180
-
-Then I dump the vmcore and look into the problematic per_cpu ring_buffer,
-I found that tail_page/commit_page/reader_page are on the same page while
-reader_page->read is obviously abnormal:
-  tail_page == commit_page == reader_page == {
-    .write = 0x100d20,
-    .read = 0x8f9f4805,  // Far greater than 0xd20, obviously abnormal!!!
-    .entries = 0x10004c,
-    .real_end = 0x0,
-    .page = {
-      .time_stamp = 0x857257416af0,
-      .commit = 0xd20,  // This page hasn't been full filled.
-      // .data[0...0xd20] seems normal.
-    }
- }
-
-The root cause is most likely the race that reader and writer are on the
-same page while reader saw an event that not fully committed by writer.
-
-To fix this, add memory barriers to make sure the reader can see the
-content of what is committed. Since commit a0fcaaed0c46 ("ring-buffer: Fix
-race between reset page and reading page") has added the read barrier in
-rb_get_reader_page(), here we just need to add the write barrier.
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230325021247.2923907-1-zhengyejian1@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 77ae365eca89 ("ring-buffer: make lockless")
-Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221026113906.10551-3-ville.syrjala@linux.intel.com
+Reviewed-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_reg.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3041,6 +3041,10 @@ rb_set_commit_to_write(struct ring_buffe
- 		if (RB_WARN_ON(cpu_buffer,
- 			       rb_is_reader_page(cpu_buffer->tail_page)))
- 			return;
-+		/*
-+		 * No need for a memory barrier here, as the update
-+		 * of the tail_page did it for this page.
-+		 */
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		rb_inc_page(&cpu_buffer->commit_page);
-@@ -3050,6 +3054,8 @@ rb_set_commit_to_write(struct ring_buffe
- 	while (rb_commit_index(cpu_buffer) !=
- 	       rb_page_write(cpu_buffer->commit_page)) {
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -3747,9 +3747,10 @@
  
-+		/* Make sure the readers see the content of what is committed. */
-+		smp_wmb();
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		RB_WARN_ON(cpu_buffer,
-@@ -4632,7 +4638,12 @@ rb_get_reader_page(struct ring_buffer_pe
+ /* Skylake+ pipe bottom (background) color */
+ #define _SKL_BOTTOM_COLOR_A		0x70034
++#define _SKL_BOTTOM_COLOR_B		0x71034
+ #define   SKL_BOTTOM_COLOR_GAMMA_ENABLE		REG_BIT(31)
+ #define   SKL_BOTTOM_COLOR_CSC_ENABLE		REG_BIT(30)
+-#define SKL_BOTTOM_COLOR(pipe)		_MMIO_PIPE2(pipe, _SKL_BOTTOM_COLOR_A)
++#define SKL_BOTTOM_COLOR(pipe)		_MMIO_PIPE(pipe, _SKL_BOTTOM_COLOR_A, _SKL_BOTTOM_COLOR_B)
  
- 	/*
- 	 * Make sure we see any padding after the write update
--	 * (see rb_reset_tail())
-+	 * (see rb_reset_tail()).
-+	 *
-+	 * In addition, a writer may be writing on the reader page
-+	 * if the page has not been fully filled, so the read barrier
-+	 * is also needed to make sure we see the content of what is
-+	 * committed by the writer (see rb_set_commit_to_write()).
- 	 */
- 	smp_rmb();
- 
+ #define _ICL_PIPE_A_STATUS			0x70058
+ #define ICL_PIPESTATUS(pipe)			_MMIO_PIPE2(pipe, _ICL_PIPE_A_STATUS)
 
 
