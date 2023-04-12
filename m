@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6CD6DEF0F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281446DEFD9
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbjDLIrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60278 "EHLO
+        id S230421AbjDLIyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:54:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbjDLIrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:47:00 -0400
+        with ESMTP id S230091AbjDLIyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:54:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F357729B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F49CA272
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D6B630AE
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFBEC433D2;
-        Wed, 12 Apr 2023 08:46:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A324631BC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F756C433D2;
+        Wed, 12 Apr 2023 08:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289161;
-        bh=zZ2ergzcAwS1s1lOESQ1K7PgQ/K8JBGAd+W8O9pH6+k=;
+        s=korg; t=1681289642;
+        bh=mK2Ns8JCogFUngEMgEalWqg+zYAbpD644AXbLretVZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2AfAnlsdJ0FBtcrcmys9h2wMYc8qh/3GnqTufSkYMCH39FUYTWNbBEIdXPn7LLqt
-         vH7swRdZEA+yH9ei8N3IrnvVMqqtRPYKMrfh/2IHJeLuLl5VTm7IMIoNdRhPFSGp0+
-         seDGoMoBVjPStjt+Knvp6/FU6f3eEAzaocQ1HKLc=
+        b=ZEZrF9n+jgmdTf231nz+vJL85sRbDqzTOqKyZwvVNNXo4s3TSO42sSSZHkO23oB93
+         sAZJIyusBNiNj4a6O2SH2qcLjzrIpPBxUOpL9s3lJbPPuqing/4YFwBs/ReCKearen
+         ugANVQKbCQBZ7rQIng0X6nd2CrAoef5E+/0SyaXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stable@vger.kernel.org,
-        Liam Howlett <Liam.Howlett@oracle.com>
-Subject: [PATCH 6.1 159/164] maple_tree: detect dead nodes in mas_start()
-Date:   Wed, 12 Apr 2023 10:34:41 +0200
-Message-Id: <20230412082843.387472314@linuxfoundation.org>
+        patches@lists.linux.dev, Wayne Lin <Wayne.Lin@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Roman Li <roman.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.2 156/173] drm/amd/display: Clear MST topology if it fails to resume
+Date:   Wed, 12 Apr 2023 10:34:42 +0200
+Message-Id: <20230412082844.408680622@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
+From: Roman Li <roman.li@amd.com>
 
-commit a7b92d59c885018cb7bb88539892278e4fd64b29 upstream.
+commit 3f6752b4de41896c7f1609b1585db2080e8150d8 upstream.
 
-When initially starting a search, the root node may already be in the
-process of being replaced in RCU mode.  Detect and restart the walk if
-this is the case.  This is necessary for RCU mode of the maple tree.
+[Why]
+In case of failure to resume MST topology after suspend, an emtpty
+mst tree prevents further mst hub detection on the same connector.
+That causes the issue with MST hub hotplug after it's been unplug in
+suspend.
 
-Link: https://lkml.kernel.org/r/20230227173632.3292573-3-surenb@google.com
-Cc: <Stable@vger.kernel.org>
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Liam Howlett <Liam.Howlett@oracle.com>
+[How]
+Stop topology manager on the connector after detecting DM_MST failure.
+
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Roman Li <roman.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/maple_tree.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -1352,12 +1352,16 @@ static inline struct maple_enode *mas_st
- 		mas->max = ULONG_MAX;
- 		mas->depth = 0;
- 
-+retry:
- 		root = mas_root(mas);
- 		/* Tree with nodes */
- 		if (likely(xa_is_node(root))) {
- 			mas->depth = 1;
- 			mas->node = mte_safe_root(root);
- 			mas->offset = 0;
-+			if (mte_dead_node(mas->node))
-+				goto retry;
-+
- 			return NULL;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2183,6 +2183,8 @@ static int detect_mst_link_for_all_conne
+ 				DRM_ERROR("DM_MST: Failed to start MST\n");
+ 				aconnector->dc_link->type =
+ 					dc_connection_single;
++				ret = dm_helpers_dp_mst_stop_top_mgr(aconnector->dc_link->ctx,
++								     aconnector->dc_link);
+ 				break;
+ 			}
  		}
- 
 
 
