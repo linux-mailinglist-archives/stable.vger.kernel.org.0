@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB276DEE98
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6040B6DEF7C
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231124AbjDLInO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:43:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S231314AbjDLIvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230151AbjDLInC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:02 -0400
+        with ESMTP id S231342AbjDLIvL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA6172B3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:42:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18F7127
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A631F63073
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B944EC433D2;
-        Wed, 12 Apr 2023 08:41:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD6C963168
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF854C433EF;
+        Wed, 12 Apr 2023 08:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288899;
-        bh=qG+N/AhV5lfwbSxUnhQ4wQdk/fafQcpmBco/1CGOjyI=;
+        s=korg; t=1681289397;
+        bh=+LqstMgJbyhO2RjVoqXsXpfm/5L4chwVDQQQh8Y41Vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNtDfOLIWH9Htl6yS/Ji/Wz+ARXUK9WjhsW2iT+YZ20VBp2NdFeBfOaLNbtFTyKwK
-         zmiy/GtyHyFuuI7kSTzxk6ASo7g2aJYHyGIeDkfRRbUtJKAxEP9Yt23LHs6zOSyK5C
-         HIy3xavMCIZnX1egZ/XjertbKtdOYiPwIeeMVdsQ=
+        b=s2vLkw9B7wSATJf0EpkXnfVPed21U2Cr/3+Fwjp6S0rgniTEl7LeGXBILi0ylkSlj
+         PsyA7+NPQeccWyiIBlNTLt2bJpWRD3W2wjdhYPZDJ1uVuhUKvPZRDPduXnJErQeHbN
+         t+dk075qNTYnYE+4GHLJ/XTxzKwq7IkcCKgFrFWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Gregory Price <gregory.price@memverge.com>,
+        patches@lists.linux.dev, Ming Li <ming4.li@intel.com>,
         Ira Weiny <ira.weiny@intel.com>,
         Lukas Wunner <lukas@wunner.de>,
         Dan Williams <dan.j.williams@intel.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 6.1 060/164] PCI/DOE: Silence WARN splat with CONFIG_DEBUG_OBJECTS=y
+        Kuppuswamy Sathyanarayanan 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [PATCH 6.2 056/173] cxl/pci: Handle truncated CDAT header
 Date:   Wed, 12 Apr 2023 10:33:02 +0200
-Message-Id: <20230412082839.371933771@linuxfoundation.org>
+Message-Id: <20230412082840.391080977@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,82 +60,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit 92dc899c3b4927f3cfa23f55bf759171234b5802 upstream.
+commit 34bafc747c54fb58c1908ec3116fa6137393e596 upstream.
 
-Gregory Price reports a WARN splat with CONFIG_DEBUG_OBJECTS=y upon CXL
-probing because pci_doe_submit_task() invokes INIT_WORK() instead of
-INIT_WORK_ONSTACK() for a work_struct that was allocated on the stack.
+cxl_cdat_get_length() only checks whether the DOE response size is
+sufficient for the Table Access response header (1 dword), but not the
+succeeding CDAT header (1 dword length plus other fields).
 
-All callers of pci_doe_submit_task() allocate the work_struct on the
-stack, so replace INIT_WORK() with INIT_WORK_ONSTACK() as a backportable
-short-term fix.
+It thus returns whatever uninitialized memory happens to be on the stack
+if a truncated DOE response with only 1 dword was received.  Fix it.
 
-The long-term fix implemented by a subsequent commit is to move to a
-synchronous API which allocates the work_struct internally in the DOE
-library.
-
-Stacktrace for posterity:
-
-WARNING: CPU: 0 PID: 23 at lib/debugobjects.c:545 __debug_object_init.cold+0x18/0x183
-CPU: 0 PID: 23 Comm: kworker/u2:1 Not tainted 6.1.0-0.rc1.20221019gitaae703b02f92.17.fc38.x86_64 #1
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-Call Trace:
- pci_doe_submit_task+0x5d/0xd0
- pci_doe_discovery+0xb4/0x100
- pcim_doe_create_mb+0x219/0x290
- cxl_pci_probe+0x192/0x430
- local_pci_probe+0x41/0x80
- pci_device_probe+0xb3/0x220
- really_probe+0xde/0x380
- __driver_probe_device+0x78/0x170
- driver_probe_device+0x1f/0x90
- __driver_attach_async_helper+0x5c/0xe0
- async_run_entry_fn+0x30/0x130
- process_one_work+0x294/0x5b0
-
-Fixes: 9d24322e887b ("PCI/DOE: Add DOE mailbox support functions")
-Link: https://lore.kernel.org/linux-cxl/Y1bOniJliOFszvIK@memverge.com/
-Reported-by: Gregory Price <gregory.price@memverge.com>
+Fixes: c97006046c79 ("cxl/port: Read CDAT table")
+Reported-by: Ming Li <ming4.li@intel.com>
 Tested-by: Ira Weiny <ira.weiny@intel.com>
-Tested-by: Gregory Price <gregory.price@memverge.com>
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Ming Li <ming4.li@intel.com>
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Gregory Price <gregory.price@memverge.com>
-Cc: stable@vger.kernel.org # v6.0+
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lore.kernel.org/r/67a9117f463ecdb38a2dbca6a20391ce2f1e7a06.1678543498.git.lukas@wunner.de
+Cc: stable@vger.kernel.org # v6.0+
+Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Link: https://lore.kernel.org/r/000e69cd163461c8b1bc2cf4155b6e25402c29c7.1678543498.git.lukas@wunner.de
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/doe.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/cxl/core/pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/doe.c b/drivers/pci/doe.c
-index 6f097932ccbf..c14ffdf23f87 100644
---- a/drivers/pci/doe.c
-+++ b/drivers/pci/doe.c
-@@ -523,6 +523,8 @@ EXPORT_SYMBOL_GPL(pci_doe_supports_prot);
-  * task->complete will be called when the state machine is done processing this
-  * task.
-  *
-+ * @task must be allocated on the stack.
-+ *
-  * Excess data will be discarded.
-  *
-  * RETURNS: 0 when task has been successfully queued, -ERRNO on error
-@@ -544,7 +546,7 @@ int pci_doe_submit_task(struct pci_doe_mb *doe_mb, struct pci_doe_task *task)
+--- a/drivers/cxl/core/pci.c
++++ b/drivers/cxl/core/pci.c
+@@ -528,7 +528,7 @@ static int cxl_cdat_get_length(struct de
+ 		return rc;
+ 	}
+ 	wait_for_completion(&t.c);
+-	if (t.task.rv < sizeof(__le32))
++	if (t.task.rv < 2 * sizeof(__le32))
  		return -EIO;
  
- 	task->doe_mb = doe_mb;
--	INIT_WORK(&task->work, doe_statemachine_work);
-+	INIT_WORK_ONSTACK(&task->work, doe_statemachine_work);
- 	queue_work(doe_mb->work_queue, &task->work);
- 	return 0;
- }
--- 
-2.40.0
-
+ 	*length = le32_to_cpu(t.response_pl[1]);
 
 
