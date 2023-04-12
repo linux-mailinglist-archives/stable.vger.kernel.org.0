@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9551D6DED17
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 062206DED4B
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229531AbjDLH7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 03:59:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45166 "EHLO
+        id S229567AbjDLINB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbjDLH7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 03:59:30 -0400
+        with ESMTP id S229995AbjDLIM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:12:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B4214EE8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 00:59:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59D96659B;
+        Wed, 12 Apr 2023 01:12:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0322F62F0C
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 07:59:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1574FC433EF;
-        Wed, 12 Apr 2023 07:59:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2F9A62A9E;
+        Wed, 12 Apr 2023 08:12:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED92DC433EF;
+        Wed, 12 Apr 2023 08:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681286368;
-        bh=cS4JdMy9GiXSblOzE4DQfk+smFmAd7Kirm5hwYXwYw8=;
+        s=korg; t=1681287170;
+        bh=4kD1X1nPDIuP65hrqHo1MNSV41ybwOyniFd+/ESov6g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=p9TtDn7lnMfy5gYgE+zfVW8V4y4T3Td5NzgM42L3SbxIa5GoNpqKVkv/+hW5+DZzm
-         tsUCojahAU/XLKOPH83SDxxSJcJJu9ClzOsIxh/Tx7+4DawHRojEheJoxGzvxcQA5a
-         vH77zjMEYk88cRx7feZjqzYwMJcSRyx+CwkGmVms=
-Date:   Wed, 12 Apr 2023 09:59:26 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alistair Popple <apopple@nvidia.com>
-Cc:     stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 6.2.y] mm: take a page reference when removing device
- exclusive entries
-Message-ID: <2023041216-catalyze-query-7282@gregkh>
-References: <2023041153-unlikable-steam-cf2b@gregkh>
- <20230412011831.152625-1-apopple@nvidia.com>
+        b=HSo7hxvk8+Eh91VJA/ftbToDEXJWqPBcTuS4Br4mPz3rEk8UOp1KVOq6o7Hl8nsWR
+         lLEAsrejZIAvHZw/vkZ8GrcOBZFo3m8e78GoF04UiWvw3w5+7Y/bKeWEg/XhW+39xB
+         kD2Ip8hCHxEHhV6ft66U2ARekS6I11GxeBbsd6p4=
+Date:   Wed, 12 Apr 2023 10:12:41 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Cc:     stable@vger.kernel.org, maple-tree@lists.infradead.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6.1 00/14] Backport of maple tree fixes for 6.1/6.2
+Message-ID: <2023041216-nemeses-uproot-5d4a@gregkh>
+References: <20230411151055.2910579-1-Liam.Howlett@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230412011831.152625-1-apopple@nvidia.com>
+In-Reply-To: <20230411151055.2910579-1-Liam.Howlett@oracle.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -56,49 +50,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 12, 2023 at 11:18:31AM +1000, Alistair Popple wrote:
-> Device exclusive page table entries are used to prevent CPU access to a
-> page whilst it is being accessed from a device.  Typically this is used to
-> implement atomic operations when the underlying bus does not support
-> atomic access.  When a CPU thread encounters a device exclusive entry it
-> locks the page and restores the original entry after calling mmu notifiers
-> to signal drivers that exclusive access is no longer available.
+On Tue, Apr 11, 2023 at 11:10:41AM -0400, Liam R. Howlett wrote:
+> Greg,
 > 
-> The device exclusive entry holds a reference to the page making it safe to
-> access the struct page whilst the entry is present.  However the fault
-> handling code does not hold the PTL when taking the page lock.  This means
-> if there are multiple threads faulting concurrently on the device
-> exclusive entry one will remove the entry whilst others will wait on the
-> page lock without holding a reference.
+> Here are the backports of the patches for the maple tree fixes from
+> 6.3-rc6 for 6.1 and 6.2.
 > 
-> This can lead to threads locking or waiting on a folio with a zero
-> refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
-> they may still be freed by a migration.  This leads to warnings such as
-> PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
-> drops to zero.
+> The patches differ with a few extra patches for the maple tree, and
+> changes to the mm code patch to work without the vma iterator change.
 > 
-> Fix this by trying to take a reference on the folio before locking it.
-> The code already checks the PTE under the PTL and aborts if the entry is
-> no longer there.  It is also possible the folio has been unmapped, freed
-> and re-allocated allowing a reference to be taken on an unrelated folio.
-> This case is also detected by the PTE check and the folio is unlocked
-> without further changes.
+> Liam R. Howlett (14):
+>   maple_tree: remove GFP_ZERO from kmem_cache_alloc() and
+>     kmem_cache_alloc_bulk()
+>   maple_tree: fix potential rcu issue
+>   maple_tree: reduce user error potential
+>   maple_tree: fix handle of invalidated state in mas_wr_store_setup()
+>   maple_tree: fix mas_prev() and mas_find() state handling
+>   maple_tree: fix mas_skip_node() end slot detection
+>   maple_tree: be more cautious about dead nodes
+>   maple_tree: refine ma_state init from mas_start()
+>   maple_tree: detect dead nodes in mas_start()
+>   maple_tree: fix freeing of nodes in rcu mode
+>   maple_tree: remove extra smp_wmb() from mas_dead_leaves()
+>   maple_tree: add smp_rmb() to dead node detection
+>   maple_tree: add RCU lock checking to rcu callback functions
+>   mm: enable maple tree RCU mode by default.
 > 
-> Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
-> Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
-> Signed-off-by: Alistair Popple <apopple@nvidia.com>
-> Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
-> Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-> Acked-by: David Hildenbrand <david@redhat.com>
-> Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Cc: Christoph Hellwig <hch@infradead.org>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> (cherry picked from commit 7c7b962938ddda6a9cd095de557ee5250706ea88)
-> ---
->  mm/memory.c | 16 +++++++++++++++-
->  1 file changed, 15 insertions(+), 1 deletion(-)
+>  include/linux/mm_types.h         |   3 +-
+>  kernel/fork.c                    |   3 +
+>  lib/maple_tree.c                 | 389 ++++++++++++++++++++-----------
+>  mm/mmap.c                        |   3 +-
+>  tools/testing/radix-tree/maple.c |  18 +-
+>  5 files changed, 263 insertions(+), 153 deletions(-)
+> 
+> -- 
+> 2.39.2
+> 
 
-All backports now queued up, thanks.
+Thanks for these.  One of them was already in the 6.2.y and 6.1.y
+releases, so I just skipped it.
 
 greg k-h
