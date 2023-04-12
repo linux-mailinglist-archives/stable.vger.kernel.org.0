@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E57C66DEF83
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91236DEEF9
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231356AbjDLIvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39226 "EHLO
+        id S231202AbjDLIqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:46:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231346AbjDLIvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89CC974F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:00 -0700 (PDT)
+        with ESMTP id S231209AbjDLIqd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9292B7EC5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D06B863159
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9FFC4339B;
-        Wed, 12 Apr 2023 08:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BB8E630D8
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D403C433EF;
+        Wed, 12 Apr 2023 08:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289457;
-        bh=sYd6ICRjhfCK/+Zoza1/9PMmL5WhMZ0xzQHAveKZHDw=;
+        s=korg; t=1681289135;
+        bh=aPr2HDddyWFuIhSKSV8/6IN3abAJcUmZu3tXAMtxe08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvSZn7qPd7QwwYcXOCsTXrvJTpgywCtshoNnUef7aRFpNz3J8Y1auew9thrhj1HsY
-         P2Tg6JadOLWC7q5/Iz4j+foGDXi1EV1HaqJl0a3zVrzVk4hxhbRXaDLVYmjDnGpc5R
-         WiHEZn+v6BZJPSWrSJgZKjVTBb27k9Gz9XAkIsio=
+        b=MHgjWD909LQUf/QiQMqrIRCiNZn1P2fQHLwgfp3Z+xTMs4NyaazHxShAoX1hpue+A
+         K3Doz+vDKbY9OPFNzzwjaGWc/GLXw8kpxjWedm39giiIlhU1pxJjHMwXmjDmKKgLly
+         pkk2Oeh3IqlWyZ3XIkUPiKZtSe3io1W2dE+ljQN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        William Breathitt Gray <william.gray@linaro.org>
-Subject: [PATCH 6.2 106/173] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 110/164] perf/core: Fix the same task check in perf_event_set_output
 Date:   Wed, 12 Apr 2023 10:33:52 +0200
-Message-Id: <20230412082842.347218359@linuxfoundation.org>
+Message-Id: <20230412082841.292488848@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,114 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Breathitt Gray <william.gray@linaro.org>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 4aa3b75c74603c3374877d5fd18ad9cc3a9a62ed upstream.
+[ Upstream commit 24d3ae2f37d8bc3c14b31d353c5d27baf582b6a6 ]
 
-The Counter (CNTR) register is 24 bits wide, but we can have an
-effective 25-bit count value by setting bit 24 to the XOR of the Borrow
-flag and Carry flag. The flags can be read from the FLAG register, but a
-race condition exists: the Borrow flag and Carry flag are instantaneous
-and could change by the time the count value is read from the CNTR
-register.
+The same task check in perf_event_set_output has some potential issues
+for some usages.
 
-Since the race condition could result in an incorrect 25-bit count
-value, remove support for 25-bit count values from this driver;
-hard-coded maximum count values are replaced by a LS7267_CNTR_MAX define
-for consistency and clarity.
+For the current perf code, there is a problem if using of
+perf_event_open() to have multiple samples getting into the same mmap’d
+memory when they are both attached to the same process.
+https://lore.kernel.org/all/92645262-D319-4068-9C44-2409EF44888E@gmail.com/
+Because the event->ctx is not ready when the perf_event_set_output() is
+invoked in the perf_event_open().
 
-Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
-Cc: <stable@vger.kernel.org> # 6.1.x
-Cc: <stable@vger.kernel.org> # 6.2.x
-Link: https://lore.kernel.org/r/20230312231554.134858-1-william.gray@linaro.org/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Besides the above issue, before the commit bd2756811766 ("perf: Rewrite
+core context handling"), perf record can errors out when sampling with
+a hardware event and a software event as below.
+ $ perf record -e cycles,dummy --per-thread ls
+ failed to mmap with 22 (Invalid argument)
+That's because that prior to the commit a hardware event and a software
+event are from different task context.
+
+The problem should be a long time issue since commit c3f00c70276d
+("perk: Separate find_get_context() from event initialization").
+
+The task struct is stored in the event->hw.target for each per-thread
+event. It is a more reliable way to determine whether two events are
+attached to the same task.
+
+The event->hw.target was also introduced several years ago by the
+commit 50f16a8bf9d7 ("perf: Remove type specific target pointers"). It
+can not only be used to fix the issue with the current code, but also
+back port to fix the issues with an older kernel.
+
+Note: The event->hw.target was introduced later than commit
+c3f00c70276d. The patch may cannot be applied between the commit
+c3f00c70276d and commit 50f16a8bf9d7. Anybody that wants to back-port
+this at that period may have to find other solutions.
+
+Fixes: c3f00c70276d ("perf: Separate find_get_context() from event initialization")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Link: https://lkml.kernel.org/r/20230322202449.512091-1-kan.liang@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/104-quad-8.c |   29 ++++++++---------------------
- 1 file changed, 8 insertions(+), 21 deletions(-)
+ kernel/events/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -97,10 +97,6 @@ struct quad8 {
- 	struct quad8_reg __iomem *reg;
- };
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 2aa286b4151b3..7699b99706ad4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -12040,7 +12040,7 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 	/*
+ 	 * If its not a per-cpu rb, it must be the same task.
+ 	 */
+-	if (output_event->cpu == -1 && output_event->ctx != event->ctx)
++	if (output_event->cpu == -1 && output_event->hw.target != event->hw.target)
+ 		goto out;
  
--/* Borrow Toggle flip-flop */
--#define QUAD8_FLAG_BT BIT(0)
--/* Carry Toggle flip-flop */
--#define QUAD8_FLAG_CT BIT(1)
- /* Error flag */
- #define QUAD8_FLAG_E BIT(4)
- /* Up/Down flag */
-@@ -133,6 +129,9 @@ struct quad8 {
- #define QUAD8_CMR_QUADRATURE_X2 0x10
- #define QUAD8_CMR_QUADRATURE_X4 0x18
- 
-+/* Each Counter is 24 bits wide */
-+#define LS7267_CNTR_MAX GENMASK(23, 0)
-+
- static int quad8_signal_read(struct counter_device *counter,
- 			     struct counter_signal *signal,
- 			     enum counter_signal_level *level)
-@@ -156,18 +155,10 @@ static int quad8_count_read(struct count
- {
- 	struct quad8 *const priv = counter_priv(counter);
- 	struct channel_reg __iomem *const chan = priv->reg->channel + count->id;
--	unsigned int flags;
--	unsigned int borrow;
--	unsigned int carry;
- 	unsigned long irqflags;
- 	int i;
- 
--	flags = ioread8(&chan->control);
--	borrow = flags & QUAD8_FLAG_BT;
--	carry = !!(flags & QUAD8_FLAG_CT);
--
--	/* Borrow XOR Carry effectively doubles count range */
--	*val = (unsigned long)(borrow ^ carry) << 24;
-+	*val = 0;
- 
- 	spin_lock_irqsave(&priv->lock, irqflags);
- 
-@@ -191,8 +182,7 @@ static int quad8_count_write(struct coun
- 	unsigned long irqflags;
- 	int i;
- 
--	/* Only 24-bit values are supported */
--	if (val > 0xFFFFFF)
-+	if (val > LS7267_CNTR_MAX)
- 		return -ERANGE;
- 
- 	spin_lock_irqsave(&priv->lock, irqflags);
-@@ -806,8 +796,7 @@ static int quad8_count_preset_write(stru
- 	struct quad8 *const priv = counter_priv(counter);
- 	unsigned long irqflags;
- 
--	/* Only 24-bit values are supported */
--	if (preset > 0xFFFFFF)
-+	if (preset > LS7267_CNTR_MAX)
- 		return -ERANGE;
- 
- 	spin_lock_irqsave(&priv->lock, irqflags);
-@@ -834,8 +823,7 @@ static int quad8_count_ceiling_read(stru
- 		*ceiling = priv->preset[count->id];
- 		break;
- 	default:
--		/* By default 0x1FFFFFF (25 bits unsigned) is maximum count */
--		*ceiling = 0x1FFFFFF;
-+		*ceiling = LS7267_CNTR_MAX;
- 		break;
- 	}
- 
-@@ -850,8 +838,7 @@ static int quad8_count_ceiling_write(str
- 	struct quad8 *const priv = counter_priv(counter);
- 	unsigned long irqflags;
- 
--	/* Only 24-bit values are supported */
--	if (ceiling > 0xFFFFFF)
-+	if (ceiling > LS7267_CNTR_MAX)
- 		return -ERANGE;
- 
- 	spin_lock_irqsave(&priv->lock, irqflags);
+ 	/*
+-- 
+2.39.2
+
 
 
