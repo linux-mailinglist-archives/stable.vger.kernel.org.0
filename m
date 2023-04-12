@@ -2,226 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A298B6E00EF
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 23:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D416E010F
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 23:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbjDLVcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 17:32:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33850 "EHLO
+        id S229663AbjDLVia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 17:38:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbjDLVcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 17:32:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E72527E;
-        Wed, 12 Apr 2023 14:32:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3104263969;
-        Wed, 12 Apr 2023 21:32:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA97C433D2;
-        Wed, 12 Apr 2023 21:32:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681335171;
-        bh=jc7XvK3zmNynnG0KGBzbeqU4/83Ow8hvERG/r7OzTGE=;
-        h=Date:To:From:Subject:From;
-        b=p075SsyNyGXHr7sG3cSbQptGLxQUbTFu1ar8er99c4kWTxu0u19kqQvwS1C60YDoy
-         5wBpL5otrFZGGqehN8uD5k1lz9cCIcdMnI9fcGmkHVZwl1N0Q9gkt4hjzxLoBmdGH/
-         3l/bt4c3tfeRZRARKkmC706CDCMcELWqbxKfkIaQ=
-Date:   Wed, 12 Apr 2023 14:32:50 -0700
-To:     mm-commits@vger.kernel.org, tsahu@linux.ibm.com,
-        stable@vger.kernel.org, songmuchun@bytedance.com,
-        mike.kravetz@oracle.com, joao.m.martins@oracle.com,
-        dan.j.williams@intel.com, aneesh.kumar@linux.ibm.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch added to mm-unstable branch
-Message-Id: <20230412213251.8AA97C433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230084AbjDLVi3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 17:38:29 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738CC4493;
+        Wed, 12 Apr 2023 14:38:27 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id 98e67ed59e1d1-2470271d9f9so145180a91.2;
+        Wed, 12 Apr 2023 14:38:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681335507; x=1683927507;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zryaPgAYMlVR+T3G4KOAsz+hbudinum/d++UX2e4pk0=;
+        b=Gj6a4c7rP48bKypuGbXyKnkj3i7jYX1EW//9af3ssw9LgkQPtVn7ZhI6alSuhOweS7
+         O6KQ4XJu6td5/GE7AZFiOoQk72fWKiiV/6zzUV9kTKYJESgYtddVSh+qDZ2lzm6R6dW4
+         SRdxEiVSaqzENvuNWG5IzDKrRVlfk81Wc6yjqzc85yFo6MofTY67IaNwxtont0vA0C0Q
+         YzAHm7tf+CGAfOzD9Q7pV52BNo/1hVJfKU2QlKdYRLhAK1+XQdRpCwKSgetEo7tJBTix
+         QLq37xIYTZ0Z7TXWpU0mHN/zejVN6evyPqaGmez6WpCVfgsXDvxF+HtRr4Z2QBk594LG
+         oAGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681335507; x=1683927507;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zryaPgAYMlVR+T3G4KOAsz+hbudinum/d++UX2e4pk0=;
+        b=SrENHlF72u4CvIpx9bsQHfPp/7wz3flzvserwnXoc1Ecz8r8RArF6ROFx4XmgTvJbw
+         Qp2lw5N4/2d3UyCclZk9dBiTSyAXLycs4D/+sSel/OnUyLAnusH1p34NCvY3FYp4CKlG
+         7nHbuE7eaqvd//RTJZc+GyzZBlo1T5Graf3DrovchqE5EsXMllAk1EbfD1Qqa4Eer+SC
+         eXrI0/p0ZOiTH/YbbnELELchYUtQNXjrqM8BxxIARW0W10UBl9iy9mI8uXI977YvepEH
+         ciGKkEY7uE0jqYinhhMjtP6G6bzaqd4VuuYTj+QoyKFNhhQH456a6L037dzAm7qNPNsW
+         vOkg==
+X-Gm-Message-State: AAQBX9eT5u1oy2DL8NPpdv7N8uC8x3w0u8JtnoNJB5GNv4WGlPJJtZBN
+        19qMAyCpIjfnMXFo1udm/tk=
+X-Google-Smtp-Source: AKy350ayLRuWTQHmaXMx17Sh5poDoJ9CEU6/hCpz0PPGekzJrdBt9TWO8taS2nRnD4He/5JUfAQpXA==
+X-Received: by 2002:a05:6a00:1a43:b0:627:e69c:8488 with SMTP id h3-20020a056a001a4300b00627e69c8488mr339839pfv.14.1681335506700;
+        Wed, 12 Apr 2023 14:38:26 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c11-20020aa78c0b000000b0063afb08afeesm2406261pfd.67.2023.04.12.14.38.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Apr 2023 14:38:25 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 12 Apr 2023 14:38:24 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/164] 6.1.24-rc1 review
+Message-ID: <10bdb21e-31d0-4d86-bfa8-1902f32f2760@roeck-us.net>
+References: <20230412082836.695875037@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Apr 12, 2023 at 10:32:02AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.24 release.
+> There are 164 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 14 Apr 2023 08:28:02 +0000.
+> Anything received after that time might be too late.
+> 
 
-The patch titled
-     Subject: mm/vmemmap/devdax: fix kernel crash when probing devdax devices
-has been added to the -mm mm-unstable branch.  Its filename is
-     mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 519 pass: 519 fail: 0
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-This patch will later appear in the mm-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/vmemmap/devdax: fix kernel crash when probing devdax devices
-Date: Tue, 11 Apr 2023 19:52:13 +0530
-
-commit 4917f55b4ef9 ("mm/sparse-vmemmap: improve memory savings for
-compound devmaps") added support for using optimized vmmemap for devdax
-devices.  But how vmemmap mappings are created are architecture specific. 
-For example, powerpc with hash translation doesn't have vmemmap mappings
-in init_mm page table instead they are bolted table entries in the
-hardware page table
-
-vmemmap_populate_compound_pages() used by vmemmap optimization code is not
-aware of these architecture-specific mapping.  Hence allow architecture to
-opt for this feature.  I selected architectures supporting
-HUGETLB_PAGE_OPTIMIZE_VMEMMAP option as also supporting this feature.
-
-This patch fixes the below crash on ppc64.
-
-BUG: Unable to handle kernel data access on write at 0xc00c000100400038
-Faulting instruction address: 0xc000000001269d90
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in:
-CPU: 7 PID: 1 Comm: swapper/0 Not tainted 6.3.0-rc5-150500.34-default+ #2 5c90a668b6bbd142599890245c2fb5de19d7d28a
-Hardware name: IBM,9009-42G POWER9 (raw) 0x4e0202 0xf000005 of:IBM,FW950.40 (VL950_099) hv:phyp pSeries
-NIP:  c000000001269d90 LR: c0000000004c57d4 CTR: 0000000000000000
-REGS: c000000003632c30 TRAP: 0300   Not tainted  (6.3.0-rc5-150500.34-default+)
-MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24842228  XER: 00000000
-CFAR: c0000000004c57d0 DAR: c00c000100400038 DSISR: 42000000 IRQMASK: 0
-....
-NIP [c000000001269d90] __init_single_page.isra.74+0x14/0x4c
-LR [c0000000004c57d4] __init_zone_device_page+0x44/0xd0
-Call Trace:
-[c000000003632ed0] [c000000003632f60] 0xc000000003632f60 (unreliable)
-[c000000003632f10] [c0000000004c5ca0] memmap_init_zone_device+0x170/0x250
-[c000000003632fe0] [c0000000005575f8] memremap_pages+0x2c8/0x7f0
-[c0000000036330c0] [c000000000557b5c] devm_memremap_pages+0x3c/0xa0
-[c000000003633100] [c000000000d458a8] dev_dax_probe+0x108/0x3e0
-[c0000000036331a0] [c000000000d41430] dax_bus_probe+0xb0/0x140
-[c0000000036331d0] [c000000000cef27c] really_probe+0x19c/0x520
-[c000000003633260] [c000000000cef6b4] __driver_probe_device+0xb4/0x230
-[c0000000036332e0] [c000000000cef888] driver_probe_device+0x58/0x120
-[c000000003633320] [c000000000cefa6c] __device_attach_driver+0x11c/0x1e0
-[c0000000036333a0] [c000000000cebc58] bus_for_each_drv+0xa8/0x130
-[c000000003633400] [c000000000ceefcc] __device_attach+0x15c/0x250
-[c0000000036334a0] [c000000000ced458] bus_probe_device+0x108/0x110
-[c0000000036334f0] [c000000000ce92dc] device_add+0x7fc/0xa10
-[c0000000036335b0] [c000000000d447c8] devm_create_dev_dax+0x1d8/0x530
-[c000000003633640] [c000000000d46b60] __dax_pmem_probe+0x200/0x270
-[c0000000036337b0] [c000000000d46bf0] dax_pmem_probe+0x20/0x70
-[c0000000036337d0] [c000000000d2279c] nvdimm_bus_probe+0xac/0x2b0
-[c000000003633860] [c000000000cef27c] really_probe+0x19c/0x520
-[c0000000036338f0] [c000000000cef6b4] __driver_probe_device+0xb4/0x230
-[c000000003633970] [c000000000cef888] driver_probe_device+0x58/0x120
-[c0000000036339b0] [c000000000cefd08] __driver_attach+0x1d8/0x240
-[c000000003633a30] [c000000000cebb04] bus_for_each_dev+0xb4/0x130
-[c000000003633a90] [c000000000cee564] driver_attach+0x34/0x50
-[c000000003633ab0] [c000000000ced878] bus_add_driver+0x218/0x300
-[c000000003633b40] [c000000000cf1144] driver_register+0xa4/0x1b0
-[c000000003633bb0] [c000000000d21a0c] __nd_driver_register+0x5c/0x100
-[c000000003633c10] [c00000000206a2e8] dax_pmem_init+0x34/0x48
-[c000000003633c30] [c0000000000132d0] do_one_initcall+0x60/0x320
-[c000000003633d00] [c0000000020051b0] kernel_init_freeable+0x360/0x400
-[c000000003633de0] [c000000000013764] kernel_init+0x34/0x1d0
-[c000000003633e50] [c00000000000de14] ret_from_kernel_thread+0x5c/0x64
-
-Link: https://lkml.kernel.org/r/20230411142214.64464-1-aneesh.kumar@linux.ibm.com
-Fixes: 4917f55b4ef9 ("mm/sparse-vmemmap: improve memory savings for compound devmaps")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reported-by: Tarun Sahu <tsahu@linux.ibm.com>
-Cc: Joao Martins <joao.m.martins@oracle.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/mm.h  |   16 ++++++++++++++++
- mm/mm_init.c        |   10 ++++++----
- mm/sparse-vmemmap.c |    3 +--
- 3 files changed, 23 insertions(+), 6 deletions(-)
-
---- a/include/linux/mm.h~mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices
-+++ a/include/linux/mm.h
-@@ -3561,6 +3561,22 @@ void vmemmap_populate_print_last(void);
- void vmemmap_free(unsigned long start, unsigned long end,
- 		struct vmem_altmap *altmap);
- #endif
-+
-+#ifdef CONFIG_ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP
-+static inline bool vmemmap_can_optimize(struct vmem_altmap *altmap,
-+					   struct dev_pagemap *pgmap)
-+{
-+	return is_power_of_2(sizeof(struct page)) &&
-+		pgmap && (pgmap_vmemmap_nr(pgmap) > 1) && !altmap;
-+}
-+#else
-+static inline bool vmemmap_can_optimize(struct vmem_altmap *altmap,
-+					   struct dev_pagemap *pgmap)
-+{
-+	return false;
-+}
-+#endif
-+
- void register_page_bootmem_memmap(unsigned long section_nr, struct page *map,
- 				  unsigned long nr_pages);
- 
---- a/mm/mm_init.c~mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices
-+++ a/mm/mm_init.c
-@@ -1015,10 +1015,12 @@ static void __ref __init_zone_device_pag
-  * of an altmap. See vmemmap_populate_compound_pages().
-  */
- static inline unsigned long compound_nr_pages(struct vmem_altmap *altmap,
--					      unsigned long nr_pages)
-+					      struct dev_pagemap *pgmap)
- {
--	return is_power_of_2(sizeof(struct page)) &&
--		!altmap ? 2 * (PAGE_SIZE / sizeof(struct page)) : nr_pages;
-+	if (!vmemmap_can_optimize(altmap, pgmap))
-+		return pgmap_vmemmap_nr(pgmap);
-+
-+	return 2 * (PAGE_SIZE / sizeof(struct page));
- }
- 
- static void __ref memmap_init_compound(struct page *head,
-@@ -1083,7 +1085,7 @@ void __ref memmap_init_zone_device(struc
- 			continue;
- 
- 		memmap_init_compound(page, pfn, zone_idx, nid, pgmap,
--				     compound_nr_pages(altmap, pfns_per_compound));
-+				     compound_nr_pages(altmap, pgmap));
- 	}
- 
- 	pr_debug("%s initialised %lu pages in %ums\n", __func__,
---- a/mm/sparse-vmemmap.c~mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices
-+++ a/mm/sparse-vmemmap.c
-@@ -458,8 +458,7 @@ struct page * __meminit __populate_secti
- 		!IS_ALIGNED(nr_pages, PAGES_PER_SUBSECTION)))
- 		return NULL;
- 
--	if (is_power_of_2(sizeof(struct page)) &&
--	    pgmap && pgmap_vmemmap_nr(pgmap) > 1 && !altmap)
-+	if (vmemmap_can_optimize(altmap, pgmap))
- 		r = vmemmap_populate_compound_pages(pfn, start, end, nid, pgmap);
- 	else
- 		r = vmemmap_populate(start, end, nid, altmap);
-_
-
-Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
-
-mm-vmemmap-devdax-fix-kernel-crash-when-probing-devdax-devices.patch
-mm-hugetlb_vmemmap-rename-arch_want_hugetlb_page_optimize_vmemmap.patch
-
+Guenter
