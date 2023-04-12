@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 500CB6DEEB9
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C796DEE09
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231177AbjDLIoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50632 "EHLO
+        id S230339AbjDLIjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231197AbjDLIo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:26 -0400
+        with ESMTP id S230298AbjDLIjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1D97EF8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B0F8684
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2445662AF2
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 323C5C433D2;
-        Wed, 12 Apr 2023 08:43:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3060A63005
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FDFFC433EF;
+        Wed, 12 Apr 2023 08:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289008;
-        bh=dKz/1zhK9Qcd7wLZrZQmb0D3l3DtgegBCj3BhpQ+n2E=;
+        s=korg; t=1681288608;
+        bh=94DNZe4/0pwQgUtv5eEMlQYVN7nvR134wNycWytJb+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJe7vu49vS1syAz5aABzjuE3m6SKumVNBgbSSec0iu6hL2O4FWTR5EQoPOVhQlA70
-         H1jumohCBypv814bXe8z7X+PoNp49Z2TsGes4lxb1CCXRzpnY4vxq5hX/WbupjQRIF
-         wx3D39Glnr4eTs//NWjt9HB1zCS5UoGJJeNr8EF0=
+        b=OzJYzID6f7tgxlhZSA/RGM327l8TRKauGv5XvebIgt9T8YxjfWHWRIgWCshdpUilu
+         WHbLjM4ntDMydNpZjQgY5iqkCx2RSZNorCrrvRXwb0N0YTLI+8VnI9nHUhsuvGlIFY
+         FUupGVkUYaFOyf4oVNECqTD1MikmzkKr/9q+HBKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, Siddharth Vadapalli <s-vadapalli@ti.com>,
+        Roger Quadros <rogerq@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 101/164] iio: adc: ad7791: fix IRQ flags
+Subject: [PATCH 5.15 42/93] net: ethernet: ti: am65-cpsw: Fix mdio cleanup in probe
 Date:   Wed, 12 Apr 2023 10:33:43 +0200
-Message-Id: <20230412082840.935057711@linuxfoundation.org>
+Message-Id: <20230412082824.910408370@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Siddharth Vadapalli <s-vadapalli@ti.com>
 
-[ Upstream commit 0c6ef985a1fd8a74dcb5cad941ddcadd55cb8697 ]
+[ Upstream commit c6b486fb33680ad5a3a6390ce693c835caaae3f7 ]
 
-The interrupt is triggered on the falling edge rather than being a level
-low interrupt.
+In the am65_cpsw_nuss_probe() function's cleanup path, the call to
+of_platform_device_destroy() for the common->mdio_dev device is invoked
+unconditionally. It is possible that either the MDIO node is not present
+in the device-tree, or the MDIO node is disabled in the device-tree. In
+both these cases, the MDIO device is not created, resulting in a NULL
+pointer dereference when the of_platform_device_destroy() function is
+invoked on the common->mdio_dev device on the cleanup path.
 
-Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20230120124645.819910-1-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fix this by ensuring that the common->mdio_dev device exists, before
+attempting to invoke of_platform_device_destroy().
+
+Fixes: a45cfcc69a25 ("net: ethernet: ti: am65-cpsw-nuss: use of_platform_device_create() for mdio")
+Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
+Reviewed-by: Roger Quadros <rogerq@kernel.org>
+Link: https://lore.kernel.org/r/20230403090321.835877-1-s-vadapalli@ti.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7791.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7791.c b/drivers/iio/adc/ad7791.c
-index fee8d129a5f08..86effe8501b44 100644
---- a/drivers/iio/adc/ad7791.c
-+++ b/drivers/iio/adc/ad7791.c
-@@ -253,7 +253,7 @@ static const struct ad_sigma_delta_info ad7791_sigma_delta_info = {
- 	.has_registers = true,
- 	.addr_shift = 4,
- 	.read_mask = BIT(3),
--	.irq_flags = IRQF_TRIGGER_LOW,
-+	.irq_flags = IRQF_TRIGGER_FALLING,
- };
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 37b9a798dd624..692c291d9a01a 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -2784,7 +2784,8 @@ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
+ 	return 0;
  
- static int ad7791_read_raw(struct iio_dev *indio_dev,
+ err_of_clear:
+-	of_platform_device_destroy(common->mdio_dev, NULL);
++	if (common->mdio_dev)
++		of_platform_device_destroy(common->mdio_dev, NULL);
+ err_pm_clear:
+ 	pm_runtime_put_sync(dev);
+ 	pm_runtime_disable(dev);
+@@ -2813,7 +2814,8 @@ static int am65_cpsw_nuss_remove(struct platform_device *pdev)
+ 	 */
+ 	am65_cpsw_nuss_cleanup_ndev(common);
+ 
+-	of_platform_device_destroy(common->mdio_dev, NULL);
++	if (common->mdio_dev)
++		of_platform_device_destroy(common->mdio_dev, NULL);
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
 -- 
 2.39.2
 
