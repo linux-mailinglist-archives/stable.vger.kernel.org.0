@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D365B6DEF43
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F17C6DEE9D
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231276AbjDLItX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S230481AbjDLIny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:43:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231260AbjDLItV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:21 -0400
+        with ESMTP id S230479AbjDLInj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D32FD
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72FA2769E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D513962FEB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92C2C433EF;
-        Wed, 12 Apr 2023 08:48:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47413629C2
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B40AC433D2;
+        Wed, 12 Apr 2023 08:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289316;
-        bh=PfxVeX4BeRvBqoR0Z/ZWR0+L6pTTbxS+U60wJ1qhpYk=;
+        s=korg; t=1681288888;
+        bh=CgZ6ZVwJAq7od/NG/2RgjEDwXcnYAVaxmoME2BQo7Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BE8oEpUgHMJmNMFFVNEHel49rjETaJWPQdy9wklkaFeNJKuY2kOyo3CZ4WETC+wkR
-         0Dxs1pmPhazr5AYxflqddWIMnQIm1sxE7bS5XVyx/cY6m5j7kgBXMuqNIlNL1PfvJJ
-         pGun9HjaL79qGJ879pbh58dykYgA8hEf0ScyWlqA=
+        b=HUARm4KlnndT8Nyp2/Xjj+PeptAIT4Izju3wuQTRd5Qa3ipbTuBUvA7kX+Zl49SEz
+         BiJf5Cy9I61ve5ba+A0PhNoT6u/yTbPmFzS9JaHCCHgeK9up6y4uFa6X69+H62Q0iT
+         FYfUJROV0xX+GjIhq0kN5eujD/W37Dlk6Tc36Ltk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 051/173] netlink: annotate lockless accesses to nlk->max_recvmsg_len
-Date:   Wed, 12 Apr 2023 10:32:57 +0200
-Message-Id: <20230412082840.180183564@linuxfoundation.org>
+        patches@lists.linux.dev, Ira Weiny <ira.weiny@intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.1 056/164] cxl/pci: Fix CDAT retrieval on big endian
+Date:   Wed, 12 Apr 2023 10:32:58 +0200
+Message-Id: <20230412082839.223073896@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,111 +55,238 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit a1865f2e7d10dde00d35a2122b38d2e469ae67ed ]
+commit fbaa38214cd9e150764ccaa82e04ecf42cc1140c upstream.
 
-syzbot reported a data-race in data-race in netlink_recvmsg() [1]
+The CDAT exposed in sysfs differs between little endian and big endian
+arches:  On big endian, every 4 bytes are byte-swapped.
 
-Indeed, netlink_recvmsg() can be run concurrently,
-and netlink_dump() also needs protection.
+PCI Configuration Space is little endian (PCI r3.0 sec 6.1).  Accessors
+such as pci_read_config_dword() implicitly swap bytes on big endian.
+That way, the macros in include/uapi/linux/pci_regs.h work regardless of
+the arch's endianness.  For an example of implicit byte-swapping, see
+ppc4xx_pciex_read_config(), which calls in_le32(), which uses lwbrx
+(Load Word Byte-Reverse Indexed).
 
-[1]
-BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
+DOE Read/Write Data Mailbox Registers are unlike other registers in
+Configuration Space in that they contain or receive a 4 byte portion of
+an opaque byte stream (a "Data Object" per PCIe r6.0 sec 7.9.24.5f).
+They need to be copied to or from the request/response buffer verbatim.
+So amend pci_doe_send_req() and pci_doe_recv_resp() to undo the implicit
+byte-swapping.
 
-read to 0xffff888141840b38 of 8 bytes by task 23057 on cpu 0:
-netlink_recvmsg+0xea/0x730 net/netlink/af_netlink.c:1988
-sock_recvmsg_nosec net/socket.c:1017 [inline]
-sock_recvmsg net/socket.c:1038 [inline]
-__sys_recvfrom+0x1ee/0x2e0 net/socket.c:2194
-__do_sys_recvfrom net/socket.c:2212 [inline]
-__se_sys_recvfrom net/socket.c:2208 [inline]
-__x64_sys_recvfrom+0x78/0x90 net/socket.c:2208
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x41/0xc0 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The CXL_DOE_TABLE_ACCESS_* and PCI_DOE_DATA_OBJECT_DISC_* macros assume
+implicit byte-swapping.  Byte-swap requests after constructing them with
+those macros and byte-swap responses before parsing them.
 
-write to 0xffff888141840b38 of 8 bytes by task 23037 on cpu 1:
-netlink_recvmsg+0x114/0x730 net/netlink/af_netlink.c:1989
-sock_recvmsg_nosec net/socket.c:1017 [inline]
-sock_recvmsg net/socket.c:1038 [inline]
-____sys_recvmsg+0x156/0x310 net/socket.c:2720
-___sys_recvmsg net/socket.c:2762 [inline]
-do_recvmmsg+0x2e5/0x710 net/socket.c:2856
-__sys_recvmmsg net/socket.c:2935 [inline]
-__do_sys_recvmmsg net/socket.c:2958 [inline]
-__se_sys_recvmmsg net/socket.c:2951 [inline]
-__x64_sys_recvmmsg+0xe2/0x160 net/socket.c:2951
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x41/0xc0 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Change the request and response type to __le32 to avoid sparse warnings.
+Per a request from Jonathan, replace sizeof(u32) with sizeof(__le32) for
+consistency.
 
-value changed: 0x0000000000000000 -> 0x0000000000001000
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 23037 Comm: syz-executor.2 Not tainted 6.3.0-rc4-syzkaller-00195-g5a57b48fdfcb #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/02/2023
-
-Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230403214643.768555-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c97006046c79 ("cxl/port: Read CDAT table")
+Tested-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: stable@vger.kernel.org # v6.0+
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lore.kernel.org/r/3051114102f41d19df3debbee123129118fc5e6d.1678543498.git.lukas@wunner.de
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/af_netlink.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/cxl/core/pci.c  |   26 +++++++++++++-------------
+ drivers/pci/doe.c       |   25 ++++++++++++++-----------
+ include/linux/pci-doe.h |    8 ++++++--
+ 3 files changed, 33 insertions(+), 26 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index c642776597531..f365dfdd672d7 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1952,7 +1952,7 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	struct scm_cookie scm;
- 	struct sock *sk = sock->sk;
- 	struct netlink_sock *nlk = nlk_sk(sk);
--	size_t copied;
-+	size_t copied, max_recvmsg_len;
- 	struct sk_buff *skb, *data_skb;
- 	int err, ret;
+--- a/drivers/cxl/core/pci.c
++++ b/drivers/cxl/core/pci.c
+@@ -483,7 +483,7 @@ static struct pci_doe_mb *find_cdat_doe(
+ 	return NULL;
+ }
  
-@@ -1985,9 +1985,10 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- #endif
+-#define CDAT_DOE_REQ(entry_handle)					\
++#define CDAT_DOE_REQ(entry_handle) cpu_to_le32				\
+ 	(FIELD_PREP(CXL_DOE_TABLE_ACCESS_REQ_CODE,			\
+ 		    CXL_DOE_TABLE_ACCESS_REQ_CODE_READ) |		\
+ 	 FIELD_PREP(CXL_DOE_TABLE_ACCESS_TABLE_TYPE,			\
+@@ -496,8 +496,8 @@ static void cxl_doe_task_complete(struct
+ }
  
- 	/* Record the max length of recvmsg() calls for future allocations */
--	nlk->max_recvmsg_len = max(nlk->max_recvmsg_len, len);
--	nlk->max_recvmsg_len = min_t(size_t, nlk->max_recvmsg_len,
--				     SKB_WITH_OVERHEAD(32768));
-+	max_recvmsg_len = max(READ_ONCE(nlk->max_recvmsg_len), len);
-+	max_recvmsg_len = min_t(size_t, max_recvmsg_len,
-+				SKB_WITH_OVERHEAD(32768));
-+	WRITE_ONCE(nlk->max_recvmsg_len, max_recvmsg_len);
+ struct cdat_doe_task {
+-	u32 request_pl;
+-	u32 response_pl[32];
++	__le32 request_pl;
++	__le32 response_pl[32];
+ 	struct completion c;
+ 	struct pci_doe_task task;
+ };
+@@ -531,10 +531,10 @@ static int cxl_cdat_get_length(struct de
+ 		return rc;
+ 	}
+ 	wait_for_completion(&t.c);
+-	if (t.task.rv < sizeof(u32))
++	if (t.task.rv < sizeof(__le32))
+ 		return -EIO;
  
- 	copied = data_skb->len;
- 	if (len < copied) {
-@@ -2236,6 +2237,7 @@ static int netlink_dump(struct sock *sk)
- 	struct netlink_ext_ack extack = {};
- 	struct netlink_callback *cb;
- 	struct sk_buff *skb = NULL;
-+	size_t max_recvmsg_len;
- 	struct module *module;
- 	int err = -ENOBUFS;
- 	int alloc_min_size;
-@@ -2258,8 +2260,9 @@ static int netlink_dump(struct sock *sk)
- 	cb = &nlk->cb;
- 	alloc_min_size = max_t(int, cb->min_dump_alloc, NLMSG_GOODSIZE);
+-	*length = t.response_pl[1];
++	*length = le32_to_cpu(t.response_pl[1]);
+ 	dev_dbg(dev, "CDAT length %zu\n", *length);
  
--	if (alloc_min_size < nlk->max_recvmsg_len) {
--		alloc_size = nlk->max_recvmsg_len;
-+	max_recvmsg_len = READ_ONCE(nlk->max_recvmsg_len);
-+	if (alloc_min_size < max_recvmsg_len) {
-+		alloc_size = max_recvmsg_len;
- 		skb = alloc_skb(alloc_size,
- 				(GFP_KERNEL & ~__GFP_DIRECT_RECLAIM) |
- 				__GFP_NOWARN | __GFP_NORETRY);
--- 
-2.39.2
-
+ 	return 0;
+@@ -545,13 +545,13 @@ static int cxl_cdat_read_table(struct de
+ 			       struct cxl_cdat *cdat)
+ {
+ 	size_t length = cdat->length;
+-	u32 *data = cdat->table;
++	__le32 *data = cdat->table;
+ 	int entry_handle = 0;
+ 
+ 	do {
+ 		DECLARE_CDAT_DOE_TASK(CDAT_DOE_REQ(entry_handle), t);
+ 		size_t entry_dw;
+-		u32 *entry;
++		__le32 *entry;
+ 		int rc;
+ 
+ 		rc = pci_doe_submit_task(cdat_doe, &t.task);
+@@ -561,21 +561,21 @@ static int cxl_cdat_read_table(struct de
+ 		}
+ 		wait_for_completion(&t.c);
+ 		/* 1 DW header + 1 DW data min */
+-		if (t.task.rv < (2 * sizeof(u32)))
++		if (t.task.rv < (2 * sizeof(__le32)))
+ 			return -EIO;
+ 
+ 		/* Get the CXL table access header entry handle */
+ 		entry_handle = FIELD_GET(CXL_DOE_TABLE_ACCESS_ENTRY_HANDLE,
+-					 t.response_pl[0]);
++					 le32_to_cpu(t.response_pl[0]));
+ 		entry = t.response_pl + 1;
+-		entry_dw = t.task.rv / sizeof(u32);
++		entry_dw = t.task.rv / sizeof(__le32);
+ 		/* Skip Header */
+ 		entry_dw -= 1;
+-		entry_dw = min(length / sizeof(u32), entry_dw);
++		entry_dw = min(length / sizeof(__le32), entry_dw);
+ 		/* Prevent length < 1 DW from causing a buffer overflow */
+ 		if (entry_dw) {
+-			memcpy(data, entry, entry_dw * sizeof(u32));
+-			length -= entry_dw * sizeof(u32);
++			memcpy(data, entry, entry_dw * sizeof(__le32));
++			length -= entry_dw * sizeof(__le32);
+ 			data += entry_dw;
+ 		}
+ 	} while (entry_handle != CXL_DOE_TABLE_ACCESS_LAST_ENTRY);
+--- a/drivers/pci/doe.c
++++ b/drivers/pci/doe.c
+@@ -128,7 +128,7 @@ static int pci_doe_send_req(struct pci_d
+ 		return -EIO;
+ 
+ 	/* Length is 2 DW of header + length of payload in DW */
+-	length = 2 + task->request_pl_sz / sizeof(u32);
++	length = 2 + task->request_pl_sz / sizeof(__le32);
+ 	if (length > PCI_DOE_MAX_LENGTH)
+ 		return -EIO;
+ 	if (length == PCI_DOE_MAX_LENGTH)
+@@ -141,9 +141,9 @@ static int pci_doe_send_req(struct pci_d
+ 	pci_write_config_dword(pdev, offset + PCI_DOE_WRITE,
+ 			       FIELD_PREP(PCI_DOE_DATA_OBJECT_HEADER_2_LENGTH,
+ 					  length));
+-	for (i = 0; i < task->request_pl_sz / sizeof(u32); i++)
++	for (i = 0; i < task->request_pl_sz / sizeof(__le32); i++)
+ 		pci_write_config_dword(pdev, offset + PCI_DOE_WRITE,
+-				       task->request_pl[i]);
++				       le32_to_cpu(task->request_pl[i]));
+ 
+ 	pci_doe_write_ctrl(doe_mb, PCI_DOE_CTRL_GO);
+ 
+@@ -195,11 +195,11 @@ static int pci_doe_recv_resp(struct pci_
+ 
+ 	/* First 2 dwords have already been read */
+ 	length -= 2;
+-	payload_length = min(length, task->response_pl_sz / sizeof(u32));
++	payload_length = min(length, task->response_pl_sz / sizeof(__le32));
+ 	/* Read the rest of the response payload */
+ 	for (i = 0; i < payload_length; i++) {
+-		pci_read_config_dword(pdev, offset + PCI_DOE_READ,
+-				      &task->response_pl[i]);
++		pci_read_config_dword(pdev, offset + PCI_DOE_READ, &val);
++		task->response_pl[i] = cpu_to_le32(val);
+ 		/* Prior to the last ack, ensure Data Object Ready */
+ 		if (i == (payload_length - 1) && !pci_doe_data_obj_ready(doe_mb))
+ 			return -EIO;
+@@ -217,7 +217,7 @@ static int pci_doe_recv_resp(struct pci_
+ 	if (FIELD_GET(PCI_DOE_STATUS_ERROR, val))
+ 		return -EIO;
+ 
+-	return min(length, task->response_pl_sz / sizeof(u32)) * sizeof(u32);
++	return min(length, task->response_pl_sz / sizeof(__le32)) * sizeof(__le32);
+ }
+ 
+ static void signal_task_complete(struct pci_doe_task *task, int rv)
+@@ -317,14 +317,16 @@ static int pci_doe_discovery(struct pci_
+ {
+ 	u32 request_pl = FIELD_PREP(PCI_DOE_DATA_OBJECT_DISC_REQ_3_INDEX,
+ 				    *index);
++	__le32 request_pl_le = cpu_to_le32(request_pl);
++	__le32 response_pl_le;
+ 	u32 response_pl;
+ 	DECLARE_COMPLETION_ONSTACK(c);
+ 	struct pci_doe_task task = {
+ 		.prot.vid = PCI_VENDOR_ID_PCI_SIG,
+ 		.prot.type = PCI_DOE_PROTOCOL_DISCOVERY,
+-		.request_pl = &request_pl,
++		.request_pl = &request_pl_le,
+ 		.request_pl_sz = sizeof(request_pl),
+-		.response_pl = &response_pl,
++		.response_pl = &response_pl_le,
+ 		.response_pl_sz = sizeof(response_pl),
+ 		.complete = pci_doe_task_complete,
+ 		.private = &c,
+@@ -340,6 +342,7 @@ static int pci_doe_discovery(struct pci_
+ 	if (task.rv != sizeof(response_pl))
+ 		return -EIO;
+ 
++	response_pl = le32_to_cpu(response_pl_le);
+ 	*vid = FIELD_GET(PCI_DOE_DATA_OBJECT_DISC_RSP_3_VID, response_pl);
+ 	*protocol = FIELD_GET(PCI_DOE_DATA_OBJECT_DISC_RSP_3_PROTOCOL,
+ 			      response_pl);
+@@ -533,8 +536,8 @@ int pci_doe_submit_task(struct pci_doe_m
+ 	 * DOE requests must be a whole number of DW and the response needs to
+ 	 * be big enough for at least 1 DW
+ 	 */
+-	if (task->request_pl_sz % sizeof(u32) ||
+-	    task->response_pl_sz < sizeof(u32))
++	if (task->request_pl_sz % sizeof(__le32) ||
++	    task->response_pl_sz < sizeof(__le32))
+ 		return -EINVAL;
+ 
+ 	if (test_bit(PCI_DOE_FLAG_DEAD, &doe_mb->flags))
+--- a/include/linux/pci-doe.h
++++ b/include/linux/pci-doe.h
+@@ -34,6 +34,10 @@ struct pci_doe_mb;
+  * @work: Used internally by the mailbox
+  * @doe_mb: Used internally by the mailbox
+  *
++ * Payloads are treated as opaque byte streams which are transmitted verbatim,
++ * without byte-swapping.  If payloads contain little-endian register values,
++ * the caller is responsible for conversion with cpu_to_le32() / le32_to_cpu().
++ *
+  * The payload sizes and rv are specified in bytes with the following
+  * restrictions concerning the protocol.
+  *
+@@ -45,9 +49,9 @@ struct pci_doe_mb;
+  */
+ struct pci_doe_task {
+ 	struct pci_doe_protocol prot;
+-	u32 *request_pl;
++	__le32 *request_pl;
+ 	size_t request_pl_sz;
+-	u32 *response_pl;
++	__le32 *response_pl;
+ 	size_t response_pl_sz;
+ 	int rv;
+ 	void (*complete)(struct pci_doe_task *task);
 
 
