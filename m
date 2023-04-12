@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E91236DEEF9
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D48806DEE25
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbjDLIqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59828 "EHLO
+        id S230463AbjDLIlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231209AbjDLIqd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:33 -0400
+        with ESMTP id S231176AbjDLIkC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9292B7EC5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852F06EAE
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BB8E630D8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D403C433EF;
-        Wed, 12 Apr 2023 08:45:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0606D628ED
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDFFC433D2;
+        Wed, 12 Apr 2023 08:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289135;
-        bh=aPr2HDddyWFuIhSKSV8/6IN3abAJcUmZu3tXAMtxe08=;
+        s=korg; t=1681288679;
+        bh=A7RAqtUDros8ZCN6zVlRp9fwK6d/mLbAyBMh4h5eUOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHgjWD909LQUf/QiQMqrIRCiNZn1P2fQHLwgfp3Z+xTMs4NyaazHxShAoX1hpue+A
-         K3Doz+vDKbY9OPFNzzwjaGWc/GLXw8kpxjWedm39giiIlhU1pxJjHMwXmjDmKKgLly
-         pkk2Oeh3IqlWyZ3XIkUPiKZtSe3io1W2dE+ljQN4=
+        b=zCtWkM/fturZ5eb1aL18wScvD9Wi21jbODze0Fv/WsOQ0zvKWxQa6ojh56b9ZkfAz
+         Q2yFxhx2JZEVp/KKkvGDOJQgtNp0T//n4jpQ36nvGE09p8112v6wW4xHbJR+xOF4Pz
+         288tUl1/tBT3TB4p/0nI97DI6TJUuOu71mmUKH8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 110/164] perf/core: Fix the same task check in perf_event_set_output
-Date:   Wed, 12 Apr 2023 10:33:52 +0200
-Message-Id: <20230412082841.292488848@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        D Scott Phillips <scott@os.amperecomputing.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 52/93] xhci: also avoid the XHCI_ZERO_64B_REGS quirk with a passthrough iommu
+Date:   Wed, 12 Apr 2023 10:33:53 +0200
+Message-Id: <20230412082825.338374877@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: D Scott Phillips <scott@os.amperecomputing.com>
 
-[ Upstream commit 24d3ae2f37d8bc3c14b31d353c5d27baf582b6a6 ]
+commit ecaa4902439298f6b0e29f47424a86b310a9ff4f upstream.
 
-The same task check in perf_event_set_output has some potential issues
-for some usages.
+Previously the quirk was skipped when no iommu was present. The same
+rationale for skipping the quirk also applies in the iommu.passthrough=1
+case.
 
-For the current perf code, there is a problem if using of
-perf_event_open() to have multiple samples getting into the same mmap’d
-memory when they are both attached to the same process.
-https://lore.kernel.org/all/92645262-D319-4068-9C44-2409EF44888E@gmail.com/
-Because the event->ctx is not ready when the perf_event_set_output() is
-invoked in the perf_event_open().
+Skip applying the XHCI_ZERO_64B_REGS quirk if the device's iommu domain is
+passthrough.
 
-Besides the above issue, before the commit bd2756811766 ("perf: Rewrite
-core context handling"), perf record can errors out when sampling with
-a hardware event and a software event as below.
- $ perf record -e cycles,dummy --per-thread ls
- failed to mmap with 22 (Invalid argument)
-That's because that prior to the commit a hardware event and a software
-event are from different task context.
-
-The problem should be a long time issue since commit c3f00c70276d
-("perk: Separate find_get_context() from event initialization").
-
-The task struct is stored in the event->hw.target for each per-thread
-event. It is a more reliable way to determine whether two events are
-attached to the same task.
-
-The event->hw.target was also introduced several years ago by the
-commit 50f16a8bf9d7 ("perf: Remove type specific target pointers"). It
-can not only be used to fix the issue with the current code, but also
-back port to fix the issues with an older kernel.
-
-Note: The event->hw.target was introduced later than commit
-c3f00c70276d. The patch may cannot be applied between the commit
-c3f00c70276d and commit 50f16a8bf9d7. Anybody that wants to back-port
-this at that period may have to find other solutions.
-
-Fixes: c3f00c70276d ("perf: Separate find_get_context() from event initialization")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-Link: https://lkml.kernel.org/r/20230322202449.512091-1-kan.liang@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 12de0a35c996 ("xhci: Add quirk to zero 64bit registers on Renesas PCIe controllers")
+Cc: stable <stable@kernel.org>
+Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230330143056.1390020-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 2aa286b4151b3..7699b99706ad4 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12040,7 +12040,7 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	/*
- 	 * If its not a per-cpu rb, it must be the same task.
- 	 */
--	if (output_event->cpu == -1 && output_event->ctx != event->ctx)
-+	if (output_event->cpu == -1 && output_event->hw.target != event->hw.target)
- 		goto out;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -9,6 +9,7 @@
+  */
  
- 	/*
--- 
-2.39.2
-
+ #include <linux/pci.h>
++#include <linux/iommu.h>
+ #include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/log2.h>
+@@ -225,6 +226,7 @@ int xhci_reset(struct xhci_hcd *xhci, u6
+ static void xhci_zero_64b_regs(struct xhci_hcd *xhci)
+ {
+ 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
++	struct iommu_domain *domain;
+ 	int err, i;
+ 	u64 val;
+ 	u32 intrs;
+@@ -243,7 +245,9 @@ static void xhci_zero_64b_regs(struct xh
+ 	 * an iommu. Doing anything when there is no iommu is definitely
+ 	 * unsafe...
+ 	 */
+-	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !device_iommu_mapped(dev))
++	domain = iommu_get_domain_for_dev(dev);
++	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !domain ||
++	    domain->type == IOMMU_DOMAIN_IDENTITY)
+ 		return;
+ 
+ 	xhci_info(xhci, "Zeroing 64bit base registers, expecting fault\n");
 
 
