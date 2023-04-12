@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BA46DEFAA
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A836DEE29
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231419AbjDLIww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:52:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
+        id S230455AbjDLIlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231429AbjDLIwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5F5A273
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:26 -0700 (PDT)
+        with ESMTP id S231138AbjDLIj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59884186
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2635631A6
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0199CC433D2;
-        Wed, 12 Apr 2023 08:52:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 902F362930
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3660C433EF;
+        Wed, 12 Apr 2023 08:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289538;
-        bh=yfHVAB1ta4cuVF/XZNxPndZG2NyQxCWtZKA2fJQmlaY=;
+        s=korg; t=1681288669;
+        bh=cL22PBSYfvX7dAg/Rl+kGlkmW0y/CcpNb7L+1jRVj+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+IHCoRfcFn20eI807p5TovaDxBp/O0TAK3ZUQJbgqt1yCapiXYSJU16CYAJWkFXy
-         Kc/lxW1/n8a89jhbcykB0rSA+a/jz1v+gQVED0w/D3dFMohEXF3wm1Ojqa/BGSPCkn
-         xA2rTAh7HPT6A5gQoLwZdWaJwj1nmGIKqn0gmKrs=
+        b=qW0bypZSmc0q3MU4s1qmmW/EiIHM4LxXvfHLRj1JmeeJJng1u32BK9DD5jggLUSRT
+         88mdeOW9XdRtgpWAO7p70iPa8f5TYr3SImKYtP36LldUZYrY8aabNL0sIQ9UPemDLW
+         1JGwLte7o+Wu434YCNhkNq0t6WMjWploD64EFH+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.2 120/173] net: stmmac: Add queue reset into stmmac_xdp_open() function
-Date:   Wed, 12 Apr 2023 10:34:06 +0200
-Message-Id: <20230412082842.953599879@linuxfoundation.org>
+        syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 66/93] nilfs2: fix potential UAF of struct nilfs_sc_info in nilfs_segctor_thread()
+Date:   Wed, 12 Apr 2023 10:34:07 +0200
+Message-Id: <20230412082825.905320427@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Yoong Siang <yoong.siang.song@intel.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 24e3fce00c0b557491ff596c0682a29dee6fe848 upstream.
+commit 6be49d100c22ffea3287a4b19d7639d259888e33 upstream.
 
-Queue reset was moved out from __init_dma_rx_desc_rings() and
-__init_dma_tx_desc_rings() functions. Thus, the driver fails to transmit
-and receive packet after XDP prog setup.
+The finalization of nilfs_segctor_thread() can race with
+nilfs_segctor_kill_thread() which terminates that thread, potentially
+causing a use-after-free BUG as KASAN detected.
 
-This commit adds the missing queue reset into stmmac_xdp_open() function.
+At the end of nilfs_segctor_thread(), it assigns NULL to "sc_task" member
+of "struct nilfs_sc_info" to indicate the thread has finished, and then
+notifies nilfs_segctor_kill_thread() of this using waitqueue
+"sc_wait_task" on the struct nilfs_sc_info.
 
-Fixes: f9ec5723c3db ("net: ethernet: stmicro: stmmac: move queue reset to dedicated functions")
-Cc: <stable@vger.kernel.org> # 6.0+
-Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Link: https://lore.kernel.org/r/20230404044823.3226144-1-yoong.siang.song@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+However, here, immediately after the NULL assignment to "sc_task", it is
+possible that nilfs_segctor_kill_thread() will detect it and return to
+continue the deallocation, freeing the nilfs_sc_info structure before the
+thread does the notification.
+
+This fixes the issue by protecting the NULL assignment to "sc_task" and
+its notification, with spinlock "sc_state_lock" of the struct
+nilfs_sc_info.  Since nilfs_segctor_kill_thread() does a final check to
+see if "sc_task" is NULL with "sc_state_lock" locked, this can eliminate
+the race.
+
+Link: https://lkml.kernel.org/r/20230327175318.8060-1-konishi.ryusuke@gmail.com
+Reported-by: syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com
+Link: https://lkml.kernel.org/r/00000000000000660d05f7dfa877@google.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nilfs2/segment.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -6629,6 +6629,8 @@ int stmmac_xdp_open(struct net_device *d
- 		goto init_error;
- 	}
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2609,11 +2609,10 @@ static int nilfs_segctor_thread(void *ar
+ 	goto loop;
  
-+	stmmac_reset_queues_param(priv);
-+
- 	/* DMA CSR Channel configuration */
- 	for (chan = 0; chan < dma_csr_ch; chan++) {
- 		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
+  end_thread:
+-	spin_unlock(&sci->sc_state_lock);
+-
+ 	/* end sync. */
+ 	sci->sc_task = NULL;
+ 	wake_up(&sci->sc_wait_task); /* for nilfs_segctor_kill_thread() */
++	spin_unlock(&sci->sc_state_lock);
+ 	return 0;
+ }
+ 
 
 
