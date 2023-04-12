@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCB86DEFAD
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 452DD6DEEF4
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbjDLIxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41868 "EHLO
+        id S231130AbjDLIqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:46:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231430AbjDLIwz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:55 -0400
+        with ESMTP id S231161AbjDLIqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A750A5D4
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C6627AA7
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFBFE631AB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7EFC433EF;
-        Wed, 12 Apr 2023 08:52:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D267630F9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F7C8C433EF;
+        Wed, 12 Apr 2023 08:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289546;
-        bh=42AdxJVvxg7jLApAnNaNM9tNWle6YWAIPJ+GVQZ8AzU=;
+        s=korg; t=1681289168;
+        bh=M0pOMAesmv9+NrTgGaXjIPREvL0v4vzo8Aqvu0uGCus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wV3Tz2D8TRCMtmG+frWPraEmubpu7TU4fiB4h/nIMxvzUdRp69b+dUAm0Yn5jhOOw
-         u5xAZNQ2wVNzH1jHOJlXgvXd2ubwHNbUlF1u5JNl8OQQnC3fpnXKvmPrn85XlgiYdA
-         eulqNXj9LxraHc8+TXgNfbdYr7+2xrn3v4XoMdL4=
+        b=V1D4uIW5DqiEAG/4NJB43dWiTx9LWlFan5qsQu6iCHULGmi18XkUD9FpfYj/r45JF
+         EUM2c7Rw5tNVz9bvU2q7uY56rUwCL5GqG36R4eyvHYDNShCPwAxBRsdayaH6wmPngc
+         P/t0Dtu7B7VdbtwivtpDNgkgB3eFQMYqRkoAd5Zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 140/173] perf/core: Fix the same task check in perf_event_set_output
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.1 144/164] drm/amdgpu: for S0ix, skip SDMA 5.x+ suspend/resume
 Date:   Wed, 12 Apr 2023 10:34:26 +0200
-Message-Id: <20230412082843.760563841@linuxfoundation.org>
+Message-Id: <20230412082842.730050483@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 24d3ae2f37d8bc3c14b31d353c5d27baf582b6a6 ]
+commit 2a7798ea7390fd78f191c9e9bf68f5581d3b4a02 upstream.
 
-The same task check in perf_event_set_output has some potential issues
-for some usages.
+SDMA 5.x is part of the GFX block so it's controlled via
+GFXOFF.  Skip suspend as it should be handled the same
+as GFX.
 
-For the current perf code, there is a problem if using of
-perf_event_open() to have multiple samples getting into the same mmap’d
-memory when they are both attached to the same process.
-https://lore.kernel.org/all/92645262-D319-4068-9C44-2409EF44888E@gmail.com/
-Because the event->ctx is not ready when the perf_event_set_output() is
-invoked in the perf_event_open().
+v2: drop SDMA 4.x.  That requires special handling.
 
-Besides the above issue, before the commit bd2756811766 ("perf: Rewrite
-core context handling"), perf record can errors out when sampling with
-a hardware event and a software event as below.
- $ perf record -e cycles,dummy --per-thread ls
- failed to mmap with 22 (Invalid argument)
-That's because that prior to the commit a hardware event and a software
-event are from different task context.
-
-The problem should be a long time issue since commit c3f00c70276d
-("perk: Separate find_get_context() from event initialization").
-
-The task struct is stored in the event->hw.target for each per-thread
-event. It is a more reliable way to determine whether two events are
-attached to the same task.
-
-The event->hw.target was also introduced several years ago by the
-commit 50f16a8bf9d7 ("perf: Remove type specific target pointers"). It
-can not only be used to fix the issue with the current code, but also
-back port to fix the issues with an older kernel.
-
-Note: The event->hw.target was introduced later than commit
-c3f00c70276d. The patch may cannot be applied between the commit
-c3f00c70276d and commit 50f16a8bf9d7. Anybody that wants to back-port
-this at that period may have to find other solutions.
-
-Fixes: c3f00c70276d ("perf: Separate find_get_context() from event initialization")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-Link: https://lkml.kernel.org/r/20230322202449.512091-1-kan.liang@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12155,7 +12155,7 @@ perf_event_set_output(struct perf_event
- 	/*
- 	 * If its not a per-cpu rb, it must be the same task.
- 	 */
--	if (output_event->cpu == -1 && output_event->ctx != event->ctx)
-+	if (output_event->cpu == -1 && output_event->hw.target != event->hw.target)
- 		goto out;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3034,6 +3034,12 @@ static int amdgpu_device_ip_suspend_phas
+ 		     adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_MES))
+ 			continue;
  
- 	/*
++		/* SDMA 5.x+ is part of GFX power domain so it's covered by GFXOFF */
++		if (adev->in_s0ix &&
++		    (adev->ip_versions[SDMA0_HWIP][0] >= IP_VERSION(5, 0, 0)) &&
++		    (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_SDMA))
++			continue;
++
+ 		/* XXX handle errors */
+ 		r = adev->ip_blocks[i].version->funcs->suspend(adev);
+ 		/* XXX handle errors */
 
 
