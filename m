@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B046DEFBE
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD636DEED0
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231436AbjDLIxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43020 "EHLO
+        id S230391AbjDLIpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231429AbjDLIxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:30 -0400
+        with ESMTP id S231274AbjDLIoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 536EA9007
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F30EB6A49
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A754562C6E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD6CC4339B;
-        Wed, 12 Apr 2023 08:52:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4CC8630CA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0CF0C433D2;
+        Wed, 12 Apr 2023 08:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289567;
-        bh=bQNSIlfoowlZAxsVwrWOChNZgJI9gpSXvSPHeUNqQoI=;
+        s=korg; t=1681289069;
+        bh=I0+46HlBogmXBSNOixqGDnQmBCzm44ivNBTQu28y+8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtZrZ7yayeRcvp4hU7aDzbz3xoR5khI/apwoCVeIurIaV/baYkCOAipVhsFqTKfXi
-         iYvdDKHTTVPGXJja565WgwPEwvd+fxAY0B5XwYOlo6NYPqFYMKumgs10Xg68CabEND
-         g9wxQTaQaJ2JhPU8/h6eh3dlS87iXjsr03uZmqAI=
+        b=XAJ0qhE+9rEpSXSmLtE8PHE4Y2hKzNO7CZ2Tj1DIjWtr+bHBpdA0rUV/xhga4a0ho
+         IBoPCjpnHLC6UhlOVxRs/I4K5q/temua5Rk/kzNRHvoE+m9+/xr9f+aYvkhxWwjNld
+         4Sq9yN1Xd2wxrF43jX2awv8XkvawYmJmvfC6fGA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        "Tom Zanussi" <zanussi@kernel.org>,
-        Tze-nan Wu <Tze-nan.Wu@mediatek.com>,
+        patches@lists.linux.dev,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.2 121/173] tracing/synthetic: Fix races on freeing last_cmd
+Subject: [PATCH 6.1 125/164] tracing/osnoise: Fix notify new tracing_max_latency
 Date:   Wed, 12 Apr 2023 10:34:07 +0200
-Message-Id: <20230412082843.009363649@linuxfoundation.org>
+Message-Id: <20230412082841.908299598@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,184 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-commit 4ccf11c4e8a8e051499d53a12f502196c97a758e upstream.
+commit d3cba7f02cd82118c32651c73374d8a5a459d9a6 upstream.
 
-Currently, the "last_cmd" variable can be accessed by multiple processes
-asynchronously when multiple users manipulate synthetic_events node
-at the same time, it could lead to use-after-free or double-free.
+osnoise/timerlat tracers are reporting new max latency on instances
+where the tracing is off, creating inconsistencies between the max
+reported values in the trace and in the tracing_max_latency. Thus
+only report new tracing_max_latency on active tracing instances.
 
-This patch add "lastcmd_mutex" to prevent "last_cmd" from being accessed
-asynchronously.
+Link: https://lkml.kernel.org/r/ecd109fde4a0c24ab0f00ba1e9a144ac19a91322.1680104184.git.bristot@kernel.org
 
-================================================================
-
-It's easy to reproduce in the KASAN environment by running the two
-scripts below in different shells.
-
-script 1:
-        while :
-        do
-                echo -n -e '\x88' > /sys/kernel/tracing/synthetic_events
-        done
-
-script 2:
-        while :
-        do
-                echo -n -e '\xb0' > /sys/kernel/tracing/synthetic_events
-        done
-
-================================================================
-double-free scenario:
-
-    process A                       process B
--------------------               ---------------
-1.kstrdup last_cmd
-                                  2.free last_cmd
-3.free last_cmd(double-free)
-
-================================================================
-use-after-free scenario:
-
-    process A                       process B
--------------------               ---------------
-1.kstrdup last_cmd
-                                  2.free last_cmd
-3.tracing_log_err(use-after-free)
-
-================================================================
-
-Appendix 1. KASAN report double-free:
-
-BUG: KASAN: double-free in kfree+0xdc/0x1d4
-Free of addr ***** by task sh/4879
-Call trace:
-        ...
-        kfree+0xdc/0x1d4
-        create_or_delete_synth_event+0x60/0x1e8
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Allocated by task 4879:
-        ...
-        kstrdup+0x5c/0x98
-        create_or_delete_synth_event+0x6c/0x1e8
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Freed by task 5464:
-        ...
-        kfree+0xdc/0x1d4
-        create_or_delete_synth_event+0x60/0x1e8
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-================================================================
-Appendix 2. KASAN report use-after-free:
-
-BUG: KASAN: use-after-free in strlen+0x5c/0x7c
-Read of size 1 at addr ***** by task sh/5483
-sh: CPU: 7 PID: 5483 Comm: sh
-        ...
-        __asan_report_load1_noabort+0x34/0x44
-        strlen+0x5c/0x7c
-        tracing_log_err+0x60/0x444
-        create_or_delete_synth_event+0xc4/0x204
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Allocated by task 5483:
-        ...
-        kstrdup+0x5c/0x98
-        create_or_delete_synth_event+0x80/0x204
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Freed by task 5480:
-        ...
-        kfree+0xdc/0x1d4
-        create_or_delete_synth_event+0x74/0x204
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230321110444.1587-1-Tze-nan.Wu@mediatek.com
-
-Fixes: 27c888da9867 ("tracing: Remove size restriction on synthetic event cmd error logging")
 Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: "Tom Zanussi" <zanussi@kernel.org>
-Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_synth.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ kernel/trace/trace_osnoise.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -44,14 +44,21 @@ enum { ERRORS };
- 
- static const char *err_text[] = { ERRORS };
- 
-+DEFINE_MUTEX(lastcmd_mutex);
- static char *last_cmd;
- 
- static int errpos(const char *str)
- {
-+	int ret = 0;
-+
-+	mutex_lock(&lastcmd_mutex);
- 	if (!str || !last_cmd)
--		return 0;
-+		goto out;
- 
--	return err_pos(last_cmd, str);
-+	ret = err_pos(last_cmd, str);
-+ out:
-+	mutex_unlock(&lastcmd_mutex);
-+	return ret;
- }
- 
- static void last_cmd_set(const char *str)
-@@ -59,18 +66,22 @@ static void last_cmd_set(const char *str
- 	if (!str)
- 		return;
- 
-+	mutex_lock(&lastcmd_mutex);
- 	kfree(last_cmd);
--
- 	last_cmd = kstrdup(str, GFP_KERNEL);
-+	mutex_unlock(&lastcmd_mutex);
- }
- 
- static void synth_err(u8 err_type, u16 err_pos)
- {
-+	mutex_lock(&lastcmd_mutex);
- 	if (!last_cmd)
--		return;
-+		goto out;
- 
- 	tracing_log_err(NULL, "synthetic_events", last_cmd, err_text,
- 			err_type, err_pos);
-+ out:
-+	mutex_unlock(&lastcmd_mutex);
- }
- 
- static int create_synth_event(const char *raw_command);
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -1270,7 +1270,7 @@ static void notify_new_max_latency(u64 l
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(inst, &osnoise_instances, list) {
+ 		tr = inst->tr;
+-		if (tr->max_latency < latency) {
++		if (tracer_tracing_is_on(tr) && tr->max_latency < latency) {
+ 			tr->max_latency = latency;
+ 			latency_fsnotify(tr);
+ 		}
 
 
