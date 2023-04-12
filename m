@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 508876DEE6C
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B409A6DEF26
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbjDLIli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
+        id S231259AbjDLIsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:48:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230411AbjDLIkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:51 -0400
+        with ESMTP id S231265AbjDLIsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E636EA5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A679775
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:47:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24194627F2
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38313C4339B;
-        Wed, 12 Apr 2023 08:39:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E49163079
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87A6EC4339B;
+        Wed, 12 Apr 2023 08:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288797;
-        bh=3tqKWDOYZheOCgxApj3yWUg5jfqIUXGGOah/Uc7tmtY=;
+        s=korg; t=1681289250;
+        bh=B8OBYY5u9synIXP/5TRDcOQmDm2WKrod85l+KCZGXCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2grCibmOn4Q33Y+ucfvGf2XZFYCazd/pK4JoYlhZuV5iYHn+4U5Jq4nDvU1WkdlY
-         FAknur4/aLO5Jp9f0Fb4l0OFZFdoWMwAjevMmrDeLc4wwi9Hsga20lDyfPCLFhPsrf
-         ldCw9svL8oJQScALkrkIPTcBKvwOmIXA+QIpDnkk=
+        b=znnXxBCpMeEOQm/GBgziWcjwYWR+Kk9D25mDQkLABTvzhZ2ZgrwErSjEUaIe9jm8u
+         oT8tJBdHJMW6QCIv2ul5bPD1QXhigi0VA4tbuJ5MIbFVG2//Xm91kZ8PXU0u7Cefeb
+         rLE3bTPnMST4G+8xKV2BOLnlWKiXdHvDXWPO/xag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 013/164] pwm: hibvt: Explicitly set .polarity in .get_state()
+Subject: [PATCH 6.2 009/173] ASoC: SOF: ipc4: Ensure DSP is in D0I0 during sof_ipc4_set_get_data()
 Date:   Wed, 12 Apr 2023 10:32:15 +0200
-Message-Id: <20230412082837.410747995@linuxfoundation.org>
+Message-Id: <20230412082838.488490652@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-[ Upstream commit 6f57937980142715e927697a6ffd2050f38ed6f6 ]
+[ Upstream commit e51f49512d98783b90799c9cc2002895ec3aa0eb ]
 
-The driver only both polarities. Complete the implementation of
-.get_state() by setting .polarity according to the configured hardware
-state.
+The set_get_data() IPC op bypasses the check for the no_pm flag as done
+with the regular IPC tx_msg op. Since set_get_data should be performed
+when the DSP is in D0I0, set the DSP power state to D0I0 before sending
+the IPC's in sof_ipc4_set_get_data().
 
-Fixes: d09f00810850 ("pwm: Add PWM driver for HiSilicon BVT SOCs")
-Link: https://lore.kernel.org/r/20230228135508.1798428-2-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: ceb89acc4dc8 ("ASoC: SOF: ipc4: Add support for mandatory message handling functionality")
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230322085538.10214-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-hibvt.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/sof/ipc4.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/pwm/pwm-hibvt.c b/drivers/pwm/pwm-hibvt.c
-index 12c05c155cab0..1b9274c5ad872 100644
---- a/drivers/pwm/pwm-hibvt.c
-+++ b/drivers/pwm/pwm-hibvt.c
-@@ -146,6 +146,7 @@ static int hibvt_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+diff --git a/sound/soc/sof/ipc4.c b/sound/soc/sof/ipc4.c
+index 74cd7e9560193..280fc89043b16 100644
+--- a/sound/soc/sof/ipc4.c
++++ b/sound/soc/sof/ipc4.c
+@@ -393,6 +393,9 @@ static int sof_ipc4_tx_msg(struct snd_sof_dev *sdev, void *msg_data, size_t msg_
+ static int sof_ipc4_set_get_data(struct snd_sof_dev *sdev, void *data,
+ 				 size_t payload_bytes, bool set)
+ {
++	const struct sof_dsp_power_state target_state = {
++			.state = SOF_DSP_PM_D0,
++	};
+ 	size_t payload_limit = sdev->ipc->max_payload_size;
+ 	struct sof_ipc4_msg *ipc4_msg = data;
+ 	struct sof_ipc4_msg tx = {{ 0 }};
+@@ -423,6 +426,11 @@ static int sof_ipc4_set_get_data(struct snd_sof_dev *sdev, void *data,
  
- 	value = readl(base + PWM_CTRL_ADDR(pwm->hwpwm));
- 	state->enabled = (PWM_ENABLE_MASK & value);
-+	state->polarity = (PWM_POLARITY_MASK & value) ? PWM_POLARITY_INVERSED : PWM_POLARITY_NORMAL;
+ 	tx.extension |= SOF_IPC4_MOD_EXT_MSG_FIRST_BLOCK(1);
  
- 	return 0;
- }
++	/* ensure the DSP is in D0i0 before sending IPC */
++	ret = snd_sof_dsp_set_power_state(sdev, &target_state);
++	if (ret < 0)
++		return ret;
++
+ 	/* Serialise IPC TX */
+ 	mutex_lock(&sdev->ipc->tx_mutex);
+ 
 -- 
 2.39.2
 
