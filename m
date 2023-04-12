@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFBED6DEF73
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 662E16DEE0B
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231337AbjDLIvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
+        id S230095AbjDLIji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231314AbjDLIu6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:58 -0400
+        with ESMTP id S230415AbjDLIjZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097A06E91
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0049D72A0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D19863177
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7223DC433EF;
-        Wed, 12 Apr 2023 08:50:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D5D3629BC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72050C433EF;
+        Wed, 12 Apr 2023 08:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289433;
-        bh=fEOFi/Fl8HVNL7NhrdGFNEhg55LDFI/anV72b7N0fM0=;
+        s=korg; t=1681288613;
+        bh=Ni5WgqAd/x+43oEnTth3WHu4cNR8PvwnKPSmFqQL+ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lAKOiPFX73LbZqMWZsW3xhu6uNIpxATnTCvD//JNgOLeKkQhtHhEe1XmJCeoiTf42
-         x6rcCcftCrvwbrkIUsKqTh6JgZzOJdQKHa4LRwKinDce2t5NtkJEnZlX7o0tJrVq+k
-         /eABDnQAZuny+5Rtg9N9NCP2QNfgOPtnMLCf1B1s=
+        b=Inkd7/GRNsXRFrwdifD2n1m8oGJg4b6ysgrhlNYGYHXjgXTDpfaxT5nvD761Vnzdj
+         V3tK/uuPKh5GMWRuIC5TrC8CJrp4EOtHcEuUM4Sk7AldAkXTgQmOFp0ur5Pvacv+AU
+         BFMSF500R8Nj/x0xRcEsHmi86/3PxotfyuL+zTvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric DeVolder <eric.devolder@oracle.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        stable@kernel.org
-Subject: [PATCH 6.2 098/173] x86/ACPI/boot: Use FADT version to check support for online capable
-Date:   Wed, 12 Apr 2023 10:33:44 +0200
-Message-Id: <20230412082842.034279226@linuxfoundation.org>
+        patches@lists.linux.dev, Zhi Li <yieli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 44/93] sunrpc: only free unix grouplist after RCU settles
+Date:   Wed, 12 Apr 2023 10:33:45 +0200
+Message-Id: <20230412082825.001176111@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit a74fabfbd1b7013045afc8cc541e6cab3360ccb5 upstream.
+[ Upstream commit 5085e41f9e83a1bec51da1f20b54f2ec3a13a3fe ]
 
-ACPI 6.3 introduced the online capable bit, and also introduced MADT
-version 5.
+While the unix_gid object is rcu-freed, the group_info list that it
+contains is not. Ensure that we only put the group list reference once
+we are really freeing the unix_gid object.
 
-Latter was used to distinguish whether the offset storing online capable
-could be used. However ACPI 6.2b has MADT version "45" which is for
-an errata version of the ACPI 6.2 spec.  This means that the Linux code
-for detecting availability of MADT will mistakenly flag ACPI 6.2b as
-supporting online capable which is inaccurate as it's an ACPI 6.3 feature.
-
-Instead use the FADT major and minor revision fields to distinguish this.
-
-  [ bp: Massage. ]
-
-Fixes: aa06e20f1be6 ("x86/ACPI: Don't add CPUs that are not online capable")
-Reported-by: Eric DeVolder <eric.devolder@oracle.com>
-Reported-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/943d2445-84df-d939-f578-5d8240d342cc@unsolicited.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Zhi Li <yieli@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2183056
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Fixes: fd5d2f78261b ("SUNRPC: Make server side AUTH_UNIX use lockless lookups")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/acpi/boot.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/sunrpc/svcauth_unix.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -146,7 +146,11 @@ static int __init acpi_parse_madt(struct
+diff --git a/net/sunrpc/svcauth_unix.c b/net/sunrpc/svcauth_unix.c
+index d7ed7d49115ac..a7d107167c05c 100644
+--- a/net/sunrpc/svcauth_unix.c
++++ b/net/sunrpc/svcauth_unix.c
+@@ -415,14 +415,23 @@ static int unix_gid_hash(kuid_t uid)
+ 	return hash_long(from_kuid(&init_user_ns, uid), GID_HASHBITS);
+ }
  
- 		pr_debug("Local APIC address 0x%08x\n", madt->address);
- 	}
--	if (madt->header.revision >= 5)
+-static void unix_gid_put(struct kref *kref)
++static void unix_gid_free(struct rcu_head *rcu)
+ {
+-	struct cache_head *item = container_of(kref, struct cache_head, ref);
+-	struct unix_gid *ug = container_of(item, struct unix_gid, h);
++	struct unix_gid *ug = container_of(rcu, struct unix_gid, rcu);
++	struct cache_head *item = &ug->h;
 +
-+	/* ACPI 6.3 and newer support the online capable bit. */
-+	if (acpi_gbl_FADT.header.revision > 6 ||
-+	    (acpi_gbl_FADT.header.revision == 6 &&
-+	     acpi_gbl_FADT.minor_revision >= 3))
- 		acpi_support_online_capable = true;
+ 	if (test_bit(CACHE_VALID, &item->flags) &&
+ 	    !test_bit(CACHE_NEGATIVE, &item->flags))
+ 		put_group_info(ug->gi);
+-	kfree_rcu(ug, rcu);
++	kfree(ug);
++}
++
++static void unix_gid_put(struct kref *kref)
++{
++	struct cache_head *item = container_of(kref, struct cache_head, ref);
++	struct unix_gid *ug = container_of(item, struct unix_gid, h);
++
++	call_rcu(&ug->rcu, unix_gid_free);
+ }
  
- 	default_acpi_madt_oem_check(madt->header.oem_id,
+ static int unix_gid_match(struct cache_head *corig, struct cache_head *cnew)
+-- 
+2.39.2
+
 
 
