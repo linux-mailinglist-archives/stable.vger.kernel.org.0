@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C796DEE09
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 022416DEF6F
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230339AbjDLIjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
+        id S230292AbjDLIvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230298AbjDLIjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:19 -0400
+        with ESMTP id S231350AbjDLIuy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B0F8684
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26559756
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3060A63005
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FDFFC433EF;
-        Wed, 12 Apr 2023 08:36:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C00326312D
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D57CBC433EF;
+        Wed, 12 Apr 2023 08:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288608;
-        bh=94DNZe4/0pwQgUtv5eEMlQYVN7nvR134wNycWytJb+8=;
+        s=korg; t=1681289431;
+        bh=mXPxwdqctaWuvNo3Mr/rvXBuSKg6oqk9IDTnsDFszDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzJYzID6f7tgxlhZSA/RGM327l8TRKauGv5XvebIgt9T8YxjfWHWRIgWCshdpUilu
-         WHbLjM4ntDMydNpZjQgY5iqkCx2RSZNorCrrvRXwb0N0YTLI+8VnI9nHUhsuvGlIFY
-         FUupGVkUYaFOyf4oVNECqTD1MikmzkKr/9q+HBKM=
+        b=ktIdVB/emozLCgvjYkzoeWgnZmvMrMQg0Pu6kvc3OIdLN/RHEKZA4tjtO6rDCc+oM
+         uNB7ep6eOV3f04qpmdsmhoa1iBamhAVJFV11ySvmqkT4t5SKRBXht5x1PwIGQ9V21Y
+         j3acj9payoA/x+MPO2BK4cBoUZTUSwDv9hjf8ru0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siddharth Vadapalli <s-vadapalli@ti.com>,
-        Roger Quadros <rogerq@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 42/93] net: ethernet: ti: am65-cpsw: Fix mdio cleanup in probe
+        patches@lists.linux.dev, Miguel Luis <miguel.luis@oracle.com>,
+        Boris Ostrovsky <boris.ovstrosky@oracle.com>,
+        Eric DeVolder <eric.devolder@oracle.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        David R <david@unsolicited.net>, stable@kernel.org
+Subject: [PATCH 6.2 097/173] x86/acpi/boot: Correct acpi_is_processor_usable() check
 Date:   Wed, 12 Apr 2023 10:33:43 +0200
-Message-Id: <20230412082824.910408370@linuxfoundation.org>
+Message-Id: <20230412082841.994927947@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Vadapalli <s-vadapalli@ti.com>
+From: Eric DeVolder <eric.devolder@oracle.com>
 
-[ Upstream commit c6b486fb33680ad5a3a6390ce693c835caaae3f7 ]
+commit fed8d8773b8ea68ad99d9eee8c8343bef9da2c2c upstream.
 
-In the am65_cpsw_nuss_probe() function's cleanup path, the call to
-of_platform_device_destroy() for the common->mdio_dev device is invoked
-unconditionally. It is possible that either the MDIO node is not present
-in the device-tree, or the MDIO node is disabled in the device-tree. In
-both these cases, the MDIO device is not created, resulting in a NULL
-pointer dereference when the of_platform_device_destroy() function is
-invoked on the common->mdio_dev device on the cleanup path.
+The logic in acpi_is_processor_usable() requires the online capable
+bit be set for hotpluggable CPUs.  The online capable bit has been
+introduced in ACPI 6.3.
 
-Fix this by ensuring that the common->mdio_dev device exists, before
-attempting to invoke of_platform_device_destroy().
+However, for ACPI revisions < 6.3 which do not support that bit, CPUs
+should be reported as usable, not the other way around.
 
-Fixes: a45cfcc69a25 ("net: ethernet: ti: am65-cpsw-nuss: use of_platform_device_create() for mdio")
-Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Reviewed-by: Roger Quadros <rogerq@kernel.org>
-Link: https://lore.kernel.org/r/20230403090321.835877-1-s-vadapalli@ti.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reverse the check.
+
+  [ bp: Rewrite commit message. ]
+
+Fixes: e2869bd7af60 ("x86/acpi/boot: Do not register processors that cannot be onlined for x2APIC")
+Suggested-by: Miguel Luis <miguel.luis@oracle.com>
+Suggested-by: Boris Ostrovsky <boris.ovstrosky@oracle.com>
+Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Tested-by: David R <david@unsolicited.net>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230327191026.3454-2-eric.devolder@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/acpi/boot.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 37b9a798dd624..692c291d9a01a 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -2784,7 +2784,8 @@ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
- 	return 0;
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -193,7 +193,8 @@ static bool __init acpi_is_processor_usa
+ 	if (lapic_flags & ACPI_MADT_ENABLED)
+ 		return true;
  
- err_of_clear:
--	of_platform_device_destroy(common->mdio_dev, NULL);
-+	if (common->mdio_dev)
-+		of_platform_device_destroy(common->mdio_dev, NULL);
- err_pm_clear:
- 	pm_runtime_put_sync(dev);
- 	pm_runtime_disable(dev);
-@@ -2813,7 +2814,8 @@ static int am65_cpsw_nuss_remove(struct platform_device *pdev)
- 	 */
- 	am65_cpsw_nuss_cleanup_ndev(common);
+-	if (acpi_support_online_capable && (lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
++	if (!acpi_support_online_capable ||
++	    (lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
+ 		return true;
  
--	of_platform_device_destroy(common->mdio_dev, NULL);
-+	if (common->mdio_dev)
-+		of_platform_device_destroy(common->mdio_dev, NULL);
- 
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--- 
-2.39.2
-
+ 	return false;
 
 
