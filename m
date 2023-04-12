@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C386DEFB0
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6756DEFBB
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231389AbjDLIxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40720 "EHLO
+        id S231453AbjDLIxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231400AbjDLIxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9099E976F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:40 -0700 (PDT)
+        with ESMTP id S231442AbjDLIx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499478A6F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F1BB62B5B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8CF4C433EF;
-        Wed, 12 Apr 2023 08:52:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3743D631BE
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA1CC433D2;
+        Wed, 12 Apr 2023 08:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289554;
-        bh=0Y3pMFNvCu9xp2qFzrwCRF6oVl0EAjUt1llisrYq/v0=;
+        s=korg; t=1681289556;
+        bh=4aQrJerB+MWE5Oj4yX/9WYrE4NapjAY9hboYbKt03Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Ew0UCEBobhbUyDW7PFLgyIPzeFAbtYamJu5iT13UMSJOMkW137iSxb//EWDCrLCw
-         0VezF8DJ9OHPKX52eQJWfMywCdJnTifwZYt7EgCg3W2S1JlfrGhNl1Coel3NAHxm00
-         JZTVe1x+VgRmgGqL3OohSaih+gkQt0o9r3FYSbTA=
+        b=V0R/9dL2PUeFUdcUJrlBoUDUSRLbjy0Gh+zjd7J355uotpvF7rUGSysnY07FwIc7f
+         QNAFhUGlBqf5nN47jglNyYrVuMfLvxB0GQGAA8PQ0ZC4o2E3aXriuXl6fBS9dxNIfY
+         iXoHFPkEkypSRfYtGSVUDtow/AKPDY8bhnvGynBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yafang Shao <laoar.shao@gmail.com>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 143/173] mm: vmalloc: avoid warn_alloc noise caused by fatal signal
-Date:   Wed, 12 Apr 2023 10:34:29 +0200
-Message-Id: <20230412082843.872073782@linuxfoundation.org>
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 6.2 144/173] wifi: mt76: mt7921: fix fw used for offload check for mt7922
+Date:   Wed, 12 Apr 2023 10:34:30 +0200
+Message-Id: <20230412082843.921877932@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -46,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,122 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit f349b15e183d6956f1b63d6ff57849ff10c7edd5 upstream.
+commit eb85df0a5643612285f61f38122564498d0c49f7 upstream.
 
-There're some suspicious warn_alloc on my test serer, for example,
+Fix the firmware version used for offload capability check used by 0x0616
+devices. This path enables offload capabilities for 0x0616 devices.
 
-[13366.518837] warn_alloc: 81 callbacks suppressed
-[13366.518841] test_verifier: vmalloc error: size 4096, page order 0, failed to allocate pages, mode:0x500dc2(GFP_HIGHUSER|__GFP_ZERO|__GFP_ACCOUNT), nodemask=(null),cpuset=/,mems_allowed=0-1
-[13366.522240] CPU: 30 PID: 722463 Comm: test_verifier Kdump: loaded Tainted: G        W  O       6.2.0+ #638
-[13366.524216] Call Trace:
-[13366.524702]  <TASK>
-[13366.525148]  dump_stack_lvl+0x6c/0x80
-[13366.525712]  dump_stack+0x10/0x20
-[13366.526239]  warn_alloc+0x119/0x190
-[13366.526783]  ? alloc_pages_bulk_array_mempolicy+0x9e/0x2a0
-[13366.527470]  __vmalloc_area_node+0x546/0x5b0
-[13366.528066]  __vmalloc_node_range+0xc2/0x210
-[13366.528660]  __vmalloc_node+0x42/0x50
-[13366.529186]  ? bpf_prog_realloc+0x53/0xc0
-[13366.529743]  __vmalloc+0x1e/0x30
-[13366.530235]  bpf_prog_realloc+0x53/0xc0
-[13366.530771]  bpf_patch_insn_single+0x80/0x1b0
-[13366.531351]  bpf_jit_blind_constants+0xe9/0x1c0
-[13366.531932]  ? __free_pages+0xee/0x100
-[13366.532457]  ? free_large_kmalloc+0x58/0xb0
-[13366.533002]  bpf_int_jit_compile+0x8c/0x5e0
-[13366.533546]  bpf_prog_select_runtime+0xb4/0x100
-[13366.534108]  bpf_prog_load+0x6b1/0xa50
-[13366.534610]  ? perf_event_task_tick+0x96/0xb0
-[13366.535151]  ? security_capable+0x3a/0x60
-[13366.535663]  __sys_bpf+0xb38/0x2190
-[13366.536120]  ? kvm_clock_get_cycles+0x9/0x10
-[13366.536643]  __x64_sys_bpf+0x1c/0x30
-[13366.537094]  do_syscall_64+0x38/0x90
-[13366.537554]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-[13366.538107] RIP: 0033:0x7f78310f8e29
-[13366.538561] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 17 e0 2c 00 f7 d8 64 89 01 48
-[13366.540286] RSP: 002b:00007ffe2a61fff8 EFLAGS: 00000206 ORIG_RAX: 0000000000000141
-[13366.541031] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f78310f8e29
-[13366.541749] RDX: 0000000000000080 RSI: 00007ffe2a6200b0 RDI: 0000000000000005
-[13366.542470] RBP: 00007ffe2a620010 R08: 00007ffe2a6202a0 R09: 00007ffe2a6200b0
-[13366.543183] R10: 00000000000f423e R11: 0000000000000206 R12: 0000000000407800
-[13366.543900] R13: 00007ffe2a620540 R14: 0000000000000000 R15: 0000000000000000
-[13366.544623]  </TASK>
-[13366.545260] Mem-Info:
-[13366.546121] active_anon:81319 inactive_anon:20733 isolated_anon:0
- active_file:69450 inactive_file:5624 isolated_file:0
- unevictable:0 dirty:10 writeback:0
- slab_reclaimable:69649 slab_unreclaimable:48930
- mapped:27400 shmem:12868 pagetables:4929
- sec_pagetables:0 bounce:0
- kernel_misc_reclaimable:0
- free:15870308 free_pcp:142935 free_cma:0
-[13366.551886] Node 0 active_anon:224836kB inactive_anon:33528kB active_file:175692kB inactive_file:13752kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:59248kB dirty:32kB writeback:0kB shmem:18252kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:4616kB pagetables:10664kB sec_pagetables:0kB all_unreclaimable? no
-[13366.555184] Node 1 active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:50352kB dirty:8kB writeback:0kB shmem:33220kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:3896kB pagetables:9052kB sec_pagetables:0kB all_unreclaimable? no
-[13366.558262] Node 0 DMA free:15360kB boost:0kB min:304kB low:380kB high:456kB reserved_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB present:15992kB managed:15360kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
-[13366.560821] lowmem_reserve[]: 0 2735 31873 31873 31873
-[13366.561981] Node 0 DMA32 free:2790904kB boost:0kB min:56028kB low:70032kB high:84036kB reserved_highatomic:0KB active_anon:1936kB inactive_anon:20kB active_file:396kB inactive_file:344kB unevictable:0kB writepending:0kB present:3129200kB managed:2801520kB mlocked:0kB bounce:0kB free_pcp:5188kB local_pcp:0kB free_cma:0kB
-[13366.565148] lowmem_reserve[]: 0 0 29137 29137 29137
-[13366.566168] Node 0 Normal free:28533824kB boost:0kB min:596740kB low:745924kB high:895108kB reserved_highatomic:28672KB active_anon:222900kB inactive_anon:33508kB active_file:175296kB inactive_file:13408kB unevictable:0kB writepending:32kB present:30408704kB managed:29837172kB mlocked:0kB bounce:0kB free_pcp:295724kB local_pcp:0kB free_cma:0kB
-[13366.569485] lowmem_reserve[]: 0 0 0 0 0
-[13366.570416] Node 1 Normal free:32141144kB boost:0kB min:660504kB low:825628kB high:990752kB reserved_highatomic:69632KB active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB writepending:8kB present:33554432kB managed:33025372kB mlocked:0kB bounce:0kB free_pcp:270880kB local_pcp:46860kB free_cma:0kB
-[13366.573403] lowmem_reserve[]: 0 0 0 0 0
-[13366.574015] Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 1*2048kB (M) 3*4096kB (M) = 15360kB
-[13366.575474] Node 0 DMA32: 782*4kB (UME) 756*8kB (UME) 736*16kB (UME) 745*32kB (UME) 694*64kB (UME) 653*128kB (UME) 595*256kB (UME) 552*512kB (UME) 454*1024kB (UME) 347*2048kB (UME) 246*4096kB (UME) = 2790904kB
-[13366.577442] Node 0 Normal: 33856*4kB (UMEH) 51815*8kB (UMEH) 42418*16kB (UMEH) 36272*32kB (UMEH) 22195*64kB (UMEH) 10296*128kB (UMEH) 7238*256kB (UMEH) 5638*512kB (UEH) 5337*1024kB (UMEH) 3506*2048kB (UMEH) 1470*4096kB (UME) = 28533784kB
-[13366.580460] Node 1 Normal: 15776*4kB (UMEH) 37485*8kB (UMEH) 29509*16kB (UMEH) 21420*32kB (UMEH) 14818*64kB (UMEH) 13051*128kB (UMEH) 9918*256kB (UMEH) 7374*512kB (UMEH) 5397*1024kB (UMEH) 3887*2048kB (UMEH) 2002*4096kB (UME) = 32141240kB
-[13366.583027] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
-[13366.584380] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-[13366.585702] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
-[13366.587042] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-[13366.588372] 87386 total pagecache pages
-[13366.589266] 0 pages in swap cache
-[13366.590327] Free swap  = 0kB
-[13366.591227] Total swap = 0kB
-[13366.592142] 16777082 pages RAM
-[13366.593057] 0 pages HighMem/MovableOnly
-[13366.594037] 357226 pages reserved
-[13366.594979] 0 pages hwpoisoned
-
-This failure really confuse me as there're still lots of available pages.
-Finally I figured out it was caused by a fatal signal.  When a process is
-allocating memory via vm_area_alloc_pages(), it will break directly even
-if it hasn't allocated the requested pages when it receives a fatal
-signal.  In that case, we shouldn't show this warn_alloc, as it is
-useless.  We only need to show this warning when there're really no enough
-pages.
-
-Link: https://lkml.kernel.org/r/20230330162625.13604-1-laoar.shao@gmail.com
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Reviewed-by: Lorenzo Stoakes <lstoakes@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217245
+Fixes: 034ae28b56f1 ("wifi: mt76: mt7921: introduce remain_on_channel support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/632d8f0c9781c9902d7160e2c080aa7e9232d50d.1679997487.git.lorenzo@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/vmalloc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -3070,9 +3070,11 @@ static void *__vmalloc_area_node(struct
- 	 * allocation request, free them via __vfree() if any.
- 	 */
- 	if (area->nr_pages != nr_small_pages) {
--		warn_alloc(gfp_mask, NULL,
--			"vmalloc error: size %lu, page order %u, failed to allocate pages",
--			area->nr_pages * PAGE_SIZE, page_order);
-+		/* vm_area_alloc_pages() can also fail due to a fatal signal */
-+		if (!fatal_signal_pending(current))
-+			warn_alloc(gfp_mask, NULL,
-+				"vmalloc error: size %lu, page order %u, failed to allocate pages",
-+				area->nr_pages * PAGE_SIZE, page_order);
- 		goto fail;
- 	}
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+@@ -20,7 +20,7 @@ static const struct pci_device_id mt7921
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x0608),
+ 		.driver_data = (kernel_ulong_t)MT7921_FIRMWARE_WM },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x0616),
+-		.driver_data = (kernel_ulong_t)MT7921_FIRMWARE_WM },
++		.driver_data = (kernel_ulong_t)MT7922_FIRMWARE_WM },
+ 	{ },
+ };
  
 
 
