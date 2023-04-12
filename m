@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B88B6DEE45
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A232F6DEE48
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231136AbjDLIlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45480 "EHLO
+        id S230326AbjDLIlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231361AbjDLIkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E313E7AB0
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:00 -0700 (PDT)
+        with ESMTP id S231381AbjDLIk3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC187D85
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E3DD63032
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 892F7C433D2;
-        Wed, 12 Apr 2023 08:38:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADF0563034
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD493C433D2;
+        Wed, 12 Apr 2023 08:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288736;
-        bh=mSyg4tg5boZp2/djK30YWARMI8q9pHgCOE3s7moXNYw=;
+        s=korg; t=1681288742;
+        bh=TDO5TQ6ii7fPaHPtpP2/5DXA1bNXZKwWQSj7gwuRUGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AeqCp5L8KH/DqRUGY5XJLDuz9pGiJvgPHEShKecr6rDEjkUCyvpzSj3tUvPXeyavo
-         60tJyhXGC2yZFzAxMuPx31LnIeV4RKkSansIdAkYUlcWM3tVuxxxZ70xKGc8IbgCvz
-         Ee/D/jo1qDk/2fCftcSTd1+H83MfRX6NLLbPr938=
+        b=Cyye0BxIvDgDqkmD/P6PSs2+8XouHOuvw+Hz1OMTayvz1BiTUFOhGSzSfDXpMGdUJ
+         ZOoKYMLfVqN9m9J1G1SfeZmaMfAMHRXJjLYw45Ea9GeNdsEIwMhhYAloaF0/p4C3T3
+         LC62yURm8vQ5OasxOoR/+T7fqgeQ90+pX1t2diFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Sojka <michal.sojka@cvut.cz>,
-        Jakub Jira <jirajak2@fel.cvut.cz>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 84/93] can: isotp: isotp_ops: fix poll() to not report false EPOLLOUT events
-Date:   Wed, 12 Apr 2023 10:34:25 +0200
-Message-Id: <20230412082826.710797251@linuxfoundation.org>
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 85/93] tracing: Free error logs of tracing instances
+Date:   Wed, 12 Apr 2023 10:34:26 +0200
+Message-Id: <20230412082826.755058106@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
 References: <20230412082823.045155996@linuxfoundation.org>
@@ -45,8 +49,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,71 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Sojka <michal.sojka@cvut.cz>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 79e19fa79cb5d5f1b3bf3e3ae24989ccb93c7b7b upstream.
+commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
 
-When using select()/poll()/epoll() with a non-blocking ISOTP socket to
-wait for when non-blocking write is possible, a false EPOLLOUT event
-is sometimes returned. This can happen at least after sending a
-message which must be split to multiple CAN frames.
+When a tracing instance is removed, the error messages that hold errors
+that occurred in the instance needs to be freed. The following reports a
+memory leak:
 
-The reason is that isotp_sendmsg() returns -EAGAIN when tx.state is
-not equal to ISOTP_IDLE and this behavior is not reflected in
-datagram_poll(), which is used in isotp_ops.
+ # cd /sys/kernel/tracing
+ # mkdir instances/foo
+ # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
+ # cat instances/foo/error_log
+ [  117.404795] hist:sched:sched_switch: error: Couldn't find field
+   Command: hist:keys=x
+                      ^
+ # rmdir instances/foo
 
-This is fixed by introducing ISOTP-specific poll function, which
-suppresses the EPOLLOUT events in that case.
+Then check for memory leaks:
 
-v2: https://lore.kernel.org/all/20230302092812.320643-1-michal.sojka@cvut.cz
-v1: https://lore.kernel.org/all/20230224010659.48420-1-michal.sojka@cvut.cz
-    https://lore.kernel.org/all/b53a04a2-ba1f-3858-84c1-d3eb3301ae15@hartkopp.net
+ # echo scan > /sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff88810d8ec700 (size 192):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
+    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
+  backtrace:
+    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
+    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+unreferenced object 0xffff888170c35a00 (size 32):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
+    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
+  backtrace:
+    [<000000006a747de5>] __kmalloc+0x4d/0x160
+    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-Signed-off-by: Michal Sojka <michal.sojka@cvut.cz>
-Reported-by: Jakub Jira <jirajak2@fel.cvut.cz>
-Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/20230331125511.372783-1-michal.sojka@cvut.cz
+The problem is that the error log needs to be freed when the instance is
+removed.
+
+Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
+Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1482,6 +1482,21 @@ static int isotp_init(struct sock *sk)
- 	return 0;
- }
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9416,6 +9416,7 @@ static int __remove_instance(struct trac
+ 	tracefs_remove(tr->dir);
+ 	free_percpu(tr->last_func_repeats);
+ 	free_trace_buffers(tr);
++	clear_tracing_err_log(tr);
  
-+static __poll_t isotp_poll(struct file *file, struct socket *sock, poll_table *wait)
-+{
-+	struct sock *sk = sock->sk;
-+	struct isotp_sock *so = isotp_sk(sk);
-+
-+	__poll_t mask = datagram_poll(file, sock, wait);
-+	poll_wait(file, &so->wait, wait);
-+
-+	/* Check for false positives due to TX state */
-+	if ((mask & EPOLLWRNORM) && (so->tx.state != ISOTP_IDLE))
-+		mask &= ~(EPOLLOUT | EPOLLWRNORM);
-+
-+	return mask;
-+}
-+
- static int isotp_sock_no_ioctlcmd(struct socket *sock, unsigned int cmd,
- 				  unsigned long arg)
- {
-@@ -1497,7 +1512,7 @@ static const struct proto_ops isotp_ops
- 	.socketpair = sock_no_socketpair,
- 	.accept = sock_no_accept,
- 	.getname = isotp_getname,
--	.poll = datagram_poll,
-+	.poll = isotp_poll,
- 	.ioctl = isotp_sock_no_ioctlcmd,
- 	.gettstamp = sock_gettstamp,
- 	.listen = sock_no_listen,
+ 	for (i = 0; i < tr->nr_topts; i++) {
+ 		kfree(tr->topts[i].topts);
 
 
