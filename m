@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 282B96DEE4C
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B776DEE47
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230509AbjDLIl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46578 "EHLO
+        id S231144AbjDLIlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231448AbjDLIkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F00769A
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:13 -0700 (PDT)
+        with ESMTP id S231370AbjDLIk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6F37ABA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D79A862FFF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBD7CC433EF;
-        Wed, 12 Apr 2023 08:39:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 130DF629BC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28529C4339B;
+        Wed, 12 Apr 2023 08:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288760;
-        bh=wzmQDfNKTv0VFuShfuXDQ3CMxFViahBXUkJvsNOXfkE=;
+        s=korg; t=1681288739;
+        bh=oMT2R2Foa4wOad4EX6fd1c+6fMvn1/GgbHWxdd1bEX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOC6nu2niF2y2tG8J6tzMzfazeLwcTH1zfQDMNVRC5wP6jHDNMKyw8KvWJASs4S7/
-         vemWTDmkCMFyMMoH1FcAOTjYjkdQU7/4lAq1l4R09Hs1CJyaZP/GO7+Va3wJieS4rG
-         836b07LpCsPNZ3v02vgSA1jhfGDEnnhXIFuncLcY=
+        b=lQzWJz8Y5IQ5kWeTbTmzgwZFdfQHs3jZgNVqrjq2C1dDz2lrqmaiGR7mYVrf/Myd7
+         Kw19J5dN0kZody9ZngJYkPJ+cUtnylbqNFnb8FtPAHHRKVpXwQ7iQUvfWitCjNPmiT
+         3udQe2aXpJAL1JIw8/Scpq+hWnNkKvBW2ZfAd0E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Amit Pundir <amit.pundir@linaro.org>,
-        Robert Foss <robert.foss@linaro.org>
-Subject: [PATCH 5.15 92/93] drm/bridge: lt9611: Fix PLL being unable to lock
-Date:   Wed, 12 Apr 2023 10:34:33 +0200
-Message-Id: <20230412082827.028129824@linuxfoundation.org>
+        patches@lists.linux.dev, Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 93/93] mm: take a page reference when removing device exclusive entries
+Date:   Wed, 12 Apr 2023 10:34:34 +0200
+Message-Id: <20230412082827.068122936@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
 References: <20230412082823.045155996@linuxfoundation.org>
@@ -43,8 +48,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,37 +58,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Foss <robert.foss@linaro.org>
+From: Alistair Popple <apopple@nvidia.com>
 
-commit 2a9df204be0bbb896e087f00b9ee3fc559d5a608 upstream.
+commit 7c7b962938ddda6a9cd095de557ee5250706ea88 upstream.
 
-This fixes PLL being unable to lock, and is derived from an equivalent
-downstream commit.
+Device exclusive page table entries are used to prevent CPU access to a
+page whilst it is being accessed from a device.  Typically this is used to
+implement atomic operations when the underlying bus does not support
+atomic access.  When a CPU thread encounters a device exclusive entry it
+locks the page and restores the original entry after calling mmu notifiers
+to signal drivers that exclusive access is no longer available.
 
-Available LT9611 documentation does not list this register, neither does
-LT9611UXC (which is a different chip).
+The device exclusive entry holds a reference to the page making it safe to
+access the struct page whilst the entry is present.  However the fault
+handling code does not hold the PTL when taking the page lock.  This means
+if there are multiple threads faulting concurrently on the device
+exclusive entry one will remove the entry whilst others will wait on the
+page lock without holding a reference.
 
-This commit has been confirmed to fix HDMI output on DragonBoard 845c.
+This can lead to threads locking or waiting on a folio with a zero
+refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
+they may still be freed by a migration.  This leads to warnings such as
+PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
+drops to zero.
 
-Suggested-by: Amit Pundir <amit.pundir@linaro.org>
-Reviewed-by: Amit Pundir <amit.pundir@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221213150304.4189760-1-robert.foss@linaro.org
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
+Fix this by trying to take a reference on the folio before locking it.
+The code already checks the PTE under the PTL and aborts if the entry is
+no longer there.  It is also possible the folio has been unmapped, freed
+and re-allocated allowing a reference to be taken on an unrelated folio.
+This case is also detected by the PTE check and the folio is unlocked
+without further changes.
+
+Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
+Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/memory.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -256,6 +256,7 @@ static int lt9611_pll_setup(struct lt961
- 		{ 0x8126, 0x55 },
- 		{ 0x8127, 0x66 },
- 		{ 0x8128, 0x88 },
-+		{ 0x812a, 0x20 },
- 	};
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3462,8 +3462,21 @@ static vm_fault_t remove_device_exclusiv
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct mmu_notifier_range range;
  
- 	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+-	if (!lock_page_or_retry(page, vma->vm_mm, vmf->flags))
++	/*
++	 * We need a reference to lock the page because we don't hold
++	 * the PTL so a racing thread can remove the device-exclusive
++	 * entry and unmap it. If the page is free the entry must
++	 * have been removed already. If it happens to have already
++	 * been re-allocated after being freed all we do is lock and
++	 * unlock it.
++	 */
++	if (!get_page_unless_zero(page))
++		return 0;
++
++	if (!lock_page_or_retry(page, vma->vm_mm, vmf->flags)) {
++		put_page(page);
+ 		return VM_FAULT_RETRY;
++	}
+ 	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0, vma,
+ 				vma->vm_mm, vmf->address & PAGE_MASK,
+ 				(vmf->address & PAGE_MASK) + PAGE_SIZE, NULL);
+@@ -3476,6 +3489,7 @@ static vm_fault_t remove_device_exclusiv
+ 
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	unlock_page(page);
++	put_page(page);
+ 
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	return 0;
 
 
