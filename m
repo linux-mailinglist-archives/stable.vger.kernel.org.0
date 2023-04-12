@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 892A06DEE20
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10386DEE1A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230320AbjDLIks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46304 "EHLO
+        id S230073AbjDLIkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:40:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbjDLIjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:43 -0400
+        with ESMTP id S230422AbjDLIjk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76CF7EEB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623246EB7
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD83B6300F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC979C433D2;
-        Wed, 12 Apr 2023 08:37:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E092F62FF6
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02171C4339B;
+        Wed, 12 Apr 2023 08:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288648;
-        bh=q9rItHT/DZ16yQ1ZWUIpHFXvtL31QCYC7fj4bgJ7cu8=;
+        s=korg; t=1681288566;
+        bh=RQjrIMy2/c/IM8r/8+NKjizSql/Zf3JUTVgIydCla1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7vWgo9bcPHi74XtgT88lV645CjkOCRhT7/LvxuBuvu0Xd2wBWiGsyt9GjI+bw4g9
-         zXZB4aJ8oRx+T8T6GKA9d4pa24a9uy4PTDCK/3VlY4/I9ihNZG9ghqxSiAQl3COBZi
-         edzC0Rnm+u9x1WSuB+AxwKyHyO/NXdELPma3yVlw=
+        b=wdErwHGf19hU8KNuYgJ41VoLyzNwUmWfqJl06Tr4ZntDRy3ZWXaBg9DWLuWjJoTOO
+         3uJSeOaaU32jrRzIsmmqvzjNHVmvbJ4xqL1NQkJxTt7lrvS4uDJ/uh3YtqVL0kszcR
+         AyXyIuZE4C0Hd3sFuILy/Mxt8juEEIb51d3Di4aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 18/93] serial: 8250_exar: derive nr_ports from PCI ID for Acces I/O cards
-Date:   Wed, 12 Apr 2023 10:33:19 +0200
-Message-Id: <20230412082823.820999875@linuxfoundation.org>
+        Matthew Howell <matthew.howell@sealevel.com>,
+        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 19/93] serial: exar: Add support for Sealevel 7xxxC serial cards
+Date:   Wed, 12 Apr 2023 10:33:20 +0200
+Message-Id: <20230412082823.865230501@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
 References: <20230412082823.045155996@linuxfoundation.org>
@@ -54,84 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Matthew Howell <matthew.howell@sealevel.com>
 
-[ Upstream commit 8e4413aaf6a2e3a46e99a0718ca54c0cf8609cb2 ]
+[ Upstream commit 14ee78d5932afeb710c8305196a676a715bfdea8 ]
 
-In the similar way how it's done in 8250_pericom, derive the number of
-the UART ports from PCI ID for Acces I/O cards.
+Add support for Sealevel 7xxxC serial cards.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220127180608.71509-1-andriy.shevchenko@linux.intel.com
+This patch:
+* Adds IDs to recognize 7xxxC cards from Sealevel Systems.
+* Updates exar_pci_probe() to set nr_ports to last two bytes of primary
+  dev ID for these cards.
+
+Signed-off-by: Matthew Howell <matthew.howell@sealevel.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2301191440010.22558@tstest-VirtualBox
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 14ee78d5932a ("serial: exar: Add support for Sealevel 7xxxC serial cards")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_exar.c | 37 ++++++++++-------------------
- 1 file changed, 13 insertions(+), 24 deletions(-)
+ drivers/tty/serial/8250/8250_exar.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/drivers/tty/serial/8250/8250_exar.c b/drivers/tty/serial/8250/8250_exar.c
-index d502240bbcf23..7292917ac8784 100644
+index 7292917ac8784..c767636d9bb0f 100644
 --- a/drivers/tty/serial/8250/8250_exar.c
 +++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -623,7 +623,12 @@ exar_pci_probe(struct pci_dev *pcidev, const struct pci_device_id *ent)
+@@ -43,6 +43,12 @@
+ #define PCI_DEVICE_ID_EXAR_XR17V4358		0x4358
+ #define PCI_DEVICE_ID_EXAR_XR17V8358		0x8358
  
- 	maxnr = pci_resource_len(pcidev, bar) >> (board->reg_shift + 3);
++#define PCI_DEVICE_ID_SEALEVEL_710xC		0x1001
++#define PCI_DEVICE_ID_SEALEVEL_720xC		0x1002
++#define PCI_DEVICE_ID_SEALEVEL_740xC		0x1004
++#define PCI_DEVICE_ID_SEALEVEL_780xC		0x1008
++#define PCI_DEVICE_ID_SEALEVEL_716xC		0x1010
++
+ #define UART_EXAR_INT0		0x80
+ #define UART_EXAR_8XMODE	0x88	/* 8X sampling rate select */
+ #define UART_EXAR_SLEEP		0x8b	/* Sleep mode */
+@@ -627,6 +633,8 @@ exar_pci_probe(struct pci_dev *pcidev, const struct pci_device_id *ent)
+ 		nr_ports = BIT(((pcidev->device & 0x38) >> 3) - 1);
+ 	else if (board->num_ports)
+ 		nr_ports = board->num_ports;
++	else if (pcidev->vendor == PCI_VENDOR_ID_SEALEVEL)
++		nr_ports = pcidev->device & 0xff;
+ 	else
+ 		nr_ports = pcidev->device & 0x0f;
  
--	nr_ports = board->num_ports ? board->num_ports : pcidev->device & 0x0f;
-+	if (pcidev->vendor == PCI_VENDOR_ID_ACCESSIO)
-+		nr_ports = BIT(((pcidev->device & 0x38) >> 3) - 1);
-+	else if (board->num_ports)
-+		nr_ports = board->num_ports;
-+	else
-+		nr_ports = pcidev->device & 0x0f;
- 
- 	priv = devm_kzalloc(&pcidev->dev, struct_size(priv, line, nr_ports), GFP_KERNEL);
- 	if (!priv)
-@@ -722,22 +727,6 @@ static int __maybe_unused exar_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(exar_pci_pm, exar_suspend, exar_resume);
- 
--static const struct exar8250_board acces_com_2x = {
--	.num_ports	= 2,
--	.setup		= pci_xr17c154_setup,
--};
--
--static const struct exar8250_board acces_com_4x = {
--	.num_ports	= 4,
--	.setup		= pci_xr17c154_setup,
--};
--
--static const struct exar8250_board acces_com_8x = {
--	.num_ports	= 8,
--	.setup		= pci_xr17c154_setup,
--};
--
--
- static const struct exar8250_board pbn_fastcom335_2 = {
- 	.num_ports	= 2,
- 	.setup		= pci_fastcom335_setup,
-@@ -822,13 +811,13 @@ static const struct exar8250_board pbn_exar_XR17V8358 = {
- 	}
- 
- static const struct pci_device_id exar_pci_tbl[] = {
--	EXAR_DEVICE(ACCESSIO, COM_2S, acces_com_2x),
--	EXAR_DEVICE(ACCESSIO, COM_4S, acces_com_4x),
--	EXAR_DEVICE(ACCESSIO, COM_8S, acces_com_8x),
--	EXAR_DEVICE(ACCESSIO, COM232_8, acces_com_8x),
--	EXAR_DEVICE(ACCESSIO, COM_2SM, acces_com_2x),
--	EXAR_DEVICE(ACCESSIO, COM_4SM, acces_com_4x),
--	EXAR_DEVICE(ACCESSIO, COM_8SM, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, COM_2S, pbn_exar_XR17C15x),
-+	EXAR_DEVICE(ACCESSIO, COM_4S, pbn_exar_XR17C15x),
-+	EXAR_DEVICE(ACCESSIO, COM_8S, pbn_exar_XR17C15x),
-+	EXAR_DEVICE(ACCESSIO, COM232_8, pbn_exar_XR17C15x),
-+	EXAR_DEVICE(ACCESSIO, COM_2SM, pbn_exar_XR17C15x),
-+	EXAR_DEVICE(ACCESSIO, COM_4SM, pbn_exar_XR17C15x),
-+	EXAR_DEVICE(ACCESSIO, COM_8SM, pbn_exar_XR17C15x),
- 
- 	CONNECT_DEVICE(XR17C152, UART_2_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C154, UART_4_232, pbn_connect),
+@@ -853,6 +861,12 @@ static const struct pci_device_id exar_pci_tbl[] = {
+ 	EXAR_DEVICE(COMMTECH, 4224PCI335, pbn_fastcom335_4),
+ 	EXAR_DEVICE(COMMTECH, 2324PCI335, pbn_fastcom335_4),
+ 	EXAR_DEVICE(COMMTECH, 2328PCI335, pbn_fastcom335_8),
++
++	EXAR_DEVICE(SEALEVEL, 710xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 720xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 740xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 780xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 716xC, pbn_exar_XR17V35x),
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci, exar_pci_tbl);
 -- 
 2.39.2
 
