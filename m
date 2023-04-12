@@ -2,159 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13B226DFF48
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 21:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD52A6E000B
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 22:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbjDLT6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 15:58:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49974 "EHLO
+        id S229561AbjDLUmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 16:42:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbjDLT6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 15:58:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 135851FFC;
-        Wed, 12 Apr 2023 12:58:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 844EE612E1;
-        Wed, 12 Apr 2023 19:58:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC27EC433D2;
-        Wed, 12 Apr 2023 19:58:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681329525;
-        bh=sLZEPWLSVLdeU+Eb7MKyMvJihbfk+a1JsVmuIoR7nCA=;
-        h=Date:To:From:Subject:From;
-        b=YVbbVxuEgDp37S5/kpfQhDSDCsMJ+RR1al0jll5MbH4vhy0mGSLnJB95x2vSNiSpC
-         YW5UFTAQDRwUKTzqCnNIUNyP8eP6gN0SaLiSNk2nannAQgoEosbmxfbdJF2On2hd+R
-         o9t27t+hhxWYe8sOr5qYyk4iZ6v3aooVxOvhXNpg=
-Date:   Wed, 12 Apr 2023 12:58:45 -0700
-To:     mm-commits@vger.kernel.org, zokeefe@google.com,
-        stable@vger.kernel.org, rppt@kernel.org, mike.kravetz@oracle.com,
-        david@redhat.com, axelrasmussen@google.com, 0x7f454c46@gmail.com,
-        peterx@redhat.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + revert-userfaultfd-dont-fail-on-unrecognized-features.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230412195845.DC27EC433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229506AbjDLUmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 16:42:00 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C16355A6;
+        Wed, 12 Apr 2023 13:41:59 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id w11so13439953pjh.5;
+        Wed, 12 Apr 2023 13:41:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681332118; x=1683924118;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Hl9sCiGfDSiyFdzk6F9ozEO0BgQb3bdfVK/ZFLs3Rec=;
+        b=KW53y1eMdYXi1Ugvb5GSc4XHAUbz4MBJzeFgMXx9gYfbmlHeBzDTx7/DmAIUysi+jZ
+         cn6P7kvdSHGdN/24w93MMe2Ces9uKlRNPdx3gXg0t0ZeakMXy3x0AsGc25+0Lb1BX4mu
+         8+Q0y3smH/qF1gzT8Zw4gIvlVJnIFfFq6paFOSSzwReofXsx2D0XN+LwW9oPN5lSbVop
+         ydrs4p0hDjYANLNT5JxPCM/vEqxl267PRoDrK6wxnfOVfz8Cls5IltWDi7T2QZxBNh3T
+         2lfqzsML0i7zl+5IRbW7+qLeCcGANYmA2FjRoBTbrqJWU0VPrvW8hXHC6YmJpJUOqmp8
+         ueLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681332118; x=1683924118;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Hl9sCiGfDSiyFdzk6F9ozEO0BgQb3bdfVK/ZFLs3Rec=;
+        b=RYL8luW/LiJp+sysV8dAISl8gbFZiUEemveudIcCqGrygqPwIiWkV1oANigRuxqYxb
+         j+KJdHcX02guCBJ+D1FlaFhavzhVFtPjEQvxo0Kft5Dl/4iMDE1HTNGJfpnXAQJn1nX+
+         r0o2l1K0MzrxPHufVZJkiR0Fm+HOo4WzhZ26M1iDjutrWfim7o2fZ2oyba4yaJuYHQhZ
+         9ofjDODfNTUBXN4g9f8iLlIn95vCOyp+DcWhwP3C9tr1ugy9SHdIOpd+5CtVg4owfwWX
+         u1l/gyZORR2pXZG1C7Q7HeE41JaZwT1ImMfngDJ6Fzqc7AwfPlAwUmF9AcaDhMgln/r3
+         Iuyg==
+X-Gm-Message-State: AAQBX9egtzyTfrR0tBaWafVFuQVDHp4bQ2l6bgO033tZF04ORSpSxBFS
+        gTG/X/2gYPy2GYpb383jKlo=
+X-Google-Smtp-Source: AKy350bVi5vXq6CC2Egmi3HVYVAB891DpVnGz5volM1VUtSzz82SvlVYzTk/uX4Ln5NaFx9WETF7sA==
+X-Received: by 2002:a17:90b:3b8c:b0:233:e1e6:33d4 with SMTP id pc12-20020a17090b3b8c00b00233e1e633d4mr25449629pjb.47.1681332118255;
+        Wed, 12 Apr 2023 13:41:58 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id bh2-20020a17090b048200b0023acdac248dsm1507561pjb.15.2023.04.12.13.41.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Apr 2023 13:41:57 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 12 Apr 2023 13:41:55 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 00/93] 5.15.107-rc1 review
+Message-ID: <b94560ed-90d7-4d64-b15e-03478e1e75c8@roeck-us.net>
+References: <20230412082823.045155996@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Apr 12, 2023 at 10:33:01AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.107 release.
+> There are 93 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 14 Apr 2023 08:28:02 +0000.
+> Anything received after that time might be too late.
+> 
 
-The patch titled
-     Subject: Revert "userfaultfd: don't fail on unrecognized features"
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     revert-userfaultfd-dont-fail-on-unrecognized-features.patch
+Build results:
+	total: 160 pass: 160 fail: 0
+Qemu test results:
+	total: 499 pass: 499 fail: 0
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/revert-userfaultfd-dont-fail-on-unrecognized-features.patch
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: Revert "userfaultfd: don't fail on unrecognized features"
-Date: Wed, 12 Apr 2023 12:38:52 -0400
-
-This is a proposal to revert commit 914eedcb9ba0ff53c33808.
-
-I found this when writing a simple UFFDIO_API test to be the first unit
-test in this set.  Two things breaks with the commit:
-
-  - UFFDIO_API check was lost and missing.  According to man page, the
-  kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
-  check is needed if the api version will be extended in the future, or
-  user app won't be able to identify which is a new kernel.
-
-  - Feature flags checks were removed, which means UFFDIO_API with a
-  feature that does not exist will also succeed.  According to the man
-  page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
-  unknown features passed in.
-
-Link: https://lore.kernel.org/r/20220722201513.1624158-1-axelrasmussen@google.com
-Link: https://lkml.kernel.org/r/20230412163922.327282-2-peterx@redhat.com
-Fixes: 914eedcb9ba0 ("userfaultfd: don't fail on unrecognized features")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mike Rapoport (IBM) <rppt@kernel.org>
-Cc: Zach O'Keefe <zokeefe@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/userfaultfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
---- a/fs/userfaultfd.c~revert-userfaultfd-dont-fail-on-unrecognized-features
-+++ a/fs/userfaultfd.c
-@@ -1955,8 +1955,10 @@ static int userfaultfd_api(struct userfa
- 	ret = -EFAULT;
- 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
- 		goto out;
--	/* Ignore unsupported features (userspace built against newer kernel) */
--	features = uffdio_api.features & UFFD_API_FEATURES;
-+	features = uffdio_api.features;
-+	ret = -EINVAL;
-+	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
-+		goto err_out;
- 	ret = -EPERM;
- 	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
- 		goto err_out;
-_
-
-Patches currently in -mm which might be from peterx@redhat.com are
-
-mm-khugepaged-check-again-on-anon-uffd-wp-during-isolation.patch
-revert-userfaultfd-dont-fail-on-unrecognized-features.patch
-selftests-mm-update-gitignore-with-two-missing-tests.patch
-selftests-mm-dump-a-summary-in-run_vmtestssh.patch
-selftests-mm-merge-utilh-into-vm_utilh.patch
-selftests-mm-use-test_gen_progs-where-proper.patch
-selftests-mm-link-vm_utilc-always.patch
-selftests-mm-merge-default_huge_page_size-into-one.patch
-selftests-mm-use-pm_-macros-in-vm_utilsh.patch
-selftests-mm-reuse-pagemap_get_entry-in-vm_utilh.patch
-selftests-mm-test-uffdio_zeropage-only-when-hugetlb.patch
-selftests-mm-drop-test_uffdio_zeropage_eexist.patch
-selftests-mm-create-uffd-common.patch
-selftests-mm-split-uffd-tests-into-uffd-stress-and-uffd-unit-tests.patch
-selftests-mm-uffd_register.patch
-selftests-mm-uffd_open_devsys.patch
-selftests-mm-uffdio_api-test.patch
-selftests-mm-drop-global-mem_fd-in-uffd-tests.patch
-selftests-mm-drop-global-hpage_size-in-uffd-tests.patch
-selftests-mm-rename-uffd_stats-to-uffd_args.patch
-selftests-mm-let-uffd_handle_page_fault-take-wp-parameter.patch
-selftests-mm-allow-allocate_area-to-fail-properly.patch
-selftests-mm-add-framework-for-uffd-unit-test.patch
-selftests-mm-move-uffd-pagemap-test-to-unit-test.patch
-selftests-mm-move-uffd-minor-test-to-unit-test.patch
-selftests-mm-move-uffd-sig-events-tests-into-uffd-unit-tests.patch
-selftests-mm-move-zeropage-test-into-uffd-unit-tests.patch
-selftests-mm-workaround-no-way-to-detect-uffd-minor-wp.patch
-selftests-mm-allow-uffd-test-to-skip-properly-with-no-privilege.patch
-selftests-mm-drop-sys-dev-test-in-uffd-stress-test.patch
-selftests-mm-add-shmem-private-test-to-uffd-stress.patch
-selftests-mm-add-uffdio-register-ioctls-test.patch
-
+Guenter
