@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 386AD6DEF95
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3146DEED1
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231383AbjDLIwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40496 "EHLO
+        id S230051AbjDLIpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231381AbjDLIwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:13 -0400
+        with ESMTP id S231276AbjDLIoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A30093ED
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000F56E8B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DED076319B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBBD8C433EF;
-        Wed, 12 Apr 2023 08:51:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AD6C62AE9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4220BC4339C;
+        Wed, 12 Apr 2023 08:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289509;
-        bh=lvFSa5UtYCeK0PTqjImMgwr9fydJbYwZ4FO0sAbVKHo=;
+        s=korg; t=1681289066;
+        bh=PHG4L2sYEwAW9G4KcXZyk02SCWpC/6epzTDNMCHUL80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqcHo/H/6i0qH3Xj1YX10a+y4eDouQU5xgrzqx48FCNXz/PiwCekx7UGPmnyom4Ub
-         dZ+Jmz3k7x8FhjYAMwjKGNoELWPouHsZEryhuB6d0gXKspMfzPS9oFa4vc7yQwkwpd
-         CEv9KamoyMnrZRfHUUl0Ssx6D/K4U7FrVRUVWqfs=
+        b=Gay8KsdKFxFzRaNYiltrysokG6HYj6xjNZOGd9AvuZtiYjNhiOZm8m/i1UI2DsJyL
+         HpUh2B7xqSBxhYw2h6ozEGNktm11wypjmX5fVRSu0QoeN79Q5m5Wr/r9Z04B5xuhAt
+         lrCNpOi6wzgbv6ygbzg7EzPFMcMxJDXpZAxU45Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 6.2 119/173] ACPI: video: Add acpi_backlight=video quirk for Lenovo ThinkPad W530
-Date:   Wed, 12 Apr 2023 10:34:05 +0200
-Message-Id: <20230412082842.907706556@linuxfoundation.org>
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.1 124/164] tracing/timerlat: Notify new max thread latency
+Date:   Wed, 12 Apr 2023 10:34:06 +0200
+Message-Id: <20230412082841.868871290@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-commit a5b2781dcab2c77979a4b8adda781d2543580901 upstream.
+commit b9f451a9029a16eb7913ace09b92493d00f2e564 upstream.
 
-The Lenovo ThinkPad W530 uses a nvidia k1000m GPU. When this gets used
-together with one of the older nvidia binary driver series (the latest
-series does not support it), then backlight control does not work.
+timerlat is not reporting a new tracing_max_latency for the thread
+latency. The reason is that it is not calling notify_new_max_latency()
+function after the new thread latency is sampled.
 
-This is caused by commit 3dbc80a3e4c5 ("ACPI: video: Make backlight
-class device registration a separate step (v2)") combined with
-commit 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for
-creating ACPI backlight by default").
+Call notify_new_max_latency() after computing the thread latency.
 
-After these changes the acpi_video# backlight device is only registered
-when requested by a GPU driver calling acpi_video_register_backlight()
-which the nvidia binary driver does not do.
+Link: https://lkml.kernel.org/r/16e18d61d69073d0192ace07bf61e405cca96e9c.1680104184.git.bristot@kernel.org
 
-I realize that using the nvidia binary driver is not a supported use-case
-and users can workaround this by adding acpi_backlight=video on the kernel
-commandline, but the ThinkPad W530 is a popular model under Linux users,
-so it seems worthwhile to add a quirk for this.
-
-I will also email Nvidia asking them to make the driver call
-acpi_video_register_backlight() when an internal LCD panel is detected.
-So maybe the next maintenance release of the drivers will fix this...
-
-Fixes: 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for creating ACPI backlight by default")
-Cc: All applicable <stable@vger.kernel.org>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ kernel/trace/trace_osnoise.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -300,6 +300,20 @@ static const struct dmi_system_id video_
- 	},
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -1681,6 +1681,8 @@ static int timerlat_main(void *data)
  
- 	/*
-+	 * Older models with nvidia GPU which need acpi_video backlight
-+	 * control and where the old nvidia binary driver series does not
-+	 * call acpi_video_register_backlight().
-+	 */
-+	{
-+	 .callback = video_detect_force_video,
-+	 /* ThinkPad W530 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad W530"),
-+		},
-+	},
+ 		trace_timerlat_sample(&s);
+ 
++		notify_new_max_latency(diff);
 +
-+	/*
- 	 * These models have a working acpi_video backlight control, and using
- 	 * native backlight causes a regression where backlight does not work
- 	 * when userspace is not handling brightness key events. Disable
+ 		timerlat_dump_stack(time_to_us(diff));
+ 
+ 		tlat->tracing_thread = false;
 
 
