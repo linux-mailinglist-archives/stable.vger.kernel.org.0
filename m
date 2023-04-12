@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B376DEF90
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC186DEE02
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbjDLIwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:52:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40202 "EHLO
+        id S229615AbjDLIj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231365AbjDLIwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:01 -0400
+        with ESMTP id S230070AbjDLIjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E6693EA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C887693
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D38ED6313B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B8DC433D2;
-        Wed, 12 Apr 2023 08:51:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7090862FCF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893BDC433D2;
+        Wed, 12 Apr 2023 08:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289496;
-        bh=clVH+3uQz6oglW9J8ktfAN5InOh6L8MCW/lKsmFZqFo=;
+        s=korg; t=1681288592;
+        bh=7/2Np1ubv8XW4mrs4kc5VMI8JFmFG5oZ8uKx+632mYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1B4rqWquIoBehx+mojkyUvDggLLZ+zO3Gw7kxQhg/QEmTjDQPxxL89YZCrHupVYV
-         adkp7zxcV6G3pLBU801VPL9kO6+HaaFV3Frk9U6i5Vi1IwZRKyT8X71bPxTwZd8CJa
-         RlOoITGZm4+v1TYi6X8EJTOAeBGXJ4tRrd3g+LOg=
+        b=HMFattxJdlw2n0I9cu1g1rPEA/7+YysP+clGGBXZHJDrcY/1SPOV/y6DU44HmKowX
+         QNKpRhK9GYxUDuoGgE7H4nM2VJhA7Uk4A8apGmA9ifrqmpHTjudb8/1YG//Ito6yAA
+         U+Iap460CIMHlJGQ49luy7XLAg6KDYp26xBmyJXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 6.2 092/173] serial: 8250: Prevent starting up DMA Rx on THRI interrupt
+        patches@lists.linux.dev,
+        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 37/93] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
 Date:   Wed, 12 Apr 2023 10:33:38 +0200
-Message-Id: <20230412082841.771747179@linuxfoundation.org>
+Message-Id: <20230412082824.681819975@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +56,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit 90b8596ac46043e4a782d9111f5b285251b13756 upstream.
+[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
 
-Hans de Goede reported Bluetooth adapters (HCIs) connected over an UART
-connection failed due corrupted Rx payload. The problem was narrowed
-down to DMA Rx starting on UART_IIR_THRI interrupt. The problem occurs
-despite LSR having DR bit set, which is precondition for attempting to
-start DMA Rx in the first place.
+Syzbot reported a bug as following:
 
->From a debug patch:
-[x.807834] 8250irq: iir=cc lsr+saved=60 received=0/15 ier=0f dma_t/rx/err=0/0/0
-[x.808676] 8250irq: iir=c2 lsr+saved=61 received=0/0 ier=0f dma_t/rx/err=0/0/0
-[x.808776] 8250irq: iir=cc lsr+saved=60 received=1/12 ier=0d dma_t/rx/err=0/1/0
-[x.808870] Bluetooth: hci0: Frame reassembly failed (-84)
+=====================================================
+BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+ arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+ atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+ __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ ip6_finish_skb include/net/ipv6.h:1122 [inline]
+ ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
+ rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
+ rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-In the debug snippet, received field indicates 1 byte was transferred
-over DMA and 12 bytes after that with the non-DMA Rx. The sole byte DMA
-handled was corrupted (gets zeroed) which leads to the HCI failure.
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ alloc_skb include/linux/skbuff.h:1270 [inline]
+ __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
+ ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
+ rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-This problem became apparent after commit e8ffbb71f783 ("serial: 8250:
-use THRE & __stop_tx also with DMA") changed Tx stop behavior. Tx stop
-is now triggered from a THRI interrupt.
+It is because icmp6hdr does not in skb linear region under the scenario
+of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
+trigger the uninit variable access bug.
 
-Despite that this problem looks like a HW bug, this fix is not adding
-UART_BUG_xx flag to the driver beucase it seems useful in general to
-avoid starting DMA when there are only a few bytes to transfer.
-Skipping DMA for small transfers avoids the extra overhead DMA incurs.
+Use a local variable icmp6_type to carry the correct value in different
+scenarios.
 
-Thus, don't setup DMA Rx on UART_IIR_THRI but leave it to a subsequent
-interrupt which has Rx a related IIR value.
-
-By returning false from handle_rx_dma(), the DMA vs non-DMA decision is
-postponed until either UART_IIR_RDI (FIFO threshold worth of bytes
-awaiting) or UART_IIR_TIMEOUT (inter-character timeout) triggers at a
-later time which allows better to discern whether the number of bytes
-warrants starting DMA or not.
-
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: e8ffbb71f783 ("serial: 8250: use THRE & __stop_tx also with DMA")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230317103034.12881-1-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
+Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/ipv6/ip6_output.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1896,6 +1896,17 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
- static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
- {
- 	switch (iir & 0x3f) {
-+	case UART_IIR_THRI:
-+		/*
-+		 * Postpone DMA or not decision to IIR_RDI or IIR_RX_TIMEOUT
-+		 * because it's impossible to do an informed decision about
-+		 * that with IIR_THRI.
-+		 *
-+		 * This also fixes one known DMA Rx corruption issue where
-+		 * DR is asserted but DMA Rx only gets a corrupted zero byte
-+		 * (too early DR?).
-+		 */
-+		return false;
- 	case UART_IIR_RDI:
- 		if (!up->dma->rx_running)
- 			break;
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 383442ded9542..be63929b1ac53 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1913,8 +1913,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
+ 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
+ 	if (proto == IPPROTO_ICMPV6) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
++		u8 icmp6_type;
+ 
+-		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
++		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
++			icmp6_type = fl6->fl6_icmp_type;
++		else
++			icmp6_type = icmp6_hdr(skb)->icmp6_type;
++		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
+ 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
+ 	}
+ 
+-- 
+2.39.2
+
 
 
