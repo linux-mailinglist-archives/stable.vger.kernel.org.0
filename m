@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 443276DEE89
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A106DEF42
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbjDLImW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46630 "EHLO
+        id S231250AbjDLItV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231130AbjDLImI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:08 -0400
+        with ESMTP id S231224AbjDLItU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B54C6EB3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F035A93D1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CE5362FE3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2094DC433D2;
-        Wed, 12 Apr 2023 08:41:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FCF6313C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EFBC433D2;
+        Wed, 12 Apr 2023 08:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288883;
-        bh=C3LSIZRJHufdaX7iBUhVu2WMe8ZJJeCpKaH9KVH70WI=;
+        s=korg; t=1681289311;
+        bh=5cY+KYllyQz3wkeEM6rYhYYVqe7C1LBhwHvgXUr+uno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJ7SMDizWzJ5/HYB3DjQFcgBfP6uo8hOa2LB7TPb2GIX1ADo0zAlIpRilnQnzzGZx
-         TnvSlyihhoy9BDpHb7niQxmncSy0B+vCE0Ix2z5bRUBIwvqUXW0Sd7CgK1Qxfk0yMm
-         Mq19XLxATAfWiuK1WHyxZOpGru5zPBUWW2oR7afA=
+        b=hoI328+CjLkTieZfVg072dXgu0DL1BIdsPGRLBZ+q0B4ou6MQTuzvGWrftf5mRZNd
+         Fbl388FR9pwno4ErptARjJK1k6FONkOXioMVK+SH2qucYiJnwBh9gLNrx7fUiuFCT0
+         zv+6uW1423EOyKP3OstzyFkGkpCs5cWAf5Sr4b3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        patches@lists.linux.dev, Andy Roulin <aroulin@nvidia.com>,
+        Danielle Ratson <danieller@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 054/164] arm64: compat: Work around uninitialized variable warning
+Subject: [PATCH 6.2 050/173] ethtool: reset #lanes when lanes is omitted
 Date:   Wed, 12 Apr 2023 10:32:56 +0200
-Message-Id: <20230412082839.127864879@linuxfoundation.org>
+Message-Id: <20230412082840.132555507@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,91 +56,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Andy Roulin <aroulin@nvidia.com>
 
-[ Upstream commit 32d85999680601d01b2a36713c9ffd7397c8688b ]
+[ Upstream commit e847c7675e19ef344913724dc68f83df31ad6a17 ]
 
-Dan reports that smatch complains about a potential uninitialized
-variable being used in the compat alignment fixup code.
+If the number of lanes was forced and then subsequently the user
+omits this parameter, the ksettings->lanes is reset. The driver
+should then reset the number of lanes to the device's default
+for the specified speed.
 
-The logic is not wrong per se, but we do end up using an uninitialized
-variable if reading the instruction that triggered the alignment fault
-from user space faults, even if the fault ensures that the uninitialized
-value doesn't propagate any further.
+However, although the ksettings->lanes is set to 0, the mod variable
+is not set to true to indicate the driver and userspace should be
+notified of the changes.
 
-Given that we just give up and return 1 if any fault occurs when reading
-the instruction, let's get rid of the 'success handling' pattern that
-captures the fault in a variable and aborts later, and instead, just
-return 1 immediately if any of the get_user() calls result in an
-exception.
+The consequence is that the same ethtool operation will produce
+different results based on the initial state.
 
-Fixes: 3fc24ef32d3b ("arm64: compat: Implement misalignment fixups for multiword loads")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/202304021214.gekJ8yRc-lkp@intel.com/
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20230404103625.2386382-1-ardb@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+If the initial state is:
+$ ethtool swp1 | grep -A 3 'Speed: '
+        Speed: 500000Mb/s
+        Lanes: 2
+        Duplex: Full
+        Auto-negotiation: on
+
+then executing 'ethtool -s swp1 speed 50000 autoneg off' will yield:
+$ ethtool swp1 | grep -A 3 'Speed: '
+        Speed: 500000Mb/s
+        Lanes: 2
+        Duplex: Full
+        Auto-negotiation: off
+
+While if the initial state is:
+$ ethtool swp1 | grep -A 3 'Speed: '
+        Speed: 500000Mb/s
+        Lanes: 1
+        Duplex: Full
+        Auto-negotiation: off
+
+executing the same 'ethtool -s swp1 speed 50000 autoneg off' results in:
+$ ethtool swp1 | grep -A 3 'Speed: '
+        Speed: 500000Mb/s
+        Lanes: 1
+        Duplex: Full
+        Auto-negotiation: off
+
+This patch fixes this behavior. Omitting lanes will always results in
+the driver choosing the default lane width for the chosen speed. In this
+scenario, regardless of the initial state, the end state will be, e.g.,
+
+$ ethtool swp1 | grep -A 3 'Speed: '
+        Speed: 500000Mb/s
+        Lanes: 2
+        Duplex: Full
+        Auto-negotiation: off
+
+Fixes: 012ce4dd3102 ("ethtool: Extend link modes settings uAPI with lanes")
+Signed-off-by: Andy Roulin <aroulin@nvidia.com>
+Reviewed-by: Danielle Ratson <danieller@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/ac238d6b-8726-8156-3810-6471291dbc7f@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/compat_alignment.c | 32 ++++++++++++----------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
+ net/ethtool/linkmodes.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/compat_alignment.c b/arch/arm64/kernel/compat_alignment.c
-index 5edec2f49ec98..deff21bfa6800 100644
---- a/arch/arm64/kernel/compat_alignment.c
-+++ b/arch/arm64/kernel/compat_alignment.c
-@@ -314,36 +314,32 @@ int do_compat_alignment_fixup(unsigned long addr, struct pt_regs *regs)
- 	int (*handler)(unsigned long addr, u32 instr, struct pt_regs *regs);
- 	unsigned int type;
- 	u32 instr = 0;
--	u16 tinstr = 0;
- 	int isize = 4;
- 	int thumb2_32b = 0;
--	int fault;
- 
- 	instrptr = instruction_pointer(regs);
- 
- 	if (compat_thumb_mode(regs)) {
- 		__le16 __user *ptr = (__le16 __user *)(instrptr & ~1);
-+		u16 tinstr, tinst2;
- 
--		fault = alignment_get_thumb(regs, ptr, &tinstr);
--		if (!fault) {
--			if (IS_T32(tinstr)) {
--				/* Thumb-2 32-bit */
--				u16 tinst2;
--				fault = alignment_get_thumb(regs, ptr + 1, &tinst2);
--				instr = ((u32)tinstr << 16) | tinst2;
--				thumb2_32b = 1;
--			} else {
--				isize = 2;
--				instr = thumb2arm(tinstr);
--			}
-+		if (alignment_get_thumb(regs, ptr, &tinstr))
-+			return 1;
-+
-+		if (IS_T32(tinstr)) { /* Thumb-2 32-bit */
-+			if (alignment_get_thumb(regs, ptr + 1, &tinst2))
-+				return 1;
-+			instr = ((u32)tinstr << 16) | tinst2;
-+			thumb2_32b = 1;
-+		} else {
-+			isize = 2;
-+			instr = thumb2arm(tinstr);
+diff --git a/net/ethtool/linkmodes.c b/net/ethtool/linkmodes.c
+index 126e06c713a3a..2d91f2a8c7626 100644
+--- a/net/ethtool/linkmodes.c
++++ b/net/ethtool/linkmodes.c
+@@ -282,11 +282,12 @@ static int ethnl_update_linkmodes(struct genl_info *info, struct nlattr **tb,
+ 					    "lanes configuration not supported by device");
+ 			return -EOPNOTSUPP;
  		}
- 	} else {
--		fault = alignment_get_arm(regs, (__le32 __user *)instrptr, &instr);
-+		if (alignment_get_arm(regs, (__le32 __user *)instrptr, &instr))
-+			return 1;
+-	} else if (!lsettings->autoneg) {
+-		/* If autoneg is off and lanes parameter is not passed from user,
+-		 * set the lanes parameter to 0.
++	} else if (!lsettings->autoneg && ksettings->lanes) {
++		/* If autoneg is off and lanes parameter is not passed from user but
++		 * it was defined previously then set the lanes parameter to 0.
+ 		 */
+ 		ksettings->lanes = 0;
++		*mod = true;
  	}
  
--	if (fault)
--		return 1;
--
- 	switch (CODING_BITS(instr)) {
- 	case 0x00000000:	/* 3.13.4 load/store instruction extensions */
- 		if (LDSTHD_I_BIT(instr))
+ 	ret = ethnl_update_bitset(ksettings->link_modes.advertising,
 -- 
 2.39.2
 
