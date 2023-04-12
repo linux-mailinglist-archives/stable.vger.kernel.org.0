@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8876DEFE3
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92DDC6DEFE5
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231467AbjDLIzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:55:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45508 "EHLO
+        id S231468AbjDLIzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:55:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231474AbjDLIzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:55:04 -0400
+        with ESMTP id S231465AbjDLIzG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:55:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A0BA24C
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:54:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4318A5D3
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:54:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EC0363161
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F883C433D2;
-        Wed, 12 Apr 2023 08:54:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14EFB631DC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:54:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29F57C433EF;
+        Wed, 12 Apr 2023 08:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289647;
-        bh=O8oipHqa4SLp2zO5euLxaYWIw4kYIte7nZpnI8gAgdw=;
+        s=korg; t=1681289650;
+        bh=rcPR1yzzx+NFOP4b57vj9H7yNsBfGrlEDO8tBhP58zQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZ64KkGT2TvxQnarOh074gG5RgH3LuQg2n3a1ikrUDXxt8ORtlOCAEcEAl+K3ivrp
-         cMpKe5Ef3GssPetV62q0rYTH8hC77u66Hz464BGwg35eSttR7tWUyibWwIrFjh0Pyo
-         3SbajQsmm34PKjEyCQM7malRI1ntTsR5K6Xk07uI=
+        b=niOEMexPBu8iN+kXSt4n1hqPGGHhwQz65aSDD+0I6IvT9gVTAAZ2UXp0rfIt7AWeN
+         cugCNA4t25OLrqhToWAedHk+zZpsO1tNnciobkBZ0zMywgOVMqo4XfW8NCq/umroNE
+         B4CHm3jJfBWgLVIUUpiCdRKQWUeX1FJ0iAzfkWiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 6.2 158/173] drm/amdgpu: skip psp suspend for IMU enabled ASICs mode2 reset
-Date:   Wed, 12 Apr 2023 10:34:44 +0200
-Message-Id: <20230412082844.505619976@linuxfoundation.org>
+        patches@lists.linux.dev, Amit Pundir <amit.pundir@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>
+Subject: [PATCH 6.2 159/173] drm/bridge: lt9611: Fix PLL being unable to lock
+Date:   Wed, 12 Apr 2023 10:34:45 +0200
+Message-Id: <20230412082844.551763467@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -54,42 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Huang <tim.huang@amd.com>
+From: Robert Foss <robert.foss@linaro.org>
 
-commit e11c775030c5585370fda43035204bb5fa23b139 upstream.
+commit 2a9df204be0bbb896e087f00b9ee3fc559d5a608 upstream.
 
-The psp suspend & resume should be skipped to avoid destroy
-the TMR and reload FWs again for IMU enabled APU ASICs.
+This fixes PLL being unable to lock, and is derived from an equivalent
+downstream commit.
 
-Signed-off-by: Tim Huang <tim.huang@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Available LT9611 documentation does not list this register, neither does
+LT9611UXC (which is a different chip).
+
+This commit has been confirmed to fix HDMI output on DragonBoard 845c.
+
+Suggested-by: Amit Pundir <amit.pundir@linaro.org>
+Reviewed-by: Amit Pundir <amit.pundir@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221213150304.4189760-1-robert.foss@linaro.org
+Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/bridge/lontium-lt9611.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3051,6 +3051,18 @@ static int amdgpu_device_ip_suspend_phas
- 		    (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_SDMA))
- 			continue;
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -258,6 +258,7 @@ static int lt9611_pll_setup(struct lt961
+ 		{ 0x8126, 0x55 },
+ 		{ 0x8127, 0x66 },
+ 		{ 0x8128, 0x88 },
++		{ 0x812a, 0x20 },
+ 	};
  
-+		/* Once swPSP provides the IMU, RLC FW binaries to TOS during cold-boot.
-+		 * These are in TMR, hence are expected to be reused by PSP-TOS to reload
-+		 * from this location and RLC Autoload automatically also gets loaded
-+		 * from here based on PMFW -> PSP message during re-init sequence.
-+		 * Therefore, the psp suspend & resume should be skipped to avoid destroy
-+		 * the TMR and reload FWs again for IMU enabled APU ASICs.
-+		 */
-+		if (amdgpu_in_reset(adev) &&
-+		    (adev->flags & AMD_IS_APU) && adev->gfx.imu.funcs &&
-+		    adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_PSP)
-+			continue;
-+
- 		/* XXX handle errors */
- 		r = adev->ip_blocks[i].version->funcs->suspend(adev);
- 		/* XXX handle errors */
+ 	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
 
 
