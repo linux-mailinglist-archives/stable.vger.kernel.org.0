@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0496DEFA2
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7756DEEFA
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231417AbjDLIwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:52:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40780 "EHLO
+        id S231215AbjDLIql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:46:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231428AbjDLIwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:40 -0400
+        with ESMTP id S231217AbjDLIqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E41FAA25A
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D426A65
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 045BD631A0
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFA67C4339B;
-        Wed, 12 Apr 2023 08:52:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5662630E5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18C3C433D2;
+        Wed, 12 Apr 2023 08:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289530;
-        bh=Nee2raUsHhqEexz7uXcfeMlGxfNwl6hKCWbiW1q+PZM=;
+        s=korg; t=1681289109;
+        bh=n4mwNYjy3HalLWOPtetbZlj0HvvnVWiTiTMH8P7M+yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hpw/q7u4kSCcwt2g7FihG4itT+/3DAbw7OqLuwSaKeEuphndvo6vjQUZ+b+jhzio
-         1ANC1qN3Bd9MSB+Abc+kJNdwTR2DO0u3P7oHdh4N94A0238+kXfBO1SkwRmIOZ+MVb
-         BRHKewXldbXLLxg6qykhX2UqtPntQDlNQuWY1zR8=
+        b=hpTfFVg1Qr4+WtuYVGL3rF7EIpZtLzBTYN+pi7wXvNyCy6aFVJgwqNH6cueYWlgTf
+         B8igW3/T3StuQY52EdXoyXvfbmXuapOegnczpCvA6a+DY4drC5csHTk/s7IiROhuip
+         OroLZKEw5nCCHaLHXIVD5oQTBrt0uJ0m9IHBZI84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Laurence Oberman <loberman@redhat.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 135/173] nvme: fix discard support without oncs
+        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 139/164] mm/hugetlb: fix uffd wr-protection for CoW optimization path
 Date:   Wed, 12 Apr 2023 10:34:21 +0200
-Message-Id: <20230412082843.601123914@linuxfoundation.org>
+Message-Id: <20230412082842.521876847@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +60,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit d3205ab75e99a47539ec91ef85ba488f4ddfeaa9 ]
+commit 60d5b473d61be61ac315e544fcd6a8234a79500e upstream.
 
-The device can report discard support without setting the ONCS DSM bit.
-When not set, the driver clears max_discard_size expecting it to be set
-later. We don't know the size until we have the namespace format,
-though, so setting it is deferred until configuring one, but the driver
-was abandoning the discard settings due to that initial clearing.
+This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
+writable even with uffd-wp bit set.  It only happens with hugetlb private
+mappings, when someone firstly wr-protects a missing pte (which will
+install a pte marker), then a write to the same page without any prior
+access to the page.
 
-Move the max_discard_size calculation above the check for a '0' discard
-size.
+Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
+reaching hugetlb_wp() to avoid taking more locks that userfault won't
+need.  However there's one CoW optimization path that can trigger
+hugetlb_wp() inside hugetlb_no_page(), which will bypass the trap.
 
-Fixes: 1a86924e4f46475 ("nvme: fix interpretation of DMRSL")
-Reported-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Tested-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch skips hugetlb_wp() for CoW and retries the fault if uffd-wp bit
+is detected.  The new path will only trigger in the CoW optimization path
+because generic hugetlb_fault() (e.g.  when a present pte was
+wr-protected) will resolve the uffd-wp bit already.  Also make sure
+anonymous UNSHARE won't be affected and can still be resolved, IOW only
+skip CoW not CoR.
+
+This patch will be needed for v5.19+ hence copy stable.
+
+[peterx@redhat.com: v2]
+  Link: https://lkml.kernel.org/r/ZBzOqwF2wrHgBVZb@x1n
+[peterx@redhat.com: v3]
+  Link: https://lkml.kernel.org/r/20230324142620.2344140-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20230321191840.1897940-1-peterx@redhat.com
+Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Tested-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/hugetlb.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 70b5e891f6b3b..ee1b075d12cfc 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1717,6 +1717,9 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
- 	struct request_queue *queue = disk->queue;
- 	u32 size = queue_logical_block_size(queue);
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5469,7 +5469,7 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 		       struct page *pagecache_page, spinlock_t *ptl)
+ {
+ 	const bool unshare = flags & FAULT_FLAG_UNSHARE;
+-	pte_t pte;
++	pte_t pte = huge_ptep_get(ptep);
+ 	struct hstate *h = hstate_vma(vma);
+ 	struct page *old_page, *new_page;
+ 	int outside_reserve = 0;
+@@ -5481,6 +5481,17 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 	VM_BUG_ON(!unshare && !(flags & FOLL_WRITE));
  
-+	if (ctrl->dmrsl && ctrl->dmrsl <= nvme_sect_to_lba(ns, UINT_MAX))
-+		ctrl->max_discard_sectors = nvme_lba_to_sect(ns, ctrl->dmrsl);
+ 	/*
++	 * Never handle CoW for uffd-wp protected pages.  It should be only
++	 * handled when the uffd-wp protection is removed.
++	 *
++	 * Note that only the CoW optimization path (in hugetlb_no_page())
++	 * can trigger this, because hugetlb_fault() will always resolve
++	 * uffd-wp bit first.
++	 */
++	if (!unshare && huge_pte_uffd_wp(pte))
++		return 0;
 +
- 	if (ctrl->max_discard_sectors == 0) {
- 		blk_queue_max_discard_sectors(queue, 0);
- 		return;
-@@ -1731,9 +1734,6 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
- 	if (queue->limits.max_discard_sectors)
- 		return;
++	/*
+ 	 * hugetlb does not support FOLL_FORCE-style write faults that keep the
+ 	 * PTE mapped R/O such as maybe_mkwrite() would do.
+ 	 */
+@@ -5495,7 +5506,6 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 		return 0;
+ 	}
  
--	if (ctrl->dmrsl && ctrl->dmrsl <= nvme_sect_to_lba(ns, UINT_MAX))
--		ctrl->max_discard_sectors = nvme_lba_to_sect(ns, ctrl->dmrsl);
--
- 	blk_queue_max_discard_sectors(queue, ctrl->max_discard_sectors);
- 	blk_queue_max_discard_segments(queue, ctrl->max_discard_segments);
+-	pte = huge_ptep_get(ptep);
+ 	old_page = pte_page(pte);
  
--- 
-2.39.2
-
+ 	delayacct_wpcopy_start();
 
 
