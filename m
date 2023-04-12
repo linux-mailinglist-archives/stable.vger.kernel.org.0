@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 522D86DEF04
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 752F56DEF03
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbjDLIq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60224 "EHLO
+        id S231209AbjDLIqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:46:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230366AbjDLIqt (ORCPT
+        with ESMTP id S231161AbjDLIqt (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 275F8769E
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A6DD7AAC
         for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6585263104
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551BEC433EF;
-        Wed, 12 Apr 2023 08:46:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 067BB6310B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 116C9C433D2;
+        Wed, 12 Apr 2023 08:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289181;
-        bh=+qZGFFl48Mk0ePi0uZ0A1bLWYcUePl2Tw57kk0qAljM=;
+        s=korg; t=1681289184;
+        bh=dmmA2nGlB1noaL3zMnmPHrNcgJ0XWaUjQdA29nqoBxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjLdDaKUecQkui5OHFlaHO9y87V5auluwmljZcKC9t1QMPNAKLm78Rtuh0Af5YAhX
-         hAsWBZv6wTn4UVeiaJ+cJB5o1t6jkwBerdlUIQj2KLtsQeBxP9gjDKNFSRLLX0jOj+
-         7jvLKzwZFMLYOBqR1RCjOsI1lbhp3Ktpxc0/3Nyc=
+        b=ekx7PGz9GMXgHRpfoVKeqXN3ldw6CAHGLOMA9A9G1+9Y9rZYEaD+Xp1WwawZkK0vC
+         o2xyjEf7On3Secx7UxLzt5rSDSl+3/VQL7Ve2I3ADFHxU4gtGddL8exVMvyTe/SOzB
+         uVfvAR+w5F90pDuOmnWyXiaADEMPgEXCzGDFFhCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org,
-        Daniel Vetter <daniel@ffwll.ch>, Wayne Lin <wayne.lin@amd.com>,
+        <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
+        Wayne Lin <wayne.lin@amd.com>,
         Jani Nikula <jani.nikula@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 6.1 146/164] drm/display/dp_mst: Handle old/new payload states in drm_dp_remove_payload()
-Date:   Wed, 12 Apr 2023 10:34:28 +0200
-Message-Id: <20230412082842.819985225@linuxfoundation.org>
+        Imre Deak <imre.deak@intel.com>
+Subject: [PATCH 6.1 147/164] drm/i915/dp_mst: Fix payload removal during output disabling
+Date:   Wed, 12 Apr 2023 10:34:29 +0200
+Message-Id: <20230412082842.857622548@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
 References: <20230412082836.695875037@linuxfoundation.org>
@@ -64,33 +59,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Imre Deak <imre.deak@intel.com>
 
-commit e761cc20946a0094df71cb31a565a6a0d03bd8be upstream.
+commit eb50912ec931913e70640cecf75cb993fd26995f upstream.
 
-Atm, drm_dp_remove_payload() uses the same payload state to both get the
-vc_start_slot required for the payload removal DPCD message and to
-deduct time_slots from vc_start_slot of all payloads after the one being
-removed.
+Use the correct old/new topology and payload states in
+intel_mst_disable_dp(). So far drm_atomic_get_mst_topology_state() it
+used returned either the old state, in case the state was added already
+earlier during the atomic check phase or otherwise the new state (but
+the latter could fail, which can't be handled in the enable/disable
+hooks). After the first patch in the patchset, the state should always
+get added already during the check phase, so here we can get the
+old/new states without a failure.
 
-The above isn't always correct, as vc_start_slot must be the up-to-date
-version contained in the new payload state, but time_slots must be the
-one used when the payload was previously added, contained in the old
-payload state. The new payload's time_slots can change vs. the old one
-if the current atomic commit changes the corresponding mode.
+drm_dp_remove_payload() should use time_slots from the old payload state
+and vc_start_slot in the new one. It should update the new payload
+states to reflect the sink's current payload table after the payload is
+removed. Pass the new topology state and the old and new payload states
+accordingly.
 
-This patch let's drivers pass the old and new payload states to
-drm_dp_remove_payload(), but keeps these the same for now in all drivers
-not to change the behavior. A follow-up i915 patch will pass in that
-driver the correct old and new states to the function.
+This also fixes a problem where the payload allocations for multiple MST
+streams on the same link got inconsistent after a few commits, as
+during payload removal the old instead of the new payload state got
+updated, so the subsequent enabling sequence and commits used a stale
+payload state.
+
+v2: Constify the old payload state pointer. (Ville)
 
 Cc: Lyude Paul <lyude@redhat.com>
 Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
 Cc: stable@vger.kernel.org # 6.1
-Cc: dri-devel@lists.freedesktop.org
 Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 Reviewed-by: Lyude Paul <lyude@redhat.com>
 Acked-by: Lyude Paul <lyude@redhat.com>
@@ -98,132 +94,43 @@ Acked-by: Daniel Vetter <daniel@ffwll.ch>
 Acked-by: Wayne Lin <wayne.lin@amd.com>
 Acked-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Imre Deak <imre.deak@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230206114856.2665066-2-imre.deak@intel.com
-Hand modified for missing 8c7d980da9ba3eb67a1b40fd4b33bcf49397084b
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230206114856.2665066-4-imre.deak@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c |    2 -
- drivers/gpu/drm/display/drm_dp_mst_topology.c             |   26 +++++++-------
- drivers/gpu/drm/i915/display/intel_dp_mst.c               |    4 +-
- drivers/gpu/drm/nouveau/dispnv50/disp.c                   |    2 -
- include/drm/display/drm_dp_mst_helper.h                   |    3 +
- 5 files changed, 21 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp_mst.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-@@ -206,7 +206,7 @@ bool dm_helpers_dp_mst_write_payload_all
- 	if (enable)
- 		drm_dp_add_payload_part1(mst_mgr, mst_state, payload);
- 	else
--		drm_dp_remove_payload(mst_mgr, mst_state, payload);
-+		drm_dp_remove_payload(mst_mgr, mst_state, payload, payload);
- 
- 	/* mst_mgr->->payloads are VC payload notify MST branch using DPCD or
- 	 * AUX message. The sequence is slot 1-63 allocated sequence for each
---- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-@@ -3342,7 +3342,8 @@ EXPORT_SYMBOL(drm_dp_add_payload_part1);
-  * drm_dp_remove_payload() - Remove an MST payload
-  * @mgr: Manager to use.
-  * @mst_state: The MST atomic state
-- * @payload: The payload to write
-+ * @old_payload: The payload with its old state
-+ * @new_payload: The payload to write
-  *
-  * Removes a payload from an MST topology if it was successfully assigned a start slot. Also updates
-  * the starting time slots of all other payloads which would have been shifted towards the start of
-@@ -3350,36 +3351,37 @@ EXPORT_SYMBOL(drm_dp_add_payload_part1);
-  */
- void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
- 			   struct drm_dp_mst_topology_state *mst_state,
--			   struct drm_dp_mst_atomic_payload *payload)
-+			   const struct drm_dp_mst_atomic_payload *old_payload,
-+			   struct drm_dp_mst_atomic_payload *new_payload)
- {
- 	struct drm_dp_mst_atomic_payload *pos;
- 	bool send_remove = false;
- 
- 	/* We failed to make the payload, so nothing to do */
--	if (payload->vc_start_slot == -1)
-+	if (new_payload->vc_start_slot == -1)
- 		return;
- 
- 	mutex_lock(&mgr->lock);
--	send_remove = drm_dp_mst_port_downstream_of_branch(payload->port, mgr->mst_primary);
-+	send_remove = drm_dp_mst_port_downstream_of_branch(new_payload->port, mgr->mst_primary);
- 	mutex_unlock(&mgr->lock);
- 
- 	if (send_remove)
--		drm_dp_destroy_payload_step1(mgr, mst_state, payload);
-+		drm_dp_destroy_payload_step1(mgr, mst_state, new_payload);
- 	else
- 		drm_dbg_kms(mgr->dev, "Payload for VCPI %d not in topology, not sending remove\n",
--			    payload->vcpi);
-+			    new_payload->vcpi);
- 
- 	list_for_each_entry(pos, &mst_state->payloads, next) {
--		if (pos != payload && pos->vc_start_slot > payload->vc_start_slot)
--			pos->vc_start_slot -= payload->time_slots;
-+		if (pos != new_payload && pos->vc_start_slot > new_payload->vc_start_slot)
-+			pos->vc_start_slot -= old_payload->time_slots;
- 	}
--	payload->vc_start_slot = -1;
-+	new_payload->vc_start_slot = -1;
- 
- 	mgr->payload_count--;
--	mgr->next_start_slot -= payload->time_slots;
-+	mgr->next_start_slot -= old_payload->time_slots;
- 
--	if (payload->delete)
--		drm_dp_mst_put_port_malloc(payload->port);
-+	if (new_payload->delete)
-+		drm_dp_mst_put_port_malloc(new_payload->port);
- }
- EXPORT_SYMBOL(drm_dp_remove_payload);
- 
 --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
 +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-@@ -366,6 +366,8 @@ static void intel_mst_disable_dp(struct
+@@ -364,10 +364,14 @@ static void intel_mst_disable_dp(struct
+ 	struct intel_dp *intel_dp = &dig_port->dp;
+ 	struct intel_connector *connector =
  		to_intel_connector(old_conn_state->connector);
- 	struct drm_dp_mst_topology_state *mst_state =
- 		drm_atomic_get_mst_topology_state(&state->base, &intel_dp->mst_mgr);
-+	struct drm_dp_mst_atomic_payload *payload =
-+		drm_atomic_get_mst_payload_state(mst_state, connector->port);
+-	struct drm_dp_mst_topology_state *mst_state =
+-		drm_atomic_get_mst_topology_state(&state->base, &intel_dp->mst_mgr);
+-	struct drm_dp_mst_atomic_payload *payload =
+-		drm_atomic_get_mst_payload_state(mst_state, connector->port);
++	struct drm_dp_mst_topology_state *old_mst_state =
++		drm_atomic_get_old_mst_topology_state(&state->base, &intel_dp->mst_mgr);
++	struct drm_dp_mst_topology_state *new_mst_state =
++		drm_atomic_get_new_mst_topology_state(&state->base, &intel_dp->mst_mgr);
++	const struct drm_dp_mst_atomic_payload *old_payload =
++		drm_atomic_get_mst_payload_state(old_mst_state, connector->port);
++	struct drm_dp_mst_atomic_payload *new_payload =
++		drm_atomic_get_mst_payload_state(new_mst_state, connector->port);
  	struct drm_i915_private *i915 = to_i915(connector->base.dev);
  
  	drm_dbg_kms(&i915->drm, "active links %d\n",
-@@ -374,7 +376,7 @@ static void intel_mst_disable_dp(struct
+@@ -375,8 +379,8 @@ static void intel_mst_disable_dp(struct
+ 
  	intel_hdcp_disable(intel_mst->connector);
  
- 	drm_dp_remove_payload(&intel_dp->mst_mgr, mst_state,
--			      drm_atomic_get_mst_payload_state(mst_state, connector->port));
-+			      payload, payload);
+-	drm_dp_remove_payload(&intel_dp->mst_mgr, mst_state,
+-			      payload, payload);
++	drm_dp_remove_payload(&intel_dp->mst_mgr, new_mst_state,
++			      old_payload, new_payload);
  
  	intel_audio_codec_disable(encoder, old_crtc_state, old_conn_state);
  }
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -1028,7 +1028,7 @@ nv50_msto_prepare(struct drm_atomic_stat
- 
- 	// TODO: Figure out if we want to do a better job of handling VCPI allocation failures here?
- 	if (msto->disabled) {
--		drm_dp_remove_payload(mgr, mst_state, payload);
-+		drm_dp_remove_payload(mgr, mst_state, payload, payload);
- 	} else {
- 		if (msto->enabled)
- 			drm_dp_add_payload_part1(mgr, mst_state, payload);
---- a/include/drm/display/drm_dp_mst_helper.h
-+++ b/include/drm/display/drm_dp_mst_helper.h
-@@ -841,7 +841,8 @@ int drm_dp_add_payload_part2(struct drm_
- 			     struct drm_dp_mst_atomic_payload *payload);
- void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
- 			   struct drm_dp_mst_topology_state *mst_state,
--			   struct drm_dp_mst_atomic_payload *payload);
-+			   const struct drm_dp_mst_atomic_payload *old_payload,
-+			   struct drm_dp_mst_atomic_payload *new_payload);
- 
- int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr);
- 
 
 
