@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BFD46DEE4B
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD0496DEFA2
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbjDLIlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45258 "EHLO
+        id S231417AbjDLIwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231258AbjDLIkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:11 -0400
+        with ESMTP id S231428AbjDLIwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D817AAA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E41FAA25A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A63162BA5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FAD3C433D2;
-        Wed, 12 Apr 2023 08:38:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 045BD631A0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFA67C4339B;
+        Wed, 12 Apr 2023 08:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288705;
-        bh=z08KnyR2SsuHLbrfY5ErqK5sorxW50UkAmukT7BiUCI=;
+        s=korg; t=1681289530;
+        bh=Nee2raUsHhqEexz7uXcfeMlGxfNwl6hKCWbiW1q+PZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9lYvmd/1Mk9T59Lc9VJdB9MZHMgQRBaAlewQSTom4ZODtNRk2HDKexcKKapxchHp
-         W7dHTbhQGwh+T4SZswamSiO5y5Inw/6zYtrmT69W/SG1q5Nei28p+aXveiI0ZEm+2d
-         cmy7tcuwm6P2m2LNOCAx3su5ifpNVO/Xy9WHXw6o=
+        b=1hpw/q7u4kSCcwt2g7FihG4itT+/3DAbw7OqLuwSaKeEuphndvo6vjQUZ+b+jhzio
+         1ANC1qN3Bd9MSB+Abc+kJNdwTR2DO0u3P7oHdh4N94A0238+kXfBO1SkwRmIOZ+MVb
+         BRHKewXldbXLLxg6qykhX2UqtPntQDlNQuWY1zR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 79/93] perf/core: Fix the same task check in perf_event_set_output
-Date:   Wed, 12 Apr 2023 10:34:20 +0200
-Message-Id: <20230412082826.466079121@linuxfoundation.org>
+        patches@lists.linux.dev, Laurence Oberman <loberman@redhat.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 135/173] nvme: fix discard support without oncs
+Date:   Wed, 12 Apr 2023 10:34:21 +0200
+Message-Id: <20230412082843.601123914@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 24d3ae2f37d8bc3c14b31d353c5d27baf582b6a6 ]
+[ Upstream commit d3205ab75e99a47539ec91ef85ba488f4ddfeaa9 ]
 
-The same task check in perf_event_set_output has some potential issues
-for some usages.
+The device can report discard support without setting the ONCS DSM bit.
+When not set, the driver clears max_discard_size expecting it to be set
+later. We don't know the size until we have the namespace format,
+though, so setting it is deferred until configuring one, but the driver
+was abandoning the discard settings due to that initial clearing.
 
-For the current perf code, there is a problem if using of
-perf_event_open() to have multiple samples getting into the same mmap’d
-memory when they are both attached to the same process.
-https://lore.kernel.org/all/92645262-D319-4068-9C44-2409EF44888E@gmail.com/
-Because the event->ctx is not ready when the perf_event_set_output() is
-invoked in the perf_event_open().
+Move the max_discard_size calculation above the check for a '0' discard
+size.
 
-Besides the above issue, before the commit bd2756811766 ("perf: Rewrite
-core context handling"), perf record can errors out when sampling with
-a hardware event and a software event as below.
- $ perf record -e cycles,dummy --per-thread ls
- failed to mmap with 22 (Invalid argument)
-That's because that prior to the commit a hardware event and a software
-event are from different task context.
-
-The problem should be a long time issue since commit c3f00c70276d
-("perk: Separate find_get_context() from event initialization").
-
-The task struct is stored in the event->hw.target for each per-thread
-event. It is a more reliable way to determine whether two events are
-attached to the same task.
-
-The event->hw.target was also introduced several years ago by the
-commit 50f16a8bf9d7 ("perf: Remove type specific target pointers"). It
-can not only be used to fix the issue with the current code, but also
-back port to fix the issues with an older kernel.
-
-Note: The event->hw.target was introduced later than commit
-c3f00c70276d. The patch may cannot be applied between the commit
-c3f00c70276d and commit 50f16a8bf9d7. Anybody that wants to back-port
-this at that period may have to find other solutions.
-
-Fixes: c3f00c70276d ("perf: Separate find_get_context() from event initialization")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-Link: https://lkml.kernel.org/r/20230322202449.512091-1-kan.liang@linux.intel.com
+Fixes: 1a86924e4f46475 ("nvme: fix interpretation of DMRSL")
+Reported-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Tested-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 2cdee62c3de73..dc57835e70966 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12024,7 +12024,7 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	/*
- 	 * If its not a per-cpu rb, it must be the same task.
- 	 */
--	if (output_event->cpu == -1 && output_event->ctx != event->ctx)
-+	if (output_event->cpu == -1 && output_event->hw.target != event->hw.target)
- 		goto out;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 70b5e891f6b3b..ee1b075d12cfc 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1717,6 +1717,9 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
+ 	struct request_queue *queue = disk->queue;
+ 	u32 size = queue_logical_block_size(queue);
  
- 	/*
++	if (ctrl->dmrsl && ctrl->dmrsl <= nvme_sect_to_lba(ns, UINT_MAX))
++		ctrl->max_discard_sectors = nvme_lba_to_sect(ns, ctrl->dmrsl);
++
+ 	if (ctrl->max_discard_sectors == 0) {
+ 		blk_queue_max_discard_sectors(queue, 0);
+ 		return;
+@@ -1731,9 +1734,6 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
+ 	if (queue->limits.max_discard_sectors)
+ 		return;
+ 
+-	if (ctrl->dmrsl && ctrl->dmrsl <= nvme_sect_to_lba(ns, UINT_MAX))
+-		ctrl->max_discard_sectors = nvme_lba_to_sect(ns, ctrl->dmrsl);
+-
+ 	blk_queue_max_discard_sectors(queue, ctrl->max_discard_sectors);
+ 	blk_queue_max_discard_segments(queue, ctrl->max_discard_segments);
+ 
 -- 
 2.39.2
 
