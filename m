@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2756DEF16
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BB46DEE7F
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231249AbjDLIrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60912 "EHLO
+        id S230505AbjDLImD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbjDLIrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:47:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC0627EDF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:54 -0700 (PDT)
+        with ESMTP id S230338AbjDLIlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7F130E0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E7206310E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31760C433EF;
-        Wed, 12 Apr 2023 08:46:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23D26627F2
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38017C433D2;
+        Wed, 12 Apr 2023 08:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289205;
-        bh=35mf5ffV2Hsiw9nanuW/NjMbpglLvEal+H70pxjnGMU=;
+        s=korg; t=1681288854;
+        bh=W+4o9Mbf3zNn0Y5iGtu5NRR2e6rYp+MRKdh7a7nazKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcHKTT1YO6pDXz+nBk10uctnCz7dGfCRUm8bom401FWYLm5iZrPD/sdby/2K38pgm
-         6RrPN+nWwMc2qVmmMM6kcBvfC9Oj6/sBOtC3BvgGKsfhsucDwYSxiAmYzFqGhAZF8Q
-         0DHTwPyT45rXYbbViO+3+NTV4g3TePRADGyNNwQ8=
+        b=SSL4GisqYkznByrTUlGb8fiGoG/NIe0DCi4S3/y3neMmL8RheN6oLYExKxCJzxmfP
+         s5puHBmHdMROOo1LmSJWRcBxDzUUuu9YcXe+hQByhRHnvezFy1DpE5iJ7ZgTty99Z+
+         yfoIrCAp/e+or7ds1iYuls5UWEGbbV7vqX7ENp5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <groeck@chromium.org>,
+        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 011/173] pwm: cros-ec: Explicitly set .polarity in .get_state()
+Subject: [PATCH 6.1 015/164] pwm: iqs620a: Explicitly set .polarity in .get_state()
 Date:   Wed, 12 Apr 2023 10:32:17 +0200
-Message-Id: <20230412082838.566969979@linuxfoundation.org>
+Message-Id: <20230412082837.500263360@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,33 +58,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 30006b77c7e130e01d1ab2148cc8abf73dfcc4bf ]
+[ Upstream commit b20b097128d9145fadcea1cbb45c4d186cb57466 ]
 
 The driver only supports normal polarity. Complete the implementation of
 .get_state() by setting .polarity accordingly.
 
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Fixes: 1f0d3bb02785 ("pwm: Add ChromeOS EC PWM driver")
-Link: https://lore.kernel.org/r/20230228135508.1798428-3-u.kleine-koenig@pengutronix.de
+Fixes: 6f0841a8197b ("pwm: Add support for Azoteq IQS620A PWM generator")
+Reviewed-by: Jeff LaBundy <jeff@labundy.com>
+Link: https://lore.kernel.org/r/20230228135508.1798428-4-u.kleine-koenig@pengutronix.de
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-cros-ec.c | 1 +
+ drivers/pwm/pwm-iqs620a.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pwm/pwm-cros-ec.c b/drivers/pwm/pwm-cros-ec.c
-index 86df6702cb835..ad18b0ebe3f1e 100644
---- a/drivers/pwm/pwm-cros-ec.c
-+++ b/drivers/pwm/pwm-cros-ec.c
-@@ -198,6 +198,7 @@ static int cros_ec_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+diff --git a/drivers/pwm/pwm-iqs620a.c b/drivers/pwm/pwm-iqs620a.c
+index 15aae53db5abb..aeb19a274accf 100644
+--- a/drivers/pwm/pwm-iqs620a.c
++++ b/drivers/pwm/pwm-iqs620a.c
+@@ -126,6 +126,7 @@ static int iqs620_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	mutex_unlock(&iqs620_pwm->lock);
  
- 	state->enabled = (ret > 0);
- 	state->period = EC_PWM_MAX_DUTY;
+ 	state->period = IQS620_PWM_PERIOD_NS;
 +	state->polarity = PWM_POLARITY_NORMAL;
  
- 	/*
- 	 * Note that "disabled" and "duty cycle == 0" are treated the same. If
+ 	return 0;
+ }
 -- 
 2.39.2
 
