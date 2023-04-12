@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A232F6DEE48
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCB86DEFAD
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230326AbjDLIlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45258 "EHLO
+        id S231411AbjDLIxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231381AbjDLIk3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC187D85
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:03 -0700 (PDT)
+        with ESMTP id S231430AbjDLIwz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A750A5D4
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADF0563034
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD493C433D2;
-        Wed, 12 Apr 2023 08:39:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFBFE631AB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7EFC433EF;
+        Wed, 12 Apr 2023 08:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288742;
-        bh=TDO5TQ6ii7fPaHPtpP2/5DXA1bNXZKwWQSj7gwuRUGw=;
+        s=korg; t=1681289546;
+        bh=42AdxJVvxg7jLApAnNaNM9tNWle6YWAIPJ+GVQZ8AzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cyye0BxIvDgDqkmD/P6PSs2+8XouHOuvw+Hz1OMTayvz1BiTUFOhGSzSfDXpMGdUJ
-         ZOoKYMLfVqN9m9J1G1SfeZmaMfAMHRXJjLYw45Ea9GeNdsEIwMhhYAloaF0/p4C3T3
-         LC62yURm8vQ5OasxOoR/+T7fqgeQ90+pX1t2diFs=
+        b=wV3Tz2D8TRCMtmG+frWPraEmubpu7TU4fiB4h/nIMxvzUdRp69b+dUAm0Yn5jhOOw
+         u5xAZNQ2wVNzH1jHOJlXgvXd2ubwHNbUlF1u5JNl8OQQnC3fpnXKvmPrn85XlgiYdA
+         eulqNXj9LxraHc8+TXgNfbdYr7+2xrn3v4XoMdL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 85/93] tracing: Free error logs of tracing instances
+        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 140/173] perf/core: Fix the same task check in perf_event_set_output
 Date:   Wed, 12 Apr 2023 10:34:26 +0200
-Message-Id: <20230412082826.755058106@linuxfoundation.org>
+Message-Id: <20230412082843.760563841@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,93 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
+[ Upstream commit 24d3ae2f37d8bc3c14b31d353c5d27baf582b6a6 ]
 
-When a tracing instance is removed, the error messages that hold errors
-that occurred in the instance needs to be freed. The following reports a
-memory leak:
+The same task check in perf_event_set_output has some potential issues
+for some usages.
 
- # cd /sys/kernel/tracing
- # mkdir instances/foo
- # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
- # cat instances/foo/error_log
- [  117.404795] hist:sched:sched_switch: error: Couldn't find field
-   Command: hist:keys=x
-                      ^
- # rmdir instances/foo
+For the current perf code, there is a problem if using of
+perf_event_open() to have multiple samples getting into the same mmap’d
+memory when they are both attached to the same process.
+https://lore.kernel.org/all/92645262-D319-4068-9C44-2409EF44888E@gmail.com/
+Because the event->ctx is not ready when the perf_event_set_output() is
+invoked in the perf_event_open().
 
-Then check for memory leaks:
+Besides the above issue, before the commit bd2756811766 ("perf: Rewrite
+core context handling"), perf record can errors out when sampling with
+a hardware event and a software event as below.
+ $ perf record -e cycles,dummy --per-thread ls
+ failed to mmap with 22 (Invalid argument)
+That's because that prior to the commit a hardware event and a software
+event are from different task context.
 
- # echo scan > /sys/kernel/debug/kmemleak
- # cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffff88810d8ec700 (size 192):
-  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
-  hex dump (first 32 bytes):
-    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
-    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
-  backtrace:
-    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
-    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
-    [<000000004a0e1b07>] parse_atom+0x966/0xb40
-    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
-    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
-    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
-    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
-    [<000000002cadc509>] vfs_write+0x162/0x670
-    [<0000000059c3b9be>] ksys_write+0xca/0x170
-    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
-    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
-unreferenced object 0xffff888170c35a00 (size 32):
-  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
-  hex dump (first 32 bytes):
-    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
-    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
-  backtrace:
-    [<000000006a747de5>] __kmalloc+0x4d/0x160
-    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
-    [<000000004a0e1b07>] parse_atom+0x966/0xb40
-    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
-    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
-    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
-    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
-    [<000000002cadc509>] vfs_write+0x162/0x670
-    [<0000000059c3b9be>] ksys_write+0xca/0x170
-    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
-    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+The problem should be a long time issue since commit c3f00c70276d
+("perk: Separate find_get_context() from event initialization").
 
-The problem is that the error log needs to be freed when the instance is
-removed.
+The task struct is stored in the event->hw.target for each per-thread
+event. It is a more reliable way to determine whether two events are
+attached to the same task.
 
-Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
-Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
+The event->hw.target was also introduced several years ago by the
+commit 50f16a8bf9d7 ("perf: Remove type specific target pointers"). It
+can not only be used to fix the issue with the current code, but also
+back port to fix the issues with an older kernel.
 
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note: The event->hw.target was introduced later than commit
+c3f00c70276d. The patch may cannot be applied between the commit
+c3f00c70276d and commit 50f16a8bf9d7. Anybody that wants to back-port
+this at that period may have to find other solutions.
+
+Fixes: c3f00c70276d ("perf: Separate find_get_context() from event initialization")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Link: https://lkml.kernel.org/r/20230322202449.512091-1-kan.liang@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -9416,6 +9416,7 @@ static int __remove_instance(struct trac
- 	tracefs_remove(tr->dir);
- 	free_percpu(tr->last_func_repeats);
- 	free_trace_buffers(tr);
-+	clear_tracing_err_log(tr);
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -12155,7 +12155,7 @@ perf_event_set_output(struct perf_event
+ 	/*
+ 	 * If its not a per-cpu rb, it must be the same task.
+ 	 */
+-	if (output_event->cpu == -1 && output_event->ctx != event->ctx)
++	if (output_event->cpu == -1 && output_event->hw.target != event->hw.target)
+ 		goto out;
  
- 	for (i = 0; i < tr->nr_topts; i++) {
- 		kfree(tr->topts[i].topts);
+ 	/*
 
 
