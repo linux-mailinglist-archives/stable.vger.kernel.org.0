@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A3146DEED1
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 183566DEE31
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230051AbjDLIpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57098 "EHLO
+        id S230454AbjDLIk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:40:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231276AbjDLIoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000F56E8B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:32 -0700 (PDT)
+        with ESMTP id S231135AbjDLIj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B092D30EB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AD6C62AE9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4220BC4339C;
-        Wed, 12 Apr 2023 08:44:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0838C62917
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A73DC433D2;
+        Wed, 12 Apr 2023 08:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289066;
-        bh=PHG4L2sYEwAW9G4KcXZyk02SCWpC/6epzTDNMCHUL80=;
+        s=korg; t=1681288666;
+        bh=bYs3RiM3cKzoUtmqBaxN1gXvuc2X6G682uDsrDZprh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gay8KsdKFxFzRaNYiltrysokG6HYj6xjNZOGd9AvuZtiYjNhiOZm8m/i1UI2DsJyL
-         HpUh2B7xqSBxhYw2h6ozEGNktm11wypjmX5fVRSu0QoeN79Q5m5Wr/r9Z04B5xuhAt
-         lrCNpOi6wzgbv6ygbzg7EzPFMcMxJDXpZAxU45Ac=
+        b=vHOkllTs6n35HD+A3chBlKuahsMGu4D1y57D7bTsCGGFmgS2/dAzObs5PHGC3Ni4M
+         RBv25xN1jCsI+YwDJHOvx74cdbcFN9zV4n89fAz1oYX05H3kDKCgRe9tEEO9qTOj2I
+         DHg9JmsJc4FDrFT0oqGMvAZJfE/RWGGGLOmHRxs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 124/164] tracing/timerlat: Notify new max thread latency
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Sherry Sun <sherry.sun@nxp.com>
+Subject: [PATCH 5.15 65/93] tty: serial: fsl_lpuart: avoid checking for transfer complete when UARTCTRL_SBK is asserted in lpuart32_tx_empty
 Date:   Wed, 12 Apr 2023 10:34:06 +0200
-Message-Id: <20230412082841.868871290@linuxfoundation.org>
+Message-Id: <20230412082825.866193988@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,37 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-commit b9f451a9029a16eb7913ace09b92493d00f2e564 upstream.
+commit 9425914f3de6febbd6250395f56c8279676d9c3c upstream.
 
-timerlat is not reporting a new tracing_max_latency for the thread
-latency. The reason is that it is not calling notify_new_max_latency()
-function after the new thread latency is sampled.
+According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
+a break character by writing 1 to CTRL[SBK], so here need to avoid
+checking for transmission complete when UARTCTRL_SBK is asserted,
+otherwise the lpuart32_tx_empty may never get TIOCSER_TEMT.
 
-Call notify_new_max_latency() after computing the thread latency.
+Commit 2411fd94ceaa("tty: serial: fsl_lpuart: skip waiting for
+transmission complete when UARTCTRL_SBK is asserted") only fix it in
+lpuart32_set_termios(), here also fix it in lpuart32_tx_empty().
 
-Link: https://lkml.kernel.org/r/16e18d61d69073d0192ace07bf61e405cca96e9c.1680104184.git.bristot@kernel.org
-
-Cc: stable@vger.kernel.org
-Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20230323054415.20363-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/fsl_lpuart.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1681,6 +1681,8 @@ static int timerlat_main(void *data)
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -829,11 +829,17 @@ static unsigned int lpuart32_tx_empty(st
+ 			struct lpuart_port, port);
+ 	unsigned long stat = lpuart32_read(port, UARTSTAT);
+ 	unsigned long sfifo = lpuart32_read(port, UARTFIFO);
++	unsigned long ctrl = lpuart32_read(port, UARTCTRL);
  
- 		trace_timerlat_sample(&s);
+ 	if (sport->dma_tx_in_progress)
+ 		return 0;
  
-+		notify_new_max_latency(diff);
-+
- 		timerlat_dump_stack(time_to_us(diff));
+-	if (stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT)
++	/*
++	 * LPUART Transmission Complete Flag may never be set while queuing a break
++	 * character, so avoid checking for transmission complete when UARTCTRL_SBK
++	 * is asserted.
++	 */
++	if ((stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT) || ctrl & UARTCTRL_SBK)
+ 		return TIOCSER_TEMT;
  
- 		tlat->tracing_thread = false;
+ 	return 0;
 
 
