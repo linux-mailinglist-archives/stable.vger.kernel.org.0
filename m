@@ -2,131 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D896DEA7A
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 06:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD386DEA7D
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 06:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbjDLE3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 00:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51542 "EHLO
+        id S229486AbjDLE3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 00:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbjDLE3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 00:29:19 -0400
+        with ESMTP id S229498AbjDLE31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 00:29:27 -0400
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B41CE66;
-        Tue, 11 Apr 2023 21:29:18 -0700 (PDT)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33BLLAFk005408;
-        Wed, 12 Apr 2023 04:29:15 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AF5CE66;
+        Tue, 11 Apr 2023 21:29:26 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33BLSLUD023156;
+        Wed, 12 Apr 2023 04:29:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2023-03-30; bh=YofKBUOk9PSXj/j+L3bwE6+MdBcw9mffs04sVrPYD9E=;
- b=RHbuI4JvAI0dGwFYUcuPUXzLdpatj93lkaJRPEfvsXYjcE+mlpxDEz2pw1E1K/Ab6PIn
- ORKw01LT9ET9pwSn3hnIX66ZJ1KKq97x22BAA6x2WuKZcOJ4SJ6Q7mvzwTPOTJKiWWsr
- N0mWQSE8EyhUtzZ6MN6PSziIpyaQD8Fe6d/eFsJyjVtBznjb99+tKo9AbsIgdpFSd3mK
- hbbdQcrBj2D/G+ff0debSTn8i7mRXIHpCpxkmaYLAZKlM0Iz94QsIKM2AU5osy2Yd03r
- npbzpSQzxiCVhyABPkV3NMMwHn8mlo5/rqqMMCQPr9maOtqknRLe/9c3VdLApjH4Uwfd Rg== 
+ s=corp-2023-03-30; bh=mw4GMOKoYHsBv/z3HF1GmgoCc/o0/Poy266MLlJc8iw=;
+ b=Ne3f40k4N4/eQcjHdTXg/+wT68cS3qu+CrehFQMY0vthUiwIOxFazkEX3yFepBgZ30ne
+ 1dcyMZYFJIJ2fzYa/zwAPDylDWWnlDZLw/h4s2lVHwS1E+qUtWUJGFX3FAr1/u7YHyxK
+ YKhh/ec/NcowxNKczkS4vbWGZk4E7LhVRchpnu5MUcQTVBMIDwIFqWyg5X7OWQY9ydli
+ 22U9rJ4Sf1o2CLp7al3t01EFuoN77iHZoZFxZ1HKPH2X2SdDG//0RO2uEb1UcSHeZt4U
+ 5tIEZdhT/AyYEzpOyohm4yjbozQuG6umhCu5tYAjmD4on59GsyqqdneEhaaaUNfcfb0Y 3g== 
 Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pu0e7f0mc-1
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pu0eq72bh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Apr 2023 04:29:14 +0000
+        Wed, 12 Apr 2023 04:29:22 +0000
 Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 33C2j73J030921;
-        Wed, 12 Apr 2023 04:29:14 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2176.outbound.protection.outlook.com [104.47.56.176])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3puwbp83r0-1
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 33C2R7uB030958;
+        Wed, 12 Apr 2023 04:29:21 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3puwbp83x3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Apr 2023 04:29:13 +0000
+        Wed, 12 Apr 2023 04:29:21 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OZdFsXFOs5FpBr264D8NahCs1oB5Zb9QHNydgXFj8hLmQxl7Zt3/OO6Qr7Zu89KUU/F/p+zR4VBS30tmf0sOnXGXzMqpyzNny26yT7aNfjoRgY5SMNbblohx1M7zBlrZzxA4gVG5HFDznbu0HMC4fBYE+1t9e+D+bsgiMPPLikS8jO8O4ZkUg904Ur4NTX8bB37h0XBNARNUjClVnLjMSSuaArJkiKuiLhFm0oqtM7fpnECkVPIaRU7mEbugVuD95xZPCun2n2DAtU3gUev/fYJJG38VovK7zazSa8+wF8k38MFIqs0gMwiP4hN9WelmCxeEaJjFNtOWK65/kCBTvQ==
+ b=ZGRQpxPOaia82JX3WRBonT9DM0h6ALCyuCHP/BPIO4HTlwERgNGmaNwwSaLX9FT6RNFZ/OnePZGFlKCfatSneZGm+DBa9GiyznPXSJoMxm4Ma/wbd4fIhJZv13tut/C3My4cEeJyq360Y6/3TU3aNakpizd5+fKqWD3ECdjXXtMnrt3RZjUmFmd0jisbTpnLvPTusCDIiXBlZD6h2ILlK4JOzeZu2Ol5k2MsvZeaGX8O2E8/0jQKbaVRcTAUOdjZB9upiAdnrRebAkHg/tYR3Q0vQlA3FHRsDPfnQG8rBpWQ8TN8clNO3iP/RXX8XluO/vDOIOBSOWEvNTfwKUIjWA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YofKBUOk9PSXj/j+L3bwE6+MdBcw9mffs04sVrPYD9E=;
- b=BKIM3NmUnV+07vuj2rKJhuws8K4pwtU4cuR3hP0ircGW1ysS+WLCWKMouNMJaxbEy0cTaZ8jNF+qhBESqDlnJI/L3IchgBKNhMAEIm8zgfShZ5GVAs4PtopEL0yvA8aVU0RFlaMng1mjRYLu9Tf89qqZDhs7uX/OqISgIJ9bTpmsXF5MdAR3l/HE4usrdcBryogOx1rEztj33pumLQdk/qR8Ml/hHKDGYR6gFI/R+ABSvsLakkNGc9JhXCR/9tTyrtbTLqEjxRBVPGpAQDGWuWvuWDTRYdLh8RdFH2Pupzmz1sFyuv0dEQecO2HfFl9B9xlLoa+LJLYxtCPOLTyrjg==
+ bh=mw4GMOKoYHsBv/z3HF1GmgoCc/o0/Poy266MLlJc8iw=;
+ b=HHhwfzFwXonxVtvkOV/KZyUH1nIilmDcd0Dg1gNcCZP/2shmz6djxCJvs44JZBRIWDDVF4G4qdH4eMC5FfQbEVHgFxOKCA/HlDNaaX5x0YvkxvGHe+PUF3aEHCHsAzW0J/jGZxLxOvWZyZ9VgCiAF79wjFNKuI7Wo6SmysjBzK+b6X/Uyp/NqgsRs9lFEg2GlaXBtYZQlMCqMEE158uXuJnYdNYGIzrjxfmGKnI/pwa1QBZp9e53xmlMElf7Ir/bph0S+g0EUmG5iZwAX4eyEnOej0LE4qkjw6WkpF0R3S8Bjl1E6+h2dDUMunTB2uLPDCMiz7pm4sXKyREwWx7O/Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YofKBUOk9PSXj/j+L3bwE6+MdBcw9mffs04sVrPYD9E=;
- b=S3MONcepp24MXAyZplN3XKLq4NdD7KAtxQBTvCSa0KvnncjA6O+I3B6pzl64dacqNm3ohDHKC+bgOxJ+NO/nUpqPKznmaMe2mu/6Lbjgts8DpC8Xo2cpt+18npRKRRZqNNSrmmB+bEviErEPcRxxZh9MTYK689MeHeo35C+F5pg=
+ bh=mw4GMOKoYHsBv/z3HF1GmgoCc/o0/Poy266MLlJc8iw=;
+ b=pt/tTkBiyTvzn5izkefDepvPXmuzAurgc2ihkBq9JN26fRVlWPGiRL9be0TQf2lB6NcyoKDgLwxzTVN/mTUul9VNxxos1E8XzCod5PSJQ7AE2kP9Gk1fRuGRFG9Ir8eL0ly25mgLRMDsAKu3Ps1Pgeo/POo869uA12uUaD5u7k4=
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com (2603:10b6:806:22b::9)
  by SJ0PR10MB4559.namprd10.prod.outlook.com (2603:10b6:a03:2d0::13) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.38; Wed, 12 Apr
- 2023 04:29:11 +0000
+ 2023 04:29:19 +0000
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::b3d4:e7f4:7f85:90b7]) by SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::b3d4:e7f4:7f85:90b7%3]) with mapi id 15.20.6298.030; Wed, 12 Apr 2023
- 04:29:11 +0000
+ 04:29:19 +0000
 From:   Chandan Babu R <chandan.babu@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
         stable@vger.kernel.org, djwong@kernel.org, chandan.babu@oracle.com,
         amir73il@gmail.com, leah.rumancik@gmail.com
-Subject: [PATCH 5.4 15/17] xfs: consider shutdown in bmapbt cursor delete assert
-Date:   Wed, 12 Apr 2023 09:56:22 +0530
-Message-Id: <20230412042624.600511-16-chandan.babu@oracle.com>
+Subject: [PATCH 5.4 16/17] xfs: don't reuse busy extents on extent trim
+Date:   Wed, 12 Apr 2023 09:56:23 +0530
+Message-Id: <20230412042624.600511-17-chandan.babu@oracle.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230412042624.600511-1-chandan.babu@oracle.com>
 References: <20230412042624.600511-1-chandan.babu@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: TYAPR04CA0001.apcprd04.prod.outlook.com
- (2603:1096:404:15::13) To SA1PR10MB5867.namprd10.prod.outlook.com
+X-ClientProxiedBy: TYCP301CA0004.JPNP301.PROD.OUTLOOK.COM
+ (2603:1096:400:386::12) To SA1PR10MB5867.namprd10.prod.outlook.com
  (2603:10b6:806:22b::9)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: SA1PR10MB5867:EE_|SJ0PR10MB4559:EE_
-X-MS-Office365-Filtering-Correlation-Id: 72bb504c-b107-432b-df0b-08db3b0e770c
+X-MS-Office365-Filtering-Correlation-Id: 88f8d41c-757e-4dbc-1e87-08db3b0e7b72
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ScEHlfC+eE2AcnTC1AV+tV2lY+2NL9R2rx8obvE9TF92DohHpnj1MBizrKyiZ08/Y6UPhrZYJC925mRwnUzf2iBw8ii/Cdjb80LKt8vy/uMSvRrSsV/gEekuK2laNg9DTQ6tUujwtioYu6cLxSiLmUgAfCDih6buUWkgwOQlVlMZzEBR7rO2LEyaxPVGdZwcEnBPupDewKxI9eQ9J9R9xQz0PjcjB39GV62ZSlrpwPBwsHGMp8cOQS79DTyVHBNAqIBii9du6rmCeK7AjdWzPOe4oE34IONmR0Co7rA+Qz7AV5dGFf/eKrinsDIIYMRfRKFGAdBK0ZBUAHe+6q1+S1g3WaaKHoY+zkEiANK9Hyfx+J7ZAdHD9mWjTMmUHfL5aNkQNgGylWWSdL37cAPDZM5QPHki2A1xxFXHIilIWP/1QqE2dQBi4EQzyOkqbet/umSO67Iz8PTwSNi/0LyIX2gIoezo1SFsLeb5f+2DHOd5Kzltvb+ChjfWnHLbjP8x7kQI0J23ifaAqCvJUn67Nt+qge2g2kdlFVe16iEwQl0nUplwkZIVWI4ZNhweLCIW
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(376002)(136003)(396003)(346002)(366004)(39860400002)(451199021)(6666004)(8936002)(66899021)(6486002)(5660300002)(86362001)(6916009)(66476007)(66946007)(8676002)(4326008)(66556008)(478600001)(38100700002)(2906002)(83380400001)(1076003)(6506007)(6512007)(186003)(2616005)(41300700001)(316002)(36756003)(26005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: Giwd4JC0FUZp69d1r6MpGtRK/9GqIlIhcQUzf/uicu78l28YpolNnZZZgeFj2fs6vPFuVAjSbHUL84e8aO+yDCeBJJUMP+rMxT/7TENR4GqEz81oJD7nhddix/P17d51MzHR+J23TvWU3sQeMZhOKRWYQEcVn8N6sqdzHKwUo63vpy45FyMXlRwgKHIX3MKvKFTAhO3H622msQJhPnH4mSAmwkXEs3AhtLs3uI9D+XgLCbik2pnauGkpmArw7KTMU2UlNzJFWHfmbeLS8/0Y+gFc7U4mEnT6ZISuqfRY3Ol4RHvBmTIGC5tq0jFcNO1pYyFfOIz/x/SbwfJVnQBs4OwgGB+e6P1hUfX9GWbCDL0Q5jitVDFSKAuQDsyrgZqVhuTQX3+H7ud1iYBt9wCpx0tPe08h6fXsnDQ6Lu1iktHm0zr/I485TAfh8ql9YXNp8PiW8CT7i4m+niU/aVxh3ZVzMXsNvKRTURy0mvjhZxrMsOXE6k1j9bz7JjSr5RD2bSRbUWVpo+IASE8RcBv6pPqwi3BqC6CeR9lKIuxIusCVfqNTGFZeRyrSfJ7uDALG
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(376002)(136003)(396003)(346002)(366004)(39860400002)(451199021)(6666004)(8936002)(6486002)(5660300002)(86362001)(6916009)(66476007)(66946007)(8676002)(4326008)(66556008)(478600001)(38100700002)(2906002)(83380400001)(1076003)(6506007)(6512007)(186003)(2616005)(41300700001)(316002)(36756003)(26005);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?VXF5nKKi9u20+zD632OSWTrHks8Jku7ja5Tf4NB0c0B3DJT6/QjdxaALAIo3?=
- =?us-ascii?Q?i4fbRG7Gj24Zjr0fyFkjm4zkLb7vr/zYIGC4N+/qBmhfP+Y25o30+b3aG3AX?=
- =?us-ascii?Q?65LIE3zFwAb4ermq/E8bBEkoU0vdhULvYPK2UJG0DA9QUi7u2MR31H4Np2e+?=
- =?us-ascii?Q?1E+j1EDyN82U2QKZNV4mfnOt8ayYr18wrtAkzEtehd/86NFxXGD8fR2usDhG?=
- =?us-ascii?Q?1v1OP5tSB/tJXQwjwUFfqV5JEmysZyrMNk2Kza4ZoR/0xkOWXGqPXSlE8DOn?=
- =?us-ascii?Q?9k2ZbdB+AuAA+EWfZsBusFTd1TtknKy3uWOd0ZQx5Nruq2boW88c0/Sr3L+G?=
- =?us-ascii?Q?k9mZndoTZhFM9K2VYHlB5KyH5hLW6EGOBmW/zI/MrSJ7JRjX/so5ztlWjqGo?=
- =?us-ascii?Q?+kDDG8XSp/AKW2ja6gIezFcVrAy2MnrKiOcT1Q3yns1KDxlg8t7+U/NWgpF4?=
- =?us-ascii?Q?X/JxBeoQpnDE5O5XZL8L5AeddizbKR6+uaErUgmjVhhoFYj925QKXdSCcNxG?=
- =?us-ascii?Q?WdK8QUrnVEhR/oZSVFWdO2wKU4fsa5DrPTKtlObUsfXgp1uSWIJc+KI/Pkvo?=
- =?us-ascii?Q?g0/RG2ubSBqq86eJfMG7z75ae0DJQSa0xsoeUsKHhuhFxGkRMyc2mTGftjPq?=
- =?us-ascii?Q?IKrke0rSSnvhRLEMOlO8EDJ2ei7qvCiSjMLmY5KoXkNbXqSqKd2veguWGe+G?=
- =?us-ascii?Q?wxCgvCv4Ad8AJhamE+Rnj/nZLU1P0nkumMvV3Rzoo36hQCYao448DiLj0PNt?=
- =?us-ascii?Q?qIp+GEDMy/p2sqIK9wCOwRZQFoXSrKjCWK2Dj3vBsNSYL+3AOauMVW9+irsa?=
- =?us-ascii?Q?XDLBzQg2LgcD8L9PUfqi28blQzShYwtIWJoEs6b/VjhPA3ZbksvNS7s28Esp?=
- =?us-ascii?Q?pd/cofwKxb1srPuQwaudyp7Ewuf00n3GBw2spyW2y0XKJrQmNzlM+ZzkZQ6v?=
- =?us-ascii?Q?IJHsWvB5Caq2u4gOnYD2jtj9M5tNRzObwIlv2J7E5ir8z/MkJks6KZRiMQfb?=
- =?us-ascii?Q?gjGN57I/wwBBFld9S5mhxiimArzfh3YCiARR3z5UBIcaXyBZnTabWAx0Anil?=
- =?us-ascii?Q?MlmnKOayo9EScrE/w/e+IxGJChJWVWLXaSru3my7ABIo88s04tGIJsNoNyV3?=
- =?us-ascii?Q?MD4ud6fO6xwCwrBFxc8D57CTiiFq/+ynwhoj0aHgrEzf6y7iwbGapu7ZMeD4?=
- =?us-ascii?Q?6H1A9XI+R0eqGKV2uSTDskzksdsH9LVf8DhhAc4YgesNsIUqtLbabqVW2LKY?=
- =?us-ascii?Q?Tb7EQJ0UL8pElIv/j8N8cCOOp5PbjINQS8c+tlZCN7oQolXVfP5NoKpue2us?=
- =?us-ascii?Q?PwimHP19Om8Tgg0C6CDjyKP7v7tO2aWamMsFrbyNTS+mYHLdNnE7CKLQIFAj?=
- =?us-ascii?Q?obA0pvrHBHJj7MatGAmB+zDlDQeDBuKLIm305itCQ++YjJzggmoGixm7IvGq?=
- =?us-ascii?Q?wp/bJlzj6j9AVNV/JZwATNf/zy4sIfEHvMkLTiqxYX1Vs1+CkVNBcWPSVkyT?=
- =?us-ascii?Q?zPc5FsyPomZivzscT8q8rXRmaDNVzVvkr6Uq5JFAUqPeXXIcyfuFvD2/MY33?=
- =?us-ascii?Q?ldm4LD9uXy1PeWZLGW9jdIfFtPfLyT6Onlb6QSRSUIPRY3f83330FXr8Ro2R?=
- =?us-ascii?Q?Dg=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?PB36vvrNhDCkHMEyr2v6GPIBjux8dkXWd/JJ785+1d/3R1PVd3Ld9EnNkdUE?=
+ =?us-ascii?Q?vRBp0bOuSBtcuTEvPHyeNhrBAZppOozwOPhOTObRbbMora+nyzK8OMk8oWFK?=
+ =?us-ascii?Q?LOmNl/Nc/647UtCRXb5jb0pd7/fP850gsy53CvvPu5yBptOSbbPKqk5nnSgx?=
+ =?us-ascii?Q?e0irtWZjY9XJGk4Op8TRyHrMWB0dMTJZqeSRfa061Qe4GLdyVn/NoOp10MRz?=
+ =?us-ascii?Q?FScPR+hTSEQEsGJbCi5ARsiEvXUExJ6oZwEg8rXgf4lB8eab0xmPlEBYxUpi?=
+ =?us-ascii?Q?PbxFR7DanB7eCL/sPolr0QibqkotCZkBRXMIAV3WV7yfFLfJMSnTLHA/Y9H2?=
+ =?us-ascii?Q?jzMGKJUdnDr3RBhZwaub/gp9+XWAKM2/fHQW4fl0BeCck5htNrCYNyKWYBQI?=
+ =?us-ascii?Q?ih0B8G4p3DI4HeLVaDhiN8nFgLAvF9J8wqdLGNtxyOqbvR/ymIyIzGGDpCMC?=
+ =?us-ascii?Q?oVoIgr5zUN/9OzR2M8R2wCmHv5whw8Vo29QFRulaWTfu4bfaqdx3t1Py5TfC?=
+ =?us-ascii?Q?x8J8BCTmKctXSt0hX2YBGE6zrBIOVL4iQ3uAtS4CUqkLABsIewvXnUfLeKuO?=
+ =?us-ascii?Q?ybuqZxjJgwg2+Av4vFp7mOkY4SzSZUrpqrmy0SQ/uJ9VSdcjNAyUetGVoEhs?=
+ =?us-ascii?Q?1nyusKUI3KT920hpf6aClL4H+6rHHYq0LHHTNIRODnEkC+gceQ6beVnXttgO?=
+ =?us-ascii?Q?nlQYajyXwLymd5MM4XsGJHCXzh6fggonRrK1RUXJ9jGz3KV2b9LrjcbHxW4i?=
+ =?us-ascii?Q?BnV0Xm5Zg69EdjXVO3o9dMFgfpmFstUqJWtF/nxvirXAdAtAxf+kB9irpSVg?=
+ =?us-ascii?Q?VR2ApIaMiJ9+iZEtbx71zkKATmQGOGOdEoG4gPJH1bgQtPo3y5Y+JwquGam7?=
+ =?us-ascii?Q?QDrqqiyCHHz1E/a0dCPkvSiq0znWFjZ4EaC3hxICE9LRGxvLo0lcNznl2Dtk?=
+ =?us-ascii?Q?soerWDoka6QyTU2rdAnhJ9DTPmx26VYX3Fz8zUQAIiL1KBJ0vewwS1OxgrFZ?=
+ =?us-ascii?Q?XPSm9fPMUhYKOViqkuMj0ZYh1CRcSl1roQpc4QocsxfluEFO5MvTDZ2+B0zf?=
+ =?us-ascii?Q?uaZTyHqGY+N8tddd/tHvIpnJ1lB0lOGQ4/rRZ2MXRkFaZfxMvSnHIwjaqyf3?=
+ =?us-ascii?Q?j1CeAGq0rQwLu/dFj93IxsHyd57bgpPiJF2vplZl+x6IRz/OdDqDEcEpI85t?=
+ =?us-ascii?Q?gtTVBDNLyg4ni8ht16MJsbKUeI+C3pko7HtU8pbpHMMgZSs6eiCJP0o8C9F9?=
+ =?us-ascii?Q?49VzkT5cG7RBLhjHafAiHs3KWZWhQoABiKgB8jkTyQwrBp2H1v91ZpdX3L13?=
+ =?us-ascii?Q?WShNwh1e+PklRIk5lkgl5DNRGxeki1ofc7hdykd4m3RGYfVVULd1ZQIFL7Pc?=
+ =?us-ascii?Q?kGbU+7yoxUQPJHf4mzg0Na3UJM2J3VJQhILlfMBGevNrVc1Hei5/IqCdIVPV?=
+ =?us-ascii?Q?DrevGvW4Cu6zzxNpdqavtosn0O683Ah5+53XXjOcdiJ3xFiWzg/1xVBhqjFc?=
+ =?us-ascii?Q?+9SGmA+gjD6JHDNO6DfAxfmU0347cESRpp8zR9IOV6huyK99F81W0dnj3eFj?=
+ =?us-ascii?Q?R759g2BysG7e0HDQik4iYu3sQb4yM96SUq68T9RNB8MPQP0esw9ZcdiS1+eI?=
+ =?us-ascii?Q?8w=3D=3D?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: XNLCD7LARF4fmWtHvjP1bc00pdNNzuzIyy4a7WcdE4FKKz+wySplCZlLDTx6vwqiPGorhdZdJGQOgf89CWnyvFchvX6cmV9aaKv9cEAZGYkVdR/ukw9DUqMrBHEkzSVKS5GWSuxae8jvNtYMn63km0d7BExJetn422/zCQUXE6Tun9aVJj+dmEhHsRYWc8sDgbJTOnGghE0Yo3Q7CF5+c41QBdStRUdovLUAR9tezU0kUHizJ5ZTCusw82cWEyJp1zDMew8Frl7mr6qe+4xczCXHAO2KKkiiOUwlc01hNvt5fna+8L2C5tYnfU5jKWmjMEVb3hpnz6DjgEI8QI1KWq1SNfmIFlP3YPBq35d6DXoQmJueMlnTzDNRP/LUo0mcYTUwF+Ac/V8efKdSp2oUm+Gk8IYQ0yRFpGcUMxXlOPzZPO/ZVLx6QESde6oiNzYgWhln3R4aJifu3ngSuLkwTDXSlIK2/kD102cdDFalCw9SUYPF7aWHSsZJNlLcHzIR9oUbNvwxWHtKZm9ffXFo7dOBW8a68Rj/dnifAIBHG0FCaOk3FnaZvSaPytolFMNCKacUJRc1tZBOo3CleAFCfsfyVA/F4wX8sbForo3mP5CFHrXHHZu+zK9I6SbwaDJD4R7WWsTwO6z1lmS9AzbJZu/7Zg9QQCcg978sqMYtf5rEXk6jgSkoDhPREVEGV00BOP4o8WlXIHn5YrEjwCtlYWAY5bBW3dJwXAlbNhB1nzDa4ySYpRMs+mGtSrTsi/2DX9Epx1eN0jXilumDIHykk7W6vrg2he+H0YsCdN3/fLxSpFSw4GqDcJL5fQKEs/VtLgJW8+5pjw2Qp2bELG8UXejc2HNkuVTEVVr5bSTpl2jtPw43WNN8yWi3W4RIjeki
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: H5svUv9B8Ds/ev0k8SmrvtOCDlVoBytJumhEUcP3I+AhCP7VOS6r0w1Rak+dbwiMicdWBe1UL/IrKg1uGaaF+AkTu/c8EvNWRhvpUkbA7caP7t66nwUfQghJ5rlUXvFGyIS2IZovoZ/1cmwK72wJxJmwd6Ne6JlqbeodmGOUcXlSMsv0BCmvz4M+T+dJ9aqpvqsRM0GnOYDUfm3gbbrOE1LHXzD4VqOIVTKX7Segl8YJRFUdhrPtjKC3m0eBayZMKJTNCzRB3JZb6z9VwRO++ROxB09+hGM6ldtVUrSiRA+Ckn9YLirRiX1mUf5kcFYhA7qutK9cNsQumSkdKiF5wbyh8AtkkL6+VB8ENBcfLwvmEE3fZNceNEwi5GLpRpNkpfQnbBWKYEYRH2qUq7KQ0smrdfbL5SDf3e6qZvqHGb4sgLFcx7IOAsoG+InReitHNZiGyWwjm7HbmWZkHCfhz22kcmhB13dQ5MtkuGaBctjypUtdXNT7ArGg6bElEXo7m+l/LTI412XXQqKM8xcUqCc3HbovEKZYNFnhKttuR34qiTZ98ePgs69XDoxgbiH5YkIFfw7hEu+xd0806KVp14RGHQKM+NowvmU18PKDks2ki3c6kBZkmwOd8GzHMFLs6fddqbtkVRPTRH8ede3SaKH7PjR47oSqPObX6Se9obPcrBfL3jm0FVS+Xb2yA2nUE+PIOrmvvHqE7bNY/xJeaDm1QwNMkt2GYNijgimWwhdIUDQYadPZqmckpKP6pUpG2P10rNWJugjcxNk415dP5zzhLYoANf2AVF7CVuLi9CHvXBYsc4MaC7O9IL5WozJCu8zFd8uqi+VWRW3pz6DdBMZ98AuMTT3PYKrlJyZC/Du5UhPhoIzE07nCHaO1QLeb
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 72bb504c-b107-432b-df0b-08db3b0e770c
+X-MS-Exchange-CrossTenant-Network-Message-Id: 88f8d41c-757e-4dbc-1e87-08db3b0e7b72
 X-MS-Exchange-CrossTenant-AuthSource: SA1PR10MB5867.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2023 04:29:11.8065
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2023 04:29:19.2064
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ke/Rk1OMe8nqV8Q4mla7wqqpJO9qN2yyfJU6BsbSGmwBW4F7cGVMD1WingxiIlRprrvHvjCjmtj1ysaxl9R0vQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 3BhsG7vQBaDon3Qv+M4JYLIjPXEuejFE9rDpybdPGA71R1C8o7KP+Nw5dTR2Vay9JAoOAV2IjUm4DgY0EaXXDw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB4559
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
@@ -135,8 +135,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 m
  malwarescore=0 suspectscore=0 bulkscore=0 spamscore=0 phishscore=0
  adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2303200000 definitions=main-2304120038
-X-Proofpoint-ORIG-GUID: id1pZxyEZutcEXDrwvoSjR_RiSq9UGh-
-X-Proofpoint-GUID: id1pZxyEZutcEXDrwvoSjR_RiSq9UGh-
+X-Proofpoint-GUID: u0hT-gOwXup7jPwXX4__ZdonZ7ilHoVn
+X-Proofpoint-ORIG-GUID: u0hT-gOwXup7jPwXX4__ZdonZ7ilHoVn
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -149,86 +149,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brian Foster <bfoster@redhat.com>
 
-commit 1cd738b13ae9b29e03d6149f0246c61f76e81fcf upstream.
+commit 06058bc40534530e617e5623775c53bb24f032cb upstream.
 
-[ Slightly modify fs/xfs/libxfs/xfs_btree.c to resolve merge conflicts ]
+Freed extents are marked busy from the point the freeing transaction
+commits until the associated CIL context is checkpointed to the log.
+This prevents reuse and overwrite of recently freed blocks before
+the changes are committed to disk, which can lead to corruption
+after a crash. The exception to this rule is that metadata
+allocation is allowed to reuse busy extents because metadata changes
+are also logged.
 
-The assert in xfs_btree_del_cursor() checks that the bmapbt block
-allocation field has been handled correctly before the cursor is
-freed. This field is used for accurate calculation of indirect block
-reservation requirements (for delayed allocations), for example.
-generic/019 reproduces a scenario where this assert fails because
-the filesystem has shutdown while in the middle of a bmbt record
-insertion. This occurs after a bmbt block has been allocated via the
-cursor but before the higher level bmap function (i.e.
-xfs_bmap_add_extent_hole_real()) completes and resets the field.
+As of commit 97d3ac75e5e0 ("xfs: exact busy extent tracking"), XFS
+has allowed modification or complete invalidation of outstanding
+busy extents for metadata allocations. This implementation assumes
+that use of the associated extent is imminent, which is not always
+the case. For example, the trimmed extent might not satisfy the
+minimum length of the allocation request, or the allocation
+algorithm might be involved in a search for the optimal result based
+on locality.
 
-Update the assert to accommodate the transient state if the
-filesystem has shutdown. While here, clean up the indentation and
-comments in the function.
+generic/019 reproduces a corruption caused by this scenario. First,
+a metadata block (usually a bmbt or symlink block) is freed from an
+inode. A subsequent bmbt split on an unrelated inode attempts a near
+mode allocation request that invalidates the busy block during the
+search, but does not ultimately allocate it. Due to the busy state
+invalidation, the block is no longer considered busy to subsequent
+allocation. A direct I/O write request immediately allocates the
+block and writes to it. Finally, the filesystem crashes while in a
+state where the initial metadata block free had not committed to the
+on-disk log. After recovery, the original metadata block is in its
+original location as expected, but has been corrupted by the
+aforementioned dio.
+
+This demonstrates that it is fundamentally unsafe to modify busy
+extent state for extents that are not guaranteed to be allocated.
+This applies to pretty much all of the code paths that currently
+trim busy extents for one reason or another. Therefore to address
+this problem, drop the reuse mechanism from the busy extent trim
+path. This code already knows how to return partial non-busy ranges
+of the targeted free extent and higher level code tracks the busy
+state of the allocation attempt. If a block allocation fails where
+one or more candidate extents is busy, we force the log and retry
+the allocation.
 
 Signed-off-by: Brian Foster <bfoster@redhat.com>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/libxfs/xfs_btree.c | 30 +++++++++++-------------------
- 1 file changed, 11 insertions(+), 19 deletions(-)
+ fs/xfs/xfs_extent_busy.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_btree.c b/fs/xfs/libxfs/xfs_btree.c
-index 8c43cac15832..121251651fea 100644
---- a/fs/xfs/libxfs/xfs_btree.c
-+++ b/fs/xfs/libxfs/xfs_btree.c
-@@ -354,20 +354,17 @@ xfs_btree_free_block(
-  */
- void
- xfs_btree_del_cursor(
--	xfs_btree_cur_t	*cur,		/* btree cursor */
--	int		error)		/* del because of error */
-+	struct xfs_btree_cur	*cur,		/* btree cursor */
-+	int			error)		/* del because of error */
- {
--	int		i;		/* btree level */
-+	int			i;		/* btree level */
+diff --git a/fs/xfs/xfs_extent_busy.c b/fs/xfs/xfs_extent_busy.c
+index 2183d87be4cf..ef17c1f6db32 100644
+--- a/fs/xfs/xfs_extent_busy.c
++++ b/fs/xfs/xfs_extent_busy.c
+@@ -344,7 +344,6 @@ xfs_extent_busy_trim(
+ 	ASSERT(*len > 0);
  
- 	/*
--	 * Clear the buffer pointers, and release the buffers.
--	 * If we're doing this in the face of an error, we
--	 * need to make sure to inspect all of the entries
--	 * in the bc_bufs array for buffers to be unlocked.
--	 * This is because some of the btree code works from
--	 * level n down to 0, and if we get an error along
--	 * the way we won't have initialized all the entries
--	 * down to 0.
-+	 * Clear the buffer pointers and release the buffers. If we're doing
-+	 * this because of an error, inspect all of the entries in the bc_bufs
-+	 * array for buffers to be unlocked. This is because some of the btree
-+	 * code works from level n down to 0, and if we get an error along the
-+	 * way we won't have initialized all the entries down to 0.
- 	 */
- 	for (i = 0; i < cur->bc_nlevels; i++) {
- 		if (cur->bc_bufs[i])
-@@ -375,15 +372,10 @@ xfs_btree_del_cursor(
- 		else if (!error)
- 			break;
- 	}
--	/*
--	 * Can't free a bmap cursor without having dealt with the
--	 * allocated indirect blocks' accounting.
--	 */
-+
- 	ASSERT(cur->bc_btnum != XFS_BTNUM_BMAP ||
--	       cur->bc_private.b.allocated == 0);
--	/*
--	 * Free the cursor.
--	 */
-+	       cur->bc_private.b.allocated == 0 ||
-+	       XFS_FORCED_SHUTDOWN(cur->bc_mp));
- 	kmem_zone_free(xfs_btree_cur_zone, cur);
- }
+ 	spin_lock(&args->pag->pagb_lock);
+-restart:
+ 	fbno = *bno;
+ 	flen = *len;
+ 	rbp = args->pag->pagb_tree.rb_node;
+@@ -363,19 +362,6 @@ xfs_extent_busy_trim(
+ 			continue;
+ 		}
+ 
+-		/*
+-		 * If this is a metadata allocation, try to reuse the busy
+-		 * extent instead of trimming the allocation.
+-		 */
+-		if (!xfs_alloc_is_userdata(args->datatype) &&
+-		    !(busyp->flags & XFS_EXTENT_BUSY_DISCARDED)) {
+-			if (!xfs_extent_busy_update_extent(args->mp, args->pag,
+-							  busyp, fbno, flen,
+-							  false))
+-				goto restart;
+-			continue;
+-		}
+-
+ 		if (bbno <= fbno) {
+ 			/* start overlap */
  
 -- 
 2.39.1
