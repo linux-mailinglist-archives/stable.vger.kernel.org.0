@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2DC6DEECC
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6146DEF82
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbjDLIpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57098 "EHLO
+        id S231342AbjDLIvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231232AbjDLIot (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D6A869B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:26 -0700 (PDT)
+        with ESMTP id S231302AbjDLIvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B619ED5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 139FF63093
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6DFC433EF;
-        Wed, 12 Apr 2023 08:44:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F3E56315F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80072C4339B;
+        Wed, 12 Apr 2023 08:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289053;
-        bh=nynBZg6qn44ZvCVlDDtAdnoLQAzHBlyTyxRwBhms3lM=;
+        s=korg; t=1681289459;
+        bh=YQnNQt7CxdHc4JbsKj8GZDSEirSM6ocPn87ivi1fzSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cu53v5fyiOF+X4t+LkF0zsJG6IV8wHTsA0Dej7vBu5iC+fiyc+K2qWCsoPJ2xm44S
-         1vVpdK7YawY4oVmCRPArykREWxsURUX62mKfDJscPvuFYrTiIOG1DpC1bVi7RUYUpD
-         SjzGikL48NZlZHFaqFm643f/soXPkLUaJDMveAfo=
+        b=ct3RL0DJshTof4jsI67ps7TiuD6mWBiOdbNfrsnFeuKyixowxy24Xa6Urgyll3EYD
+         U4F3/99+PKmUCeZyo7tn8dcvFzntIQSOs47v8eUtyhGprqsgMj3XmQZN/1RMPvg2iJ
+         oqG0Us41Zc2DTwLIWtyU4P7xRii4BWh+KI6OaXfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        John Keeping <john@metanate.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 111/164] ftrace: Mark get_lock_parent_ip() __always_inline
+        patches@lists.linux.dev,
+        William Breathitt Gray <william.gray@linaro.org>
+Subject: [PATCH 6.2 107/173] counter: 104-quad-8: Fix Synapse action reported for Index signals
 Date:   Wed, 12 Apr 2023 10:33:53 +0200
-Message-Id: <20230412082841.331905436@linuxfoundation.org>
+Message-Id: <20230412082842.390602253@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: William Breathitt Gray <william.gray@linaro.org>
 
-commit ea65b41807a26495ff2a73dd8b1bab2751940887 upstream.
+commit 00f4bc5184c19cb33f468f1ea409d70d19f8f502 upstream.
 
-If the compiler decides not to inline this function then preemption
-tracing will always show an IP inside the preemption disabling path and
-never the function actually calling preempt_{enable,disable}.
+Signal 16 and higher represent the device's Index lines. The
+priv->preset_enable array holds the device configuration for these Index
+lines. The preset_enable configuration is active low on the device, so
+invert the conditional check in quad8_action_read() to properly handle
+the logical state of preset_enable.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20230327173647.1690849-1-john@metanate.com
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Fixes: f904f58263e1d ("sched/debug: Fix preempt_disable_ip recording for preempt_disable()")
-Signed-off-by: John Keeping <john@metanate.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: f1d8a071d45b ("counter: 104-quad-8: Add Generic Counter interface support")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230316203426.224745-1-william.gray@linaro.org/
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/ftrace.h |    2 +-
+ drivers/counter/104-quad-8.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -943,7 +943,7 @@ static inline void __ftrace_enabled_rest
- #define CALLER_ADDR5 ((unsigned long)ftrace_return_address(5))
- #define CALLER_ADDR6 ((unsigned long)ftrace_return_address(6))
+--- a/drivers/counter/104-quad-8.c
++++ b/drivers/counter/104-quad-8.c
+@@ -368,7 +368,7 @@ static int quad8_action_read(struct coun
  
--static inline unsigned long get_lock_parent_ip(void)
-+static __always_inline unsigned long get_lock_parent_ip(void)
- {
- 	unsigned long addr = CALLER_ADDR0;
- 
+ 	/* Handle Index signals */
+ 	if (synapse->signal->id >= 16) {
+-		if (priv->preset_enable[count->id])
++		if (!priv->preset_enable[count->id])
+ 			*action = COUNTER_SYNAPSE_ACTION_RISING_EDGE;
+ 		else
+ 			*action = COUNTER_SYNAPSE_ACTION_NONE;
 
 
