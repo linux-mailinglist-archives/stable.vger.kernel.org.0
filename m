@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E7756DEEFA
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 245AE6DEE3E
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbjDLIql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59910 "EHLO
+        id S230520AbjDLIlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbjDLIqg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:36 -0400
+        with ESMTP id S231296AbjDLIkT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D426A65
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1973B768D
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5662630E5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18C3C433D2;
-        Wed, 12 Apr 2023 08:45:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D5EB63014
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CB9BC433D2;
+        Wed, 12 Apr 2023 08:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289109;
-        bh=n4mwNYjy3HalLWOPtetbZlj0HvvnVWiTiTMH8P7M+yI=;
+        s=korg; t=1681288711;
+        bh=QeBSDAhBgcWyYS0UnSVb1G5bdnh+AJPrvVoKDw0w2hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpTfFVg1Qr4+WtuYVGL3rF7EIpZtLzBTYN+pi7wXvNyCy6aFVJgwqNH6cueYWlgTf
-         B8igW3/T3StuQY52EdXoyXvfbmXuapOegnczpCvA6a+DY4drC5csHTk/s7IiROhuip
-         OroLZKEw5nCCHaLHXIVD5oQTBrt0uJ0m9IHBZI84=
+        b=GQ0789yfsNaei40evd9guPqa3iVn+8IhibSAF4n3ypVHuHN1ErulObCzQhUuKMSpw
+         sjtxkCdeJqPrwhrkL/82LTybHme6E38uyvKla903p9TjDi03yf0UUp/7wMvPp8ok07
+         Qd9OZ1497yHNhsNRJTof2bT8PgXFi61i31/50Ba0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 139/164] mm/hugetlb: fix uffd wr-protection for CoW optimization path
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        John Keeping <john@metanate.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 80/93] ftrace: Mark get_lock_parent_ip() __always_inline
 Date:   Wed, 12 Apr 2023 10:34:21 +0200
-Message-Id: <20230412082842.521876847@linuxfoundation.org>
+Message-Id: <20230412082826.516566704@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,88 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: John Keeping <john@metanate.com>
 
-commit 60d5b473d61be61ac315e544fcd6a8234a79500e upstream.
+commit ea65b41807a26495ff2a73dd8b1bab2751940887 upstream.
 
-This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
-writable even with uffd-wp bit set.  It only happens with hugetlb private
-mappings, when someone firstly wr-protects a missing pte (which will
-install a pte marker), then a write to the same page without any prior
-access to the page.
+If the compiler decides not to inline this function then preemption
+tracing will always show an IP inside the preemption disabling path and
+never the function actually calling preempt_{enable,disable}.
 
-Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
-reaching hugetlb_wp() to avoid taking more locks that userfault won't
-need.  However there's one CoW optimization path that can trigger
-hugetlb_wp() inside hugetlb_no_page(), which will bypass the trap.
+Link: https://lore.kernel.org/linux-trace-kernel/20230327173647.1690849-1-john@metanate.com
 
-This patch skips hugetlb_wp() for CoW and retries the fault if uffd-wp bit
-is detected.  The new path will only trigger in the CoW optimization path
-because generic hugetlb_fault() (e.g.  when a present pte was
-wr-protected) will resolve the uffd-wp bit already.  Also make sure
-anonymous UNSHARE won't be affected and can still be resolved, IOW only
-skip CoW not CoR.
-
-This patch will be needed for v5.19+ hence copy stable.
-
-[peterx@redhat.com: v2]
-  Link: https://lkml.kernel.org/r/ZBzOqwF2wrHgBVZb@x1n
-[peterx@redhat.com: v3]
-  Link: https://lkml.kernel.org/r/20230324142620.2344140-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20230321191840.1897940-1-peterx@redhat.com
-Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Tested-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: f904f58263e1d ("sched/debug: Fix preempt_disable_ip recording for preempt_disable()")
+Signed-off-by: John Keeping <john@metanate.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ include/linux/ftrace.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5469,7 +5469,7 @@ static vm_fault_t hugetlb_wp(struct mm_s
- 		       struct page *pagecache_page, spinlock_t *ptl)
+--- a/include/linux/ftrace.h
++++ b/include/linux/ftrace.h
+@@ -850,7 +850,7 @@ static inline void __ftrace_enabled_rest
+ #define CALLER_ADDR5 ((unsigned long)ftrace_return_address(5))
+ #define CALLER_ADDR6 ((unsigned long)ftrace_return_address(6))
+ 
+-static inline unsigned long get_lock_parent_ip(void)
++static __always_inline unsigned long get_lock_parent_ip(void)
  {
- 	const bool unshare = flags & FAULT_FLAG_UNSHARE;
--	pte_t pte;
-+	pte_t pte = huge_ptep_get(ptep);
- 	struct hstate *h = hstate_vma(vma);
- 	struct page *old_page, *new_page;
- 	int outside_reserve = 0;
-@@ -5481,6 +5481,17 @@ static vm_fault_t hugetlb_wp(struct mm_s
- 	VM_BUG_ON(!unshare && !(flags & FOLL_WRITE));
+ 	unsigned long addr = CALLER_ADDR0;
  
- 	/*
-+	 * Never handle CoW for uffd-wp protected pages.  It should be only
-+	 * handled when the uffd-wp protection is removed.
-+	 *
-+	 * Note that only the CoW optimization path (in hugetlb_no_page())
-+	 * can trigger this, because hugetlb_fault() will always resolve
-+	 * uffd-wp bit first.
-+	 */
-+	if (!unshare && huge_pte_uffd_wp(pte))
-+		return 0;
-+
-+	/*
- 	 * hugetlb does not support FOLL_FORCE-style write faults that keep the
- 	 * PTE mapped R/O such as maybe_mkwrite() would do.
- 	 */
-@@ -5495,7 +5506,6 @@ static vm_fault_t hugetlb_wp(struct mm_s
- 		return 0;
- 	}
- 
--	pte = huge_ptep_get(ptep);
- 	old_page = pte_page(pte);
- 
- 	delayacct_wpcopy_start();
 
 
