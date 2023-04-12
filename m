@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 221166DEF2F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B76CD6DEE78
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231325AbjDLIs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:48:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35008 "EHLO
+        id S230488AbjDLIl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231287AbjDLIsi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:38 -0400
+        with ESMTP id S230302AbjDLIla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023CF7DAF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA68F7D9A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24D23630D8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36006C433EF;
-        Wed, 12 Apr 2023 08:47:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B34F62FE3
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACED5C433EF;
+        Wed, 12 Apr 2023 08:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289261;
-        bh=3YeqdeCF+1HV/QUFbidCoyb/gGZf3t0711kmjTA3aj8=;
+        s=korg; t=1681288839;
+        bh=SmXS5Ebdj0Vnye9XQrXrz32ksS3uJJDPt0GV8zWs2/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=At8HfTpqR1jJJ+MWT44SOfKKJP+Ek7bJRciAWxtYwHedtrE438zfhkYoZSQzSRXWC
-         W0jH+Z5ZFAb42ulI0eoSZqISIKIgij9+Edl4UY/7ZG00WHwH7hVEZLZb0jINtz+R5f
-         iLH7h7TgZJgE4sxGWpZ0bvKmJxmtS9ILVyxy4/ps=
+        b=emgCd44aMlXbvVUQWqhTGw0NzIBml82lXPnbipWdJKxXP44eIXXYCWUHhk1GgoI2L
+         UhUXcOVBW19uJqZqhzDeY8G84/tTqUMADkgpMBoSs6IKrz7gDdZmH9hBrmdHsJRBkA
+         7tkcxj875w9/saeb3LNZmvaA9nUjLSVoleNu5/NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+47c24ca20a2fa01f082e@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
+        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 032/173] sctp: check send stream number after wait_for_sndbuf
+Subject: [PATCH 6.1 036/164] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
 Date:   Wed, 12 Apr 2023 10:32:38 +0200
-Message-Id: <20230412082839.386722356@linuxfoundation.org>
+Message-Id: <20230412082838.408850454@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 2584024b23552c00d95b50255e47bd18d306d31a ]
+[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
 
-This patch fixes a corner case where the asoc out stream count may change
-after wait_for_sndbuf.
+Syzbot reported a bug as following:
 
-When the main thread in the client starts a connection, if its out stream
-count is set to N while the in stream count in the server is set to N - 2,
-another thread in the client keeps sending the msgs with stream number
-N - 1, and waits for sndbuf before processing INIT_ACK.
+=====================================================
+BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+ arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+ atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+ __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ ip6_finish_skb include/net/ipv6.h:1122 [inline]
+ ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
+ rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
+ rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-However, after processing INIT_ACK, the out stream count in the client is
-shrunk to N - 2, the same to the in stream count in the server. The crash
-occurs when the thread waiting for sndbuf is awake and sends the msg in a
-non-existing stream(N - 1), the call trace is as below:
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ alloc_skb include/linux/skbuff.h:1270 [inline]
+ __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
+ ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
+ rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-  KASAN: null-ptr-deref in range [0x0000000000000038-0x000000000000003f]
-  Call Trace:
-   <TASK>
-   sctp_cmd_send_msg net/sctp/sm_sideeffect.c:1114 [inline]
-   sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1777 [inline]
-   sctp_side_effects net/sctp/sm_sideeffect.c:1199 [inline]
-   sctp_do_sm+0x197d/0x5310 net/sctp/sm_sideeffect.c:1170
-   sctp_primitive_SEND+0x9f/0xc0 net/sctp/primitive.c:163
-   sctp_sendmsg_to_asoc+0x10eb/0x1a30 net/sctp/socket.c:1868
-   sctp_sendmsg+0x8d4/0x1d90 net/sctp/socket.c:2026
-   inet_sendmsg+0x9d/0xe0 net/ipv4/af_inet.c:825
-   sock_sendmsg_nosec net/socket.c:722 [inline]
-   sock_sendmsg+0xde/0x190 net/socket.c:745
+It is because icmp6hdr does not in skb linear region under the scenario
+of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
+trigger the uninit variable access bug.
 
-The fix is to add an unlikely check for the send stream number after the
-thread wakes up from the wait_for_sndbuf.
+Use a local variable icmp6_type to carry the correct value in different
+scenarios.
 
-Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
-Reported-by: syzbot+47c24ca20a2fa01f082e@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
+Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv6/ip6_output.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index 84021a6c4f9da..ec7d1a89efbbd 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1829,6 +1829,10 @@ static int sctp_sendmsg_to_asoc(struct sctp_association *asoc,
- 		err = sctp_wait_for_sndbuf(asoc, &timeo, msg_len);
- 		if (err)
- 			goto err;
-+		if (unlikely(sinfo->sinfo_stream >= asoc->stream.outcnt)) {
-+			err = -EINVAL;
-+			goto err;
-+		}
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index c314fdde0097c..95a55c6630add 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1965,8 +1965,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
+ 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
+ 	if (proto == IPPROTO_ICMPV6) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
++		u8 icmp6_type;
+ 
+-		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
++		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
++			icmp6_type = fl6->fl6_icmp_type;
++		else
++			icmp6_type = icmp6_hdr(skb)->icmp6_type;
++		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
+ 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
  	}
  
- 	if (sctp_state(asoc, CLOSED)) {
 -- 
 2.39.2
 
