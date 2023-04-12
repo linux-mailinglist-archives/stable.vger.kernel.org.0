@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 158516DEFBC
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3202D6DEF09
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231230AbjDLIxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42690 "EHLO
+        id S230366AbjDLIrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:47:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231445AbjDLIx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36EF7283
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:09 -0700 (PDT)
+        with ESMTP id S231217AbjDLIqz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E219740
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF813631C2
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E765BC433D2;
-        Wed, 12 Apr 2023 08:52:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED70C630FB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D969C433A0;
+        Wed, 12 Apr 2023 08:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289559;
-        bh=VKZbeBhYYpUvmAt9nynSOYckrFoXr2mWWtA73y9cS+s=;
+        s=korg; t=1681289192;
+        bh=zPD0J1sUNFxWudAzYLfB64mzTrEKEMBfra5zYw+2sbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtQCvkOT/zNRmH4wEwZYP7vMVUPDbyoNe3wFsmjkKeO/vc321m74s6FT+yabUnsnD
-         vryjd27dLBqbQEvVXosq+6bWc97iNOc+1WoE7bMMkugVIM3nMEONNHISk7yIy1J1/M
-         iuxm14wxrSp/w8FoDYH4TTqVNtfb2W/8nGbZHLLw=
+        b=z4mNkFEsOOqKH5oTzWw9uiUJCfekMsoYt0UQ/vxzG852uAyRr1mAAdV7MLTBLH78D
+         lFFWn/pIr8jRnizyg8PMxAMWJI2abVcK0xOH9FeHiY7wknuMFf3r6YUQH3Ht4VTfkJ
+         6iUjZp+Q4q4HWbrqS1Xq8EQ3VMxlGvv07hbK803I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 6.2 145/173] wifi: mt76: ignore key disable commands
-Date:   Wed, 12 Apr 2023 10:34:31 +0200
-Message-Id: <20230412082843.961267190@linuxfoundation.org>
+        patches@lists.linux.dev, Manasi Navare <navaremanasi@google.com>,
+        Drew Davenport <ddavenport@chromium.org>,
+        Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.1 150/164] drm/i915: Split icl_color_commit_noarm() from skl_color_commit_noarm()
+Date:   Wed, 12 Apr 2023 10:34:32 +0200
+Message-Id: <20230412082843.006173696@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,343 +58,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit e6db67fa871dee37d22701daba806bfcd4d9df49 upstream.
+commit 76b767d4d1cd052e455cf18e06929e8b2b70101d upstream.
 
-This helps avoid cleartext leakage of already queued or powersave buffered
-packets, when a reassoc triggers the key deletion.
+We're going to want different behavior for skl/glk vs. icl
+in .color_commit_noarm(), so split the hook into two. Arguably
+we already had slightly different behaviour since
+csc_enable/gamma_enable are never set on icl+, so the old
+code was perhaps a bit confusing as well.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230330091259.61378-1-nbd@nbd.name
+Cc: <stable@vger.kernel.org> #v5.19+
+Cc: Manasi Navare <navaremanasi@google.com>
+Cc: Drew Davenport <ddavenport@chromium.org>
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-2-ville.syrjala@linux.intel.com
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+(cherry picked from commit f161eb01f50ab31f2084975b43bce54b7b671e17)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7603/main.c   |   10 +--
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c    |   70 ++++++---------------
- drivers/net/wireless/mediatek/mt76/mt7615/main.c   |   15 ++--
- drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h |    6 -
- drivers/net/wireless/mediatek/mt76/mt76x02_util.c  |   18 ++---
- drivers/net/wireless/mediatek/mt76/mt7915/main.c   |   13 +--
- drivers/net/wireless/mediatek/mt76/mt7921/main.c   |   13 +--
- drivers/net/wireless/mediatek/mt76/mt7996/main.c   |   13 +--
- 8 files changed, 62 insertions(+), 96 deletions(-)
+ drivers/gpu/drm/i915/display/intel_color.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
-@@ -512,15 +512,15 @@ mt7603_set_key(struct ieee80211_hw *hw,
- 	    !(key->flags & IEEE80211_KEY_FLAG_PAIRWISE))
- 		return -EOPNOTSUPP;
- 
--	if (cmd == SET_KEY) {
--		key->hw_key_idx = wcid->idx;
--		wcid->hw_key_idx = idx;
--	} else {
-+	if (cmd != SET_KEY) {
- 		if (idx == wcid->hw_key_idx)
- 			wcid->hw_key_idx = -1;
- 
--		key = NULL;
-+		return 0;
+--- a/drivers/gpu/drm/i915/display/intel_color.c
++++ b/drivers/gpu/drm/i915/display/intel_color.c
+@@ -2098,6 +2098,25 @@ static void glk_read_luts(struct intel_c
  	}
+ }
+ 
++static void icl_color_commit_arm(const struct intel_crtc_state *crtc_state)
++{
++	struct intel_crtc *crtc = to_intel_crtc(crtc_state->uapi.crtc);
++	struct drm_i915_private *i915 = to_i915(crtc->base.dev);
++	enum pipe pipe = crtc->pipe;
 +
-+	key->hw_key_idx = wcid->idx;
-+	wcid->hw_key_idx = idx;
- 	mt76_wcid_key_setup(&dev->mt76, wcid, key);
- 
- 	return mt7603_wtbl_set_key(dev, wcid->idx, key);
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1193,8 +1193,7 @@ EXPORT_SYMBOL_GPL(mt7615_mac_enable_rtsc
- static int
- mt7615_mac_wtbl_update_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 			   struct ieee80211_key_conf *key,
--			   enum mt76_cipher_type cipher, u16 cipher_mask,
--			   enum set_key_cmd cmd)
-+			   enum mt76_cipher_type cipher, u16 cipher_mask)
- {
- 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx) + 30 * 4;
- 	u8 data[32] = {};
-@@ -1203,27 +1202,18 @@ mt7615_mac_wtbl_update_key(struct mt7615
- 		return -EINVAL;
- 
- 	mt76_rr_copy(dev, addr, data, sizeof(data));
--	if (cmd == SET_KEY) {
--		if (cipher == MT_CIPHER_TKIP) {
--			/* Rx/Tx MIC keys are swapped */
--			memcpy(data, key->key, 16);
--			memcpy(data + 16, key->key + 24, 8);
--			memcpy(data + 24, key->key + 16, 8);
--		} else {
--			if (cipher_mask == BIT(cipher))
--				memcpy(data, key->key, key->keylen);
--			else if (cipher != MT_CIPHER_BIP_CMAC_128)
--				memcpy(data, key->key, 16);
--			if (cipher == MT_CIPHER_BIP_CMAC_128)
--				memcpy(data + 16, key->key, 16);
--		}
-+	if (cipher == MT_CIPHER_TKIP) {
-+		/* Rx/Tx MIC keys are swapped */
-+		memcpy(data, key->key, 16);
-+		memcpy(data + 16, key->key + 24, 8);
-+		memcpy(data + 24, key->key + 16, 8);
- 	} else {
-+		if (cipher_mask == BIT(cipher))
-+			memcpy(data, key->key, key->keylen);
-+		else if (cipher != MT_CIPHER_BIP_CMAC_128)
-+			memcpy(data, key->key, 16);
- 		if (cipher == MT_CIPHER_BIP_CMAC_128)
--			memset(data + 16, 0, 16);
--		else if (cipher_mask)
--			memset(data, 0, 16);
--		if (!cipher_mask)
--			memset(data, 0, sizeof(data));
-+			memcpy(data + 16, key->key, 16);
- 	}
- 
- 	mt76_wr_copy(dev, addr, data, sizeof(data));
-@@ -1234,7 +1224,7 @@ mt7615_mac_wtbl_update_key(struct mt7615
- static int
- mt7615_mac_wtbl_update_pk(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 			  enum mt76_cipher_type cipher, u16 cipher_mask,
--			  int keyidx, enum set_key_cmd cmd)
-+			  int keyidx)
- {
- 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx), w0, w1;
- 
-@@ -1253,9 +1243,7 @@ mt7615_mac_wtbl_update_pk(struct mt7615_
- 	else
- 		w0 &= ~MT_WTBL_W0_RX_IK_VALID;
- 
--	if (cmd == SET_KEY &&
--	    (cipher != MT_CIPHER_BIP_CMAC_128 ||
--	     cipher_mask == BIT(cipher))) {
-+	if (cipher != MT_CIPHER_BIP_CMAC_128 || cipher_mask == BIT(cipher)) {
- 		w0 &= ~MT_WTBL_W0_KEY_IDX;
- 		w0 |= FIELD_PREP(MT_WTBL_W0_KEY_IDX, keyidx);
- 	}
-@@ -1272,19 +1260,10 @@ mt7615_mac_wtbl_update_pk(struct mt7615_
- 
- static void
- mt7615_mac_wtbl_update_cipher(struct mt7615_dev *dev, struct mt76_wcid *wcid,
--			      enum mt76_cipher_type cipher, u16 cipher_mask,
--			      enum set_key_cmd cmd)
-+			      enum mt76_cipher_type cipher, u16 cipher_mask)
- {
- 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx);
- 
--	if (!cipher_mask) {
--		mt76_clear(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE);
--		return;
--	}
--
--	if (cmd != SET_KEY)
--		return;
--
- 	if (cipher == MT_CIPHER_BIP_CMAC_128 &&
- 	    cipher_mask & ~BIT(MT_CIPHER_BIP_CMAC_128))
- 		return;
-@@ -1295,8 +1274,7 @@ mt7615_mac_wtbl_update_cipher(struct mt7
- 
- int __mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
- 			      struct mt76_wcid *wcid,
--			      struct ieee80211_key_conf *key,
--			      enum set_key_cmd cmd)
-+			      struct ieee80211_key_conf *key)
- {
- 	enum mt76_cipher_type cipher;
- 	u16 cipher_mask = wcid->cipher;
-@@ -1306,19 +1284,14 @@ int __mt7615_mac_wtbl_set_key(struct mt7
- 	if (cipher == MT_CIPHER_NONE)
- 		return -EOPNOTSUPP;
- 
--	if (cmd == SET_KEY)
--		cipher_mask |= BIT(cipher);
--	else
--		cipher_mask &= ~BIT(cipher);
--
--	mt7615_mac_wtbl_update_cipher(dev, wcid, cipher, cipher_mask, cmd);
--	err = mt7615_mac_wtbl_update_key(dev, wcid, key, cipher, cipher_mask,
--					 cmd);
-+	cipher_mask |= BIT(cipher);
-+	mt7615_mac_wtbl_update_cipher(dev, wcid, cipher, cipher_mask);
-+	err = mt7615_mac_wtbl_update_key(dev, wcid, key, cipher, cipher_mask);
- 	if (err < 0)
- 		return err;
- 
- 	err = mt7615_mac_wtbl_update_pk(dev, wcid, cipher, cipher_mask,
--					key->keyidx, cmd);
-+					key->keyidx);
- 	if (err < 0)
- 		return err;
- 
-@@ -1329,13 +1302,12 @@ int __mt7615_mac_wtbl_set_key(struct mt7
- 
- int mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
- 			    struct mt76_wcid *wcid,
--			    struct ieee80211_key_conf *key,
--			    enum set_key_cmd cmd)
-+			    struct ieee80211_key_conf *key)
- {
- 	int err;
- 
- 	spin_lock_bh(&dev->mt76.lock);
--	err = __mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
-+	err = __mt7615_mac_wtbl_set_key(dev, wcid, key);
- 	spin_unlock_bh(&dev->mt76.lock);
- 
- 	return err;
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -391,18 +391,17 @@ static int mt7615_set_key(struct ieee802
- 
- 	if (cmd == SET_KEY)
- 		*wcid_keyidx = idx;
--	else if (idx == *wcid_keyidx)
--		*wcid_keyidx = -1;
--	else
-+	else {
-+		if (idx == *wcid_keyidx)
-+			*wcid_keyidx = -1;
- 		goto out;
-+	}
- 
--	mt76_wcid_key_setup(&dev->mt76, wcid,
--			    cmd == SET_KEY ? key : NULL);
--
-+	mt76_wcid_key_setup(&dev->mt76, wcid, key);
- 	if (mt76_is_mmio(&dev->mt76))
--		err = mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
-+		err = mt7615_mac_wtbl_set_key(dev, wcid, key);
- 	else
--		err = __mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
-+		err = __mt7615_mac_wtbl_set_key(dev, wcid, key);
- 
- out:
- 	mt7615_mutex_release(dev);
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-@@ -484,11 +484,9 @@ int mt7615_mac_write_txwi(struct mt7615_
- void mt7615_mac_set_timing(struct mt7615_phy *phy);
- int __mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
- 			      struct mt76_wcid *wcid,
--			      struct ieee80211_key_conf *key,
--			      enum set_key_cmd cmd);
-+			      struct ieee80211_key_conf *key);
- int mt7615_mac_wtbl_set_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
--			    struct ieee80211_key_conf *key,
--			    enum set_key_cmd cmd);
-+			    struct ieee80211_key_conf *key);
- void mt7615_mac_reset_work(struct work_struct *work);
- u32 mt7615_mac_get_sta_tid_sn(struct mt7615_dev *dev, int wcid, u8 tid);
- 
---- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
-@@ -455,20 +455,20 @@ int mt76x02_set_key(struct ieee80211_hw
- 	msta = sta ? (struct mt76x02_sta *)sta->drv_priv : NULL;
- 	wcid = msta ? &msta->wcid : &mvif->group_wcid;
- 
--	if (cmd == SET_KEY) {
--		key->hw_key_idx = wcid->idx;
--		wcid->hw_key_idx = idx;
--		if (key->flags & IEEE80211_KEY_FLAG_RX_MGMT) {
--			key->flags |= IEEE80211_KEY_FLAG_SW_MGMT_TX;
--			wcid->sw_iv = true;
--		}
--	} else {
-+	if (cmd != SET_KEY) {
- 		if (idx == wcid->hw_key_idx) {
- 			wcid->hw_key_idx = -1;
- 			wcid->sw_iv = false;
- 		}
- 
--		key = NULL;
-+		return 0;
-+	}
++	/*
++	 * We don't (yet) allow userspace to control the pipe background color,
++	 * so force it to black.
++	 */
++	intel_de_write(i915, SKL_BOTTOM_COLOR(pipe), 0);
 +
-+	key->hw_key_idx = wcid->idx;
-+	wcid->hw_key_idx = idx;
-+	if (key->flags & IEEE80211_KEY_FLAG_RX_MGMT) {
-+		key->flags |= IEEE80211_KEY_FLAG_SW_MGMT_TX;
-+		wcid->sw_iv = true;
- 	}
- 	mt76_wcid_key_setup(&dev->mt76, wcid, key);
- 
---- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-@@ -410,16 +410,15 @@ static int mt7915_set_key(struct ieee802
- 		mt7915_mcu_add_bss_info(phy, vif, true);
- 	}
- 
--	if (cmd == SET_KEY)
-+	if (cmd == SET_KEY) {
- 		*wcid_keyidx = idx;
--	else if (idx == *wcid_keyidx)
--		*wcid_keyidx = -1;
--	else
-+	} else {
-+		if (idx == *wcid_keyidx)
-+			*wcid_keyidx = -1;
- 		goto out;
-+	}
- 
--	mt76_wcid_key_setup(&dev->mt76, wcid,
--			    cmd == SET_KEY ? key : NULL);
--
-+	mt76_wcid_key_setup(&dev->mt76, wcid, key);
- 	err = mt76_connac_mcu_add_key(&dev->mt76, vif, &msta->bip,
- 				      key, MCU_EXT_CMD(STA_REC_UPDATE),
- 				      &msta->wcid, cmd);
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -569,16 +569,15 @@ static int mt7921_set_key(struct ieee802
- 
- 	mt7921_mutex_acquire(dev);
- 
--	if (cmd == SET_KEY)
-+	if (cmd == SET_KEY) {
- 		*wcid_keyidx = idx;
--	else if (idx == *wcid_keyidx)
--		*wcid_keyidx = -1;
--	else
-+	} else {
-+		if (idx == *wcid_keyidx)
-+			*wcid_keyidx = -1;
- 		goto out;
-+	}
- 
--	mt76_wcid_key_setup(&dev->mt76, wcid,
--			    cmd == SET_KEY ? key : NULL);
--
-+	mt76_wcid_key_setup(&dev->mt76, wcid, key);
- 	err = mt76_connac_mcu_add_key(&dev->mt76, vif, &msta->bip,
- 				      key, MCU_UNI_CMD(STA_REC_UPDATE),
- 				      &msta->wcid, cmd);
---- a/drivers/net/wireless/mediatek/mt76/mt7996/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7996/main.c
-@@ -351,16 +351,15 @@ static int mt7996_set_key(struct ieee802
- 		mt7996_mcu_add_bss_info(phy, vif, true);
- 	}
- 
--	if (cmd == SET_KEY)
-+	if (cmd == SET_KEY) {
- 		*wcid_keyidx = idx;
--	else if (idx == *wcid_keyidx)
--		*wcid_keyidx = -1;
--	else
-+	} else {
-+		if (idx == *wcid_keyidx)
-+			*wcid_keyidx = -1;
- 		goto out;
-+	}
- 
--	mt76_wcid_key_setup(&dev->mt76, wcid,
--			    cmd == SET_KEY ? key : NULL);
--
-+	mt76_wcid_key_setup(&dev->mt76, wcid, key);
- 	err = mt7996_mcu_add_key(&dev->mt76, vif, &msta->bip,
- 				 key, MCU_WMWA_UNI_CMD(STA_REC_UPDATE),
- 				 &msta->wcid, cmd);
++	intel_de_write(i915, GAMMA_MODE(crtc->pipe),
++		       crtc_state->gamma_mode);
++
++	intel_de_write_fw(i915, PIPE_CSC_MODE(crtc->pipe),
++			  crtc_state->csc_mode);
++}
++
+ static struct drm_property_blob *
+ icl_read_lut_multi_segment(struct intel_crtc *crtc)
+ {
+@@ -2183,7 +2202,7 @@ static const struct intel_color_funcs i9
+ static const struct intel_color_funcs icl_color_funcs = {
+ 	.color_check = icl_color_check,
+ 	.color_commit_noarm = icl_color_commit_noarm,
+-	.color_commit_arm = skl_color_commit_arm,
++	.color_commit_arm = icl_color_commit_arm,
+ 	.load_luts = icl_load_luts,
+ 	.read_luts = icl_read_luts,
+ };
 
 
