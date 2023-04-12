@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AD86DEE87
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFBF6DEF18
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230483AbjDLImO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:42:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
+        id S231237AbjDLIr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230489AbjDLIl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:59 -0400
+        with ESMTP id S231211AbjDLIrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:47:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F64E7687
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35F026E9F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:47:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F38C06304F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12ED3C433A0;
-        Wed, 12 Apr 2023 08:41:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE03863111
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB05FC433EF;
+        Wed, 12 Apr 2023 08:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288875;
-        bh=Ll3MmOHwqt4ipsFxAd0UISQZW8x2YsHV5m/UHvVw5/M=;
+        s=korg; t=1681289221;
+        bh=fJhOX7HsVwZfl2hJVIseoVHJlONXznKBlBElU9PKKcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0ttdWTSz0odqas/u2/iVG4tBTYyiegO/YdSFzwNd0634XJTVIXF+4owzKPNkW81F
-         CbEasszxqXmF3StEIj7ZqDvmsSFtY/U/8vEYaVFaOiwttQpp12O2qKoe/4G1dsPhAq
-         7tj2TIaGI6DDRvad8Htujl5iQLvN9wSjH6+t1dp0=
+        b=rhaEArCGGeH6Uh91BaYOdtVkv0Y+kPC0H7Ik9UuTwwr32GzgdE5EGT9Yevl+Bw21S
+         gnIhUtvfK3rNLgVoVd++V+ASfVkXTS0THuhBUX+eR7hmiEXXY16sfLROyMkwcDuf/+
+         gzunBgA/ZiSdsU4ow74X2OIDvFqVDG1j+/peTemw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Coverstone <brian@mainsequence.net>,
-        Felix Fietkau <nbd@nbd.name>,
+        patches@lists.linux.dev, Ryder Lee <ryder.lee@mediatek.com>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 021/164] wifi: mac80211: fix invalid drv_sta_pre_rcu_remove calls for non-uploaded sta
+Subject: [PATCH 6.2 017/173] wifi: mac80211: fix the size calculation of ieee80211_ie_len_eht_cap()
 Date:   Wed, 12 Apr 2023 10:32:23 +0200
-Message-Id: <20230412082837.804532042@linuxfoundation.org>
+Message-Id: <20230412082838.792541987@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit 12b220a6171faf10638ab683a975cadcf1a352d6 ]
+[ Upstream commit dd01579e5ed922dcfcb8fec53fa03b81c7649a04 ]
 
-Avoid potential data corruption issues caused by uninitialized driver
-private data structures.
+Here should return the size of ieee80211_eht_cap_elem_fixed, so fix it.
 
-Reported-by: Brian Coverstone <brian@mainsequence.net>
-Fixes: 6a9d1b91f34d ("mac80211: add pre-RCU-sync sta removal driver operation")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20230324120924.38412-3-nbd@nbd.name
+Fixes: 820acc810fb6 ("mac80211: Add EHT capabilities to association/probe request")
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Link: https://lore.kernel.org/r/06c13635fc03bcff58a647b8e03e9f01a74294bd.1679935259.git.ryder.lee@mediatek.com
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/sta_info.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mac80211/util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 3603cbc167570..30efa26f977f6 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -1242,7 +1242,8 @@ static int __must_check __sta_info_destroy_part1(struct sta_info *sta)
- 	list_del_rcu(&sta->list);
- 	sta->removed = true;
- 
--	drv_sta_pre_rcu_remove(local, sta->sdata, sta);
-+	if (sta->uploaded)
-+		drv_sta_pre_rcu_remove(local, sta->sdata, sta);
- 
- 	if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
- 	    rcu_access_pointer(sdata->u.vlan.sta) == sta)
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 9c219e525eded..ed9e659f49f63 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -4906,7 +4906,7 @@ u8 ieee80211_ie_len_eht_cap(struct ieee80211_sub_if_data *sdata, u8 iftype)
+ 				       &eht_cap->eht_cap_elem,
+ 				       is_ap);
+ 	return 2 + 1 +
+-	       sizeof(he_cap->he_cap_elem) + n +
++	       sizeof(eht_cap->eht_cap_elem) + n +
+ 	       ieee80211_eht_ppe_size(eht_cap->eht_ppe_thres[0],
+ 				      eht_cap->eht_cap_elem.phy_cap_info);
+ 	return 0;
 -- 
 2.39.2
 
