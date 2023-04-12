@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 788816DEE3F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F5E6DEEE1
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230521AbjDLIlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46532 "EHLO
+        id S229862AbjDLIpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231303AbjDLIkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:20 -0400
+        with ESMTP id S230396AbjDLIpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC4976B3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E997682
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:45:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CED763026
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E9F9C4339B;
-        Wed, 12 Apr 2023 08:38:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 741EB630EE
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 819E0C4339B;
+        Wed, 12 Apr 2023 08:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288718;
-        bh=KXv5lJNbZy7VRqxJD8o73HKjm09dy8xXdkwE35j9l4w=;
+        s=korg; t=1681289119;
+        bh=ldw7XbhBb1FduhtV1MrUJHLm5E0vJiafFKpOZ6P+NCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVCvvsmXJ4FN7ZkGvQgefVBum24maiWKGz0vUtzO5glSWs4gJg3p4CYx1KQaWKGk1
-         Pc2oCRwqsCgxhaVkvxQOJR/hlUOe8GM37QHHDAAnTUYkHrxbqxSTqqijA2uaMM89Hu
-         arkfyQ6U86Xct3HQskYKXvf+4It3qda7wO3ec8VI=
+        b=hvj73xIw6BAgZQduOei+XJc9PoyKjPYq+INBr+LXolf78GUD0RNCPr4eTi7Izt4G4
+         px5kKpaA4SFF4ToMlUweSu3CTp7+pwFlArfj7F0jnRWfCzNK0Ip/lZAwePsKwkiK9v
+         T1cEsXK98RIDs6gdk67W+OKgkujMOzzd8YnQ/poU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.15 54/93] usb: dwc3: pci: add support for the Intel Meteor Lake-S
-Date:   Wed, 12 Apr 2023 10:33:55 +0200
-Message-Id: <20230412082825.420219734@linuxfoundation.org>
+        patches@lists.linux.dev, Shuangpeng Bai <sjb7183@psu.edu>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 6.1 114/164] can: j1939: j1939_tp_tx_dat_new(): fix out-of-bounds memory access
+Date:   Wed, 12 Apr 2023 10:33:56 +0200
+Message-Id: <20230412082841.463366507@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit ec799c8a92e0be91e0940cc739a27f483242df65 upstream.
+commit b45193cb4df556fe6251b285a5ce44046dd36b4a upstream.
 
-This patch adds the necessary PCI ID for Intel Meteor Lake-S
-devices.
+In the j1939_tp_tx_dat_new() function, an out-of-bounds memory access
+could occur during the memcpy() operation if the size of skb->cb is
+larger than the size of struct j1939_sk_buff_cb. This is because the
+memcpy() operation uses the size of skb->cb, leading to a read beyond
+the struct j1939_sk_buff_cb.
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Updated the memcpy() operation to use the size of struct
+j1939_sk_buff_cb instead of the size of skb->cb. This ensures that the
+memcpy() operation only reads the memory within the bounds of struct
+j1939_sk_buff_cb, preventing out-of-bounds memory access.
+
+Additionally, add a BUILD_BUG_ON() to check that the size of skb->cb
+is greater than or equal to the size of struct j1939_sk_buff_cb. This
+ensures that the skb->cb buffer is large enough to hold the
+j1939_sk_buff_cb structure.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Reported-by: Shuangpeng Bai <sjb7183@psu.edu>
+Tested-by: Shuangpeng Bai <sjb7183@psu.edu>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://groups.google.com/g/syzkaller/c/G_LL-C3plRs/m/-8xCi6dCAgAJ
+Link: https://lore.kernel.org/all/20230404073128.3173900-1-o.rempel@pengutronix.de
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230330150224.89316-1-heikki.krogerus@linux.intel.com
+[mkl: rephrase commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/can/j1939/transport.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -47,6 +47,7 @@
- #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
- #define PCI_DEVICE_ID_INTEL_MTLM		0x7eb1
- #define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
-+#define PCI_DEVICE_ID_INTEL_MTLS		0x7f6f
- #define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
- #define PCI_DEVICE_ID_INTEL_TGL			0x9a15
- #define PCI_DEVICE_ID_AMD_MR			0x163a
-@@ -434,6 +435,9 @@ static const struct pci_device_id dwc3_p
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -604,7 +604,10 @@ sk_buff *j1939_tp_tx_dat_new(struct j193
+ 	/* reserve CAN header */
+ 	skb_reserve(skb, offsetof(struct can_frame, data));
  
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLS),
-+	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
+-	memcpy(skb->cb, re_skcb, sizeof(skb->cb));
++	/* skb->cb must be large enough to hold a j1939_sk_buff_cb structure */
++	BUILD_BUG_ON(sizeof(skb->cb) < sizeof(*re_skcb));
 +
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTL),
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
- 
++	memcpy(skb->cb, re_skcb, sizeof(*re_skcb));
+ 	skcb = j1939_skb_to_cb(skb);
+ 	if (swap_src_dst)
+ 		j1939_skbcb_swap(skcb);
 
 
