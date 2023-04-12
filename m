@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5146DEF30
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 213326DEE95
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231164AbjDLItB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35078 "EHLO
+        id S231140AbjDLInG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:43:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231294AbjDLIsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:40 -0400
+        with ESMTP id S230447AbjDLImw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963747ED9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D286597
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:42:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B418D6311B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84C2C433EF;
-        Wed, 12 Apr 2023 08:47:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4021262FF2
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F774C433D2;
+        Wed, 12 Apr 2023 08:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289264;
-        bh=AeKYbk+bSL0H5ExY4FVuP8fdSoNMmFesGea8FnmH6Mw=;
+        s=korg; t=1681288841;
+        bh=44hdiDc/hmsXy7eU4R3GTlkJvlovBQOh576uDgGNeRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEtY+d9aRUHnKR1c4Fw8QWJHWMBTtKeXXHkt0OJ78A367K/R7Tww0XPmYhpHatP5K
-         yHgGjMrlaWELfBDWwEN6vWNkOwO3cQkESxzAl/8pvV2p27QZE74p5c3V+871jngXjr
-         f83dtpNfvoz7tscBaFDIYouyAzph3HbhXhd+0BP0=
+        b=R4XcoAphaRdJziTolJepwZksWwUXkhBFis3M7NmbpGt0rNumZEcHVVNFO9mAyzEUU
+         ScUqnlfXF49u7oN4xEc6QyY7SGLA21B8qWf885mqj5x1miAnKcsnFWPKVsYs8qGBj5
+         IkY25B27oOmmoiEESYzjcexqZ04scuoa/qrj27ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        Armin Wolf <W_Armin@gmx.de>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 033/173] drm/i915/huc: Cancel HuC delayed load timer on reset.
+Subject: [PATCH 6.1 037/164] platform/x86: think-lmi: Fix memory leak when showing current settings
 Date:   Wed, 12 Apr 2023 10:32:39 +0200
-Message-Id: <20230412082839.416958261@linuxfoundation.org>
+Message-Id: <20230412082838.439419776@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit c74237496fbc799257b091179dd01a3200f7314d ]
+[ Upstream commit a3c4c053014585dcf20f4df954791b74d8a8afcd ]
 
-In the rare case where we do a full GT reset after starting the HuC
-load and before it completes (which basically boils down to i915 hanging
-during init), we need to cancel the delayed load fence, as it will be
-re-initialized in the post-reset recovery.
+When retriving a item string with tlmi_setting(), the result has to be
+freed using kfree(). In current_value_show() however, malformed
+item strings are not freed, causing a memory leak.
+Fix this by eliminating the early return responsible for this.
 
-Fixes: 27536e03271d ("drm/i915/huc: track delayed HuC load with a fence")
-Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
-Reviewed-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230313205556.1174503-1-daniele.ceraolospurio@intel.com
-(cherry picked from commit cdf7911f7dbcb37228409a63bf75630776c45a15)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Link: https://lore.kernel.org/platform-driver-x86/01e920bc-5882-ba0c-dd15-868bf0eca0b8@alu.unizg.hr/T/#t
+Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Fixes: 0fdf10e5fc96 ("platform/x86: think-lmi: Split current_value to reflect only the value")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Link: https://lore.kernel.org/r/20230331213319.41040-1-W_Armin@gmx.de
+Tested-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_huc.c | 7 +++++++
- drivers/gpu/drm/i915/gt/uc/intel_huc.h | 7 +------
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ drivers/platform/x86/think-lmi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_huc.c b/drivers/gpu/drm/i915/gt/uc/intel_huc.c
-index 410905da8e974..0c103ca160d10 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_huc.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_huc.c
-@@ -235,6 +235,13 @@ static void delayed_huc_load_fini(struct intel_huc *huc)
- 	i915_sw_fence_fini(&huc->delayed_load.fence);
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index 74af3e593b2ca..4e738ec5e6fb8 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -930,10 +930,12 @@ static ssize_t current_value_show(struct kobject *kobj, struct kobj_attribute *a
+ 	/* validate and split from `item,value` -> `value` */
+ 	value = strpbrk(item, ",");
+ 	if (!value || value == item || !strlen(value + 1))
+-		return -EINVAL;
++		ret = -EINVAL;
++	else
++		ret = sysfs_emit(buf, "%s\n", value + 1);
+ 
+-	ret = sysfs_emit(buf, "%s\n", value + 1);
+ 	kfree(item);
++
+ 	return ret;
  }
  
-+int intel_huc_sanitize(struct intel_huc *huc)
-+{
-+	delayed_huc_load_complete(huc);
-+	intel_uc_fw_sanitize(&huc->fw);
-+	return 0;
-+}
-+
- static bool vcs_supported(struct intel_gt *gt)
- {
- 	intel_engine_mask_t mask = gt->info.engine_mask;
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_huc.h b/drivers/gpu/drm/i915/gt/uc/intel_huc.h
-index 52db03620c609..db555b3c1f562 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_huc.h
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_huc.h
-@@ -41,6 +41,7 @@ struct intel_huc {
- 	} delayed_load;
- };
- 
-+int intel_huc_sanitize(struct intel_huc *huc);
- void intel_huc_init_early(struct intel_huc *huc);
- int intel_huc_init(struct intel_huc *huc);
- void intel_huc_fini(struct intel_huc *huc);
-@@ -54,12 +55,6 @@ bool intel_huc_is_authenticated(struct intel_huc *huc);
- void intel_huc_register_gsc_notifier(struct intel_huc *huc, struct bus_type *bus);
- void intel_huc_unregister_gsc_notifier(struct intel_huc *huc, struct bus_type *bus);
- 
--static inline int intel_huc_sanitize(struct intel_huc *huc)
--{
--	intel_uc_fw_sanitize(&huc->fw);
--	return 0;
--}
--
- static inline bool intel_huc_is_supported(struct intel_huc *huc)
- {
- 	return intel_uc_fw_is_supported(&huc->fw);
 -- 
 2.39.2
 
