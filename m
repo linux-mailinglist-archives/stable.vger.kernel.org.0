@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE22F6DEEFF
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E446DEFDE
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229779AbjDLIqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
+        id S230091AbjDLIy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:54:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231164AbjDLIqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:43 -0400
+        with ESMTP id S231447AbjDLIy5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:54:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE2293CB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD7D9023
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:54:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A73630F3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF0DC433EF;
-        Wed, 12 Apr 2023 08:45:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 706DF631B8
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57015C433D2;
+        Wed, 12 Apr 2023 08:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289155;
-        bh=Ay019e/cUmSejcYxX5ULbWyk/ijoD+YO/yOxaFEWTb0=;
+        s=korg; t=1681289634;
+        bh=3IoHkviqn8PN/EAomH2O4prchYv3fWvEZxdmkGA0mwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnqTInmiaSmyT3lSr8T0qLv+FwfUPaOFlea6ZjcVQVF3lZB8aymuvFa1Tu7SMlO11
-         uvvqG1mib7dZRl5hVCyal5K9/XkELLXg7kLULiJAllUz21ddIPHo/OkgSFyQCMP8Ro
-         ZoPU0FjyBkQv7wIn6fbYRR/Myejo9QyYP9RhyWgs=
+        b=ggkfryLmgLNkumvSUVW7yoj6jFUAU1Z7NTZ4L5t3zLmWAAd5RDqnvEP9m5VzmtqHo
+         AGMOMFxBhxEag5MlUOYuPdfxEKQsHDDoD6F7y4VshrczPrlQ2y271t8OwVu5UL/7w9
+         5+6HkSjERaDAR0pH+LVrxzSHvOOLmsJO3tZ9Q8K0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stable@vger.kernel.org,
-        Liam Howlett <Liam.Howlett@oracle.com>
-Subject: [PATCH 6.1 157/164] maple_tree: be more cautious about dead nodes
+        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 153/173] mm/hugetlb: fix uffd wr-protection for CoW optimization path
 Date:   Wed, 12 Apr 2023 10:34:39 +0200
-Message-Id: <20230412082843.316425583@linuxfoundation.org>
+Message-Id: <20230412082844.291748407@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,187 +60,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
+From: Peter Xu <peterx@redhat.com>
 
-commit 39d0bd86c499ecd6abae42a9b7112056c5560691 upstream.
+commit 60d5b473d61be61ac315e544fcd6a8234a79500e upstream.
 
-ma_pivots() and ma_data_end() may be called with a dead node.  Ensure to
-that the node isn't dead before using the returned values.
+This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
+writable even with uffd-wp bit set.  It only happens with hugetlb private
+mappings, when someone firstly wr-protects a missing pte (which will
+install a pte marker), then a write to the same page without any prior
+access to the page.
 
-This is necessary for RCU mode of the maple tree.
+Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
+reaching hugetlb_wp() to avoid taking more locks that userfault won't
+need.  However there's one CoW optimization path that can trigger
+hugetlb_wp() inside hugetlb_no_page(), which will bypass the trap.
 
-Link: https://lkml.kernel.org/r/20230227173632.3292573-1-surenb@google.com
-Link: https://lkml.kernel.org/r/20230227173632.3292573-2-surenb@google.com
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Liam Howlett <Liam.Howlett@oracle.com>
+This patch skips hugetlb_wp() for CoW and retries the fault if uffd-wp bit
+is detected.  The new path will only trigger in the CoW optimization path
+because generic hugetlb_fault() (e.g.  when a present pte was
+wr-protected) will resolve the uffd-wp bit already.  Also make sure
+anonymous UNSHARE won't be affected and can still be resolved, IOW only
+skip CoW not CoR.
+
+This patch will be needed for v5.19+ hence copy stable.
+
+[peterx@redhat.com: v2]
+  Link: https://lkml.kernel.org/r/ZBzOqwF2wrHgBVZb@x1n
+[peterx@redhat.com: v3]
+  Link: https://lkml.kernel.org/r/20230324142620.2344140-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20230321191840.1897940-1-peterx@redhat.com
+Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Tested-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/maple_tree.c |   52 +++++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 43 insertions(+), 9 deletions(-)
+ mm/hugetlb.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -534,6 +534,7 @@ static inline bool ma_dead_node(const st
- 
- 	return (parent == node);
- }
-+
- /*
-  * mte_dead_node() - check if the @enode is dead.
-  * @enode: The encoded maple node
-@@ -615,6 +616,8 @@ static inline unsigned int mas_alloc_req
-  * @node - the maple node
-  * @type - the node type
-  *
-+ * In the event of a dead node, this array may be %NULL
-+ *
-  * Return: A pointer to the maple node pivots
-  */
- static inline unsigned long *ma_pivots(struct maple_node *node,
-@@ -1086,8 +1089,11 @@ static int mas_ascend(struct ma_state *m
- 		a_type = mas_parent_enum(mas, p_enode);
- 		a_node = mte_parent(p_enode);
- 		a_slot = mte_parent_slot(p_enode);
--		pivots = ma_pivots(a_node, a_type);
- 		a_enode = mt_mk_node(a_node, a_type);
-+		pivots = ma_pivots(a_node, a_type);
-+
-+		if (unlikely(ma_dead_node(a_node)))
-+			return 1;
- 
- 		if (!set_min && a_slot) {
- 			set_min = true;
-@@ -1393,6 +1399,9 @@ static inline unsigned char ma_data_end(
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5476,7 +5476,7 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 		       struct page *pagecache_page, spinlock_t *ptl)
  {
- 	unsigned char offset;
+ 	const bool unshare = flags & FAULT_FLAG_UNSHARE;
+-	pte_t pte;
++	pte_t pte = huge_ptep_get(ptep);
+ 	struct hstate *h = hstate_vma(vma);
+ 	struct page *old_page, *new_page;
+ 	int outside_reserve = 0;
+@@ -5485,6 +5485,17 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 	struct mmu_notifier_range range;
  
-+	if (!pivots)
+ 	/*
++	 * Never handle CoW for uffd-wp protected pages.  It should be only
++	 * handled when the uffd-wp protection is removed.
++	 *
++	 * Note that only the CoW optimization path (in hugetlb_no_page())
++	 * can trigger this, because hugetlb_fault() will always resolve
++	 * uffd-wp bit first.
++	 */
++	if (!unshare && huge_pte_uffd_wp(pte))
 +		return 0;
 +
- 	if (type == maple_arange_64)
- 		return ma_meta_end(node, type);
- 
-@@ -1428,6 +1437,9 @@ static inline unsigned char mas_data_end
- 		return ma_meta_end(node, type);
- 
- 	pivots = ma_pivots(node, type);
-+	if (unlikely(ma_dead_node(node)))
-+		return 0;
-+
- 	offset = mt_pivots[type] - 1;
- 	if (likely(!pivots[offset]))
- 		return ma_meta_end(node, type);
-@@ -4493,6 +4505,9 @@ static inline int mas_prev_node(struct m
- 	node = mas_mn(mas);
- 	slots = ma_slots(node, mt);
- 	pivots = ma_pivots(node, mt);
-+	if (unlikely(ma_dead_node(node)))
-+		return 1;
-+
- 	mas->max = pivots[offset];
- 	if (offset)
- 		mas->min = pivots[offset - 1] + 1;
-@@ -4514,6 +4529,9 @@ static inline int mas_prev_node(struct m
- 		slots = ma_slots(node, mt);
- 		pivots = ma_pivots(node, mt);
- 		offset = ma_data_end(node, mt, pivots, mas->max);
-+		if (unlikely(ma_dead_node(node)))
-+			return 1;
-+
- 		if (offset)
- 			mas->min = pivots[offset - 1] + 1;
- 
-@@ -4562,6 +4580,7 @@ static inline int mas_next_node(struct m
- 	struct maple_enode *enode;
- 	int level = 0;
- 	unsigned char offset;
-+	unsigned char node_end;
- 	enum maple_type mt;
- 	void __rcu **slots;
- 
-@@ -4585,7 +4604,11 @@ static inline int mas_next_node(struct m
- 		node = mas_mn(mas);
- 		mt = mte_node_type(mas->node);
- 		pivots = ma_pivots(node, mt);
--	} while (unlikely(offset == ma_data_end(node, mt, pivots, mas->max)));
-+		node_end = ma_data_end(node, mt, pivots, mas->max);
-+		if (unlikely(ma_dead_node(node)))
-+			return 1;
-+
-+	} while (unlikely(offset == node_end));
- 
- 	slots = ma_slots(node, mt);
- 	pivot = mas_safe_pivot(mas, pivots, ++offset, mt);
-@@ -4601,6 +4624,9 @@ static inline int mas_next_node(struct m
- 		mt = mte_node_type(mas->node);
- 		slots = ma_slots(node, mt);
- 		pivots = ma_pivots(node, mt);
-+		if (unlikely(ma_dead_node(node)))
-+			return 1;
-+
- 		offset = 0;
- 		pivot = pivots[0];
- 	}
-@@ -4647,11 +4673,14 @@ static inline void *mas_next_nentry(stru
- 		return NULL;
++	/*
+ 	 * hugetlb does not support FOLL_FORCE-style write faults that keep the
+ 	 * PTE mapped R/O such as maybe_mkwrite() would do.
+ 	 */
+@@ -5497,7 +5508,6 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 		return 0;
  	}
  
--	pivots = ma_pivots(node, type);
- 	slots = ma_slots(node, type);
--	mas->index = mas_safe_min(mas, pivots, mas->offset);
-+	pivots = ma_pivots(node, type);
- 	count = ma_data_end(node, type, pivots, mas->max);
--	if (ma_dead_node(node))
-+	if (unlikely(ma_dead_node(node)))
-+		return NULL;
-+
-+	mas->index = mas_safe_min(mas, pivots, mas->offset);
-+	if (unlikely(ma_dead_node(node)))
- 		return NULL;
+-	pte = huge_ptep_get(ptep);
+ 	old_page = pte_page(pte);
  
- 	if (mas->index > max)
-@@ -4809,6 +4838,11 @@ retry:
- 
- 	slots = ma_slots(mn, mt);
- 	pivots = ma_pivots(mn, mt);
-+	if (unlikely(ma_dead_node(mn))) {
-+		mas_rewalk(mas, index);
-+		goto retry;
-+	}
-+
- 	if (offset == mt_pivots[mt])
- 		pivot = mas->max;
- 	else
-@@ -6611,11 +6645,11 @@ static inline void *mas_first_entry(stru
- 	while (likely(!ma_is_leaf(mt))) {
- 		MT_BUG_ON(mas->tree, mte_dead_node(mas->node));
- 		slots = ma_slots(mn, mt);
--		pivots = ma_pivots(mn, mt);
--		max = pivots[0];
- 		entry = mas_slot(mas, slots, 0);
-+		pivots = ma_pivots(mn, mt);
- 		if (unlikely(ma_dead_node(mn)))
- 			return NULL;
-+		max = pivots[0];
- 		mas->node = entry;
- 		mn = mas_mn(mas);
- 		mt = mte_node_type(mas->node);
-@@ -6635,13 +6669,13 @@ static inline void *mas_first_entry(stru
- 	if (likely(entry))
- 		return entry;
- 
--	pivots = ma_pivots(mn, mt);
--	mas->index = pivots[0] + 1;
- 	mas->offset = 1;
- 	entry = mas_slot(mas, slots, 1);
-+	pivots = ma_pivots(mn, mt);
- 	if (unlikely(ma_dead_node(mn)))
- 		return NULL;
- 
-+	mas->index = pivots[0] + 1;
- 	if (mas->index > limit)
- 		goto none;
- 
+ 	delayacct_wpcopy_start();
 
 
