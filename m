@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4716DEE73
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ADC66DEEF7
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231184AbjDLIl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
+        id S231190AbjDLIqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231150AbjDLIl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:29 -0400
+        with ESMTP id S231197AbjDLIqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF9B7D96
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 434D786BB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 885A462FDE
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBDCC4339B;
-        Wed, 12 Apr 2023 08:38:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09F4F630F1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DD58C433D2;
+        Wed, 12 Apr 2023 08:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288724;
-        bh=xdUwwh95LyyybatdEH4mKIdmURgYb9puifLOhQGOwcw=;
+        s=korg; t=1681289122;
+        bh=dqOfdoiMD5nlhVVX/fukRIEfw9Nvjb0Ds7Q8VFsAq7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOyAaPXgDmMHYrWc+3IfRC/ME7KszBc7PwXsjQMQxBVgOxSuHO7ujzbrUWimIikvb
-         UJEHErtXAGQ5kqXLIBcPvGeBuQoJSXRceEH58+Vr2Z0pQ4oXrBv/HMM3ZHS5vOzRiE
-         nVMUJBYu484o4hMrV9QsmVqnF1/KM6HbDGFEYHsw=
+        b=EPe1L5theLRVfH3sKwaVSTj/y765RFOI3bXZI83GOB6aus2EncukkcMwZrcL2jy9p
+         R+Wyyu7rF8AsQHw7x8GReNqR3Js8D2ObNbs6FHm93ANrB0P2IbXpCCIUn/O7mHF1sS
+         AAs7T2MXw0eb+YYRzmj3b2KahRBurarBjPwfa6w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, RD Babiera <rdbabiera@google.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.15 56/93] usb: typec: altmodes/displayport: Fix configure initial pin assignment
+        patches@lists.linux.dev, "Dae R. Jeong" <threeearcat@gmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 6.1 115/164] can: isotp: fix race between isotp_sendsmg() and isotp_release()
 Date:   Wed, 12 Apr 2023 10:33:57 +0200
-Message-Id: <20230412082825.509541467@linuxfoundation.org>
+Message-Id: <20230412082841.512837101@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: RD Babiera <rdbabiera@google.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit eddebe39602efe631b83ff8d03f26eba12cfd760 upstream.
+commit 051737439eaee5bdd03d3c2ef5510d54a478fd05 upstream.
 
-While determining the initial pin assignment to be sent in the configure
-message, using the DP_PIN_ASSIGN_DP_ONLY_MASK mask causes the DFP_U to
-send both Pin Assignment C and E when both are supported by the DFP_U and
-UFP_U. The spec (Table 5-7 DFP_U Pin Assignment Selection Mandates,
-VESA DisplayPort Alt Mode Standard v2.0) indicates that the DFP_U never
-selects Pin Assignment E when Pin Assignment C is offered.
+As discussed with Dae R. Jeong and Hillf Danton here [1] the sendmsg()
+function in isotp.c might get into a race condition when restoring the
+former tx.state from the old_state.
 
-Update the DP_PIN_ASSIGN_DP_ONLY_MASK conditional to intially select only
-Pin Assignment C if it is available.
+Remove the old_state concept and implement proper locking for the
+ISOTP_IDLE transitions in isotp_sendmsg(), inspired by a
+simplification idea from Hillf Danton.
 
-Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mode")
+Introduce a new tx.state ISOTP_SHUTDOWN and use the same locking
+mechanism from isotp_release() which resolves a potential race between
+isotp_sendsmg() and isotp_release().
+
+[1] https://lore.kernel.org/linux-can/ZB%2F93xJxq%2FBUqAgG@dragonet
+
+v1: https://lore.kernel.org/all/20230331102114.15164-1-socketcan@hartkopp.net
+v2: https://lore.kernel.org/all/20230331123600.3550-1-socketcan@hartkopp.net
+    take care of signal interrupts for wait_event_interruptible() in
+    isotp_release()
+v3: https://lore.kernel.org/all/20230331130654.9886-1-socketcan@hartkopp.net
+    take care of signal interrupts for wait_event_interruptible() in
+    isotp_sendmsg() in the wait_tx_done case
+v4: https://lore.kernel.org/all/20230331131935.21465-1-socketcan@hartkopp.net
+    take care of signal interrupts for wait_event_interruptible() in
+    isotp_sendmsg() in ALL cases
+
+Cc: Dae R. Jeong <threeearcat@gmail.com>
+Cc: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Fixes: 4f027cba8216 ("can: isotp: split tx timer into transmission and timeout")
+Link: https://lore.kernel.org/all/20230331131935.21465-1-socketcan@hartkopp.net
 Cc: stable@vger.kernel.org
-Signed-off-by: RD Babiera <rdbabiera@google.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230329215159.2046932-1-rdbabiera@google.com
+[mkl: rephrase commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/can/isotp.c |   55 +++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 31 insertions(+), 24 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -101,8 +101,12 @@ static int dp_altmode_configure(struct d
- 		if (dp->data.status & DP_STATUS_PREFER_MULTI_FUNC &&
- 		    pin_assign & DP_PIN_ASSIGN_MULTI_FUNC_MASK)
- 			pin_assign &= DP_PIN_ASSIGN_MULTI_FUNC_MASK;
--		else if (pin_assign & DP_PIN_ASSIGN_DP_ONLY_MASK)
-+		else if (pin_assign & DP_PIN_ASSIGN_DP_ONLY_MASK) {
- 			pin_assign &= DP_PIN_ASSIGN_DP_ONLY_MASK;
-+			/* Default to pin assign C if available */
-+			if (pin_assign & BIT(DP_PIN_ASSIGN_C))
-+				pin_assign = BIT(DP_PIN_ASSIGN_C);
-+		}
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -119,7 +119,8 @@ enum {
+ 	ISOTP_WAIT_FIRST_FC,
+ 	ISOTP_WAIT_FC,
+ 	ISOTP_WAIT_DATA,
+-	ISOTP_SENDING
++	ISOTP_SENDING,
++	ISOTP_SHUTDOWN,
+ };
  
- 		if (!pin_assign)
- 			return -EINVAL;
+ struct tpcon {
+@@ -880,8 +881,8 @@ static enum hrtimer_restart isotp_tx_tim
+ 					     txtimer);
+ 	struct sock *sk = &so->sk;
+ 
+-	/* don't handle timeouts in IDLE state */
+-	if (so->tx.state == ISOTP_IDLE)
++	/* don't handle timeouts in IDLE or SHUTDOWN state */
++	if (so->tx.state == ISOTP_IDLE || so->tx.state == ISOTP_SHUTDOWN)
+ 		return HRTIMER_NORESTART;
+ 
+ 	/* we did not get any flow control or echo frame in time */
+@@ -918,7 +919,6 @@ static int isotp_sendmsg(struct socket *
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
+-	u32 old_state = so->tx.state;
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	struct canfd_frame *cf;
+@@ -928,23 +928,24 @@ static int isotp_sendmsg(struct socket *
+ 	int off;
+ 	int err;
+ 
+-	if (!so->bound)
++	if (!so->bound || so->tx.state == ISOTP_SHUTDOWN)
+ 		return -EADDRNOTAVAIL;
+ 
++wait_free_buffer:
+ 	/* we do not support multiple buffers - for now */
+-	if (cmpxchg(&so->tx.state, ISOTP_IDLE, ISOTP_SENDING) != ISOTP_IDLE ||
+-	    wq_has_sleeper(&so->wait)) {
+-		if (msg->msg_flags & MSG_DONTWAIT) {
+-			err = -EAGAIN;
+-			goto err_out;
+-		}
++	if (wq_has_sleeper(&so->wait) && (msg->msg_flags & MSG_DONTWAIT))
++		return -EAGAIN;
+ 
+-		/* wait for complete transmission of current pdu */
+-		err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
+-		if (err)
+-			goto err_out;
++	/* wait for complete transmission of current pdu */
++	err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
++	if (err)
++		goto err_event_drop;
++
++	if (cmpxchg(&so->tx.state, ISOTP_IDLE, ISOTP_SENDING) != ISOTP_IDLE) {
++		if (so->tx.state == ISOTP_SHUTDOWN)
++			return -EADDRNOTAVAIL;
+ 
+-		so->tx.state = ISOTP_SENDING;
++		goto wait_free_buffer;
+ 	}
+ 
+ 	if (!size || size > MAX_MSG_LENGTH) {
+@@ -1074,7 +1075,9 @@ static int isotp_sendmsg(struct socket *
+ 
+ 	if (wait_tx_done) {
+ 		/* wait for complete transmission of current pdu */
+-		wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
++		err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
++		if (err)
++			goto err_event_drop;
+ 
+ 		if (sk->sk_err)
+ 			return -sk->sk_err;
+@@ -1082,13 +1085,15 @@ static int isotp_sendmsg(struct socket *
+ 
+ 	return size;
+ 
++err_event_drop:
++	/* got signal: force tx state machine to be idle */
++	so->tx.state = ISOTP_IDLE;
++	hrtimer_cancel(&so->txfrtimer);
++	hrtimer_cancel(&so->txtimer);
+ err_out_drop:
+ 	/* drop this PDU and unlock a potential wait queue */
+-	old_state = ISOTP_IDLE;
+-err_out:
+-	so->tx.state = old_state;
+-	if (so->tx.state == ISOTP_IDLE)
+-		wake_up_interruptible(&so->wait);
++	so->tx.state = ISOTP_IDLE;
++	wake_up_interruptible(&so->wait);
+ 
+ 	return err;
+ }
+@@ -1150,10 +1155,12 @@ static int isotp_release(struct socket *
+ 	net = sock_net(sk);
+ 
+ 	/* wait for complete transmission of current pdu */
+-	wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
++	while (wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE) == 0 &&
++	       cmpxchg(&so->tx.state, ISOTP_IDLE, ISOTP_SHUTDOWN) != ISOTP_IDLE)
++		;
+ 
+ 	/* force state machines to be idle also when a signal occurred */
+-	so->tx.state = ISOTP_IDLE;
++	so->tx.state = ISOTP_SHUTDOWN;
+ 	so->rx.state = ISOTP_IDLE;
+ 
+ 	spin_lock(&isotp_notifier_lock);
 
 
