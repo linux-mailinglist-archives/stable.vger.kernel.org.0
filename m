@@ -2,119 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3204B6DFDC9
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 20:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D2E6DFDEB
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 20:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230040AbjDLSmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 14:42:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53422 "EHLO
+        id S229486AbjDLStS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 14:49:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229998AbjDLSmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 14:42:09 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E795E51
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 11:42:08 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-2f45377dcc7so130406f8f.1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 11:42:08 -0700 (PDT)
+        with ESMTP id S229532AbjDLStR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 14:49:17 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF734EEC;
+        Wed, 12 Apr 2023 11:49:15 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id q2so17246831pll.7;
+        Wed, 12 Apr 2023 11:49:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google; t=1681324927; x=1683916927;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4ec8CKxGhnACrZ8hcY1NoeaXk7CEhzDVHpK3LN1wYN4=;
-        b=Q/9GEYHNM5MAD8Y6u9GMe3XXxcVC0j+yOEv9n/SS/29KypsEuUpvV8qhWcPTwlWSWW
-         eiy78yHOzE9ufibU30p1S/udcrMCg2JWxNvHq+AZpw6zJAdaWvC6OVWdEVcVu+7Hkt+S
-         khkNDBFhgxzeYGtJvuQARqYatNkNu78QOz9mA=
+        d=gmail.com; s=20221208; t=1681325354; x=1683917354;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=H05k7Cmf7Hi9K1W5Jq5qb2sK9hV84Ca4AOxKRM48YfM=;
+        b=HMMUFCvzNjgopc5Thi5lWaxvcqQqa0y+zOdusyhfF6LhmhycxBRa4WffMalNUKl6nr
+         S8+V4hy34z8w8YRquFliv2EUopBD2Vi7LdaNMiLtbKlvv+dF30vG4W3Axx/f+h74ow5H
+         yar4MBE/aG+ZlOjMxucU3IUBfmsD8xWM2d6eIcECY+Hd82lJ8oClPK601GAjaZjsN5A5
+         R2q7JCP35OX8zO11xeIg7kOix1IkOsHI+xW0+WYKjMGwgeHupLJwU12tny1LgP+uq/y4
+         Q5XdJyqImEhV4H9DggnyoCrO8lT8+kttl3if0j9tEr+yo+St3BrGVgeMW59YAXPmoP8d
+         wgWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681324927; x=1683916927;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4ec8CKxGhnACrZ8hcY1NoeaXk7CEhzDVHpK3LN1wYN4=;
-        b=TNfWGEIvL+dLXTqql8RnuPSERNcYOhSOvsstNDvI5KNTTEX6MR6bloJagtoCfs4NC/
-         0SOsYRy1/5Ah+9bDEHq1d5jTK/fSzNoFM+7T0heO+QGo2/AktbmyrP521d3oYQoBDR0v
-         n2bGba0s0ztyPRaH7jji/e00A80yZiHDrj2pjfImd7Jf8EiaZoerTU9SbGur2qVP5cDp
-         ct9cVM+lkUHxwvw4AjTOvxlUdsc/M5IpVQNt2IyEmNJDvUN+klfCW0Wqg1Zi6uFumCs1
-         +f3CvGAAdvg8EbRzjIS/yhs2wxuyGc3fAVjoILF7Wv3osHiqwoGSl4ulMo36ptf/y1Kk
-         Co3w==
-X-Gm-Message-State: AAQBX9ftzaKTxGrqFvOd1p70B44QmFrNhL6H+rBSmWyjpUEYjpFSRnwt
-        BIMTCB82JTZthHjqc968PjO/nw==
-X-Google-Smtp-Source: AKy350aRH19+zFexV3bYTMsdE6XeWtLgtLPwnCf2FX7WcSOxYv0gNzXFUJR1uMH6k5UPxNe336TTEg==
-X-Received: by 2002:a5d:6581:0:b0:2c9:8b81:bd04 with SMTP id q1-20020a5d6581000000b002c98b81bd04mr2185513wru.0.1681324926980;
-        Wed, 12 Apr 2023 11:42:06 -0700 (PDT)
-Received: from phenom.ffwll.local (212-51-149-33.fiber7.init7.net. [212.51.149.33])
-        by smtp.gmail.com with ESMTPSA id k13-20020a5d66cd000000b002f28de9f73bsm6293044wrw.55.2023.04.12.11.42.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Apr 2023 11:42:06 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     security@kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Xingyuan Mo <hdthky0@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>, Helge Deller <deller@gmx.de>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] fbcon: set_con2fb_map needs to set con2fb_map!
-Date:   Wed, 12 Apr 2023 20:41:52 +0200
-Message-Id: <20230412184152.213506-2-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412184152.213506-1-daniel.vetter@ffwll.ch>
-References: <20230412184152.213506-1-daniel.vetter@ffwll.ch>
+        d=1e100.net; s=20221208; t=1681325354; x=1683917354;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=H05k7Cmf7Hi9K1W5Jq5qb2sK9hV84Ca4AOxKRM48YfM=;
+        b=kfKjyCNIZdTYu20aWdRyl1UPSPRbx2SKPqy/OJNkpbka2/n2/tQMSfNn33TkZM6nHs
+         3sitnzOHROk/C+DeJalTKDaqYquxKQSRA3G/Yb3FDV3fRtJXm7QLboBrT/F0EWx4NtxL
+         uvvdWUtRa/p0eAoCXgQfdENyMzp6bMjWqv18+DhYb2ZmseaxvA92m1/dpdVf/CflKEml
+         KeKHC9PJP83yzEElLSJL0zJYkKOiM5+wEx+6KMy6/dk7B+oZCi2J2IGFAnyOTZ69C+cF
+         DhI3VC8HcfpYW2BQL6RLJ/SbiyNWPKsti+ZEc+QtdoY56a1a71bDRKrTUTxd4P9ihKSg
+         c2lQ==
+X-Gm-Message-State: AAQBX9dHJSCNjTNTmHQiVFzN4IvT092pE45lVXQ9fmfczKXEWLnHuWJY
+        +cuYE5Zpxd0+f4em3qnuLJc=
+X-Google-Smtp-Source: AKy350ZadzBFUD+fa2eWacS3/dkJ9b4jQHhviCVAXcanHlRAilaRUWKYM0yIkKcFtqMUek8Ppt8y8g==
+X-Received: by 2002:a05:6a20:8ca7:b0:e7:33df:44f1 with SMTP id k39-20020a056a208ca700b000e733df44f1mr3238521pzh.57.1681325354577;
+        Wed, 12 Apr 2023 11:49:14 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id d21-20020aa78155000000b0062e0010c6c1sm11940373pfn.164.2023.04.12.11.49.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Apr 2023 11:49:14 -0700 (PDT)
+Message-ID: <c09adf8e-0760-84b9-8e78-c7223e48a542@gmail.com>
+Date:   Wed, 12 Apr 2023 11:49:11 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 6.2 000/173] 6.2.11-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230412082838.125271466@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I got really badly confused in d443d9386472 ("fbcon: move more common
-code into fb_open()") because we set the con2fb_map before the failure
-points, which didn't look good.
+On 4/12/23 01:32, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.2.11 release.
+> There are 173 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 14 Apr 2023 08:28:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.11-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-But in trying to fix that I moved the assignment into the wrong path -
-we need to do it for _all_ vc we take over, not just the first one
-(which additionally requires the call to con2fb_acquire_newinfo).
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-I've figured this out because of a KASAN bug report, where the
-fbcon_registered_fb and fbcon_display arrays went out of sync in
-fbcon_mode_deleted() because the con2fb_map pointed at the old
-fb_info, but the modes and everything was updated for the new one.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Fixes: d443d9386472 ("fbcon: move more common code into fb_open()")
-Reported-by: Xingyuan Mo <hdthky0@gmail.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Xingyuan Mo <hdthky0@gmail.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.19+
----
- drivers/video/fbdev/core/fbcon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 52f6ce8e794a..eb565a10e5cd 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -846,10 +846,11 @@ static int set_con2fb_map(int unit, int newidx, int user)
- 		if (err)
- 			return err;
- 
--		con2fb_map[unit] = newidx;
- 		fbcon_add_cursor_work(info);
- 	}
- 
-+	con2fb_map[unit] = newidx;
-+
- 	/*
- 	 * If old fb is not mapped to any of the consoles,
- 	 * fbcon should release it.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.40.0
+Florian
 
