@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 591556DEF7A
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC3D96DEEC8
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbjDLIvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
+        id S229989AbjDLIpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230386AbjDLIvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:03 -0400
+        with ESMTP id S230459AbjDLIoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B4A9772
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41DAE45
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 968E563163
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A778DC433D2;
-        Wed, 12 Apr 2023 08:49:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06B0263081
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D38AC433EF;
+        Wed, 12 Apr 2023 08:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289392;
-        bh=21OnGELfFIqpPmaF6jBtOcYh5Fp4wg3v95cGurPvF2s=;
+        s=korg; t=1681289045;
+        bh=4sYj83CJDCChZKahyCiEMM2QVihTmqHguGieoTLcR3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmL7FxzjOZjRJjKn/pJvPpZ1fIxPH0SNhgo6vf84EhoJpXLepZY5BLyGLi6bMRjca
-         Wtp1qnnowWUxHd+fmez8S5kTP045TcyfzuMFJCEj8JZFKF+fc8fLYlAnd6G/e9vSv9
-         APnhbB+KUQqgdjBn8f7FlxicuvcYuCrmLcqTRzHY=
+        b=diGn8EQVBsWyRmuuzfM7mJx4UfKwv/IJ0Dj152U/tVc/Tqs7ivByhIwOuM6p+Aff9
+         HEvpYu6JMFsJKR9OSKAb7gAuVo46tblG3Z/TwP0l7UvpAv77KIrxxFD3MrR6KfPiRj
+         6IAvcx+yDYXnS6RBNCkLuTtsOTokbvkW731fZtZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.2 081/173] iio: light: vcnl4000: Fix WARN_ON on uninitialized lock
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 6.1 085/164] serial: 8250: Prevent starting up DMA Rx on THRI interrupt
 Date:   Wed, 12 Apr 2023 10:33:27 +0200
-Message-Id: <20230412082841.329969092@linuxfoundation.org>
+Message-Id: <20230412082840.338536320@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mårten Lindahl <marten.lindahl@axis.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 42ec40b0883c1cce58b06e8fa82049a61033151c upstream.
+commit 90b8596ac46043e4a782d9111f5b285251b13756 upstream.
 
-There are different init functions for the sensors in this driver in
-which only one initializes the generic vcnl4000_lock. With commit
-e21b5b1f2669 ("iio: light: vcnl4000: Preserve conf bits when toggle power")
-the vcnl4040 sensor started to depend on the lock, but it was missed to
-initialize it in vcnl4040's init function. This has not been visible
-until we run lockdep on it:
+Hans de Goede reported Bluetooth adapters (HCIs) connected over an UART
+connection failed due corrupted Rx payload. The problem was narrowed
+down to DMA Rx starting on UART_IIR_THRI interrupt. The problem occurs
+despite LSR having DR bit set, which is precondition for attempting to
+start DMA Rx in the first place.
 
-  DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-  at kernel/locking/mutex.c:575 __mutex_lock+0x4f8/0x890
-  Call trace:
-  __mutex_lock
-  mutex_lock_nested
-  vcnl4200_set_power_state
-  vcnl4200_init
-  vcnl4000_probe
+>From a debug patch:
+[x.807834] 8250irq: iir=cc lsr+saved=60 received=0/15 ier=0f dma_t/rx/err=0/0/0
+[x.808676] 8250irq: iir=c2 lsr+saved=61 received=0/0 ier=0f dma_t/rx/err=0/0/0
+[x.808776] 8250irq: iir=cc lsr+saved=60 received=1/12 ier=0d dma_t/rx/err=0/1/0
+[x.808870] Bluetooth: hci0: Frame reassembly failed (-84)
 
-Fix this by initializing the lock in the probe function instead of doing
-it in the chip specific init functions.
+In the debug snippet, received field indicates 1 byte was transferred
+over DMA and 12 bytes after that with the non-DMA Rx. The sole byte DMA
+handled was corrupted (gets zeroed) which leads to the HCI failure.
 
-Fixes: e21b5b1f2669 ("iio: light: vcnl4000: Preserve conf bits when toggle power")
-Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20230131140109.2067577-1-marten.lindahl@axis.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+This problem became apparent after commit e8ffbb71f783 ("serial: 8250:
+use THRE & __stop_tx also with DMA") changed Tx stop behavior. Tx stop
+is now triggered from a THRI interrupt.
+
+Despite that this problem looks like a HW bug, this fix is not adding
+UART_BUG_xx flag to the driver beucase it seems useful in general to
+avoid starting DMA when there are only a few bytes to transfer.
+Skipping DMA for small transfers avoids the extra overhead DMA incurs.
+
+Thus, don't setup DMA Rx on UART_IIR_THRI but leave it to a subsequent
+interrupt which has Rx a related IIR value.
+
+By returning false from handle_rx_dma(), the DMA vs non-DMA decision is
+postponed until either UART_IIR_RDI (FIFO threshold worth of bytes
+awaiting) or UART_IIR_TIMEOUT (inter-character timeout) triggers at a
+later time which allows better to discern whether the number of bytes
+warrants starting DMA or not.
+
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: e8ffbb71f783 ("serial: 8250: use THRE & __stop_tx also with DMA")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230317103034.12881-1-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/vcnl4000.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
-index cc1a2062e76d..69c5bc987e26 100644
---- a/drivers/iio/light/vcnl4000.c
-+++ b/drivers/iio/light/vcnl4000.c
-@@ -199,7 +199,6 @@ static int vcnl4000_init(struct vcnl4000_data *data)
- 
- 	data->rev = ret & 0xf;
- 	data->al_scale = 250000;
--	mutex_init(&data->vcnl4000_lock);
- 
- 	return data->chip_spec->set_power_state(data, true);
- };
-@@ -1197,6 +1196,8 @@ static int vcnl4000_probe(struct i2c_client *client)
- 	data->id = id->driver_data;
- 	data->chip_spec = &vcnl4000_chip_spec_cfg[data->id];
- 
-+	mutex_init(&data->vcnl4000_lock);
-+
- 	ret = data->chip_spec->init(data);
- 	if (ret < 0)
- 		return ret;
--- 
-2.40.0
-
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1897,6 +1897,17 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
+ static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
+ {
+ 	switch (iir & 0x3f) {
++	case UART_IIR_THRI:
++		/*
++		 * Postpone DMA or not decision to IIR_RDI or IIR_RX_TIMEOUT
++		 * because it's impossible to do an informed decision about
++		 * that with IIR_THRI.
++		 *
++		 * This also fixes one known DMA Rx corruption issue where
++		 * DR is asserted but DMA Rx only gets a corrupted zero byte
++		 * (too early DR?).
++		 */
++		return false;
+ 	case UART_IIR_RDI:
+ 		if (!up->dma->rx_running)
+ 			break;
 
 
