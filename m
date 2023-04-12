@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A3B6DEE49
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 591556DEF7A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230431AbjDLIlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46630 "EHLO
+        id S230049AbjDLIvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230124AbjDLIjk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:40 -0400
+        with ESMTP id S230386AbjDLIvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4E47A80
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B4A9772
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40B6062FB7
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560D7C433D2;
-        Wed, 12 Apr 2023 08:37:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 968E563163
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A778DC433D2;
+        Wed, 12 Apr 2023 08:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288642;
-        bh=i26/0FaezUH8GQO0idE4VHfr3p5l7CatSshX/hOoo2Y=;
+        s=korg; t=1681289392;
+        bh=21OnGELfFIqpPmaF6jBtOcYh5Fp4wg3v95cGurPvF2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iV0M4Y1a3Xy2a01rZW4i+NvX7yKPbp5aENSyoIE8i6OQAAQG363UjLpFCffSKbLtf
-         FIcvjX6yXNeCGY1FDmwOBQPquCFz2siUaf9D/+expyp4XMXIYr3R0d9sAFD70GphOG
-         3pgJ8fRfQ13oSiGF7rPpBaqwG7INXeNEglJjkjIA=
+        b=pmL7FxzjOZjRJjKn/pJvPpZ1fIxPH0SNhgo6vf84EhoJpXLepZY5BLyGLi6bMRjca
+         Wtp1qnnowWUxHd+fmez8S5kTP045TcyfzuMFJCEj8JZFKF+fc8fLYlAnd6G/e9vSv9
+         APnhbB+KUQqgdjBn8f7FlxicuvcYuCrmLcqTRzHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 26/93] pwm: sprd: Explicitly set .polarity in .get_state()
+        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.2 081/173] iio: light: vcnl4000: Fix WARN_ON on uninitialized lock
 Date:   Wed, 12 Apr 2023 10:33:27 +0200
-Message-Id: <20230412082824.163979870@linuxfoundation.org>
+Message-Id: <20230412082841.329969092@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Mårten Lindahl <marten.lindahl@axis.com>
 
-[ Upstream commit 2be4dcf6627e1bcbbef8e6ba1811f5127d39202c ]
+commit 42ec40b0883c1cce58b06e8fa82049a61033151c upstream.
 
-The driver only supports normal polarity. Complete the implementation of
-.get_state() by setting .polarity accordingly.
+There are different init functions for the sensors in this driver in
+which only one initializes the generic vcnl4000_lock. With commit
+e21b5b1f2669 ("iio: light: vcnl4000: Preserve conf bits when toggle power")
+the vcnl4040 sensor started to depend on the lock, but it was missed to
+initialize it in vcnl4040's init function. This has not been visible
+until we run lockdep on it:
 
-Fixes: 8aae4b02e8a6 ("pwm: sprd: Add Spreadtrum PWM support")
-Link: https://lore.kernel.org/r/20230228135508.1798428-5-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+  at kernel/locking/mutex.c:575 __mutex_lock+0x4f8/0x890
+  Call trace:
+  __mutex_lock
+  mutex_lock_nested
+  vcnl4200_set_power_state
+  vcnl4200_init
+  vcnl4000_probe
+
+Fix this by initializing the lock in the probe function instead of doing
+it in the chip specific init functions.
+
+Fixes: e21b5b1f2669 ("iio: light: vcnl4000: Preserve conf bits when toggle power")
+Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20230131140109.2067577-1-marten.lindahl@axis.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-sprd.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/light/vcnl4000.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-sprd.c b/drivers/pwm/pwm-sprd.c
-index 7004f55bbf115..869e696a503f0 100644
---- a/drivers/pwm/pwm-sprd.c
-+++ b/drivers/pwm/pwm-sprd.c
-@@ -109,6 +109,7 @@ static void sprd_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	duty = val & SPRD_PWM_DUTY_MSK;
- 	tmp = (prescale + 1) * NSEC_PER_SEC * duty;
- 	state->duty_cycle = DIV_ROUND_CLOSEST_ULL(tmp, chn->clk_rate);
-+	state->polarity = PWM_POLARITY_NORMAL;
+diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+index cc1a2062e76d..69c5bc987e26 100644
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -199,7 +199,6 @@ static int vcnl4000_init(struct vcnl4000_data *data)
  
- 	/* Disable PWM clocks if the PWM channel is not in enable state. */
- 	if (!state->enabled)
+ 	data->rev = ret & 0xf;
+ 	data->al_scale = 250000;
+-	mutex_init(&data->vcnl4000_lock);
+ 
+ 	return data->chip_spec->set_power_state(data, true);
+ };
+@@ -1197,6 +1196,8 @@ static int vcnl4000_probe(struct i2c_client *client)
+ 	data->id = id->driver_data;
+ 	data->chip_spec = &vcnl4000_chip_spec_cfg[data->id];
+ 
++	mutex_init(&data->vcnl4000_lock);
++
+ 	ret = data->chip_spec->init(data);
+ 	if (ret < 0)
+ 		return ret;
 -- 
-2.39.2
+2.40.0
 
 
 
