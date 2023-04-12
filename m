@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D2906DEEE4
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCFC26DEF86
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230396AbjDLIqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58610 "EHLO
+        id S231341AbjDLIv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230450AbjDLIp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:59 -0400
+        with ESMTP id S231354AbjDLIv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F500F1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:45:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BBCA977D
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71253630AE
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 888DEC4339B;
-        Wed, 12 Apr 2023 08:44:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BECB63185
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB442C433EF;
+        Wed, 12 Apr 2023 08:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289082;
-        bh=+VgXcekNaZX5j4F/90GhBEJESkXAC+zuuS8mB+8CtDk=;
+        s=korg; t=1681289462;
+        bh=6jsspnncrAntwUuV6bzkBlyHbR3fRVoAj4G20HCOhuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EkFvZlHDYl+obPVGcwFfAhOYGQgwXt+/hA666I9bPiLTyL7FpPOqPx1QKCnQeh5Pq
-         /BbC8Vt4k8AKnrUGpu9alc6NLmQfjqhhprkR11kL0oSri1+f6l/y8ctrKRrum1y5fA
-         3fhFZstHJM7w/cVR41VLseTWVsJ+JLWKrYgRodB0=
+        b=hPvVwILT40YEZsa3f8K1by0+1UB1tkJOwlm0ZdqcNnlsiyjB1GlrWjE+GWH95Oj/a
+         Jo4CRCtyMTlWLg6hVIh3MEx5t+L9o+p10nXZ3F2IWNoC1j43498JAlg+89LXuLqp8u
+         QPLISt5VgHKE7yQWfVLd8t/WyZK7sVi7ZxOKk5jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
-        ast@kernel.org, daniel@iogearbox.net,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 112/164] ftrace: Fix issue that direct->addr not restored in modify_ftrace_direct()
+        patches@lists.linux.dev, stable@kernel.org,
+        Martin Belanger <Martin.Belanger@dell.com>,
+        Daniel Wagner <dwagner@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.2 108/173] blk-mq: directly poll requests
 Date:   Wed, 12 Apr 2023 10:33:54 +0200
-Message-Id: <20230412082841.379955310@linuxfoundation.org>
+Message-Id: <20230412082842.429244847@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +60,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Keith Busch <kbusch@kernel.org>
 
-commit 2a2d8c51defb446e8d89a83f42f8e5cd529111e9 upstream.
+commit 38a8c4d1d45006841f0643f4cb29b5e50758837c upstream.
 
-Syzkaller report a WARNING: "WARN_ON(!direct)" in modify_ftrace_direct().
+Polling needs a bio with a valid bi_bdev, but neither of those are
+guaranteed for polled driver requests. Make request based polling
+directly use blk-mq's polling function instead.
 
-Root cause is 'direct->addr' was changed from 'old_addr' to 'new_addr' but
-not restored if error happened on calling ftrace_modify_direct_caller().
-Then it can no longer find 'direct' by that 'old_addr'.
+When executing a request from a polled hctx, we know the request's
+cookie, and that it's from a live blk-mq queue that supports polling, so
+we can safely skip everything that bio_poll provides.
 
-To fix it, restore 'direct->addr' to 'old_addr' explicitly in error path.
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230330025223.1046087-1-zhengyejian1@huawei.com
-
-Cc: stable@vger.kernel.org
-Cc: <mhiramat@kernel.org>
-Cc: <mark.rutland@arm.com>
-Cc: <ast@kernel.org>
-Cc: <daniel@iogearbox.net>
-Fixes: 8a141dd7f706 ("ftrace: Fix modify_ftrace_direct.")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: stable@kernel.org
+Reported-by: Martin Belanger <Martin.Belanger@dell.com>
+Reported-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Revieded-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Link: https://lore.kernel.org/r/20230331180056.1155862-1-kbusch@meta.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ block/blk-mq.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5557,12 +5557,15 @@ int modify_ftrace_direct(unsigned long i
- 		ret = 0;
- 	}
- 
--	if (unlikely(ret && new_direct)) {
--		direct->count++;
--		list_del_rcu(&new_direct->next);
--		synchronize_rcu_tasks();
--		kfree(new_direct);
--		ftrace_direct_func_count--;
-+	if (ret) {
-+		direct->addr = old_addr;
-+		if (unlikely(new_direct)) {
-+			direct->count++;
-+			list_del_rcu(&new_direct->next);
-+			synchronize_rcu_tasks();
-+			kfree(new_direct);
-+			ftrace_direct_func_count--;
-+		}
- 	}
- 
-  out_unlock:
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1359,8 +1359,6 @@ bool blk_rq_is_poll(struct request *rq)
+ 		return false;
+ 	if (rq->mq_hctx->type != HCTX_TYPE_POLL)
+ 		return false;
+-	if (WARN_ON_ONCE(!rq->bio))
+-		return false;
+ 	return true;
+ }
+ EXPORT_SYMBOL_GPL(blk_rq_is_poll);
+@@ -1368,7 +1366,7 @@ EXPORT_SYMBOL_GPL(blk_rq_is_poll);
+ static void blk_rq_poll_completion(struct request *rq, struct completion *wait)
+ {
+ 	do {
+-		bio_poll(rq->bio, NULL, 0);
++		blk_mq_poll(rq->q, blk_rq_to_qc(rq), NULL, 0);
+ 		cond_resched();
+ 	} while (!completion_done(wait));
+ }
 
 
