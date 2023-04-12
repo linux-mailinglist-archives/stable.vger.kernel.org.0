@@ -2,191 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDDD6DECD3
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292616DECF1
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229632AbjDLHpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 03:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
+        id S229973AbjDLHu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 03:50:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229536AbjDLHpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 03:45:06 -0400
-Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8721705
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 00:45:04 -0700 (PDT)
-Received: from pps.filterd (m0250812.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33C4pF0m027675;
-        Wed, 12 Apr 2023 07:44:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : content-transfer-encoding : content-type :
- mime-version; s=PPS06212021;
- bh=5KzVSevEHb7T3O02qIKd4UOIyzWEx/ZQa/T0DvvJm94=;
- b=Jyp/iwfQpHS3Bdj0wRc7pk5/XactxwnnYadfrWodZZzSKLUpV82N/Q8/gqNoa5HUIVou
- bZz4FtcWuJsjePVm/fPZYTury98NDcoL82RsDmVE2xdhd9JYywLsS3GqnDQ4nHZeNbSc
- Ms42TT3qb0ogFKJcz4RiclwQQuqpAPScs7xt6/s4h4dkCovoy6kRNjTQWBGECUq1Yxe9
- S2EGbAiXKbj+1CxCY/nNNQVB2J31bGxWYJvnO7W9dR93kc87x/efaHnODlDFoVKOISVJ
- mC0IK4H5lEpijWm+D7nhyc7/fVgCbfKkEbXS2my2HpDymExAV2UVhJda3aHLCCGWvQHn EQ== 
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3pty8b43fh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Apr 2023 07:44:58 +0000
+        with ESMTP id S229897AbjDLHuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 03:50:21 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42CBD5FEA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 00:50:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681285820; x=1712821820;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=2d5SiBF8Ac2GhgRlxtzCo5IHP2K4xIIg3CU+Cr15UNE=;
+  b=gyOJNHqgK5uenhIM362KdhKl3tZucun/EHGqyRvzXwo5qgL06op1R+E7
+   5Spn2JvkDCrasyGlE0GDrrwU2LOSoNguOAeG0uBPdCUwfzQOTIhn/col/
+   jRLt2xHFyKBx5zOmdgcYnB52b9jF+PHDd8HR/QYf1TFxq0ivYEbhNJ2Lt
+   vz3EtUzZMwvesCqPD/hk44ODgQwIpR1U1RlIQIjJ/05j/GkLysB+Sc9ex
+   XejleaSBjFphlxAQzAHhib1BuTt06Gc8NuleQkEsSLgXSeAjRx2ZqKTwV
+   Rf61upiZz4JFLuOklg4Vi1LatB6XQ2CCGME+6T0l5cKESItCyRNTtLuQG
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10677"; a="342585920"
+X-IronPort-AV: E=Sophos;i="5.98,338,1673942400"; 
+   d="scan'208";a="342585920"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Apr 2023 00:50:20 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10677"; a="753441989"
+X-IronPort-AV: E=Sophos;i="5.98,338,1673942400"; 
+   d="scan'208";a="753441989"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by fmsmga008.fm.intel.com with ESMTP; 12 Apr 2023 00:50:19 -0700
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Wed, 12 Apr 2023 00:50:19 -0700
+Received: from orsmsx601.amr.corp.intel.com (10.22.229.14) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23; Wed, 12 Apr 2023 00:50:19 -0700
+Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
+ orsmsx601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.23 via Frontend Transport; Wed, 12 Apr 2023 00:50:19 -0700
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.172)
+ by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.23; Wed, 12 Apr 2023 00:50:18 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=esU3RtSIu+VRCF4XXzNgn2tpO4Whq99Yp3rMNlM/NjKfot7qE2E3S+lAlGRboWkx863v2Me9PP1ln2rdNKg2TbEhLTayasqe4CZ47m951CxTbot5k6XbYYbWVTZj4UwdlNhheWQAxrPkwtc0EuTKmAd8rWOCTPOxTTRxbFZsBML/KRYj1eg9Lx/fsIB/hwJjklar7aYh/syBwrV1jz8iiI1wkVgwz2ZvNZp9Nb2Lbt45jvUTZeHeGRWOpw0TQ3OrlfYBg3bYsc4a2UxbmeKGuL9P9oeJlFnqZvTauowfWT6ydU1WORXIsL/PKa+k83mb7S5YsMn2dviAF0gVPHJgTw==
+ b=JwV0s2UliPDv7VM3rmLiLgf/XAWC3z7v7RruXaRwW+sgSN2/Ma9PClWDIGT6chEJqcWNUgofx6Re3qdYfmbkKc+Y/dIhDBa5fOyI4D58fFd2HOMaMb1qdTcaA7g9TgmvQfJ30PAMX/kD2GOz3YZN+cbT9L4Ef01D21IX4MIyX1Od9d98iIkXnm6Xs9l5Jsu1wPXd7ytGp5jnYtwCTcSM+D+moWuh8v1aIP3hCFAfWyI/hWzfwKVDyLtJJ8P79H7QEifWgAAZ0/Hy1IdOcy0BY+U0x+TrdeMoMftQGVrvUw0fRjOpZ05lRBtaTlAu7zKcgx9txJQ333Fjs7RWL9IDUg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5KzVSevEHb7T3O02qIKd4UOIyzWEx/ZQa/T0DvvJm94=;
- b=OlNptScDgYxx1wlk6MW1eXXWP3L1QbhHuBcvZLSdYoFo8Dij9JFndc61MGYYwDRQPFNwznOWRvKJ03Gqd6KubkC6LWxGB81qP+/PlgaK72WZ5g03G4SdZI5Wsp/Q0NNYkKLik7l/c2EaSwCE4wEAzGmegfFk+CWHCBrz0kk2KW6TSTpXGh9LACK22wa8yi4Ed8v5mWyZVkkVaQhnfpDK+xw6CQg8GxiFSjvxO+WWqJMl3XczoGRjoKSt7DuYxPUm2rwp/Z+7MLu63Yp1L29I3VBky7D/xRO+dsmZuPnZ4wuI0JO1zedT0wRuMrhD1wAEP00kyaG/aKACgdI/8veO0g==
+ bh=aoN19lgpCCm/oTQU6/MTQHEiypr7j8t122DIPLH4CjM=;
+ b=PM13j+Hn08O5bdZh+Jhg0O3PYhAN/7c5VKIvRIsTvhK4Ff/xqfnqG0g4tDBrZrOQ/QpOa6Rcq8fZ6AjVmW+y9xXa74BUl1SO1N4Ns2Bl0ZLt9i5SkRz4Ht6412Cf1dyVOPh/JV2erc4WI0cb31/eFaTCqgcK7FtFn8mz6KSJz3pY35ipLIqu4U3mhAq1Av3mW+XMtQHe7Np3QWzfqku/Dd44wEzpJDyIlFx60mciFyeq6UQlbQ1pppLr0SVPpEzrTbWQYH2bGKh1MNlgf/hFWl9zrlGZL/GhY9a1Z8Qvs3LTaidmmRuPsi/LtIUEKpAO2X8Jb6S6mJ1mYkPnSUUjyw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=windriver.com; dmarc=pass action=none
- header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
-Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
- by SJ0PR11MB4941.namprd11.prod.outlook.com (2603:10b6:a03:2d2::9) with
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from CY5PR11MB6392.namprd11.prod.outlook.com (2603:10b6:930:37::15)
+ by SA1PR11MB8253.namprd11.prod.outlook.com (2603:10b6:806:250::12) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.34; Wed, 12 Apr
- 2023 07:44:54 +0000
-Received: from DM4PR11MB5327.namprd11.prod.outlook.com
- ([fe80::60b2:e8cd:1927:54f3]) by DM4PR11MB5327.namprd11.prod.outlook.com
- ([fe80::60b2:e8cd:1927:54f3%9]) with mapi id 15.20.6277.038; Wed, 12 Apr 2023
- 07:44:54 +0000
-From:   Ovidiu Panait <ovidiu.panait@windriver.com>
-To:     stable@vger.kernel.org
-Cc:     seanjc@google.com, Paolo Bonzini <pbonzini@redhat.com>,
-        Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 1/1] KVM: nVMX: add missing consistency checks for CR0 and CR4
-Date:   Wed, 12 Apr 2023 10:44:35 +0300
-Message-Id: <20230412074435.2093208-1-ovidiu.panait@windriver.com>
-X-Mailer: git-send-email 2.39.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: VI1PR0701CA0064.eurprd07.prod.outlook.com
- (2603:10a6:800:5f::26) To DM4PR11MB5327.namprd11.prod.outlook.com
- (2603:10b6:5:392::22)
+ 2023 07:50:16 +0000
+Received: from CY5PR11MB6392.namprd11.prod.outlook.com
+ ([fe80::5ac7:aae0:92aa:74f0]) by CY5PR11MB6392.namprd11.prod.outlook.com
+ ([fe80::5ac7:aae0:92aa:74f0%8]) with mapi id 15.20.6298.030; Wed, 12 Apr 2023
+ 07:50:16 +0000
+Date:   Wed, 12 Apr 2023 15:47:07 +0800
+From:   Yujie Liu <yujie.liu@intel.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Pratyush Yadav <ptyadav@amazon.de>
+CC:     kernel test robot <lkp@intel.com>, <stable@vger.kernel.org>,
+        <oe-kbuild-all@lists.linux.dev>
+Subject: Re: [PATCH 5.4] cifs/smb3: Fix NULL pointer dereference in
+ smb2_query_info_compound()
+Message-ID: <ZDZh+7jJgg4DR+IA@yujie-X299>
+References: <ZC1fJiHvpbXcysXi@ec83ac1404bb>
+ <mafs0o7o2h7o7.fsf@amazon.de>
+ <2023040539-cherub-flattered-bcc0@gregkh>
+ <2023040528-maroon-running-0fe2@gregkh>
+ <mafs0jzyqh2sf.fsf_-_@amazon.de>
+ <2023040502-shortcut-curtly-cc96@gregkh>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <2023040502-shortcut-curtly-cc96@gregkh>
+X-ClientProxiedBy: SG2PR02CA0043.apcprd02.prod.outlook.com
+ (2603:1096:3:18::31) To CY5PR11MB6392.namprd11.prod.outlook.com
+ (2603:10b6:930:37::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR11MB5327:EE_|SJ0PR11MB4941:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9c54ea3b-a59f-4b8c-e6c9-08db3b29cdec
+X-MS-TrafficTypeDiagnostic: CY5PR11MB6392:EE_|SA1PR11MB8253:EE_
+X-MS-Office365-Filtering-Correlation-Id: 94d9d716-2a17-4414-bf70-08db3b2a8dc2
+X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: utruGb2ogZCVfwEfcvZzyVE3KIADANRgJqiCy/S1YjsdArvHiIsZ60E3tTTDnEfKax+7C8XpTcWAIOr7I7pujiG66BCBmaFiGuEP/g7xDH82/mKf7TKflACLPin4QPkX+ySk+1e1e9T2yZEwwLtuM+VoS6sNp+jmu5KJhCdqOk6m5TXWVVqXNaKgwaCH/LOYxm41EjJoT/o2lPPcfG1Y1XkBMbJv3kkXixcAcQ7bkKpvNrzF8IyVgpI/M3/TAcYrQE5i8//fBlajbWjoDkK1jNwC3ryKiSYHUsgUnGX5FTq2wxWMdZRuV1JycoHUfijt12oHSFr2oR8sTrlWO8b3W7FSfyeoEgwzzQ83iPHcLkdIpUPY5H5JL3PX3toPP0SSOeVMYdWIA/VugW/2UNoGrC7YKlci/DSXDGoQbmXw/eioHZY6/pqbB4EX66B5eHo9NyyMW0GrHHL731GYtXrlgbp6nVHriY85hkYxitiL5CmzTe7dpfRnfvE+3oewT2mFWq0f6R8thPe1aZoIPxrM12MpP2Jp+8AVKyCv8ztko0Br0qpZT+UU3lqC8VQ+vtj8lZYVYeGOsI9891WWcEfnxPwUwfLeFURHhNX5ekwzzntCU28YlXiMscsSazeZWIJk
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39850400004)(346002)(376002)(366004)(136003)(451199021)(66476007)(36756003)(38100700002)(38350700002)(44832011)(2906002)(5660300002)(8676002)(8936002)(86362001)(4326008)(41300700001)(66556008)(66946007)(2616005)(6916009)(83380400001)(316002)(1076003)(26005)(54906003)(6506007)(52116002)(6486002)(107886003)(6512007)(6666004)(478600001)(186003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 7z+0XMz+nMub+3TR2vuD9bIPyYR8quFLoJGwTAQg6Xl1UjWFn3D9XQL3Q8TSqiNtenS2I/uJzP/UVJwCQ8mUQiDzYBvlmCGV3NP7zKv8TYLiOztmc1ZYx/QGOBcjdswS0v1Zf/evzCQdWoVU4xZrCyOBFftvRW9ggWE2vqVP6p4LBh2O3xT9dGx3SXh7448KxbSUFZBurqkXwBNmCqgsj+EFy7v8TPvLH/9O1eNvMzQkOw5cKH3yW/y3KdlyHhZSEJUWRoYC1O1qQ6Q29jHjT7f1EEmcpanCezVb232ZpXhCZ3gLeo+Vpv+jLpXk2sC4R3uuTdl6pHcfUeAlZsRyXEy0pZr0s+emtEn32KCNaQdETwOF8nM293RkrwKwJnCt2AsonmiIR9ZnwRH1l4Y06K/HdizsRctYSM6X8erjxvUV70/0zdS4/tv/3pB7nk6ROLz4umzuM8cO+oAOBTCFM6N2JWol63mmc3fRhlJjUvk7Kh3MbuFOyv/yzChCq1FZMKAueC0QC+NS3soj3F2AAJsE9+EKbMwViglS4vg2WJOoSddBXdwxA3i7IaXlmo8PWONbrw4MQrr6UzrYrJZREA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR11MB6392.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(7916004)(376002)(346002)(136003)(366004)(396003)(39860400002)(451199021)(478600001)(6512007)(26005)(6506007)(186003)(5660300002)(66556008)(9686003)(6486002)(966005)(110136005)(316002)(2906002)(44832011)(33716001)(66946007)(4326008)(41300700001)(6666004)(8936002)(8676002)(66476007)(38100700002)(82960400001)(83380400001)(86362001);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ZrGLAAs1NmCbGWFI+PDnJwRCnrV6Fr6z8C+p6F6LWVLgZIxmRj77u54cYcaG?=
- =?us-ascii?Q?XJj5UIkyRU2IRTMnlt8cJ9lGOsK4eXhQACNYGPcxmBMV/AtDmFn5QCSQDQ8j?=
- =?us-ascii?Q?Zp7C3owat1EHT1UgZSdwf4EIbbqJ9Px9B8OASGls9r6GEVr+bb95Gnz8YJzs?=
- =?us-ascii?Q?87I9tv3r2WVAXB2SwTz6W5mAxYWQfONCP2SK6mll1XBLPP0IhE6aV753CswL?=
- =?us-ascii?Q?cNZ4ODvkniHa7XgsNA2fGMQZ6T82ONPNMGItN8O1Ddaq/6/ZyMtY7CiBKaCH?=
- =?us-ascii?Q?SEQCjEVb6GOJkRHZ432irQnp+sd8R72UM1nKRYb08dxnYaFSFuVy0xYVODHS?=
- =?us-ascii?Q?QwwF4W/be8OS4ZCgZJR7xDapzMeFHvIkVCBaLmxj9Vx+OI84WoRx1ScbS5dM?=
- =?us-ascii?Q?KfOgvRt3dQYMvVNrkHOV2QyaBy4Wnb4wq16xynkU24qZWBUsgzIiM2gqsu3d?=
- =?us-ascii?Q?2u06KdCf5drBLwzs5HSKkwnnmyrFAauszJ8luPN2Z8hfJRY2S6w3CvscJ8D8?=
- =?us-ascii?Q?ng5GSskAxFkxRHBOq564N6s7OxdLvGswr31xWI99gLs5hmcUPGO6JEeDcwNG?=
- =?us-ascii?Q?SsEQSEB6AkRdLAXUpj/nTCbgA7utQn1GpWw2IGpLd0qU/YE7ZSFtRXrWDivu?=
- =?us-ascii?Q?L9+VuvRBERA46vq1FiKXRX9fmZZCG7mi//hgmx70k8r4r+el2fNfN4lqrReX?=
- =?us-ascii?Q?7PZO76sLGVSZcPtFm/i3zrzYuyRD4XVgu6lL+Gq7IeqFvYqE0G6gIcJpFGRU?=
- =?us-ascii?Q?DF+DG6f2+ydxliY0w2mn/RMairPrv0pU5uUhJ7z8iMHNMfUFgs9KT48TzgYJ?=
- =?us-ascii?Q?hj8tjlIt5ArjeFedOv2WYg4m6d63WxHteXIcW1fGO9M+DUeel5RoPXV/LncV?=
- =?us-ascii?Q?DnW58egoCvVEmhKSuBTkq2/IzBN55Xcv3lUJenj8d8t+e/hnDSEubZBZ5BKn?=
- =?us-ascii?Q?4NZrEjU5tm0m4ZrPqRMgQ0ZOzTUu+ECnV6EMaLchSeTutCFeHOMv/6lbhJsw?=
- =?us-ascii?Q?CVr+th8omC1YYdRZP+NOKbaLTWkbw1YT5pTJaPwVATejFCRl3+Igo7HGo4vR?=
- =?us-ascii?Q?/GN34czYEWmsxBtRcMYBSoszoVXZntEm6fvJLDafoMXbwv1pcqv4xpAY1mNr?=
- =?us-ascii?Q?NeAQ6QIYiTAaMnuupoMRxN6ZK6FMkeb0ApeFAM0FPDeVMfAs7tNT/YrvAV3G?=
- =?us-ascii?Q?TyjfjKWDT1ZcrT9U1Vw9xBKCdK84pdnYflLGMLMJlzOtWs2nZNsuacRZ6mZS?=
- =?us-ascii?Q?yhzDhbnB7mrc+vuBWX3bN0krnShFEmZBI4IixUjrbkPuvE20l5Eq7taTVS3p?=
- =?us-ascii?Q?5M97y8PyS97IE7rtfomuabUuYFi/iuC0FmKUpYMZ6EHpRHI8egLHAJYZjvo8?=
- =?us-ascii?Q?4vhVH/fqicnxbgDgIkiMTigc7GWzz71WGMja2v7+VlbTb6bGf9PcydcdRpRc?=
- =?us-ascii?Q?RJagUJf/kOhWmsz9BVJLVkO9FFZcyiFwSp8Fr2kYdzSe67m2ZaJuIYNYvmVt?=
- =?us-ascii?Q?5356o6Rk8XaBmkMSe0B5jbD89OJamdJ20FJfc+utLvTyCxWLsIbq1DategL8?=
- =?us-ascii?Q?bToFYkX0fhTdCt4xNgbJ4ikQqt8ZPGWZ97Myc9tkZI7AJChk0IUwGEFK3/Ng?=
- =?us-ascii?Q?NA=3D=3D?=
-X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9c54ea3b-a59f-4b8c-e6c9-08db3b29cdec
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?0lGBqjRf3W9ctTr7z0ppRs6yKtrJ6YkuluElMWebE6AgqhGHPmmX0AkqciX1?=
+ =?us-ascii?Q?mCnzjYuIOy/3b3NSe1uH83ely9KjknSUfQ5hXEurOQBM3wrVCm+tZ18O//4M?=
+ =?us-ascii?Q?E972F22+dgG+GmvdCwKx1nWmfLHL7S5tgRdvKA5L26e67bEoJIgAe5xEq0GQ?=
+ =?us-ascii?Q?wu7eJwv7PnJiZOa/yoCsV7Q4tBG6TGXnfJoKmSSmpgEGAGlqS6vzXyOftgDH?=
+ =?us-ascii?Q?k+r63Wn1fsg5QBl4UMtha+YFpHQRM6+iE+GNSCPfJnb0dDZO9ykakLZMH7Sm?=
+ =?us-ascii?Q?aJ0IOt+L0AWFxoL1ypdlMcDBqi5Aru30E9mAxqGTICz4gO07g8o1le2cpybW?=
+ =?us-ascii?Q?BOAgG+wctuC5tvPZWSkNifFLklz52j/PvwURtmrvNr+3Lbp386uGqpp2oEtt?=
+ =?us-ascii?Q?HYR2pfQLW0zOSTpCMj6metb8O12RynAh+mbUoLWSgnV8bzfan/Jb3U4Q91y5?=
+ =?us-ascii?Q?VKEkDKnVkzC5Bj6AcLOdaEwyRX2wVLqoGapeuSzi4m7roNACRZSbgvWc9s0X?=
+ =?us-ascii?Q?lNjZL4m1R3S9YnyUBlAHPK/4Q5dRLvhP6UplHPXCyhXVX+7ExRBk3OXg+HHF?=
+ =?us-ascii?Q?Ki+K/ZksSIJ4IDKZOO9gKnVBEw2DHa5D2AndRbCnQCSo1skxv5b+pyGPJu6D?=
+ =?us-ascii?Q?UApQZ5Jaube/+OfxOBqHb41/glskUiF1QLKRJlRAib48zyAVUlcHVKPbpfLC?=
+ =?us-ascii?Q?lIZcZ9RqNBU5N145iLlm88860Gi5qeGRSDGhB+RphWrdSletncjshxS2VyDg?=
+ =?us-ascii?Q?nRfK5fNCgbanBUEfby3Q4Dcca8GhVGCRHZo9uIg3mTX5gsvfPD3H3mn5+PlQ?=
+ =?us-ascii?Q?DvJw1cG5Xgqfmyfw4RvYz+7KEckDhf+NJbiiqc9KZY/m0vqzGPGFv3rREVyM?=
+ =?us-ascii?Q?gAtXFhAOP4/UfXJED/u3yx62Zi8zD2qxn3lDzZlSERGKKlibuK25DMkPnknp?=
+ =?us-ascii?Q?/EEaH82kzroBPNl08Ar4d+s39AYiYg2RK9dtUAA8gsr/quDZlx+7N6Z06Qu8?=
+ =?us-ascii?Q?mt7m6hq93BlVdypeCyGK76oZ00InZYIrDWUTSs5BtuP4ZE/5NtoGKhuptOE6?=
+ =?us-ascii?Q?VL6Amat8MQGMr5O5cDuoHtMXM9dfT4J4AId+iYbZ/aSonkOd2tKohj+Sw8BC?=
+ =?us-ascii?Q?Buh4XwSqdRDrDAxDRjhgbIK0avdd4G1IW27aMwsUwSCLKEc3sX3B9LVY1JHC?=
+ =?us-ascii?Q?aGGpdA0ek1z0C6fdrzJ759A8rU3rNur9baTi0LrtzZtMhL/DJ9kL3RI9DOX3?=
+ =?us-ascii?Q?AnfaJL5Tk0HtLcpCT50v7lKZ7YJdooax1mo0Z8Cx1lbrB8EbAtStoBFTQa89?=
+ =?us-ascii?Q?Y/zKchy+0/5FpZ6bq67+J0NvP9hOXlvTp/BhnX5dgKwFnWO0SbFp31XAmdns?=
+ =?us-ascii?Q?s68BE6iGR2J69fNUXudlI3c2SUXwTL3JyP59X+zbbhPkMvI0MTJC3Vo5EG7a?=
+ =?us-ascii?Q?FXYgoCaAJ+tI01sqXrh8n7ASXM5/SllgE/se1xs/PfQqTVoGW/l+58eVn8A3?=
+ =?us-ascii?Q?UQmBudXapN9MxL62nzUuy4epnvaVZTfY9YaEY+/3tQAtt12CFFDUU2aHc1Gf?=
+ =?us-ascii?Q?bbyuI6G8MDqvaIDTdlfF0VgjX4gGKyCWjJCo8E8o?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 94d9d716-2a17-4414-bf70-08db3b2a8dc2
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR11MB6392.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2023 07:44:54.2572
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2023 07:50:15.7988
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: BfQSGaKTpoAQyPms0yNjfKUcvkSDw4m0r8PGzgEEuFl8q1M9KtWEL9taOWAO3b1lZGaaNQvpPtjz9HBOGVWQzEiE9otmLkxMa3zLvF8ZcHE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB4941
-X-Proofpoint-ORIG-GUID: E-5hWVgl6CdgU9Dzcor_qggOLZFxCDuH
-X-Proofpoint-GUID: E-5hWVgl6CdgU9Dzcor_qggOLZFxCDuH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-12_02,2023-04-11_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- bulkscore=0 phishscore=0 spamscore=0 adultscore=0 impostorscore=0
- lowpriorityscore=0 suspectscore=0 clxscore=1011 mlxlogscore=734
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304120070
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-UserPrincipalName: frUXZq0MoDNiOmssgDuFHTzzSrN9/FQ+eAa4oNNvSdHDcWH2NyJqWKSv8Al/d5mpmfk95KWxTXQ9JIqxhqB+tg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR11MB8253
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+Hi Greg, Hi Pratyush,
 
-commit 112e66017bff7f2837030f34c2bc19501e9212d5 upstream.
+On Wed, Apr 05, 2023 at 04:22:58PM +0200, Greg KH wrote:
+> On Wed, Apr 05, 2023 at 03:33:20PM +0200, Pratyush Yadav wrote:
+> > On Wed, Apr 05 2023, Greg KH wrote:
+> > 
+> > > On Wed, Apr 05, 2023 at 02:26:04PM +0200, Greg KH wrote:
+> > >> On Wed, Apr 05, 2023 at 01:47:52PM +0200, Pratyush Yadav wrote:
+> > >> > On Wed, Apr 05 2023, kernel test robot wrote:
+> > >> >
+> > >> > > Hi,
+> > >> > >
+> > >> > > Thanks for your patch.
+> > >> > >
+> > >> > > FYI: kernel test robot notices the stable kernel rule is not satisfied.
+> > >> > >
+> > >> > > Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
 
-The effective values of the guest CR0 and CR4 registers may differ from
-those included in the VMCS12.  In particular, disabling EPT forces
-CR4.PAE=1 and disabling unrestricted guest mode forces CR0.PG=CR0.PE=1.
+Sorry the info at here is not accurate enough. We will improve the
+wording.
 
-Therefore, checks on these bits cannot be delegated to the processor
-and must be performed by KVM.
+> > >> >
+> > >> > I think the robot should also learn to look at the 'To:' header :-)
+> > >>
+> > >> Nope, the robot is correct, you submitted this incorrectly.
+> > >
+> > > Wait, maybe, I can't tell.
+> > 
+> > My point is that it does not matter much if stable@vger.kernel.org is in
+> > Cc or To. It gets the email regardless. In fact, that seems quite a
+> > common practice to me [0][1]. So I'd say it would be nice if the robot
+> > did not needlessly complain about this.
+> >
+> > [0] https://lore.kernel.org/stable/20230403140414.236685532@linuxfoundation.org/
+> > [1] https://lore.kernel.org/stable/20230403140415.140110769@linuxfoundation.org/
+> > [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=87f93d82e0952da18af4d978e7d887b4c5326c0b
 
-Reported-by: Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[OP: drop CC() macro calls, as tracing is not implemented in 4.19]
-[OP: adjust "return -EINVAL" -> "return 1" to match current return logic]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
----
- arch/x86/kvm/vmx/vmx.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+This warning is not caused by "stable@vger.kernel.org is in To or Cc".
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index ec821a5d131a..265e70b0eb79 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -12752,7 +12752,7 @@ static int nested_vmx_check_vmcs_link_ptr(struct kvm_vcpu *vcpu,
- static int check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 				  u32 *exit_qual)
- {
--	bool ia32e;
-+	bool ia32e = !!(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE);
- 
- 	*exit_qual = ENTRY_FAIL_DEFAULT;
- 
-@@ -12765,6 +12765,13 @@ static int check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 		return 1;
- 	}
- 
-+	if ((vmcs12->guest_cr0 & (X86_CR0_PG | X86_CR0_PE)) == X86_CR0_PG)
-+		return 1;
-+
-+	if ((ia32e && !(vmcs12->guest_cr4 & X86_CR4_PAE)) ||
-+	    (ia32e && !(vmcs12->guest_cr0 & X86_CR0_PG)))
-+		return 1;
-+
- 	/*
- 	 * If the load IA32_EFER VM-entry control is 1, the following checks
- 	 * are performed on the field for the IA32_EFER MSR:
-@@ -12776,7 +12783,6 @@ static int check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	 */
- 	if (to_vmx(vcpu)->nested.nested_run_pending &&
- 	    (vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_EFER)) {
--		ia32e = (vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) != 0;
- 		if (!kvm_valid_efer(vcpu, vmcs12->guest_ia32_efer) ||
- 		    ia32e != !!(vmcs12->guest_ia32_efer & EFER_LMA) ||
- 		    ((vmcs12->guest_cr0 & X86_CR0_PG) &&
--- 
-2.39.1
+The document at [3] gives three options for sending patches to stable,
+and seems option 3 should apply on this patch:
 
+[3] https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+
+Option 3
+
+Send the patch, after verifying that it follows the above rules, to stable@vger.kernel.org. You must note the upstream commit ID in the changelog of your submission, as well as the kernel version you wish it to be applied to.
+
+The examples in link [0][1] have "upstream commit" in the changelog, but
+this patch doesn't, so the robot flags a warning.
+
+> The robot replaces my bot (well, aguments this), and it rightfully flags
+> many patches that are sent to stable that are not done so correctly, so
+> that the submitter can then fix them up.  The number of "false
+> positives" like this is pretty low, as hey, even I got it wrong when
+> reading this "by hand".
+
+Thanks for the affirmation of our robot. Could you help give some
+suggestions so we can further improve the robot to reduce "false
+positives"? Do we still need to check "upstream commit" in changelog for
+similar cases?
+
+--
+Best Regards,
+Yujie
