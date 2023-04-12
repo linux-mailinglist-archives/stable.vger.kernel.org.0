@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68FE06DEDF8
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFCC6DEF8A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbjDLIjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
+        id S231358AbjDLIvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230408AbjDLIio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:44 -0400
+        with ESMTP id S231359AbjDLIvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061B683CC
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391F87283
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 651F562FF0
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D7BC433D2;
-        Wed, 12 Apr 2023 08:35:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65F0B63166
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2FEC433D2;
+        Wed, 12 Apr 2023 08:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288555;
-        bh=Rq08TbII99Z6iYT+clEcAC1SLfJ6CcTvOB6Ok4dvmWQ=;
+        s=korg; t=1681289420;
+        bh=nS414579cCkCyebrkAtx/4frSjcIZbbiJFvk+50Bu24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YagwZLdDXavonW8ciSRZRIR1T7VFIH/2qyKN3rfIX+uNeYW/61kmkhGvAj5yS2huH
-         QKojm2F8MoxAGHs4TE/pAuyRz3f2x4UQZgNMInPxvMJwyL4hv8kvCP8fR2shPgNxi/
-         UTcjUz4nYb01/OGcGjie3lOrE+H3fg39W2OzGgS8=
+        b=GqvrSmpeVVCcHAU3xjLNi5olUIEPeOkTt7dwkNUcfPecqmG3GaE7JBWTm+POnkajx
+         FxhixcUpOq3109XJeSnISp71z1265nQ9l0JJ51DDabTN1bTZN7CrHmKE5GRYpzR3h4
+         m9mjKy6MxQz5fzncZn7X3kddOvMo3MjWKpcZQ4ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 07/93] soc: sifive: ccache: fix missing of_node_put() in sifive_ccache_init()
+        patches@lists.linux.dev, Wayne Chang <waynec@nvidia.com>,
+        Haotien Hsu <haotienh@nvidia.com>
+Subject: [PATCH 6.2 062/173] usb: xhci: tegra: fix sleep in atomic call
 Date:   Wed, 12 Apr 2023 10:33:08 +0200
-Message-Id: <20230412082823.346117157@linuxfoundation.org>
+Message-Id: <20230412082840.594453243@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wayne Chang <waynec@nvidia.com>
 
-[ Upstream commit 8fbf94fea0b4e187ca9100936c5429f96b8a4e44 ]
+commit 4c7f9d2e413dc06a157c4e5dccde84aaf4655eb3 upstream.
 
-The device_node pointer returned by of_find_matching_node() with
-refcount incremented, when finish using it, the refcount need be
-decreased.
+When we set the dual-role port to Host mode, we observed the following
+splat:
+[  167.057718] BUG: sleeping function called from invalid context at
+include/linux/sched/mm.h:229
+[  167.057872] Workqueue: events tegra_xusb_usb_phy_work
+[  167.057954] Call trace:
+[  167.057962]  dump_backtrace+0x0/0x210
+[  167.057996]  show_stack+0x30/0x50
+[  167.058020]  dump_stack_lvl+0x64/0x84
+[  167.058065]  dump_stack+0x14/0x34
+[  167.058100]  __might_resched+0x144/0x180
+[  167.058140]  __might_sleep+0x64/0xd0
+[  167.058171]  slab_pre_alloc_hook.constprop.0+0xa8/0x110
+[  167.058202]  __kmalloc_track_caller+0x74/0x2b0
+[  167.058233]  kvasprintf+0xa4/0x190
+[  167.058261]  kasprintf+0x58/0x90
+[  167.058285]  tegra_xusb_find_port_node.isra.0+0x58/0xd0
+[  167.058334]  tegra_xusb_find_port+0x38/0xa0
+[  167.058380]  tegra_xusb_padctl_get_usb3_companion+0x38/0xd0
+[  167.058430]  tegra_xhci_id_notify+0x8c/0x1e0
+[  167.058473]  notifier_call_chain+0x88/0x100
+[  167.058506]  atomic_notifier_call_chain+0x44/0x70
+[  167.058537]  tegra_xusb_usb_phy_work+0x60/0xd0
+[  167.058581]  process_one_work+0x1dc/0x4c0
+[  167.058618]  worker_thread+0x54/0x410
+[  167.058650]  kthread+0x188/0x1b0
+[  167.058672]  ret_from_fork+0x10/0x20
 
-Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The function tegra_xusb_padctl_get_usb3_companion eventually calls
+tegra_xusb_find_port and this in turn calls kasprintf which might sleep
+and so cannot be called from an atomic context.
+
+Fix this by moving the call to tegra_xusb_padctl_get_usb3_companion to
+the tegra_xhci_id_work function where it is really needed.
+
+Fixes: f836e7843036 ("usb: xhci-tegra: Add OTG support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wayne Chang <waynec@nvidia.com>
+Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
+Link: https://lore.kernel.org/r/20230327095548.1599470-1-haotienh@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sifive/sifive_ccache.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci-tegra.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/sifive/sifive_ccache.c b/drivers/soc/sifive/sifive_ccache.c
-index 4b9d0a656a979..09914cb4f0284 100644
---- a/drivers/soc/sifive/sifive_ccache.c
-+++ b/drivers/soc/sifive/sifive_ccache.c
-@@ -209,12 +209,16 @@ static int __init sifive_ccache_init(void)
- 	if (!np)
- 		return -ENODEV;
+--- a/drivers/usb/host/xhci-tegra.c
++++ b/drivers/usb/host/xhci-tegra.c
+@@ -1225,6 +1225,9 @@ static void tegra_xhci_id_work(struct wo
  
--	if (of_address_to_resource(np, 0, &res))
--		return -ENODEV;
-+	if (of_address_to_resource(np, 0, &res)) {
-+		rc = -ENODEV;
-+		goto err_node_put;
-+	}
+ 	mutex_unlock(&tegra->lock);
  
- 	ccache_base = ioremap(res.start, resource_size(&res));
--	if (!ccache_base)
--		return -ENOMEM;
-+	if (!ccache_base) {
-+		rc = -ENOMEM;
-+		goto err_node_put;
-+	}
- 
- 	if (of_property_read_u32(np, "cache-level", &level)) {
- 		rc = -ENOENT;
-@@ -237,6 +241,7 @@ static int __init sifive_ccache_init(void)
- 			goto err_free_irq;
- 		}
++	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(tegra->padctl,
++								    tegra->otg_usb2_port);
++
+ 	if (tegra->host_mode) {
+ 		/* switch to host mode */
+ 		if (tegra->otg_usb3_port >= 0) {
+@@ -1339,9 +1342,6 @@ static int tegra_xhci_id_notify(struct n
  	}
-+	of_node_put(np);
  
- 	ccache_config_read();
+ 	tegra->otg_usb2_port = tegra_xusb_get_usb2_port(tegra, usbphy);
+-	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(
+-							tegra->padctl,
+-							tegra->otg_usb2_port);
  
-@@ -253,6 +258,8 @@ static int __init sifive_ccache_init(void)
- 		free_irq(g_irq[i], NULL);
- err_unmap:
- 	iounmap(ccache_base);
-+err_node_put:
-+	of_node_put(np);
- 	return rc;
- }
+ 	tegra->host_mode = (usbphy->last_event == USB_EVENT_ID) ? true : false;
  
--- 
-2.39.2
-
 
 
