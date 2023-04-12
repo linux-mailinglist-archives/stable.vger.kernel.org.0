@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F17C6DEE9D
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E5C6DEF45
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbjDLIny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51652 "EHLO
+        id S231264AbjDLItY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230479AbjDLInj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72FA2769E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:10 -0700 (PDT)
+        with ESMTP id S231283AbjDLItX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11667AB0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47413629C2
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B40AC433D2;
-        Wed, 12 Apr 2023 08:41:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73A8A630D8
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88CB9C433EF;
+        Wed, 12 Apr 2023 08:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288888;
-        bh=CgZ6ZVwJAq7od/NG/2RgjEDwXcnYAVaxmoME2BQo7Bo=;
+        s=korg; t=1681289318;
+        bh=z2FSxgaMurnoOFENJQPAeepHRVYk0PnDdfcMOF1tKNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUARm4KlnndT8Nyp2/Xjj+PeptAIT4Izju3wuQTRd5Qa3ipbTuBUvA7kX+Zl49SEz
-         BiJf5Cy9I61ve5ba+A0PhNoT6u/yTbPmFzS9JaHCCHgeK9up6y4uFa6X69+H62Q0iT
-         FYfUJROV0xX+GjIhq0kN5eujD/W37Dlk6Tc36Ltk=
+        b=pD8KXT6pzgeuHE0G41kyMqQfq6igQXT+CkqDT8mOZSRqOwcd/LJAx+hYJKZxHdnku
+         w6Wfn/G3Yf2a7auZlAUofdi55Y/yAfahYdy/AFz2miofIxon5smxni/uOGGnN8uzAL
+         T5k2O00Uyo1G4gen4U9bjetLrBmykGyADjw8XGJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ira Weiny <ira.weiny@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 056/164] cxl/pci: Fix CDAT retrieval on big endian
+        patches@lists.linux.dev, Shailend Chand <shailend@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 052/173] gve: Secure enough bytes in the first TX desc for all TCP pkts
 Date:   Wed, 12 Apr 2023 10:32:58 +0200
-Message-Id: <20230412082839.223073896@linuxfoundation.org>
+Message-Id: <20230412082840.218330063@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,238 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Shailend Chand <shailend@google.com>
 
-commit fbaa38214cd9e150764ccaa82e04ecf42cc1140c upstream.
+[ Upstream commit 3ce9345580974863c060fa32971537996a7b2d57 ]
 
-The CDAT exposed in sysfs differs between little endian and big endian
-arches:  On big endian, every 4 bytes are byte-swapped.
+Non-GSO TCP packets whose SKBs' linear portion did not include the
+entire TCP header were not populating the first Tx descriptor with
+as many bytes as the vNIC expected. This change ensures that all
+TCP packets populate the first descriptor with the correct number of
+bytes.
 
-PCI Configuration Space is little endian (PCI r3.0 sec 6.1).  Accessors
-such as pci_read_config_dword() implicitly swap bytes on big endian.
-That way, the macros in include/uapi/linux/pci_regs.h work regardless of
-the arch's endianness.  For an example of implicit byte-swapping, see
-ppc4xx_pciex_read_config(), which calls in_le32(), which uses lwbrx
-(Load Word Byte-Reverse Indexed).
-
-DOE Read/Write Data Mailbox Registers are unlike other registers in
-Configuration Space in that they contain or receive a 4 byte portion of
-an opaque byte stream (a "Data Object" per PCIe r6.0 sec 7.9.24.5f).
-They need to be copied to or from the request/response buffer verbatim.
-So amend pci_doe_send_req() and pci_doe_recv_resp() to undo the implicit
-byte-swapping.
-
-The CXL_DOE_TABLE_ACCESS_* and PCI_DOE_DATA_OBJECT_DISC_* macros assume
-implicit byte-swapping.  Byte-swap requests after constructing them with
-those macros and byte-swap responses before parsing them.
-
-Change the request and response type to __le32 to avoid sparse warnings.
-Per a request from Jonathan, replace sizeof(u32) with sizeof(__le32) for
-consistency.
-
-Fixes: c97006046c79 ("cxl/port: Read CDAT table")
-Tested-by: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: stable@vger.kernel.org # v6.0+
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/3051114102f41d19df3debbee123129118fc5e6d.1678543498.git.lukas@wunner.de
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
+Signed-off-by: Shailend Chand <shailend@google.com>
+Link: https://lore.kernel.org/r/20230403172809.2939306-1-shailend@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/core/pci.c  |   26 +++++++++++++-------------
- drivers/pci/doe.c       |   25 ++++++++++++++-----------
- include/linux/pci-doe.h |    8 ++++++--
- 3 files changed, 33 insertions(+), 26 deletions(-)
+ drivers/net/ethernet/google/gve/gve.h    |  2 ++
+ drivers/net/ethernet/google/gve/gve_tx.c | 12 +++++-------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/cxl/core/pci.c
-+++ b/drivers/cxl/core/pci.c
-@@ -483,7 +483,7 @@ static struct pci_doe_mb *find_cdat_doe(
- 	return NULL;
- }
+diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
+index 64eb0442c82fd..005cb9dfe078b 100644
+--- a/drivers/net/ethernet/google/gve/gve.h
++++ b/drivers/net/ethernet/google/gve/gve.h
+@@ -47,6 +47,8 @@
  
--#define CDAT_DOE_REQ(entry_handle)					\
-+#define CDAT_DOE_REQ(entry_handle) cpu_to_le32				\
- 	(FIELD_PREP(CXL_DOE_TABLE_ACCESS_REQ_CODE,			\
- 		    CXL_DOE_TABLE_ACCESS_REQ_CODE_READ) |		\
- 	 FIELD_PREP(CXL_DOE_TABLE_ACCESS_TABLE_TYPE,			\
-@@ -496,8 +496,8 @@ static void cxl_doe_task_complete(struct
- }
+ #define GVE_RX_BUFFER_SIZE_DQO 2048
  
- struct cdat_doe_task {
--	u32 request_pl;
--	u32 response_pl[32];
-+	__le32 request_pl;
-+	__le32 response_pl[32];
- 	struct completion c;
- 	struct pci_doe_task task;
- };
-@@ -531,10 +531,10 @@ static int cxl_cdat_get_length(struct de
- 		return rc;
- 	}
- 	wait_for_completion(&t.c);
--	if (t.task.rv < sizeof(u32))
-+	if (t.task.rv < sizeof(__le32))
- 		return -EIO;
++#define GVE_GQ_TX_MIN_PKT_DESC_BYTES 182
++
+ /* Each slot in the desc ring has a 1:1 mapping to a slot in the data ring */
+ struct gve_rx_desc_queue {
+ 	struct gve_rx_desc *desc_ring; /* the descriptor ring */
+diff --git a/drivers/net/ethernet/google/gve/gve_tx.c b/drivers/net/ethernet/google/gve/gve_tx.c
+index 4888bf05fbedb..5e11b82367545 100644
+--- a/drivers/net/ethernet/google/gve/gve_tx.c
++++ b/drivers/net/ethernet/google/gve/gve_tx.c
+@@ -284,8 +284,8 @@ static inline int gve_skb_fifo_bytes_required(struct gve_tx_ring *tx,
+ 	int bytes;
+ 	int hlen;
  
--	*length = t.response_pl[1];
-+	*length = le32_to_cpu(t.response_pl[1]);
- 	dev_dbg(dev, "CDAT length %zu\n", *length);
+-	hlen = skb_is_gso(skb) ? skb_checksum_start_offset(skb) +
+-				 tcp_hdrlen(skb) : skb_headlen(skb);
++	hlen = skb_is_gso(skb) ? skb_checksum_start_offset(skb) + tcp_hdrlen(skb) :
++				 min_t(int, GVE_GQ_TX_MIN_PKT_DESC_BYTES, skb->len);
  
- 	return 0;
-@@ -545,13 +545,13 @@ static int cxl_cdat_read_table(struct de
- 			       struct cxl_cdat *cdat)
- {
- 	size_t length = cdat->length;
--	u32 *data = cdat->table;
-+	__le32 *data = cdat->table;
- 	int entry_handle = 0;
+ 	pad_bytes = gve_tx_fifo_pad_alloc_one_frag(&tx->tx_fifo,
+ 						   hlen);
+@@ -454,13 +454,11 @@ static int gve_tx_add_skb_copy(struct gve_priv *priv, struct gve_tx_ring *tx, st
+ 	pkt_desc = &tx->desc[idx];
  
- 	do {
- 		DECLARE_CDAT_DOE_TASK(CDAT_DOE_REQ(entry_handle), t);
- 		size_t entry_dw;
--		u32 *entry;
-+		__le32 *entry;
- 		int rc;
- 
- 		rc = pci_doe_submit_task(cdat_doe, &t.task);
-@@ -561,21 +561,21 @@ static int cxl_cdat_read_table(struct de
- 		}
- 		wait_for_completion(&t.c);
- 		/* 1 DW header + 1 DW data min */
--		if (t.task.rv < (2 * sizeof(u32)))
-+		if (t.task.rv < (2 * sizeof(__le32)))
- 			return -EIO;
- 
- 		/* Get the CXL table access header entry handle */
- 		entry_handle = FIELD_GET(CXL_DOE_TABLE_ACCESS_ENTRY_HANDLE,
--					 t.response_pl[0]);
-+					 le32_to_cpu(t.response_pl[0]));
- 		entry = t.response_pl + 1;
--		entry_dw = t.task.rv / sizeof(u32);
-+		entry_dw = t.task.rv / sizeof(__le32);
- 		/* Skip Header */
- 		entry_dw -= 1;
--		entry_dw = min(length / sizeof(u32), entry_dw);
-+		entry_dw = min(length / sizeof(__le32), entry_dw);
- 		/* Prevent length < 1 DW from causing a buffer overflow */
- 		if (entry_dw) {
--			memcpy(data, entry, entry_dw * sizeof(u32));
--			length -= entry_dw * sizeof(u32);
-+			memcpy(data, entry, entry_dw * sizeof(__le32));
-+			length -= entry_dw * sizeof(__le32);
- 			data += entry_dw;
- 		}
- 	} while (entry_handle != CXL_DOE_TABLE_ACCESS_LAST_ENTRY);
---- a/drivers/pci/doe.c
-+++ b/drivers/pci/doe.c
-@@ -128,7 +128,7 @@ static int pci_doe_send_req(struct pci_d
- 		return -EIO;
- 
- 	/* Length is 2 DW of header + length of payload in DW */
--	length = 2 + task->request_pl_sz / sizeof(u32);
-+	length = 2 + task->request_pl_sz / sizeof(__le32);
- 	if (length > PCI_DOE_MAX_LENGTH)
- 		return -EIO;
- 	if (length == PCI_DOE_MAX_LENGTH)
-@@ -141,9 +141,9 @@ static int pci_doe_send_req(struct pci_d
- 	pci_write_config_dword(pdev, offset + PCI_DOE_WRITE,
- 			       FIELD_PREP(PCI_DOE_DATA_OBJECT_HEADER_2_LENGTH,
- 					  length));
--	for (i = 0; i < task->request_pl_sz / sizeof(u32); i++)
-+	for (i = 0; i < task->request_pl_sz / sizeof(__le32); i++)
- 		pci_write_config_dword(pdev, offset + PCI_DOE_WRITE,
--				       task->request_pl[i]);
-+				       le32_to_cpu(task->request_pl[i]));
- 
- 	pci_doe_write_ctrl(doe_mb, PCI_DOE_CTRL_GO);
- 
-@@ -195,11 +195,11 @@ static int pci_doe_recv_resp(struct pci_
- 
- 	/* First 2 dwords have already been read */
- 	length -= 2;
--	payload_length = min(length, task->response_pl_sz / sizeof(u32));
-+	payload_length = min(length, task->response_pl_sz / sizeof(__le32));
- 	/* Read the rest of the response payload */
- 	for (i = 0; i < payload_length; i++) {
--		pci_read_config_dword(pdev, offset + PCI_DOE_READ,
--				      &task->response_pl[i]);
-+		pci_read_config_dword(pdev, offset + PCI_DOE_READ, &val);
-+		task->response_pl[i] = cpu_to_le32(val);
- 		/* Prior to the last ack, ensure Data Object Ready */
- 		if (i == (payload_length - 1) && !pci_doe_data_obj_ready(doe_mb))
- 			return -EIO;
-@@ -217,7 +217,7 @@ static int pci_doe_recv_resp(struct pci_
- 	if (FIELD_GET(PCI_DOE_STATUS_ERROR, val))
- 		return -EIO;
- 
--	return min(length, task->response_pl_sz / sizeof(u32)) * sizeof(u32);
-+	return min(length, task->response_pl_sz / sizeof(__le32)) * sizeof(__le32);
- }
- 
- static void signal_task_complete(struct pci_doe_task *task, int rv)
-@@ -317,14 +317,16 @@ static int pci_doe_discovery(struct pci_
- {
- 	u32 request_pl = FIELD_PREP(PCI_DOE_DATA_OBJECT_DISC_REQ_3_INDEX,
- 				    *index);
-+	__le32 request_pl_le = cpu_to_le32(request_pl);
-+	__le32 response_pl_le;
- 	u32 response_pl;
- 	DECLARE_COMPLETION_ONSTACK(c);
- 	struct pci_doe_task task = {
- 		.prot.vid = PCI_VENDOR_ID_PCI_SIG,
- 		.prot.type = PCI_DOE_PROTOCOL_DISCOVERY,
--		.request_pl = &request_pl,
-+		.request_pl = &request_pl_le,
- 		.request_pl_sz = sizeof(request_pl),
--		.response_pl = &response_pl,
-+		.response_pl = &response_pl_le,
- 		.response_pl_sz = sizeof(response_pl),
- 		.complete = pci_doe_task_complete,
- 		.private = &c,
-@@ -340,6 +342,7 @@ static int pci_doe_discovery(struct pci_
- 	if (task.rv != sizeof(response_pl))
- 		return -EIO;
- 
-+	response_pl = le32_to_cpu(response_pl_le);
- 	*vid = FIELD_GET(PCI_DOE_DATA_OBJECT_DISC_RSP_3_VID, response_pl);
- 	*protocol = FIELD_GET(PCI_DOE_DATA_OBJECT_DISC_RSP_3_PROTOCOL,
- 			      response_pl);
-@@ -533,8 +536,8 @@ int pci_doe_submit_task(struct pci_doe_m
- 	 * DOE requests must be a whole number of DW and the response needs to
- 	 * be big enough for at least 1 DW
+ 	l4_hdr_offset = skb_checksum_start_offset(skb);
+-	/* If the skb is gso, then we want the tcp header in the first segment
+-	 * otherwise we want the linear portion of the skb (which will contain
+-	 * the checksum because skb->csum_start and skb->csum_offset are given
+-	 * relative to skb->head) in the first segment.
++	/* If the skb is gso, then we want the tcp header alone in the first segment
++	 * otherwise we want the minimum required by the gVNIC spec.
  	 */
--	if (task->request_pl_sz % sizeof(u32) ||
--	    task->response_pl_sz < sizeof(u32))
-+	if (task->request_pl_sz % sizeof(__le32) ||
-+	    task->response_pl_sz < sizeof(__le32))
- 		return -EINVAL;
+ 	hlen = is_gso ? l4_hdr_offset + tcp_hdrlen(skb) :
+-			skb_headlen(skb);
++			min_t(int, GVE_GQ_TX_MIN_PKT_DESC_BYTES, skb->len);
  
- 	if (test_bit(PCI_DOE_FLAG_DEAD, &doe_mb->flags))
---- a/include/linux/pci-doe.h
-+++ b/include/linux/pci-doe.h
-@@ -34,6 +34,10 @@ struct pci_doe_mb;
-  * @work: Used internally by the mailbox
-  * @doe_mb: Used internally by the mailbox
-  *
-+ * Payloads are treated as opaque byte streams which are transmitted verbatim,
-+ * without byte-swapping.  If payloads contain little-endian register values,
-+ * the caller is responsible for conversion with cpu_to_le32() / le32_to_cpu().
-+ *
-  * The payload sizes and rv are specified in bytes with the following
-  * restrictions concerning the protocol.
-  *
-@@ -45,9 +49,9 @@ struct pci_doe_mb;
-  */
- struct pci_doe_task {
- 	struct pci_doe_protocol prot;
--	u32 *request_pl;
-+	__le32 *request_pl;
- 	size_t request_pl_sz;
--	u32 *response_pl;
-+	__le32 *response_pl;
- 	size_t response_pl_sz;
- 	int rv;
- 	void (*complete)(struct pci_doe_task *task);
+ 	info->skb =  skb;
+ 	/* We don't want to split the header, so if necessary, pad to the end
+-- 
+2.39.2
+
 
 
