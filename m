@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBCE36DEF02
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE36E6DEE52
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbjDLIqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58056 "EHLO
+        id S230440AbjDLIlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229930AbjDLIqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:47 -0400
+        with ESMTP id S231394AbjDLIka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 792F693F1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E667682
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D82DE630FE
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6625C433A0;
-        Wed, 12 Apr 2023 08:46:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 514F56303E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60E83C433AF;
+        Wed, 12 Apr 2023 08:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289179;
-        bh=vCjQLRwvG9Fjkgjh9V2g/YplN8RULrAjuuFEEVOYUm8=;
+        s=korg; t=1681288744;
+        bh=8HeqEwN9bz79Z34xpNI0lFd2kG0CISYLc/kdcOkTMdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Om/utSRSHoCcmnG7bamw9oaHa1tREBM0RZRZmL6XKYIP5vHAH+dOjxproYi8dLwaz
-         yw93aaY6181R9nl43/pAR3eQQR6NveMCUMT3VAr9J6JZjulf+v/zzE+58kn01Qj31d
-         o7FqgjrOzj9DhvzC0NUesns7v21PBNG0+YN7L/8I=
+        b=iuINgWbM2ePjIv31PdbbJlJE8hr3Q6sc4Tx/fNimbuNzaubPACOaXdXJzbt+rPhD4
+         OZt5JFYBtKp2mcs55Amroo9FSRALFpM7H4pJkBWZvv0bnGg01mLQriUZHxTa3ZDJDl
+         yAURCvkdb0tNB2+PRsZbPVOcARxZoqZ0teAgYTjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 6.1 145/164] drm/amdgpu: skip psp suspend for IMU enabled ASICs mode2 reset
+        patches@lists.linux.dev, Jason Montleon <jmontleo@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 86/93] ASoC: hdac_hdmi: use set_stream() instead of set_tdm_slots()
 Date:   Wed, 12 Apr 2023 10:34:27 +0200
-Message-Id: <20230412082842.771554924@linuxfoundation.org>
+Message-Id: <20230412082826.794835429@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Huang <tim.huang@amd.com>
+From: Jason Montleon <jmontleo@redhat.com>
 
-commit e11c775030c5585370fda43035204bb5fa23b139 upstream.
+commit f6887a71bdd2f0dcba9b8180dd2223cfa8637e85 upstream.
 
-The psp suspend & resume should be skipped to avoid destroy
-the TMR and reload FWs again for IMU enabled APU ASICs.
+hdac_hdmi was not updated to use set_stream() instead of set_tdm_slots()
+in the original commit so HDMI no longer produces audio.
 
-Signed-off-by: Tim Huang <tim.huang@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/regressions/CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com/
+Fixes: 636110411ca7 ("ASoC: Intel/SOF: use set_stream() instead of set_tdm_slots() for HDAudio")
+Signed-off-by: Jason Montleon <jmontleo@redhat.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20230324170711.2526-1-jmontleo@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/soc/codecs/hdac_hdmi.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3040,6 +3040,18 @@ static int amdgpu_device_ip_suspend_phas
- 		    (adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_SDMA))
- 			continue;
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -436,23 +436,28 @@ static int hdac_hdmi_setup_audio_infofra
+ 	return 0;
+ }
  
-+		/* Once swPSP provides the IMU, RLC FW binaries to TOS during cold-boot.
-+		 * These are in TMR, hence are expected to be reused by PSP-TOS to reload
-+		 * from this location and RLC Autoload automatically also gets loaded
-+		 * from here based on PMFW -> PSP message during re-init sequence.
-+		 * Therefore, the psp suspend & resume should be skipped to avoid destroy
-+		 * the TMR and reload FWs again for IMU enabled APU ASICs.
-+		 */
-+		if (amdgpu_in_reset(adev) &&
-+		    (adev->flags & AMD_IS_APU) && adev->gfx.imu.funcs &&
-+		    adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_PSP)
-+			continue;
+-static int hdac_hdmi_set_tdm_slot(struct snd_soc_dai *dai,
+-		unsigned int tx_mask, unsigned int rx_mask,
+-		int slots, int slot_width)
++static int hdac_hdmi_set_stream(struct snd_soc_dai *dai,
++				void *stream, int direction)
+ {
+ 	struct hdac_hdmi_priv *hdmi = snd_soc_dai_get_drvdata(dai);
+ 	struct hdac_device *hdev = hdmi->hdev;
+ 	struct hdac_hdmi_dai_port_map *dai_map;
+ 	struct hdac_hdmi_pcm *pcm;
++	struct hdac_stream *hstream;
+ 
+-	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, tx_mask);
++	if (!stream)
++		return -EINVAL;
 +
- 		/* XXX handle errors */
- 		r = adev->ip_blocks[i].version->funcs->suspend(adev);
- 		/* XXX handle errors */
++	hstream = (struct hdac_stream *)stream;
++
++	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, hstream->stream_tag);
+ 
+ 	dai_map = &hdmi->dai_map[dai->id];
+ 
+ 	pcm = hdac_hdmi_get_pcm_from_cvt(hdmi, dai_map->cvt);
+ 
+ 	if (pcm)
+-		pcm->stream_tag = (tx_mask << 4);
++		pcm->stream_tag = (hstream->stream_tag << 4);
+ 
+ 	return 0;
+ }
+@@ -1544,7 +1549,7 @@ static const struct snd_soc_dai_ops hdmi
+ 	.startup = hdac_hdmi_pcm_open,
+ 	.shutdown = hdac_hdmi_pcm_close,
+ 	.hw_params = hdac_hdmi_set_hw_params,
+-	.set_tdm_slot = hdac_hdmi_set_tdm_slot,
++	.set_stream = hdac_hdmi_set_stream,
+ };
+ 
+ /*
 
 
