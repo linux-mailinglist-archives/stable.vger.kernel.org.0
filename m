@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E716DEF39
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2C5D6DEE88
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230221AbjDLItL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
+        id S231168AbjDLImU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:42:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231297AbjDLItC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6A86A55
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:29 -0700 (PDT)
+        with ESMTP id S230518AbjDLImF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05307AA1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B50362C20
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FDAEC433D2;
-        Wed, 12 Apr 2023 08:48:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BAD6305F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F01C4339E;
+        Wed, 12 Apr 2023 08:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289287;
-        bh=2cYTJzIIH1iCXH6Fgq2tnB148hRkz+Gntt/P1oBQov4=;
+        s=korg; t=1681288880;
+        bh=ChwdYkPeOWGXG9W0mLjaUFy/6A6lXNufzAqZmga9sK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4fk4jAl2yxYntDZVwnhHB1HniX/TA9rGk/ovGmHm2T/EgpT0y3DIkGvvkoHRagxc
-         6s+fwZPgkYYElQQNDlFoO7k/Lttj3GaIGRYBmt1y/nqPEv3l9qVvbQMUHg9P8ifyPC
-         q3V/rZuZta17Zbaw2nfCijP9Laim2oqMS2dzcwVw=
+        b=lOsB5ZBFDTxei0cwNwXV4YMyW5exs8i49TgvzTFPeTtbt1FtyrMU4N1XTfV5DZG9u
+         QdFS4KGY0hC4PanTlx+vVUUF2twuIEyGTQef34xOhz+9TEEOhmvsu0JxH5r5ibVEb2
+         wBirMGs7k++dGWrI23iLy3faVA1WvCcL1wgJLeY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siddharth Vadapalli <s-vadapalli@ti.com>,
-        Roger Quadros <rogerq@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Dai Ngo <dai.ngo@oracle.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/173] net: ethernet: ti: am65-cpsw: Fix mdio cleanup in probe
+Subject: [PATCH 6.1 045/164] NFSD: callback request does not use correct credential for AUTH_SYS
 Date:   Wed, 12 Apr 2023 10:32:47 +0200
-Message-Id: <20230412082839.763344580@linuxfoundation.org>
+Message-Id: <20230412082838.764648253@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,55 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Vadapalli <s-vadapalli@ti.com>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit c6b486fb33680ad5a3a6390ce693c835caaae3f7 ]
+[ Upstream commit 7de82c2f36fb26aa78440bbf0efcf360b691d98b ]
 
-In the am65_cpsw_nuss_probe() function's cleanup path, the call to
-of_platform_device_destroy() for the common->mdio_dev device is invoked
-unconditionally. It is possible that either the MDIO node is not present
-in the device-tree, or the MDIO node is disabled in the device-tree. In
-both these cases, the MDIO device is not created, resulting in a NULL
-pointer dereference when the of_platform_device_destroy() function is
-invoked on the common->mdio_dev device on the cleanup path.
+Currently callback request does not use the credential specified in
+CREATE_SESSION if the security flavor for the back channel is AUTH_SYS.
 
-Fix this by ensuring that the common->mdio_dev device exists, before
-attempting to invoke of_platform_device_destroy().
+Problem was discovered by pynfs 4.1 DELEG5 and DELEG7 test with error:
+DELEG5   st_delegation.testCBSecParms     : FAILURE
+           expected callback with uid, gid == 17, 19, got 0, 0
 
-Fixes: a45cfcc69a25 ("net: ethernet: ti: am65-cpsw-nuss: use of_platform_device_create() for mdio")
-Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Reviewed-by: Roger Quadros <rogerq@kernel.org>
-Link: https://lore.kernel.org/r/20230403090321.835877-1-s-vadapalli@ti.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Fixes: 8276c902bbe9 ("SUNRPC: remove uid and gid from struct auth_cred")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nfsd/nfs4callback.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 3e17152798554..9286b2b3353e3 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -2854,7 +2854,8 @@ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
- 	am65_cpsw_nuss_phylink_cleanup(common);
- 	am65_cpts_release(common->cpts);
- err_of_clear:
--	of_platform_device_destroy(common->mdio_dev, NULL);
-+	if (common->mdio_dev)
-+		of_platform_device_destroy(common->mdio_dev, NULL);
- err_pm_clear:
- 	pm_runtime_put_sync(dev);
- 	pm_runtime_disable(dev);
-@@ -2883,7 +2884,8 @@ static int am65_cpsw_nuss_remove(struct platform_device *pdev)
- 	am65_cpsw_nuss_phylink_cleanup(common);
- 	am65_cpts_release(common->cpts);
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 6253cbe5f81b4..39989c14c8a1e 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -874,8 +874,8 @@ static const struct cred *get_backchannel_cred(struct nfs4_client *clp, struct r
+ 		if (!kcred)
+ 			return NULL;
  
--	of_platform_device_destroy(common->mdio_dev, NULL);
-+	if (common->mdio_dev)
-+		of_platform_device_destroy(common->mdio_dev, NULL);
- 
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
+-		kcred->uid = ses->se_cb_sec.uid;
+-		kcred->gid = ses->se_cb_sec.gid;
++		kcred->fsuid = ses->se_cb_sec.uid;
++		kcred->fsgid = ses->se_cb_sec.gid;
+ 		return kcred;
+ 	}
+ }
 -- 
 2.39.2
 
