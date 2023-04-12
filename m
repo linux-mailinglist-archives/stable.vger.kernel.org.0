@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C30236DEDF6
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0A66DEFB3
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbjDLIiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45238 "EHLO
+        id S231384AbjDLIxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbjDLIik (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2D57ABA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:38 -0700 (PDT)
+        with ESMTP id S230164AbjDLIxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE9D8A69
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C022662FEC
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C50C433D2;
-        Wed, 12 Apr 2023 08:35:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 310E162F83
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 464A2C433D2;
+        Wed, 12 Apr 2023 08:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288553;
-        bh=zAWVvsQVFHc9ubP8aNPZh/Bwz3WiDRikp0z37JdnMXg=;
+        s=korg; t=1681288914;
+        bh=8yvw5nfTbRF0oJZP2vUQoe80x2q+tz0LWnS0w2/oPjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fcC5ElGG/U0IbEEmRlvyq5tWz7lkflqx1XxEjuST7x7QumETbun28koBEtzIW4h8a
-         PGEN4Gu95zOSBIyBpAr/CnONshzpimMD26XJ/W9iIYUp52SADNNfI0p8HwghMK9c9v
-         ksmHFiJPrN7hu/MXiqSHaV8bFs3gwaNBKS0RTA70=
+        b=AeTKqipWs5oGVm09NUj3/xnQaDiqIHhER+cxz2ocyyWQLunc3IqRBbiKRjAfzCt5v
+         XXjjBU1Xi9svFmPjroGVeOCQ5VUw3zVUi7EFKjRSdOcNKCjf1JpBitDEmJ8HvKMlgu
+         c2QJhEc8+dJg/JHKhnT+HCvVwdVgKsOByg4E45kI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 06/93] soc: sifive: ccache: fix missing free_irq() in error path in sifive_ccache_init()
+        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 6.1 065/164] usb: cdnsp: Fixes error: uninitialized symbol len
 Date:   Wed, 12 Apr 2023 10:33:07 +0200
-Message-Id: <20230412082823.310163512@linuxfoundation.org>
+Message-Id: <20230412082839.559908536@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,46 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-[ Upstream commit 756344e7cb1afbb87da8705c20384dddd0dea233 ]
+commit 1edf48991a783d00a3a18dc0d27c88139e4030a2 upstream.
 
-Add missing free_irq() before return error from sifive_ccache_init().
+The patch 5bc38d33a5a1: "usb: cdnsp: Fixes issue with redundant
+Status Stage" leads to the following Smatch static checker warning:
 
-Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  drivers/usb/cdns3/cdnsp-ep0.c:470 cdnsp_setup_analyze()
+  error: uninitialized symbol 'len'.
+
+cc: <stable@vger.kernel.org>
+Fixes: 5bc38d33a5a1 ("usb: cdnsp: Fixes issue with redundant Status Stage")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20230331090600.454674-1-pawell@cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sifive/sifive_ccache.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/cdns3/cdnsp-ep0.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/soc/sifive/sifive_ccache.c b/drivers/soc/sifive/sifive_ccache.c
-index 335e4303fb928..4b9d0a656a979 100644
---- a/drivers/soc/sifive/sifive_ccache.c
-+++ b/drivers/soc/sifive/sifive_ccache.c
-@@ -234,7 +234,7 @@ static int __init sifive_ccache_init(void)
- 				 NULL);
- 		if (rc) {
- 			pr_err("Could not request IRQ %d\n", g_irq[i]);
--			goto err_unmap;
-+			goto err_free_irq;
- 		}
+--- a/drivers/usb/cdns3/cdnsp-ep0.c
++++ b/drivers/usb/cdns3/cdnsp-ep0.c
+@@ -414,7 +414,7 @@ static int cdnsp_ep0_std_request(struct
+ void cdnsp_setup_analyze(struct cdnsp_device *pdev)
+ {
+ 	struct usb_ctrlrequest *ctrl = &pdev->setup;
+-	int ret = 0;
++	int ret = -EINVAL;
+ 	u16 len;
+ 
+ 	trace_cdnsp_ctrl_req(ctrl);
+@@ -424,7 +424,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
+ 
+ 	if (pdev->gadget.state == USB_STATE_NOTATTACHED) {
+ 		dev_err(pdev->dev, "ERR: Setup detected in unattached state\n");
+-		ret = -EINVAL;
+ 		goto out;
  	}
  
-@@ -248,6 +248,9 @@ static int __init sifive_ccache_init(void)
- #endif
- 	return 0;
- 
-+err_free_irq:
-+	while (--i >= 0)
-+		free_irq(g_irq[i], NULL);
- err_unmap:
- 	iounmap(ccache_base);
- 	return rc;
--- 
-2.39.2
-
 
 
