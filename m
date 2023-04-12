@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6606DEF84
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7327F6DEEAB
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231302AbjDLIvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
+        id S230413AbjDLIoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231355AbjDLIvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:24 -0400
+        with ESMTP id S230424AbjDLIoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B15974E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712869010
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C769E628BA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4E65C4339B;
-        Wed, 12 Apr 2023 08:50:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4609B630B0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:42:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEA0C433EF;
+        Wed, 12 Apr 2023 08:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289405;
-        bh=4h7XxP2l6FPHUUSG7kgVsDjORIV0/8sty62BgSyJBu8=;
+        s=korg; t=1681288974;
+        bh=mm1cFY9I+s94zxmrzYZtzyxo7+VFUsuwGFGCvhrLxTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMaABO/ZBFkIj5ZZCOlR3VnAcI5uZDBDNBCJcjU42iBvjGnTnBpI6KpAzWGqU3uAl
-         CL5T7JStSUGLU4XsHJ/ARwRPVKMiBlTQySqOW4jyCmnDk4OiBR7agK/hM8fx94RacG
-         JNh4l1XXRxRpD38b7gmKx+ORYnwzf9Otl3up/RUY=
+        b=wttYdraUcvexMndr2e/F+DNs2++KjvXizR/Fvcrtl8ZjUXhEKluROc++j7BoGP08h
+         gAgUUA62X1a+urYF84D9dfDBxE1JqeTVVB3g+FFdhimSJjT55d3Mo4YqjJOXWGNTfj
+         rjdCt1ZIJDZPbUrcDvXCYTZp72huO1oyN1bk7ZIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Sherry Sun <sherry.sun@nxp.com>
-Subject: [PATCH 6.2 085/173] tty: serial: fsl_lpuart: fix crash in lpuart_uport_is_active
+        patches@lists.linux.dev, Andy Chi <andy.chi@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.1 089/164] ALSA: hda/realtek: fix mute/micmute LEDs for a HP ProBook
 Date:   Wed, 12 Apr 2023 10:33:31 +0200
-Message-Id: <20230412082841.492525782@linuxfoundation.org>
+Message-Id: <20230412082840.492971888@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Andy Chi <andy.chi@canonical.com>
 
-commit 178e00f36f934a88682d96aa046c1f90cb6f83a7 upstream.
+commit 9fdc1605c504204e0fdec7892b29c916579e06f3 upstream.
 
-For serdev framework, tty->dev is a NULL pointer, lpuart_uport_is_active
-calling device_may_wakeup() may cause kernel NULL pointer crash, so here
-add the NULL pointer check before using it.
+There is a HP ProBook which using ALC236 codec and need the
+ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF quirk to make mute LED and
+micmute LED work.
 
-Fixes: 4f5cb8c5e915 ("tty: serial: fsl_lpuart: enable wakeup source for lpuart")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20230323110923.24581-1-sherry.sun@nxp.com
+Signed-off-by: Andy Chi <andy.chi@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230331083242.58416-1-andy.chi@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2896,7 +2896,7 @@ static bool lpuart_uport_is_active(struc
- 	tty = tty_port_tty_get(port);
- 	if (tty) {
- 		tty_dev = tty->dev;
--		may_wake = device_may_wakeup(tty_dev);
-+		may_wake = tty_dev && device_may_wakeup(tty_dev);
- 		tty_kref_put(tty);
- 	}
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9443,6 +9443,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8b47, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8b5d, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8b5e, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++	SND_PCI_QUIRK(0x103c, 0x8b66, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8b7a, "HP", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8b7d, "HP", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8b87, "HP", ALC236_FIXUP_HP_GPIO_LED),
 
 
