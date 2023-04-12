@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0156DEEA7
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169B16DEF3F
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231219AbjDLIoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53876 "EHLO
+        id S231282AbjDLItO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbjDLIn6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:58 -0400
+        with ESMTP id S231307AbjDLItI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F171340FB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFE883FF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 390BB63093
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:42:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49859C433D2;
-        Wed, 12 Apr 2023 08:42:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BE2762BFC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 637FAC433EF;
+        Wed, 12 Apr 2023 08:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288953;
-        bh=I44o5K3/fVFmDAqmxZRhB37N9DMHiXe/wyi0gEi+8v0=;
+        s=korg; t=1681289300;
+        bh=Nu99zQnar79xY7WfqRSqIYPOTRMBK5F3eom1H8kRIfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQ9aVECfI8y8eeFYoLjKkwIhqhwXYMlJV73SJqob+lHaHzsWePtCi2PeBvp9MLtqm
-         MUf3w/nOK3y77IORmOh3EiDqV6tCE1/bnklogaAR7x6aaJHpqliuh3GedPcifOpN/4
-         hwx+ELijv3x0KZoyevh2YSE1zQW4uC6ADzUvgrXA=
+        b=wSdQd/vJKqh4YI5eTwrMeh+dTPoskzdp7owOUIUqtjetsOY2hqUR6sQ9+zKDhYZLf
+         pN3SN0SaIlkpPRqof/i2Ts2xk3HdwSjPirmUrBkAMiHMgWYhGiLraGvj9c5vKGalyh
+         weuPT1jFJcoripD9BhApGO+8a5TGY0iab5cySvQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Junfeng Guo <junfeng.guo@intel.com>,
+        Lingyu Liu <lingyu.liu@intel.com>,
+        Rafal Romanowski <rafal.romanowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 050/164] ping: Fix potentail NULL deref for /proc/net/icmp.
+Subject: [PATCH 6.2 046/173] ice: Reset FDIR counter in FDIR init stage
 Date:   Wed, 12 Apr 2023 10:32:52 +0200
-Message-Id: <20230412082838.965021122@linuxfoundation.org>
+Message-Id: <20230412082839.967203750@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Lingyu Liu <lingyu.liu@intel.com>
 
-[ Upstream commit ab5fb73ffa01072b4d8031cc05801fa1cb653bee ]
+[ Upstream commit 83c911dc5e0e8e6eaa6431c06972a8f159bfe2fc ]
 
-After commit dbca1596bbb0 ("ping: convert to RCU lookups, get rid
-of rwlock"), we use RCU for ping sockets, but we should use spinlock
-for /proc/net/icmp to avoid a potential NULL deref mentioned in
-the previous patch.
+Reset the FDIR counters when FDIR inits. Without this patch,
+when VF initializes or resets, all the FDIR counters are not
+cleaned, which may cause unexpected behaviors for future FDIR
+rule create (e.g., rule conflict).
 
-Let's go back to using spinlock there.
-
-Note we can convert ping sockets to use hlist instead of hlist_nulls
-because we do not use SLAB_TYPESAFE_BY_RCU for ping sockets.
-
-Fixes: dbca1596bbb0 ("ping: convert to RCU lookups, get rid of rwlock")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1f7ea1cd6a37 ("ice: Enable FDIR Configure for AVF")
+Signed-off-by: Junfeng Guo <junfeng.guo@intel.com>
+Signed-off-by: Lingyu Liu <lingyu.liu@intel.com>
+Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ping.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../net/ethernet/intel/ice/ice_virtchnl_fdir.c   | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
-index 409ec2a1f95b0..5178a3f3cb537 100644
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -1089,13 +1089,13 @@ static struct sock *ping_get_idx(struct seq_file *seq, loff_t pos)
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+index f4ef76e37098c..7f72604079723 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+@@ -541,6 +541,21 @@ static void ice_vc_fdir_rem_prof_all(struct ice_vf *vf)
+ 	}
  }
  
- void *ping_seq_start(struct seq_file *seq, loff_t *pos, sa_family_t family)
--	__acquires(RCU)
-+	__acquires(ping_table.lock)
- {
- 	struct ping_iter_state *state = seq->private;
- 	state->bucket = 0;
- 	state->family = family;
- 
--	rcu_read_lock();
-+	spin_lock(&ping_table.lock);
- 
- 	return *pos ? ping_get_idx(seq, *pos-1) : SEQ_START_TOKEN;
++/**
++ * ice_vc_fdir_reset_cnt_all - reset all FDIR counters for this VF FDIR
++ * @fdir: pointer to the VF FDIR structure
++ */
++static void ice_vc_fdir_reset_cnt_all(struct ice_vf_fdir *fdir)
++{
++	enum ice_fltr_ptype flow;
++
++	for (flow = ICE_FLTR_PTYPE_NONF_NONE;
++	     flow < ICE_FLTR_PTYPE_MAX; flow++) {
++		fdir->fdir_fltr_cnt[flow][0] = 0;
++		fdir->fdir_fltr_cnt[flow][1] = 0;
++	}
++}
++
+ /**
+  * ice_vc_fdir_has_prof_conflict
+  * @vf: pointer to the VF structure
+@@ -1998,6 +2013,7 @@ void ice_vf_fdir_init(struct ice_vf *vf)
+ 	spin_lock_init(&fdir->ctx_lock);
+ 	fdir->ctx_irq.flags = 0;
+ 	fdir->ctx_done.flags = 0;
++	ice_vc_fdir_reset_cnt_all(fdir);
  }
-@@ -1121,9 +1121,9 @@ void *ping_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- EXPORT_SYMBOL_GPL(ping_seq_next);
  
- void ping_seq_stop(struct seq_file *seq, void *v)
--	__releases(RCU)
-+	__releases(ping_table.lock)
- {
--	rcu_read_unlock();
-+	spin_unlock(&ping_table.lock);
- }
- EXPORT_SYMBOL_GPL(ping_seq_stop);
- 
+ /**
 -- 
 2.39.2
 
