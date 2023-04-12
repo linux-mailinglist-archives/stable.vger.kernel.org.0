@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE176DEE21
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66E66DEECD
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbjDLIk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46212 "EHLO
+        id S230338AbjDLIpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbjDLIjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8036171F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:17 -0700 (PDT)
+        with ESMTP id S231250AbjDLIov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4FF86B5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A7C962867
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4638FC433A1;
-        Wed, 12 Apr 2023 08:37:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57809630A1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F59CC433D2;
+        Wed, 12 Apr 2023 08:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288658;
-        bh=dema/5x0PSFWTfcuAlacX0CCwvmU15KutlJWiKA6nzU=;
+        s=korg; t=1681289058;
+        bh=hw3GM1MrphKYN1jjXC3YijJ126DywjLtlxb4sLXRnko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBB1UKGwKmwmkKYhkuMmFlhnt+QYoPw9XKBFm1KuS0M0X2la2JObcqbTItpjT8wRH
-         Zumx97VRKvQPkSDoI8zEQ//Rz/wicwGyPpXsrMLRtJNKYafPOCK3oqqsccLnrpLimY
-         EzTZBszpD72dAxVHhMyy2lGWb1FykHJASYbkNXgM=
+        b=k45V0vtiD4tP1vL3MQTGIkBVBwCrzQZ3/okY+jxPCnRR/DDBn/FIE2dEnWNk0CHJ/
+         HrEzmSc17FEvIdzOMJLPXES0ZfYCx1rn2ttWDzWVLKGcBLncaeeyAFbuOTYhRZqG9g
+         14a010LwlpTvYQ7Mef42Q++sZD3ChgrEf0sl3+HI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 62/93] iio: light: cm32181: Unregister second I2C client if present
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.1 121/164] ACPI: video: Add acpi_backlight=video quirk for Lenovo ThinkPad W530
 Date:   Wed, 12 Apr 2023 10:34:03 +0200
-Message-Id: <20230412082825.751326991@linuxfoundation.org>
+Message-Id: <20230412082841.730190059@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,56 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 099cc90a5a62e68b2fe3a42da011ab929b98bf73 upstream.
+commit a5b2781dcab2c77979a4b8adda781d2543580901 upstream.
 
-If a second dummy client that talks to the actual I2C address was
-created in probe(), there should be a proper cleanup on driver and
-device removal to avoid leakage.
+The Lenovo ThinkPad W530 uses a nvidia k1000m GPU. When this gets used
+together with one of the older nvidia binary driver series (the latest
+series does not support it), then backlight control does not work.
 
-So unregister the dummy client via another callback.
+This is caused by commit 3dbc80a3e4c5 ("ACPI: video: Make backlight
+class device registration a separate step (v2)") combined with
+commit 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for
+creating ACPI backlight by default").
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: c1e62062ff54 ("iio: light: cm32181: Handle CM3218 ACPI devices with 2 I2C resources")
-Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=2152281
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20230223020059.2013993-1-kai.heng.feng@canonical.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+After these changes the acpi_video# backlight device is only registered
+when requested by a GPU driver calling acpi_video_register_backlight()
+which the nvidia binary driver does not do.
+
+I realize that using the nvidia binary driver is not a supported use-case
+and users can workaround this by adding acpi_backlight=video on the kernel
+commandline, but the ThinkPad W530 is a popular model under Linux users,
+so it seems worthwhile to add a quirk for this.
+
+I will also email Nvidia asking them to make the driver call
+acpi_video_register_backlight() when an internal LCD panel is detected.
+So maybe the next maintenance release of the drivers will fix this...
+
+Fixes: 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for creating ACPI backlight by default")
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/cm32181.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/acpi/video_detect.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/iio/light/cm32181.c
-+++ b/drivers/iio/light/cm32181.c
-@@ -429,6 +429,14 @@ static const struct iio_info cm32181_inf
- 	.attrs			= &cm32181_attribute_group,
- };
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -298,6 +298,20 @@ static const struct dmi_system_id video_
+ 	},
  
-+static void cm32181_unregister_dummy_client(void *data)
-+{
-+	struct i2c_client *client = data;
+ 	/*
++	 * Older models with nvidia GPU which need acpi_video backlight
++	 * control and where the old nvidia binary driver series does not
++	 * call acpi_video_register_backlight().
++	 */
++	{
++	 .callback = video_detect_force_video,
++	 /* ThinkPad W530 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad W530"),
++		},
++	},
 +
-+	/* Unregister the dummy client */
-+	i2c_unregister_device(client);
-+}
-+
- static int cm32181_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
-@@ -458,6 +466,10 @@ static int cm32181_probe(struct i2c_clie
- 		client = i2c_acpi_new_device(dev, 1, &board_info);
- 		if (IS_ERR(client))
- 			return PTR_ERR(client);
-+
-+		ret = devm_add_action_or_reset(dev, cm32181_unregister_dummy_client, client);
-+		if (ret)
-+			return ret;
- 	}
- 
- 	cm32181 = iio_priv(indio_dev);
++	/*
+ 	 * These models have a working acpi_video backlight control, and using
+ 	 * native backlight causes a regression where backlight does not work
+ 	 * when userspace is not handling brightness key events. Disable
 
 
