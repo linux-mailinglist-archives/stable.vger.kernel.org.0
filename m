@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BFCC6DEF8A
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 751136DEE92
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231358AbjDLIvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39680 "EHLO
+        id S231158AbjDLIm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:42:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjDLIvj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391F87283
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:18 -0700 (PDT)
+        with ESMTP id S231209AbjDLImd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6D98A5E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65F0B63166
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2FEC433D2;
-        Wed, 12 Apr 2023 08:50:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA7DA6304E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8928C433D2;
+        Wed, 12 Apr 2023 08:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289420;
-        bh=nS414579cCkCyebrkAtx/4frSjcIZbbiJFvk+50Bu24=;
+        s=korg; t=1681288917;
+        bh=jt+VKwPlE5zDAyCCCYF9J1iVwPrU6UANaCUz928spFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqvrSmpeVVCcHAU3xjLNi5olUIEPeOkTt7dwkNUcfPecqmG3GaE7JBWTm+POnkajx
-         FxhixcUpOq3109XJeSnISp71z1265nQ9l0JJ51DDabTN1bTZN7CrHmKE5GRYpzR3h4
-         m9mjKy6MxQz5fzncZn7X3kddOvMo3MjWKpcZQ4ig=
+        b=HgxjtlyHyeZfjec14MB4aWGs38cOmJdn+ILr+ieFftSud2F0+XJWfojtltIksmYEi
+         QPnxPGuRyWFZXvc+UcaqHko/fXx27WVoGjejhcJ4RtISmvudoY+eotIOwfRLnMX81F
+         2RnLMhTMrIcy3pm27wmjOecWpQ0HuPhRocWe8LNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Chang <waynec@nvidia.com>,
-        Haotien Hsu <haotienh@nvidia.com>
-Subject: [PATCH 6.2 062/173] usb: xhci: tegra: fix sleep in atomic call
+        patches@lists.linux.dev,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 6.1 066/164] usb: dwc3: pci: add support for the Intel Meteor Lake-S
 Date:   Wed, 12 Apr 2023 10:33:08 +0200
-Message-Id: <20230412082840.594453243@linuxfoundation.org>
+Message-Id: <20230412082839.599316424@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,76 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Chang <waynec@nvidia.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit 4c7f9d2e413dc06a157c4e5dccde84aaf4655eb3 upstream.
+commit ec799c8a92e0be91e0940cc739a27f483242df65 upstream.
 
-When we set the dual-role port to Host mode, we observed the following
-splat:
-[  167.057718] BUG: sleeping function called from invalid context at
-include/linux/sched/mm.h:229
-[  167.057872] Workqueue: events tegra_xusb_usb_phy_work
-[  167.057954] Call trace:
-[  167.057962]  dump_backtrace+0x0/0x210
-[  167.057996]  show_stack+0x30/0x50
-[  167.058020]  dump_stack_lvl+0x64/0x84
-[  167.058065]  dump_stack+0x14/0x34
-[  167.058100]  __might_resched+0x144/0x180
-[  167.058140]  __might_sleep+0x64/0xd0
-[  167.058171]  slab_pre_alloc_hook.constprop.0+0xa8/0x110
-[  167.058202]  __kmalloc_track_caller+0x74/0x2b0
-[  167.058233]  kvasprintf+0xa4/0x190
-[  167.058261]  kasprintf+0x58/0x90
-[  167.058285]  tegra_xusb_find_port_node.isra.0+0x58/0xd0
-[  167.058334]  tegra_xusb_find_port+0x38/0xa0
-[  167.058380]  tegra_xusb_padctl_get_usb3_companion+0x38/0xd0
-[  167.058430]  tegra_xhci_id_notify+0x8c/0x1e0
-[  167.058473]  notifier_call_chain+0x88/0x100
-[  167.058506]  atomic_notifier_call_chain+0x44/0x70
-[  167.058537]  tegra_xusb_usb_phy_work+0x60/0xd0
-[  167.058581]  process_one_work+0x1dc/0x4c0
-[  167.058618]  worker_thread+0x54/0x410
-[  167.058650]  kthread+0x188/0x1b0
-[  167.058672]  ret_from_fork+0x10/0x20
+This patch adds the necessary PCI ID for Intel Meteor Lake-S
+devices.
 
-The function tegra_xusb_padctl_get_usb3_companion eventually calls
-tegra_xusb_find_port and this in turn calls kasprintf which might sleep
-and so cannot be called from an atomic context.
-
-Fix this by moving the call to tegra_xusb_padctl_get_usb3_companion to
-the tegra_xhci_id_work function where it is really needed.
-
-Fixes: f836e7843036 ("usb: xhci-tegra: Add OTG support")
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Wayne Chang <waynec@nvidia.com>
-Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
-Link: https://lore.kernel.org/r/20230327095548.1599470-1-haotienh@nvidia.com
+Link: https://lore.kernel.org/r/20230330150224.89316-1-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1225,6 +1225,9 @@ static void tegra_xhci_id_work(struct wo
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -49,6 +49,7 @@
+ #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
+ #define PCI_DEVICE_ID_INTEL_MTLM		0x7eb1
+ #define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
++#define PCI_DEVICE_ID_INTEL_MTLS		0x7f6f
+ #define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
+ #define PCI_DEVICE_ID_INTEL_TGL			0x9a15
+ #define PCI_DEVICE_ID_AMD_MR			0x163a
+@@ -474,6 +475,9 @@ static const struct pci_device_id dwc3_p
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLP),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
  
- 	mutex_unlock(&tegra->lock);
- 
-+	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(tegra->padctl,
-+								    tegra->otg_usb2_port);
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLS),
++	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
 +
- 	if (tegra->host_mode) {
- 		/* switch to host mode */
- 		if (tegra->otg_usb3_port >= 0) {
-@@ -1339,9 +1342,6 @@ static int tegra_xhci_id_notify(struct n
- 	}
- 
- 	tegra->otg_usb2_port = tegra_xusb_get_usb2_port(tegra, usbphy);
--	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(
--							tegra->padctl,
--							tegra->otg_usb2_port);
- 
- 	tegra->host_mode = (usbphy->last_event == USB_EVENT_ID) ? true : false;
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTL),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
  
 
 
