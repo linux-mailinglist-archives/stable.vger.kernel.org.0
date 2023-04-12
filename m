@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C966DEE5F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A18B6DEF1B
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230508AbjDLIlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
+        id S230511AbjDLIrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:47:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230324AbjDLIks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2183FE68
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:29 -0700 (PDT)
+        with ESMTP id S231289AbjDLIrh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:47:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5E98A7B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:47:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EBD862867
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47A57C433EF;
-        Wed, 12 Apr 2023 08:39:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C71A6311A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB1BC433D2;
+        Wed, 12 Apr 2023 08:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288789;
-        bh=2E8p/558Vu5wobJyp+ppXWKi7RzI4VIAyHdKb0dIDko=;
+        s=korg; t=1681289237;
+        bh=c3eagSUoLMYwVV4b5xMhf+LxFQ11Lw2Td9HucxeukJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBB0H0XIhqPRFwUyQDOeneGCQhGb8IbUcc9qxXGP9vM5xQ3qObMcsX6cY6PKtuJs6
-         FEdC+oV8MCOzWCTQXjpaEmaUSAZjmPd8xSXfh7NKuQ5grf6nMbgZy7Hw4jAsuo5uNP
-         Hmzs9f6iRCOyhOUf74rGlGHE7n1xIpfVKl/kECp4=
+        b=KFlQt2Z4NnJ+k4m7b0DXGgBqYegQwaboDbFkQ7JFOIALBOAyeS96lL4a48a2IuL1E
+         bwvyuP9ss8yMUvLZRfLPTBkCD/hVgVD51QlO2Fx2xSzVpPIIjgMEmuoO8yOhUDPIgD
+         KAmKbuLolQbBUj0fLeNQMpQdVgoJmIctESAGGl8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
-        Reiji Watanabe <reijiw@google.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
+        patches@lists.linux.dev, Orange Kao <orange@aiven.io>,
+        Mike Snitzer <snitzer@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 008/164] KVM: arm64: PMU: Dont save PMCR_EL0.{C,P} for the vCPU
+Subject: [PATCH 6.2 004/173] dm: fix improper splitting for abnormal bios
 Date:   Wed, 12 Apr 2023 10:32:10 +0200
-Message-Id: <20230412082837.162705737@linuxfoundation.org>
+Message-Id: <20230412082838.320364640@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,46 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reiji Watanabe <reijiw@google.com>
+From: Mike Snitzer <snitzer@kernel.org>
 
-[ Upstream commit f6da81f650fa47b61b847488f3938d43f90d093d ]
+[ Upstream commit f7b58a69fad9d2c4c90cab0247811155dd0d48e7 ]
 
-Presently, when a guest writes 1 to PMCR_EL0.{C,P}, which is WO/RAZ,
-KVM saves the register value, including these bits.
-When userspace reads the register using KVM_GET_ONE_REG, KVM returns
-the saved register value as it is (the saved value might have these
-bits set).  This could result in userspace setting these bits on the
-destination during migration.  Consequently, KVM may end up resetting
-the vPMU counter registers (PMCCNTR_EL0 and/or PMEVCNTR<n>_EL0) to
-zero on the first KVM_RUN after migration.
+"Abnormal" bios include discards, write zeroes and secure erase. By no
+longer passing the calculated 'len' pointer, commit 7dd06a2548b2 ("dm:
+allow dm_accept_partial_bio() for dm_io without duplicate bios") took a
+senseless approach to disallowing dm_accept_partial_bio() from working
+for duplicate bios processed using __send_duplicate_bios().
 
-Fix this by not saving those bits when a guest writes 1 to those bits.
+It inadvertently and incorrectly stopped the use of 'len' when
+initializing a target's io (in alloc_tio). As such the resulting tio
+could address more area of a device than it should.
 
-Fixes: ab9468340d2b ("arm64: KVM: Add access handler for PMCR register")
+For example, when discarding an entire DM striped device with the
+following DM table:
+ vg-lvol0: 0 159744 striped 2 128 7:0 2048 7:1 2048
+ vg-lvol0: 159744 45056 striped 2 128 7:2 2048 7:3 2048
+
+Before this fix:
+
+ device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=102400
+ blkdiscard: attempt to access beyond end of device
+ loop0: rw=2051, sector=2048, nr_sectors = 102400 limit=81920
+
+ device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=102400
+ blkdiscard: attempt to access beyond end of device
+ loop1: rw=2051, sector=2048, nr_sectors = 102400 limit=81920
+
+After this fix;
+
+ device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=79872
+ device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=79872
+
+Fixes: 7dd06a2548b2 ("dm: allow dm_accept_partial_bio() for dm_io without duplicate bios")
 Cc: stable@vger.kernel.org
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Reiji Watanabe <reijiw@google.com>
-Link: https://lore.kernel.org/r/20230313033234.1475987-1-reijiw@google.com
-Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
+Reported-by: Orange Kao <orange@aiven.io>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/pmu-emul.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/dm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kvm/pmu-emul.c b/arch/arm64/kvm/pmu-emul.c
-index 50b6ba593a10b..67770375c5eed 100644
---- a/arch/arm64/kvm/pmu-emul.c
-+++ b/arch/arm64/kvm/pmu-emul.c
-@@ -511,7 +511,8 @@ void kvm_pmu_handle_pmcr(struct kvm_vcpu *vcpu, u64 val)
- 	if (!kvm_vcpu_has_pmu(vcpu))
- 		return;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 94e4899d8ac7c..cdbf24def8af3 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1462,7 +1462,8 @@ static void setup_split_accounting(struct clone_info *ci, unsigned int len)
+ }
  
--	__vcpu_sys_reg(vcpu, PMCR_EL0) = val;
-+	/* The reset bits don't indicate any state, and shouldn't be saved. */
-+	__vcpu_sys_reg(vcpu, PMCR_EL0) = val & ~(ARMV8_PMU_PMCR_C | ARMV8_PMU_PMCR_P);
- 
- 	if (val & ARMV8_PMU_PMCR_E) {
- 		kvm_pmu_enable_counter_mask(vcpu,
+ static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
+-				struct dm_target *ti, unsigned int num_bios)
++				struct dm_target *ti, unsigned int num_bios,
++				unsigned *len)
+ {
+ 	struct bio *bio;
+ 	int try;
+@@ -1473,7 +1474,7 @@ static void alloc_multiple_bios(struct bio_list *blist, struct clone_info *ci,
+ 		if (try)
+ 			mutex_lock(&ci->io->md->table_devices_lock);
+ 		for (bio_nr = 0; bio_nr < num_bios; bio_nr++) {
+-			bio = alloc_tio(ci, ti, bio_nr, NULL,
++			bio = alloc_tio(ci, ti, bio_nr, len,
+ 					try ? GFP_NOIO : GFP_NOWAIT);
+ 			if (!bio)
+ 				break;
+@@ -1511,7 +1512,7 @@ static int __send_duplicate_bios(struct clone_info *ci, struct dm_target *ti,
+ 		if (len)
+ 			setup_split_accounting(ci, *len);
+ 		/* dm_accept_partial_bio() is not supported with shared tio->len_ptr */
+-		alloc_multiple_bios(&blist, ci, ti, num_bios);
++		alloc_multiple_bios(&blist, ci, ti, num_bios, len);
+ 		while ((clone = bio_list_pop(&blist))) {
+ 			dm_tio_set_flag(clone_to_tio(clone), DM_TIO_IS_DUPLICATE_BIO);
+ 			__map_bio(clone);
 -- 
 2.39.2
 
