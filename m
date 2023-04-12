@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E5C6DEF45
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CBD6DEE8C
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231264AbjDLItY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35314 "EHLO
+        id S231191AbjDLIm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231283AbjDLItX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11667AB0
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:55 -0700 (PDT)
+        with ESMTP id S231195AbjDLImN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F09E77D8B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:41:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73A8A630D8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88CB9C433EF;
-        Wed, 12 Apr 2023 08:48:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D05A16304E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E75B7C4339C;
+        Wed, 12 Apr 2023 08:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289318;
-        bh=z2FSxgaMurnoOFENJQPAeepHRVYk0PnDdfcMOF1tKNc=;
+        s=korg; t=1681288891;
+        bh=EHvwuON3SQ9Ev6LGR681utzHUOVZM+RhR16yvNVNmKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pD8KXT6pzgeuHE0G41kyMqQfq6igQXT+CkqDT8mOZSRqOwcd/LJAx+hYJKZxHdnku
-         w6Wfn/G3Yf2a7auZlAUofdi55Y/yAfahYdy/AFz2miofIxon5smxni/uOGGnN8uzAL
-         T5k2O00Uyo1G4gen4U9bjetLrBmykGyADjw8XGJg=
+        b=iXCotUbd2U7/ayybOfLsGMZvVBwF85syIzLtCO0cqLjLKAp793BzctzNLeqVbB1K0
+         CVPBMmRA+rtqbGcrkStf9JCgKRhGLOF2DzIK3LSIqcrt64byxuezOxuspZnqx4gRP/
+         9lpyFxlJKifI44chppW16FMozXm+6dhYUZMVqAFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shailend Chand <shailend@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 052/173] gve: Secure enough bytes in the first TX desc for all TCP pkts
-Date:   Wed, 12 Apr 2023 10:32:58 +0200
-Message-Id: <20230412082840.218330063@linuxfoundation.org>
+        patches@lists.linux.dev, Ming Li <ming4.li@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Kuppuswamy Sathyanarayanan 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Subject: [PATCH 6.1 057/164] cxl/pci: Handle truncated CDAT header
+Date:   Wed, 12 Apr 2023 10:32:59 +0200
+Message-Id: <20230412082839.264901093@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,73 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shailend Chand <shailend@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 3ce9345580974863c060fa32971537996a7b2d57 ]
+commit 34bafc747c54fb58c1908ec3116fa6137393e596 upstream.
 
-Non-GSO TCP packets whose SKBs' linear portion did not include the
-entire TCP header were not populating the first Tx descriptor with
-as many bytes as the vNIC expected. This change ensures that all
-TCP packets populate the first descriptor with the correct number of
-bytes.
+cxl_cdat_get_length() only checks whether the DOE response size is
+sufficient for the Table Access response header (1 dword), but not the
+succeeding CDAT header (1 dword length plus other fields).
 
-Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
-Signed-off-by: Shailend Chand <shailend@google.com>
-Link: https://lore.kernel.org/r/20230403172809.2939306-1-shailend@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It thus returns whatever uninitialized memory happens to be on the stack
+if a truncated DOE response with only 1 dword was received.  Fix it.
+
+Fixes: c97006046c79 ("cxl/port: Read CDAT table")
+Reported-by: Ming Li <ming4.li@intel.com>
+Tested-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Ming Li <ming4.li@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org # v6.0+
+Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Link: https://lore.kernel.org/r/000e69cd163461c8b1bc2cf4155b6e25402c29c7.1678543498.git.lukas@wunner.de
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/google/gve/gve.h    |  2 ++
- drivers/net/ethernet/google/gve/gve_tx.c | 12 +++++-------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/cxl/core/pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
-index 64eb0442c82fd..005cb9dfe078b 100644
---- a/drivers/net/ethernet/google/gve/gve.h
-+++ b/drivers/net/ethernet/google/gve/gve.h
-@@ -47,6 +47,8 @@
+--- a/drivers/cxl/core/pci.c
++++ b/drivers/cxl/core/pci.c
+@@ -531,7 +531,7 @@ static int cxl_cdat_get_length(struct de
+ 		return rc;
+ 	}
+ 	wait_for_completion(&t.c);
+-	if (t.task.rv < sizeof(__le32))
++	if (t.task.rv < 2 * sizeof(__le32))
+ 		return -EIO;
  
- #define GVE_RX_BUFFER_SIZE_DQO 2048
- 
-+#define GVE_GQ_TX_MIN_PKT_DESC_BYTES 182
-+
- /* Each slot in the desc ring has a 1:1 mapping to a slot in the data ring */
- struct gve_rx_desc_queue {
- 	struct gve_rx_desc *desc_ring; /* the descriptor ring */
-diff --git a/drivers/net/ethernet/google/gve/gve_tx.c b/drivers/net/ethernet/google/gve/gve_tx.c
-index 4888bf05fbedb..5e11b82367545 100644
---- a/drivers/net/ethernet/google/gve/gve_tx.c
-+++ b/drivers/net/ethernet/google/gve/gve_tx.c
-@@ -284,8 +284,8 @@ static inline int gve_skb_fifo_bytes_required(struct gve_tx_ring *tx,
- 	int bytes;
- 	int hlen;
- 
--	hlen = skb_is_gso(skb) ? skb_checksum_start_offset(skb) +
--				 tcp_hdrlen(skb) : skb_headlen(skb);
-+	hlen = skb_is_gso(skb) ? skb_checksum_start_offset(skb) + tcp_hdrlen(skb) :
-+				 min_t(int, GVE_GQ_TX_MIN_PKT_DESC_BYTES, skb->len);
- 
- 	pad_bytes = gve_tx_fifo_pad_alloc_one_frag(&tx->tx_fifo,
- 						   hlen);
-@@ -454,13 +454,11 @@ static int gve_tx_add_skb_copy(struct gve_priv *priv, struct gve_tx_ring *tx, st
- 	pkt_desc = &tx->desc[idx];
- 
- 	l4_hdr_offset = skb_checksum_start_offset(skb);
--	/* If the skb is gso, then we want the tcp header in the first segment
--	 * otherwise we want the linear portion of the skb (which will contain
--	 * the checksum because skb->csum_start and skb->csum_offset are given
--	 * relative to skb->head) in the first segment.
-+	/* If the skb is gso, then we want the tcp header alone in the first segment
-+	 * otherwise we want the minimum required by the gVNIC spec.
- 	 */
- 	hlen = is_gso ? l4_hdr_offset + tcp_hdrlen(skb) :
--			skb_headlen(skb);
-+			min_t(int, GVE_GQ_TX_MIN_PKT_DESC_BYTES, skb->len);
- 
- 	info->skb =  skb;
- 	/* We don't want to split the header, so if necessary, pad to the end
--- 
-2.39.2
-
+ 	*length = le32_to_cpu(t.response_pl[1]);
 
 
