@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9715C6DEF60
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D276DEE0F
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231311AbjDLIuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:50:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
+        id S230147AbjDLIjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231322AbjDLIuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:02 -0400
+        with ESMTP id S230348AbjDLIjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A58C976C
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1336EA5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E8256314E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E81C4339B;
-        Wed, 12 Apr 2023 08:49:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C87A46300C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78A1C433D2;
+        Wed, 12 Apr 2023 08:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289378;
-        bh=04ytoBOGqFml9HH5bQ3aHTX76z7gfY5bCP/TJPK7dZU=;
+        s=korg; t=1681288624;
+        bh=wCvjPwQ/isy/0PMDVZFcUXo3lTVoQtGdjn7ZpjYmpoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLo/67GTItbZDT/Se3o/9AoIn7su3KPdFhWTVSbECG42wLkG6LcbUaiy3DFo8gRBH
-         fnmicqvQ0voOv4BDGc2e2q5y1Ji70MOiTwliMZU4qjrPG2p1yK8gJHvlChhAFWsL47
-         okr7bBt+7H0i9pBgAwYXYOm7Rk28+YxVz/XbQKTc=
+        b=l0RxCdF1znYVd7jSF7R63vrry88wKhCrEK76Cetgm+OrOL07jIN0jQXAZYZyTUkeF
+         QmqWGPXOJEtQOtY0bHTJ9kuu/Y/F1yEBguWb0cB5xP+9hwpDySSiEyXvLzePPtPz5v
+         A8zwbQeMM8PEQzsDxHWTfGGXWUhB9ZRvoXKung6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.2 076/173] iio: adc: max11410: fix read_poll_timeout() usage
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 21/93] drm/amdgpu: fix amdgpu_job_free_resources v2
 Date:   Wed, 12 Apr 2023 10:33:22 +0200
-Message-Id: <20230412082841.135528121@linuxfoundation.org>
+Message-Id: <20230412082823.954152927@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,81 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Christian König <christian.koenig@amd.com>
 
-commit 7b3825e9487d77e83bf1e27b10a74cd729b8f972 upstream.
+[ Upstream commit 1427a720273976a81d13d9d9fa60d53ce881cbd7 ]
 
-Even though we are passing 'ret' as stop condition for
-read_poll_timeout(), that return code is still being ignored. The reason
-is that the poll will stop if the passed condition is true which will
-happen if the passed op() returns error. However, read_poll_timeout()
-returns 0 if the *complete* condition evaluates to true. Therefore, the
-error code returned by op() will be ignored.
+It can be that neither fence were initialized when we run out of UVD
+streams for example.
 
-To fix this we need to check for both error codes:
- * The one returned by read_poll_timeout() which is either 0 or
-ETIMEDOUT.
- * The one returned by the passed op().
+v2: fix typo breaking compile
 
-Fixes: a44ef7c46097 ("iio: adc: add max11410 adc driver")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Acked-by: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
-Link: https://lore.kernel.org/r/20230307095303.713251-1-nuno.sa@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2324
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/max11410.c |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_job.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/max11410.c
-+++ b/drivers/iio/adc/max11410.c
-@@ -413,13 +413,17 @@ static int max11410_sample(struct max114
- 		if (!ret)
- 			return -ETIMEDOUT;
- 	} else {
-+		int ret2;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c
+index de29518673dd3..90a83aaa9908c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_job.c
+@@ -135,8 +135,14 @@ void amdgpu_job_free_resources(struct amdgpu_job *job)
+ 	else
+ 		hw_fence = &job->hw_fence;
+ 
+-	/* use sched fence if available */
+-	f = job->base.s_fence ? &job->base.s_fence->finished : hw_fence;
++	/* Check if any fences where initialized */
++	if (job->base.s_fence && job->base.s_fence->finished.ops)
++		f = &job->base.s_fence->finished;
++	else if (job->hw_fence.ops)
++		f = &job->hw_fence;
++	else
++		f = NULL;
 +
- 		/* Wait for status register Conversion Ready flag */
--		ret = read_poll_timeout(max11410_read_reg, ret,
--					ret || (val & MAX11410_STATUS_CONV_READY_BIT),
-+		ret = read_poll_timeout(max11410_read_reg, ret2,
-+					ret2 || (val & MAX11410_STATUS_CONV_READY_BIT),
- 					5000, MAX11410_CONVERSION_TIMEOUT_MS * 1000,
- 					true, st, MAX11410_REG_STATUS, &val);
- 		if (ret)
- 			return ret;
-+		if (ret2)
-+			return ret2;
- 	}
- 
- 	/* Read ADC Data */
-@@ -850,17 +854,21 @@ static int max11410_init_vref(struct dev
- 
- static int max11410_calibrate(struct max11410_state *st, u32 cal_type)
- {
--	int ret, val;
-+	int ret, ret2, val;
- 
- 	ret = max11410_write_reg(st, MAX11410_REG_CAL_START, cal_type);
- 	if (ret)
- 		return ret;
- 
- 	/* Wait for status register Calibration Ready flag */
--	return read_poll_timeout(max11410_read_reg, ret,
--				 ret || (val & MAX11410_STATUS_CAL_READY_BIT),
--				 50000, MAX11410_CALIB_TIMEOUT_MS * 1000, true,
--				 st, MAX11410_REG_STATUS, &val);
-+	ret = read_poll_timeout(max11410_read_reg, ret2,
-+				ret2 || (val & MAX11410_STATUS_CAL_READY_BIT),
-+				50000, MAX11410_CALIB_TIMEOUT_MS * 1000, true,
-+				st, MAX11410_REG_STATUS, &val);
-+	if (ret)
-+		return ret;
-+
-+	return ret2;
+ 	for (i = 0; i < job->num_ibs; ++i)
+ 		amdgpu_ib_free(ring->adev, &job->ibs[i], f);
  }
- 
- static int max11410_self_calibrate(struct max11410_state *st)
+-- 
+2.39.2
+
 
 
