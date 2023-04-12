@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B20576DEF6C
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0ED6DEF4D
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230234AbjDLIux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
+        id S231290AbjDLItc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231335AbjDLIul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:41 -0400
+        with ESMTP id S231309AbjDLIt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D6E9770
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA357289
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0337A63124
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA0BC433EF;
-        Wed, 12 Apr 2023 08:50:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4062462BA5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A1C6C433D2;
+        Wed, 12 Apr 2023 08:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289423;
-        bh=C3LSIZRJHufdaX7iBUhVu2WMe8ZJJeCpKaH9KVH70WI=;
+        s=korg; t=1681289339;
+        bh=ZsgoMZ6B59bRE20ESo9UuKPdvGsVuW5abBLtW59aHco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EH9ihBEiZJxrNts7gsPXXrKft/tMQ8FmXLvR8lPykxNJ3KnaymtMWb2TsxadhEYQa
-         qKdkR3q/BJp43guPJv/HChEIaEmYMX2IzIVMiHy1SuiC+59s940xZiB3eVZkMjoiuQ
-         cwJ3SJypTYn9mKlojL31Bsr1CL0bZr1N17M7yoZo=
+        b=hsZBX1Dke/BiEuEyZvhDT2BuiOvMzFFHwLJUWEd7XxPBFTfSxb58Yu/1RmViSa8Gk
+         FXSm/uv/f+xemsvS1LdTtAjMmUPoxRkxSr+rpgx1uGyXu511R7csuSYylatyKSRCYF
+         jIXI2uAEf5eYWGMlwuAjKQ6VZ6GOhyYRnKB7K+IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        patches@lists.linux.dev,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shahab Vahedi <shahab@synopsys.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 053/173] arm64: compat: Work around uninitialized variable warning
-Date:   Wed, 12 Apr 2023 10:32:59 +0200
-Message-Id: <20230412082840.266560427@linuxfoundation.org>
+Subject: [PATCH 6.2 054/173] net: stmmac: check fwnode for phy device before scanning for phy
+Date:   Wed, 12 Apr 2023 10:33:00 +0200
+Message-Id: <20230412082840.298602477@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -56,91 +60,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
 
-[ Upstream commit 32d85999680601d01b2a36713c9ffd7397c8688b ]
+[ Upstream commit 8fbc10b995a506e173f1080dfa2764f232a65e02 ]
 
-Dan reports that smatch complains about a potential uninitialized
-variable being used in the compat alignment fixup code.
+Some DT devices already have phy device configured in the DT/ACPI.
+Current implementation scans for a phy unconditionally even though
+there is a phy listed in the DT/ACPI and already attached.
 
-The logic is not wrong per se, but we do end up using an uninitialized
-variable if reading the instruction that triggered the alignment fault
-from user space faults, even if the fault ensures that the uninitialized
-value doesn't propagate any further.
+We should check the fwnode if there is any phy device listed in
+fwnode and decide whether to scan for a phy to attach to.
 
-Given that we just give up and return 1 if any fault occurs when reading
-the instruction, let's get rid of the 'success handling' pattern that
-captures the fault in a variable and aborts later, and instead, just
-return 1 immediately if any of the get_user() calls result in an
-exception.
-
-Fixes: 3fc24ef32d3b ("arm64: compat: Implement misalignment fixups for multiword loads")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/202304021214.gekJ8yRc-lkp@intel.com/
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20230404103625.2386382-1-ardb@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: fe2cfbc96803 ("net: stmmac: check if MAC needs to attach to a PHY")
+Reported-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/lkml/20230403212434.296975-1-martin.blumenstingl@googlemail.com/
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Shahab Vahedi <shahab@synopsys.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
+Link: https://lore.kernel.org/r/20230406024541.3556305-1-michael.wei.hong.sit@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/compat_alignment.c | 32 ++++++++++++----------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/compat_alignment.c b/arch/arm64/kernel/compat_alignment.c
-index 5edec2f49ec98..deff21bfa6800 100644
---- a/arch/arm64/kernel/compat_alignment.c
-+++ b/arch/arm64/kernel/compat_alignment.c
-@@ -314,36 +314,32 @@ int do_compat_alignment_fixup(unsigned long addr, struct pt_regs *regs)
- 	int (*handler)(unsigned long addr, u32 instr, struct pt_regs *regs);
- 	unsigned int type;
- 	u32 instr = 0;
--	u16 tinstr = 0;
- 	int isize = 4;
- 	int thumb2_32b = 0;
--	int fault;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4888536a31500..622b95bfb0b2b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1134,22 +1134,26 @@ static void stmmac_check_pcs_mode(struct stmmac_priv *priv)
+ static int stmmac_init_phy(struct net_device *dev)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
++	struct fwnode_handle *phy_fwnode;
+ 	struct fwnode_handle *fwnode;
+-	bool phy_needed;
+ 	int ret;
  
- 	instrptr = instruction_pointer(regs);
- 
- 	if (compat_thumb_mode(regs)) {
- 		__le16 __user *ptr = (__le16 __user *)(instrptr & ~1);
-+		u16 tinstr, tinst2;
- 
--		fault = alignment_get_thumb(regs, ptr, &tinstr);
--		if (!fault) {
--			if (IS_T32(tinstr)) {
--				/* Thumb-2 32-bit */
--				u16 tinst2;
--				fault = alignment_get_thumb(regs, ptr + 1, &tinst2);
--				instr = ((u32)tinstr << 16) | tinst2;
--				thumb2_32b = 1;
--			} else {
--				isize = 2;
--				instr = thumb2arm(tinstr);
--			}
-+		if (alignment_get_thumb(regs, ptr, &tinstr))
-+			return 1;
++	if (!phylink_expects_phy(priv->phylink))
++		return 0;
 +
-+		if (IS_T32(tinstr)) { /* Thumb-2 32-bit */
-+			if (alignment_get_thumb(regs, ptr + 1, &tinst2))
-+				return 1;
-+			instr = ((u32)tinstr << 16) | tinst2;
-+			thumb2_32b = 1;
-+		} else {
-+			isize = 2;
-+			instr = thumb2arm(tinstr);
+ 	fwnode = of_fwnode_handle(priv->plat->phylink_node);
+ 	if (!fwnode)
+ 		fwnode = dev_fwnode(priv->device);
+ 
+ 	if (fwnode)
+-		ret = phylink_fwnode_phy_connect(priv->phylink, fwnode, 0);
++		phy_fwnode = fwnode_get_phy_node(fwnode);
++	else
++		phy_fwnode = NULL;
+ 
+-	phy_needed = phylink_expects_phy(priv->phylink);
+ 	/* Some DT bindings do not set-up the PHY handle. Let's try to
+ 	 * manually parse it
+ 	 */
+-	if (!fwnode || phy_needed || ret) {
++	if (!phy_fwnode || IS_ERR(phy_fwnode)) {
+ 		int addr = priv->plat->phy_addr;
+ 		struct phy_device *phydev;
+ 
+@@ -1165,6 +1169,9 @@ static int stmmac_init_phy(struct net_device *dev)
  		}
- 	} else {
--		fault = alignment_get_arm(regs, (__le32 __user *)instrptr, &instr);
-+		if (alignment_get_arm(regs, (__le32 __user *)instrptr, &instr))
-+			return 1;
+ 
+ 		ret = phylink_connect_phy(priv->phylink, phydev);
++	} else {
++		fwnode_handle_put(phy_fwnode);
++		ret = phylink_fwnode_phy_connect(priv->phylink, fwnode, 0);
  	}
  
--	if (fault)
--		return 1;
--
- 	switch (CODING_BITS(instr)) {
- 	case 0x00000000:	/* 3.13.4 load/store instruction extensions */
- 		if (LDSTHD_I_BIT(instr))
+ 	if (!priv->plat->pmt) {
 -- 
 2.39.2
 
