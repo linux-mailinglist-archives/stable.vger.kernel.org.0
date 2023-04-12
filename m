@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76EB66DEEA5
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C126DEF37
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231162AbjDLIoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
+        id S231288AbjDLItI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230459AbjDLInx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:53 -0400
+        with ESMTP id S231322AbjDLIs6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2FD372A2
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96059526C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABBF7630AF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:42:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB76C433D2;
-        Wed, 12 Apr 2023 08:42:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 228AF6313F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3387CC433D2;
+        Wed, 12 Apr 2023 08:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288964;
-        bh=QXDQ4fKp07JfAMbjgZVFjQtYq5POj2EW3Qsxq/izZSw=;
+        s=korg; t=1681289282;
+        bh=aKjCmRs05HOND5WsSbuIlNxEx3voo8h2GS+xIOds+KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZdOYjvEmKN91D+ujXw3jGhfR1jJmyUtH+/HDI2LDXbME76dbEShFAcUSAxF6ZZE9
-         CcHRmZD8auQUjeTfXqhP2sfP2ZW/lgS6SQrf0Ak8Caf7Ya0W7RmzuM108VdO1iZqXD
-         6lQ9jkgzMWl6oHhLi8x5LFHL1pUUxQreWPeH39mY=
+        b=CJGnqlTIkDJp3yMs+YesWH6lePblsBvGltsWa/w2ziSHfoq86veFSijCx3xe3ZRrn
+         1p7hr+vdulc1xt8IBxcdGLmKz1b/XNy1oOPrD/Cj07ztIYZwlcV1UDPMNeqaBf9SQv
+         Bd5xmUIMZhgrQs/ZDjDLNYdYwl5jFwsJu8y7WRV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhi Li <yieli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Dhruva Gole <d-gole@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 044/164] sunrpc: only free unix grouplist after RCU settles
+Subject: [PATCH 6.2 040/173] gpio: davinci: Add irq chip flag to skip set wake
 Date:   Wed, 12 Apr 2023 10:32:46 +0200
-Message-Id: <20230412082838.723495759@linuxfoundation.org>
+Message-Id: <20230412082839.715025168@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Dhruva Gole <d-gole@ti.com>
 
-[ Upstream commit 5085e41f9e83a1bec51da1f20b54f2ec3a13a3fe ]
+[ Upstream commit 7b75c4703609a3ebaf67271813521bc0281e1ec1 ]
 
-While the unix_gid object is rcu-freed, the group_info list that it
-contains is not. Ensure that we only put the group list reference once
-we are really freeing the unix_gid object.
+Add the IRQCHIP_SKIP_SET_WAKE flag since there are no special IRQ Wake
+bits that can be set to enable wakeup IRQ.
 
-Reported-by: Zhi Li <yieli@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2183056
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Fixes: fd5d2f78261b ("SUNRPC: Make server side AUTH_UNIX use lockless lookups")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 3d9edf09d452 ("[ARM] 4457/2: davinci: GPIO support")
+Signed-off-by: Dhruva Gole <d-gole@ti.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/svcauth_unix.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-davinci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/svcauth_unix.c b/net/sunrpc/svcauth_unix.c
-index b1efc34db6ed8..609ade4fb49ed 100644
---- a/net/sunrpc/svcauth_unix.c
-+++ b/net/sunrpc/svcauth_unix.c
-@@ -416,14 +416,23 @@ static int unix_gid_hash(kuid_t uid)
- 	return hash_long(from_kuid(&init_user_ns, uid), GID_HASHBITS);
- }
+diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
+index 39b00855499b2..7a26919ff127b 100644
+--- a/drivers/gpio/gpio-davinci.c
++++ b/drivers/gpio/gpio-davinci.c
+@@ -325,7 +325,7 @@ static struct irq_chip gpio_irqchip = {
+ 	.irq_enable	= gpio_irq_enable,
+ 	.irq_disable	= gpio_irq_disable,
+ 	.irq_set_type	= gpio_irq_type,
+-	.flags		= IRQCHIP_SET_TYPE_MASKED,
++	.flags		= IRQCHIP_SET_TYPE_MASKED | IRQCHIP_SKIP_SET_WAKE,
+ };
  
--static void unix_gid_put(struct kref *kref)
-+static void unix_gid_free(struct rcu_head *rcu)
- {
--	struct cache_head *item = container_of(kref, struct cache_head, ref);
--	struct unix_gid *ug = container_of(item, struct unix_gid, h);
-+	struct unix_gid *ug = container_of(rcu, struct unix_gid, rcu);
-+	struct cache_head *item = &ug->h;
-+
- 	if (test_bit(CACHE_VALID, &item->flags) &&
- 	    !test_bit(CACHE_NEGATIVE, &item->flags))
- 		put_group_info(ug->gi);
--	kfree_rcu(ug, rcu);
-+	kfree(ug);
-+}
-+
-+static void unix_gid_put(struct kref *kref)
-+{
-+	struct cache_head *item = container_of(kref, struct cache_head, ref);
-+	struct unix_gid *ug = container_of(item, struct unix_gid, h);
-+
-+	call_rcu(&ug->rcu, unix_gid_free);
- }
- 
- static int unix_gid_match(struct cache_head *corig, struct cache_head *cnew)
+ static void gpio_irq_handler(struct irq_desc *desc)
 -- 
 2.39.2
 
