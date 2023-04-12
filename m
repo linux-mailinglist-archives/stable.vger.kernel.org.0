@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C38736DEE75
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 451D66DEF4B
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbjDLIl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51186 "EHLO
+        id S231305AbjDLItb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbjDLIlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:19 -0400
+        with ESMTP id S231304AbjDLIt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C717D94
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92257DA0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE97628ED
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B07C4339B;
-        Wed, 12 Apr 2023 08:40:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 120096311A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2499FC433D2;
+        Wed, 12 Apr 2023 08:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288833;
-        bh=vLy3pDOPk2i6YfSnKFf4rogK6AAFpRogtcpj3PNtD2M=;
+        s=korg; t=1681289334;
+        bh=rBxWAGdOI/73RbaDnEdOA44P8IY9uCeTWI8tvdtdqzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=198wt7Yws7yL0VFZ7uISZm7vJUaYtq2x0su0OzOqMzpSJIkxNLdMx0SeFtU5840+z
-         1cW5da3fhvumw3lliNBW5E2LVMFzJzuBsYl8RUzB/v1RnNRERwql7xkLLDIl11bviz
-         c37mLFXRBYeaMCKCbfrFGC0UrKuDM/I4AUzP6QRI=
+        b=hVjiJohUpQb6EX/y2sV0TXeMQtynxzpAq9CQd3Ptw+PDEsWCTbgGQtnA4rRX6r6hr
+         t8YLNLK7KGnS2LKASeIiZpjC1aR9ksxE87/I/PXe1VatJvofzSejKtSBJ9ZhmOqm/0
+         tjFTsaoJjESMSxySx/lUqjBwB+j12sbMIbYaD/nY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+47c24ca20a2fa01f082e@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
+        patches@lists.linux.dev, Gustav Ekelund <gustaek@axis.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 034/164] sctp: check send stream number after wait_for_sndbuf
+Subject: [PATCH 6.2 030/173] net: dsa: mv88e6xxx: Reset mv88e6393x force WD event bit
 Date:   Wed, 12 Apr 2023 10:32:36 +0200
-Message-Id: <20230412082838.341054615@linuxfoundation.org>
+Message-Id: <20230412082839.311894827@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +56,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Gustav Ekelund <gustaek@axis.com>
 
-[ Upstream commit 2584024b23552c00d95b50255e47bd18d306d31a ]
+[ Upstream commit 089b91a0155c4de1209a07ff2a7dd299ff3ece47 ]
 
-This patch fixes a corner case where the asoc out stream count may change
-after wait_for_sndbuf.
+The force watchdog event bit is not cleared during SW reset in the
+mv88e6393x switch. This is a different behavior compared to mv886390 which
+clears the force WD event bit as advertised. This causes a force WD event
+to be handled over and over again as the SW reset following the event never
+clears the force WD event bit.
 
-When the main thread in the client starts a connection, if its out stream
-count is set to N while the in stream count in the server is set to N - 2,
-another thread in the client keeps sending the msgs with stream number
-N - 1, and waits for sndbuf before processing INIT_ACK.
+Explicitly clear the watchdog event register to 0 in irq_action when
+handling an event to prevent the switch from sending continuous interrupts.
+Marvell aren't aware of any other stuck bits apart from the force WD
+bit.
 
-However, after processing INIT_ACK, the out stream count in the client is
-shrunk to N - 2, the same to the in stream count in the server. The crash
-occurs when the thread waiting for sndbuf is awake and sends the msg in a
-non-existing stream(N - 1), the call trace is as below:
-
-  KASAN: null-ptr-deref in range [0x0000000000000038-0x000000000000003f]
-  Call Trace:
-   <TASK>
-   sctp_cmd_send_msg net/sctp/sm_sideeffect.c:1114 [inline]
-   sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1777 [inline]
-   sctp_side_effects net/sctp/sm_sideeffect.c:1199 [inline]
-   sctp_do_sm+0x197d/0x5310 net/sctp/sm_sideeffect.c:1170
-   sctp_primitive_SEND+0x9f/0xc0 net/sctp/primitive.c:163
-   sctp_sendmsg_to_asoc+0x10eb/0x1a30 net/sctp/socket.c:1868
-   sctp_sendmsg+0x8d4/0x1d90 net/sctp/socket.c:2026
-   inet_sendmsg+0x9d/0xe0 net/ipv4/af_inet.c:825
-   sock_sendmsg_nosec net/socket.c:722 [inline]
-   sock_sendmsg+0xde/0x190 net/socket.c:745
-
-The fix is to add an unlikely check for the send stream number after the
-thread wakes up from the wait_for_sndbuf.
-
-Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
-Reported-by: syzbot+47c24ca20a2fa01f082e@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Fixes: de776d0d316f ("net: dsa: mv88e6xxx: add support for mv88e6393x family"
+Signed-off-by: Gustav Ekelund <gustaek@axis.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c    |  2 +-
+ drivers/net/dsa/mv88e6xxx/global2.c | 20 ++++++++++++++++++++
+ drivers/net/dsa/mv88e6xxx/global2.h |  1 +
+ 3 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index 83628c347744b..507b2ad5ef7c7 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1829,6 +1829,10 @@ static int sctp_sendmsg_to_asoc(struct sctp_association *asoc,
- 		err = sctp_wait_for_sndbuf(asoc, &timeo, msg_len);
- 		if (err)
- 			goto err;
-+		if (unlikely(sinfo->sinfo_stream >= asoc->stream.outcnt)) {
-+			err = -EINVAL;
-+			goto err;
-+		}
- 	}
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 8211a4d373e81..e57d86484a3a4 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -5518,7 +5518,7 @@ static const struct mv88e6xxx_ops mv88e6393x_ops = {
+ 	 * .port_set_upstream_port method.
+ 	 */
+ 	.set_egress_port = mv88e6393x_set_egress_port,
+-	.watchdog_ops = &mv88e6390_watchdog_ops,
++	.watchdog_ops = &mv88e6393x_watchdog_ops,
+ 	.mgmt_rsvd2cpu = mv88e6393x_port_mgmt_rsvd2cpu,
+ 	.pot_clear = mv88e6xxx_g2_pot_clear,
+ 	.reset = mv88e6352_g1_reset,
+diff --git a/drivers/net/dsa/mv88e6xxx/global2.c b/drivers/net/dsa/mv88e6xxx/global2.c
+index fa65ecd9cb853..ec49939968fac 100644
+--- a/drivers/net/dsa/mv88e6xxx/global2.c
++++ b/drivers/net/dsa/mv88e6xxx/global2.c
+@@ -931,6 +931,26 @@ const struct mv88e6xxx_irq_ops mv88e6390_watchdog_ops = {
+ 	.irq_free = mv88e6390_watchdog_free,
+ };
  
- 	if (sctp_state(asoc, CLOSED)) {
++static int mv88e6393x_watchdog_action(struct mv88e6xxx_chip *chip, int irq)
++{
++	mv88e6390_watchdog_action(chip, irq);
++
++	/* Fix for clearing the force WD event bit.
++	 * Unreleased erratum on mv88e6393x.
++	 */
++	mv88e6xxx_g2_write(chip, MV88E6390_G2_WDOG_CTL,
++			   MV88E6390_G2_WDOG_CTL_UPDATE |
++			   MV88E6390_G2_WDOG_CTL_PTR_EVENT);
++
++	return IRQ_HANDLED;
++}
++
++const struct mv88e6xxx_irq_ops mv88e6393x_watchdog_ops = {
++	.irq_action = mv88e6393x_watchdog_action,
++	.irq_setup = mv88e6390_watchdog_setup,
++	.irq_free = mv88e6390_watchdog_free,
++};
++
+ static irqreturn_t mv88e6xxx_g2_watchdog_thread_fn(int irq, void *dev_id)
+ {
+ 	struct mv88e6xxx_chip *chip = dev_id;
+diff --git a/drivers/net/dsa/mv88e6xxx/global2.h b/drivers/net/dsa/mv88e6xxx/global2.h
+index 7536b8b0ad011..c05fad5c9f19d 100644
+--- a/drivers/net/dsa/mv88e6xxx/global2.h
++++ b/drivers/net/dsa/mv88e6xxx/global2.h
+@@ -363,6 +363,7 @@ int mv88e6xxx_g2_device_mapping_write(struct mv88e6xxx_chip *chip, int target,
+ extern const struct mv88e6xxx_irq_ops mv88e6097_watchdog_ops;
+ extern const struct mv88e6xxx_irq_ops mv88e6250_watchdog_ops;
+ extern const struct mv88e6xxx_irq_ops mv88e6390_watchdog_ops;
++extern const struct mv88e6xxx_irq_ops mv88e6393x_watchdog_ops;
+ 
+ extern const struct mv88e6xxx_avb_ops mv88e6165_avb_ops;
+ extern const struct mv88e6xxx_avb_ops mv88e6352_avb_ops;
 -- 
 2.39.2
 
