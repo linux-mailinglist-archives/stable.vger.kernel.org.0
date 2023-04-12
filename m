@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9FB6DEE38
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E056DEEDE
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230498AbjDLIlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46274 "EHLO
+        id S229595AbjDLIpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231249AbjDLIkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E47E7D91
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:43 -0700 (PDT)
+        with ESMTP id S230432AbjDLIpe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7831F83C5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:45:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8E1062FF9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA8AAC433D2;
-        Wed, 12 Apr 2023 08:38:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52602630D8
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A386C433EF;
+        Wed, 12 Apr 2023 08:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288703;
-        bh=qmjZbcL6VUI+7bN9ySIP4mIQ6Ik9bk71S9ipV3KubHE=;
+        s=korg; t=1681289106;
+        bh=jqbRiG1QbWPJ82vKpPrnA6fu2aljNFusuSdXKBZJpvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqBd4Cfpt+2RmepchuVArZjws2U55vmI5K6XUEMCgZR9/KstFuvLPQ7V51jH6Lu5A
-         6GQ4FFezI/uhu59qNdGh+hnXdFGfNYlsQ+OfdMt6qkLC9z6GeylEbiH029V0qu16SL
-         bVezftXCeVVornzzJDkDtKevYBYkOUzeRgMGJW14=
+        b=YfG7dMDrUJW9/jLNUvpsfyPpnzkOJ72L9TdL4PpC43VDTZK46wHhw0QyiqELKLiPL
+         XTZ4/GbBrTjPIZXc6vRAovPlLQp65WBVl2Krrpnv3r0iNE7KrtZAWs4PaB3klktuEZ
+         cczHS+MuPpI4OIlJrzv8E6ltsIgWVQhYOXeSwFuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Thiago Rafael Becker <tbecker@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 78/93] cifs: sanitize paths in cifs_update_super_prepath.
-Date:   Wed, 12 Apr 2023 10:34:19 +0200
-Message-Id: <20230412082826.423305083@linuxfoundation.org>
+        Yongchen Yin <wb-yyc939293@alibaba-inc.com>,
+        Rongwei Wang <rongwei.wang@linux.alibaba.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Aaron Lu <aaron.lu@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 138/164] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+Date:   Wed, 12 Apr 2023 10:34:20 +0200
+Message-Id: <20230412082842.479890051@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,98 +58,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thiago Rafael Becker <tbecker@redhat.com>
+From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
 
-[ Upstream commit d19342c6609b67f2ba83b9eccca2777e3687f625 ]
+commit 6fe7d6b992113719e96744d974212df3fcddc76c upstream.
 
-After a server reboot, clients are failing to move files with ENOENT.
-This is caused by DFS referrals containing multiple separators, which
-the server move call doesn't recognize.
+The si->lock must be held when deleting the si from the available list.
+Otherwise, another thread can re-add the si to the available list, which
+can lead to memory corruption.  The only place we have found where this
+happens is in the swapoff path.  This case can be described as below:
 
-v1: Initial patch.
-v2: Move prototype to header.
+core 0                       core 1
+swapoff
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2182472
-Fixes: a31080899d5f ("cifs: sanitize multiple delimiters in prepath")
-Actually-Fixes: 24e0a1eff9e2 ("cifs: switch to new mount api")
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Signed-off-by: Thiago Rafael Becker <tbecker@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+del_from_avail_list(si)      waiting
+
+try lock si->lock            acquire swap_avail_lock
+                             and re-add si into
+                             swap_avail_head
+
+acquire si->lock but missing si already being added again, and continuing
+to clear SWP_WRITEOK, etc.
+
+It can be easily found that a massive warning messages can be triggered
+inside get_swap_pages() by some special cases, for example, we call
+madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
+run much swapon-swapoff operations (e.g.  stress-ng-swap).
+
+However, in the worst case, panic can be caused by the above scene.  In
+swapoff(), the memory used by si could be kept in swap_info[] after
+turning off a swap.  This means memory corruption will not be caused
+immediately until allocated and reset for a new swap in the swapon path.
+A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
+
+------------[ cut here ]------------
+top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
+prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
+next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
+WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
+Modules linked in: rfkill(E) crct10dif_ce(E)...
+CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
+Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+pc : plist_check_prev_next_node+0x50/0x70
+lr : plist_check_prev_next_node+0x50/0x70
+sp : ffff0018009d3c30
+x29: ffff0018009d3c40 x28: ffff800011b32a98
+x27: 0000000000000000 x26: ffff001803908000
+x25: ffff8000128ea088 x24: ffff800011b32a48
+x23: 0000000000000028 x22: ffff001800875c00
+x21: ffff800010f9e520 x20: ffff001800875c00
+x19: ffff001800fdc6e0 x18: 0000000000000030
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0736076307640766 x14: 0730073007380731
+x13: 0736076307640766 x12: 0730073007380731
+x11: 000000000004058d x10: 0000000085a85b76
+x9 : ffff8000101436e4 x8 : ffff800011c8ce08
+x7 : 0000000000000000 x6 : 0000000000000001
+x5 : ffff0017df9ed338 x4 : 0000000000000001
+x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ plist_check_prev_next_node+0x50/0x70
+ plist_check_head+0x80/0xf0
+ plist_add+0x28/0x140
+ add_to_avail_list+0x9c/0xf0
+ _enable_swap_info+0x78/0xb4
+ __do_sys_swapon+0x918/0xa10
+ __arm64_sys_swapon+0x20/0x30
+ el0_svc_common+0x8c/0x220
+ do_el0_svc+0x2c/0x90
+ el0_svc+0x1c/0x30
+ el0_sync_handler+0xa8/0xb0
+ el0_sync+0x148/0x180
+irq event stamp: 2082270
+
+Now, si->lock locked before calling 'del_from_avail_list()' to make sure
+other thread see the si had been deleted and SWP_WRITEOK cleared together,
+will not reinsert again.
+
+This problem exists in versions after stable 5.10.y.
+
+Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
+Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node")
+Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
+Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Cc: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Aaron Lu <aaron.lu@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/fs_context.c | 13 +++++++------
- fs/cifs/fs_context.h |  3 +++
- fs/cifs/misc.c       |  2 +-
- 3 files changed, 11 insertions(+), 7 deletions(-)
+ mm/swapfile.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/fs_context.c b/fs/cifs/fs_context.c
-index 85ad0c9e2f8b5..8455db6a26f5a 100644
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -437,13 +437,14 @@ int smb3_parse_opt(const char *options, const char *key, char **val)
-  * but there are some bugs that prevent rename from working if there are
-  * multiple delimiters.
-  *
-- * Returns a sanitized duplicate of @path. The caller is responsible for
-- * cleaning up the original.
-+ * Returns a sanitized duplicate of @path. @gfp indicates the GFP_* flags
-+ * for kstrdup.
-+ * The caller is responsible for freeing the original.
-  */
- #define IS_DELIM(c) ((c) == '/' || (c) == '\\')
--static char *sanitize_path(char *path)
-+char *cifs_sanitize_prepath(char *prepath, gfp_t gfp)
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -679,6 +679,7 @@ static void __del_from_avail_list(struct
  {
--	char *cursor1 = path, *cursor2 = path;
-+	char *cursor1 = prepath, *cursor2 = prepath;
+ 	int nid;
  
- 	/* skip all prepended delimiters */
- 	while (IS_DELIM(*cursor1))
-@@ -465,7 +466,7 @@ static char *sanitize_path(char *path)
- 		cursor2--;
- 
- 	*(cursor2) = '\0';
--	return kstrdup(path, GFP_KERNEL);
-+	return kstrdup(prepath, gfp);
++	assert_spin_locked(&p->lock);
+ 	for_each_node(nid)
+ 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
  }
- 
- /*
-@@ -527,7 +528,7 @@ smb3_parse_devname(const char *devname, struct smb3_fs_context *ctx)
- 	if (!*pos)
- 		return 0;
- 
--	ctx->prepath = sanitize_path(pos);
-+	ctx->prepath = cifs_sanitize_prepath(pos, GFP_KERNEL);
- 	if (!ctx->prepath)
- 		return -ENOMEM;
- 
-diff --git a/fs/cifs/fs_context.h b/fs/cifs/fs_context.h
-index ad45256cf68e2..3cf8d6235162d 100644
---- a/fs/cifs/fs_context.h
-+++ b/fs/cifs/fs_context.h
-@@ -283,4 +283,7 @@ extern void smb3_update_mnt_flags(struct cifs_sb_info *cifs_sb);
-  */
- #define SMB3_MAX_DCLOSETIMEO (1 << 30)
- #define SMB3_DEF_DCLOSETIMEO (1 * HZ) /* even 1 sec enough to help eg open/write/close/open/read */
-+
-+extern char *cifs_sanitize_prepath(char *prepath, gfp_t gfp);
-+
- #endif
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
-index 3a90ee314ed73..300f5f382e43f 100644
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -1301,7 +1301,7 @@ int cifs_update_super_prepath(struct cifs_sb_info *cifs_sb, char *prefix)
- 	kfree(cifs_sb->prepath);
- 
- 	if (prefix && *prefix) {
--		cifs_sb->prepath = kstrdup(prefix, GFP_ATOMIC);
-+		cifs_sb->prepath = cifs_sanitize_prepath(prefix, GFP_ATOMIC);
- 		if (!cifs_sb->prepath)
- 			return -ENOMEM;
- 
--- 
-2.39.2
-
+@@ -2428,8 +2429,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
+ 		spin_unlock(&swap_lock);
+ 		goto out_dput;
+ 	}
+-	del_from_avail_list(p);
+ 	spin_lock(&p->lock);
++	del_from_avail_list(p);
+ 	if (p->prio < 0) {
+ 		struct swap_info_struct *si = p;
+ 		int nid;
 
 
