@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DBD6DEDFE
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F736DEE9E
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbjDLIjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
+        id S230491AbjDLInz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:43:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbjDLIiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:52 -0400
+        with ESMTP id S231177AbjDLInj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D33310FA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A9C7AAF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B47462FDB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E23FC433EF;
-        Wed, 12 Apr 2023 08:35:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9CC46309B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:42:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08F0DC433D2;
+        Wed, 12 Apr 2023 08:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288529;
-        bh=ju/phb9Tili4DIEqsqtxvNNopKuJX9yrO1bT4S+g86M=;
+        s=korg; t=1681288935;
+        bh=AaZnGgDqsWDGLy+0hDLUeAk3IV+nja+M/w+5G3rRoSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csedh01mV17QSqp1rrFwNHC7EdF1qZl4Db3JPbntb0ssePwF1Z/2kT9nfos2HimXb
-         sjWhIliknArerAtc0dONgSuzeixFZLO7kqXmFonE3ezJfAXpCG+6yZmIBLCRliDJbX
-         WFIDMLznuBkuskiIFLb4PAOu/WuCAIb+GialCJTw=
+        b=gvYqKhQL1k5NlkBMqhHihNtS1MnYsHTTjegua+NEO+A9vDopfUz16+IsnCkGZb81s
+         JyOvx3M72XEbb0dwH242+QwHQXSq93MCPwldq76dHNF/B0LOQaDH+ewq2rmt1WoXS/
+         hs7m0iwZwR2wzLgP2QY7j7NVVlMg9NgtxbVRJA/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 13/93] RDMA/irdma: Do not request 2-level PBLEs for CQ alloc
-Date:   Wed, 12 Apr 2023 10:33:14 +0200
-Message-Id: <20230412082823.597062982@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.1 073/164] iio: adc: qcom-spmi-adc5: Fix the channel name
+Date:   Wed, 12 Apr 2023 10:33:15 +0200
+Message-Id: <20230412082839.863803113@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 8f7e2daa6336f9f4b6f8a4715a809674606df16b ]
+commit 701c875aded880013aacac608832995c4b052257 upstream.
 
-When allocating PBLE's for a large CQ, it is possible
-that a 2-level PBLE is returned which would cause the
-CQ allocation to fail since 1-level is assumed and checked for.
-Fix this by requesting a level one PBLE only.
+The node name can contain an address part which is unused
+by the driver. Moreover, this string is propagated into
+the userspace label, sysfs filenames *and breaking ABI*.
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20221115011701.1379-4-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cut the address part out before assigning the channel name.
+
+Fixes: 4f47a236a23d ("iio: adc: qcom-spmi-adc5: convert to device properties")
+Reported-by: Marijn Suijten <marijn.suijten@somainline.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
+Link: https://lore.kernel.org/r/20230118100623.42255-1-andriy.shevchenko@linux.intel.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/irdma/verbs.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/iio/adc/qcom-spmi-adc5.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index c5971a840b876..27f22d595a5dc 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -2272,9 +2272,10 @@ static bool irdma_check_mr_contiguous(struct irdma_pble_alloc *palloc,
-  * @rf: RDMA PCI function
-  * @iwmr: mr pointer for this memory registration
-  * @use_pbles: flag if to use pble's
-+ * @lvl_1_only: request only level 1 pble if true
-  */
- static int irdma_setup_pbles(struct irdma_pci_f *rf, struct irdma_mr *iwmr,
--			     bool use_pbles)
-+			     bool use_pbles, bool lvl_1_only)
+diff --git a/drivers/iio/adc/qcom-spmi-adc5.c b/drivers/iio/adc/qcom-spmi-adc5.c
+index 821fee60a765..d1b86570768a 100644
+--- a/drivers/iio/adc/qcom-spmi-adc5.c
++++ b/drivers/iio/adc/qcom-spmi-adc5.c
+@@ -626,12 +626,20 @@ static int adc5_get_fw_channel_data(struct adc5_chip *adc,
+ 				    struct fwnode_handle *fwnode,
+ 				    const struct adc5_data *data)
  {
- 	struct irdma_pbl *iwpbl = &iwmr->iwpbl;
- 	struct irdma_pble_alloc *palloc = &iwpbl->pble_alloc;
-@@ -2285,7 +2286,7 @@ static int irdma_setup_pbles(struct irdma_pci_f *rf, struct irdma_mr *iwmr,
+-	const char *name = fwnode_get_name(fwnode), *channel_name;
++	const char *channel_name;
++	char *name;
+ 	u32 chan, value, varr[2];
+ 	u32 sid = 0;
+ 	int ret;
+ 	struct device *dev = adc->dev;
  
- 	if (use_pbles) {
- 		status = irdma_get_pble(rf->pble_rsrc, palloc, iwmr->page_cnt,
--					false);
-+					lvl_1_only);
- 		if (status)
- 			return -ENOMEM;
- 
-@@ -2328,16 +2329,10 @@ static int irdma_handle_q_mem(struct irdma_device *iwdev,
- 	bool ret = true;
- 
- 	pg_size = iwmr->page_size;
--	err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles);
-+	err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles, true);
- 	if (err)
- 		return err;
- 
--	if (use_pbles && palloc->level != PBLE_LEVEL_1) {
--		irdma_free_pble(iwdev->rf->pble_rsrc, palloc);
--		iwpbl->pbl_allocated = false;
--		return -ENOMEM;
--	}
--
- 	if (use_pbles)
- 		arr = palloc->level1.addr;
- 
-@@ -2808,7 +2803,7 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
- 	case IRDMA_MEMREG_TYPE_MEM:
- 		use_pbles = (iwmr->page_cnt != 1);
- 
--		err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles);
-+		err = irdma_setup_pbles(iwdev->rf, iwmr, use_pbles, false);
- 		if (err)
- 			goto error;
- 
++	name = devm_kasprintf(dev, GFP_KERNEL, "%pfwP", fwnode);
++	if (!name)
++		return -ENOMEM;
++
++	/* Cut the address part */
++	name[strchrnul(name, '@') - name] = '\0';
++
+ 	ret = fwnode_property_read_u32(fwnode, "reg", &chan);
+ 	if (ret) {
+ 		dev_err(dev, "invalid channel number %s\n", name);
 -- 
-2.39.2
+2.40.0
 
 
 
