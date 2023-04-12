@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D7F6DEF49
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B216DEE7C
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbjDLIta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S230429AbjDLIlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231260AbjDLIt0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:26 -0400
+        with ESMTP id S231135AbjDLIlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25C4D7AA8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3BA5FDA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2162628B8
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0CBC433EF;
-        Wed, 12 Apr 2023 08:48:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B47062FD3
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F84AC433D2;
+        Wed, 12 Apr 2023 08:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289329;
-        bh=LwYiKpVI7U1V7BfG1v/KuTbzsmNUe1U52wW6R+vDd+Y=;
+        s=korg; t=1681288828;
+        bh=sIgyhsMwk7QVMipQvGKzZroEFlStJQRzxjaDDwVLo8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWS5JdTE4xjixV3XU7uJ0V2RJbHraPO7Gl+bs2go9VajYxdJ2dQgV4n5CqBELBN3J
-         qG2gvHQE3IOnQk453shlMkpgEKyi1vsWEWFXTdPTHMN4WYDphlKHTPXcWjWlaZUs57
-         VbThKZUZjaIzuIWYKlo4ZR+xbX9FtDCCsfgteRuA=
+        b=JamJJTMdbPLSbsY/NdVFbnngOObqzkZztfiPCK8LYSabGM13YaQ2bu3m29PKX1qcf
+         WyZG2SLHqbhmB2UOfKwrOSD216auKRJsBY80M/o/Z4I1ArvJ1s409+j00rCSitnRpP
+         WmOtiozUV7AiD6cVbPuMxKaggWhIcoF8oxynTyuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 028/173] ALSA: hda/hdmi: Preserve the previous PCM device upon re-enablement
+        patches@lists.linux.dev, Roman Gushchin <roman.gushchin@linux.dev>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 032/164] net: dont let netpoll invoke NAPI if in xmit context
 Date:   Wed, 12 Apr 2023 10:32:34 +0200
-Message-Id: <20230412082839.233246170@linuxfoundation.org>
+Message-Id: <20230412082838.275739107@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit f785f5ee968f7045268b8be6b0abc850c4a4277c ]
+[ Upstream commit 275b471e3d2daf1472ae8fa70dc1b50c9e0b9e75 ]
 
-When a DRM driver turns on or off the screen with the audio
-capability, it notifies the ELD to HD-audio HDMI codec driver via
-component ops.  HDMI codec driver, in turn, attaches or detaches the
-PCM stream for the given port on the fly.
+Commit 0db3dc73f7a3 ("[NETPOLL]: tx lock deadlock fix") narrowed
+down the region under netif_tx_trylock() inside netpoll_send_skb().
+(At that point in time netif_tx_trylock() would lock all queues of
+the device.) Taking the tx lock was problematic because driver's
+cleanup method may take the same lock. So the change made us hold
+the xmit lock only around xmit, and expected the driver to take
+care of locking within ->ndo_poll_controller().
 
-The problem is that, since the recent code change, the HDMI driver
-always treats the PCM stream assignment dynamically; this ended up the
-confusion of the PCM device appearance.  e.g. when a screen goes once
-off and on again, it may appear on a different PCM device before the
-screen-off.  Although the application should treat such a change, it
-doesn't seem working gracefully with the current pipewire (maybe
-PulseAudio, too).
+Unfortunately this only works if netpoll isn't itself called with
+the xmit lock already held. Netpoll code is careful and uses
+trylock(). The drivers, however, may be using plain lock().
+Printing while holding the xmit lock is going to result in rare
+deadlocks.
 
-As a workaround, this patch changes the HDMI codec driver behavior
-slightly to be more consistent.  Now it remembers the previous PCM
-slot for the given port and try to assign to it.  That is, if a port
-is re-enabled, the driver tries to use the same PCM slot that was
-assigned to that port previously.  If it conflicts, a new slot is
-searched and used like before, instead.
+Luckily we record the xmit lock owners, so we can scan all the queues,
+the same way we scan NAPI owners. If any of the xmit locks is held
+by the local CPU we better not attempt any polling.
 
-Note that multiple monitor connections are the only typical case where
-the PCM slot preservation is effective.  As long as only a single
-monitor is connected, the behavior isn't changed, and the first PCM
-slot is still assigned always.
+It would be nice if we could narrow down the check to only the NAPIs
+and the queue we're trying to use. I don't see a way to do that now.
 
-Fixes: ef6f5494faf6 ("ALSA: hda/hdmi: Use only dynamic PCM device allocation")
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217259
-Link: https://lore.kernel.org/r/20230331142217.19791-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Roman Gushchin <roman.gushchin@linux.dev>
+Fixes: 0db3dc73f7a3 ("[NETPOLL]: tx lock deadlock fix")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/core/netpoll.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 9ea633fe93393..4ffa3a59f419f 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -81,6 +81,7 @@ struct hdmi_spec_per_pin {
- 	struct delayed_work work;
- 	struct hdmi_pcm *pcm; /* pointer to spec->pcm_rec[n] dynamically*/
- 	int pcm_idx; /* which pcm is attached. -1 means no pcm is attached */
-+	int prev_pcm_idx; /* previously assigned pcm index */
- 	int repoll_count;
- 	bool setup; /* the stream has been set up by prepare callback */
- 	bool silent_stream;
-@@ -1380,9 +1381,17 @@ static void hdmi_attach_hda_pcm(struct hdmi_spec *spec,
- 	/* pcm already be attached to the pin */
- 	if (per_pin->pcm)
- 		return;
-+	/* try the previously used slot at first */
-+	idx = per_pin->prev_pcm_idx;
-+	if (idx >= 0) {
-+		if (!test_bit(idx, &spec->pcm_bitmap))
-+			goto found;
-+		per_pin->prev_pcm_idx = -1; /* no longer valid, clear it */
-+	}
- 	idx = hdmi_find_pcm_slot(spec, per_pin);
- 	if (idx == -EBUSY)
- 		return;
-+ found:
- 	per_pin->pcm_idx = idx;
- 	per_pin->pcm = get_hdmi_pcm(spec, idx);
- 	set_bit(idx, &spec->pcm_bitmap);
-@@ -1398,6 +1407,7 @@ static void hdmi_detach_hda_pcm(struct hdmi_spec *spec,
- 		return;
- 	idx = per_pin->pcm_idx;
- 	per_pin->pcm_idx = -1;
-+	per_pin->prev_pcm_idx = idx; /* remember the previous index */
- 	per_pin->pcm = NULL;
- 	if (idx >= 0 && idx < spec->pcm_used)
- 		clear_bit(idx, &spec->pcm_bitmap);
-@@ -1924,6 +1934,7 @@ static int hdmi_add_pin(struct hda_codec *codec, hda_nid_t pin_nid)
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index 9be762e1d0428..4ac8d0ad9f6fc 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -137,6 +137,20 @@ static void queue_process(struct work_struct *work)
+ 	}
+ }
  
- 		per_pin->pcm = NULL;
- 		per_pin->pcm_idx = -1;
-+		per_pin->prev_pcm_idx = -1;
- 		per_pin->pin_nid = pin_nid;
- 		per_pin->pin_nid_idx = spec->num_nids;
- 		per_pin->dev_id = i;
++static int netif_local_xmit_active(struct net_device *dev)
++{
++	int i;
++
++	for (i = 0; i < dev->num_tx_queues; i++) {
++		struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
++
++		if (READ_ONCE(txq->xmit_lock_owner) == smp_processor_id())
++			return 1;
++	}
++
++	return 0;
++}
++
+ static void poll_one_napi(struct napi_struct *napi)
+ {
+ 	int work;
+@@ -183,7 +197,10 @@ void netpoll_poll_dev(struct net_device *dev)
+ 	if (!ni || down_trylock(&ni->dev_lock))
+ 		return;
+ 
+-	if (!netif_running(dev)) {
++	/* Some drivers will take the same locks in poll and xmit,
++	 * we can't poll if local CPU is already in xmit.
++	 */
++	if (!netif_running(dev) || netif_local_xmit_active(dev)) {
+ 		up(&ni->dev_lock);
+ 		return;
+ 	}
 -- 
 2.39.2
 
