@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B75776DEF8B
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907AB6DEE42
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231363AbjDLIvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39688 "EHLO
+        id S230361AbjDLIlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbjDLIvj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:39 -0400
+        with ESMTP id S231340AbjDLIkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AF56E9F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DB1E65
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A47946317C
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B68ACC433EF;
-        Wed, 12 Apr 2023 08:51:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CF8B6302F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BAB4C433EF;
+        Wed, 12 Apr 2023 08:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289478;
-        bh=JJ9nssTwufA28MFU7n5bX97ooj8HJFUxVwvZdpFq9ks=;
+        s=korg; t=1681288731;
+        bh=FQS306GDYfd638mZ9jZ7/P8HzcxEzggpFUj6t28B4c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ltLsP2WYVR0WLllpH1fX3YVD4Wh9F0GPa2uPCkWoRQzdTRnFexR1wjNIAsCaheByv
-         TqB+1sPu+oHcGlGSS93Qlux77aCHXZjzTa4kHmkSxCepoBgmA4nnVzeJ1pukm5hC/W
-         p8v4UDY7oMqm/y5AG9jqH3/BCzC1Xiz51eIy+gO8=
+        b=RgQ9KNK/nnZT+1/e5XR3TevIcHqg+XYaPN9Kq5EZ6mm6HPFFJPKE422bJ+PmeTmL8
+         tXVq/kloHoWZT/PDUMcJq0xAY208EPa5VD9j6nRTCFuu0R+MpJ7K5IjCMzKwVB+LHu
+         a/bv9ku+UiCn5GDjNjyCte3NBOuion45h0DDCqyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Sojka <michal.sojka@cvut.cz>,
-        Jakub Jira <jirajak2@fel.cvut.cz>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 6.2 114/173] can: isotp: isotp_ops: fix poll() to not report false EPOLLOUT events
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 59/93] iio: adis16480: select CONFIG_CRC32
 Date:   Wed, 12 Apr 2023 10:34:00 +0200
-Message-Id: <20230412082842.691135151@linuxfoundation.org>
+Message-Id: <20230412082825.622174714@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Sojka <michal.sojka@cvut.cz>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 79e19fa79cb5d5f1b3bf3e3ae24989ccb93c7b7b upstream.
+commit d9b540ee461cca7edca0dd2c2a42625c6b9ffb8f upstream.
 
-When using select()/poll()/epoll() with a non-blocking ISOTP socket to
-wait for when non-blocking write is possible, a false EPOLLOUT event
-is sometimes returned. This can happen at least after sending a
-message which must be split to multiple CAN frames.
+In rare randconfig builds, the missing CRC32 helper causes
+a link error:
 
-The reason is that isotp_sendmsg() returns -EAGAIN when tx.state is
-not equal to ISOTP_IDLE and this behavior is not reflected in
-datagram_poll(), which is used in isotp_ops.
+ld.lld: error: undefined symbol: crc32_le
+>>> referenced by usercopy_64.c
+>>>               vmlinux.o:(adis16480_trigger_handler)
 
-This is fixed by introducing ISOTP-specific poll function, which
-suppresses the EPOLLOUT events in that case.
-
-v2: https://lore.kernel.org/all/20230302092812.320643-1-michal.sojka@cvut.cz
-v1: https://lore.kernel.org/all/20230224010659.48420-1-michal.sojka@cvut.cz
-    https://lore.kernel.org/all/b53a04a2-ba1f-3858-84c1-d3eb3301ae15@hartkopp.net
-
-Signed-off-by: Michal Sojka <michal.sojka@cvut.cz>
-Reported-by: Jakub Jira <jirajak2@fel.cvut.cz>
-Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/20230331125511.372783-1-michal.sojka@cvut.cz
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 941f130881fa ("iio: adis16480: support burst read function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20230131094616.130238-1-arnd@kernel.org
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/iio/imu/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1615,6 +1615,21 @@ static int isotp_init(struct sock *sk)
- 	return 0;
- }
- 
-+static __poll_t isotp_poll(struct file *file, struct socket *sock, poll_table *wait)
-+{
-+	struct sock *sk = sock->sk;
-+	struct isotp_sock *so = isotp_sk(sk);
-+
-+	__poll_t mask = datagram_poll(file, sock, wait);
-+	poll_wait(file, &so->wait, wait);
-+
-+	/* Check for false positives due to TX state */
-+	if ((mask & EPOLLWRNORM) && (so->tx.state != ISOTP_IDLE))
-+		mask &= ~(EPOLLOUT | EPOLLWRNORM);
-+
-+	return mask;
-+}
-+
- static int isotp_sock_no_ioctlcmd(struct socket *sock, unsigned int cmd,
- 				  unsigned long arg)
- {
-@@ -1630,7 +1645,7 @@ static const struct proto_ops isotp_ops
- 	.socketpair = sock_no_socketpair,
- 	.accept = sock_no_accept,
- 	.getname = isotp_getname,
--	.poll = datagram_poll,
-+	.poll = isotp_poll,
- 	.ioctl = isotp_sock_no_ioctlcmd,
- 	.gettstamp = sock_gettstamp,
- 	.listen = sock_no_listen,
+diff --git a/drivers/iio/imu/Kconfig b/drivers/iio/imu/Kconfig
+index f1d7d4b5e222..c2f97629e9cd 100644
+--- a/drivers/iio/imu/Kconfig
++++ b/drivers/iio/imu/Kconfig
+@@ -47,6 +47,7 @@ config ADIS16480
+ 	depends on SPI
+ 	select IIO_ADIS_LIB
+ 	select IIO_ADIS_LIB_BUFFER if IIO_BUFFER
++	select CRC32
+ 	help
+ 	  Say yes here to build support for Analog Devices ADIS16375, ADIS16480,
+ 	  ADIS16485, ADIS16488 inertial sensors.
+-- 
+2.40.0
+
 
 
