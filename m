@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A786DEE9B
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BCE6DEF27
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230516AbjDLInd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:43:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S231258AbjDLIs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:48:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230227AbjDLInO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:43:14 -0400
+        with ESMTP id S231283AbjDLIsY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8ACF975A
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:42:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012DC526C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:47:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FBEF6306F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50F8C433D2;
-        Wed, 12 Apr 2023 08:41:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B4C562FEB
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 509B3C433D2;
+        Wed, 12 Apr 2023 08:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288912;
-        bh=J8k/ZPAuNUgwFx/OaEXQKRiBPzPd7xSlMUB02YKmDRc=;
+        s=korg; t=1681288550;
+        bh=8nZZtkfRU+EOKvdXq+dYm6NHfKhuy0LKOrnaHWTjVYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzAyT3DIku+MYUyzA1h4drN/sjh9CjtYB5uwlcuGv79Qx2IQ0JqaD7dvveogIFFBu
-         Go1Mn/SE7p/XAE8B6XTFmoe6F/M5SGgxQ9qu53D8xxchWC/YbqTR9uPcMZU9XelpcI
-         chYG4JCMbsHNFCOgwWW6GnfqwKXR/zKh+WFOgGgQ=
+        b=jZFeU13blfQ9Ni6C9MC7rFVsEWBmwgp/2D1aTvfVN0qTD2BLJxsIsYh5u0hw+Y0Yz
+         SoTfPrQVwVuXj7VPebn3+MONXy/HA1XG2PuBDeYybq4J8b4EFmSoa4djU2FcIHtRP6
+         rt8ZmXuitry7eoBggtzTJtShvsKzqdk2WNyBbXoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        D Scott Phillips <scott@os.amperecomputing.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 6.1 064/164] xhci: also avoid the XHCI_ZERO_64B_REGS quirk with a passthrough iommu
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 05/93] soc: sifive: ccache: fix missing iounmap() in error path in sifive_ccache_init()
 Date:   Wed, 12 Apr 2023 10:33:06 +0200
-Message-Id: <20230412082839.524912340@linuxfoundation.org>
+Message-Id: <20230412082823.279066545@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D Scott Phillips <scott@os.amperecomputing.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit ecaa4902439298f6b0e29f47424a86b310a9ff4f upstream.
+[ Upstream commit 73e770f085023da327dc9ffeb6cd96b0bb22d97e ]
 
-Previously the quirk was skipped when no iommu was present. The same
-rationale for skipping the quirk also applies in the iommu.passthrough=1
-case.
+Add missing iounmap() before return error from sifive_ccache_init().
 
-Skip applying the XHCI_ZERO_64B_REGS quirk if the device's iommu domain is
-passthrough.
-
-Fixes: 12de0a35c996 ("xhci: Add quirk to zero 64bit registers on Renesas PCIe controllers")
-Cc: stable <stable@kernel.org>
-Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20230330143056.1390020-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/soc/sifive/sifive_ccache.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -9,6 +9,7 @@
-  */
+diff --git a/drivers/soc/sifive/sifive_ccache.c b/drivers/soc/sifive/sifive_ccache.c
+index 91f0c2b32ea2b..335e4303fb928 100644
+--- a/drivers/soc/sifive/sifive_ccache.c
++++ b/drivers/soc/sifive/sifive_ccache.c
+@@ -216,13 +216,16 @@ static int __init sifive_ccache_init(void)
+ 	if (!ccache_base)
+ 		return -ENOMEM;
  
- #include <linux/pci.h>
-+#include <linux/iommu.h>
- #include <linux/iopoll.h>
- #include <linux/irq.h>
- #include <linux/log2.h>
-@@ -228,6 +229,7 @@ int xhci_reset(struct xhci_hcd *xhci, u6
- static void xhci_zero_64b_regs(struct xhci_hcd *xhci)
- {
- 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
-+	struct iommu_domain *domain;
- 	int err, i;
- 	u64 val;
- 	u32 intrs;
-@@ -246,7 +248,9 @@ static void xhci_zero_64b_regs(struct xh
- 	 * an iommu. Doing anything when there is no iommu is definitely
- 	 * unsafe...
- 	 */
--	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !device_iommu_mapped(dev))
-+	domain = iommu_get_domain_for_dev(dev);
-+	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !domain ||
-+	    domain->type == IOMMU_DOMAIN_IDENTITY)
- 		return;
+-	if (of_property_read_u32(np, "cache-level", &level))
+-		return -ENOENT;
++	if (of_property_read_u32(np, "cache-level", &level)) {
++		rc = -ENOENT;
++		goto err_unmap;
++	}
  
- 	xhci_info(xhci, "Zeroing 64bit base registers, expecting fault\n");
+ 	intr_num = of_property_count_u32_elems(np, "interrupts");
+ 	if (!intr_num) {
+ 		pr_err("No interrupts property\n");
+-		return -ENODEV;
++		rc = -ENODEV;
++		goto err_unmap;
+ 	}
+ 
+ 	for (i = 0; i < intr_num; i++) {
+@@ -231,7 +234,7 @@ static int __init sifive_ccache_init(void)
+ 				 NULL);
+ 		if (rc) {
+ 			pr_err("Could not request IRQ %d\n", g_irq[i]);
+-			return rc;
++			goto err_unmap;
+ 		}
+ 	}
+ 
+@@ -244,6 +247,10 @@ static int __init sifive_ccache_init(void)
+ 	setup_sifive_debug();
+ #endif
+ 	return 0;
++
++err_unmap:
++	iounmap(ccache_base);
++	return rc;
+ }
+ 
+ device_initcall(sifive_ccache_init);
+-- 
+2.39.2
+
 
 
