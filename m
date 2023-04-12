@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEB76DEEB3
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC086DEEB5
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230492AbjDLIo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
+        id S230501AbjDLIo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230495AbjDLIoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:12 -0400
+        with ESMTP id S231157AbjDLIoO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C028869B
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A00FD
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:43:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C528630BC
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB89C433D2;
-        Wed, 12 Apr 2023 08:43:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6750630BE
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDCF1C433EF;
+        Wed, 12 Apr 2023 08:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288993;
-        bh=6h/sY1dLM0/Z6oJ4Ojx075PAmh8I3r/WsT//+vTg//Q=;
+        s=korg; t=1681288998;
+        bh=Nu44ymle03dOZ7+jAaV71SrqUhCT+O1lzsq1ySYOKDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWaRGUeA93KXrDOspdZS+cGjozw7ahaPPMEWyxYv4HwvYCd9DS5o+slB+/zZyFGyQ
-         /NdPD/L5QXRfF2jVE2uU3FOF6jQTtktHp25MnbSX1UJtVFknMRdYLl9UvRIFHaYsp0
-         zAml6uzD20phj4MH0PhYjDp74ywmxLp5w/WFPA9M=
+        b=cJie+wHkgyd0G+7LugA/Y5hqSJVy9rr2PVKmdUcSWEuiZ8wbigJXpCBZHFc/hmmWx
+         i3YHfqILOZJ6uYcAqEbb2REjLBGKleraOse5entIEmKl2OFt20DViIQXBjsaIQ0uQ9
+         J7mOUVsccbgA2ysOnOnyAe06hb1oQHf/caQ3kv2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Steve Clevenger <scclevenger@os.amperecomputing.com>,
-        Mike Leach <mike.leach@linaro.org>,
         James Clark <james.clark@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 6.1 096/164] coresight: etm4x: Do not access TRCIDR1 for identification
-Date:   Wed, 12 Apr 2023 10:33:38 +0200
-Message-Id: <20230412082840.747997308@linuxfoundation.org>
+Subject: [PATCH 6.1 097/164] coresight-etm4: Fix for() loop drvdata->nr_addr_cmp range bug
+Date:   Wed, 12 Apr 2023 10:33:39 +0200
+Message-Id: <20230412082840.786756421@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
 References: <20230412082836.695875037@linuxfoundation.org>
@@ -57,113 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Steve Clevenger <scclevenger@os.amperecomputing.com>
 
-commit 735e7b30a53a1679c050cddb73f5e5316105d2e3 upstream.
+commit bf84937e882009075f57fd213836256fc65d96bc upstream.
 
-CoreSight ETM4x architecture clearly provides ways to identify a device
-via registers in the "Management" class, TRCDEVARCH and TRCDEVTYPE. These
-registers can be accessed without the Trace domain being powered on.
-We additionally added TRCIDR1 as fallback in order to cover for any
-ETMs that may not have implemented TRCDEVARCH. So far, nobody has
-reported hitting a WARNING we placed to catch such systems.
+In etm4_enable_hw, fix for() loop range to represent address comparator pairs.
 
-Also, more importantly it is problematic to access TRCIDR1, which is a
-"Trace" register via MMIO access, without clearing the OSLK. But we cannot
-mess with the OSLK until we know for sure that this is an ETMv4 device.
-Thus, this kind of creates a chicken and egg problem unnecessarily for
-systems "which are compliant" to the ETMv4 architecture.
-
-Let us remove the TRCIDR1 fall back check and rely only on TRCDEVARCH.
-
-Fixes: 8b94db1edaee ("coresight: etm4x: Use TRCDEVARCH for component discovery")
+Fixes: 2e1cdfe184b5 ("coresight-etm4x: Adding CoreSight ETM4x driver")
 Cc: stable@vger.kernel.org
-Reported-by: Steve Clevenger <scclevenger@os.amperecomputing.com>
-Link: https://lore.kernel.org/all/143540e5623d4c7393d24833f2b80600d8d745d2.1677881753.git.scclevenger@os.amperecomputing.com/
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: James Clark <james.clark@arm.com>
-Reviewed-by: Mike Leach <mike.leach@linaro.org>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Steve Clevenger <scclevenger@os.amperecomputing.com>
+Reviewed-by: James Clark <james.clark@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20230321104530.1547136-1-suzuki.poulose@arm.com
+Link: https://lore.kernel.org/r/4a4ee61ce8ef402615a4528b21a051de3444fb7b.1677540079.git.scclevenger@os.amperecomputing.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x-core.c |   22 ++++++++-------------
- drivers/hwtracing/coresight/coresight-etm4x.h      |   20 +++++--------------
- 2 files changed, 15 insertions(+), 27 deletions(-)
+ drivers/hwtracing/coresight/coresight-etm4x-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
 +++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-@@ -1010,25 +1010,21 @@ static bool etm4_init_iomem_access(struc
- 				   struct csdev_access *csa)
- {
- 	u32 devarch = readl_relaxed(drvdata->base + TRCDEVARCH);
--	u32 idr1 = readl_relaxed(drvdata->base + TRCIDR1);
- 
- 	/*
- 	 * All ETMs must implement TRCDEVARCH to indicate that
--	 * the component is an ETMv4. To support any broken
--	 * implementations we fall back to TRCIDR1 check, which
--	 * is not really reliable.
-+	 * the component is an ETMv4. Even though TRCIDR1 also
-+	 * contains the information, it is part of the "Trace"
-+	 * register and must be accessed with the OSLK cleared,
-+	 * with MMIO. But we cannot touch the OSLK until we are
-+	 * sure this is an ETM. So rely only on the TRCDEVARCH.
- 	 */
--	if ((devarch & ETM_DEVARCH_ID_MASK) == ETM_DEVARCH_ETMv4x_ARCH) {
--		drvdata->arch = etm_devarch_to_arch(devarch);
--	} else {
--		pr_warn("CPU%d: ETM4x incompatible TRCDEVARCH: %x, falling back to TRCIDR1\n",
--			smp_processor_id(), devarch);
--
--		if (ETM_TRCIDR1_ARCH_MAJOR(idr1) != ETM_TRCIDR1_ARCH_ETMv4)
--			return false;
--		drvdata->arch = etm_trcidr_to_arch(idr1);
-+	if ((devarch & ETM_DEVARCH_ID_MASK) != ETM_DEVARCH_ETMv4x_ARCH) {
-+		pr_warn_once("TRCDEVARCH doesn't match ETMv4 architecture\n");
-+		return false;
+@@ -451,7 +451,7 @@ static int etm4_enable_hw(struct etmv4_d
+ 		if (etm4x_sspcicrn_present(drvdata, i))
+ 			etm4x_relaxed_write32(csa, config->ss_pe_cmp[i], TRCSSPCICRn(i));
  	}
- 
-+	drvdata->arch = etm_devarch_to_arch(devarch);
- 	*csa = CSDEV_ACCESS_IOMEM(drvdata->base);
- 	return true;
- }
---- a/drivers/hwtracing/coresight/coresight-etm4x.h
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.h
-@@ -753,14 +753,12 @@
-  * TRCDEVARCH	- CoreSight architected register
-  *                - Bits[15:12] - Major version
-  *                - Bits[19:16] - Minor version
-- * TRCIDR1	- ETM architected register
-- *                - Bits[11:8] - Major version
-- *                - Bits[7:4]  - Minor version
-- * We must rely on TRCDEVARCH for the version information,
-- * however we don't want to break the support for potential
-- * old implementations which might not implement it. Thus
-- * we fall back to TRCIDR1 if TRCDEVARCH is not implemented
-- * for memory mapped components.
-+ *
-+ * We must rely only on TRCDEVARCH for the version information. Even though,
-+ * TRCIDR1 also provides the architecture version, it is a "Trace" register
-+ * and as such must be accessed only with Trace power domain ON. This may
-+ * not be available at probe time.
-+ *
-  * Now to make certain decisions easier based on the version
-  * we use an internal representation of the version in the
-  * driver, as follows :
-@@ -786,12 +784,6 @@ static inline u8 etm_devarch_to_arch(u32
- 				ETM_DEVARCH_REVISION(devarch));
- }
- 
--static inline u8 etm_trcidr_to_arch(u32 trcidr1)
--{
--	return ETM_ARCH_VERSION(ETM_TRCIDR1_ARCH_MAJOR(trcidr1),
--				ETM_TRCIDR1_ARCH_MINOR(trcidr1));
--}
--
- enum etm_impdef_type {
- 	ETM4_IMPDEF_HISI_CORE_COMMIT,
- 	ETM4_IMPDEF_FEATURE_MAX,
+-	for (i = 0; i < drvdata->nr_addr_cmp; i++) {
++	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
+ 		etm4x_relaxed_write64(csa, config->addr_val[i], TRCACVRn(i));
+ 		etm4x_relaxed_write64(csa, config->addr_acc[i], TRCACATRn(i));
+ 	}
 
 
