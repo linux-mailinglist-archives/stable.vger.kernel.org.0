@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44E566DEED9
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7746DEFBA
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbjDLIpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
+        id S231216AbjDLIxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjDLIpU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA647869E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:51 -0700 (PDT)
+        with ESMTP id S231435AbjDLIxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2926A24B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C2A96308F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF7DC433EF;
-        Wed, 12 Apr 2023 08:44:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72DE762FF1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87870C433EF;
+        Wed, 12 Apr 2023 08:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289090;
-        bh=MG45AQEO2C1dGckktMwzp1rN3JgRNBVGyccvyt/p36E=;
+        s=korg; t=1681289511;
+        bh=8HeqEwN9bz79Z34xpNI0lFd2kG0CISYLc/kdcOkTMdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSLIiAQnj0a3cuNAptzaCSw5++nxnFLQpRgLwWs++PhiN+bsNs4AfrP7K6AuzwM8Z
-         hZpAXA/QDSxjFsASgTsrz9p6/cRwC4EofDBmQ1sCanGFSucZpBhk181LZnqxCjO/DI
-         XBLGQLVIfMWLf90RIbzsCPck8QOniIYbw1XWiif8=
+        b=lCJzcV1w78ZJImnbJY1X7qEqPDcIVGKeZe/KzLf+06cmSINzjkqBgTjjPNPf5p40L
+         ZW95YnQSm2aIvSFndzPvhJrHjhzVHzmSsUgDvcmRcwJVIL6295OpFErXk4Bg8xEqjt
+         1rQ2Fh0tPD/6wrAcWbsLy5bcO+Wgtgp8iDM9pYDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 132/164] ublk: read any SQE values upfront
+        patches@lists.linux.dev, Jason Montleon <jmontleo@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.2 128/173] ASoC: hdac_hdmi: use set_stream() instead of set_tdm_slots()
 Date:   Wed, 12 Apr 2023 10:34:14 +0200
-Message-Id: <20230412082842.224994399@linuxfoundation.org>
+Message-Id: <20230412082843.326160940@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,65 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Jason Montleon <jmontleo@redhat.com>
 
-commit 8c68ae3b22fa6fb2dbe83ef955ff10936503d28e upstream.
+commit f6887a71bdd2f0dcba9b8180dd2223cfa8637e85 upstream.
 
-Since SQE memory is shared with userspace, we should only be reading it
-once. We cannot read it multiple times, particularly when it's read once
-for validation and then read again for the actual use.
+hdac_hdmi was not updated to use set_stream() instead of set_tdm_slots()
+in the original commit so HDMI no longer produces audio.
 
-ublk_ch_uring_cmd() is safe when called as a retry operation, as the
-memory backing is stable at that point. But for normal issue, we want
-to ensure that we only read ublksrv_io_cmd once. Wrap the function in
-a helper that reads the value into an on-stack copy of the struct.
-
-Cc: stable@vger.kernel.org # 6.0+
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/regressions/CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com/
+Fixes: 636110411ca7 ("ASoC: Intel/SOF: use set_stream() instead of set_tdm_slots() for HDAudio")
+Signed-off-by: Jason Montleon <jmontleo@redhat.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20230324170711.2526-1-jmontleo@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/ublk_drv.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ sound/soc/codecs/hdac_hdmi.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -1202,9 +1202,10 @@ static void ublk_handle_need_get_data(st
- 	ublk_queue_cmd(ubq, req);
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -436,23 +436,28 @@ static int hdac_hdmi_setup_audio_infofra
+ 	return 0;
  }
  
--static int ublk_ch_uring_cmd(struct io_uring_cmd *cmd, unsigned int issue_flags)
-+static int __ublk_ch_uring_cmd(struct io_uring_cmd *cmd,
-+			       unsigned int issue_flags,
-+			       struct ublksrv_io_cmd *ub_cmd)
+-static int hdac_hdmi_set_tdm_slot(struct snd_soc_dai *dai,
+-		unsigned int tx_mask, unsigned int rx_mask,
+-		int slots, int slot_width)
++static int hdac_hdmi_set_stream(struct snd_soc_dai *dai,
++				void *stream, int direction)
  {
--	struct ublksrv_io_cmd *ub_cmd = (struct ublksrv_io_cmd *)cmd->cmd;
- 	struct ublk_device *ub = cmd->file->private_data;
- 	struct ublk_queue *ubq;
- 	struct ublk_io *io;
-@@ -1306,6 +1307,23 @@ static int ublk_ch_uring_cmd(struct io_u
- 	return -EIOCBQUEUED;
- }
+ 	struct hdac_hdmi_priv *hdmi = snd_soc_dai_get_drvdata(dai);
+ 	struct hdac_device *hdev = hdmi->hdev;
+ 	struct hdac_hdmi_dai_port_map *dai_map;
+ 	struct hdac_hdmi_pcm *pcm;
++	struct hdac_stream *hstream;
  
-+static int ublk_ch_uring_cmd(struct io_uring_cmd *cmd, unsigned int issue_flags)
-+{
-+	struct ublksrv_io_cmd *ub_src = (struct ublksrv_io_cmd *) cmd->cmd;
-+	struct ublksrv_io_cmd ub_cmd;
+-	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, tx_mask);
++	if (!stream)
++		return -EINVAL;
 +
-+	/*
-+	 * Not necessary for async retry, but let's keep it simple and always
-+	 * copy the values to avoid any potential reuse.
-+	 */
-+	ub_cmd.q_id = READ_ONCE(ub_src->q_id);
-+	ub_cmd.tag = READ_ONCE(ub_src->tag);
-+	ub_cmd.result = READ_ONCE(ub_src->result);
-+	ub_cmd.addr = READ_ONCE(ub_src->addr);
++	hstream = (struct hdac_stream *)stream;
 +
-+	return __ublk_ch_uring_cmd(cmd, issue_flags, &ub_cmd);
-+}
-+
- static const struct file_operations ublk_ch_fops = {
- 	.owner = THIS_MODULE,
- 	.open = ublk_ch_open,
++	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, hstream->stream_tag);
+ 
+ 	dai_map = &hdmi->dai_map[dai->id];
+ 
+ 	pcm = hdac_hdmi_get_pcm_from_cvt(hdmi, dai_map->cvt);
+ 
+ 	if (pcm)
+-		pcm->stream_tag = (tx_mask << 4);
++		pcm->stream_tag = (hstream->stream_tag << 4);
+ 
+ 	return 0;
+ }
+@@ -1544,7 +1549,7 @@ static const struct snd_soc_dai_ops hdmi
+ 	.startup = hdac_hdmi_pcm_open,
+ 	.shutdown = hdac_hdmi_pcm_close,
+ 	.hw_params = hdac_hdmi_set_hw_params,
+-	.set_tdm_slot = hdac_hdmi_set_tdm_slot,
++	.set_stream = hdac_hdmi_set_stream,
+ };
+ 
+ /*
 
 
