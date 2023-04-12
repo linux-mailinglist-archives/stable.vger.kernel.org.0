@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6046DEEFE
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 275F56DEFCA
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbjDLIqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59832 "EHLO
+        id S231459AbjDLIxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231221AbjDLIqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:46:39 -0400
+        with ESMTP id S231447AbjDLIxp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141CD8A5E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:46:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE41A265
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 413AC630FF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508F6C433D2;
-        Wed, 12 Apr 2023 08:45:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB39C62D73
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C926FC433D2;
+        Wed, 12 Apr 2023 08:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289150;
-        bh=+Z6jPUfrCEHRld+QaS2VOUXo7Ti+2BxTspgq9hlnlOQ=;
+        s=korg; t=1681289593;
+        bh=vBBhl3kMZZztSAu0fq6+NjtEI8anSAQfBaropzoIkN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyv5hDV7o8bhpEIBTpKqmGLhsgck2Swx34xp5ELbNOV6XeYeXg+/6NRvMe1LEYtxs
-         20D5+n55mNZgfBn5tqEquTlq1qmBTjQQwdfC0T9FZmX4eOmUwiTfKSG2+EfIYARvwP
-         NB1IORmNDDRXVLvm+IMitJgCt3grm6mhnBVerVuk=
+        b=r/6qlm1DLkPZ5rJJ61DAIxt24kwCoASjRGthYBIBIdovKhfoxcZcCT5n8oE+8aV83
+         3ia1VszSVNgawkd1/v+DJRlsWMVqqzpGbvr8ejKiw8pUx4Fg2Lp+brGarEvabgjd4B
+         bKCOu961F/d34zKTOePHmqit53iI45sTB6Ui5kHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stable@vger.kernel.org,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        SeongJae Park <sj@kernel.org>
-Subject: [PATCH 6.1 155/164] maple_tree: fix handle of invalidated state in mas_wr_store_setup()
+        patches@lists.linux.dev,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [PATCH 6.2 151/173] ring-buffer: Fix race while reader and writer are on the same page
 Date:   Wed, 12 Apr 2023 10:34:37 +0200
-Message-Id: <20230412082843.233118104@linuxfoundation.org>
+Message-Id: <20230412082844.202983515@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit 1202700c3f8cc5f7e4646c3cf05ee6f7c8bc6ccf upstream.
+commit 6455b6163d8c680366663cdb8c679514d55fc30c upstream.
 
-If an invalidated maple state is encountered during write, reset the maple
-state to MAS_START.  This will result in a re-walk of the tree to the
-correct location for the write.
+When user reads file 'trace_pipe', kernel keeps printing following logs
+that warn at "cpu_buffer->reader_page->read > rb_page_size(reader)" in
+rb_get_reader_page(). It just looks like there's an infinite loop in
+tracing_read_pipe(). This problem occurs several times on arm64 platform
+when testing v5.10 and below.
 
-Link: https://lore.kernel.org/all/20230107020126.1627-1-sj@kernel.org/
-Link: https://lkml.kernel.org/r/20230120162650.984577-6-Liam.Howlett@oracle.com
-Cc: <Stable@vger.kernel.org>
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Reported-by: SeongJae Park <sj@kernel.org>
+  Call trace:
+   rb_get_reader_page+0x248/0x1300
+   rb_buffer_peek+0x34/0x160
+   ring_buffer_peek+0xbc/0x224
+   peek_next_entry+0x98/0xbc
+   __find_next_entry+0xc4/0x1c0
+   trace_find_next_entry_inc+0x30/0x94
+   tracing_read_pipe+0x198/0x304
+   vfs_read+0xb4/0x1e0
+   ksys_read+0x74/0x100
+   __arm64_sys_read+0x24/0x30
+   el0_svc_common.constprop.0+0x7c/0x1bc
+   do_el0_svc+0x2c/0x94
+   el0_svc+0x20/0x30
+   el0_sync_handler+0xb0/0xb4
+   el0_sync+0x160/0x180
+
+Then I dump the vmcore and look into the problematic per_cpu ring_buffer,
+I found that tail_page/commit_page/reader_page are on the same page while
+reader_page->read is obviously abnormal:
+  tail_page == commit_page == reader_page == {
+    .write = 0x100d20,
+    .read = 0x8f9f4805,  // Far greater than 0xd20, obviously abnormal!!!
+    .entries = 0x10004c,
+    .real_end = 0x0,
+    .page = {
+      .time_stamp = 0x857257416af0,
+      .commit = 0xd20,  // This page hasn't been full filled.
+      // .data[0...0xd20] seems normal.
+    }
+ }
+
+The root cause is most likely the race that reader and writer are on the
+same page while reader saw an event that not fully committed by writer.
+
+To fix this, add memory barriers to make sure the reader can see the
+content of what is committed. Since commit a0fcaaed0c46 ("ring-buffer: Fix
+race between reset page and reading page") has added the read barrier in
+rb_get_reader_page(), here we just need to add the write barrier.
+
+Link: https://lore.kernel.org/linux-trace-kernel/20230325021247.2923907-1-zhengyejian1@huawei.com
+
+Cc: stable@vger.kernel.org
+Fixes: 77ae365eca89 ("ring-buffer: make lockless")
+Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/maple_tree.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/trace/ring_buffer.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -5594,6 +5594,9 @@ static inline void mte_destroy_walk(stru
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3102,6 +3102,10 @@ rb_set_commit_to_write(struct ring_buffe
+ 		if (RB_WARN_ON(cpu_buffer,
+ 			       rb_is_reader_page(cpu_buffer->tail_page)))
+ 			return;
++		/*
++		 * No need for a memory barrier here, as the update
++		 * of the tail_page did it for this page.
++		 */
+ 		local_set(&cpu_buffer->commit_page->page->commit,
+ 			  rb_page_write(cpu_buffer->commit_page));
+ 		rb_inc_page(&cpu_buffer->commit_page);
+@@ -3111,6 +3115,8 @@ rb_set_commit_to_write(struct ring_buffe
+ 	while (rb_commit_index(cpu_buffer) !=
+ 	       rb_page_write(cpu_buffer->commit_page)) {
  
- static void mas_wr_store_setup(struct ma_wr_state *wr_mas)
- {
-+	if (unlikely(mas_is_paused(wr_mas->mas)))
-+		mas_reset(wr_mas->mas);
-+
- 	if (!mas_is_start(wr_mas->mas)) {
- 		if (mas_is_none(wr_mas->mas)) {
- 			mas_reset(wr_mas->mas);
++		/* Make sure the readers see the content of what is committed. */
++		smp_wmb();
+ 		local_set(&cpu_buffer->commit_page->page->commit,
+ 			  rb_page_write(cpu_buffer->commit_page));
+ 		RB_WARN_ON(cpu_buffer,
+@@ -4688,7 +4694,12 @@ rb_get_reader_page(struct ring_buffer_pe
+ 
+ 	/*
+ 	 * Make sure we see any padding after the write update
+-	 * (see rb_reset_tail())
++	 * (see rb_reset_tail()).
++	 *
++	 * In addition, a writer may be writing on the reader page
++	 * if the page has not been fully filled, so the read barrier
++	 * is also needed to make sure we see the content of what is
++	 * committed by the writer (see rb_set_commit_to_write()).
+ 	 */
+ 	smp_rmb();
+ 
 
 
