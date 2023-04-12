@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1F66DEEBE
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 208876DEE0E
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229776AbjDLIol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52942 "EHLO
+        id S230436AbjDLIjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229982AbjDLIoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B46586AC
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:06 -0700 (PDT)
+        with ESMTP id S230336AbjDLIja (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E447AAA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FB05630AC
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49073C4339B;
-        Wed, 12 Apr 2023 08:43:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A47E63007
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AC7CC433D2;
+        Wed, 12 Apr 2023 08:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289021;
-        bh=AZNT+Cl+hXJedy9fRIdLCIO8HMocsopZS18/9NMKlp0=;
+        s=korg; t=1681288621;
+        bh=YWIk9rT/Gtmv4gf/oTVvDysdaVPmfHuPrk0fUPlqNAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrXt9HtUumP+gjxxm9zM0nIe5II83ix+b+QrYLp4p+4jxYCwDUUQxCpnvPvq6qxNL
-         bA/10VyS7bpqUZSsuJaZsR4FcYxlcTjBly2s57NdWX35V6RlN4J5iIN0/b474VOGO0
-         DuvehT5XJbhM/8+0OmoPXMv+Z0JYAqLWiAXpAJsA=
+        b=Lqq7XvXeeleU9sXkoFNaPvXTubBlcsW219o/zuOzN63HPcG1oan6Bk/5w1hhVpgpH
+         1rWVEjuECd0nWCvyh4C6Ju4Kihp7bdzg1mcZrNNRb+me/6gmwJgZSOcTPyv6HXNS3Q
+         ZOeiW9nM8jk4hZYMA96dCxIaClUZnxi1Ab9hptho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Laurence Oberman <loberman@redhat.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 106/164] nvme: fix discard support without oncs
+        patches@lists.linux.dev, Junfeng Guo <junfeng.guo@intel.com>,
+        Lingyu Liu <lingyu.liu@intel.com>,
+        Rafal Romanowski <rafal.romanowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 47/93] ice: Reset FDIR counter in FDIR init stage
 Date:   Wed, 12 Apr 2023 10:33:48 +0200
-Message-Id: <20230412082841.122616210@linuxfoundation.org>
+Message-Id: <20230412082825.130302728@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,55 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Lingyu Liu <lingyu.liu@intel.com>
 
-[ Upstream commit d3205ab75e99a47539ec91ef85ba488f4ddfeaa9 ]
+[ Upstream commit 83c911dc5e0e8e6eaa6431c06972a8f159bfe2fc ]
 
-The device can report discard support without setting the ONCS DSM bit.
-When not set, the driver clears max_discard_size expecting it to be set
-later. We don't know the size until we have the namespace format,
-though, so setting it is deferred until configuring one, but the driver
-was abandoning the discard settings due to that initial clearing.
+Reset the FDIR counters when FDIR inits. Without this patch,
+when VF initializes or resets, all the FDIR counters are not
+cleaned, which may cause unexpected behaviors for future FDIR
+rule create (e.g., rule conflict).
 
-Move the max_discard_size calculation above the check for a '0' discard
-size.
-
-Fixes: 1a86924e4f46475 ("nvme: fix interpretation of DMRSL")
-Reported-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Tested-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 1f7ea1cd6a37 ("ice: Enable FDIR Configure for AVF")
+Signed-off-by: Junfeng Guo <junfeng.guo@intel.com>
+Signed-off-by: Lingyu Liu <lingyu.liu@intel.com>
+Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../net/ethernet/intel/ice/ice_virtchnl_fdir.c   | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index a95e48b51da66..cb71ce3413c2d 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1711,6 +1711,9 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
- 	struct request_queue *queue = disk->queue;
- 	u32 size = queue_logical_block_size(queue);
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+index 2254cae817c16..412deb36b645b 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+@@ -731,6 +731,21 @@ static void ice_vc_fdir_rem_prof_all(struct ice_vf *vf)
+ 	}
+ }
  
-+	if (ctrl->dmrsl && ctrl->dmrsl <= nvme_sect_to_lba(ns, UINT_MAX))
-+		ctrl->max_discard_sectors = nvme_lba_to_sect(ns, ctrl->dmrsl);
++/**
++ * ice_vc_fdir_reset_cnt_all - reset all FDIR counters for this VF FDIR
++ * @fdir: pointer to the VF FDIR structure
++ */
++static void ice_vc_fdir_reset_cnt_all(struct ice_vf_fdir *fdir)
++{
++	enum ice_fltr_ptype flow;
 +
- 	if (ctrl->max_discard_sectors == 0) {
- 		blk_queue_max_discard_sectors(queue, 0);
- 		return;
-@@ -1725,9 +1728,6 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
- 	if (queue->limits.max_discard_sectors)
- 		return;
++	for (flow = ICE_FLTR_PTYPE_NONF_NONE;
++	     flow < ICE_FLTR_PTYPE_MAX; flow++) {
++		fdir->fdir_fltr_cnt[flow][0] = 0;
++		fdir->fdir_fltr_cnt[flow][1] = 0;
++	}
++}
++
+ /**
+  * ice_vc_fdir_has_prof_conflict
+  * @vf: pointer to the VF structure
+@@ -2263,6 +2278,7 @@ void ice_vf_fdir_init(struct ice_vf *vf)
+ 	spin_lock_init(&fdir->ctx_lock);
+ 	fdir->ctx_irq.flags = 0;
+ 	fdir->ctx_done.flags = 0;
++	ice_vc_fdir_reset_cnt_all(fdir);
+ }
  
--	if (ctrl->dmrsl && ctrl->dmrsl <= nvme_sect_to_lba(ns, UINT_MAX))
--		ctrl->max_discard_sectors = nvme_lba_to_sect(ns, ctrl->dmrsl);
--
- 	blk_queue_max_discard_sectors(queue, ctrl->max_discard_sectors);
- 	blk_queue_max_discard_segments(queue, ctrl->max_discard_segments);
- 
+ /**
 -- 
 2.39.2
 
