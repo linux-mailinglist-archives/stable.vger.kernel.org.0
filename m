@@ -2,112 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 293E06DECE9
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC52D6DED10
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 09:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229832AbjDLHtb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 03:49:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38450 "EHLO
+        id S229532AbjDLH5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 03:57:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjDLHt2 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 12 Apr 2023 03:49:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA645FDC
-        for <Stable@vger.kernel.org>; Wed, 12 Apr 2023 00:49:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F7016294B
-        for <Stable@vger.kernel.org>; Wed, 12 Apr 2023 07:49:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2514AC433EF;
-        Wed, 12 Apr 2023 07:49:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681285761;
-        bh=3rHTGUDRtKSq4QhR1c4U5OVbHRA8KKZDYGPU/MvfgvY=;
-        h=Subject:To:From:Date:From;
-        b=OX+b63ze1gIE82WBlHy6wRRl1le57viujSsBZgRquW48AbBLFIBWmbmh57d6/lWnT
-         3WbKhIwjsLCIIBgg9emQnKPYnGKORty2G8XJUQXJHc14RFapAW8cbP8m/TN787mtYW
-         UPjNxcsr09n+krai9AV678JSNSQ/GQQVq3v0s2Sg=
-Subject: patch "iio: addac: stx104: Fix race condition when converting" added to char-misc-testing
-To:     william.gray@linaro.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 Apr 2023 09:47:39 +0200
-Message-ID: <2023041239-deplored-canning-326f@gregkh>
+        with ESMTP id S229491AbjDLH5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 03:57:42 -0400
+Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CD11BDA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 00:57:41 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id DA53F3200950;
+        Wed, 12 Apr 2023 03:57:37 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Wed, 12 Apr 2023 03:57:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-transfer-encoding:content-type:content-type:date
+        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
+        1681286257; x=1681372657; bh=WmkHcZRTGtB6jkXxSxv2JVs8qUDKxOapllo
+        cf5kvOV0=; b=QtzUh+Pmyt8iXQnqEbPjJRR0n5CyudwuRpdlbuugImC3iZwtzEb
+        x4Frg50shpXF+PtYFUCwpaYCZdQDBcggEkZq0hJlz5EHepmYxS31JDtcZGOX9Ow/
+        X2N4UNLs9PTvf033njTY0vbWkTWZaRv7WAvauX8lyHpr40PwU2krjDOsROYpg63A
+        /1upTuvYaC7Epv+uhPX0kcmTC3HFjB8TXLGBClF8Vi4qxSfRrsNhW8DvBHVq6lhE
+        CCRujvdlsBVU7EAz2uQZVX9yJc91bLzuG5lDdSWHQ2cYfpkC3xz0QpcGLQk4aOER
+        T+7OoEnW2zgpt1eiT58reNfvdLFkUCyqAkA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:content-type:date:date:feedback-id:feedback-id
+        :from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+        1681286257; x=1681372657; bh=WmkHcZRTGtB6jkXxSxv2JVs8qUDKxOapllo
+        cf5kvOV0=; b=OAIwRyia6VW9cYfjmTsMB/8iBvMtxayI+SrtWdW7bubVducGnjL
+        bO4YEAAtjJJdobpf/0NXVttaBqf5hgN8wPB94mJwq30a/8gS5YrfrQpuA274rk2A
+        LLYH767pB18yU1PaI9Ntv1Bu9P1Ino0Fs/RvwdS3x/i91WAbqoIt1NGm7TieIcXR
+        kVUBLAKsD8uc1mIqWZDqgjQGyooVKco8BnxdMXwOPuMtGhFwAPuj948J/XVzSEMp
+        pI6cSi6x7B5G1q43ewasiYuv6Gz44guYgzRHbEPtj8vU0HKVHoq1Tt4Ar7VhV48c
+        Mb0plSZG4P+odpAzPyVNlxWLRJQonofp5rg==
+X-ME-Sender: <xms:cWQ2ZJyrvGSmBI06qeHq9PDqknWFx3gIVGdbj0_XxZ2BO-xAEP09uA>
+    <xme:cWQ2ZJRVSSqAdvpTENBDh7OMZOjtDjfSQrucMBleo5vfICe7udVc-NPYXAj8UhMB2
+    xkr8FlHgvA10A>
+X-ME-Received: <xmr:cWQ2ZDXA7BeM8KgDBFBvf2VuEStQhbyl4liTJVJrOYNQlH-hHwLoco869mExJesy09a8xZOjIpVg2pL7heMD1PVIDudOD0-A_e1Tcg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdekhedguddvjecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhr
+    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepge
+    evleehjedtgfethfetveetheejtdeugeekgeevleetkeehvefghfdtueegteeknecuffho
+    mhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:cWQ2ZLjgPFDLhO3Hj-S6YqZhAISMgWTRLjSEBj_p8PBFW8m3p4HwVA>
+    <xmx:cWQ2ZLDCtNFeCrsaDhlT92ZeugqFSW8-hTj3G0wlLziV8h8nU0nQ3g>
+    <xmx:cWQ2ZEKhB0x6e9naslAk_GolkghDb7U3mGvn0HwEOhle527ncrSgEg>
+    <xmx:cWQ2ZP5gkXAzKj8QbG0r2yS-E6xEgydlRyOF2pGm0bEPh1V011dp0Q>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 12 Apr 2023 03:57:36 -0400 (EDT)
+Date:   Wed, 12 Apr 2023 09:57:33 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     stable@vger.kernel.org, Manasi Navare <navaremanasi@google.com>,
+        Drew Davenport <ddavenport@chromium.org>,
+        Imre Deak <imre.deak@intel.com>,
+        Jouni =?iso-8859-1?Q?H=F6gander?= <jouni.hogander@intel.com>
+Subject: Re: [PATCH 2/3] drm/i915: Add a .color_post_update() hook
+Message-ID: <2023041254-wok-shine-8aaf@gregkh>
+References: <20230403162618.18469-2-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20230403162618.18469-2-ville.syrjala@linux.intel.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Apr 03, 2023 at 07:26:17PM +0300, Ville Syrjälä wrote:
+> We're going to need stuff after the color management
+> register latching has happened. Add a corresponding hook.
+> 
+> (cherry picked from commit 3962ca4e080a525fc9eae87aa6b2286f1fae351d)
+> (cherry picked from commit c880f855d1e240a956dcfce884269bad92fc849c)
+> 
+> Cc: <stable@vger.kernel.org> #v5.19+
+> Cc: <stable@vger.kernel.org> # 52a90349f2ed: drm/i915: Introduce intel_crtc_needs_fastset()
+> Cc: <stable@vger.kernel.org> # 925ac8bc33bf: drm/i915: Remove some local 'mode_changed' bools
+> Cc: <stable@vger.kernel.org> # f5e674e92e95: drm/i915: Introduce intel_crtc_needs_color_update()
+> Cc: <stable@vger.kernel.org> # 4c35e5d11900: drm/i915: Activate DRRS after state readout
+> Cc: Manasi Navare <navaremanasi@google.com>
+> Cc: Drew Davenport <ddavenport@chromium.org>
+> Cc: Imre Deak <imre.deak@intel.com>
+> Cc: Jouni Högander <jouni.hogander@intel.com>
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-4-ville.syrjala@linux.intel.com
+> Reviewed-by: Imre Deak <imre.deak@intel.com>
+> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+> ---
+>  drivers/gpu/drm/i915/display/intel_color.c   | 13 +++++++++++++
+>  drivers/gpu/drm/i915/display/intel_color.h   |  1 +
+>  drivers/gpu/drm/i915/display/intel_display.c |  3 +++
+>  3 files changed, 17 insertions(+)
 
-This is a note to let you know that I've just added the patch titled
+This patch fails to apply:
 
-    iio: addac: stx104: Fix race condition when converting
+checking file drivers/gpu/drm/i915/display/intel_color.c
+checking file drivers/gpu/drm/i915/display/intel_color.h
+Hunk #1 succeeded at 16 (offset -2 lines).
+checking file drivers/gpu/drm/i915/display/intel_display.c
+Hunk #1 FAILED at 1252.
+1 out of 1 hunk FAILED
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+Can you rebase this, and 3/3, against the next 6.1.y release (which
+contains other patches for this driver) and resend just the two missing
+patches?
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+thanks,
 
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 4f9b80aefb9e2f542a49d9ec087cf5919730e1dd Mon Sep 17 00:00:00 2001
-From: William Breathitt Gray <william.gray@linaro.org>
-Date: Thu, 6 Apr 2023 10:40:11 -0400
-Subject: iio: addac: stx104: Fix race condition when converting
- analog-to-digital
-
-The ADC conversion procedure requires several device I/O operations
-performed in a particular sequence. If stx104_read_raw() is called
-concurrently, the ADC conversion procedure could be clobbered. Prevent
-such a race condition by utilizing a mutex.
-
-Fixes: 4075a283ae83 ("iio: stx104: Add IIO support for the ADC channels")
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-Link: https://lore.kernel.org/r/2ae5e40eed5006ca735e4c12181a9ff5ced65547.1680790580.git.william.gray@linaro.org
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
----
- drivers/iio/addac/stx104.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/iio/addac/stx104.c b/drivers/iio/addac/stx104.c
-index 4239aafe42fc..8730b79e921c 100644
---- a/drivers/iio/addac/stx104.c
-+++ b/drivers/iio/addac/stx104.c
-@@ -117,6 +117,8 @@ static int stx104_read_raw(struct iio_dev *indio_dev,
- 			return IIO_VAL_INT;
- 		}
- 
-+		mutex_lock(&priv->lock);
-+
- 		/* select ADC channel */
- 		iowrite8(chan->channel | (chan->channel << 4), &reg->achan);
- 
-@@ -127,6 +129,8 @@ static int stx104_read_raw(struct iio_dev *indio_dev,
- 		while (ioread8(&reg->cir_asr) & BIT(7));
- 
- 		*val = ioread16(&reg->ssr_ad);
-+
-+		mutex_unlock(&priv->lock);
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_OFFSET:
- 		/* get ADC bipolar/unipolar configuration */
--- 
-2.40.0
-
-
+greg k-h
