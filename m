@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6459C6DEE35
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2906A6DEFAE
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbjDLIlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46162 "EHLO
+        id S231402AbjDLIxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbjDLIkG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:06 -0400
+        with ESMTP id S231372AbjDLIw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 509E07AA1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32CD7AB5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E6D6289E
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67EBEC4339B;
-        Wed, 12 Apr 2023 08:38:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06B476319C
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19581C433D2;
+        Wed, 12 Apr 2023 08:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288692;
-        bh=3vvwhEoRZYs80la9alaXfOPN9v/OrH7gBkX11P39nt4=;
+        s=korg; t=1681289514;
+        bh=H1qmMxjG+fUZjN1Cp4bxsMl1HtKmBvjX7IbzJvHyxWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=od9tLUezHWL7o3LNWPjEy/7gacK+H/+YSnBc5CJM8hCWpe/8ug6P78yTlHE/oX9hj
-         no1PjaG0njtlWwKyalLtsx3sKAAWDp714yOfOyAoRshwXudjIU/N9r2kJ1JDBZeYok
-         B6KWGBzzb03l7KXVy5qY8hahdTPaYNXd0PSjvMwk=
+        b=JMrIuzo/W3NuxlwtFJy74TJMIXiE6f5kRxGQL0QxPp2SAQQCs1WEnh5Zmvou3bJFz
+         n/KZ0C267+u7ZEUCp73kiQ74ROGC2KshR54XNWB+d4q9osWedDvFo/M0Q9VPg8daQ/
+         3jmGteoBMmadFd6TtIcdcyeSLEuMS0Sf5IKZBLdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 74/93] scsi: qla2xxx: Fix memory leak in qla2x00_probe_one()
+        patches@lists.linux.dev,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.2 129/173] ASoC: SOF: avoid a NULL dereference with unsupported widgets
 Date:   Wed, 12 Apr 2023 10:34:15 +0200
-Message-Id: <20230412082826.247990257@linuxfoundation.org>
+Message-Id: <20230412082843.361858470@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 
-[ Upstream commit 85ade4010e13ef152ea925c74d94253db92e5428 ]
+commit e3720f92e0237921da537e47a0b24e27899203f8 upstream.
 
-There is a memory leak reported by kmemleak:
+If an IPC4 topology contains an unsupported widget, its .module_info
+field won't be set, then sof_ipc4_route_setup() will cause a kernel
+Oops trying to dereference it. Add a check for such cases.
 
-  unreferenced object 0xffffc900003f0000 (size 12288):
-    comm "modprobe", pid 19117, jiffies 4299751452 (age 42490.264s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000629261a8>] __vmalloc_node_range+0xe56/0x1110
-      [<0000000001906886>] __vmalloc_node+0xbd/0x150
-      [<000000005bb4dc34>] vmalloc+0x25/0x30
-      [<00000000a2dc1194>] qla2x00_create_host+0x7a0/0xe30 [qla2xxx]
-      [<0000000062b14b47>] qla2x00_probe_one+0x2eb8/0xd160 [qla2xxx]
-      [<00000000641ccc04>] local_pci_probe+0xeb/0x1a0
-
-The root cause is traced to an error-handling path in qla2x00_probe_one()
-when the adapter "base_vha" initialize failed. The fab_scan_rp "scan.l" is
-used to record the port information and it is allocated in
-qla2x00_create_host(). However, it is not released in the error handling
-path "probe_failed".
-
-Fix this by freeing the memory of "scan.l" when an error occurs in the
-adapter initialization process.
-
-Fixes: a4239945b8ad ("scsi: qla2xxx: Add switch command to simplify fabric discovery")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Link: https://lore.kernel.org/r/20230325110004.363898-1-lizetao1@huawei.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 6.2
+Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230329113828.28562-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/sof/ipc4-topology.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 6063f48558081..2efe31327ed1e 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3573,6 +3573,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- probe_failed:
- 	qla_enode_stop(base_vha);
- 	qla_edb_stop(base_vha);
-+	vfree(base_vha->scan.l);
- 	if (base_vha->gnl.l) {
- 		dma_free_coherent(&ha->pdev->dev, base_vha->gnl.size,
- 				base_vha->gnl.l, base_vha->gnl.ldma);
--- 
-2.39.2
-
+--- a/sound/soc/sof/ipc4-topology.c
++++ b/sound/soc/sof/ipc4-topology.c
+@@ -1686,6 +1686,14 @@ static int sof_ipc4_route_setup(struct s
+ 	u32 header, extension;
+ 	int ret;
+ 
++	if (!src_fw_module || !sink_fw_module) {
++		/* The NULL module will print as "(efault)" */
++		dev_err(sdev->dev, "source %s or sink %s widget weren't set up properly\n",
++			src_fw_module->man4_module_entry.name,
++			sink_fw_module->man4_module_entry.name);
++		return -ENODEV;
++	}
++
+ 	sroute->src_queue_id = sof_ipc4_get_queue_id(src_widget, sink_widget,
+ 						     SOF_PIN_TYPE_SOURCE);
+ 	if (sroute->src_queue_id < 0) {
 
 
