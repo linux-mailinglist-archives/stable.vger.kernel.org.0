@@ -2,115 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D226DFF3B
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 21:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13B226DFF48
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 21:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbjDLTzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 15:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46596 "EHLO
+        id S229754AbjDLT6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 15:58:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229492AbjDLTzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 15:55:39 -0400
-X-Greylist: delayed 429 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 12 Apr 2023 12:55:37 PDT
-Received: from proxima.lasnet.de (proxima.lasnet.de [IPv6:2a01:4f8:121:31eb:3::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D3A7172C;
-        Wed, 12 Apr 2023 12:55:37 -0700 (PDT)
-Received: from [192.168.2.51] (p4fc2f435.dip0.t-ipconnect.de [79.194.244.53])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S229546AbjDLT6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 15:58:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 135851FFC;
+        Wed, 12 Apr 2023 12:58:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: stefan@datenfreihafen.org)
-        by proxima.lasnet.de (Postfix) with ESMTPSA id E78C8C04F0;
-        Wed, 12 Apr 2023 21:48:25 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=datenfreihafen.org;
-        s=2021; t=1681328906;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cRU/LLFBCavEJWvGXUSEUrQNNub1grtUnRPGzPXhilk=;
-        b=LhroQB25mwPNJhteylhTIYKBIIuj20UR/QgzRXDV4skZOKTpOZU9PYzaIr6zyhD78B98TL
-        QD0H+ZGed0RoSC+Rhm1xvjEKUvWikdQNc8mHMg6rd8OR5mRQN+g/5+GFp0zwqDOENHt/GV
-        /L7+M9nn+Y2DrtE+MBmmC25z2K3qWKH723PvUJGuoCCrNUjQ88R+AkTUH61VyEDQnhYJCu
-        5LTji3IbDyGxrxf5bBAxGNhZ6b8Vf27gaPV4S7FRnyoVSukakknykAxPYIo4hXCZJz/jmO
-        i+PhZowROo0OZW3tzw9d2+4B/kx+FElMrRj8KZnlNdzdpF08L6j/LNjcxf42tQ==
-Message-ID: <267e4b90-b82a-253a-9a52-46bc5026f34d@datenfreihafen.org>
-Date:   Wed, 12 Apr 2023 21:48:25 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATH wpan v3] ieee802154: hwsim: Fix possible memory leaks
-Content-Language: en-US
-To:     Chen Aotian <chenaotian2@163.com>, alex.aring@gmail.com
-Cc:     miquel.raynal@bootlin.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-wpan@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Alexander Aring <aahringo@redhat.com>
-References: <20230409022048.61223-1-chenaotian2@163.com>
-From:   Stefan Schmidt <stefan@datenfreihafen.org>
-In-Reply-To: <20230409022048.61223-1-chenaotian2@163.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 844EE612E1;
+        Wed, 12 Apr 2023 19:58:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC27EC433D2;
+        Wed, 12 Apr 2023 19:58:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1681329525;
+        bh=sLZEPWLSVLdeU+Eb7MKyMvJihbfk+a1JsVmuIoR7nCA=;
+        h=Date:To:From:Subject:From;
+        b=YVbbVxuEgDp37S5/kpfQhDSDCsMJ+RR1al0jll5MbH4vhy0mGSLnJB95x2vSNiSpC
+         YW5UFTAQDRwUKTzqCnNIUNyP8eP6gN0SaLiSNk2nannAQgoEosbmxfbdJF2On2hd+R
+         o9t27t+hhxWYe8sOr5qYyk4iZ6v3aooVxOvhXNpg=
+Date:   Wed, 12 Apr 2023 12:58:45 -0700
+To:     mm-commits@vger.kernel.org, zokeefe@google.com,
+        stable@vger.kernel.org, rppt@kernel.org, mike.kravetz@oracle.com,
+        david@redhat.com, axelrasmussen@google.com, 0x7f454c46@gmail.com,
+        peterx@redhat.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + revert-userfaultfd-dont-fail-on-unrecognized-features.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230412195845.DC27EC433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello.
 
-On 09.04.23 04:20, Chen Aotian wrote:
-> After replacing e->info, it is necessary to free the old einfo.
-> 
-> Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-> Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-> Reviewed-by: Alexander Aring <aahringo@redhat.com>
-> Signed-off-by: Chen Aotian <chenaotian2@163.com>
-> ---
-> 
-> V2 -> V3:
-> * lock_is_held() => lockdep_is_held().(thanks for Alexander)
-> 
-> V1 -> V2:
-> * Using rcu_replace_pointer() is better then rcu_dereference()
->    and rcu_assign_pointer().
-> 
->   drivers/net/ieee802154/mac802154_hwsim.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-> index 8445c2189..31cba9aa7 100644
-> --- a/drivers/net/ieee802154/mac802154_hwsim.c
-> +++ b/drivers/net/ieee802154/mac802154_hwsim.c
-> @@ -685,7 +685,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
->   static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
->   {
->   	struct nlattr *edge_attrs[MAC802154_HWSIM_EDGE_ATTR_MAX + 1];
-> -	struct hwsim_edge_info *einfo;
-> +	struct hwsim_edge_info *einfo, *einfo_old;
->   	struct hwsim_phy *phy_v0;
->   	struct hwsim_edge *e;
->   	u32 v0, v1;
-> @@ -723,8 +723,10 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
->   	list_for_each_entry_rcu(e, &phy_v0->edges, list) {
->   		if (e->endpoint->idx == v1) {
->   			einfo->lqi = lqi;
-> -			rcu_assign_pointer(e->info, einfo);
-> +			einfo_old = rcu_replace_pointer(e->info, einfo,
-> +							lockdep_is_held(&hwsim_phys_lock));
->   			rcu_read_unlock();
-> +			kfree_rcu(einfo_old, rcu);
->   			mutex_unlock(&hwsim_phys_lock);
->   			return 0;
->   		}
+The patch titled
+     Subject: Revert "userfaultfd: don't fail on unrecognized features"
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     revert-userfaultfd-dont-fail-on-unrecognized-features.patch
 
-This patch has been applied to the wpan tree and will be
-part of the next pull request to net. Thanks!
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/revert-userfaultfd-dont-fail-on-unrecognized-features.patch
 
-regards
-Stefan Schmidt
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: Revert "userfaultfd: don't fail on unrecognized features"
+Date: Wed, 12 Apr 2023 12:38:52 -0400
+
+This is a proposal to revert commit 914eedcb9ba0ff53c33808.
+
+I found this when writing a simple UFFDIO_API test to be the first unit
+test in this set.  Two things breaks with the commit:
+
+  - UFFDIO_API check was lost and missing.  According to man page, the
+  kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
+  check is needed if the api version will be extended in the future, or
+  user app won't be able to identify which is a new kernel.
+
+  - Feature flags checks were removed, which means UFFDIO_API with a
+  feature that does not exist will also succeed.  According to the man
+  page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
+  unknown features passed in.
+
+Link: https://lore.kernel.org/r/20220722201513.1624158-1-axelrasmussen@google.com
+Link: https://lkml.kernel.org/r/20230412163922.327282-2-peterx@redhat.com
+Fixes: 914eedcb9ba0 ("userfaultfd: don't fail on unrecognized features")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mike Rapoport (IBM) <rppt@kernel.org>
+Cc: Zach O'Keefe <zokeefe@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/userfaultfd.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/fs/userfaultfd.c~revert-userfaultfd-dont-fail-on-unrecognized-features
++++ a/fs/userfaultfd.c
+@@ -1955,8 +1955,10 @@ static int userfaultfd_api(struct userfa
+ 	ret = -EFAULT;
+ 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
+ 		goto out;
+-	/* Ignore unsupported features (userspace built against newer kernel) */
+-	features = uffdio_api.features & UFFD_API_FEATURES;
++	features = uffdio_api.features;
++	ret = -EINVAL;
++	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
++		goto err_out;
+ 	ret = -EPERM;
+ 	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
+ 		goto err_out;
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-khugepaged-check-again-on-anon-uffd-wp-during-isolation.patch
+revert-userfaultfd-dont-fail-on-unrecognized-features.patch
+selftests-mm-update-gitignore-with-two-missing-tests.patch
+selftests-mm-dump-a-summary-in-run_vmtestssh.patch
+selftests-mm-merge-utilh-into-vm_utilh.patch
+selftests-mm-use-test_gen_progs-where-proper.patch
+selftests-mm-link-vm_utilc-always.patch
+selftests-mm-merge-default_huge_page_size-into-one.patch
+selftests-mm-use-pm_-macros-in-vm_utilsh.patch
+selftests-mm-reuse-pagemap_get_entry-in-vm_utilh.patch
+selftests-mm-test-uffdio_zeropage-only-when-hugetlb.patch
+selftests-mm-drop-test_uffdio_zeropage_eexist.patch
+selftests-mm-create-uffd-common.patch
+selftests-mm-split-uffd-tests-into-uffd-stress-and-uffd-unit-tests.patch
+selftests-mm-uffd_register.patch
+selftests-mm-uffd_open_devsys.patch
+selftests-mm-uffdio_api-test.patch
+selftests-mm-drop-global-mem_fd-in-uffd-tests.patch
+selftests-mm-drop-global-hpage_size-in-uffd-tests.patch
+selftests-mm-rename-uffd_stats-to-uffd_args.patch
+selftests-mm-let-uffd_handle_page_fault-take-wp-parameter.patch
+selftests-mm-allow-allocate_area-to-fail-properly.patch
+selftests-mm-add-framework-for-uffd-unit-test.patch
+selftests-mm-move-uffd-pagemap-test-to-unit-test.patch
+selftests-mm-move-uffd-minor-test-to-unit-test.patch
+selftests-mm-move-uffd-sig-events-tests-into-uffd-unit-tests.patch
+selftests-mm-move-zeropage-test-into-uffd-unit-tests.patch
+selftests-mm-workaround-no-way-to-detect-uffd-minor-wp.patch
+selftests-mm-allow-uffd-test-to-skip-properly-with-no-privilege.patch
+selftests-mm-drop-sys-dev-test-in-uffd-stress-test.patch
+selftests-mm-add-shmem-private-test-to-uffd-stress.patch
+selftests-mm-add-uffdio-register-ioctls-test.patch
+
