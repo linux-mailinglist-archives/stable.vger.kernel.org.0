@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 403D06DEF72
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30236DEDF6
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbjDLIvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38190 "EHLO
+        id S230200AbjDLIiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:38:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbjDLIu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268269778
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:41 -0700 (PDT)
+        with ESMTP id S230226AbjDLIik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2D57ABA
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4030463159
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50F48C433D2;
-        Wed, 12 Apr 2023 08:50:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C022662FEC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C50C433D2;
+        Wed, 12 Apr 2023 08:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289415;
-        bh=9ZU1sxrhWqxDPnkCAnIMktVGi6ySnIVZf5SpqMfZr4c=;
+        s=korg; t=1681288553;
+        bh=zAWVvsQVFHc9ubP8aNPZh/Bwz3WiDRikp0z37JdnMXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPdqE6p51mAmdZbJnlNFag95ly55gdCPX85abAHCALtKrhhaUHs2B0A6yGRMeNSNa
-         Cc5CdhNr+wixZY8sbmsRWXi/ZqOTfzO5eUGogL07Z+vVonmFhM51ctj17wq6CY5APN
-         NsVrFzfJnBfMOT/D1A6l2niHx003nEQjjH9T6o+8=
+        b=fcC5ElGG/U0IbEEmRlvyq5tWz7lkflqx1XxEjuST7x7QumETbun28koBEtzIW4h8a
+         PGEN4Gu95zOSBIyBpAr/CnONshzpimMD26XJ/W9iIYUp52SADNNfI0p8HwghMK9c9v
+         ksmHFiJPrN7hu/MXiqSHaV8bFs3gwaNBKS0RTA70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ira Weiny <ira.weiny@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 6.2 060/173] PCI/DOE: Fix memory leak with CONFIG_DEBUG_OBJECTS=y
-Date:   Wed, 12 Apr 2023 10:33:06 +0200
-Message-Id: <20230412082840.528682137@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 06/93] soc: sifive: ccache: fix missing free_irq() in error path in sifive_ccache_init()
+Date:   Wed, 12 Apr 2023 10:33:07 +0200
+Message-Id: <20230412082823.310163512@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,38 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit abf04be0e7071f2bcd39bf97ba407e7d4439785e upstream.
+[ Upstream commit 756344e7cb1afbb87da8705c20384dddd0dea233 ]
 
-After a pci_doe_task completes, its work_struct needs to be destroyed
-to avoid a memory leak with CONFIG_DEBUG_OBJECTS=y.
+Add missing free_irq() before return error from sifive_ccache_init().
 
-Fixes: 9d24322e887b ("PCI/DOE: Add DOE mailbox support functions")
-Tested-by: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: stable@vger.kernel.org # v6.0+
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lore.kernel.org/r/775768b4912531c3b887d405fc51a50e465e1bf9.1678543498.git.lukas@wunner.de
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/doe.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/sifive/sifive_ccache.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/doe.c
-+++ b/drivers/pci/doe.c
-@@ -224,6 +224,7 @@ static void signal_task_complete(struct
- {
- 	task->rv = rv;
- 	task->complete(task);
-+	destroy_work_on_stack(&task->work);
- }
+diff --git a/drivers/soc/sifive/sifive_ccache.c b/drivers/soc/sifive/sifive_ccache.c
+index 335e4303fb928..4b9d0a656a979 100644
+--- a/drivers/soc/sifive/sifive_ccache.c
++++ b/drivers/soc/sifive/sifive_ccache.c
+@@ -234,7 +234,7 @@ static int __init sifive_ccache_init(void)
+ 				 NULL);
+ 		if (rc) {
+ 			pr_err("Could not request IRQ %d\n", g_irq[i]);
+-			goto err_unmap;
++			goto err_free_irq;
+ 		}
+ 	}
  
- static void signal_task_abort(struct pci_doe_task *task, int rv)
+@@ -248,6 +248,9 @@ static int __init sifive_ccache_init(void)
+ #endif
+ 	return 0;
+ 
++err_free_irq:
++	while (--i >= 0)
++		free_irq(g_irq[i], NULL);
+ err_unmap:
+ 	iounmap(ccache_base);
+ 	return rc;
+-- 
+2.39.2
+
 
 
