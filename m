@@ -2,61 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FBE76DEA51
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 06:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D613A6DEA53
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 06:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbjDLEU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 00:20:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
+        id S229516AbjDLEUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 00:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229516AbjDLEUY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 00:20:24 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850DE268A;
-        Tue, 11 Apr 2023 21:20:23 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id y11-20020a17090a600b00b0024693e96b58so9267722pji.1;
-        Tue, 11 Apr 2023 21:20:23 -0700 (PDT)
+        with ESMTP id S229634AbjDLEU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 00:20:29 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D754468D;
+        Tue, 11 Apr 2023 21:20:28 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id g3so11474966pja.2;
+        Tue, 11 Apr 2023 21:20:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681273223; x=1683865223;
+        d=gmail.com; s=20221208; t=1681273227; x=1683865227;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Y4IOmy3b56e4fr9kImeRiAKyUprXNmIrwZPgWk/ZeOk=;
-        b=dafrD2NrCOk26li468Xsgot84smh8BLDTUdYDWr3D/p55vYOuemvPTHGnZygXfR2M2
-         fQ5C6T83yKDDfhLgjgRVXbU+1PfKDbFig7d7461nNb2hBAQ6rUwckfxk/lBT9mJOoU6x
-         9N+MbmA8znk1NnZe8GfV2y8PLAzK7u2k8dB2ZutKoDcCmeTg8VY5uThJ0xGW/79S9XEG
-         RyUcCCAuGOipOf0ikQkHkrPB+WB0IpfNi5T/E3sqhzMTOlhLdr5mfC5EI+G9z5htv8rG
-         N2Vm4k84+bdtYDKf071fHK8+kzm7j/iPrawTGisLB1vOFhJgtnDRv39dbe5QnzbY773j
-         Z6gg==
+        bh=KSIQbw75eFFmcyo44AtEoA6kDkKcUqP4sxKGrhsBuD8=;
+        b=eYOHExniI1JcCrr/e9OfNjDIB13OkVl5IdSEi9oBLjFitd/RuHKpC9mV/l9NacFmNG
+         ay/fCU6taXmlYSIj8J8LkUp4wQoLHa4UoiUEamOV+13ZlqCPEMrZyjjdM17qtqvLgqZL
+         JDLFJ4mbslfk53624f2K76orXV2GklQyyX/pLlIx6LGyPwSCnFHW6nbtua1tj/LPsuBz
+         Sn6SZe1LbZyMlswCso0GKLnRyfROgC8PQydfuFgMTHWWsS/33RupkvrsaxIMA2k4Cju5
+         woChRCKfC2+Y3AKTkDPgVpkS3uUF61ofnCoq4tS9falJ3sKGo03YCxZ/3oiQgo1qqMv6
+         lLwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681273223; x=1683865223;
+        d=1e100.net; s=20210112; t=1681273227; x=1683865227;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Y4IOmy3b56e4fr9kImeRiAKyUprXNmIrwZPgWk/ZeOk=;
-        b=u7OaJTMT++am1hVplJnBtXG++KzVzYeBjvwZooLSTOX1PiqaS5X2FtXZTZldEFdURZ
-         EbXkjs1X3dOLBI8BGHyoeTv6NtL6LVZwTY5+AjZghrq+vOa++kptdF4HHSpvwup4E/bI
-         NQqxv8s6PAXfWBxMQNlWAmmxliMgZ5LdWcH73Y8MYSpFsNEVJrrri6O90cIvf0can7/G
-         +QzJyzVc1RJSN2O8h4vzjmp9y1JkwPIi7UZrJSJozN8u+hO6h8MiEUOTlcD5Cax2tIwr
-         mU9kQshhaRHuxWej1KJJQb4+OKjyFqHsrzM9N8PEMZrmiWI3LGI/98tnMfwUSwywVLCi
-         3Dzg==
-X-Gm-Message-State: AAQBX9cuI9kqbq3+PMI6tseepgYhg4Wxxd4ZHe75Sohg9xhGqbGTe5gv
-        3L7x1MkN0JH2aYtBJmDPwWqc0eQ5K9lVIA==
-X-Google-Smtp-Source: AKy350anle5fekcfSDTPpaFOciAdChyPE+/RMnJfCpMLBXYaAOVzt1S5VhispkFplPQV7yqKnYU9RA==
-X-Received: by 2002:a17:903:186:b0:19d:20a:a219 with SMTP id z6-20020a170903018600b0019d020aa219mr5229941plg.66.1681273222785;
-        Tue, 11 Apr 2023 21:20:22 -0700 (PDT)
+        bh=KSIQbw75eFFmcyo44AtEoA6kDkKcUqP4sxKGrhsBuD8=;
+        b=w3wu8TCXk1UAFKC19oqXTaIa46euVBThB5mOwM0FE1Z7CUtM5FqXkvLl835icIi1IB
+         CgYT+3NlYBcueQfMkSNAQ5zSpAuvWItrs+LYNtJa74Cfa8GUv8XquAXGqwbbuLQeIdsp
+         EMjyq2g+WQdtiv6B+XhS9I/VgeUBEwg7oZBm+RHpGS4IV6hE6kiw+hzdGX6LEJiho+5X
+         /YZ7wZIc4MsS6FjtPCiFNrYok2Zc3EI22qkHWu0/XGkTuvGBV0ls3hbXXSkWCQhcUeoE
+         nWA6hjS+CipeSXlvgvjBx2ZCLpvce7BKMWXxPMqUQPZy7FBnbmToePRA7bE1/r+FI9uV
+         wnDQ==
+X-Gm-Message-State: AAQBX9fYVe5C7UpBrVE9eHSeRm5fIl/YdUzCxb5PWRrcEK2sxeB+B2Qd
+        9J9YIQ+MALnq89Za2SM9vOb1xoEF0b6tgg==
+X-Google-Smtp-Source: AKy350bW1TUt40HezUce7hCbj3feIWyJ12TdPXMK0bkKC+8eJDYOg72ZqN6LrsI8CBvgc8Jjk7OATg==
+X-Received: by 2002:a17:902:f08d:b0:1a0:5bb1:3f0b with SMTP id p13-20020a170902f08d00b001a05bb13f0bmr4735981pla.40.1681273227597;
+        Tue, 11 Apr 2023 21:20:27 -0700 (PDT)
 Received: from virtualbox.www.tendawifi.com ([47.96.236.37])
-        by smtp.gmail.com with ESMTPSA id t13-20020a1709028c8d00b001a19196af48sm10412381plo.64.2023.04.11.21.20.20
+        by smtp.gmail.com with ESMTPSA id t13-20020a1709028c8d00b001a19196af48sm10412381plo.64.2023.04.11.21.20.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Apr 2023 21:20:22 -0700 (PDT)
+        Tue, 11 Apr 2023 21:20:26 -0700 (PDT)
 From:   Yang Bo <yyyeer.bo@gmail.com>
 X-Google-Original-From: Yang Bo <yb203166@antfin.com>
 To:     stable@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, mszeredi@redhat.com,
+        Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>,
+        Zhang Tianci <zhangtianci.1997@bytedance.com>,
         Yang Bo <yb203166@antfin.com>
-Subject: [PATCH 4/6] fuse: fix attr version comparison in fuse_read_update_size()
-Date:   Wed, 12 Apr 2023 12:19:33 +0800
-Message-Id: <20230412041935.1556-5-yb203166@antfin.com>
+Subject: [PATCH 5/6] fuse: always revalidate rename target dentry
+Date:   Wed, 12 Apr 2023 12:19:34 +0800
+Message-Id: <20230412041935.1556-6-yb203166@antfin.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412041935.1556-1-yb203166@antfin.com>
 References: <20230412041935.1556-1-yb203166@antfin.com>
@@ -72,37 +74,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
 
-commit 484ce65715b06aead8c4901f01ca32c5a240bc71 upstream.
+commit ccc031e26afe60d2a5a3d93dabd9c978210825fb upstream.
 
 [backport for 5.10.y]
 
-A READ request returning a short count is taken as indication of EOF, and
-the cached file size is modified accordingly.
+The previous commit df8629af2934 ("fuse: always revalidate if exclusive
+create") ensures that the dentries are revalidated on O_EXCL creates.  This
+commit complements it by also performing revalidation for rename target
+dentries.  Otherwise, a rename target file that only exists in kernel
+dentry cache but not in the filesystem will result in EEXIST if
+RENAME_NOREPLACE flag is used.
 
-Fix the attribute version checking to allow for changes to fc->attr_version
-on other inodes.
-
+Signed-off-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Yang Bo <yb203166@antfin.com>
 ---
- fs/fuse/file.c | 2 +-
+ fs/fuse/dir.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 504389568dac..94fe2c690676 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -782,7 +782,7 @@ static void fuse_read_update_size(struct inode *inode, loff_t size,
- 	struct fuse_inode *fi = get_fuse_inode(inode);
- 
- 	spin_lock(&fi->lock);
--	if (attr_ver == fi->attr_version && size < inode->i_size &&
-+	if (attr_ver >= fi->attr_version && size < inode->i_size &&
- 	    !test_bit(FUSE_I_SIZE_UNSTABLE, &fi->state)) {
- 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
- 		i_size_write(inode, size);
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 80a9e50392a0..bdb04bea0da9 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -205,7 +205,7 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
+ 	if (inode && fuse_is_bad(inode))
+ 		goto invalid;
+ 	else if (time_before64(fuse_dentry_time(entry), get_jiffies_64()) ||
+-		 (flags & (LOOKUP_EXCL | LOOKUP_REVAL))) {
++		 (flags & (LOOKUP_EXCL | LOOKUP_REVAL | LOOKUP_RENAME_TARGET))) {
+ 		struct fuse_entry_out outarg;
+ 		FUSE_ARGS(args);
+ 		struct fuse_forget_link *forget;
 -- 
 2.40.0
 
