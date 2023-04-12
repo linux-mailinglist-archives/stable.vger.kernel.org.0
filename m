@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C74C6DEF6D
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B306A6DEEC6
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230204AbjDLIuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:50:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37350 "EHLO
+        id S230519AbjDLIpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231365AbjDLIuo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:44 -0400
+        with ESMTP id S231145AbjDLIog (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC4C9ED5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863A783FF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DF2D62A53
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8166EC4339C;
-        Wed, 12 Apr 2023 08:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D83196303A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:43:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8BDEC433EF;
+        Wed, 12 Apr 2023 08:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289383;
-        bh=dpVJIteif6fRab4prIkffDFyzquENbtYNGrCWADgfpg=;
+        s=korg; t=1681289037;
+        bh=X3v1Du2kXgEipHjKRqV75GcJkfM8lK6TZ4VZvLt08uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kv3ztNB+N/UcvyKXGuuTRSg1cpEkJtV253SG2Iht8oKi4sYdEiRo9SJyzziTpN4qY
-         9HiowPCzl6N7Ty/ff4GgszCk4JjFfSdUuzG4dNVUrjjhghnl09tzqerjjcbNj3YOqD
-         0jeM1RVMZWLOZKLCQhphUWGGeeGuNzIN4U36dyaM=
+        b=fo6Jlmly8ZJFXWpF5oxkAOFbP7F7iX1m0XFljCi0G7EetwOEH5RxV+0wZA9GNHW/f
+         A+fy071xvcleoN2jV76Us+hxnzIab2k0HsAcS9Oy4u6gQnHBCWQmBjXB7F/g6seVaX
+         SV05EdNPJfn/5jke9SYEqXducpfJ0ZrtMXU8LkR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.2 078/173] iio: buffer: correctly return bytes written in output buffers
+        syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 082/164] nilfs2: fix potential UAF of struct nilfs_sc_info in nilfs_segctor_thread()
 Date:   Wed, 12 Apr 2023 10:33:24 +0200
-Message-Id: <20230412082841.212482522@linuxfoundation.org>
+Message-Id: <20230412082840.235800886@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit b5184a26a28fac1d708b0bfeeb958a9260c2924c upstream.
+commit 6be49d100c22ffea3287a4b19d7639d259888e33 upstream.
 
-If for some reason 'rb->access->write()' does not write the full
-requested data and the O_NONBLOCK is set, we would return 'n' to
-userspace which is not really truth. Hence, let's return the number of
-bytes we effectively wrote.
+The finalization of nilfs_segctor_thread() can race with
+nilfs_segctor_kill_thread() which terminates that thread, potentially
+causing a use-after-free BUG as KASAN detected.
 
-Fixes: 9eeee3b0bf190 ("iio: Add output buffer support")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20230216101452.591805-2-nuno.sa@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+At the end of nilfs_segctor_thread(), it assigns NULL to "sc_task" member
+of "struct nilfs_sc_info" to indicate the thread has finished, and then
+notifies nilfs_segctor_kill_thread() of this using waitqueue
+"sc_wait_task" on the struct nilfs_sc_info.
+
+However, here, immediately after the NULL assignment to "sc_task", it is
+possible that nilfs_segctor_kill_thread() will detect it and return to
+continue the deallocation, freeing the nilfs_sc_info structure before the
+thread does the notification.
+
+This fixes the issue by protecting the NULL assignment to "sc_task" and
+its notification, with spinlock "sc_state_lock" of the struct
+nilfs_sc_info.  Since nilfs_segctor_kill_thread() does a final check to
+see if "sc_task" is NULL with "sc_state_lock" locked, this can eliminate
+the race.
+
+Link: https://lkml.kernel.org/r/20230327175318.8060-1-konishi.ryusuke@gmail.com
+Reported-by: syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com
+Link: https://lkml.kernel.org/r/00000000000000660d05f7dfa877@google.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-buffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nilfs2/segment.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -220,7 +220,7 @@ static ssize_t iio_buffer_write(struct f
- 	} while (ret == 0);
- 	remove_wait_queue(&rb->pollq, &wait);
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2607,11 +2607,10 @@ static int nilfs_segctor_thread(void *ar
+ 	goto loop;
  
--	return ret < 0 ? ret : n;
-+	return ret < 0 ? ret : written;
+  end_thread:
+-	spin_unlock(&sci->sc_state_lock);
+-
+ 	/* end sync. */
+ 	sci->sc_task = NULL;
+ 	wake_up(&sci->sc_wait_task); /* for nilfs_segctor_kill_thread() */
++	spin_unlock(&sci->sc_state_lock);
+ 	return 0;
  }
  
- /**
 
 
