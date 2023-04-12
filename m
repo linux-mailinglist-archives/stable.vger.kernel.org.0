@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 573726DEF8F
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D906F6DEECA
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231354AbjDLIvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:51:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39872 "EHLO
+        id S229982AbjDLIpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjDLIvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:49 -0400
+        with ESMTP id S231245AbjDLIou (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA3B974F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39FD886B1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86F4B62FF1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96BDAC433D2;
-        Wed, 12 Apr 2023 08:51:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B688A63094
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD804C4339C;
+        Wed, 12 Apr 2023 08:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289485;
-        bh=eHmIpHBznLPl+BQ3GzuwgCFKE9FGLeADOBYQl3lsYXk=;
+        s=korg; t=1681289056;
+        bh=F5YHa/cR8Xm5T1b2AopomUqRvZ+MUhNjnm2MVtt7spQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ML/vh5hSQ00JTUDXj58jKZ4D6okDWUQX335qMmNfiy7PafuCacZGY3NHr5IfKIJZ7
-         vpNQ+FwBkUMwU0GPbzMzifGC9IIrr+L6yosHEYVIb2Cd/Rm5Luu+bYbmiNfIOBIVEa
-         soIEy537HgJqItWLGlCWxLZwECsDO6msiqfIoN3A=
+        b=Hqmu3Jn2AbFtFSeoMoBdZ8HkANA9bxEfGt9qhXeAUuHCSfV0tV5CN9jC8iJc9s4PU
+         gZbIKPhnA+oZsBxHw9DGy9B/F48JZi61/ya4rlgMST62Iw6//v1sJAZAbfRNTmsON7
+         eeVTHxZqrjFSPPEu74fWsqsNhzTjOEIp1TZGw8AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mario Limonciello <mario.limonciello@amd.com>,
         Hans de Goede <hdegoede@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 6.2 116/173] ACPI: video: Add auto_detect arg to __acpi_video_get_backlight_type()
+Subject: [PATCH 6.1 120/164] ACPI: video: Add acpi_backlight=video quirk for Apple iMac14,1 and iMac14,2
 Date:   Wed, 12 Apr 2023 10:34:02 +0200
-Message-Id: <20230412082842.784066938@linuxfoundation.org>
+Message-Id: <20230412082841.686464357@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,18 +57,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit 78dfc9d1d1abb9e400386fa9c5724a8f7d75e3b9 upstream.
+commit 2699107989431d6db44f8a9e809ea74c387336d1 upstream.
 
-Allow callers of __acpi_video_get_backlight_type() to pass a pointer
-to a bool which will get set to false if the backlight-type comes from
-the cmdline or a DMI quirk and set to true if auto-detection was used.
+On the Apple iMac14,1 and iMac14,2 all-in-ones (monitors with builtin "PC")
+the connection between the GPU and the panel is seen by the GPU driver as
+regular DP instead of eDP, causing the GPU driver to never call
+acpi_video_register_backlight().
 
-And make __acpi_video_get_backlight_type() non static so that it can
-be called directly outside of video_detect.c .
+(GPU drivers only call acpi_video_register_backlight() when an internal
+ panel is detected, to avoid non working acpi_video# devices getting
+ registered on desktops which unfortunately is a real issue.)
 
-While at it turn the acpi_video_get_backlight_type() and
-acpi_video_backlight_use_native() wrappers into static inline functions
-in include/acpi/video.h, so that we need to export one less symbol.
+Fix the missing acpi_video# backlight device on these all-in-ones by
+adding a acpi_backlight=video DMI quirk, so that video.ko will
+immediately register the backlight device instead of waiting for
+an acpi_video_register_backlight() call.
 
 Fixes: 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for creating ACPI backlight by default")
 Cc: All applicable <stable@vger.kernel.org>
@@ -77,88 +80,40 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   21 ++++++++-------------
- include/acpi/video.h        |   15 +++++++++++++--
- 2 files changed, 21 insertions(+), 15 deletions(-)
+ drivers/acpi/video_detect.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 --- a/drivers/acpi/video_detect.c
 +++ b/drivers/acpi/video_detect.c
-@@ -774,7 +774,7 @@ static bool prefer_native_over_acpi_vide
-  * Determine which type of backlight interface to use on this system,
-  * First check cmdline, then dmi quirks, then do autodetect.
-  */
--static enum acpi_backlight_type __acpi_video_get_backlight_type(bool native)
-+enum acpi_backlight_type __acpi_video_get_backlight_type(bool native, bool *auto_detect)
- {
- 	static DEFINE_MUTEX(init_mutex);
- 	static bool nvidia_wmi_ec_present;
-@@ -799,6 +799,9 @@ static enum acpi_backlight_type __acpi_v
- 		native_available = true;
- 	mutex_unlock(&init_mutex);
+@@ -275,6 +275,29 @@ static const struct dmi_system_id video_
+ 	},
  
-+	if (auto_detect)
-+		*auto_detect = false;
-+
  	/*
- 	 * The below heuristics / detection steps are in order of descending
- 	 * presedence. The commandline takes presedence over anything else.
-@@ -810,6 +813,9 @@ static enum acpi_backlight_type __acpi_v
- 	if (acpi_backlight_dmi != acpi_backlight_undef)
- 		return acpi_backlight_dmi;
- 
-+	if (auto_detect)
-+		*auto_detect = true;
++	 * Models which need acpi_video backlight control where the GPU drivers
++	 * do not call acpi_video_register_backlight() because no internal panel
++	 * is detected. Typically these are all-in-ones (monitors with builtin
++	 * PC) where the panel connection shows up as regular DP instead of eDP.
++	 */
++	{
++	 .callback = video_detect_force_video,
++	 /* Apple iMac14,1 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "iMac14,1"),
++		},
++	},
++	{
++	 .callback = video_detect_force_video,
++	 /* Apple iMac14,2 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "iMac14,2"),
++		},
++	},
 +
- 	/* Special cases such as nvidia_wmi_ec and apple gmux. */
- 	if (nvidia_wmi_ec_present)
- 		return acpi_backlight_nvidia_wmi_ec;
-@@ -829,15 +835,4 @@ static enum acpi_backlight_type __acpi_v
- 	/* No ACPI video/native (old hw), use vendor specific fw methods. */
- 	return acpi_backlight_vendor;
- }
--
--enum acpi_backlight_type acpi_video_get_backlight_type(void)
--{
--	return __acpi_video_get_backlight_type(false);
--}
--EXPORT_SYMBOL(acpi_video_get_backlight_type);
--
--bool acpi_video_backlight_use_native(void)
--{
--	return __acpi_video_get_backlight_type(true) == acpi_backlight_native;
--}
--EXPORT_SYMBOL(acpi_video_backlight_use_native);
-+EXPORT_SYMBOL(__acpi_video_get_backlight_type);
---- a/include/acpi/video.h
-+++ b/include/acpi/video.h
-@@ -59,8 +59,6 @@ extern void acpi_video_unregister(void);
- extern void acpi_video_register_backlight(void);
- extern int acpi_video_get_edid(struct acpi_device *device, int type,
- 			       int device_id, void **edid);
--extern enum acpi_backlight_type acpi_video_get_backlight_type(void);
--extern bool acpi_video_backlight_use_native(void);
- /*
-  * Note: The value returned by acpi_video_handles_brightness_key_presses()
-  * may change over time and should not be cached.
-@@ -69,6 +67,19 @@ extern bool acpi_video_handles_brightnes
- extern int acpi_video_get_levels(struct acpi_device *device,
- 				 struct acpi_video_device_brightness **dev_br,
- 				 int *pmax_level);
-+
-+extern enum acpi_backlight_type __acpi_video_get_backlight_type(bool native,
-+								bool *auto_detect);
-+
-+static inline enum acpi_backlight_type acpi_video_get_backlight_type(void)
-+{
-+	return __acpi_video_get_backlight_type(false, NULL);
-+}
-+
-+static inline bool acpi_video_backlight_use_native(void)
-+{
-+	return __acpi_video_get_backlight_type(true, NULL) == acpi_backlight_native;
-+}
- #else
- static inline void acpi_video_report_nolcd(void) { return; };
- static inline int acpi_video_register(void) { return -ENODEV; }
++	/*
+ 	 * These models have a working acpi_video backlight control, and using
+ 	 * native backlight causes a regression where backlight does not work
+ 	 * when userspace is not handling brightness key events. Disable
 
 
