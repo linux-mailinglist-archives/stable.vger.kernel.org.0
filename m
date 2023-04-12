@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B76CD6DEE78
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5146DEF30
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbjDLIl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50888 "EHLO
+        id S231164AbjDLItB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbjDLIla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:30 -0400
+        with ESMTP id S231294AbjDLIsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA68F7D9A
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963747ED9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B34F62FE3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACED5C433EF;
-        Wed, 12 Apr 2023 08:40:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B418D6311B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84C2C433EF;
+        Wed, 12 Apr 2023 08:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288839;
-        bh=SmXS5Ebdj0Vnye9XQrXrz32ksS3uJJDPt0GV8zWs2/I=;
+        s=korg; t=1681289264;
+        bh=AeKYbk+bSL0H5ExY4FVuP8fdSoNMmFesGea8FnmH6Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emgCd44aMlXbvVUQWqhTGw0NzIBml82lXPnbipWdJKxXP44eIXXYCWUHhk1GgoI2L
-         UhUXcOVBW19uJqZqhzDeY8G84/tTqUMADkgpMBoSs6IKrz7gDdZmH9hBrmdHsJRBkA
-         7tkcxj875w9/saeb3LNZmvaA9nUjLSVoleNu5/NM=
+        b=dEtY+d9aRUHnKR1c4Fw8QWJHWMBTtKeXXHkt0OJ78A367K/R7Tww0XPmYhpHatP5K
+         yHgGjMrlaWELfBDWwEN6vWNkOwO3cQkESxzAl/8pvV2p27QZE74p5c3V+871jngXjr
+         f83dtpNfvoz7tscBaFDIYouyAzph3HbhXhd+0BP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 036/164] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
-Date:   Wed, 12 Apr 2023 10:32:38 +0200
-Message-Id: <20230412082838.408850454@linuxfoundation.org>
+Subject: [PATCH 6.2 033/173] drm/i915/huc: Cancel HuC delayed load timer on reset.
+Date:   Wed, 12 Apr 2023 10:32:39 +0200
+Message-Id: <20230412082839.416958261@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,99 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
 
-[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
+[ Upstream commit c74237496fbc799257b091179dd01a3200f7314d ]
 
-Syzbot reported a bug as following:
+In the rare case where we do a full GT reset after starting the HuC
+load and before it completes (which basically boils down to i915 hanging
+during init), we need to cancel the delayed load fence, as it will be
+re-initialized in the post-reset recovery.
 
-=====================================================
-BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
-BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
-BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
-BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
- arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
- arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
- atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
- __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
- ip6_finish_skb include/net/ipv6.h:1122 [inline]
- ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
- rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
- rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
- inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
- ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
- __sys_sendmsg net/socket.c:2559 [inline]
- __do_sys_sendmsg net/socket.c:2568 [inline]
- __se_sys_sendmsg net/socket.c:2566 [inline]
- __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
- kmalloc_reserve net/core/skbuff.c:492 [inline]
- __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
- alloc_skb include/linux/skbuff.h:1270 [inline]
- __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
- ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
- rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
- inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
- ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
- __sys_sendmsg net/socket.c:2559 [inline]
- __do_sys_sendmsg net/socket.c:2568 [inline]
- __se_sys_sendmsg net/socket.c:2566 [inline]
- __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-It is because icmp6hdr does not in skb linear region under the scenario
-of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
-trigger the uninit variable access bug.
-
-Use a local variable icmp6_type to carry the correct value in different
-scenarios.
-
-Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
-Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 27536e03271d ("drm/i915/huc: track delayed HuC load with a fence")
+Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
+Reviewed-by: Alan Previn <alan.previn.teres.alexis@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230313205556.1174503-1-daniele.ceraolospurio@intel.com
+(cherry picked from commit cdf7911f7dbcb37228409a63bf75630776c45a15)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_output.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gt/uc/intel_huc.c | 7 +++++++
+ drivers/gpu/drm/i915/gt/uc/intel_huc.h | 7 +------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index c314fdde0097c..95a55c6630add 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1965,8 +1965,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
- 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
- 	if (proto == IPPROTO_ICMPV6) {
- 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
-+		u8 icmp6_type;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_huc.c b/drivers/gpu/drm/i915/gt/uc/intel_huc.c
+index 410905da8e974..0c103ca160d10 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_huc.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_huc.c
+@@ -235,6 +235,13 @@ static void delayed_huc_load_fini(struct intel_huc *huc)
+ 	i915_sw_fence_fini(&huc->delayed_load.fence);
+ }
  
--		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
-+		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
-+			icmp6_type = fl6->fl6_icmp_type;
-+		else
-+			icmp6_type = icmp6_hdr(skb)->icmp6_type;
-+		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
- 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
- 	}
++int intel_huc_sanitize(struct intel_huc *huc)
++{
++	delayed_huc_load_complete(huc);
++	intel_uc_fw_sanitize(&huc->fw);
++	return 0;
++}
++
+ static bool vcs_supported(struct intel_gt *gt)
+ {
+ 	intel_engine_mask_t mask = gt->info.engine_mask;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_huc.h b/drivers/gpu/drm/i915/gt/uc/intel_huc.h
+index 52db03620c609..db555b3c1f562 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_huc.h
++++ b/drivers/gpu/drm/i915/gt/uc/intel_huc.h
+@@ -41,6 +41,7 @@ struct intel_huc {
+ 	} delayed_load;
+ };
  
++int intel_huc_sanitize(struct intel_huc *huc);
+ void intel_huc_init_early(struct intel_huc *huc);
+ int intel_huc_init(struct intel_huc *huc);
+ void intel_huc_fini(struct intel_huc *huc);
+@@ -54,12 +55,6 @@ bool intel_huc_is_authenticated(struct intel_huc *huc);
+ void intel_huc_register_gsc_notifier(struct intel_huc *huc, struct bus_type *bus);
+ void intel_huc_unregister_gsc_notifier(struct intel_huc *huc, struct bus_type *bus);
+ 
+-static inline int intel_huc_sanitize(struct intel_huc *huc)
+-{
+-	intel_uc_fw_sanitize(&huc->fw);
+-	return 0;
+-}
+-
+ static inline bool intel_huc_is_supported(struct intel_huc *huc)
+ {
+ 	return intel_uc_fw_is_supported(&huc->fw);
 -- 
 2.39.2
 
