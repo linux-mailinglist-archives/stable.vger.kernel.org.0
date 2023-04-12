@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD636DEED0
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF8D06DEED2
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230391AbjDLIpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50554 "EHLO
+        id S230242AbjDLIpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbjDLIoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:54 -0400
+        with ESMTP id S231278AbjDLIoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F30EB6A49
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911CD10CF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4CC8630CA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0CF0C433D2;
-        Wed, 12 Apr 2023 08:44:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B67B630D6
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82CCC433EF;
+        Wed, 12 Apr 2023 08:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289069;
-        bh=I0+46HlBogmXBSNOixqGDnQmBCzm44ivNBTQu28y+8k=;
+        s=korg; t=1681289072;
+        bh=uJMiymhdTU7V1fSeMZev4DrLUqmsuiVKuLiE18aQeXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAJ0qhE+9rEpSXSmLtE8PHE4Y2hKzNO7CZ2Tj1DIjWtr+bHBpdA0rUV/xhga4a0ho
-         IBoPCjpnHLC6UhlOVxRs/I4K5q/temua5Rk/kzNRHvoE+m9+/xr9f+aYvkhxWwjNld
-         4Sq9yN1Xd2wxrF43jX2awv8XkvawYmJmvfC6fGA0=
+        b=gVsJ/2D7vq1c4FPfz2zDpw2I3AF/dXQ3oBBC21FY3Rz/WyJ3tX/9DEUokeCM/2BYN
+         JzAxgxMja/4H+dFIT3mpikJsHruL4cl8QvlsWvnxLYKOv39c7x+SwC6yEHt6vL4OQi
+         gYT6JaR5s/M5vqY50ZlrUWGlA2q1eHtkhr6hCuYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 125/164] tracing/osnoise: Fix notify new tracing_max_latency
-Date:   Wed, 12 Apr 2023 10:34:07 +0200
-Message-Id: <20230412082841.908299598@linuxfoundation.org>
+Subject: [PATCH 6.1 126/164] tracing: Free error logs of tracing instances
+Date:   Wed, 12 Apr 2023 10:34:08 +0200
+Message-Id: <20230412082841.960761685@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
 References: <20230412082836.695875037@linuxfoundation.org>
@@ -54,36 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit d3cba7f02cd82118c32651c73374d8a5a459d9a6 upstream.
+commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
 
-osnoise/timerlat tracers are reporting new max latency on instances
-where the tracing is off, creating inconsistencies between the max
-reported values in the trace and in the tracing_max_latency. Thus
-only report new tracing_max_latency on active tracing instances.
+When a tracing instance is removed, the error messages that hold errors
+that occurred in the instance needs to be freed. The following reports a
+memory leak:
 
-Link: https://lkml.kernel.org/r/ecd109fde4a0c24ab0f00ba1e9a144ac19a91322.1680104184.git.bristot@kernel.org
+ # cd /sys/kernel/tracing
+ # mkdir instances/foo
+ # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
+ # cat instances/foo/error_log
+ [  117.404795] hist:sched:sched_switch: error: Couldn't find field
+   Command: hist:keys=x
+                      ^
+ # rmdir instances/foo
+
+Then check for memory leaks:
+
+ # echo scan > /sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff88810d8ec700 (size 192):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
+    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
+  backtrace:
+    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
+    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+unreferenced object 0xffff888170c35a00 (size 32):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
+    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
+  backtrace:
+    [<000000006a747de5>] __kmalloc+0x4d/0x160
+    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+
+The problem is that the error log needs to be freed when the instance is
+removed.
+
+Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
+Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
 
 Cc: stable@vger.kernel.org
-Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_osnoise.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1270,7 +1270,7 @@ static void notify_new_max_latency(u64 l
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(inst, &osnoise_instances, list) {
- 		tr = inst->tr;
--		if (tr->max_latency < latency) {
-+		if (tracer_tracing_is_on(tr) && tr->max_latency < latency) {
- 			tr->max_latency = latency;
- 			latency_fsnotify(tr);
- 		}
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9470,6 +9470,7 @@ static int __remove_instance(struct trac
+ 	tracefs_remove(tr->dir);
+ 	free_percpu(tr->last_func_repeats);
+ 	free_trace_buffers(tr);
++	clear_tracing_err_log(tr);
+ 
+ 	for (i = 0; i < tr->nr_topts; i++) {
+ 		kfree(tr->topts[i].topts);
 
 
