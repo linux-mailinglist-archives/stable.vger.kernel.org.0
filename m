@@ -2,246 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B576DE733
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 00:26:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3639C6DE8C6
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 03:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229531AbjDKW0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Apr 2023 18:26:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38850 "EHLO
+        id S229578AbjDLBS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Apr 2023 21:18:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbjDKW0Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 18:26:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565CD3C2F;
-        Tue, 11 Apr 2023 15:26:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D183F6236A;
-        Tue, 11 Apr 2023 22:26:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 263EEC433EF;
-        Tue, 11 Apr 2023 22:26:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681251982;
-        bh=BE3gEYu6YZ6Jwfhq8HIZ8V24371AneVe1KYSDlsOCHA=;
-        h=Date:To:From:Subject:From;
-        b=p1orovF8C4mhcR7stxljPM7H2Z1ieDNAtW7WWdc0ukwdSLgjv+h/I5b6qkAzxqOH3
-         0HKKWZkA40h2Sd4cf4oLtj611UTjHvwW2ELVEd22xRpCfGcxqt9gm4oJsOrsqrQR6e
-         vPJiKRA0IWcBnJ5OKc00M79MaXh4Is4yEX0iuXp4=
-Date:   Tue, 11 Apr 2023 15:26:21 -0700
-To:     mm-commits@vger.kernel.org, yi.zhang@huawei.com,
-        yangerkun@huawei.com, viro@zeniv.linux.org.uk, tj@kernel.org,
-        stable@vger.kernel.org, jack@suse.cz, houtao1@huawei.com,
-        dennis@kernel.org, brauner@kernel.org, axboe@kernel.dk,
-        adilger.kernel@dilger.ca, libaokun1@huawei.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230411222622.263EEC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229549AbjDLBS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Apr 2023 21:18:56 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88CBFE41
+        for <stable@vger.kernel.org>; Tue, 11 Apr 2023 18:18:55 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=i6/6sBfUXnw4kKxH9bWm9osUJkzvT2J0AALvqjgLmxaf2JGdtOEOodoAksI2Ujz7CxOvz4oXLyXsxpEmcWz/a1MebiD+/Zw7ASArMOUJ4h/ZFVJ4rsS2YIJZMVVxXhrE1n+9jtgECR5OGm/5sZVy5t+wpdTD9CYxW6tF4f4Tu98Wyb5FFrwoNWAiaKwc5TYUixqSA4ZwYKLf8PjUsIVwUtTrsHxCFbldJAtAYtcoOWSHleuNpYlAz3WLyukvBgXlIzjKw7EZ4XQRSdY7wPSmbYC1Xgodcn2lt3XnIbsoNkvzeMKd3Z9RzbN5EBL2ApFMpNquFByUsjjAmeD3pRozkg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=S7R6Uo7XJd8r+s85TruOcOe7BfKxeutFxcVPc+bB1RI=;
+ b=kBkQ4HndzR4IxYGNZsazwqkaYrAkCcIubNhys9Dx+0TOVfAae31qpgz5Gb/gOXi+ripn/BQxMFyI9eA/+41Pr2KP7zS/IWggKZghReuBlLS7w96qbrEzHmXjuheJMfpVBVKcMVfq6WV9f7MLfl34+VRYABLyzETcvI0Vxiv2v7LpBz4U/h7LUN6ZOHlA0K8el4NC7y/YFA+rFCazMHFqsHOm7NtVB41Tf2kfVKHx7XKssI3gAZj4ppTmZxjITnPHGLRuYToTWIsPqmtoj0wspnSUwVA/EsLzPA2GU1IqkvT5TXuGap6TiHuGmRH6LSqJjaEQ/MIFiZjE7xh9LxVoyA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=S7R6Uo7XJd8r+s85TruOcOe7BfKxeutFxcVPc+bB1RI=;
+ b=Z7oyAxAAdYyVkL5R+0R/lVr3YIHRx/rLkFc3+5wI08IVu3QWCimX6W5R2zTlHmiHsPsxaXY1Q5sqU38pru7SYLxjGCW7I7sEJDTAYF4UsppXK/IT0lDTgNQaFi6bY+2StpWmEYIwwMyCWMK7YUnxMsTErhqHcFF+sJGmvPmp5NRglpruU/YUJfLiO3g+CD72j/SAEeqfxcAF099zCkwtSNZSqBWIvvuj6uz5ExOHEpvj/rGQhNAgQUcwvHsBgcwK2ZhuSvQa8/Gfo8rnIOux8F1viwJs5HJbRnnglLGucSj8HtZ953NTM5EEQSAt1cNgNDn3RsYDAC3AeIhigJCWEw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BYAPR12MB3176.namprd12.prod.outlook.com (2603:10b6:a03:134::26)
+ by DM6PR12MB4976.namprd12.prod.outlook.com (2603:10b6:5:1ba::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.30; Wed, 12 Apr
+ 2023 01:18:53 +0000
+Received: from BYAPR12MB3176.namprd12.prod.outlook.com
+ ([fe80::f9e4:206e:75c3:eaa7]) by BYAPR12MB3176.namprd12.prod.outlook.com
+ ([fe80::f9e4:206e:75c3:eaa7%6]) with mapi id 15.20.6277.031; Wed, 12 Apr 2023
+ 01:18:53 +0000
+From:   Alistair Popple <apopple@nvidia.com>
+To:     stable@vger.kernel.org
+Cc:     Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2.y] mm: take a page reference when removing device exclusive entries
+Date:   Wed, 12 Apr 2023 11:18:31 +1000
+Message-Id: <20230412011831.152625-1-apopple@nvidia.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <2023041153-unlikable-steam-cf2b@gregkh>
+References: <2023041153-unlikable-steam-cf2b@gregkh>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BY5PR20CA0018.namprd20.prod.outlook.com
+ (2603:10b6:a03:1f4::31) To BYAPR12MB3176.namprd12.prod.outlook.com
+ (2603:10b6:a03:134::26)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3176:EE_|DM6PR12MB4976:EE_
+X-MS-Office365-Filtering-Correlation-Id: a4fe5e97-60ac-459f-8f9c-08db3af3e106
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: RmT6sAq7o07SOyfBVngp6bFgBKM8SpUDvj7jweo9l7JSnTmZBV1CZ1v2LJPGYcBZkYV7vfx6L6TpHm7hCkEY81Hrr8+nv5jw0NLC7Z8bTEV/IZwHKQOQLxyZp4gY1+A+yPo6FIQO8CqkcyJNbcjAwCbkYfBMphdW/hqKQbQSs88344VGpFht5fN1IR2Jh6YH7/RT4p/R0f9BFUi3CKBYYHm4COau1WUq5EdpPn/5+Z67UvSgdyUKtxD79RJNXCb+RMFDvoFnVJy8JCZHIGI16xN9lO+pUPVMU9lHqw2us8u95Q0q0uiQQ9Fzc5RDl59KtgIDnVHSwnThn5D2X72y//QGx1X5Yg8oKVUzHbNB1xLse6/xU0f9iSAK+PUzh3rM4yT7hs7IQw6V8wX3omU37S0754As5erh4jsQ0TZ3z5YnrIgwdmB6rbA2WCe9MxFSNHAb/QnPaitvjtI3plb386LAvxN/AhfCWyLWf8iBiBQb4F94dnj5v5VdEYDm8Nnd1kDgo+PzC5ys+1T9XQSVkp5FVzoEPtkmWgylB8j4hPkbxu6wmJ7SpZgs/T+/GdB5pICakEye0Lo2ro7zUjM2TQxuDQ8LNsy3z5F3HQWvN6M=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB3176.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(136003)(39860400002)(376002)(346002)(396003)(451199021)(26005)(8676002)(8936002)(186003)(38100700002)(6512007)(6506007)(1076003)(316002)(966005)(478600001)(54906003)(86362001)(66946007)(66556008)(66476007)(6916009)(4326008)(36756003)(6486002)(6666004)(41300700001)(2616005)(83380400001)(2906002)(5660300002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zIpVe+3HZc2iF6WD27f1qHP1VGJ0kFgkJpkQ6iyTiljYvjSCH8EblW7WjlD4?=
+ =?us-ascii?Q?CM53mxB8g/I+dcZrwr2ZbPNW2EbL3A8AMs/aF4UwsZ4PRdXvBUaIQFPfhUbo?=
+ =?us-ascii?Q?u7B+GdvoUF+3CxoYsaWkS7k4cZ8rhJQDArDYscV8wH8uyl0ysT/y3cU15jj/?=
+ =?us-ascii?Q?iw/RImSX+35ZyNzT3rlIfju6RMUPyvGEViMJtIWBRkm0gE2G7WPEOhie5ORG?=
+ =?us-ascii?Q?YdRXVEGfxKNTbnx7RG/sjTSJQzbv7XbgQdtZpmZ6jICF94SFqdvDtH+yHC7S?=
+ =?us-ascii?Q?c2vFH1PcvuWjZf20xtq/eBizg+N8LRo8qNpjuU/F1XMfqa7EmqGluGDTuAOM?=
+ =?us-ascii?Q?01FL3caj+wuu9BE907PptL4/buteQ8HaOTtJY9AoYiHip7C00IkkvM9GyO+Z?=
+ =?us-ascii?Q?ZfPf4ZIMXcrY+TC0P3yTdRWDOU4uJzkz+elWXVBR0feNieXyu+7B437CTb3n?=
+ =?us-ascii?Q?f20WOs+TgOUQHEAk/5Epl1AuDB9z3FlzZfxRoYzXWzhioKjgnsr0FLi7YuRJ?=
+ =?us-ascii?Q?pyg/hs8KtLey6UI7jXeJ3tkZeVwgQZUUl+iec9AV7BmylQyJ9dDtZHeCVbuC?=
+ =?us-ascii?Q?2BVuJLrcsxAkFSJhYc00slzU6WlhPJETjH0NjeEvo7Nh2M0nOSupHpvW6BmA?=
+ =?us-ascii?Q?1nUXvtJsJg67O7Lbo76hT0GR45SQcdnBO2xhO756lJhiaxtHQOGzXyuJ9ONK?=
+ =?us-ascii?Q?6aw1zXryD2wu9IlHDgi0tj+c4Ky2qbrm/bxMHOGTM3c1LTYkS7Z3roFaLFPv?=
+ =?us-ascii?Q?OgJ2Y0Bis7rhjpKQK+wCOOlolRcf1H4+CZv0CuSQey7wq1clrdYlTAcEKSdn?=
+ =?us-ascii?Q?I1X6FhHUTs2AH01+MC/XGVKGAYRGYLx0W71IGou5yzR0WWho/0CqXa8pzB3Y?=
+ =?us-ascii?Q?Airw8MM6WzjMh1S9K2brxnzhgPeozc6KT5wjTvhQW6Odg36tBLX3LeR5eb+M?=
+ =?us-ascii?Q?MS2SUJdH/70P3MGvers0jRx3MyUgswLnW5roDlJ+uGQL1nC6i0ALDpT5Ab2t?=
+ =?us-ascii?Q?LyCPGPF7+Ne4GhEeHcYa403EvLj8RWo0ZX89uMGigfXZfkUzOXPRo1vbveDl?=
+ =?us-ascii?Q?7NXzEB/PQXHxSS/1LvtWThLzGC3osL+j2T1IgVUpfvp13awV3Pox1DB9U9IX?=
+ =?us-ascii?Q?YZ8YWe3yYf9EmZz22JEnqhzD75EYwzDyto52pmK6B06LDDnalj/5aBgMz6PZ?=
+ =?us-ascii?Q?M8Lr4r4DiKDfoFzBGnhN74xMf2wZ9SGLZT6x4xj+gJ8g8bqnZyzONLkQdbz5?=
+ =?us-ascii?Q?nefNz9Yju5SGXYPBaIfgHaX2OzzhJPFI73xL6tLpksx25yWtXDjL6tLWq1IT?=
+ =?us-ascii?Q?3oso24QA/yh/qX7YPFS78vZdprCzZBRXk2JNGaCpJE0kcms6gAzdugFOXPi7?=
+ =?us-ascii?Q?XNsxd785qN2WuNAKgbAZhEafVVAmMJLJiMSKiYuA2RAnc/RfRuuDbjXFKQRN?=
+ =?us-ascii?Q?1vPCimBPm/eFbRbejIMhD5CxggCxApoMYRv31kDlvd+KFnHRI7juFdiZxYEn?=
+ =?us-ascii?Q?jcvWJnKdsCcZKccfL2nichW3GTCtyDWahc84yP4dJlOCcM0ZCIE5y4kt8BzN?=
+ =?us-ascii?Q?vlFKC/2GLZdzgQpN/LGS23OvknohZlZVmkPdriC4?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a4fe5e97-60ac-459f-8f9c-08db3af3e106
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB3176.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2023 01:18:53.1806
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /kvjJ/bfMpNgd1WmUkLXZ0bEwoEa2PLH94ZIxj/QxjqOPaV7lsoBHxTbAbh6LyUSWUdtbNFSpS+wIIQ5YeFD4A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4976
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Device exclusive page table entries are used to prevent CPU access to a
+page whilst it is being accessed from a device.  Typically this is used to
+implement atomic operations when the underlying bus does not support
+atomic access.  When a CPU thread encounters a device exclusive entry it
+locks the page and restores the original entry after calling mmu notifiers
+to signal drivers that exclusive access is no longer available.
 
-The patch titled
-     Subject: writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch
+The device exclusive entry holds a reference to the page making it safe to
+access the struct page whilst the entry is present.  However the fault
+handling code does not hold the PTL when taking the page lock.  This means
+if there are multiple threads faulting concurrently on the device
+exclusive entry one will remove the entry whilst others will wait on the
+page lock without holding a reference.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch
+This can lead to threads locking or waiting on a folio with a zero
+refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
+they may still be freed by a migration.  This leads to warnings such as
+PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
+drops to zero.
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Fix this by trying to take a reference on the folio before locking it.
+The code already checks the PTE under the PTL and aborts if the entry is
+no longer there.  It is also possible the folio has been unmapped, freed
+and re-allocated allowing a reference to be taken on an unrelated folio.
+This case is also detected by the PTE check and the folio is unlocked
+without further changes.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Baokun Li <libaokun1@huawei.com>
-Subject: writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
-Date: Mon, 10 Apr 2023 21:08:26 +0800
-
-KASAN report null-ptr-deref:
-==================================================================
-BUG: KASAN: null-ptr-deref in bdi_split_work_to_wbs+0x5c5/0x7b0
-Write of size 8 at addr 0000000000000000 by task sync/943
-CPU: 5 PID: 943 Comm: sync Tainted: 6.3.0-rc5-next-20230406-dirty #461
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7f/0xc0
- print_report+0x2ba/0x340
- kasan_report+0xc4/0x120
- kasan_check_range+0x1b7/0x2e0
- __kasan_check_write+0x24/0x40
- bdi_split_work_to_wbs+0x5c5/0x7b0
- sync_inodes_sb+0x195/0x630
- sync_inodes_one_sb+0x3a/0x50
- iterate_supers+0x106/0x1b0
- ksys_sync+0x98/0x160
-[...]
-==================================================================
-
-The race that causes the above issue is as follows:
-
-           cpu1                     cpu2
--------------------------|-------------------------
-inode_switch_wbs
- INIT_WORK(&isw->work, inode_switch_wbs_work_fn)
- queue_rcu_work(isw_wq, &isw->work)
- // queue_work async
-  inode_switch_wbs_work_fn
-   wb_put_many(old_wb, nr_switched)
-    percpu_ref_put_many
-     ref->data->release(ref)
-     cgwb_release
-      queue_work(cgwb_release_wq, &wb->release_work)
-      // queue_work async
-       &wb->release_work
-       cgwb_release_workfn
-                            ksys_sync
-                             iterate_supers
-                              sync_inodes_one_sb
-                               sync_inodes_sb
-                                bdi_split_work_to_wbs
-                                 kmalloc(sizeof(*work), GFP_ATOMIC)
-                                 // alloc memory failed
-        percpu_ref_exit
-         ref->data = NULL
-         kfree(data)
-                                 wb_get(wb)
-                                  percpu_ref_get(&wb->refcnt)
-                                   percpu_ref_get_many(ref, 1)
-                                    atomic_long_add(nr, &ref->data->count)
-                                     atomic64_add(i, v)
-                                     // trigger null-ptr-deref
-
-bdi_split_work_to_wbs() traverses &bdi->wb_list to split work into all
-wbs.  If the allocation of new work fails, the on-stack fallback will be
-used and the reference count of the current wb is increased afterwards. 
-If cgroup writeback membership switches occur before getting the reference
-count and the current wb is released as old_wd, then calling wb_get() or
-wb_put() will trigger the null pointer dereference above.
-
-This issue was introduced in v4.3-rc7 (see fix tag1).  Both
-sync_inodes_sb() and __writeback_inodes_sb_nr() calls to
-bdi_split_work_to_wbs() can trigger this issue.  For scenarios called via
-sync_inodes_sb(), originally commit 7fc5854f8c6e ("writeback: synchronize
-sync(2) against cgroup writeback membership switches") reduced the
-possibility of the issue by adding wb_switch_rwsem, but in v5.14-rc1 (see
-fix tag2) removed the "inode_io_list_del_locked(inode, old_wb)" from
-inode_switch_wbs_work_fn() so that wb->state contains WB_has_dirty_io,
-thus old_wb is not skipped when traversing wbs in bdi_split_work_to_wbs(),
-and the issue becomes easily reproducible again.
-
-To solve this problem, percpu_ref_exit() is called under RCU protection to
-avoid race between cgwb_release_workfn() and bdi_split_work_to_wbs(). 
-Moreover, replace wb_get() with wb_tryget() in bdi_split_work_to_wbs(),
-and skip the current wb if wb_tryget() fails because the wb has already
-been shutdown.
-
-Link: https://lkml.kernel.org/r/20230410130826.1492525-1-libaokun1@huawei.com
-Fixes: b817525a4a80 ("writeback: bdi_writeback iteration must not skip dying ones")
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Dennis Zhou <dennis@kernel.org>
-Cc: Hou Tao <houtao1@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: yangerkun <yangerkun@huawei.com>
-Cc: Zhang Yi <yi.zhang@huawei.com>
-Cc: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20230330012519.804116-1-apopple@nvidia.com
+Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+(cherry picked from commit 7c7b962938ddda6a9cd095de557ee5250706ea88)
 ---
+ mm/memory.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
- fs/fs-writeback.c |   17 ++++++++++-------
- mm/backing-dev.c  |   12 ++++++++++--
- 2 files changed, 20 insertions(+), 9 deletions(-)
-
---- a/fs/fs-writeback.c~writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs
-+++ a/fs/fs-writeback.c
-@@ -978,6 +978,16 @@ restart:
- 			continue;
- 		}
+diff --git a/mm/memory.c b/mm/memory.c
+index f526b9152bef..6a99e9dc07e6 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3580,8 +3580,21 @@ static vm_fault_t remove_device_exclusive_entry(struct vm_fault *vmf)
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct mmu_notifier_range range;
  
-+		/*
-+		 * If wb_tryget fails, the wb has been shutdown, skip it.
-+		 *
-+		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
-+		 * continuing iteration from @wb after dropping and
-+		 * regrabbing rcu read lock.
-+		 */
-+		if (!wb_tryget(wb))
-+			continue;
+-	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags))
++	/*
++	 * We need a reference to lock the folio because we don't hold
++	 * the PTL so a racing thread can remove the device-exclusive
++	 * entry and unmap it. If the folio is free the entry must
++	 * have been removed already. If it happens to have already
++	 * been re-allocated after being freed all we do is lock and
++	 * unlock it.
++	 */
++	if (!folio_try_get(folio))
++		return 0;
 +
- 		/* alloc failed, execute synchronously using on-stack fallback */
- 		work = &fallback_work;
- 		*work = *base_work;
-@@ -986,13 +996,6 @@ restart:
- 		work->done = &fallback_work_done;
++	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags)) {
++		folio_put(folio);
+ 		return VM_FAULT_RETRY;
++	}
+ 	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0, vma,
+ 				vma->vm_mm, vmf->address & PAGE_MASK,
+ 				(vmf->address & PAGE_MASK) + PAGE_SIZE, NULL);
+@@ -3594,6 +3607,7 @@ static vm_fault_t remove_device_exclusive_entry(struct vm_fault *vmf)
  
- 		wb_queue_work(wb, work);
--
--		/*
--		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
--		 * continuing iteration from @wb after dropping and
--		 * regrabbing rcu read lock.
--		 */
--		wb_get(wb);
- 		last_wb = wb;
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	folio_unlock(folio);
++	folio_put(folio);
  
- 		rcu_read_unlock();
---- a/mm/backing-dev.c~writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs
-+++ a/mm/backing-dev.c
-@@ -507,6 +507,15 @@ static LIST_HEAD(offline_cgwbs);
- static void cleanup_offline_cgwbs_workfn(struct work_struct *work);
- static DECLARE_WORK(cleanup_offline_cgwbs_work, cleanup_offline_cgwbs_workfn);
- 
-+static void cgwb_free_rcu(struct rcu_head *rcu_head)
-+{
-+	struct bdi_writeback *wb = container_of(rcu_head,
-+			struct bdi_writeback, rcu);
-+
-+	percpu_ref_exit(&wb->refcnt);
-+	kfree(wb);
-+}
-+
- static void cgwb_release_workfn(struct work_struct *work)
- {
- 	struct bdi_writeback *wb = container_of(work, struct bdi_writeback,
-@@ -529,11 +538,10 @@ static void cgwb_release_workfn(struct w
- 	list_del(&wb->offline_node);
- 	spin_unlock_irq(&cgwb_lock);
- 
--	percpu_ref_exit(&wb->refcnt);
- 	wb_exit(wb);
- 	bdi_put(bdi);
- 	WARN_ON_ONCE(!list_empty(&wb->b_attached));
--	kfree_rcu(wb, rcu);
-+	call_rcu(&wb->rcu, cgwb_free_rcu);
- }
- 
- static void cgwb_release(struct percpu_ref *refcnt)
-_
-
-Patches currently in -mm which might be from libaokun1@huawei.com are
-
-writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	return 0;
+-- 
+2.39.2
 
