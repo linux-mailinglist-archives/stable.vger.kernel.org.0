@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 445236DEDF3
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA1DC6DEF57
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229867AbjDLIim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:38:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45238 "EHLO
+        id S231303AbjDLItn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230320AbjDLIi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:38:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895DB8A74
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:37:13 -0700 (PDT)
+        with ESMTP id S230030AbjDLItj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0AE96E82
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AADD462FE7
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE3B6C433D2;
-        Wed, 12 Apr 2023 08:35:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C57C62FF1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9FFC433EF;
+        Wed, 12 Apr 2023 08:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288535;
-        bh=yTNLAF/N82RWqW09CItoj+J4UBdtT8qT2Cp4fGF6yP4=;
+        s=korg; t=1681289360;
+        bh=yZhsL26w7ynhHE6fwUaWIiwrVBAi0quOqF/X4HOSl3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NuPtg8VI3peHG2AIqKU7XU4yBkTNYypbq/26Vp40+a2wnZl7dTslvCcIHosal+Kmp
-         T8UXBNAgX7/t+dmoOlDuS8S6Vj3+Yp0nfoTgNGE2nBD72kGGsgGQskWH/W3oQgIZQY
-         UFX0KvPsi9+Ey6Sm1z4KIRUCl+1x+7WY8/ZyYWek=
+        b=HtSt6tsGhH17Kv8yrkIJZRttHB1ezQ/dkdaNEHlmDXkCiKbMSKdMpO1F3AWUt6C4P
+         W0bw4P/kEasAZhTJeVzhquGffrk85CGrfbWjXsNEH7/dgJlVBRT8LhkTOvUeiNesO/
+         Y8mZaYKPoPnCmPvzmw9wq8yXynDZ3uub7lBh0vBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Daniel Scally <djrscally@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 15/93] platform/x86: int3472/discrete: Ensure the clk/power enable pins are in output mode
+        patches@lists.linux.dev, Andrew Green <askgreen@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 6.2 070/173] USB: serial: option: add Quectel RM500U-CN modem
 Date:   Wed, 12 Apr 2023 10:33:16 +0200
-Message-Id: <20230412082823.688521197@linuxfoundation.org>
+Message-Id: <20230412082840.890233129@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,73 +54,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Bjørn Mork <bjorn@mork.no>
 
-[ Upstream commit cf5ac2d45f6e4d11ad78e7b10ae9a4121ba5e995 ]
+commit 7708a3858e69db91a8b69487994f33b96d20192a upstream.
 
-acpi_get_and_request_gpiod() does not take a gpio_lookup_flags argument
-specifying that the pins direction should be initialized to a specific
-value.
+This modem supports several modes with a class network function
+and a number of serial functions, all using ff/00/00
 
-This means that in some cases the pins might be left in input mode, causing
-the gpiod_set() calls made to enable the clk / regulator to not work.
+The device ID is the same in all modes.
 
-One example of this problem is the clk-enable GPIO for the ov01a1s sensor
-on a Dell Latitude 9420 being left in input mode causing the clk to
-never get enabled.
+RNDIS mode
+----------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0900 Rev= 4.04
+S:  Manufacturer=Quectel
+S:  Product=RM500U-CN
+S:  SerialNumber=0123456789ABCDEF
+C:* #Ifs= 7 Cfg#= 1 Atr=c0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=e0(wlcon) Sub=01 Prot=03
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
+E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-Explicitly set the direction of the pins to output to fix this.
+ECM mode
+--------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0900 Rev= 4.04
+S:  Manufacturer=Quectel
+S:  Product=RM500U-CN
+S:  SerialNumber=0123456789ABCDEF
+C:* #Ifs= 7 Cfg#= 1 Atr=c0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=82(I) Atr=03(Int.) MxPS=  16 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-Fixes: 5de691bffe57 ("platform/x86: Add intel_skl_int3472 driver")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy@kernel.org>
-Reviewed-by: Daniel Scally <djrscally@gmail.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230111201426.947853-1-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+NCM mode
+--------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  5 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0900 Rev= 4.04
+S:  Manufacturer=Quectel
+S:  Product=RM500U-CN
+S:  SerialNumber=0123456789ABCDEF
+C:* #Ifs= 7 Cfg#= 1 Atr=c0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0d Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0d Prot=00 Driver=cdc_ncm
+E:  Ad=82(I) Atr=03(Int.) MxPS=  16 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=01 Driver=cdc_ncm
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=01 Driver=cdc_ncm
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Reported-by: Andrew Green <askgreen@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/intel/int3472/clk_and_regulator.c | 3 +++
- drivers/platform/x86/intel/int3472/discrete.c          | 4 ++++
- 2 files changed, 7 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/platform/x86/intel/int3472/clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-index 1cf958983e868..28353addffa7f 100644
---- a/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-+++ b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-@@ -181,6 +181,9 @@ int skl_int3472_register_regulator(struct int3472_discrete_device *int3472,
- 		return PTR_ERR(int3472->regulator.gpio);
- 	}
- 
-+	/* Ensure the pin is in output mode and non-active state */
-+	gpiod_direction_output(int3472->regulator.gpio, 0);
-+
- 	cfg.dev = &int3472->adev->dev;
- 	cfg.init_data = &init_data;
- 	cfg.ena_gpiod = int3472->regulator.gpio;
-diff --git a/drivers/platform/x86/intel/int3472/discrete.c b/drivers/platform/x86/intel/int3472/discrete.c
-index d2e8a87a077e7..401fa8f223d62 100644
---- a/drivers/platform/x86/intel/int3472/discrete.c
-+++ b/drivers/platform/x86/intel/int3472/discrete.c
-@@ -169,6 +169,8 @@ static int skl_int3472_map_gpio_to_clk(struct int3472_discrete_device *int3472,
- 			return (PTR_ERR(gpio));
- 
- 		int3472->clock.ena_gpio = gpio;
-+		/* Ensure the pin is in output mode and non-active state */
-+		gpiod_direction_output(int3472->clock.ena_gpio, 0);
- 		break;
- 	case INT3472_GPIO_TYPE_PRIVACY_LED:
- 		gpio = acpi_get_and_request_gpiod(path, pin, "int3472,privacy-led");
-@@ -176,6 +178,8 @@ static int skl_int3472_map_gpio_to_clk(struct int3472_discrete_device *int3472,
- 			return (PTR_ERR(gpio));
- 
- 		int3472->clock.led_gpio = gpio;
-+		/* Ensure the pin is in output mode and non-active state */
-+		gpiod_direction_output(int3472->clock.led_gpio, 0);
- 		break;
- 	default:
- 		dev_err(int3472->dev, "Invalid GPIO type 0x%02x for clock\n", type);
--- 
-2.39.2
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1198,6 +1198,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0900, 0xff, 0, 0), /* RM500U-CN */
++	  .driver_info = ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200U, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
 
 
