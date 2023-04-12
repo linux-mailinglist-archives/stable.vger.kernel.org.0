@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B216DEE7C
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A4D6DEF4A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbjDLIlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51084 "EHLO
+        id S231300AbjDLIta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbjDLIlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:15 -0400
+        with ESMTP id S231303AbjDLIt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3BA5FDA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1ACB7AB9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B47062FD3
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F84AC433D2;
-        Wed, 12 Apr 2023 08:40:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AF5063122
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EF27C433EF;
+        Wed, 12 Apr 2023 08:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288828;
+        s=korg; t=1681289331;
         bh=sIgyhsMwk7QVMipQvGKzZroEFlStJQRzxjaDDwVLo8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JamJJTMdbPLSbsY/NdVFbnngOObqzkZztfiPCK8LYSabGM13YaQ2bu3m29PKX1qcf
-         WyZG2SLHqbhmB2UOfKwrOSD216auKRJsBY80M/o/Z4I1ArvJ1s409+j00rCSitnRpP
-         WmOtiozUV7AiD6cVbPuMxKaggWhIcoF8oxynTyuY=
+        b=INhSoZNmCawIgyihWL1/U6JroPWwVr2FD7RNwZbyiefGW5H9O1A1oG5+HvkI0E5Ae
+         RcJgLAUrVDyfNdSWwYCJ6TSAu0Gyx+uPerYtEH9mjs12jFzIakGGgkiEhdP+1cpxk2
+         KAQYARo/DK876q6KL5sw+X7UrVgiqlNbRUxIenqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 032/164] net: dont let netpoll invoke NAPI if in xmit context
-Date:   Wed, 12 Apr 2023 10:32:34 +0200
-Message-Id: <20230412082838.275739107@linuxfoundation.org>
+Subject: [PATCH 6.2 029/173] net: dont let netpoll invoke NAPI if in xmit context
+Date:   Wed, 12 Apr 2023 10:32:35 +0200
+Message-Id: <20230412082839.262968129@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
