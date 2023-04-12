@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35A836DEE29
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2B046DEFBE
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230455AbjDLIlA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46446 "EHLO
+        id S231436AbjDLIxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbjDLIj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:58 -0400
+        with ESMTP id S231429AbjDLIxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59884186
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 536EA9007
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 902F362930
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3660C433EF;
-        Wed, 12 Apr 2023 08:37:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A754562C6E
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD6CC4339B;
+        Wed, 12 Apr 2023 08:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288669;
-        bh=cL22PBSYfvX7dAg/Rl+kGlkmW0y/CcpNb7L+1jRVj+4=;
+        s=korg; t=1681289567;
+        bh=bQNSIlfoowlZAxsVwrWOChNZgJI9gpSXvSPHeUNqQoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qW0bypZSmc0q3MU4s1qmmW/EiIHM4LxXvfHLRj1JmeeJJng1u32BK9DD5jggLUSRT
-         88mdeOW9XdRtgpWAO7p70iPa8f5TYr3SImKYtP36LldUZYrY8aabNL0sIQ9UPemDLW
-         1JGwLte7o+Wu434YCNhkNq0t6WMjWploD64EFH+0=
+        b=gtZrZ7yayeRcvp4hU7aDzbz3xoR5khI/apwoCVeIurIaV/baYkCOAipVhsFqTKfXi
+         iYvdDKHTTVPGXJja565WgwPEwvd+fxAY0B5XwYOlo6NYPqFYMKumgs10Xg68CabEND
+         g9wxQTaQaJ2JhPU8/h6eh3dlS87iXjsr03uZmqAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 66/93] nilfs2: fix potential UAF of struct nilfs_sc_info in nilfs_segctor_thread()
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        "Tom Zanussi" <zanussi@kernel.org>,
+        Tze-nan Wu <Tze-nan.Wu@mediatek.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.2 121/173] tracing/synthetic: Fix races on freeing last_cmd
 Date:   Wed, 12 Apr 2023 10:34:07 +0200
-Message-Id: <20230412082825.905320427@linuxfoundation.org>
+Message-Id: <20230412082843.009363649@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +58,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
 
-commit 6be49d100c22ffea3287a4b19d7639d259888e33 upstream.
+commit 4ccf11c4e8a8e051499d53a12f502196c97a758e upstream.
 
-The finalization of nilfs_segctor_thread() can race with
-nilfs_segctor_kill_thread() which terminates that thread, potentially
-causing a use-after-free BUG as KASAN detected.
+Currently, the "last_cmd" variable can be accessed by multiple processes
+asynchronously when multiple users manipulate synthetic_events node
+at the same time, it could lead to use-after-free or double-free.
 
-At the end of nilfs_segctor_thread(), it assigns NULL to "sc_task" member
-of "struct nilfs_sc_info" to indicate the thread has finished, and then
-notifies nilfs_segctor_kill_thread() of this using waitqueue
-"sc_wait_task" on the struct nilfs_sc_info.
+This patch add "lastcmd_mutex" to prevent "last_cmd" from being accessed
+asynchronously.
 
-However, here, immediately after the NULL assignment to "sc_task", it is
-possible that nilfs_segctor_kill_thread() will detect it and return to
-continue the deallocation, freeing the nilfs_sc_info structure before the
-thread does the notification.
+================================================================
 
-This fixes the issue by protecting the NULL assignment to "sc_task" and
-its notification, with spinlock "sc_state_lock" of the struct
-nilfs_sc_info.  Since nilfs_segctor_kill_thread() does a final check to
-see if "sc_task" is NULL with "sc_state_lock" locked, this can eliminate
-the race.
+It's easy to reproduce in the KASAN environment by running the two
+scripts below in different shells.
 
-Link: https://lkml.kernel.org/r/20230327175318.8060-1-konishi.ryusuke@gmail.com
-Reported-by: syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com
-Link: https://lkml.kernel.org/r/00000000000000660d05f7dfa877@google.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+script 1:
+        while :
+        do
+                echo -n -e '\x88' > /sys/kernel/tracing/synthetic_events
+        done
+
+script 2:
+        while :
+        do
+                echo -n -e '\xb0' > /sys/kernel/tracing/synthetic_events
+        done
+
+================================================================
+double-free scenario:
+
+    process A                       process B
+-------------------               ---------------
+1.kstrdup last_cmd
+                                  2.free last_cmd
+3.free last_cmd(double-free)
+
+================================================================
+use-after-free scenario:
+
+    process A                       process B
+-------------------               ---------------
+1.kstrdup last_cmd
+                                  2.free last_cmd
+3.tracing_log_err(use-after-free)
+
+================================================================
+
+Appendix 1. KASAN report double-free:
+
+BUG: KASAN: double-free in kfree+0xdc/0x1d4
+Free of addr ***** by task sh/4879
+Call trace:
+        ...
+        kfree+0xdc/0x1d4
+        create_or_delete_synth_event+0x60/0x1e8
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Allocated by task 4879:
+        ...
+        kstrdup+0x5c/0x98
+        create_or_delete_synth_event+0x6c/0x1e8
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Freed by task 5464:
+        ...
+        kfree+0xdc/0x1d4
+        create_or_delete_synth_event+0x60/0x1e8
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+================================================================
+Appendix 2. KASAN report use-after-free:
+
+BUG: KASAN: use-after-free in strlen+0x5c/0x7c
+Read of size 1 at addr ***** by task sh/5483
+sh: CPU: 7 PID: 5483 Comm: sh
+        ...
+        __asan_report_load1_noabort+0x34/0x44
+        strlen+0x5c/0x7c
+        tracing_log_err+0x60/0x444
+        create_or_delete_synth_event+0xc4/0x204
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Allocated by task 5483:
+        ...
+        kstrdup+0x5c/0x98
+        create_or_delete_synth_event+0x80/0x204
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Freed by task 5480:
+        ...
+        kfree+0xdc/0x1d4
+        create_or_delete_synth_event+0x74/0x204
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Link: https://lore.kernel.org/linux-trace-kernel/20230321110444.1587-1-Tze-nan.Wu@mediatek.com
+
+Fixes: 27c888da9867 ("tracing: Remove size restriction on synthetic event cmd error logging")
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: "Tom Zanussi" <zanussi@kernel.org>
+Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/trace/trace_events_synth.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2609,11 +2609,10 @@ static int nilfs_segctor_thread(void *ar
- 	goto loop;
+--- a/kernel/trace/trace_events_synth.c
++++ b/kernel/trace/trace_events_synth.c
+@@ -44,14 +44,21 @@ enum { ERRORS };
  
-  end_thread:
--	spin_unlock(&sci->sc_state_lock);
--
- 	/* end sync. */
- 	sci->sc_task = NULL;
- 	wake_up(&sci->sc_wait_task); /* for nilfs_segctor_kill_thread() */
-+	spin_unlock(&sci->sc_state_lock);
- 	return 0;
+ static const char *err_text[] = { ERRORS };
+ 
++DEFINE_MUTEX(lastcmd_mutex);
+ static char *last_cmd;
+ 
+ static int errpos(const char *str)
+ {
++	int ret = 0;
++
++	mutex_lock(&lastcmd_mutex);
+ 	if (!str || !last_cmd)
+-		return 0;
++		goto out;
+ 
+-	return err_pos(last_cmd, str);
++	ret = err_pos(last_cmd, str);
++ out:
++	mutex_unlock(&lastcmd_mutex);
++	return ret;
  }
  
+ static void last_cmd_set(const char *str)
+@@ -59,18 +66,22 @@ static void last_cmd_set(const char *str
+ 	if (!str)
+ 		return;
+ 
++	mutex_lock(&lastcmd_mutex);
+ 	kfree(last_cmd);
+-
+ 	last_cmd = kstrdup(str, GFP_KERNEL);
++	mutex_unlock(&lastcmd_mutex);
+ }
+ 
+ static void synth_err(u8 err_type, u16 err_pos)
+ {
++	mutex_lock(&lastcmd_mutex);
+ 	if (!last_cmd)
+-		return;
++		goto out;
+ 
+ 	tracing_log_err(NULL, "synthetic_events", last_cmd, err_text,
+ 			err_type, err_pos);
++ out:
++	mutex_unlock(&lastcmd_mutex);
+ }
+ 
+ static int create_synth_event(const char *raw_command);
 
 
