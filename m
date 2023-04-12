@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 183566DEE31
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BA46DEFAA
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbjDLIk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:40:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
+        id S231419AbjDLIww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:52:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbjDLIj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B092D30EB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:23 -0700 (PDT)
+        with ESMTP id S231429AbjDLIwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5F5A273
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:52:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0838C62917
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A73DC433D2;
-        Wed, 12 Apr 2023 08:37:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2635631A6
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0199CC433D2;
+        Wed, 12 Apr 2023 08:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288666;
-        bh=bYs3RiM3cKzoUtmqBaxN1gXvuc2X6G682uDsrDZprh0=;
+        s=korg; t=1681289538;
+        bh=yfHVAB1ta4cuVF/XZNxPndZG2NyQxCWtZKA2fJQmlaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHOkllTs6n35HD+A3chBlKuahsMGu4D1y57D7bTsCGGFmgS2/dAzObs5PHGC3Ni4M
-         RBv25xN1jCsI+YwDJHOvx74cdbcFN9zV4n89fAz1oYX05H3kDKCgRe9tEEO9qTOj2I
-         DHg9JmsJc4FDrFT0oqGMvAZJfE/RWGGGLOmHRxs0=
+        b=P+IHCoRfcFn20eI807p5TovaDxBp/O0TAK3ZUQJbgqt1yCapiXYSJU16CYAJWkFXy
+         Kc/lxW1/n8a89jhbcykB0rSA+a/jz1v+gQVED0w/D3dFMohEXF3wm1Ojqa/BGSPCkn
+         xA2rTAh7HPT6A5gQoLwZdWaJwj1nmGIKqn0gmKrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Sherry Sun <sherry.sun@nxp.com>
-Subject: [PATCH 5.15 65/93] tty: serial: fsl_lpuart: avoid checking for transfer complete when UARTCTRL_SBK is asserted in lpuart32_tx_empty
+        patches@lists.linux.dev,
+        Song Yoong Siang <yoong.siang.song@intel.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 120/173] net: stmmac: Add queue reset into stmmac_xdp_open() function
 Date:   Wed, 12 Apr 2023 10:34:06 +0200
-Message-Id: <20230412082825.866193988@linuxfoundation.org>
+Message-Id: <20230412082842.953599879@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,48 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Song Yoong Siang <yoong.siang.song@intel.com>
 
-commit 9425914f3de6febbd6250395f56c8279676d9c3c upstream.
+commit 24e3fce00c0b557491ff596c0682a29dee6fe848 upstream.
 
-According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
-a break character by writing 1 to CTRL[SBK], so here need to avoid
-checking for transmission complete when UARTCTRL_SBK is asserted,
-otherwise the lpuart32_tx_empty may never get TIOCSER_TEMT.
+Queue reset was moved out from __init_dma_rx_desc_rings() and
+__init_dma_tx_desc_rings() functions. Thus, the driver fails to transmit
+and receive packet after XDP prog setup.
 
-Commit 2411fd94ceaa("tty: serial: fsl_lpuart: skip waiting for
-transmission complete when UARTCTRL_SBK is asserted") only fix it in
-lpuart32_set_termios(), here also fix it in lpuart32_tx_empty().
+This commit adds the missing queue reset into stmmac_xdp_open() function.
 
-Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20230323054415.20363-1-sherry.sun@nxp.com
+Fixes: f9ec5723c3db ("net: ethernet: stmicro: stmmac: move queue reset to dedicated functions")
+Cc: <stable@vger.kernel.org> # 6.0+
+Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20230404044823.3226144-1-yoong.siang.song@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -829,11 +829,17 @@ static unsigned int lpuart32_tx_empty(st
- 			struct lpuart_port, port);
- 	unsigned long stat = lpuart32_read(port, UARTSTAT);
- 	unsigned long sfifo = lpuart32_read(port, UARTFIFO);
-+	unsigned long ctrl = lpuart32_read(port, UARTCTRL);
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -6629,6 +6629,8 @@ int stmmac_xdp_open(struct net_device *d
+ 		goto init_error;
+ 	}
  
- 	if (sport->dma_tx_in_progress)
- 		return 0;
- 
--	if (stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT)
-+	/*
-+	 * LPUART Transmission Complete Flag may never be set while queuing a break
-+	 * character, so avoid checking for transmission complete when UARTCTRL_SBK
-+	 * is asserted.
-+	 */
-+	if ((stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT) || ctrl & UARTCTRL_SBK)
- 		return TIOCSER_TEMT;
- 
- 	return 0;
++	stmmac_reset_queues_param(priv);
++
+ 	/* DMA CSR Channel configuration */
+ 	for (chan = 0; chan < dma_csr_ch; chan++) {
+ 		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
 
 
