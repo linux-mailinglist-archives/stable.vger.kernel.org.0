@@ -2,54 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2216DEE12
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 881936DEF6A
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230451AbjDLIjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46424 "EHLO
+        id S231347AbjDLIuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:50:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230440AbjDLIjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:31 -0400
+        with ESMTP id S231361AbjDLIun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292C57ECA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01069ECC
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A105062FFF
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C192C433D2;
-        Wed, 12 Apr 2023 08:37:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D18EC62FF1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3859C433D2;
+        Wed, 12 Apr 2023 08:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288632;
-        bh=lIuvcA/4kwvCsshIx2xJ2yvivDpd8BcdiRD4swhbUpA=;
+        s=korg; t=1681289381;
+        bh=lUYaeLjXfMA2sqDuy8wzZKzAMRg6AtMaH8ZBSHzwbq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nnnw6gToL23yIxAk9eOb/croE7JXilB8qs1204hOCfz0ii1zOJxGSkE0+P+5PJiAG
-         fI2U8dcY5Iu5iczUzCrEyp7ISUZwM2G7VViwAILb+WxjPOzx79jcIZoN9mE7KYZDF7
-         d+wWgXtEPFgK4dQTLlnOvpiN7WD85QlRvFPO8cVs=
+        b=g7Xn9mpdj4IsCyvc+2Tysm3+IbG7G7/ws1MtYHBwxnETOv+ccemCikzmZAzFtmeYy
+         Be8BG9VUVjIw1JgzPkfZU7GoerOPLIq+ngMX2HXQkH/jKooMdSmm4Wf36QQD0QQyEE
+         suFp796J5LNKLIXbTG7HtW4LGKF0EcJ3VfYDs+Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tonghao Zhang <tong@infragraf.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Hou Tao <houtao1@huawei.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 22/93] bpf: hash map, avoid deadlock with suitable hash mask
+        patches@lists.linux.dev,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Mehdi Djait <mehdi.djait.k@gmail.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.2 077/173] iio: accel: kionix-kx022a: Get the timestamp from the drivers private data in the trigger_handler
 Date:   Wed, 12 Apr 2023 10:33:23 +0200
-Message-Id: <20230412082823.993310345@linuxfoundation.org>
+Message-Id: <20230412082841.165405969@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,68 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tonghao Zhang <tong@infragraf.org>
+From: Mehdi Djait <mehdi.djait.k@gmail.com>
 
-[ Upstream commit 9f907439dc80e4a2fcfb949927b36c036468dbb3 ]
+commit 03fada47311a3e668f73efc9278c4a559e64ee85 upstream.
 
-The deadlock still may occur while accessed in NMI and non-NMI
-context. Because in NMI, we still may access the same bucket but with
-different map_locked index.
+The trigger_handler gets called from the IRQ thread handler using
+iio_trigger_poll_chained() which will only call the bottom half of the
+pollfunc and therefore pf->timestamp will not get set.
 
-For example, on the same CPU, .max_entries = 2, we update the hash map,
-with key = 4, while running bpf prog in NMI nmi_handle(), to update
-hash map with key = 20, so it will have the same bucket index but have
-different map_locked index.
+Use instead the timestamp from the driver's private data which is always
+set in the IRQ handler.
 
-To fix this issue, using min mask to hash again.
-
-Fixes: 20b6cc34ea74 ("bpf: Avoid hashtab deadlock with map_locked")
-Signed-off-by: Tonghao Zhang <tong@infragraf.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Song Liu <song@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Cc: Hao Luo <haoluo@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Hou Tao <houtao1@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Hou Tao <houtao1@huawei.com>
-Link: https://lore.kernel.org/r/20230111092903.92389-1-tong@infragraf.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7c1d1677b322 ("iio: accel: Support Kionix/ROHM KX022A accelerometer")
+Link: https://lore.kernel.org/linux-iio/Y+6QoBLh1k82cJVN@carbian/
+Reviewed-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Signed-off-by: Mehdi Djait <mehdi.djait.k@gmail.com>
+Link: https://lore.kernel.org/r/20230218135111.90061-1-mehdi.djait.k@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/hashtab.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/accel/kionix-kx022a.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index e7f45a966e6b5..10b37773d9e47 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -163,7 +163,7 @@ static inline int htab_lock_bucket(const struct bpf_htab *htab,
- 	unsigned long flags;
- 	bool use_raw_lock;
+diff --git a/drivers/iio/accel/kionix-kx022a.c b/drivers/iio/accel/kionix-kx022a.c
+index f866859855cd..1c3a72380fb8 100644
+--- a/drivers/iio/accel/kionix-kx022a.c
++++ b/drivers/iio/accel/kionix-kx022a.c
+@@ -864,7 +864,7 @@ static irqreturn_t kx022a_trigger_handler(int irq, void *p)
+ 	if (ret < 0)
+ 		goto err_read;
  
--	hash = hash & HASHTAB_MAP_LOCK_MASK;
-+	hash = hash & min_t(u32, HASHTAB_MAP_LOCK_MASK, htab->n_buckets - 1);
+-	iio_push_to_buffers_with_timestamp(idev, data->buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(idev, data->buffer, data->timestamp);
+ err_read:
+ 	iio_trigger_notify_done(idev->trig);
  
- 	use_raw_lock = htab_use_raw_lock(htab);
- 	if (use_raw_lock)
-@@ -194,7 +194,7 @@ static inline void htab_unlock_bucket(const struct bpf_htab *htab,
- {
- 	bool use_raw_lock = htab_use_raw_lock(htab);
- 
--	hash = hash & HASHTAB_MAP_LOCK_MASK;
-+	hash = hash & min_t(u32, HASHTAB_MAP_LOCK_MASK, htab->n_buckets - 1);
- 	if (use_raw_lock)
- 		raw_spin_unlock_irqrestore(&b->raw_lock, flags);
- 	else
 -- 
-2.39.2
+2.40.0
 
 
 
