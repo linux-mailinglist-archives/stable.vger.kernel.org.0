@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A926DEF3E
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDAC96DEF40
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbjDLItO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35340 "EHLO
+        id S231285AbjDLItQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231305AbjDLItI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:08 -0400
+        with ESMTP id S231310AbjDLItJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E8686BB
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F40F69033
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E00CD6312C
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BE1C433D2;
-        Wed, 12 Apr 2023 08:48:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E1CE63143
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90548C433D2;
+        Wed, 12 Apr 2023 08:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289303;
-        bh=KHKwuqNiQZW7i5IE2YIZOPwZWn03z/1ZlGFehvxyssg=;
+        s=korg; t=1681289305;
+        bh=OAq1xdLtMJ4Z6QZMPCPint+zSVAuNueQh6pgMbXnxIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZVFjYkXmD6mJWM+fEx9fY2bimxmkVfTmylqEyGNAEb7AlWvU56s4EU5t32lhwVN0
-         TTEDv95eD+UqX7gN7amVMTyQhE0t1i6qDvdwjKdgtEk9AgCunFUWJcBH8Rj7n0DS+E
-         rQjTiTZquNHL3fZ+AKHJoFV1j/h/6pTNNny7d05s=
+        b=gQ6pxLq5HVf6aXYWClVKiiTH0E3f24Umpi1v91S4/M9AC1nPs5nQM254BifeUjlPz
+         FFhWwieruxZ250PvEOeNlRYTu/Cbcc8qd9eDrSwRCJWXoCtbm9ClknzSkagvyYWPDt
+         WnKGHpPFy98wBsdyAWDKxkl7CQrbHMD1okXx9Z4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        "Dae R. Jeong" <threeearcat@gmail.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 047/173] raw: use net_hash_mix() in hash function
-Date:   Wed, 12 Apr 2023 10:32:53 +0200
-Message-Id: <20230412082840.017340718@linuxfoundation.org>
+Subject: [PATCH 6.2 048/173] raw: Fix NULL deref in raw_get_next().
+Date:   Wed, 12 Apr 2023 10:32:54 +0200
+Message-Id: <20230412082840.057211712@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -54,137 +57,346 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 6579f5bacc2c4cbc5ef6abb45352416939d1f844 ]
+[ Upstream commit 0a78cf7264d29abeca098eae0b188a10aabc8a32 ]
 
-Some applications seem to rely on RAW sockets.
+Dae R. Jeong reported a NULL deref in raw_get_next() [0].
 
-If they use private netns, we can avoid piling all RAW
-sockets bound to a given protocol into a single bucket.
+It seems that the repro was running these sequences in parallel so
+that one thread was iterating on a socket that was being freed in
+another netns.
 
-Also place (struct raw_hashinfo).lock into its own
-cache line to limit false sharing.
+  unshare(0x40060200)
+  r0 = syz_open_procfs(0x0, &(0x7f0000002080)='net/raw\x00')
+  socket$inet_icmp_raw(0x2, 0x3, 0x1)
+  pread64(r0, &(0x7f0000000000)=""/10, 0xa, 0x10000000007f)
 
-Alternative would be to have per-netns hashtables,
-but this seems too expensive for most netns
-where RAW sockets are not used.
+After commit 0daf07e52709 ("raw: convert raw sockets to RCU"), we
+use RCU and hlist_nulls_for_each_entry() to iterate over SOCK_RAW
+sockets.  However, we should use spinlock for slow paths to avoid
+the NULL deref.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Also, SOCK_RAW does not use SLAB_TYPESAFE_BY_RCU, and the slab object
+is not reused during iteration in the grace period.  In fact, the
+lockless readers do not check the nulls marker with get_nulls_value().
+So, SOCK_RAW should use hlist instead of hlist_nulls.
+
+Instead of adding an unnecessary barrier by sk_nulls_for_each_rcu(),
+let's convert hlist_nulls to hlist and use sk_for_each_rcu() for
+fast paths and sk_for_each() and spinlock for /proc/net/raw.
+
+[0]:
+general protection fault, probably for non-canonical address 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
+CPU: 2 PID: 20952 Comm: syz-executor.0 Not tainted 6.2.0-g048ec869bafd-dirty #7
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+RIP: 0010:read_pnet include/net/net_namespace.h:383 [inline]
+RIP: 0010:sock_net include/net/sock.h:649 [inline]
+RIP: 0010:raw_get_next net/ipv4/raw.c:974 [inline]
+RIP: 0010:raw_get_idx net/ipv4/raw.c:986 [inline]
+RIP: 0010:raw_seq_start+0x431/0x800 net/ipv4/raw.c:995
+Code: ef e8 33 3d 94 f7 49 8b 6d 00 4c 89 ef e8 b7 65 5f f7 49 89 ed 49 83 c5 98 0f 84 9a 00 00 00 48 83 c5 c8 48 89 e8 48 c1 e8 03 <42> 80 3c 30 00 74 08 48 89 ef e8 00 3d 94 f7 4c 8b 7d 00 48 89 ef
+RSP: 0018:ffffc9001154f9b0 EFLAGS: 00010206
+RAX: 0000000000000005 RBX: 1ffff1100302c8fd RCX: 0000000000000000
+RDX: 0000000000000028 RSI: ffffc9001154f988 RDI: ffffc9000f77a338
+RBP: 0000000000000029 R08: ffffffff8a50ffb4 R09: fffffbfff24b6bd9
+R10: fffffbfff24b6bd9 R11: 0000000000000000 R12: ffff88801db73b78
+R13: fffffffffffffff9 R14: dffffc0000000000 R15: 0000000000000030
+FS:  00007f843ae8e700(0000) GS:ffff888063700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055bb9614b35f CR3: 000000003c672000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ seq_read_iter+0x4c6/0x10f0 fs/seq_file.c:225
+ seq_read+0x224/0x320 fs/seq_file.c:162
+ pde_read fs/proc/inode.c:316 [inline]
+ proc_reg_read+0x23f/0x330 fs/proc/inode.c:328
+ vfs_read+0x31e/0xd30 fs/read_write.c:468
+ ksys_pread64 fs/read_write.c:665 [inline]
+ __do_sys_pread64 fs/read_write.c:675 [inline]
+ __se_sys_pread64 fs/read_write.c:672 [inline]
+ __x64_sys_pread64+0x1e9/0x280 fs/read_write.c:672
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x4e/0xa0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x478d29
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f843ae8dbe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000011
+RAX: ffffffffffffffda RBX: 0000000000791408 RCX: 0000000000478d29
+RDX: 000000000000000a RSI: 0000000020000000 RDI: 0000000000000003
+RBP: 00000000f477909a R08: 0000000000000000 R09: 0000000000000000
+R10: 000010000000007f R11: 0000000000000246 R12: 0000000000791740
+R13: 0000000000791414 R14: 0000000000791408 R15: 00007ffc2eb48a50
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:read_pnet include/net/net_namespace.h:383 [inline]
+RIP: 0010:sock_net include/net/sock.h:649 [inline]
+RIP: 0010:raw_get_next net/ipv4/raw.c:974 [inline]
+RIP: 0010:raw_get_idx net/ipv4/raw.c:986 [inline]
+RIP: 0010:raw_seq_start+0x431/0x800 net/ipv4/raw.c:995
+Code: ef e8 33 3d 94 f7 49 8b 6d 00 4c 89 ef e8 b7 65 5f f7 49 89 ed 49 83 c5 98 0f 84 9a 00 00 00 48 83 c5 c8 48 89 e8 48 c1 e8 03 <42> 80 3c 30 00 74 08 48 89 ef e8 00 3d 94 f7 4c 8b 7d 00 48 89 ef
+RSP: 0018:ffffc9001154f9b0 EFLAGS: 00010206
+RAX: 0000000000000005 RBX: 1ffff1100302c8fd RCX: 0000000000000000
+RDX: 0000000000000028 RSI: ffffc9001154f988 RDI: ffffc9000f77a338
+RBP: 0000000000000029 R08: ffffffff8a50ffb4 R09: fffffbfff24b6bd9
+R10: fffffbfff24b6bd9 R11: 0000000000000000 R12: ffff88801db73b78
+R13: fffffffffffffff9 R14: dffffc0000000000 R15: 0000000000000030
+FS:  00007f843ae8e700(0000) GS:ffff888063700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f92ff166000 CR3: 000000003c672000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Fixes: 0daf07e52709 ("raw: convert raw sockets to RCU")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Dae R. Jeong <threeearcat@gmail.com>
+Link: https://lore.kernel.org/netdev/ZCA2mGV_cmq7lIfV@dragonet/
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 0a78cf7264d2 ("raw: Fix NULL deref in raw_get_next().")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/raw.h | 13 +++++++++++--
- net/ipv4/raw.c    | 13 +++++++------
- net/ipv6/raw.c    |  4 ++--
- 3 files changed, 20 insertions(+), 10 deletions(-)
+ include/net/raw.h   |  4 ++--
+ net/ipv4/raw.c      | 36 +++++++++++++++++++-----------------
+ net/ipv4/raw_diag.c | 10 ++++------
+ net/ipv6/raw.c      | 10 ++++------
+ 4 files changed, 29 insertions(+), 31 deletions(-)
 
 diff --git a/include/net/raw.h b/include/net/raw.h
-index 5e665934ebc7c..2c004c20ed996 100644
+index 2c004c20ed996..3af5289fdead9 100644
 --- a/include/net/raw.h
 +++ b/include/net/raw.h
-@@ -15,6 +15,8 @@
- 
- #include <net/inet_sock.h>
- #include <net/protocol.h>
-+#include <net/netns/hash.h>
-+#include <linux/hash.h>
- #include <linux/icmp.h>
- 
- extern struct proto raw_prot;
-@@ -29,13 +31,20 @@ int raw_local_deliver(struct sk_buff *, int);
- 
- int raw_rcv(struct sock *, struct sk_buff *);
- 
--#define RAW_HTABLE_SIZE	MAX_INET_PROTOS
-+#define RAW_HTABLE_LOG	8
-+#define RAW_HTABLE_SIZE	(1U << RAW_HTABLE_LOG)
- 
+@@ -37,7 +37,7 @@ int raw_rcv(struct sock *, struct sk_buff *);
  struct raw_hashinfo {
  	spinlock_t lock;
--	struct hlist_nulls_head ht[RAW_HTABLE_SIZE];
-+
-+	struct hlist_nulls_head ht[RAW_HTABLE_SIZE] ____cacheline_aligned;
+ 
+-	struct hlist_nulls_head ht[RAW_HTABLE_SIZE] ____cacheline_aligned;
++	struct hlist_head ht[RAW_HTABLE_SIZE] ____cacheline_aligned;
  };
  
-+static inline u32 raw_hashfunc(const struct net *net, u32 proto)
-+{
-+	return hash_32(net_hash_mix(net) ^ proto, RAW_HTABLE_LOG);
-+}
-+
- static inline void raw_hashinfo_init(struct raw_hashinfo *hashinfo)
- {
- 	int i;
-diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
-index 006c1f0ed8b47..2a53a0bf29232 100644
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -93,7 +93,7 @@ int raw_hash_sk(struct sock *sk)
- 	struct raw_hashinfo *h = sk->sk_prot->h.raw_hash;
- 	struct hlist_nulls_head *hlist;
+ static inline u32 raw_hashfunc(const struct net *net, u32 proto)
+@@ -51,7 +51,7 @@ static inline void raw_hashinfo_init(struct raw_hashinfo *hashinfo)
  
--	hlist = &h->ht[inet_sk(sk)->inet_num & (RAW_HTABLE_SIZE - 1)];
-+	hlist = &h->ht[raw_hashfunc(sock_net(sk), inet_sk(sk)->inet_num)];
- 
- 	spin_lock(&h->lock);
- 	__sk_nulls_add_node_rcu(sk, hlist);
-@@ -160,9 +160,9 @@ static int icmp_filter(const struct sock *sk, const struct sk_buff *skb)
-  * RFC 1122: SHOULD pass TOS value up to the transport layer.
-  * -> It does. And not only TOS, but all IP header.
-  */
--static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
-+static int raw_v4_input(struct net *net, struct sk_buff *skb,
-+			const struct iphdr *iph, int hash)
- {
--	struct net *net = dev_net(skb->dev);
- 	struct hlist_nulls_head *hlist;
- 	struct hlist_nulls_node *hnode;
- 	int sdif = inet_sdif(skb);
-@@ -193,9 +193,10 @@ static int raw_v4_input(struct sk_buff *skb, const struct iphdr *iph, int hash)
- 
- int raw_local_deliver(struct sk_buff *skb, int protocol)
- {
--	int hash = protocol & (RAW_HTABLE_SIZE - 1);
-+	struct net *net = dev_net(skb->dev);
- 
--	return raw_v4_input(skb, ip_hdr(skb), hash);
-+	return raw_v4_input(net, skb, ip_hdr(skb),
-+			    raw_hashfunc(net, protocol));
+ 	spin_lock_init(&hashinfo->lock);
+ 	for (i = 0; i < RAW_HTABLE_SIZE; i++)
+-		INIT_HLIST_NULLS_HEAD(&hashinfo->ht[i], i);
++		INIT_HLIST_HEAD(&hashinfo->ht[i]);
  }
  
- static void raw_err(struct sock *sk, struct sk_buff *skb, u32 info)
-@@ -271,7 +272,7 @@ void raw_icmp_error(struct sk_buff *skb, int protocol, u32 info)
+ #ifdef CONFIG_PROC_FS
+diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
+index 2a53a0bf29232..af03aa8a8e513 100644
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -91,12 +91,12 @@ EXPORT_SYMBOL_GPL(raw_v4_hashinfo);
+ int raw_hash_sk(struct sock *sk)
+ {
+ 	struct raw_hashinfo *h = sk->sk_prot->h.raw_hash;
+-	struct hlist_nulls_head *hlist;
++	struct hlist_head *hlist;
+ 
+ 	hlist = &h->ht[raw_hashfunc(sock_net(sk), inet_sk(sk)->inet_num)];
+ 
+ 	spin_lock(&h->lock);
+-	__sk_nulls_add_node_rcu(sk, hlist);
++	sk_add_node_rcu(sk, hlist);
+ 	sock_set_flag(sk, SOCK_RCU_FREE);
+ 	spin_unlock(&h->lock);
+ 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
+@@ -110,7 +110,7 @@ void raw_unhash_sk(struct sock *sk)
+ 	struct raw_hashinfo *h = sk->sk_prot->h.raw_hash;
+ 
+ 	spin_lock(&h->lock);
+-	if (__sk_nulls_del_node_init_rcu(sk))
++	if (sk_del_node_init_rcu(sk))
+ 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+ 	spin_unlock(&h->lock);
+ }
+@@ -163,16 +163,15 @@ static int icmp_filter(const struct sock *sk, const struct sk_buff *skb)
+ static int raw_v4_input(struct net *net, struct sk_buff *skb,
+ 			const struct iphdr *iph, int hash)
+ {
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
+ 	int sdif = inet_sdif(skb);
++	struct hlist_head *hlist;
+ 	int dif = inet_iif(skb);
+ 	int delivered = 0;
+ 	struct sock *sk;
+ 
+ 	hlist = &raw_v4_hashinfo.ht[hash];
+ 	rcu_read_lock();
+-	sk_nulls_for_each(sk, hnode, hlist) {
++	sk_for_each_rcu(sk, hlist) {
+ 		if (!raw_v4_match(net, sk, iph->protocol,
+ 				  iph->saddr, iph->daddr, dif, sdif))
+ 			continue;
+@@ -264,10 +263,9 @@ static void raw_err(struct sock *sk, struct sk_buff *skb, u32 info)
+ void raw_icmp_error(struct sk_buff *skb, int protocol, u32 info)
+ {
+ 	struct net *net = dev_net(skb->dev);
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
+ 	int dif = skb->dev->ifindex;
+ 	int sdif = inet_sdif(skb);
++	struct hlist_head *hlist;
+ 	const struct iphdr *iph;
  	struct sock *sk;
  	int hash;
- 
--	hash = protocol & (RAW_HTABLE_SIZE - 1);
-+	hash = raw_hashfunc(net, protocol);
+@@ -276,7 +274,7 @@ void raw_icmp_error(struct sk_buff *skb, int protocol, u32 info)
  	hlist = &raw_v4_hashinfo.ht[hash];
  
  	rcu_read_lock();
+-	sk_nulls_for_each(sk, hnode, hlist) {
++	sk_for_each_rcu(sk, hlist) {
+ 		iph = (const struct iphdr *)skb->data;
+ 		if (!raw_v4_match(net, sk, iph->protocol,
+ 				  iph->daddr, iph->saddr, dif, sdif))
+@@ -948,14 +946,13 @@ static struct sock *raw_get_first(struct seq_file *seq, int bucket)
+ {
+ 	struct raw_hashinfo *h = pde_data(file_inode(seq->file));
+ 	struct raw_iter_state *state = raw_seq_private(seq);
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
++	struct hlist_head *hlist;
+ 	struct sock *sk;
+ 
+ 	for (state->bucket = bucket; state->bucket < RAW_HTABLE_SIZE;
+ 			++state->bucket) {
+ 		hlist = &h->ht[state->bucket];
+-		sk_nulls_for_each(sk, hnode, hlist) {
++		sk_for_each(sk, hlist) {
+ 			if (sock_net(sk) == seq_file_net(seq))
+ 				return sk;
+ 		}
+@@ -968,7 +965,7 @@ static struct sock *raw_get_next(struct seq_file *seq, struct sock *sk)
+ 	struct raw_iter_state *state = raw_seq_private(seq);
+ 
+ 	do {
+-		sk = sk_nulls_next(sk);
++		sk = sk_next(sk);
+ 	} while (sk && sock_net(sk) != seq_file_net(seq));
+ 
+ 	if (!sk)
+@@ -987,9 +984,12 @@ static struct sock *raw_get_idx(struct seq_file *seq, loff_t pos)
+ }
+ 
+ void *raw_seq_start(struct seq_file *seq, loff_t *pos)
+-	__acquires(RCU)
++	__acquires(&h->lock)
+ {
+-	rcu_read_lock();
++	struct raw_hashinfo *h = pde_data(file_inode(seq->file));
++
++	spin_lock(&h->lock);
++
+ 	return *pos ? raw_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ EXPORT_SYMBOL_GPL(raw_seq_start);
+@@ -1008,9 +1008,11 @@ void *raw_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ EXPORT_SYMBOL_GPL(raw_seq_next);
+ 
+ void raw_seq_stop(struct seq_file *seq, void *v)
+-	__releases(RCU)
++	__releases(&h->lock)
+ {
+-	rcu_read_unlock();
++	struct raw_hashinfo *h = pde_data(file_inode(seq->file));
++
++	spin_unlock(&h->lock);
+ }
+ EXPORT_SYMBOL_GPL(raw_seq_stop);
+ 
+diff --git a/net/ipv4/raw_diag.c b/net/ipv4/raw_diag.c
+index 999321834b94a..da3591a66a169 100644
+--- a/net/ipv4/raw_diag.c
++++ b/net/ipv4/raw_diag.c
+@@ -57,8 +57,7 @@ static bool raw_lookup(struct net *net, struct sock *sk,
+ static struct sock *raw_sock_get(struct net *net, const struct inet_diag_req_v2 *r)
+ {
+ 	struct raw_hashinfo *hashinfo = raw_get_hashinfo(r);
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
++	struct hlist_head *hlist;
+ 	struct sock *sk;
+ 	int slot;
+ 
+@@ -68,7 +67,7 @@ static struct sock *raw_sock_get(struct net *net, const struct inet_diag_req_v2
+ 	rcu_read_lock();
+ 	for (slot = 0; slot < RAW_HTABLE_SIZE; slot++) {
+ 		hlist = &hashinfo->ht[slot];
+-		sk_nulls_for_each(sk, hnode, hlist) {
++		sk_for_each_rcu(sk, hlist) {
+ 			if (raw_lookup(net, sk, r)) {
+ 				/*
+ 				 * Grab it and keep until we fill
+@@ -142,9 +141,8 @@ static void raw_diag_dump(struct sk_buff *skb, struct netlink_callback *cb,
+ 	struct raw_hashinfo *hashinfo = raw_get_hashinfo(r);
+ 	struct net *net = sock_net(skb->sk);
+ 	struct inet_diag_dump_data *cb_data;
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
+ 	int num, s_num, slot, s_slot;
++	struct hlist_head *hlist;
+ 	struct sock *sk = NULL;
+ 	struct nlattr *bc;
+ 
+@@ -161,7 +159,7 @@ static void raw_diag_dump(struct sk_buff *skb, struct netlink_callback *cb,
+ 		num = 0;
+ 
+ 		hlist = &hashinfo->ht[slot];
+-		sk_nulls_for_each(sk, hnode, hlist) {
++		sk_for_each_rcu(sk, hlist) {
+ 			struct inet_sock *inet = inet_sk(sk);
+ 
+ 			if (!net_eq(sock_net(sk), net))
 diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index ada087b50541a..45b35b5f893c5 100644
+index 45b35b5f893c5..4fc511bdf176c 100644
 --- a/net/ipv6/raw.c
 +++ b/net/ipv6/raw.c
-@@ -152,7 +152,7 @@ static bool ipv6_raw_deliver(struct sk_buff *skb, int nexthdr)
- 	saddr = &ipv6_hdr(skb)->saddr;
- 	daddr = saddr + 1;
- 
--	hash = nexthdr & (RAW_HTABLE_SIZE - 1);
-+	hash = raw_hashfunc(net, nexthdr);
+@@ -141,10 +141,9 @@ EXPORT_SYMBOL(rawv6_mh_filter_unregister);
+ static bool ipv6_raw_deliver(struct sk_buff *skb, int nexthdr)
+ {
+ 	struct net *net = dev_net(skb->dev);
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
+ 	const struct in6_addr *saddr;
+ 	const struct in6_addr *daddr;
++	struct hlist_head *hlist;
+ 	struct sock *sk;
+ 	bool delivered = false;
+ 	__u8 hash;
+@@ -155,7 +154,7 @@ static bool ipv6_raw_deliver(struct sk_buff *skb, int nexthdr)
+ 	hash = raw_hashfunc(net, nexthdr);
  	hlist = &raw_v6_hashinfo.ht[hash];
  	rcu_read_lock();
- 	sk_nulls_for_each(sk, hnode, hlist) {
-@@ -338,7 +338,7 @@ void raw6_icmp_error(struct sk_buff *skb, int nexthdr,
+-	sk_nulls_for_each(sk, hnode, hlist) {
++	sk_for_each_rcu(sk, hlist) {
+ 		int filtered;
+ 
+ 		if (!raw_v6_match(net, sk, nexthdr, daddr, saddr,
+@@ -333,15 +332,14 @@ void raw6_icmp_error(struct sk_buff *skb, int nexthdr,
+ 		u8 type, u8 code, int inner_offset, __be32 info)
+ {
+ 	struct net *net = dev_net(skb->dev);
+-	struct hlist_nulls_head *hlist;
+-	struct hlist_nulls_node *hnode;
++	struct hlist_head *hlist;
  	struct sock *sk;
  	int hash;
  
--	hash = nexthdr & (RAW_HTABLE_SIZE - 1);
-+	hash = raw_hashfunc(net, nexthdr);
+ 	hash = raw_hashfunc(net, nexthdr);
  	hlist = &raw_v6_hashinfo.ht[hash];
  	rcu_read_lock();
- 	sk_nulls_for_each(sk, hnode, hlist) {
+-	sk_nulls_for_each(sk, hnode, hlist) {
++	sk_for_each_rcu(sk, hlist) {
+ 		/* Note: ipv6_hdr(skb) != skb->data */
+ 		const struct ipv6hdr *ip6h = (const struct ipv6hdr *)skb->data;
+ 
 -- 
 2.39.2
 
