@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0226DEEC9
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF226DEE2F
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230227AbjDLIpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56804 "EHLO
+        id S230400AbjDLIku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:40:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231225AbjDLIor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:47 -0400
+        with ESMTP id S230150AbjDLIjn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16651869A
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3024E65
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B48DF6308F
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A39C4339B;
-        Wed, 12 Apr 2023 08:44:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B3B36300A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C9E5C433EF;
+        Wed, 12 Apr 2023 08:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289048;
-        bh=KniCw7X4s6beES+ACV7I6uEf+SnCJlfKPEwGe5iWZ3Y=;
+        s=korg; t=1681288645;
+        bh=Iaujq5ZepP0bJdDw1IZo/f6laXPJ0p0ecE72PG18934=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnKotxFWonxaS3qFzNfhSQjKOF0ZZKWB4dFQ17amrOsXIeF77hABK0+uCRu8WSoya
-         m42Pro8LyCqT8IzA7y5xUxmEqJw2oTtnHd7yGcLsq/LOOuHXoLNfzy+OupuFFDkvPq
-         pHWUldDyTIbSXQaSBO5XeVjVKU/Ytsv3HS4/XQoM=
+        b=tKiFjYoZWwtCwiN0DLde9EPobIDvwE4gIZNCOH+O6W1lRR4IJ0qYXU58FyGrgN0C5
+         FoAncWCrqO0sxVq1EkCtIXJUHiXysSx9Fv8xtQ2s5TppCBfPsQX6aPn8z0zIk+48Zw
+         GZnqsdTn5ePenRLKX6+xi1aelP1izlQRPn7d/4ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marios Makassikis <mmakassikis@freebox.fr>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 086/164] ksmbd: do not call kvmalloc() with __GFP_NORETRY | __GFP_NO_WARN
+        patches@lists.linux.dev, Nico Boehr <nrb@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 27/93] KVM: s390: pv: fix external interruption loop not always detected
 Date:   Wed, 12 Apr 2023 10:33:28 +0200
-Message-Id: <20230412082840.379841322@linuxfoundation.org>
+Message-Id: <20230412082824.213300033@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Makassikis <mmakassikis@freebox.fr>
+From: Nico Boehr <nrb@linux.ibm.com>
 
-commit e416ea62a9166e6075a07a970cc5bf79255d2700 upstream.
+[ Upstream commit 21f27df854008b86349a203bf97fef79bb11f53e ]
 
-Commit 83dcedd5540d ("ksmbd: fix infinite loop in ksmbd_conn_handler_loop()"),
-changes GFP modifiers passed to kvmalloc(). This cause xfstests generic/551
-test to fail. We limit pdu length size according to connection status and
-maximum number of connections. In the rest, memory allocation of request
-is limited by credit management. so these flags are no longer needed.
+To determine whether the guest has caused an external interruption loop
+upon code 20 (external interrupt) intercepts, the ext_new_psw needs to
+be inspected to see whether external interrupts are enabled.
 
-Fixes: 83dcedd5540d ("ksmbd: fix infinite loop in ksmbd_conn_handler_loop()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marios Makassikis <mmakassikis@freebox.fr>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Under non-PV, ext_new_psw can simply be taken from guest lowcore. Under
+PV, KVM can only access the encrypted guest lowcore and hence the
+ext_new_psw must not be taken from guest lowcore.
+
+handle_external_interrupt() incorrectly did that and hence was not able
+to reliably tell whether an external interruption loop is happening or
+not. False negatives cause spurious failures of my kvm-unit-test
+for extint loops[1] under PV.
+
+Since code 20 is only caused under PV if and only if the guest's
+ext_new_psw is enabled for external interrupts, false positive detection
+of a external interruption loop can not happen.
+
+Fix this issue by instead looking at the guest PSW in the state
+description. Since the PSW swap for external interrupt is done by the
+ultravisor before the intercept is caused, this reliably tells whether
+the guest is enabled for external interrupts in the ext_new_psw.
+
+Also update the comments to explain better what is happening.
+
+[1] https://lore.kernel.org/kvm/20220812062151.1980937-4-nrb@linux.ibm.com/
+
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Fixes: 201ae986ead7 ("KVM: s390: protvirt: Implement interrupt injection")
+Link: https://lore.kernel.org/r/20230213085520.100756-2-nrb@linux.ibm.com
+Message-Id: <20230213085520.100756-2-nrb@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/connection.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/s390/kvm/intercept.c | 32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -326,10 +326,7 @@ int ksmbd_conn_handler_loop(void *p)
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 8ca301f49b305..aeb0e0865e890 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -271,10 +271,18 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+  * handle_external_interrupt - used for external interruption interceptions
+  * @vcpu: virtual cpu
+  *
+- * This interception only occurs if the CPUSTAT_EXT_INT bit was set, or if
+- * the new PSW does not have external interrupts disabled. In the first case,
+- * we've got to deliver the interrupt manually, and in the second case, we
+- * drop to userspace to handle the situation there.
++ * This interception occurs if:
++ * - the CPUSTAT_EXT_INT bit was already set when the external interrupt
++ *   occurred. In this case, the interrupt needs to be injected manually to
++ *   preserve interrupt priority.
++ * - the external new PSW has external interrupts enabled, which will cause an
++ *   interruption loop. We drop to userspace in this case.
++ *
++ * The latter case can be detected by inspecting the external mask bit in the
++ * external new psw.
++ *
++ * Under PV, only the latter case can occur, since interrupt priorities are
++ * handled in the ultravisor.
+  */
+ static int handle_external_interrupt(struct kvm_vcpu *vcpu)
+ {
+@@ -285,10 +293,18 @@ static int handle_external_interrupt(struct kvm_vcpu *vcpu)
  
- 		/* 4 for rfc1002 length field */
- 		size = pdu_size + 4;
--		conn->request_buf = kvmalloc(size,
--					     GFP_KERNEL |
--					     __GFP_NOWARN |
--					     __GFP_NORETRY);
-+		conn->request_buf = kvmalloc(size, GFP_KERNEL);
- 		if (!conn->request_buf)
- 			break;
+ 	vcpu->stat.exit_external_interrupt++;
  
+-	rc = read_guest_lc(vcpu, __LC_EXT_NEW_PSW, &newpsw, sizeof(psw_t));
+-	if (rc)
+-		return rc;
+-	/* We can not handle clock comparator or timer interrupt with bad PSW */
++	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
++		newpsw = vcpu->arch.sie_block->gpsw;
++	} else {
++		rc = read_guest_lc(vcpu, __LC_EXT_NEW_PSW, &newpsw, sizeof(psw_t));
++		if (rc)
++			return rc;
++	}
++
++	/*
++	 * Clock comparator or timer interrupt with external interrupt enabled
++	 * will cause interrupt loop. Drop to userspace.
++	 */
+ 	if ((eic == EXT_IRQ_CLK_COMP || eic == EXT_IRQ_CPU_TIMER) &&
+ 	    (newpsw.mask & PSW_MASK_EXT))
+ 		return -EOPNOTSUPP;
+-- 
+2.39.2
+
 
 
