@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEE26DEEE2
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B5506DEED7
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230342AbjDLIpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58680 "EHLO
+        id S230135AbjDLIpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230496AbjDLIpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4129D7ECD
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:45:31 -0700 (PDT)
+        with ESMTP id S230261AbjDLIpQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED65D83C9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A402630A5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE49C433D2;
-        Wed, 12 Apr 2023 08:44:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0C516303A
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E48C433EF;
+        Wed, 12 Apr 2023 08:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289085;
-        bh=PdDcSebnue5LiqMPE2TWlJom4E+6diVVwH/wW3Ir6vA=;
+        s=korg; t=1681289088;
+        bh=a4sm/TvQ7hSLaalWV6ZYpb8EUO7FERC0AECa+AYZnjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrSp+8ixpoPFDTHZQS2Bujuk8Pmx8/1LIKaltPSxuBSlHAWIRDgKmP7LDMI5jofaR
-         C4NEPNC18mpRmjegidrKZiPNxwv3+4av4PmUOw1X/34GY+Bkjl4j84lTX50PzxIcM/
-         qPWMt2pGVqX52jR2SUk+vkyVgq89r8wmXTatdwI4=
+        b=ICf7YkKvlGc0Pc0wuj29XALIBmMynZYzub2eIXcOOqe/Plb4YfzS1VNf1CQVu6jVJ
+         NbMswx+yLB6XkzeN5rNH8cBIoZGX6VMuqLEfoYdbbGWLKeaQlKQJJSTzbooDvx6Yzc
+         +RtIooAg3BWxiAh/tBQMmYH62pMK/PXrcA2q0gm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yafang Shao <laoar.shao@gmail.com>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 130/164] mm: vmalloc: avoid warn_alloc noise caused by fatal signal
-Date:   Wed, 12 Apr 2023 10:34:12 +0200
-Message-Id: <20230412082842.139900356@linuxfoundation.org>
+        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 6.1 131/164] wifi: mt76: ignore key disable commands
+Date:   Wed, 12 Apr 2023 10:34:13 +0200
+Message-Id: <20230412082842.180126297@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
 References: <20230412082836.695875037@linuxfoundation.org>
@@ -46,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,122 +53,317 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit f349b15e183d6956f1b63d6ff57849ff10c7edd5 upstream.
+commit e6db67fa871dee37d22701daba806bfcd4d9df49 upstream.
 
-There're some suspicious warn_alloc on my test serer, for example,
+This helps avoid cleartext leakage of already queued or powersave buffered
+packets, when a reassoc triggers the key deletion.
 
-[13366.518837] warn_alloc: 81 callbacks suppressed
-[13366.518841] test_verifier: vmalloc error: size 4096, page order 0, failed to allocate pages, mode:0x500dc2(GFP_HIGHUSER|__GFP_ZERO|__GFP_ACCOUNT), nodemask=(null),cpuset=/,mems_allowed=0-1
-[13366.522240] CPU: 30 PID: 722463 Comm: test_verifier Kdump: loaded Tainted: G        W  O       6.2.0+ #638
-[13366.524216] Call Trace:
-[13366.524702]  <TASK>
-[13366.525148]  dump_stack_lvl+0x6c/0x80
-[13366.525712]  dump_stack+0x10/0x20
-[13366.526239]  warn_alloc+0x119/0x190
-[13366.526783]  ? alloc_pages_bulk_array_mempolicy+0x9e/0x2a0
-[13366.527470]  __vmalloc_area_node+0x546/0x5b0
-[13366.528066]  __vmalloc_node_range+0xc2/0x210
-[13366.528660]  __vmalloc_node+0x42/0x50
-[13366.529186]  ? bpf_prog_realloc+0x53/0xc0
-[13366.529743]  __vmalloc+0x1e/0x30
-[13366.530235]  bpf_prog_realloc+0x53/0xc0
-[13366.530771]  bpf_patch_insn_single+0x80/0x1b0
-[13366.531351]  bpf_jit_blind_constants+0xe9/0x1c0
-[13366.531932]  ? __free_pages+0xee/0x100
-[13366.532457]  ? free_large_kmalloc+0x58/0xb0
-[13366.533002]  bpf_int_jit_compile+0x8c/0x5e0
-[13366.533546]  bpf_prog_select_runtime+0xb4/0x100
-[13366.534108]  bpf_prog_load+0x6b1/0xa50
-[13366.534610]  ? perf_event_task_tick+0x96/0xb0
-[13366.535151]  ? security_capable+0x3a/0x60
-[13366.535663]  __sys_bpf+0xb38/0x2190
-[13366.536120]  ? kvm_clock_get_cycles+0x9/0x10
-[13366.536643]  __x64_sys_bpf+0x1c/0x30
-[13366.537094]  do_syscall_64+0x38/0x90
-[13366.537554]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-[13366.538107] RIP: 0033:0x7f78310f8e29
-[13366.538561] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 17 e0 2c 00 f7 d8 64 89 01 48
-[13366.540286] RSP: 002b:00007ffe2a61fff8 EFLAGS: 00000206 ORIG_RAX: 0000000000000141
-[13366.541031] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f78310f8e29
-[13366.541749] RDX: 0000000000000080 RSI: 00007ffe2a6200b0 RDI: 0000000000000005
-[13366.542470] RBP: 00007ffe2a620010 R08: 00007ffe2a6202a0 R09: 00007ffe2a6200b0
-[13366.543183] R10: 00000000000f423e R11: 0000000000000206 R12: 0000000000407800
-[13366.543900] R13: 00007ffe2a620540 R14: 0000000000000000 R15: 0000000000000000
-[13366.544623]  </TASK>
-[13366.545260] Mem-Info:
-[13366.546121] active_anon:81319 inactive_anon:20733 isolated_anon:0
- active_file:69450 inactive_file:5624 isolated_file:0
- unevictable:0 dirty:10 writeback:0
- slab_reclaimable:69649 slab_unreclaimable:48930
- mapped:27400 shmem:12868 pagetables:4929
- sec_pagetables:0 bounce:0
- kernel_misc_reclaimable:0
- free:15870308 free_pcp:142935 free_cma:0
-[13366.551886] Node 0 active_anon:224836kB inactive_anon:33528kB active_file:175692kB inactive_file:13752kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:59248kB dirty:32kB writeback:0kB shmem:18252kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:4616kB pagetables:10664kB sec_pagetables:0kB all_unreclaimable? no
-[13366.555184] Node 1 active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:50352kB dirty:8kB writeback:0kB shmem:33220kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:3896kB pagetables:9052kB sec_pagetables:0kB all_unreclaimable? no
-[13366.558262] Node 0 DMA free:15360kB boost:0kB min:304kB low:380kB high:456kB reserved_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB present:15992kB managed:15360kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
-[13366.560821] lowmem_reserve[]: 0 2735 31873 31873 31873
-[13366.561981] Node 0 DMA32 free:2790904kB boost:0kB min:56028kB low:70032kB high:84036kB reserved_highatomic:0KB active_anon:1936kB inactive_anon:20kB active_file:396kB inactive_file:344kB unevictable:0kB writepending:0kB present:3129200kB managed:2801520kB mlocked:0kB bounce:0kB free_pcp:5188kB local_pcp:0kB free_cma:0kB
-[13366.565148] lowmem_reserve[]: 0 0 29137 29137 29137
-[13366.566168] Node 0 Normal free:28533824kB boost:0kB min:596740kB low:745924kB high:895108kB reserved_highatomic:28672KB active_anon:222900kB inactive_anon:33508kB active_file:175296kB inactive_file:13408kB unevictable:0kB writepending:32kB present:30408704kB managed:29837172kB mlocked:0kB bounce:0kB free_pcp:295724kB local_pcp:0kB free_cma:0kB
-[13366.569485] lowmem_reserve[]: 0 0 0 0 0
-[13366.570416] Node 1 Normal free:32141144kB boost:0kB min:660504kB low:825628kB high:990752kB reserved_highatomic:69632KB active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB writepending:8kB present:33554432kB managed:33025372kB mlocked:0kB bounce:0kB free_pcp:270880kB local_pcp:46860kB free_cma:0kB
-[13366.573403] lowmem_reserve[]: 0 0 0 0 0
-[13366.574015] Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 1*2048kB (M) 3*4096kB (M) = 15360kB
-[13366.575474] Node 0 DMA32: 782*4kB (UME) 756*8kB (UME) 736*16kB (UME) 745*32kB (UME) 694*64kB (UME) 653*128kB (UME) 595*256kB (UME) 552*512kB (UME) 454*1024kB (UME) 347*2048kB (UME) 246*4096kB (UME) = 2790904kB
-[13366.577442] Node 0 Normal: 33856*4kB (UMEH) 51815*8kB (UMEH) 42418*16kB (UMEH) 36272*32kB (UMEH) 22195*64kB (UMEH) 10296*128kB (UMEH) 7238*256kB (UMEH) 5638*512kB (UEH) 5337*1024kB (UMEH) 3506*2048kB (UMEH) 1470*4096kB (UME) = 28533784kB
-[13366.580460] Node 1 Normal: 15776*4kB (UMEH) 37485*8kB (UMEH) 29509*16kB (UMEH) 21420*32kB (UMEH) 14818*64kB (UMEH) 13051*128kB (UMEH) 9918*256kB (UMEH) 7374*512kB (UMEH) 5397*1024kB (UMEH) 3887*2048kB (UMEH) 2002*4096kB (UME) = 32141240kB
-[13366.583027] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
-[13366.584380] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-[13366.585702] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
-[13366.587042] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-[13366.588372] 87386 total pagecache pages
-[13366.589266] 0 pages in swap cache
-[13366.590327] Free swap  = 0kB
-[13366.591227] Total swap = 0kB
-[13366.592142] 16777082 pages RAM
-[13366.593057] 0 pages HighMem/MovableOnly
-[13366.594037] 357226 pages reserved
-[13366.594979] 0 pages hwpoisoned
-
-This failure really confuse me as there're still lots of available pages.
-Finally I figured out it was caused by a fatal signal.  When a process is
-allocating memory via vm_area_alloc_pages(), it will break directly even
-if it hasn't allocated the requested pages when it receives a fatal
-signal.  In that case, we shouldn't show this warn_alloc, as it is
-useless.  We only need to show this warning when there're really no enough
-pages.
-
-Link: https://lkml.kernel.org/r/20230330162625.13604-1-laoar.shao@gmail.com
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Reviewed-by: Lorenzo Stoakes <lstoakes@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230330091259.61378-1-nbd@nbd.name
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/vmalloc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7603/main.c   |   10 +--
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c    |   70 ++++++---------------
+ drivers/net/wireless/mediatek/mt76/mt7615/main.c   |   15 ++--
+ drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h |    6 -
+ drivers/net/wireless/mediatek/mt76/mt76x02_util.c  |   18 ++---
+ drivers/net/wireless/mediatek/mt76/mt7915/main.c   |   13 +--
+ drivers/net/wireless/mediatek/mt76/mt7921/main.c   |   13 +--
+ 7 files changed, 56 insertions(+), 89 deletions(-)
 
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -3056,9 +3056,11 @@ static void *__vmalloc_area_node(struct
- 	 * allocation request, free them via __vfree() if any.
- 	 */
- 	if (area->nr_pages != nr_small_pages) {
--		warn_alloc(gfp_mask, NULL,
--			"vmalloc error: size %lu, page order %u, failed to allocate pages",
--			area->nr_pages * PAGE_SIZE, page_order);
-+		/* vm_area_alloc_pages() can also fail due to a fatal signal */
-+		if (!fatal_signal_pending(current))
-+			warn_alloc(gfp_mask, NULL,
-+				"vmalloc error: size %lu, page order %u, failed to allocate pages",
-+				area->nr_pages * PAGE_SIZE, page_order);
- 		goto fail;
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+@@ -512,15 +512,15 @@ mt7603_set_key(struct ieee80211_hw *hw,
+ 	    !(key->flags & IEEE80211_KEY_FLAG_PAIRWISE))
+ 		return -EOPNOTSUPP;
+ 
+-	if (cmd == SET_KEY) {
+-		key->hw_key_idx = wcid->idx;
+-		wcid->hw_key_idx = idx;
+-	} else {
++	if (cmd != SET_KEY) {
+ 		if (idx == wcid->hw_key_idx)
+ 			wcid->hw_key_idx = -1;
+ 
+-		key = NULL;
++		return 0;
+ 	}
++
++	key->hw_key_idx = wcid->idx;
++	wcid->hw_key_idx = idx;
+ 	mt76_wcid_key_setup(&dev->mt76, wcid, key);
+ 
+ 	return mt7603_wtbl_set_key(dev, wcid->idx, key);
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -1180,8 +1180,7 @@ EXPORT_SYMBOL_GPL(mt7615_mac_set_rates);
+ static int
+ mt7615_mac_wtbl_update_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
+ 			   struct ieee80211_key_conf *key,
+-			   enum mt76_cipher_type cipher, u16 cipher_mask,
+-			   enum set_key_cmd cmd)
++			   enum mt76_cipher_type cipher, u16 cipher_mask)
+ {
+ 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx) + 30 * 4;
+ 	u8 data[32] = {};
+@@ -1190,27 +1189,18 @@ mt7615_mac_wtbl_update_key(struct mt7615
+ 		return -EINVAL;
+ 
+ 	mt76_rr_copy(dev, addr, data, sizeof(data));
+-	if (cmd == SET_KEY) {
+-		if (cipher == MT_CIPHER_TKIP) {
+-			/* Rx/Tx MIC keys are swapped */
+-			memcpy(data, key->key, 16);
+-			memcpy(data + 16, key->key + 24, 8);
+-			memcpy(data + 24, key->key + 16, 8);
+-		} else {
+-			if (cipher_mask == BIT(cipher))
+-				memcpy(data, key->key, key->keylen);
+-			else if (cipher != MT_CIPHER_BIP_CMAC_128)
+-				memcpy(data, key->key, 16);
+-			if (cipher == MT_CIPHER_BIP_CMAC_128)
+-				memcpy(data + 16, key->key, 16);
+-		}
++	if (cipher == MT_CIPHER_TKIP) {
++		/* Rx/Tx MIC keys are swapped */
++		memcpy(data, key->key, 16);
++		memcpy(data + 16, key->key + 24, 8);
++		memcpy(data + 24, key->key + 16, 8);
+ 	} else {
++		if (cipher_mask == BIT(cipher))
++			memcpy(data, key->key, key->keylen);
++		else if (cipher != MT_CIPHER_BIP_CMAC_128)
++			memcpy(data, key->key, 16);
+ 		if (cipher == MT_CIPHER_BIP_CMAC_128)
+-			memset(data + 16, 0, 16);
+-		else if (cipher_mask)
+-			memset(data, 0, 16);
+-		if (!cipher_mask)
+-			memset(data, 0, sizeof(data));
++			memcpy(data + 16, key->key, 16);
  	}
  
+ 	mt76_wr_copy(dev, addr, data, sizeof(data));
+@@ -1221,7 +1211,7 @@ mt7615_mac_wtbl_update_key(struct mt7615
+ static int
+ mt7615_mac_wtbl_update_pk(struct mt7615_dev *dev, struct mt76_wcid *wcid,
+ 			  enum mt76_cipher_type cipher, u16 cipher_mask,
+-			  int keyidx, enum set_key_cmd cmd)
++			  int keyidx)
+ {
+ 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx), w0, w1;
+ 
+@@ -1240,9 +1230,7 @@ mt7615_mac_wtbl_update_pk(struct mt7615_
+ 	else
+ 		w0 &= ~MT_WTBL_W0_RX_IK_VALID;
+ 
+-	if (cmd == SET_KEY &&
+-	    (cipher != MT_CIPHER_BIP_CMAC_128 ||
+-	     cipher_mask == BIT(cipher))) {
++	if (cipher != MT_CIPHER_BIP_CMAC_128 || cipher_mask == BIT(cipher)) {
+ 		w0 &= ~MT_WTBL_W0_KEY_IDX;
+ 		w0 |= FIELD_PREP(MT_WTBL_W0_KEY_IDX, keyidx);
+ 	}
+@@ -1259,19 +1247,10 @@ mt7615_mac_wtbl_update_pk(struct mt7615_
+ 
+ static void
+ mt7615_mac_wtbl_update_cipher(struct mt7615_dev *dev, struct mt76_wcid *wcid,
+-			      enum mt76_cipher_type cipher, u16 cipher_mask,
+-			      enum set_key_cmd cmd)
++			      enum mt76_cipher_type cipher, u16 cipher_mask)
+ {
+ 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx);
+ 
+-	if (!cipher_mask) {
+-		mt76_clear(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE);
+-		return;
+-	}
+-
+-	if (cmd != SET_KEY)
+-		return;
+-
+ 	if (cipher == MT_CIPHER_BIP_CMAC_128 &&
+ 	    cipher_mask & ~BIT(MT_CIPHER_BIP_CMAC_128))
+ 		return;
+@@ -1282,8 +1261,7 @@ mt7615_mac_wtbl_update_cipher(struct mt7
+ 
+ int __mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
+ 			      struct mt76_wcid *wcid,
+-			      struct ieee80211_key_conf *key,
+-			      enum set_key_cmd cmd)
++			      struct ieee80211_key_conf *key)
+ {
+ 	enum mt76_cipher_type cipher;
+ 	u16 cipher_mask = wcid->cipher;
+@@ -1293,19 +1271,14 @@ int __mt7615_mac_wtbl_set_key(struct mt7
+ 	if (cipher == MT_CIPHER_NONE)
+ 		return -EOPNOTSUPP;
+ 
+-	if (cmd == SET_KEY)
+-		cipher_mask |= BIT(cipher);
+-	else
+-		cipher_mask &= ~BIT(cipher);
+-
+-	mt7615_mac_wtbl_update_cipher(dev, wcid, cipher, cipher_mask, cmd);
+-	err = mt7615_mac_wtbl_update_key(dev, wcid, key, cipher, cipher_mask,
+-					 cmd);
++	cipher_mask |= BIT(cipher);
++	mt7615_mac_wtbl_update_cipher(dev, wcid, cipher, cipher_mask);
++	err = mt7615_mac_wtbl_update_key(dev, wcid, key, cipher, cipher_mask);
+ 	if (err < 0)
+ 		return err;
+ 
+ 	err = mt7615_mac_wtbl_update_pk(dev, wcid, cipher, cipher_mask,
+-					key->keyidx, cmd);
++					key->keyidx);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -1316,13 +1289,12 @@ int __mt7615_mac_wtbl_set_key(struct mt7
+ 
+ int mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
+ 			    struct mt76_wcid *wcid,
+-			    struct ieee80211_key_conf *key,
+-			    enum set_key_cmd cmd)
++			    struct ieee80211_key_conf *key)
+ {
+ 	int err;
+ 
+ 	spin_lock_bh(&dev->mt76.lock);
+-	err = __mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
++	err = __mt7615_mac_wtbl_set_key(dev, wcid, key);
+ 	spin_unlock_bh(&dev->mt76.lock);
+ 
+ 	return err;
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -391,18 +391,17 @@ static int mt7615_set_key(struct ieee802
+ 
+ 	if (cmd == SET_KEY)
+ 		*wcid_keyidx = idx;
+-	else if (idx == *wcid_keyidx)
+-		*wcid_keyidx = -1;
+-	else
++	else {
++		if (idx == *wcid_keyidx)
++			*wcid_keyidx = -1;
+ 		goto out;
++	}
+ 
+-	mt76_wcid_key_setup(&dev->mt76, wcid,
+-			    cmd == SET_KEY ? key : NULL);
+-
++	mt76_wcid_key_setup(&dev->mt76, wcid, key);
+ 	if (mt76_is_mmio(&dev->mt76))
+-		err = mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
++		err = mt7615_mac_wtbl_set_key(dev, wcid, key);
+ 	else
+-		err = __mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
++		err = __mt7615_mac_wtbl_set_key(dev, wcid, key);
+ 
+ out:
+ 	mt7615_mutex_release(dev);
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
+@@ -482,11 +482,9 @@ int mt7615_mac_write_txwi(struct mt7615_
+ void mt7615_mac_set_timing(struct mt7615_phy *phy);
+ int __mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
+ 			      struct mt76_wcid *wcid,
+-			      struct ieee80211_key_conf *key,
+-			      enum set_key_cmd cmd);
++			      struct ieee80211_key_conf *key);
+ int mt7615_mac_wtbl_set_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
+-			    struct ieee80211_key_conf *key,
+-			    enum set_key_cmd cmd);
++			    struct ieee80211_key_conf *key);
+ void mt7615_mac_reset_work(struct work_struct *work);
+ u32 mt7615_mac_get_sta_tid_sn(struct mt7615_dev *dev, int wcid, u8 tid);
+ 
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+@@ -455,20 +455,20 @@ int mt76x02_set_key(struct ieee80211_hw
+ 	msta = sta ? (struct mt76x02_sta *)sta->drv_priv : NULL;
+ 	wcid = msta ? &msta->wcid : &mvif->group_wcid;
+ 
+-	if (cmd == SET_KEY) {
+-		key->hw_key_idx = wcid->idx;
+-		wcid->hw_key_idx = idx;
+-		if (key->flags & IEEE80211_KEY_FLAG_RX_MGMT) {
+-			key->flags |= IEEE80211_KEY_FLAG_SW_MGMT_TX;
+-			wcid->sw_iv = true;
+-		}
+-	} else {
++	if (cmd != SET_KEY) {
+ 		if (idx == wcid->hw_key_idx) {
+ 			wcid->hw_key_idx = -1;
+ 			wcid->sw_iv = false;
+ 		}
+ 
+-		key = NULL;
++		return 0;
++	}
++
++	key->hw_key_idx = wcid->idx;
++	wcid->hw_key_idx = idx;
++	if (key->flags & IEEE80211_KEY_FLAG_RX_MGMT) {
++		key->flags |= IEEE80211_KEY_FLAG_SW_MGMT_TX;
++		wcid->sw_iv = true;
+ 	}
+ 	mt76_wcid_key_setup(&dev->mt76, wcid, key);
+ 
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+@@ -393,16 +393,15 @@ static int mt7915_set_key(struct ieee802
+ 		mt7915_mcu_add_bss_info(phy, vif, true);
+ 	}
+ 
+-	if (cmd == SET_KEY)
++	if (cmd == SET_KEY) {
+ 		*wcid_keyidx = idx;
+-	else if (idx == *wcid_keyidx)
+-		*wcid_keyidx = -1;
+-	else
++	} else {
++		if (idx == *wcid_keyidx)
++			*wcid_keyidx = -1;
+ 		goto out;
++	}
+ 
+-	mt76_wcid_key_setup(&dev->mt76, wcid,
+-			    cmd == SET_KEY ? key : NULL);
+-
++	mt76_wcid_key_setup(&dev->mt76, wcid, key);
+ 	err = mt76_connac_mcu_add_key(&dev->mt76, vif, &msta->bip,
+ 				      key, MCU_EXT_CMD(STA_REC_UPDATE),
+ 				      &msta->wcid, cmd);
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -464,16 +464,15 @@ static int mt7921_set_key(struct ieee802
+ 
+ 	mt7921_mutex_acquire(dev);
+ 
+-	if (cmd == SET_KEY)
++	if (cmd == SET_KEY) {
+ 		*wcid_keyidx = idx;
+-	else if (idx == *wcid_keyidx)
+-		*wcid_keyidx = -1;
+-	else
++	} else {
++		if (idx == *wcid_keyidx)
++			*wcid_keyidx = -1;
+ 		goto out;
++	}
+ 
+-	mt76_wcid_key_setup(&dev->mt76, wcid,
+-			    cmd == SET_KEY ? key : NULL);
+-
++	mt76_wcid_key_setup(&dev->mt76, wcid, key);
+ 	err = mt76_connac_mcu_add_key(&dev->mt76, vif, &msta->bip,
+ 				      key, MCU_UNI_CMD(STA_REC_UPDATE),
+ 				      &msta->wcid, cmd);
 
 
