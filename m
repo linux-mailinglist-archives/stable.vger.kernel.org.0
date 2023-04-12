@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB74A6DEE7B
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC3B6DEF2D
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230468AbjDLIl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
+        id S231316AbjDLIsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:48:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231156AbjDLIla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:30 -0400
+        with ESMTP id S231282AbjDLIsi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11767D99
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34587ABF
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00F0262F99
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1323BC4339B;
-        Wed, 12 Apr 2023 08:40:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88E4462B5B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 977C0C433D2;
+        Wed, 12 Apr 2023 08:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288836;
-        bh=kSfMlW5eVR9DAOMH/2ul2MyNtZv4s5yj5Dne60UaMTU=;
+        s=korg; t=1681289259;
+        bh=27lklvznINahqMlcvhIU/MmVPvw/ZCB2CcKur4Hj7gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYlnQctpDA5atFdsMV4BMMU8ZWRpSw3TtPimQFWzvgwSJlO8y8rnxhsq4EiwGewGp
-         yPo2GOyxWebBert27ORda+l483lyUtR5L9ITPc+g3gCmhppMa2nqEGXRKLS8Bq1P+o
-         pP8bVgjxaQgePcqNd1ZTZvVw5ZyDbouFtLB1JKwQ=
+        b=MCZtEV5qXpKhUoAGSonoX3+imwVJjyYXPjFAsYXcVb1favXOaPrGWs3goRNPaGwoX
+         yhdmrOxfQmw0U6TRpYRYa9Xsm7DpX+0/W2e3P0D6jGoOwiyLcG+B7JMz7NGZ3k5GO1
+         McXHb2Bdca232C9NqWSGg3zoq4M8EqdP1CqhChZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Manivannan Sadhasivam <mani@kernel.org>,
-        Ram Kumar Dharuman <quic_ramd@quicinc.com>,
-        Sricharan Ramabadhran <quic_srichara@quicinc.com>,
+        patches@lists.linux.dev,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Felix Fietkau <nbd@nbd.name>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 035/164] net: qrtr: Do not do DEL_SERVER broadcast after DEL_CLIENT
+Subject: [PATCH 6.2 031/173] net: ethernet: mtk_eth_soc: fix remaining throughput regression
 Date:   Wed, 12 Apr 2023 10:32:37 +0200
-Message-Id: <20230412082838.370943873@linuxfoundation.org>
+Message-Id: <20230412082839.347863903@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sricharan Ramabadhran <quic_srichara@quicinc.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 839349d13905927d8a567ca4d21d88c82028e31d ]
+[ Upstream commit e669ce46740a9815953bb4452a6bc5a7fdc21a50 ]
 
-On the remote side, when QRTR socket is removed, af_qrtr will call
-qrtr_port_remove() which broadcasts the DEL_CLIENT packet to all neighbours
-including local NS. NS upon receiving the DEL_CLIENT packet, will remove
-the lookups associated with the node:port and broadcasts the DEL_SERVER
-packet.
+Based on further tests, it seems that the QDMA shaper is not able to
+perform shaping close to the MAC link rate without throughput loss.
+This cannot be compensated by increasing the shaping rate, so it seems
+to be an internal limit.
 
-But on the host side, due to the arrival of the DEL_CLIENT packet, the NS
-would've already deleted the server belonging to that port. So when the
-remote's NS again broadcasts the DEL_SERVER for that port, it throws below
-error message on the host:
+Fix the remaining throughput regression by detecting that condition and
+limiting shaping to ports with lower link speed.
 
-"failed while handling packet from 2:-2"
+This patch intentionally ignores link speed gain from TRGMII, because
+even on such links, shaping to 1000 Mbit/s incurs some throughput
+degradation.
 
-So fix this error by not broadcasting the DEL_SERVER packet when the
-DEL_CLIENT packet gets processed."
-
-Fixes: 0c2204a4ad71 ("net: qrtr: Migrate nameservice to kernel from userspace")
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ram Kumar Dharuman <quic_ramd@quicinc.com>
-Signed-off-by: Sricharan Ramabadhran <quic_srichara@quicinc.com>
+Fixes: f63959c7eec3 ("net: ethernet: mtk_eth_soc: implement multi-queue support for per-port queues")
+Tested-By: Frank Wunderlich <frank-w@public-files.de>
+Reported-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/ns.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/qrtr/ns.c b/net/qrtr/ns.c
-index e595079c2cafe..3e40a1ba48f79 100644
---- a/net/qrtr/ns.c
-+++ b/net/qrtr/ns.c
-@@ -273,7 +273,7 @@ static struct qrtr_server *server_add(unsigned int service,
- 	return NULL;
- }
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index bd7c18c839d42..f56d4e7d4ae5d 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -703,6 +703,7 @@ static void mtk_mac_link_up(struct phylink_config *config,
+ 		 MAC_MCR_FORCE_RX_FC);
  
--static int server_del(struct qrtr_node *node, unsigned int port)
-+static int server_del(struct qrtr_node *node, unsigned int port, bool bcast)
- {
- 	struct qrtr_lookup *lookup;
- 	struct qrtr_server *srv;
-@@ -286,7 +286,7 @@ static int server_del(struct qrtr_node *node, unsigned int port)
- 	radix_tree_delete(&node->servers, port);
+ 	/* Configure speed */
++	mac->speed = speed;
+ 	switch (speed) {
+ 	case SPEED_2500:
+ 	case SPEED_1000:
+@@ -3169,6 +3170,9 @@ static int mtk_device_event(struct notifier_block *n, unsigned long event, void
+ 	if (dp->index >= MTK_QDMA_NUM_QUEUES)
+ 		return NOTIFY_DONE;
  
- 	/* Broadcast the removal of local servers */
--	if (srv->node == qrtr_ns.local_node)
-+	if (srv->node == qrtr_ns.local_node && bcast)
- 		service_announce_del(&qrtr_ns.bcast_sq, srv);
++	if (mac->speed > 0 && mac->speed <= s.base.speed)
++		s.base.speed = 0;
++
+ 	mtk_set_queue_speed(eth, dp->index + 3, s.base.speed);
  
- 	/* Announce the service's disappearance to observers */
-@@ -372,7 +372,7 @@ static int ctrl_cmd_bye(struct sockaddr_qrtr *from)
- 		}
- 		slot = radix_tree_iter_resume(slot, &iter);
- 		rcu_read_unlock();
--		server_del(node, srv->port);
-+		server_del(node, srv->port, true);
- 		rcu_read_lock();
- 	}
- 	rcu_read_unlock();
-@@ -458,10 +458,13 @@ static int ctrl_cmd_del_client(struct sockaddr_qrtr *from,
- 		kfree(lookup);
- 	}
- 
--	/* Remove the server belonging to this port */
-+	/* Remove the server belonging to this port but don't broadcast
-+	 * DEL_SERVER. Neighbours would've already removed the server belonging
-+	 * to this port due to the DEL_CLIENT broadcast from qrtr_port_remove().
-+	 */
- 	node = node_get(node_id);
- 	if (node)
--		server_del(node, port);
-+		server_del(node, port, false);
- 
- 	/* Advertise the removal of this client to all local servers */
- 	local_node = node_get(qrtr_ns.local_node);
-@@ -566,7 +569,7 @@ static int ctrl_cmd_del_server(struct sockaddr_qrtr *from,
- 	if (!node)
- 		return -ENOENT;
- 
--	return server_del(node, port);
-+	return server_del(node, port, true);
- }
- 
- static int ctrl_cmd_new_lookup(struct sockaddr_qrtr *from,
+ 	return NOTIFY_DONE;
 -- 
 2.39.2
 
