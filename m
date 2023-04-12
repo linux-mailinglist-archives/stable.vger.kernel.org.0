@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92F066DEE1D
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526996DEF65
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230307AbjDLIkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45234 "EHLO
+        id S231334AbjDLIub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230189AbjDLIjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:42 -0400
+        with ESMTP id S231332AbjDLIuX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:50:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2207A82
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C9B9023
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8FBC62A53
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:35:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0300C433D2;
-        Wed, 12 Apr 2023 08:35:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3910862B5B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A709C433D2;
+        Wed, 12 Apr 2023 08:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288540;
-        bh=EbaNhUAeUPnhla0EfDutxBsMW8Rizs4Y6ZQmz1GUCzw=;
+        s=korg; t=1681289365;
+        bh=/M7FauTKNI/uieWKNJQK7SCkeaUc92i/wKAtMeba600=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7rUe7PpnCnOOVXmaf4o9X1eko5Hzv3N7ure2OLvtadK7bjajHDcthFEny21TfQ/X
-         Q+Le4CsGwDGgW5LTQDsZ8aQ/xYYXpdWCLO6uAg09uzKWp3pNMo2uvtnPUDWU8rBwJB
-         I6CHmRsIWPsQgSkDAlF9nnqRSg7KBPkTfgv08j/I=
+        b=EOCYpZSlEJ9n1gDoetJZw4bcZ2UgMDj4WhqXvzsb2NdnaaWynBIhOeWp3YH7WjMVI
+         xsgYPrgFuJorlKfNoHA/9T34DaBdkbzxONqj39MpWH0VB7EKoxFxcOU2vsXLn6ZETT
+         px3NqZEZSelIYsb4EM4lOXBcMMVbSD+83u3EN1XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 17/93] iavf/iavf_main: actually log ->src mask when talking about it
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.2 072/173] iio: adis16480: select CONFIG_CRC32
 Date:   Wed, 12 Apr 2023 10:33:18 +0200
-Message-Id: <20230412082823.771080437@linuxfoundation.org>
+Message-Id: <20230412082840.956882757@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6650c8e906ce58404bfdfceceeba7bd10d397d40 ]
+commit d9b540ee461cca7edca0dd2c2a42625c6b9ffb8f upstream.
 
-This fixes a copy-paste issue where dev_err would log the dst mask even
-though it is clearly talking about src.
+In rare randconfig builds, the missing CRC32 helper causes
+a link error:
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+ld.lld: error: undefined symbol: crc32_le
+>>> referenced by usercopy_64.c
+>>>               vmlinux.o:(adis16480_trigger_handler)
 
-Fixes: 0075fa0fadd0 ("i40evf: Add support to apply cloud filters")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 941f130881fa ("iio: adis16480: support burst read function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20230131094616.130238-1-arnd@kernel.org
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/imu/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index bafccf61c654f..3b62f37b3cf14 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3181,7 +3181,7 @@ static int iavf_parse_cls_flower(struct iavf_adapter *adapter,
- 				field_flags |= IAVF_CLOUD_FIELD_IIP;
- 			} else {
- 				dev_err(&adapter->pdev->dev, "Bad ip src mask 0x%08x\n",
--					be32_to_cpu(match.mask->dst));
-+					be32_to_cpu(match.mask->src));
- 				return -EINVAL;
- 			}
- 		}
--- 
-2.39.2
-
+--- a/drivers/iio/imu/Kconfig
++++ b/drivers/iio/imu/Kconfig
+@@ -47,6 +47,7 @@ config ADIS16480
+ 	depends on SPI
+ 	select IIO_ADIS_LIB
+ 	select IIO_ADIS_LIB_BUFFER if IIO_BUFFER
++	select CRC32
+ 	help
+ 	  Say yes here to build support for Analog Devices ADIS16375, ADIS16480,
+ 	  ADIS16485, ADIS16488 inertial sensors.
 
 
