@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 275F56DEFCA
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7116DEFD4
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231459AbjDLIxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43072 "EHLO
+        id S231445AbjDLIx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231447AbjDLIxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:45 -0400
+        with ESMTP id S231443AbjDLIx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:53:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE41A265
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDAF6EA5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:53:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB39C62D73
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C926FC433D2;
-        Wed, 12 Apr 2023 08:53:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AF4F631C5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:53:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69404C433EF;
+        Wed, 12 Apr 2023 08:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289593;
-        bh=vBBhl3kMZZztSAu0fq6+NjtEI8anSAQfBaropzoIkN0=;
+        s=korg; t=1681289621;
+        bh=FsrkV6s6yYyG3OQ6JgnAmMgqfKLIpM01PpplAWHxxd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/6qlm1DLkPZ5rJJ61DAIxt24kwCoASjRGthYBIBIdovKhfoxcZcCT5n8oE+8aV83
-         3ia1VszSVNgawkd1/v+DJRlsWMVqqzpGbvr8ejKiw8pUx4Fg2Lp+brGarEvabgjd4B
-         bKCOu961F/d34zKTOePHmqit53iI45sTB6Ui5kHU=
+        b=kwC8NYdUUX4FhD3aIu1fW4cJxCcghnBjVTlZXXPgxcSQvoSCGkUScRY7fvgvn9zdW
+         9mHLAOEfsbkOWfCU6wHza4i3U3qH5el88I0Ih80Xdvht/O27XvkT+X/hT33ney6H3T
+         IkY6H4QJSpSB+dsq9idC+nuOIAnufZdKCoXghQ0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 6.2 151/173] ring-buffer: Fix race while reader and writer are on the same page
-Date:   Wed, 12 Apr 2023 10:34:37 +0200
-Message-Id: <20230412082844.202983515@linuxfoundation.org>
+        Yongchen Yin <wb-yyc939293@alibaba-inc.com>,
+        Rongwei Wang <rongwei.wang@linux.alibaba.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Aaron Lu <aaron.lu@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 152/173] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+Date:   Wed, 12 Apr 2023 10:34:38 +0200
+Message-Id: <20230412082844.242344143@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -54,103 +58,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
 
-commit 6455b6163d8c680366663cdb8c679514d55fc30c upstream.
+commit 6fe7d6b992113719e96744d974212df3fcddc76c upstream.
 
-When user reads file 'trace_pipe', kernel keeps printing following logs
-that warn at "cpu_buffer->reader_page->read > rb_page_size(reader)" in
-rb_get_reader_page(). It just looks like there's an infinite loop in
-tracing_read_pipe(). This problem occurs several times on arm64 platform
-when testing v5.10 and below.
+The si->lock must be held when deleting the si from the available list.
+Otherwise, another thread can re-add the si to the available list, which
+can lead to memory corruption.  The only place we have found where this
+happens is in the swapoff path.  This case can be described as below:
 
-  Call trace:
-   rb_get_reader_page+0x248/0x1300
-   rb_buffer_peek+0x34/0x160
-   ring_buffer_peek+0xbc/0x224
-   peek_next_entry+0x98/0xbc
-   __find_next_entry+0xc4/0x1c0
-   trace_find_next_entry_inc+0x30/0x94
-   tracing_read_pipe+0x198/0x304
-   vfs_read+0xb4/0x1e0
-   ksys_read+0x74/0x100
-   __arm64_sys_read+0x24/0x30
-   el0_svc_common.constprop.0+0x7c/0x1bc
-   do_el0_svc+0x2c/0x94
-   el0_svc+0x20/0x30
-   el0_sync_handler+0xb0/0xb4
-   el0_sync+0x160/0x180
+core 0                       core 1
+swapoff
 
-Then I dump the vmcore and look into the problematic per_cpu ring_buffer,
-I found that tail_page/commit_page/reader_page are on the same page while
-reader_page->read is obviously abnormal:
-  tail_page == commit_page == reader_page == {
-    .write = 0x100d20,
-    .read = 0x8f9f4805,  // Far greater than 0xd20, obviously abnormal!!!
-    .entries = 0x10004c,
-    .real_end = 0x0,
-    .page = {
-      .time_stamp = 0x857257416af0,
-      .commit = 0xd20,  // This page hasn't been full filled.
-      // .data[0...0xd20] seems normal.
-    }
- }
+del_from_avail_list(si)      waiting
 
-The root cause is most likely the race that reader and writer are on the
-same page while reader saw an event that not fully committed by writer.
+try lock si->lock            acquire swap_avail_lock
+                             and re-add si into
+                             swap_avail_head
 
-To fix this, add memory barriers to make sure the reader can see the
-content of what is committed. Since commit a0fcaaed0c46 ("ring-buffer: Fix
-race between reset page and reading page") has added the read barrier in
-rb_get_reader_page(), here we just need to add the write barrier.
+acquire si->lock but missing si already being added again, and continuing
+to clear SWP_WRITEOK, etc.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20230325021247.2923907-1-zhengyejian1@huawei.com
+It can be easily found that a massive warning messages can be triggered
+inside get_swap_pages() by some special cases, for example, we call
+madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
+run much swapon-swapoff operations (e.g.  stress-ng-swap).
 
-Cc: stable@vger.kernel.org
-Fixes: 77ae365eca89 ("ring-buffer: make lockless")
-Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+However, in the worst case, panic can be caused by the above scene.  In
+swapoff(), the memory used by si could be kept in swap_info[] after
+turning off a swap.  This means memory corruption will not be caused
+immediately until allocated and reset for a new swap in the swapon path.
+A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
+
+------------[ cut here ]------------
+top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
+prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
+next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
+WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
+Modules linked in: rfkill(E) crct10dif_ce(E)...
+CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
+Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+pc : plist_check_prev_next_node+0x50/0x70
+lr : plist_check_prev_next_node+0x50/0x70
+sp : ffff0018009d3c30
+x29: ffff0018009d3c40 x28: ffff800011b32a98
+x27: 0000000000000000 x26: ffff001803908000
+x25: ffff8000128ea088 x24: ffff800011b32a48
+x23: 0000000000000028 x22: ffff001800875c00
+x21: ffff800010f9e520 x20: ffff001800875c00
+x19: ffff001800fdc6e0 x18: 0000000000000030
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0736076307640766 x14: 0730073007380731
+x13: 0736076307640766 x12: 0730073007380731
+x11: 000000000004058d x10: 0000000085a85b76
+x9 : ffff8000101436e4 x8 : ffff800011c8ce08
+x7 : 0000000000000000 x6 : 0000000000000001
+x5 : ffff0017df9ed338 x4 : 0000000000000001
+x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ plist_check_prev_next_node+0x50/0x70
+ plist_check_head+0x80/0xf0
+ plist_add+0x28/0x140
+ add_to_avail_list+0x9c/0xf0
+ _enable_swap_info+0x78/0xb4
+ __do_sys_swapon+0x918/0xa10
+ __arm64_sys_swapon+0x20/0x30
+ el0_svc_common+0x8c/0x220
+ do_el0_svc+0x2c/0x90
+ el0_svc+0x1c/0x30
+ el0_sync_handler+0xa8/0xb0
+ el0_sync+0x148/0x180
+irq event stamp: 2082270
+
+Now, si->lock locked before calling 'del_from_avail_list()' to make sure
+other thread see the si had been deleted and SWP_WRITEOK cleared together,
+will not reinsert again.
+
+This problem exists in versions after stable 5.10.y.
+
+Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
+Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node")
+Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
+Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Cc: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Aaron Lu <aaron.lu@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ mm/swapfile.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3102,6 +3102,10 @@ rb_set_commit_to_write(struct ring_buffe
- 		if (RB_WARN_ON(cpu_buffer,
- 			       rb_is_reader_page(cpu_buffer->tail_page)))
- 			return;
-+		/*
-+		 * No need for a memory barrier here, as the update
-+		 * of the tail_page did it for this page.
-+		 */
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		rb_inc_page(&cpu_buffer->commit_page);
-@@ -3111,6 +3115,8 @@ rb_set_commit_to_write(struct ring_buffe
- 	while (rb_commit_index(cpu_buffer) !=
- 	       rb_page_write(cpu_buffer->commit_page)) {
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -679,6 +679,7 @@ static void __del_from_avail_list(struct
+ {
+ 	int nid;
  
-+		/* Make sure the readers see the content of what is committed. */
-+		smp_wmb();
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		RB_WARN_ON(cpu_buffer,
-@@ -4688,7 +4694,12 @@ rb_get_reader_page(struct ring_buffer_pe
- 
- 	/*
- 	 * Make sure we see any padding after the write update
--	 * (see rb_reset_tail())
-+	 * (see rb_reset_tail()).
-+	 *
-+	 * In addition, a writer may be writing on the reader page
-+	 * if the page has not been fully filled, so the read barrier
-+	 * is also needed to make sure we see the content of what is
-+	 * committed by the writer (see rb_set_commit_to_write()).
- 	 */
- 	smp_rmb();
- 
++	assert_spin_locked(&p->lock);
+ 	for_each_node(nid)
+ 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
+ }
+@@ -2435,8 +2436,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
+ 		spin_unlock(&swap_lock);
+ 		goto out_dput;
+ 	}
+-	del_from_avail_list(p);
+ 	spin_lock(&p->lock);
++	del_from_avail_list(p);
+ 	if (p->prio < 0) {
+ 		struct swap_info_struct *si = p;
+ 		int nid;
 
 
