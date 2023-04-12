@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A66E66DEECD
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E7B6DEE32
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230338AbjDLIpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52910 "EHLO
+        id S230448AbjDLIk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:40:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231250AbjDLIov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:44:51 -0400
+        with ESMTP id S230508AbjDLIjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4FF86B5
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DDF1991
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57809630A1
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F59CC433D2;
-        Wed, 12 Apr 2023 08:44:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9D6E62902
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFA8FC433EF;
+        Wed, 12 Apr 2023 08:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289058;
-        bh=hw3GM1MrphKYN1jjXC3YijJ126DywjLtlxb4sLXRnko=;
+        s=korg; t=1681288661;
+        bh=4rz2/nTlYA9K4x8eMsrsFRbbZGQTjgndnyQbbnkhsIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k45V0vtiD4tP1vL3MQTGIkBVBwCrzQZ3/okY+jxPCnRR/DDBn/FIE2dEnWNk0CHJ/
-         HrEzmSc17FEvIdzOMJLPXES0ZfYCx1rn2ttWDzWVLKGcBLncaeeyAFbuOTYhRZqG9g
-         14a010LwlpTvYQ7Mef42Q++sZD3ChgrEf0sl3+HI=
+        b=Db3UGABo94AYQEwmXsvpibW+CLMxG6JmxeQJ4FcOj7SqgAJtz4aeAKIybNDJSUK+u
+         bhUAhfljQWOA+aqqBmGxZ5LBQ2XhVmsJLgHKrYlPUzOOSlxGHUCCeiiRR+6VXYpvAQ
+         /m95lJV+Elt/1LiB2ZQyRSTNMas4jGrQj0qUk6iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 6.1 121/164] ACPI: video: Add acpi_backlight=video quirk for Lenovo ThinkPad W530
-Date:   Wed, 12 Apr 2023 10:34:03 +0200
-Message-Id: <20230412082841.730190059@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 5.15 63/93] tty: serial: sh-sci: Fix transmit end interrupt handler
+Date:   Wed, 12 Apr 2023 10:34:04 +0200
+Message-Id: <20230412082825.786792240@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
+References: <20230412082823.045155996@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit a5b2781dcab2c77979a4b8adda781d2543580901 upstream.
+commit b43a18647f03c87e77d50d6fe74904b61b96323e upstream.
 
-The Lenovo ThinkPad W530 uses a nvidia k1000m GPU. When this gets used
-together with one of the older nvidia binary driver series (the latest
-series does not support it), then backlight control does not work.
+The fourth interrupt on SCI port is transmit end interrupt compared to
+the break interrupt on other port types. So, shuffle the interrupts to fix
+the transmit end interrupt handler.
 
-This is caused by commit 3dbc80a3e4c5 ("ACPI: video: Make backlight
-class device registration a separate step (v2)") combined with
-commit 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for
-creating ACPI backlight by default").
-
-After these changes the acpi_video# backlight device is only registered
-when requested by a GPU driver calling acpi_video_register_backlight()
-which the nvidia binary driver does not do.
-
-I realize that using the nvidia binary driver is not a supported use-case
-and users can workaround this by adding acpi_backlight=video on the kernel
-commandline, but the ThinkPad W530 is a popular model under Linux users,
-so it seems worthwhile to add a quirk for this.
-
-I will also email Nvidia asking them to make the driver call
-acpi_video_register_backlight() when an internal LCD panel is detected.
-So maybe the next maintenance release of the drivers will fix this...
-
-Fixes: 5aa9d943e9b6 ("ACPI: video: Don't enable fallback path for creating ACPI backlight by default")
-Cc: All applicable <stable@vger.kernel.org>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Cc: stable <stable@kernel.org>
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20230317150403.154094-1-biju.das.jz@bp.renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/tty/serial/sh-sci.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -298,6 +298,20 @@ static const struct dmi_system_id video_
- 	},
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -31,6 +31,7 @@
+ #include <linux/ioport.h>
+ #include <linux/ktime.h>
+ #include <linux/major.h>
++#include <linux/minmax.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/of.h>
+@@ -2895,6 +2896,13 @@ static int sci_init_single(struct platfo
+ 			sci_port->irqs[i] = platform_get_irq(dev, i);
+ 	}
  
- 	/*
-+	 * Older models with nvidia GPU which need acpi_video backlight
-+	 * control and where the old nvidia binary driver series does not
-+	 * call acpi_video_register_backlight().
-+	 */
-+	{
-+	 .callback = video_detect_force_video,
-+	 /* ThinkPad W530 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad W530"),
-+		},
-+	},
-+
 +	/*
- 	 * These models have a working acpi_video backlight control, and using
- 	 * native backlight causes a regression where backlight does not work
- 	 * when userspace is not handling brightness key events. Disable
++	 * The fourth interrupt on SCI port is transmit end interrupt, so
++	 * shuffle the interrupts.
++	 */
++	if (p->type == PORT_SCI)
++		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
++
+ 	/* The SCI generates several interrupts. They can be muxed together or
+ 	 * connected to different interrupt lines. In the muxed case only one
+ 	 * interrupt resource is specified as there is only one interrupt ID.
 
 
