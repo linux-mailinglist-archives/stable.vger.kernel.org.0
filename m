@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C92CB6DEF44
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 767736DEF46
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbjDLItX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S231301AbjDLIt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231264AbjDLItW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:22 -0400
+        with ESMTP id S231274AbjDLItX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74F493D2
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601A26A65
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F3DE62A53
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64BBBC4339B;
-        Wed, 12 Apr 2023 08:48:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E6646311B
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:48:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F123C4339B;
+        Wed, 12 Apr 2023 08:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289313;
-        bh=pIwo7D4hHuDWzGd2okAAnndjmKh7LIeuMSmul57JB7w=;
+        s=korg; t=1681289321;
+        bh=tizzr9Z/DD9nqnYD6GLHyGMJyjTbjh2odzIXH3yIEpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iW1aN4zoh5hnymYc0Tt0bdd3uyKVSpwm/hUy5XtIFMnoiHu43UUyhDCqyjak9Hc0t
-         0eK4QbDFvBA808rFgLNmIYVNNkOZ0DnQXXD9FAxyMEt+Weo2zX8VSveVOlIiRWVxKw
-         Pj2tjLAftnWYiV2+FBtV3vZ7zJsffeWv/ELEDlKI=
+        b=ck3amsqXnBlJANiY588TPX+L7f+Pfa460Z235nuLPxT/C/yi35sobvlsMsMhNDIzp
+         kgkxU8N/uQbsXMO0rnd3MGazdjBw4VPZ8m6t0CHj0Z7aHmPs7bIiJddgTUGiFwYxxD
+         JVOMCaHix8Gs0uZnxDGhAOc15M+hwHaWoySwuKsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 024/173] wifi: brcmfmac: Fix SDIO suspend/resume regression
-Date:   Wed, 12 Apr 2023 10:32:30 +0200
-Message-Id: <20230412082839.072582135@linuxfoundation.org>
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 025/173] NFSD: Avoid calling OPDESC() with ops->opnum == OP_ILLEGAL
+Date:   Wed, 12 Apr 2023 10:32:31 +0200
+Message-Id: <20230412082839.110157319@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
 References: <20230412082838.125271466@linuxfoundation.org>
@@ -54,160 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit e4efa515d58f1363d8a27e548f9c5769d3121e03 ]
+[ Upstream commit 804d8e0a6e54427268790472781e03bc243f4ee3 ]
 
-After commit 92cadedd9d5f ("brcmfmac: Avoid keeping power to SDIO card
-unless WOWL is used"), the wifi adapter by default is turned off on suspend
-and then re-probed on resume.
+OPDESC() simply indexes into nfsd4_ops[] by the op's operation
+number, without range checking that value. It assumes callers are
+careful to avoid calling it with an out-of-bounds opnum value.
 
-In at least 2 model x86/acpi tablets with brcmfmac43430a1 wifi adapters,
-the newly added re-probe on resume fails like this:
+nfsd4_decode_compound() is not so careful, and can invoke OPDESC()
+with opnum set to OP_ILLEGAL, which is 10044 -- well beyond the end
+of nfsd4_ops[].
 
- brcmfmac: brcmf_sdio_bus_rxctl: resumed on timeout
- ieee80211 phy1: brcmf_bus_started: failed: -110
- ieee80211 phy1: brcmf_attach: dongle is not responding: err=-110
- brcmfmac: brcmf_sdio_firmware_callback: brcmf_attach failed
-
-It seems this specific brcmfmac model does not like being reprobed without
-it actually being turned off first.
-
-And the adapter is not being turned off during suspend because of
-commit f0992ace680c ("brcmfmac: prohibit ACPI power management for brcmfmac
-driver").
-
-Now that the driver is being reprobed on resume, the disabling of ACPI
-pm is no longer necessary, except when WOWL is used (in which case there
-is no-reprobe).
-
-Move the dis-/en-abling of ACPI pm to brcmf_sdio_wowl_config(), this fixes
-the brcmfmac43430a1 suspend/resume regression and should help save some
-power when suspended.
-
-This change means that the code now also may re-enable ACPI pm when WOWL
-gets disabled. ACPI pm should only be re-enabled if it was enabled by
-the ACPI core originally. Add a brcmf_sdiod_acpi_save_power_manageable()
-to save the original state for this.
-
-This has been tested on the following devices:
-
-Asus T100TA                brcmfmac43241b4-sdio
-Acer Iconia One 7 B1-750   brcmfmac43340-sdio
-Chuwi Hi8                  brcmfmac43430a0-sdio
-Chuwi Hi8                  brcmfmac43430a1-sdio
-
-(the Asus T100TA is the device for which the prohibiting of ACPI pm
- was originally added)
-
-Fixes: 92cadedd9d5f ("brcmfmac: Avoid keeping power to SDIO card unless WOWL is used")
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230320122252.240070-1-hdegoede@redhat.com
+Reported-by: Jeff Layton <jlayton@kernel.org>
+Fixes: f4f9ef4a1b0a ("nfsd4: opdesc will be useful outside nfs4proc.c")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../broadcom/brcm80211/brcmfmac/bcmsdh.c      | 36 +++++++++++++------
- .../broadcom/brcm80211/brcmfmac/sdio.h        |  2 ++
- 2 files changed, 28 insertions(+), 10 deletions(-)
+ fs/nfsd/nfs4xdr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
-index b7c918f241c91..65d4799a56584 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
-@@ -994,15 +994,34 @@ static const struct sdio_device_id brcmf_sdmmc_ids[] = {
- MODULE_DEVICE_TABLE(sdio, brcmf_sdmmc_ids);
+diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
+index 97edb32be77f1..67bbd2d6334c4 100644
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -2476,10 +2476,12 @@ nfsd4_decode_compound(struct nfsd4_compoundargs *argp)
+ 	for (i = 0; i < argp->opcnt; i++) {
+ 		op = &argp->ops[i];
+ 		op->replay = NULL;
++		op->opdesc = NULL;
  
- 
--static void brcmf_sdiod_acpi_set_power_manageable(struct device *dev,
--						  int val)
-+static void brcmf_sdiod_acpi_save_power_manageable(struct brcmf_sdio_dev *sdiodev)
- {
- #if IS_ENABLED(CONFIG_ACPI)
- 	struct acpi_device *adev;
- 
--	adev = ACPI_COMPANION(dev);
-+	adev = ACPI_COMPANION(&sdiodev->func1->dev);
- 	if (adev)
--		adev->flags.power_manageable = 0;
-+		sdiodev->func1_power_manageable = adev->flags.power_manageable;
+ 		if (xdr_stream_decode_u32(argp->xdr, &op->opnum) < 0)
+ 			return false;
+ 		if (nfsd4_opnum_in_range(argp, op)) {
++			op->opdesc = OPDESC(op);
+ 			op->status = nfsd4_dec_ops[op->opnum](argp, &op->u);
+ 			if (op->status != nfs_ok)
+ 				trace_nfsd_compound_decode_err(argp->rqstp,
+@@ -2490,7 +2492,7 @@ nfsd4_decode_compound(struct nfsd4_compoundargs *argp)
+ 			op->opnum = OP_ILLEGAL;
+ 			op->status = nfserr_op_illegal;
+ 		}
+-		op->opdesc = OPDESC(op);
 +
-+	adev = ACPI_COMPANION(&sdiodev->func2->dev);
-+	if (adev)
-+		sdiodev->func2_power_manageable = adev->flags.power_manageable;
-+#endif
-+}
-+
-+static void brcmf_sdiod_acpi_set_power_manageable(struct brcmf_sdio_dev *sdiodev,
-+						  int enable)
-+{
-+#if IS_ENABLED(CONFIG_ACPI)
-+	struct acpi_device *adev;
-+
-+	adev = ACPI_COMPANION(&sdiodev->func1->dev);
-+	if (adev)
-+		adev->flags.power_manageable = enable ? sdiodev->func1_power_manageable : 0;
-+
-+	adev = ACPI_COMPANION(&sdiodev->func2->dev);
-+	if (adev)
-+		adev->flags.power_manageable = enable ? sdiodev->func2_power_manageable : 0;
- #endif
- }
- 
-@@ -1012,7 +1031,6 @@ static int brcmf_ops_sdio_probe(struct sdio_func *func,
- 	int err;
- 	struct brcmf_sdio_dev *sdiodev;
- 	struct brcmf_bus *bus_if;
--	struct device *dev;
- 
- 	brcmf_dbg(SDIO, "Enter\n");
- 	brcmf_dbg(SDIO, "Class=%x\n", func->class);
-@@ -1020,14 +1038,9 @@ static int brcmf_ops_sdio_probe(struct sdio_func *func,
- 	brcmf_dbg(SDIO, "sdio device ID: 0x%04x\n", func->device);
- 	brcmf_dbg(SDIO, "Function#: %d\n", func->num);
- 
--	dev = &func->dev;
--
- 	/* Set MMC_QUIRK_LENIENT_FN0 for this card */
- 	func->card->quirks |= MMC_QUIRK_LENIENT_FN0;
- 
--	/* prohibit ACPI power management for this device */
--	brcmf_sdiod_acpi_set_power_manageable(dev, 0);
--
- 	/* Consume func num 1 but dont do anything with it. */
- 	if (func->num == 1)
- 		return 0;
-@@ -1059,6 +1072,7 @@ static int brcmf_ops_sdio_probe(struct sdio_func *func,
- 	dev_set_drvdata(&sdiodev->func1->dev, bus_if);
- 	sdiodev->dev = &sdiodev->func1->dev;
- 
-+	brcmf_sdiod_acpi_save_power_manageable(sdiodev);
- 	brcmf_sdiod_change_state(sdiodev, BRCMF_SDIOD_DOWN);
- 
- 	brcmf_dbg(SDIO, "F2 found, calling brcmf_sdiod_probe...\n");
-@@ -1124,6 +1138,8 @@ void brcmf_sdio_wowl_config(struct device *dev, bool enabled)
- 
- 	if (sdiodev->settings->bus.sdio.oob_irq_supported ||
- 	    pm_caps & MMC_PM_WAKE_SDIO_IRQ) {
-+		/* Stop ACPI from turning off the device when wowl is enabled */
-+		brcmf_sdiod_acpi_set_power_manageable(sdiodev, !enabled);
- 		sdiodev->wowl_enabled = enabled;
- 		brcmf_dbg(SDIO, "Configuring WOWL, enabled=%d\n", enabled);
- 		return;
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
-index b76d34d36bde6..0d18ed15b4032 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
-@@ -188,6 +188,8 @@ struct brcmf_sdio_dev {
- 	char nvram_name[BRCMF_FW_NAME_LEN];
- 	char clm_name[BRCMF_FW_NAME_LEN];
- 	bool wowl_enabled;
-+	bool func1_power_manageable;
-+	bool func2_power_manageable;
- 	enum brcmf_sdiod_state state;
- 	struct brcmf_sdiod_freezer *freezer;
- 	const struct firmware *clm_fw;
+ 		/*
+ 		 * We'll try to cache the result in the DRC if any one
+ 		 * op in the compound wants to be cached:
 -- 
 2.39.2
 
