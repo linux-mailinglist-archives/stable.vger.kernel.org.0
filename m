@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 608346DEF32
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7249E6DEE71
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231266AbjDLItF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:49:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35306 "EHLO
+        id S231160AbjDLImA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:42:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231256AbjDLIsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:48:53 -0400
+        with ESMTP id S230497AbjDLIld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:41:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02AE583D9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:48:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D596A6D
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:40:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF31563122
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2127C4339B;
-        Wed, 12 Apr 2023 08:47:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE38062FE0
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:40:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12211C433D2;
+        Wed, 12 Apr 2023 08:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681289272;
-        bh=44hdiDc/hmsXy7eU4R3GTlkJvlovBQOh576uDgGNeRE=;
+        s=korg; t=1681288849;
+        bh=EdpYzf4bxsF/rjNqfm3GUhurqL+YcdYY7WV78Fjr9JQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESdBrs5DDoaf8Ccu/9eXLoNb+WNS7DJyBIpzQAbYmjUSo+Q8udAuPb6b91g/ChPCu
-         DnahhZ2f+3zPQBnuNjJ8SREXrtz9RsUg+hFNzhnOe6P31HJ4c7zZ9d+RANdYUk1V41
-         SokrlfiufmqsH/CidIMLkvtp2V6rxECM9kWSrV5Y=
+        b=elWybx4UA5neyGiQAsJ8E58dVqTNHWBrdlDj+Oa+/4EQ4yvB/2PD9IRFOZC0No5fC
+         pe4ZYLDWh8jA7G5ufhN9a14/BpqkV8vpriUO/p5AjffWFT+mrcjrjs/B25pPwfjPbS
+         vGJyTrCjcDFIOhMSkd3Hmx7AnnHeGr30X85FC+KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Armin Wolf <W_Armin@gmx.de>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Devarsh Thakkar <devarsht@ti.com>,
+        Dhruva Gole <d-gole@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Keerthy <j-keerthy@ti.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 036/173] platform/x86: think-lmi: Fix memory leak when showing current settings
+Subject: [PATCH 6.1 040/164] gpio: davinci: Do not clear the bank intr enable bit in save_context
 Date:   Wed, 12 Apr 2023 10:32:42 +0200
-Message-Id: <20230412082839.549776571@linuxfoundation.org>
+Message-Id: <20230412082838.562885914@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
-References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Dhruva Gole <d-gole@ti.com>
 
-[ Upstream commit a3c4c053014585dcf20f4df954791b74d8a8afcd ]
+[ Upstream commit fe092498cb9638418c96675be320c74a16306b48 ]
 
-When retriving a item string with tlmi_setting(), the result has to be
-freed using kfree(). In current_value_show() however, malformed
-item strings are not freed, causing a memory leak.
-Fix this by eliminating the early return responsible for this.
+The interrupt enable bits might be set if we want to use the GPIO as
+wakeup source. Clearing this will mean disabling of interrupts in the GPIO
+banks that we may want to wakeup from.
+Thus remove the line that was clearing this bit from the driver's save
+context function.
 
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Link: https://lore.kernel.org/platform-driver-x86/01e920bc-5882-ba0c-dd15-868bf0eca0b8@alu.unizg.hr/T/#t
-Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Fixes: 0fdf10e5fc96 ("platform/x86: think-lmi: Split current_value to reflect only the value")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20230331213319.41040-1-W_Armin@gmx.de
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Devarsh Thakkar <devarsht@ti.com>
+Fixes: 0651a730924b ("gpio: davinci: Add support for system suspend/resume PM")
+Signed-off-by: Dhruva Gole <d-gole@ti.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/think-lmi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-davinci.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index 74af3e593b2ca..4e738ec5e6fb8 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -930,10 +930,12 @@ static ssize_t current_value_show(struct kobject *kobj, struct kobj_attribute *a
- 	/* validate and split from `item,value` -> `value` */
- 	value = strpbrk(item, ",");
- 	if (!value || value == item || !strlen(value + 1))
--		return -EINVAL;
-+		ret = -EINVAL;
-+	else
-+		ret = sysfs_emit(buf, "%s\n", value + 1);
+diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
+index 59c4c48d8296b..7aff8a65002c9 100644
+--- a/drivers/gpio/gpio-davinci.c
++++ b/drivers/gpio/gpio-davinci.c
+@@ -645,9 +645,6 @@ static void davinci_gpio_save_context(struct davinci_gpio_controller *chips,
+ 		context->set_falling = readl_relaxed(&g->set_falling);
+ 	}
  
--	ret = sysfs_emit(buf, "%s\n", value + 1);
- 	kfree(item);
-+
- 	return ret;
+-	/* Clear Bank interrupt enable bit */
+-	writel_relaxed(0, base + BINTEN);
+-
+ 	/* Clear all interrupt status registers */
+ 	writel_relaxed(GENMASK(31, 0), &g->intstat);
  }
- 
 -- 
 2.39.2
 
