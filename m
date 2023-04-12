@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8420A6DEE96
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 843756DEF54
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbjDLInG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:43:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50954 "EHLO
+        id S231312AbjDLIth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:49:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231185AbjDLImx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:42:53 -0400
+        with ESMTP id S231320AbjDLItd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:49:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFDCA93C9
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:42:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D7683D9
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:49:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C652463072
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D19C433EF;
-        Wed, 12 Apr 2023 08:42:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 424D06313F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:49:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5820DC4339B;
+        Wed, 12 Apr 2023 08:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288930;
-        bh=8P+j4cMOzpq5pFSKOJhnaDz7DYFGAZx0gdsMmHNXhWU=;
+        s=korg; t=1681289352;
+        bh=SLpOfQEjPlGpbHjo3wIAyVQkF2NdFTx7+4xJkm4r93s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHvBYLWaxSQAufg9WPG2p+pkS+GKO9Apzn8ZjXb45CQksynwKczl2BB0YO/ayhNcM
-         vWzw5iiqJGJVRaMHb1C8Bm1cCp5k+Y5GLOga5tM25yqC72g6pu1Avu2b819UlqMGHR
-         4ptMQDFujYTsdPH8JLr4aL6wPnEtM9aD3yOB7QWo=
+        b=xIn8yZhEkqzZCC6xkkYXK2PWeh3biVMnEbNE2fDJFARY6X8HZMUdAZHITQJtL4zwY
+         e2Z8CXZ9SNihF+6pNTnzOhzwDV2ye7IFIW4y6ROAg3r2dnU/5rO3vxd7SYUo7gpZ+n
+         Ii2H6HFvfJkD6ZAR8gld/W3pO247NdPWOSW3zRNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ian Ray <ian.ray@ge.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 071/164] drivers: iio: adc: ltc2497: fix LSB shift
+        patches@lists.linux.dev, Kees Jan Koster <kjkoster@kjkoster.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 6.2 067/173] USB: serial: cp210x: add Silicon Labs IFS-USB-DATACABLE IDs
 Date:   Wed, 12 Apr 2023 10:33:13 +0200
-Message-Id: <20230412082839.802486650@linuxfoundation.org>
+Message-Id: <20230412082840.775588286@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
-References: <20230412082836.695875037@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Ray <ian.ray@ge.com>
+From: Kees Jan Koster <kjkoster@kjkoster.org>
 
-commit 6327a930ab7bfa1ab33bcdffd5f5f4b1e7131504 upstream.
+commit 71f8afa2b66e356f435b6141b4a9ccf953e18356 upstream.
 
-Correct the "sub_lsb" shift for the ltc2497 and drop the sub_lsb element
-which is now constant.
+The Silicon Labs IFS-USB-DATACABLE is used in conjunction with for example
+the Quint UPSes. It is used to enable Modbus communication with the UPS to
+query configuration, power and battery status.
 
-An earlier version of the code shifted by 14 but this was a consequence
-of reading three bytes into a __be32 buffer and using be32_to_cpu(), so
-eight extra bits needed to be skipped.  Now we use get_unaligned_be24()
-and thus the additional skip is wrong.
-
-Fixes: 2187cfeb3626 ("drivers: iio: adc: ltc2497: LTC2499 support")
-Signed-off-by: Ian Ray <ian.ray@ge.com>
-Link: https://lore.kernel.org/r/20230127125714.44608-1-ian.ray@ge.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Kees Jan Koster <kjkoster@kjkoster.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ltc2497.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/ltc2497.c b/drivers/iio/adc/ltc2497.c
-index 17370c5eb6fe..ec198c6f13d6 100644
---- a/drivers/iio/adc/ltc2497.c
-+++ b/drivers/iio/adc/ltc2497.c
-@@ -28,7 +28,6 @@ struct ltc2497_driverdata {
- 	struct ltc2497core_driverdata common_ddata;
- 	struct i2c_client *client;
- 	u32 recv_size;
--	u32 sub_lsb;
- 	/*
- 	 * DMA (thus cache coherency maintenance) may require the
- 	 * transfer buffers to live in their own cache lines.
-@@ -65,10 +64,10 @@ static int ltc2497_result_and_measure(struct ltc2497core_driverdata *ddata,
- 		 * equivalent to a sign extension.
- 		 */
- 		if (st->recv_size == 3) {
--			*val = (get_unaligned_be24(st->data.d8) >> st->sub_lsb)
-+			*val = (get_unaligned_be24(st->data.d8) >> 6)
- 				- BIT(ddata->chip_info->resolution + 1);
- 		} else {
--			*val = (be32_to_cpu(st->data.d32) >> st->sub_lsb)
-+			*val = (be32_to_cpu(st->data.d32) >> 6)
- 				- BIT(ddata->chip_info->resolution + 1);
- 		}
- 
-@@ -122,7 +121,6 @@ static int ltc2497_probe(struct i2c_client *client)
- 	st->common_ddata.chip_info = chip_info;
- 
- 	resolution = chip_info->resolution;
--	st->sub_lsb = 31 - (resolution + 1);
- 	st->recv_size = BITS_TO_BYTES(resolution) + 1;
- 
- 	return ltc2497core_probe(dev, indio_dev);
--- 
-2.40.0
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -120,6 +120,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x826B) }, /* Cygnal Integrated Products, Inc., Fasttrax GPS demonstration module */
+ 	{ USB_DEVICE(0x10C4, 0x8281) }, /* Nanotec Plug & Drive */
+ 	{ USB_DEVICE(0x10C4, 0x8293) }, /* Telegesis ETRX2USB */
++	{ USB_DEVICE(0x10C4, 0x82AA) }, /* Silicon Labs IFS-USB-DATACABLE used with Quint UPS */
+ 	{ USB_DEVICE(0x10C4, 0x82EF) }, /* CESINEL FALCO 6105 AC Power Supply */
+ 	{ USB_DEVICE(0x10C4, 0x82F1) }, /* CESINEL MEDCAL EFD Earth Fault Detector */
+ 	{ USB_DEVICE(0x10C4, 0x82F2) }, /* CESINEL MEDCAL ST Network Analyzer */
 
 
