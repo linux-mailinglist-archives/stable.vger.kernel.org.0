@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 208876DEE0E
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B334A6DEF7B
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:51:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230436AbjDLIjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46232 "EHLO
+        id S231351AbjDLIvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:51:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230336AbjDLIja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:30 -0400
+        with ESMTP id S231368AbjDLIvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:51:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E447AAA
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1598B9033
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:50:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A47E63007
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AC7CC433D2;
-        Wed, 12 Apr 2023 08:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA99C62FF1
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C70DEC433D2;
+        Wed, 12 Apr 2023 08:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288621;
-        bh=YWIk9rT/Gtmv4gf/oTVvDysdaVPmfHuPrk0fUPlqNAM=;
+        s=korg; t=1681289444;
+        bh=/pu8e6Z7m/AR2tx+R3r+26TjdM8AwA3fSgAHCy3toZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lqq7XvXeeleU9sXkoFNaPvXTubBlcsW219o/zuOzN63HPcG1oan6Bk/5w1hhVpgpH
-         1rWVEjuECd0nWCvyh4C6Ju4Kihp7bdzg1mcZrNNRb+me/6gmwJgZSOcTPyv6HXNS3Q
-         ZOeiW9nM8jk4hZYMA96dCxIaClUZnxi1Ab9hptho=
+        b=v7DG43A6LHGn0ZOA3pDWo8Xki5a/zjMcxtB1RENqFexoKUSnyIyfd1bvDAjciDMoF
+         YR8v7f6ABoOu6PLXy7vE1883gEHIxz1XnyQklyKMpbHk8I3Q9xcotOxsDGgn96kvwx
+         7fnXlatTRBJp7paUAmc8Tr2JHsxnWPNQ+WaM39Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Junfeng Guo <junfeng.guo@intel.com>,
-        Lingyu Liu <lingyu.liu@intel.com>,
-        Rafal Romanowski <rafal.romanowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 47/93] ice: Reset FDIR counter in FDIR init stage
+        patches@lists.linux.dev, Muchun Song <songmuchun@bytedance.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Jann Horn <jannh@google.com>, Marco Elver <elver@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        SeongJae Park <sjpark@amazon.de>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 102/173] mm: kfence: fix PG_slab and memcg_data clearing
 Date:   Wed, 12 Apr 2023 10:33:48 +0200
-Message-Id: <20230412082825.130302728@linuxfoundation.org>
+Message-Id: <20230412082842.204452421@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +58,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lingyu Liu <lingyu.liu@intel.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 83c911dc5e0e8e6eaa6431c06972a8f159bfe2fc ]
+commit 3ee2d7471fa4963a2ced0a84f0653ce88b43c5b2 upstream.
 
-Reset the FDIR counters when FDIR inits. Without this patch,
-when VF initializes or resets, all the FDIR counters are not
-cleaned, which may cause unexpected behaviors for future FDIR
-rule create (e.g., rule conflict).
+It does not reset PG_slab and memcg_data when KFENCE fails to initialize
+kfence pool at runtime.  It is reporting a "Bad page state" message when
+kfence pool is freed to buddy.  The checking of whether it is a compound
+head page seems unnecessary since we already guarantee this when
+allocating kfence pool.   Remove the check to simplify the code.
 
-Fixes: 1f7ea1cd6a37 ("ice: Enable FDIR Configure for AVF")
-Signed-off-by: Junfeng Guo <junfeng.guo@intel.com>
-Signed-off-by: Lingyu Liu <lingyu.liu@intel.com>
-Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20230320030059.20189-1-songmuchun@bytedance.com
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: SeongJae Park <sjpark@amazon.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/intel/ice/ice_virtchnl_fdir.c   | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ mm/kfence/core.c |   30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-index 2254cae817c16..412deb36b645b 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-@@ -731,6 +731,21 @@ static void ice_vc_fdir_rem_prof_all(struct ice_vf *vf)
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -561,10 +561,6 @@ static unsigned long kfence_init_pool(vo
+ 		if (!i || (i % 2))
+ 			continue;
+ 
+-		/* Verify we do not have a compound head page. */
+-		if (WARN_ON(compound_head(&pages[i]) != &pages[i]))
+-			return addr;
+-
+ 		__folio_set_slab(slab_folio(slab));
+ #ifdef CONFIG_MEMCG
+ 		slab->memcg_data = (unsigned long)&kfence_metadata[i / 2 - 1].objcg |
+@@ -597,12 +593,26 @@ static unsigned long kfence_init_pool(vo
+ 
+ 		/* Protect the right redzone. */
+ 		if (unlikely(!kfence_protect(addr + PAGE_SIZE)))
+-			return addr;
++			goto reset_slab;
+ 
+ 		addr += 2 * PAGE_SIZE;
  	}
- }
  
-+/**
-+ * ice_vc_fdir_reset_cnt_all - reset all FDIR counters for this VF FDIR
-+ * @fdir: pointer to the VF FDIR structure
-+ */
-+static void ice_vc_fdir_reset_cnt_all(struct ice_vf_fdir *fdir)
-+{
-+	enum ice_fltr_ptype flow;
+ 	return 0;
 +
-+	for (flow = ICE_FLTR_PTYPE_NONF_NONE;
-+	     flow < ICE_FLTR_PTYPE_MAX; flow++) {
-+		fdir->fdir_fltr_cnt[flow][0] = 0;
-+		fdir->fdir_fltr_cnt[flow][1] = 0;
++reset_slab:
++	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
++		struct slab *slab = page_slab(&pages[i]);
++
++		if (!i || (i % 2))
++			continue;
++#ifdef CONFIG_MEMCG
++		slab->memcg_data = 0;
++#endif
++		__folio_clear_slab(slab_folio(slab));
 +	}
-+}
 +
- /**
-  * ice_vc_fdir_has_prof_conflict
-  * @vf: pointer to the VF structure
-@@ -2263,6 +2278,7 @@ void ice_vf_fdir_init(struct ice_vf *vf)
- 	spin_lock_init(&fdir->ctx_lock);
- 	fdir->ctx_irq.flags = 0;
- 	fdir->ctx_done.flags = 0;
-+	ice_vc_fdir_reset_cnt_all(fdir);
++	return addr;
  }
  
- /**
--- 
-2.39.2
-
+ static bool __init kfence_init_pool_early(void)
+@@ -632,16 +642,6 @@ static bool __init kfence_init_pool_earl
+ 	 * fails for the first page, and therefore expect addr==__kfence_pool in
+ 	 * most failure cases.
+ 	 */
+-	for (char *p = (char *)addr; p < __kfence_pool + KFENCE_POOL_SIZE; p += PAGE_SIZE) {
+-		struct slab *slab = virt_to_slab(p);
+-
+-		if (!slab)
+-			continue;
+-#ifdef CONFIG_MEMCG
+-		slab->memcg_data = 0;
+-#endif
+-		__folio_clear_slab(slab_folio(slab));
+-	}
+ 	memblock_free_late(__pa(addr), KFENCE_POOL_SIZE - (addr - (unsigned long)__kfence_pool));
+ 	__kfence_pool = NULL;
+ 	return false;
 
 
