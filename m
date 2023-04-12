@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D43756DEE06
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B735B6DEF93
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbjDLIja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:39:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
+        id S231374AbjDLIwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230147AbjDLIjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:39:16 -0400
+        with ESMTP id S231375AbjDLIwD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:52:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235807285
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:38:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A690793DD
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:51:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF3AA62FFD
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:36:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF4B3C433EF;
-        Wed, 12 Apr 2023 08:36:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B5146315F
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D38AC433EF;
+        Wed, 12 Apr 2023 08:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288598;
-        bh=588O07Z+3ILdCH6W3SAvUtlEB26cU4bVuHNfzB0mMzM=;
+        s=korg; t=1681289498;
+        bh=KniCw7X4s6beES+ACV7I6uEf+SnCJlfKPEwGe5iWZ3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMUgcy2b3Seyh9Hhwvu8pi3w3GPY8atPFeon0as9iOcSR3Khc7ZZxn0FwKlfR0mmE
-         kN8bZ21TZx9ByXCKctwHsQmkCTPKRdZxqvG/Zvm4Zn69bklIcrABpg8LnnSuA3G3aI
-         290oRdEihrnz4GxImgmJOfhwCQsRA17ExcCRNSeM=
+        b=1KYHcLEM/9I95e1L2HBqvrE6RkDR66xNflVJ50tqnGDCF6Ete8laqSeOtKAnSQ5Yn
+         DyG2ySyHblJnof7U0Ul/FI12mF4GB9KFp1kqn2BaWAjpmUt4GlCjZqgxx6I5O6rcED
+         lfbz4HsjBsvmtJxFEIRr1pdch1f5OfeXnTMXx0is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Armin Wolf <W_Armin@gmx.de>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 38/93] platform/x86: think-lmi: Fix memory leak when showing current settings
+        Marios Makassikis <mmakassikis@freebox.fr>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 093/173] ksmbd: do not call kvmalloc() with __GFP_NORETRY | __GFP_NO_WARN
 Date:   Wed, 12 Apr 2023 10:33:39 +0200
-Message-Id: <20230412082824.729116934@linuxfoundation.org>
+Message-Id: <20230412082841.820299099@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+References: <20230412082838.125271466@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Marios Makassikis <mmakassikis@freebox.fr>
 
-[ Upstream commit a3c4c053014585dcf20f4df954791b74d8a8afcd ]
+commit e416ea62a9166e6075a07a970cc5bf79255d2700 upstream.
 
-When retriving a item string with tlmi_setting(), the result has to be
-freed using kfree(). In current_value_show() however, malformed
-item strings are not freed, causing a memory leak.
-Fix this by eliminating the early return responsible for this.
+Commit 83dcedd5540d ("ksmbd: fix infinite loop in ksmbd_conn_handler_loop()"),
+changes GFP modifiers passed to kvmalloc(). This cause xfstests generic/551
+test to fail. We limit pdu length size according to connection status and
+maximum number of connections. In the rest, memory allocation of request
+is limited by credit management. so these flags are no longer needed.
 
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Link: https://lore.kernel.org/platform-driver-x86/01e920bc-5882-ba0c-dd15-868bf0eca0b8@alu.unizg.hr/T/#t
-Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Fixes: 0fdf10e5fc96 ("platform/x86: think-lmi: Split current_value to reflect only the value")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20230331213319.41040-1-W_Armin@gmx.de
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 83dcedd5540d ("ksmbd: fix infinite loop in ksmbd_conn_handler_loop()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marios Makassikis <mmakassikis@freebox.fr>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/think-lmi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ksmbd/connection.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index c9ed2644bb8a6..5676587271988 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -514,10 +514,12 @@ static ssize_t current_value_show(struct kobject *kobj, struct kobj_attribute *a
- 	/* validate and split from `item,value` -> `value` */
- 	value = strpbrk(item, ",");
- 	if (!value || value == item || !strlen(value + 1))
--		return -EINVAL;
-+		ret = -EINVAL;
-+	else
-+		ret = sysfs_emit(buf, "%s\n", value + 1);
+--- a/fs/ksmbd/connection.c
++++ b/fs/ksmbd/connection.c
+@@ -326,10 +326,7 @@ int ksmbd_conn_handler_loop(void *p)
  
--	ret = sysfs_emit(buf, "%s\n", value + 1);
- 	kfree(item);
-+
- 	return ret;
- }
+ 		/* 4 for rfc1002 length field */
+ 		size = pdu_size + 4;
+-		conn->request_buf = kvmalloc(size,
+-					     GFP_KERNEL |
+-					     __GFP_NOWARN |
+-					     __GFP_NORETRY);
++		conn->request_buf = kvmalloc(size, GFP_KERNEL);
+ 		if (!conn->request_buf)
+ 			break;
  
--- 
-2.39.2
-
 
 
