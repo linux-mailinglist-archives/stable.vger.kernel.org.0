@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B764D6DEE33
-	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2ED6DEED5
+	for <lists+stable@lfdr.de>; Wed, 12 Apr 2023 10:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230469AbjDLIlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 04:41:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45396 "EHLO
+        id S230479AbjDLIpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 04:45:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231187AbjDLIkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:40:03 -0400
+        with ESMTP id S230284AbjDLIpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 04:45:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16CCC5241
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:39:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7E15FD5
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 01:44:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6E6862FE7
-        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:38:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D811AC433EF;
-        Wed, 12 Apr 2023 08:38:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC016630B4
+        for <stable@vger.kernel.org>; Wed, 12 Apr 2023 08:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA6B8C4339C;
+        Wed, 12 Apr 2023 08:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681288682;
-        bh=Mq3xcN0ID0xRabsPzLt0o6brpX5pANrwFzsm9/4ivGs=;
+        s=korg; t=1681289080;
+        bh=7dKDgcGJtTOo5/LJAr61enMxkUxsY7O9Sv8OXzmIO8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfoQZi7x0E1y9eH+fb/IWXVH2e9D6GXu0Pya8Jlllnyq7Z2SVwGnEVRqXBlfaav+C
-         jgX0ZN5y7DnWmWrQyzOVlHu4Rv8WjfJlkOskt3GIyM8USE7RrCxJbbc4Ir3xpIS+qN
-         TSLi2UxSx6YS5krRG6luL6nDiuvuYew/McGy1WQU=
+        b=2pI5/DF5xPYHnIGL3rtfkHWkSxK30MkR1HT0Nnuh8mZx1NFuX9vDB6hTJgguBbhwp
+         hjNGbbSuDeulInMWRNkOFqWByMf8JSY1WIa4Pl6fbEgQPGP6IMlYJ8GJsqokS+8z8D
+         xIxshT5MSaZC0DVT03Ssa6u5kspSD7UD+TXn+2VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeremy Soller <jeremy@system76.com>,
-        Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 70/93] ALSA: hda/realtek: Add quirk for Clevo X370SNW
+        patches@lists.linux.dev,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 129/164] zsmalloc: document freeable stats
 Date:   Wed, 12 Apr 2023 10:34:11 +0200
-Message-Id: <20230412082826.067849842@linuxfoundation.org>
+Message-Id: <20230412082842.095836037@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230412082823.045155996@linuxfoundation.org>
-References: <20230412082823.045155996@linuxfoundation.org>
+In-Reply-To: <20230412082836.695875037@linuxfoundation.org>
+References: <20230412082836.695875037@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Soller <jeremy@system76.com>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-commit 36d4d213c6d4fffae2645a601e8ae996de4c3645 upstream.
+commit 618a8a917dbf5830e2064d2fa0568940eb5d2584 upstream.
 
-Fixes speaker output and headset detection on Clevo X370SNW.
+When freeable class stat was added to classes file (back in 2016) we
+forgot to update zsmalloc documentation.  Fix that.
 
-Signed-off-by: Jeremy Soller <jeremy@system76.com>
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Link: https://lkml.kernel.org/r/20230325024631.2817153-3-senozhatsky@chromium.org
+Fixes: 1120ed548394 ("mm/zsmalloc: add `freeable' column to pool stat")
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Minchan Kim <minchan@kernel.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230331162317.14992-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ Documentation/mm/zsmalloc.rst |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2618,6 +2618,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1462, 0xda57, "MSI Z270-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK_VENDOR(0x1462, "MSI", ALC882_FIXUP_GPIO3),
- 	SND_PCI_QUIRK(0x147b, 0x107a, "Abit AW9D-MAX", ALC882_FIXUP_ABIT_AW9D_MAX),
-+	SND_PCI_QUIRK(0x1558, 0x3702, "Clevo X370SN[VW]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x50d3, "Clevo PC50[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+--- a/Documentation/mm/zsmalloc.rst
++++ b/Documentation/mm/zsmalloc.rst
+@@ -68,6 +68,8 @@ pages_used
+ 	the number of pages allocated for the class
+ pages_per_zspage
+ 	the number of 0-order pages to make a zspage
++freeable
++	the approximate number of pages class compaction can free
+ 
+ We assign a zspage to ZS_ALMOST_EMPTY fullness group when n <= N / f, where
+ 
 
 
