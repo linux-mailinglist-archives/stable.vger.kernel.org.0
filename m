@@ -2,56 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D572D6E0420
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8117F6E0421
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229609AbjDMCgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
+        id S229848AbjDMCgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbjDMCgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:36:10 -0400
+        with ESMTP id S229760AbjDMCgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:36:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F91A7A85;
-        Wed, 12 Apr 2023 19:36:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4087DB9;
+        Wed, 12 Apr 2023 19:36:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D193163A80;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2740463A79;
+        Thu, 13 Apr 2023 02:36:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5AFBC433A4;
         Thu, 13 Apr 2023 02:36:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7FAC433EF;
-        Thu, 13 Apr 2023 02:36:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353368;
-        bh=/yFPLacZ5zD4cyBBeXXj/glDEj/Gpj3zZaG5dwMznfI=;
+        s=k20201202; t=1681353369;
+        bh=0li5shSte6JliYNG2fbsa6AiMwV9Jr69Wb0Kk4pbDis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqJ1gPjxSD8vgTWAjJCkSc4lBc2xYWPCFYx6igY/oTpEpD53o4j4NaCbIBcJ7TKVs
-         isx711IUVDxo5tHmmvvne0km0d5Jg+MsHnO80LAAhbzVioTpYsVyehxkwdqaBjVPOF
-         PtCeMwIzSqBKRyMLr1YHTLVwhPyEtb1L7U7DEQOl8DO1bY9psXB7jvK4XEBh0UVvea
-         ctgNGc3Q0vkyGAhdsqLPZJAE0gXIKEQyENI2K854FMcqPW15C4al1ihvVGfab5kT4J
-         WPtg7x1NuLpNQ0x5fQLz15WCORkh57s7lLPG2rJPjhqzFVShs7r13hk8ijl/clplWF
-         nOKQI3C0IrCvQ==
+        b=joP8dQFfwipg0Mi3xXg5a5HtMrAMXvjrBpOGpqxGFNMCJix+f6TMLUfoxiBGgffvr
+         DSmKICdCGFiy+YcxXkjBl7ALnTY3S31Pp/X5yjL7VpPWi73fAfoS8mSmRVb+JE6pSr
+         80tDZsZAYg3sc7KRoJD2pFv598TlU8MOzs/14I0YUmrt8XKq3PG9thlFqPCzmON+o8
+         aMEjRXM2CvMpu3zk2FCfgvaa17ppF3serCWwyZ5ZBDb/C8L5kRNrs9H6133xA7dokw
+         ABW96IsQfer96m7kuCxC1AmoLm1iCkKt54z45gesR9rIRmfcT3ZG4/8f3/FF5IT/AO
+         6Tj259bHCOa7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugene Huang <eugene.huang99@gmail.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
+Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, ranjani.sridharan@linux.intel.com,
-        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        brent.lu@intel.com, muralidhar.reddy@intel.com,
-        ajye_huang@compal.corp-partner.google.com, arnd@arndb.de,
-        CTLIN0@nuvoton.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 02/20] ASoC: Intel: soc-acpi: add table for Intel 'Rooks County' NUC M15
-Date:   Wed, 12 Apr 2023 22:35:40 -0400
-Message-Id: <20230413023601.74410-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 03/20] ASoC: soc-pcm: fix hw->formats cleared by soc_pcm_hw_init() for dpcm
+Date:   Wed, 12 Apr 2023 22:35:41 -0400
+Message-Id: <20230413023601.74410-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023601.74410-1-sashal@kernel.org>
 References: <20230413023601.74410-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -64,63 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Huang <eugene.huang99@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 9c691a42b8926c8966561265cdae3ddc7464d3a2 ]
+[ Upstream commit 083a25b18d6ad9f1f540e629909aa3eaaaf01823 ]
 
-Same topology as the HP Omen 16-k0005TX, except with the rt1316 amp
-on link2.
+The hw->formats may be set by snd_dmaengine_pcm_refine_runtime_hwparams()
+in component's startup()/open(), but soc_pcm_hw_init() will init
+hw->formats in dpcm_runtime_setup_fe() after component's startup()/open(),
+which causes the valuable hw->formats to be cleared.
 
-Link: https://github.com/thesofproject/linux/issues/4088
-Signed-off-by: Eugene Huang <eugene.huang99@gmail.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20230314090553.498664-3-yung-chuan.liao@linux.intel.com
+So need to store the hw->formats before initialization, then restore
+it after initialization.
+
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1678346017-3660-1-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel/common/soc-acpi-intel-adl-match.c   | 20 +++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ sound/soc/soc-pcm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/intel/common/soc-acpi-intel-adl-match.c b/sound/soc/intel/common/soc-acpi-intel-adl-match.c
-index 28dd2046e4ac5..d8c80041388a7 100644
---- a/sound/soc/intel/common/soc-acpi-intel-adl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-adl-match.c
-@@ -354,6 +354,20 @@ static const struct snd_soc_acpi_link_adr adl_sdw_rt711_link0_rt1316_link3[] = {
- 	{}
- };
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 579a44d81d9a3..d409b99af75b2 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1649,10 +1649,14 @@ static void dpcm_runtime_setup_fe(struct snd_pcm_substream *substream)
+ 	struct snd_pcm_hardware *hw = &runtime->hw;
+ 	struct snd_soc_dai *dai;
+ 	int stream = substream->stream;
++	u64 formats = hw->formats;
+ 	int i;
  
-+static const struct snd_soc_acpi_link_adr adl_sdw_rt711_link0_rt1316_link2[] = {
-+	{
-+		.mask = BIT(0),
-+		.num_adr = ARRAY_SIZE(rt711_sdca_0_adr),
-+		.adr_d = rt711_sdca_0_adr,
-+	},
-+	{
-+		.mask = BIT(2),
-+		.num_adr = ARRAY_SIZE(rt1316_2_single_adr),
-+		.adr_d = rt1316_2_single_adr,
-+	},
-+	{}
-+};
+ 	soc_pcm_hw_init(hw);
+ 
++	if (formats)
++		hw->formats &= formats;
 +
- static const struct snd_soc_acpi_adr_device mx8373_2_adr[] = {
- 	{
- 		.adr = 0x000223019F837300ull,
-@@ -624,6 +638,12 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_adl_sdw_machines[] = {
- 		.drv_name = "sof_sdw",
- 		.sof_tplg_filename = "sof-adl-rt711-l0-rt1316-l3.tplg",
- 	},
-+	{
-+		.link_mask = 0x5, /* 2 active links required */
-+		.links = adl_sdw_rt711_link0_rt1316_link2,
-+		.drv_name = "sof_sdw",
-+		.sof_tplg_filename = "sof-adl-rt711-l0-rt1316-l2.tplg",
-+	},
- 	{
- 		.link_mask = 0x1, /* link0 required */
- 		.links = adl_rvp,
+ 	for_each_rtd_cpu_dais(fe, i, dai) {
+ 		struct snd_soc_pcm_stream *cpu_stream;
+ 
 -- 
 2.39.2
 
