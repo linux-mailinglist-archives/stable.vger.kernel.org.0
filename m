@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1356E0484
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1026E04AF
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230457AbjDMCj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:39:29 -0400
+        id S230048AbjDMCk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:40:58 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229920AbjDMCiy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:38:54 -0400
+        with ESMTP id S231246AbjDMCkT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:40:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64E08698;
-        Wed, 12 Apr 2023 19:37:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1AF17A93;
+        Wed, 12 Apr 2023 19:38:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA9463A9B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4B3E63AAD;
+        Thu, 13 Apr 2023 02:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5930AC433A7;
         Thu, 13 Apr 2023 02:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9FEFC433D2;
-        Thu, 13 Apr 2023 02:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353461;
-        bh=3mEJP8tmz/XW5HcFioTquKyOJJLG48D3oWkCAML/yZA=;
+        s=k20201202; t=1681353463;
+        bh=zh5XKJ/UyuqyrJ5hCrGW6axciS0TL/7B2vgoKiTKf2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFrpm/FyfMkwZa8FLObMAtXBOWJhCOW8xxarl4pIGx1OlZ1mmVdxgn4xDUW7U5VQX
-         weA/9t/m+obpOLuy64MR4leWxUBkarf48a4fRP8KLo0XingoJAwmZaZaRSbCCEg4uc
-         1KabZRH5UlVhsBH79/uS+lHiWYYO8E7Tc8gG+fsXUNHB4JyontPqqXilO58ttwfMe+
-         oo4OmOnYh1r6lHM1HhXZlYz/mWzGAIZ9W+MieyTZJoiVhde2UONZ306dguQ6ejCBNJ
-         9/7jWBQhFwVHtQvbz+fJ3tDQo9gBlubx69u5yssAiDMt6UX3zboL4Toidv3Jjh4bHJ
-         VMkQVbQCvggTg==
+        b=nV4QMqjUJMEdBr2fKK+7HsY7Zpi2DTAZVvYTFrCCXlIVeqTco/m/WZIgUogu2e1JD
+         OxX2B7mPeJVGUjhtwYeIkuPhalMCYZH4lt2WCdYYgsDse19c8PPbJBOvUIxHWAcbJt
+         oTQtn/KZrs/xAQg1H1M3b9J2PIqhcnfth2ybwzZ6O/pSKOmUY31WWbvczmLVttrssI
+         dzrm5OYDmC8deOg16WHKruN8BaikI0zSA5q6zYGiO+nOcX1i8JPeWZNbXRnY6epdXh
+         fo6t07A/8kmF5mX+F+0osPI3Dexl1kzMnIhig588iLw+wPT2dPjme/1BojLDGnIIoZ
+         6jJKRqzPB+TiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anh Tuan Phan <tuananhlfc@gmail.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, sforshee@kernel.org,
-        shuah@kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 6/8] selftests mount: Fix mount_setattr_test builds failed
-Date:   Wed, 12 Apr 2023 22:37:23 -0400
-Message-Id: <20230413023727.74875-6-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 7/8] asm-generic/io.h: suppress endianness warnings for readq() and writeq()
+Date:   Wed, 12 Apr 2023 22:37:24 -0400
+Message-Id: <20230413023727.74875-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023727.74875-1-sashal@kernel.org>
 References: <20230413023727.74875-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,38 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anh Tuan Phan <tuananhlfc@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit f1594bc676579133a3cd906d7d27733289edfb86 ]
+[ Upstream commit d564fa1ff19e893e2971d66e5c8f49dc1cdc8ffc ]
 
-When compiling selftests with target mount_setattr I encountered some errors with the below messages:
-mount_setattr_test.c: In function ‘mount_setattr_thread’:
-mount_setattr_test.c:343:16: error: variable ‘attr’ has initializer but incomplete type
-  343 |         struct mount_attr attr = {
-      |                ^~~~~~~~~~
+Commit c1d55d50139b ("asm-generic/io.h: Fix sparse warnings on
+big-endian architectures") missed fixing the 64-bit accessors.
 
-These errors might be because of linux/mount.h is not included. This patch resolves that issue.
+Arnd explains in the attached link why the casts are necessary, even if
+__raw_readq() and __raw_writeq() do not take endian-specific types.
 
-Signed-off-by: Anh Tuan Phan <tuananhlfc@gmail.com>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/lkml/9105d6fc-880b-4734-857d-e3d30b87ccf6@app.fastmail.com/
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/mount_setattr/mount_setattr_test.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/asm-generic/io.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/mount_setattr/mount_setattr_test.c b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-index 8c5fea68ae677..969647228817b 100644
---- a/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-+++ b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-@@ -18,6 +18,7 @@
- #include <grp.h>
- #include <stdbool.h>
- #include <stdarg.h>
-+#include <linux/mount.h>
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index 98954dda57344..82f2c01accbb9 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -190,7 +190,7 @@ static inline u64 readq(const volatile void __iomem *addr)
+ 	u64 val;
  
- #include "../kselftest_harness.h"
- 
+ 	__io_br();
+-	val = __le64_to_cpu(__raw_readq(addr));
++	val = __le64_to_cpu((__le64 __force)__raw_readq(addr));
+ 	__io_ar(val);
+ 	return val;
+ }
+@@ -233,7 +233,7 @@ static inline void writel(u32 value, volatile void __iomem *addr)
+ static inline void writeq(u64 value, volatile void __iomem *addr)
+ {
+ 	__io_bw();
+-	__raw_writeq(__cpu_to_le64(value), addr);
++	__raw_writeq((u64 __force)__cpu_to_le64(value), addr);
+ 	__io_aw();
+ }
+ #endif
 -- 
 2.39.2
 
