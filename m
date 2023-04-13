@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D3E6E048F
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B736E04AA
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbjDMCj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:39:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
+        id S231325AbjDMCkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbjDMCj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:39:28 -0400
+        with ESMTP id S230507AbjDMCkI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:40:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330B1116;
-        Wed, 12 Apr 2023 19:37:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9225472B3;
+        Wed, 12 Apr 2023 19:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10F7A63AB0;
-        Thu, 13 Apr 2023 02:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C827AC4339E;
-        Thu, 13 Apr 2023 02:37:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C472C60C4E;
+        Thu, 13 Apr 2023 02:38:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85B59C4339B;
+        Thu, 13 Apr 2023 02:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353477;
-        bh=1eO2mQahIqPUHlcx0RY6P55blfFH5Nk26/p9x67hqlw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjNi92wimtViUaV+THs6bxRWyvng0d0vcBHwFa1KpsVTOaUyL/bbI1CClbqBS+iaz
-         4hUJINI+3y2xyfAsDIPmvBAeZR8Uj1IhGcVXNJx3FOngndEx7tV/a+Eoi8N3r7EYEi
-         03RfOibV4oQXaYkvTkdyBEbaokfuWYby3LLp9ytvs0BiXdwzIfYiRyBjOFCZohHV8k
-         kuJ26dKCK0Ws2pjP04mGz469XVLiaG1Orrrw2wXOPi+05CbPZYdAZUN17cQ2izKCNe
-         8oVaI7jxH+5AIug9wCfs9hpjULAHQCjnXL4NYbMT+U7bkxSB0RXObAA0b4LuJMPCMG
-         OVbRIxJxW0kwg==
+        s=k20201202; t=1681353482;
+        bh=DwJLzS114DU1I5Oiuh5O0As4ojOXaMxgHeKVSQeWWjE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LRvL/NHu5J1tN2gfqO7NwDLEVu9tXrcwXVQPM32PpK2csw44Fk447ZWdXWaR0vnjq
+         ZrkXShMKcIbXs1Xziqgqi+X7Q/dHkVkXFhzxpRRMK/MAJQD2jdhR6KKAvYJet/p2uZ
+         9MlihKqyd4sdr5uGpKtnWVGHeydb95q8oOmE/pvac7bzcVbaGw19tklJJ4luLe72IE
+         aC4GqYwjOR7Fq6QRh4EiLUG74VlfDVJTzSq4l2O5gciX/U5XBizdNt4aMt2qkMYzlv
+         PQCTwDrqULaDL1F6dp4FVubqmYOiGF2FhtQaVVKAge9lQZKtxSNpFnufVHb79SwLIi
+         KHpLQXI6Mu48g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+Cc:     =?UTF-8?q?Patrik=20Dahlstr=C3=B6m?= <risca@dalakolonin.se>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 4/4] asm-generic/io.h: suppress endianness warnings for readq() and writeq()
-Date:   Wed, 12 Apr 2023 22:37:44 -0400
-Message-Id: <20230413023746.74984-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 1/3] iio: adc: palmas_gpadc: fix NULL dereference on rmmod
+Date:   Wed, 12 Apr 2023 22:37:56 -0400
+Message-Id: <20230413023759.75048-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230413023746.74984-1-sashal@kernel.org>
-References: <20230413023746.74984-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,48 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Patrik Dahlström <risca@dalakolonin.se>
 
-[ Upstream commit d564fa1ff19e893e2971d66e5c8f49dc1cdc8ffc ]
+[ Upstream commit 49f76c499d38bf67803438eee88c8300d0f6ce09 ]
 
-Commit c1d55d50139b ("asm-generic/io.h: Fix sparse warnings on
-big-endian architectures") missed fixing the 64-bit accessors.
+Calling dev_to_iio_dev() on a platform device pointer is undefined and
+will make adc NULL.
 
-Arnd explains in the attached link why the casts are necessary, even if
-__raw_readq() and __raw_writeq() do not take endian-specific types.
-
-Link: https://lore.kernel.org/lkml/9105d6fc-880b-4734-857d-e3d30b87ccf6@app.fastmail.com/
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Patrik Dahlström <risca@dalakolonin.se>
+Link: https://lore.kernel.org/r/20230313205029.1881745-1-risca@dalakolonin.se
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/io.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/palmas_gpadc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index 9ea83d80eb6f9..dcbd41048b4e7 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -190,7 +190,7 @@ static inline u64 readq(const volatile void __iomem *addr)
- 	u64 val;
+diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
+index 2bd785e9e42ac..4861093b0764e 100644
+--- a/drivers/iio/adc/palmas_gpadc.c
++++ b/drivers/iio/adc/palmas_gpadc.c
+@@ -630,7 +630,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
  
- 	__io_br();
--	val = __le64_to_cpu(__raw_readq(addr));
-+	val = __le64_to_cpu((__le64 __force)__raw_readq(addr));
- 	__io_ar(val);
- 	return val;
- }
-@@ -233,7 +233,7 @@ static inline void writel(u32 value, volatile void __iomem *addr)
- static inline void writeq(u64 value, volatile void __iomem *addr)
+ static int palmas_gpadc_remove(struct platform_device *pdev)
  {
- 	__io_bw();
--	__raw_writeq(__cpu_to_le64(value), addr);
-+	__raw_writeq((u64 __force)__cpu_to_le64(value), addr);
- 	__io_aw();
- }
- #endif
+-	struct iio_dev *indio_dev = dev_to_iio_dev(&pdev->dev);
++	struct iio_dev *indio_dev = dev_get_drvdata(&pdev->dev);
+ 	struct palmas_gpadc *adc = iio_priv(indio_dev);
+ 
+ 	if (adc->wakeup1_enable || adc->wakeup2_enable)
 -- 
 2.39.2
 
