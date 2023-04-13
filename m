@@ -2,124 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 914616E094D
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092A16E0978
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbjDMIuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 04:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46378 "EHLO
+        id S229925AbjDMI4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 04:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229580AbjDMIuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:50:35 -0400
-Received: from gofer.mess.org (gofer.mess.org [88.97.38.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8F97DA5;
-        Thu, 13 Apr 2023 01:50:33 -0700 (PDT)
-Received: by gofer.mess.org (Postfix, from userid 1000)
-        id 827DD10006C; Thu, 13 Apr 2023 09:50:32 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mess.org; s=2020;
-        t=1681375832; bh=cjjs7O5NakfwtXtoeoEFfJIPF9km/TVa8zs1rP16FAk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=lxrwJJEoZQ1Bw3gJ2MfFL13Cda/Y2xL414/5xSWROD6mTWLC8HIICKsWxVPvKpkv3
-         JWhlnyqv7gPGaZsktX4+awhRIwpZ/vwSEuN9YpKi837orGkfRG4FTRofnDFcCIboNP
-         1OBwJU7dWi2TMb/JeU7Fxhjl7uON3WjfOa1dNZO4pG20evP/g5DTsWSIamugyyfxud
-         zAE3PZ8sKVPsZHNMvowl5PHfkFlrUnj6ZutyogKjYhiJFIqS42GGG0FaGRWrSKkF5P
-         N3PUuW+sJ433A1VmIUpbvI7ALqdWSrXvSpP+3AJlmQAGhIb0A7V5aR/XxVxYcOX43L
-         mMmY0r26RxFkw==
-From:   Sean Young <sean@mess.org>
-To:     linux-media@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v2] media: rc: bpf attach/detach requires write permission
-Date:   Thu, 13 Apr 2023 09:50:32 +0100
-Message-Id: <20230413085032.709757-1-sean@mess.org>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S229938AbjDMIzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:55:54 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F6AA5E5
+        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 01:54:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681376086; x=1712912086;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=tfAoIKfWayM4xmxfJpBuzkgkVCUcE32N1uH+iLjpzFk=;
+  b=iUSU3l13E23Oum0gc8qc8XnZS6jCgI3CBZW7r/PYnwO9B/Ce1nURp6Ay
+   p00ijzp68PLLzLNFNoVFCJoxuYPV/0qjBnJviTges42PZoIL8zzGCioL5
+   WS7U224+ic+j/0vguFcRVAyT0UTw3Wlnyw5j4JyokMFgWejKCH3/KlzD2
+   MnF1OyrhbGTf0dxy1uLfuiS3BEdX3R7zFpXDGPXE8Cd30dItv1imPCLRm
+   hCJ399obf/n5lZuiPUc4MTzoNACWQ65jTxq7pNrMzoXWoHkFkHbVeq+Pl
+   hCzN5YXmrTxJRGi6tGyiHg3nwoCrH4bV0VHLP/xauqinDAvubdgYMt8oN
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10678"; a="342874522"
+X-IronPort-AV: E=Sophos;i="5.98,341,1673942400"; 
+   d="scan'208";a="342874522"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 01:54:22 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10678"; a="758617012"
+X-IronPort-AV: E=Sophos;i="5.98,341,1673942400"; 
+   d="scan'208";a="758617012"
+Received: from zbiro-mobl.ger.corp.intel.com (HELO intel.com) ([10.251.212.144])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 01:54:19 -0700
+Date:   Thu, 13 Apr 2023 10:53:51 +0200
+From:   Andi Shyti <andi.shyti@linux.intel.com>
+To:     Andrzej Hajda <andrzej.hajda@intel.com>
+Cc:     Andi Shyti <andi.shyti@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        Maciej Patelczyk <maciej.patelczyk@intel.com>,
+        Chris Wilson <chris.p.wilson@linux.intel.com>,
+        Nirmoy Das <nirmoy.das@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Subject: Re: [PATCH v5 2/5] drm/i915: Create the locked version of the
+ request create
+Message-ID: <ZDfDHwrNEsaiCQ7T@ashyti-mobl2.lan>
+References: <20230412113308.812468-1-andi.shyti@linux.intel.com>
+ <20230412113308.812468-3-andi.shyti@linux.intel.com>
+ <04f9e2ac-0967-1e26-fbfc-da7ff54c9a62@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <04f9e2ac-0967-1e26-fbfc-da7ff54c9a62@intel.com>
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Note that bpf attach/detach also requires CAP_NET_ADMIN.
+Hi Andrzej,
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Young <sean@mess.org>
----
- drivers/media/rc/bpf-lirc.c     | 6 +++---
- drivers/media/rc/lirc_dev.c     | 5 ++++-
- drivers/media/rc/rc-core-priv.h | 2 +-
- 3 files changed, 8 insertions(+), 5 deletions(-)
+> > Make version of the request creation that doesn't hold any
+> > lock.
+> > 
+> > Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+> > Cc: stable@vger.kernel.org
+> > Reviewed-by: Nirmoy Das <nirmoy.das@intel.com>
+> > ---
+> >   drivers/gpu/drm/i915/i915_request.c | 38 +++++++++++++++++++++--------
+> >   drivers/gpu/drm/i915/i915_request.h |  2 ++
+> >   2 files changed, 30 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+> > index 630a732aaecca..58662360ac34e 100644
+> > --- a/drivers/gpu/drm/i915/i915_request.c
+> > +++ b/drivers/gpu/drm/i915/i915_request.c
+> > @@ -1028,15 +1028,11 @@ __i915_request_create(struct intel_context *ce, gfp_t gfp)
+> >   	return ERR_PTR(ret);
+> >   }
+> > -struct i915_request *
+> > -i915_request_create(struct intel_context *ce)
+> > +static struct i915_request *
+> > +__i915_request_create_locked(struct intel_context *ce)
+> >   {
+> > +	struct intel_timeline *tl = ce->timeline;
+> >   	struct i915_request *rq;
+> > -	struct intel_timeline *tl;
+> > -
+> > -	tl = intel_context_timeline_lock(ce);
+> > -	if (IS_ERR(tl))
+> > -		return ERR_CAST(tl);
+> >   	/* Move our oldest request to the slab-cache (if not in use!) */
+> >   	rq = list_first_entry(&tl->requests, typeof(*rq), link);
+> > @@ -1046,16 +1042,38 @@ i915_request_create(struct intel_context *ce)
+> >   	intel_context_enter(ce);
+> >   	rq = __i915_request_create(ce, GFP_KERNEL);
+> >   	intel_context_exit(ce); /* active reference transferred to request */
+> > +
+> >   	if (IS_ERR(rq))
+> > -		goto err_unlock;
+> > +		return rq;
+> >   	/* Check that we do not interrupt ourselves with a new request */
+> >   	rq->cookie = lockdep_pin_lock(&tl->mutex);
+> >   	return rq;
+> > +}
+> > +
+> > +struct i915_request *
+> > +i915_request_create_locked(struct intel_context *ce)
+> > +{
+> > +	intel_context_assert_timeline_is_locked(ce->timeline);
+> > +
+> > +	return __i915_request_create_locked(ce);
+> > +}
+> 
+> I wonder if we really need to have such granularity? Leaving only
+> i915_request_create_locked and removing __i915_request_create_locked would
+> simplify little bit the code,
+> I guess the cost of calling intel_context_assert_timeline_is_locked twice
+> sometimes is not big, or maybe it can be re-arranged, up to you.
 
-diff --git a/drivers/media/rc/bpf-lirc.c b/drivers/media/rc/bpf-lirc.c
-index fe17c7f98e81..52d82cbe7685 100644
---- a/drivers/media/rc/bpf-lirc.c
-+++ b/drivers/media/rc/bpf-lirc.c
-@@ -253,7 +253,7 @@ int lirc_prog_attach(const union bpf_attr *attr, struct bpf_prog *prog)
- 	if (attr->attach_flags)
- 		return -EINVAL;
- 
--	rcdev = rc_dev_get_from_fd(attr->target_fd);
-+	rcdev = rc_dev_get_from_fd(attr->target_fd, true);
- 	if (IS_ERR(rcdev))
- 		return PTR_ERR(rcdev);
- 
-@@ -278,7 +278,7 @@ int lirc_prog_detach(const union bpf_attr *attr)
- 	if (IS_ERR(prog))
- 		return PTR_ERR(prog);
- 
--	rcdev = rc_dev_get_from_fd(attr->target_fd);
-+	rcdev = rc_dev_get_from_fd(attr->target_fd, true);
- 	if (IS_ERR(rcdev)) {
- 		bpf_prog_put(prog);
- 		return PTR_ERR(rcdev);
-@@ -303,7 +303,7 @@ int lirc_prog_query(const union bpf_attr *attr, union bpf_attr __user *uattr)
- 	if (attr->query.query_flags)
- 		return -EINVAL;
- 
--	rcdev = rc_dev_get_from_fd(attr->query.target_fd);
-+	rcdev = rc_dev_get_from_fd(attr->query.target_fd, false);
- 	if (IS_ERR(rcdev))
- 		return PTR_ERR(rcdev);
- 
-diff --git a/drivers/media/rc/lirc_dev.c b/drivers/media/rc/lirc_dev.c
-index 25ab61dae126..d9b316eb86dd 100644
---- a/drivers/media/rc/lirc_dev.c
-+++ b/drivers/media/rc/lirc_dev.c
-@@ -810,7 +810,7 @@ void __exit lirc_dev_exit(void)
- 	unregister_chrdev_region(lirc_base_dev, RC_DEV_MAX);
- }
- 
--struct rc_dev *rc_dev_get_from_fd(int fd)
-+struct rc_dev *rc_dev_get_from_fd(int fd, bool write)
- {
- 	struct fd f = fdget(fd);
- 	struct lirc_fh *fh;
-@@ -824,6 +824,9 @@ struct rc_dev *rc_dev_get_from_fd(int fd)
- 		return ERR_PTR(-EINVAL);
- 	}
- 
-+	if (write && !(f.file->f_mode & FMODE_WRITE))
-+		return ERR_PTR(-EPERM);
-+
- 	fh = f.file->private_data;
- 	dev = fh->rc;
- 
-diff --git a/drivers/media/rc/rc-core-priv.h b/drivers/media/rc/rc-core-priv.h
-index ef1e95e1af7f..7df949fc65e2 100644
---- a/drivers/media/rc/rc-core-priv.h
-+++ b/drivers/media/rc/rc-core-priv.h
-@@ -325,7 +325,7 @@ void lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev);
- void lirc_scancode_event(struct rc_dev *dev, struct lirc_scancode *lsc);
- int lirc_register(struct rc_dev *dev);
- void lirc_unregister(struct rc_dev *dev);
--struct rc_dev *rc_dev_get_from_fd(int fd);
-+struct rc_dev *rc_dev_get_from_fd(int fd, bool write);
- #else
- static inline int lirc_dev_init(void) { return 0; }
- static inline void lirc_dev_exit(void) {}
--- 
-2.39.2
+There is some usage of such granularity in patch 4. I am adding
+here the throttle on the timeline. I am adding it in the
+"_locked" version to avoid potential deadlocks coming from
+selftests (and from realworld?).
 
+Here I'd love to have some comments from Chris and Matt.
+
+I might still add this in the commit message:
+
+"i915_request_create_locked() is now empty but will be used in
+later commits where a throttle on the ringspace will be executed
+to ensure exclusive ownership of the timeline."
+
+> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+
+Thanks!
+
+Andi
