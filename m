@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6DF6E047E
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E706E04CC
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230345AbjDMCjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35028 "EHLO
+        id S229469AbjDMCpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:45:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229938AbjDMCii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:38:38 -0400
+        with ESMTP id S231544AbjDMCou (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:44:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8B5869A;
-        Wed, 12 Apr 2023 19:37:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFFB93CA;
+        Wed, 12 Apr 2023 19:43:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45A6A63A94;
-        Thu, 13 Apr 2023 02:37:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 067AAC433D2;
-        Thu, 13 Apr 2023 02:37:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DDA63A8E;
+        Thu, 13 Apr 2023 02:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 856D0C433EF;
+        Thu, 13 Apr 2023 02:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353456;
-        bh=qhfSTW77Ij2nesFY/gKw6hsMkvyp2+Wd2BeZDFndKUY=;
+        s=k20201202; t=1681353460;
+        bh=6V9UU7Oo2l6svGl2xdwt7K1tmIn8UpKuZhXy3GC++TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWs8DdvKKthCzestRdHjC2wrkGKimxLZiTJXF/QA8todVfuly1r2Cd60fb9WAsIEV
-         52qX9OkEDGFublHHJfYtouOLxpwd+ilYP66D3RI4aox7je/GqED1p3n2KyWNOHtBGR
-         noy6te4dNY0lk3vJhw/+xPalq1xOuvVM3yix0T5zU7jKeN+ukFxwOotCO8xQYFu1Q7
-         1nmD+516kBZvXfqDXal3XY8Zl5a8UJ4AySuEEUqMKYGb5FdaKA1AIVLLqqXN0VsaCC
-         j2r9qIn/pASJQ5uSdOhllaaJxKQQ4w+eeLX1gLiLBvQUfPjCzVkoCPwb1/+q/v243H
-         S057gmrAVwwQA==
+        b=JXm67dpcq6fO7+0gP+3vmBNBCX2AGbJZjKbl66X25lTI0+izji0pSsycs89XgDuzN
+         uZNy+5Pl1xwgWmoVjsvmZuQpjcrtLg6GAxfMb50srOvffohyXmBVu7RKQpE8T22R72
+         fD5csoggn/8j/FofW2BDatPzIkZAppkCeYkRt/b8Kt/ApR/H3xrdqPSDMo8DPKWuvB
+         OU822re6KCB0QLfpM8o66yS+Xja/llaxiXRwT8UeEd6hT8Z+So3A7Z46G6NKqKHHJs
+         94ZFNC1Y8ObblQtGi+RJAjFbWcgl4/7d/yfcrqr566uJieOF5HVFXa0SbLP1EsOtmZ
+         WxJUeFnVXykgg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Patrik=20Dahlstr=C3=B6m?= <risca@dalakolonin.se>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 4/8] iio: adc: palmas_gpadc: fix NULL dereference on rmmod
-Date:   Wed, 12 Apr 2023 22:37:21 -0400
-Message-Id: <20230413023727.74875-4-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
+        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
+        akihiko.odaki@gmail.com, andriy.shevchenko@linux.intel.com,
+        ckeepax@opensource.cirrus.com, oder_chiou@realtek.com,
+        moisesmcardona@gmail.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 5/8] ASoC: Intel: bytcr_rt5640: Add quirk for the Acer Iconia One 7 B1-750
+Date:   Wed, 12 Apr 2023 22:37:22 -0400
+Message-Id: <20230413023727.74875-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023727.74875-1-sashal@kernel.org>
 References: <20230413023727.74875-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,34 +62,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrik Dahlström <risca@dalakolonin.se>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 49f76c499d38bf67803438eee88c8300d0f6ce09 ]
+[ Upstream commit e38c5e80c3d293a883c6f1d553f2146ec0bda35e ]
 
-Calling dev_to_iio_dev() on a platform device pointer is undefined and
-will make adc NULL.
+The Acer Iconia One 7 B1-750 tablet mostly works fine with the defaults
+for an Bay Trail CR tablet. Except for the internal mic, instead of
+an analog mic on IN3 a digital mic on DMIC1 is uses.
 
-Signed-off-by: Patrik Dahlström <risca@dalakolonin.se>
-Link: https://lore.kernel.org/r/20230313205029.1881745-1-risca@dalakolonin.se
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Add a quirk with these settings for this tablet.
+
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230322145332.131525-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/palmas_gpadc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
-index f9c8385c72d3d..496aab94570a1 100644
---- a/drivers/iio/adc/palmas_gpadc.c
-+++ b/drivers/iio/adc/palmas_gpadc.c
-@@ -638,7 +638,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 5f6e2bb324406..4df1be8170bb6 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -533,6 +533,18 @@ static int byt_rt5640_aif1_hw_params(struct snd_pcm_substream *substream,
  
- static int palmas_gpadc_remove(struct platform_device *pdev)
- {
--	struct iio_dev *indio_dev = dev_to_iio_dev(&pdev->dev);
-+	struct iio_dev *indio_dev = dev_get_drvdata(&pdev->dev);
- 	struct palmas_gpadc *adc = iio_priv(indio_dev);
- 
- 	if (adc->wakeup1_enable || adc->wakeup2_enable)
+ /* Please keep this list alphabetically sorted */
+ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
++	{	/* Acer Iconia One 7 B1-750 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Insyde"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "VESPA2"),
++		},
++		.driver_data = (void *)(BYT_RT5640_DMIC1_MAP |
++					BYT_RT5640_JD_SRC_JD1_IN4P |
++					BYT_RT5640_OVCD_TH_1500UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{	/* Acer Iconia Tab 8 W1-810 */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
 -- 
 2.39.2
 
