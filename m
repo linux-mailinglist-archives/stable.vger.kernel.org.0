@@ -2,72 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7918B6E0D9A
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 14:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC4C6E0DB5
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 14:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbjDMMnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 08:43:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50714 "EHLO
+        id S230070AbjDMMtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 08:49:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229742AbjDMMnv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 08:43:51 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EEAC196
-        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 05:43:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681389829; x=1712925829;
-  h=message-id:date:mime-version:subject:from:to:cc:
-   references:in-reply-to:content-transfer-encoding;
-  bh=fgUpKjvdbHFbBQ40hN9rUSqyCbKAgeCNloPQgK0eCeI=;
-  b=PW5QbatHv3Mq5pFTSxBxgks1wQAkbzo/lRLuxr6iW061iMBXBViY0Ygm
-   UM7WqEq1GrVbYbSViVYSf3p7+PxDf/KqkdPmWzln0y8kabd9OCGXmjFSt
-   BjSlGjkJO1aTzPA0Renxr4qIzid8ePrZUuSwXJmkDK4VS8YMyQdQScfS+
-   GXqIaAT6G2mvUMO+gVN4SdOYBjB8zKR8zZU2yGhEoVbCneaqIQFSBmpA6
-   TzrLt2tsgFSQOzKi1Ai1DPtCFzglvzx/4JGChbe82+NPTWoYOcEdyfJVm
-   bJNj9TPNWyd6a/9ClSydh6cTXa/tNxUxZo7nuKYSo2NxiV/WkkfsE2DYm
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10678"; a="342917111"
-X-IronPort-AV: E=Sophos;i="5.99,193,1677571200"; 
-   d="scan'208";a="342917111"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 05:43:48 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10678"; a="863760031"
-X-IronPort-AV: E=Sophos;i="5.99,193,1677571200"; 
-   d="scan'208";a="863760031"
-Received: from mmcgar2x-mobl1.ger.corp.intel.com (HELO [10.213.231.135]) ([10.213.231.135])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 05:43:47 -0700
-Message-ID: <5b7f82db-b9dd-e9c9-496c-72995469d699@linux.intel.com>
-Date:   Thu, 13 Apr 2023 13:43:45 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [Intel-gfx] [PATCH v5 5/5] drm/i915/gt: Make sure that errors are
- propagated through request chains
-Content-Language: en-US
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-To:     Andi Shyti <andi.shyti@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        with ESMTP id S229938AbjDMMtt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 08:49:49 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC410AD0B
+        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 05:49:43 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id d2e1a72fcca58-63b1e92ce21so196445b3a.0
+        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 05:49:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1681390183; x=1683982183;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=chPnl8Mv5KXZq4yhNcjhEego6Gn/IkEJkBYC5Nsft1o=;
+        b=n9n/9LPPtKwIJ41ocSYVaM7cPpKBO3Qcmc9Dot62ShK5jStwhmJ6In8nvzUsWRrBDO
+         BSXX4+OeuR2licrgEGhWJ82EXMvWg2ao9QoAnss8Lv3tL86cmYZe6hrTvrpXDzyPeoCm
+         DHI1C8UT8Y7ehTZP+Mw+bpgD+44Trf1ENcyQ0xRGi6miLfBQTB/SbiN43gj0IeqoGvjb
+         dSLTH44Eh4efnjmvwU50c+PHRlt5MW4+S/1g2+8Zw45DANXQRm8M2uvniAL9kdnw/+iM
+         d1g6Ek7N2QypGMFGVkRH2l0mcDCWIa4PhivcNL82TWTtRhGqNflTKkDKSRhCOZOmKC4b
+         eItg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681390183; x=1683982183;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=chPnl8Mv5KXZq4yhNcjhEego6Gn/IkEJkBYC5Nsft1o=;
+        b=G8+j96wr01QEN6ZU+3BwPle7VUNANwL9Ci6HTQuW4UZb9Xyj8uH9IoaO9PfFHw3tQZ
+         au6lst9YIzlnl9N1si8w+/L/s3eHJ9IvB/VHoZrOyF1L5Pk64VRUyYw6mn1+F15LVO2W
+         RmVVWyzfWJp+KjuollpwWMDIyst3ld0cwUY04rRIyKY1vtm4CU22sOR9BaHgSRDZP9jO
+         i4vpHvYLcieUQ8oDnfCJSen7HHf7vXUEoasXyqZ4+tJRwEqFEFIpEA9UEA09iLWAwqsv
+         KC+kbjo33hEdSp9IbpH++SutzT7CSRg3uZ1Ds9cB5ynpvyZKQ6uhZT4el0I3v2mRokBJ
+         S3cA==
+X-Gm-Message-State: AAQBX9dJw4jmqOwP0VG3TWrtWRh/t4U2/s7mVx39ygyKcTMdYsMWZOGL
+        B9HBImOZCWfirhO17DH40Yvgqffx3eZU/BBIX/o=
+X-Google-Smtp-Source: AKy350antEwnFS0M8iO0GabDUmSQ1squlED1hTPFxzkhV3oVQldHP4wuiQqO+e3zVnRbS/X3SRm8Yw==
+X-Received: by 2002:aa7:88c6:0:b0:624:bf7e:9d8c with SMTP id k6-20020aa788c6000000b00624bf7e9d8cmr2869192pff.1.1681390183084;
+        Thu, 13 Apr 2023 05:49:43 -0700 (PDT)
+Received: from [127.0.0.1] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id x14-20020aa784ce000000b0062bada5db75sm1365480pfn.172.2023.04.13.05.49.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Apr 2023 05:49:42 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     tj@kernel.org, chengming.zhou@linux.dev
+Cc:     josef@toxicpanda.com, osandov@fb.com, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
         stable@vger.kernel.org
-Cc:     Maciej Patelczyk <maciej.patelczyk@intel.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Chris Wilson <chris.p.wilson@linux.intel.com>,
-        Nirmoy Das <nirmoy.das@intel.com>
-References: <20230412113308.812468-1-andi.shyti@linux.intel.com>
- <20230412113308.812468-6-andi.shyti@linux.intel.com>
- <ca796c78-67cf-c803-b3bc-7d6eaa542b32@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <ca796c78-67cf-c803-b3bc-7d6eaa542b32@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230413062805.2081970-1-chengming.zhou@linux.dev>
+References: <20230413062805.2081970-1-chengming.zhou@linux.dev>
+Subject: Re: [PATCH v2 1/2] blk-stat: fix QUEUE_FLAG_STATS clear
+Message-Id: <168139018203.8989.17731261770336366712.b4-ty@kernel.dk>
+Date:   Thu, 13 Apr 2023 06:49:42 -0600
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13-dev-00303
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -75,187 +74,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 13/04/2023 12:56, Tvrtko Ursulin wrote:
+On Thu, 13 Apr 2023 14:28:04 +0800, chengming.zhou@linux.dev wrote:
+> We need to set QUEUE_FLAG_STATS for two cases:
+> 1. blk_stat_enable_accounting()
+> 2. blk_stat_add_callback()
 > 
-> On 12/04/2023 12:33, Andi Shyti wrote:
->> Currently, when we perform operations such as clearing or copying
->> large blocks of memory, we generate multiple requests that are
->> executed in a chain.
->>
->> However, if one of these requests fails, we may not realize it
->> unless it happens to be the last request in the chain. This is
->> because errors are not properly propagated.
->>
->> For this we need to keep propagating the chain of fence
->> notification in order to always reach the final fence associated
->> to the final request.
->>
->> To address this issue, we need to ensure that the chain of fence
->> notifications is always propagated so that we can reach the final
->> fence associated with the last request. By doing so, we will be
->> able to detect any memory operation  failures and determine
->> whether the memory is still invalid.
+> So we should clear it only when ((q->stats->accounting == 0) &&
+> list_empty(&q->stats->callbacks)).
 > 
-> Above two paragraphs seems to have redundancy in the message they convey.
-> 
->> On copy and clear migration signal fences upon completion.
->>
->> On copy and clear migration, signal fences upon request
->> completion to ensure that we have a reliable perpetuation of the
->> operation outcome.
-> 
-> These two too. So I think commit message can be a bit polished.
-> 
->> Fixes: cf586021642d80 ("drm/i915/gt: Pipelined page migration")
->> Reported-by: Matthew Auld <matthew.auld@intel.com>
->> Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
->> Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
->> Cc: stable@vger.kernel.org
->> Reviewed-by: Matthew Auld <matthew.auld@intel.com>
->> Acked-by: Nirmoy Das <nirmoy.das@intel.com>
->> ---
->>   drivers/gpu/drm/i915/gt/intel_migrate.c | 51 +++++++++++++++++++------
->>   1 file changed, 39 insertions(+), 12 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c 
->> b/drivers/gpu/drm/i915/gt/intel_migrate.c
->> index 3f638f1987968..668c95af8cbcf 100644
->> --- a/drivers/gpu/drm/i915/gt/intel_migrate.c
->> +++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
->> @@ -742,13 +742,19 @@ intel_context_migrate_copy(struct intel_context 
->> *ce,
->>               dst_offset = 2 * CHUNK_SZ;
->>       }
->> +    /*
->> +     * While building the chain of requests, we need to ensure
->> +     * that no one can sneak into the timeline unnoticed.
->> +     */
->> +    mutex_lock(&ce->timeline->mutex);
->> +
->>       do {
->>           int len;
->> -        rq = i915_request_create(ce);
->> +        rq = i915_request_create_locked(ce);
->>           if (IS_ERR(rq)) {
->>               err = PTR_ERR(rq);
->> -            goto out_ce;
->> +            break;
->>           }
->>           if (deps) {
->> @@ -878,10 +884,14 @@ intel_context_migrate_copy(struct intel_context 
->> *ce,
->>           /* Arbitration is re-enabled between requests. */
->>   out_rq:
->> -        if (*out)
->> +        i915_sw_fence_await(&rq->submit);
->> +        i915_request_get(rq);
->> +        i915_request_add_locked(rq);
->> +        if (*out) {
->> +            i915_sw_fence_complete(&(*out)->submit);
->>               i915_request_put(*out);
-> 
-> Could you help me understand this please. I have a few questions - 
-> first, what are the actual mechanics of fence error transfer here? I see 
-> the submit fence is being blocked until the next request is submitted - 
-> effectively previous request is only allowed to get on the hardware 
-> after the next one has been queued up. But I don't immediately see what 
-> that does in practice.
-> 
-> Second question relates to the need to hold the timeline mutex 
-> throughout. Presumably this is so two copy or migrate operations on the 
-> same context do not interleave, which can otherwise happen?
-> 
-> Would the error propagation be doable without the lock held by chaining 
-> on the previous request _completion_ fence? If so I am sure that would 
-> have a performance impact, because chunk by chunk would need a GPU<->CPU 
-> round trip to schedule. How much of an impact I don't know. Maybe 
-> enlarging CHUNK_SZ to compensate is an option?
-> 
-> Or if the perf hit would be bearable for stable backports only (much 
-> smaller patch) and then for tip we can do this full speed solution.
-> 
-> But yes, I would first want to understand the actual error propagation 
-> mechanism because sadly my working knowledge is a bit rusty.
+> [...]
 
-Another option - maybe - is this related to revert of fence error 
-propagation? If it is and having that would avoid the need for this 
-invasive fix, maybe we unrevert 3761baae908a7b5012be08d70fa553cc2eb82305 
-with edits to limit to special contexts? If doable..
+Applied, thanks!
 
-Regards,
+[1/2] blk-stat: fix QUEUE_FLAG_STATS clear
+      commit: 20de765f6d9da0c47b756429c60b41063b990a10
+[2/2] blk-throttle: only enable blk-stat when BLK_DEV_THROTTLING_LOW
+      commit: 8e15dfbd9ae21e518979e3823e335073e725f445
 
-Tvrtko
+Best regards,
+-- 
+Jens Axboe
 
-> 
->> -        *out = i915_request_get(rq);
->> -        i915_request_add(rq);
->> +        }
->> +        *out = rq;
->>           if (err)
->>               break;
->> @@ -905,7 +915,10 @@ intel_context_migrate_copy(struct intel_context *ce,
->>           cond_resched();
->>       } while (1);
->> -out_ce:
->> +    mutex_unlock(&ce->timeline->mutex);
->> +
->> +    if (*out)
->> +        i915_sw_fence_complete(&(*out)->submit);
->>       return err;
->>   }
->> @@ -999,13 +1012,19 @@ intel_context_migrate_clear(struct 
->> intel_context *ce,
->>       if (HAS_64K_PAGES(i915) && is_lmem)
->>           offset = CHUNK_SZ;
->> +    /*
->> +     * While building the chain of requests, we need to ensure
->> +     * that no one can sneak into the timeline unnoticed.
->> +     */
->> +    mutex_lock(&ce->timeline->mutex);
->> +
->>       do {
->>           int len;
->> -        rq = i915_request_create(ce);
->> +        rq = i915_request_create_locked(ce);
->>           if (IS_ERR(rq)) {
->>               err = PTR_ERR(rq);
->> -            goto out_ce;
->> +            break;
->>           }
->>           if (deps) {
->> @@ -1056,17 +1075,25 @@ intel_context_migrate_clear(struct 
->> intel_context *ce,
->>           /* Arbitration is re-enabled between requests. */
->>   out_rq:
->> -        if (*out)
->> +        i915_sw_fence_await(&rq->submit);
->> +        i915_request_get(rq);
->> +        i915_request_add_locked(rq);
->> +        if (*out) {
->> +            i915_sw_fence_complete(&(*out)->submit);
->>               i915_request_put(*out);
->> -        *out = i915_request_get(rq);
->> -        i915_request_add(rq);
->> +        }
->> +        *out = rq;
-> 
-> Btw if all else fails perhaps these two blocks can be consolidated by 
-> something like __chain_requests(rq, out) and all these operations in it. 
-> Not sure how much would that save in the grand total.
-> 
-> Regards,
-> 
-> Tvrtko
-> 
->> +
->>           if (err || !it.sg || !sg_dma_len(it.sg))
->>               break;
->>           cond_resched();
->>       } while (1);
->> -out_ce:
->> +    mutex_unlock(&ce->timeline->mutex);
->> +
->> +    if (*out)
->> +        i915_sw_fence_complete(&(*out)->submit);
->>       return err;
->>   }
+
+
