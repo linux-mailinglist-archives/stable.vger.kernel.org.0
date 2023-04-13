@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1EF56E049E
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2AC6E0482
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbjDMCkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:40:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35724 "EHLO
+        id S230258AbjDMCj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:39:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230478AbjDMCj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:39:58 -0400
+        with ESMTP id S230255AbjDMCix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:38:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1975E9EE1;
-        Wed, 12 Apr 2023 19:38:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95A09747;
+        Wed, 12 Apr 2023 19:37:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AEB563AAC;
-        Thu, 13 Apr 2023 02:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2100C433D2;
-        Thu, 13 Apr 2023 02:37:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31EDE63AB4;
+        Thu, 13 Apr 2023 02:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE896C43444;
+        Thu, 13 Apr 2023 02:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353440;
-        bh=jpupAkuoIR9JZhgmPqEtxcQHV2WSoE1rm0Idsw6o3cc=;
+        s=k20201202; t=1681353442;
+        bh=fn4c/CDgIjRRQYF9Ditvwio+s6mP6kNR2b4a0KayenQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtGgtTGl3YfmCeKf/rY8PuUkLnSMD8f7ke7yjOhFrF3NlJdGavyIjD76YF2PUEem/
-         9uVUWdDMkS7EhcDx5Cs+8YAm73rZrMzfBlsquoSBmQdken6IKPs3uKl+lsw4VlD/NC
-         UjNhritWVxNCRo1HnKt6UO5V42oljxCui1HR7Q0cBI6Txr9X7uk6K59QH6D4zWEy/e
-         artgpDPi1BZuxoVERxHYut8yTHXcxYmorCZPWXeD2jx6+tE1/wg6IjEHXCHQOyis3R
-         eVvWweOILLf9WVlw6u5roaYYvBXWtQpIfEEkMBVxK2exhNAJzYCzpVlj5EMTtKabGz
-         x3zG95VzIGHhw==
+        b=BRK6sLxybVxXIVUbfnK4HIErxF4z6kmcc4RXQ9Hr/FfbNnDrGQXefU4+lm8HnAOgH
+         tL27vSbjpkm1KawRPPCZSYOkh7YJ/u3SbF/SoF8gzKcqXtvljueqvlovcI91pemgED
+         JW7fSr+j97RbFJyeZFPNbzw1/IkSRKbYRBBK7i4U2XvIK2c210sOb2A65Zxb73Xme/
+         kOxYjaY5sK2YfQsTTTxurcESy3pVlvkRZOpKw4bWFHpX+5XHVd0kBG9BJl2TyFXNf/
+         pyRqvuRK+c6Jh7R9XX2Zsx9vXJoM7VwzdgpCWeZBBF0+qcxRrYcBPrC1dccM0WBgoR
+         UNhAxOL58X3sQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kalle Valo <quic_kvalo@quicinc.com>, Kalle Valo <kvalo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 14/17] wifi: ath11k: reduce the MHI timeout to 20s
-Date:   Wed, 12 Apr 2023 22:36:42 -0400
-Message-Id: <20230413023647.74661-14-sashal@kernel.org>
+Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Douglas RAILLARD <douglas.raillard@arm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, vschneid@redhat.com,
+        linux-trace-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 15/17] tracing: Error if a trace event has an array for a __field()
+Date:   Wed, 12 Apr 2023 22:36:43 -0400
+Message-Id: <20230413023647.74661-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023647.74661-1-sashal@kernel.org>
 References: <20230413023647.74661-1-sashal@kernel.org>
@@ -57,50 +57,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalle Valo <quic_kvalo@quicinc.com>
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-[ Upstream commit cf5fa3ca0552f1b7ba8490de40700bbfb6979b17 ]
+[ Upstream commit f82e7ca019dfad3b006fd3b772f7ac569672db55 ]
 
-Currently ath11k breaks after hibernation, the reason being that ath11k expects
-that the wireless device will have power during suspend and the firmware will
-continue running. But of course during hibernation the power from the device is
-cut off and firmware is not running when resuming, so ath11k will fail.
+A __field() in the TRACE_EVENT() macro is used to set up the fields of the
+trace event data. It is for single storage units (word, char, int,
+pointer, etc) and not for complex structures or arrays. Unfortunately,
+there's nothing preventing the build from accepting:
 
-(The reason why ath11k needs the firmware running is the interaction between
-mac80211 and MHI stack, it's a long story and more info in the bugzilla report.)
+    __field(int, arr[5]);
 
-In SUSE kernels the watchdog timeout is reduced from the default 120 to 60 seconds:
+from building. It will turn into a array value. This use to work fine, as
+the offset and size use to be determined by the macro using the field name,
+but things have changed and the offset and size are now determined by the
+type. So the above would only be size 4, and the next field will be
+located 4 bytes from it (instead of 20).
 
-CONFIG_DPM_WATCHDOG_TIMEOUT=60
+The proper way to declare static arrays is to use the __array() macro.
 
-But as the ath11k MHI timeout is 90 seconds the kernel will crash before will
-ath11k will recover in resume callback. To avoid the crash reduce the MHI
-timeout to just 20 seconds.
+Instead of __field(int, arr[5]) it should be __array(int, arr, 5).
 
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.9
+Add some macro tricks to the building of a trace event from the
+TRACE_EVENT() macro such that __field(int, arr[5]) will fail to build. A
+comment by the failure will explain why the build failed.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214649
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230329162038.8637-1-kvalo@kernel.org
+Link: https://lore.kernel.org/lkml/20230306122549.236561-1-douglas.raillard@arm.com/
+Link: https://lore.kernel.org/linux-trace-kernel/20230309221302.642e82d9@gandalf.local.home
+
+Reported-by: Douglas RAILLARD <douglas.raillard@arm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mhi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/trace/stages/stage5_get_offsets.h | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
-index 86995e8dc9135..a62ee05c54097 100644
---- a/drivers/net/wireless/ath/ath11k/mhi.c
-+++ b/drivers/net/wireless/ath/ath11k/mhi.c
-@@ -16,7 +16,7 @@
- #include "pci.h"
- #include "pcic.h"
+diff --git a/include/trace/stages/stage5_get_offsets.h b/include/trace/stages/stage5_get_offsets.h
+index fba4c24ed9e60..def36fbb8c5cd 100644
+--- a/include/trace/stages/stage5_get_offsets.h
++++ b/include/trace/stages/stage5_get_offsets.h
+@@ -9,17 +9,30 @@
+ #undef __entry
+ #define __entry entry
  
--#define MHI_TIMEOUT_DEFAULT_MS	90000
-+#define MHI_TIMEOUT_DEFAULT_MS	20000
- #define RDDM_DUMP_SIZE	0x420000
++/*
++ * Fields should never declare an array: i.e. __field(int, arr[5])
++ * If they do, it will cause issues in parsing and possibly corrupt the
++ * events. To prevent that from happening, test the sizeof() a fictitious
++ * type called "struct _test_no_array_##item" which will fail if "item"
++ * contains array elements (like "arr[5]").
++ *
++ * If you hit this, use __array(int, arr, 5) instead.
++ */
+ #undef __field
+-#define __field(type, item)
++#define __field(type, item)					\
++	{ (void)sizeof(struct _test_no_array_##item *); }
  
- static struct mhi_channel_config ath11k_mhi_channels_qca6390[] = {
+ #undef __field_ext
+-#define __field_ext(type, item, filter_type)
++#define __field_ext(type, item, filter_type)			\
++	{ (void)sizeof(struct _test_no_array_##item *); }
+ 
+ #undef __field_struct
+-#define __field_struct(type, item)
++#define __field_struct(type, item)				\
++	{ (void)sizeof(struct _test_no_array_##item *); }
+ 
+ #undef __field_struct_ext
+-#define __field_struct_ext(type, item, filter_type)
++#define __field_struct_ext(type, item, filter_type)		\
++	{ (void)sizeof(struct _test_no_array_##item *); }
+ 
+ #undef __array
+ #define __array(type, item, len)
 -- 
 2.39.2
 
