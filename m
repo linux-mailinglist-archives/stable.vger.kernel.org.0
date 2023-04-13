@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C6F6E0489
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:39:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2A46E0472
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230375AbjDMCjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:39:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34510 "EHLO
+        id S230371AbjDMCjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230376AbjDMCjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:39:01 -0400
+        with ESMTP id S230095AbjDMCiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:38:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B3D86A1;
-        Wed, 12 Apr 2023 19:37:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C920383DC;
+        Wed, 12 Apr 2023 19:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 526E663AAB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5B4363AC2;
+        Thu, 13 Apr 2023 02:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32544C4339C;
         Thu, 13 Apr 2023 02:37:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E5FC433D2;
-        Thu, 13 Apr 2023 02:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353443;
-        bh=++5gnSPH5suOIckcoNOW3Cu+lShLaYYyqEza+Scb1Ps=;
+        s=k20201202; t=1681353445;
+        bh=BxEpKquUAqaTHU2HUWRxzVwEbGcW5EywGMyl4xgY+ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9+hgmYSVaA7VpBMxUYsZOUPMcfoqh71nTwj03mTc8cuVEnBfOzt9PD+dhABGVtJR
-         rco+MxnJyuX0LMGIaynmSUQedOqceVMOIYiBsyE5gi0AfgoAy/IcX9zLH6hm0k0yj0
-         ihwGcZ/UIhf8FXPdXlhE46ylwgsR4ksy5K6k1XUeHhlHroVfyhJRPOA4QP7ErmM9i2
-         FJ06SjFnj3rB+Zwsv6yIBijsMRyTYFV/LLmQYk6Kv+90Wnya7YZ6CdR5IM5TIaDxVK
-         29326rx6DIUxAHEqlu31+WoslKjofdAGerh7ldFXpmYaifdtWOgprzSHkaSike8v7I
-         uc84V4Lxi9edQ==
+        b=E9g1GQoECj98Rmj5SbMfBX2AW0IjNQZYdjUFWj+AO8pi6RE0OikAoid+Gg3sk2gQX
+         H8YUbpaFt4SX/5TvzfMaHSgtEMroiZkY8LiKZkxKCP8sGzFPoLFGid34iuout2iRw9
+         R+BcJDi/hF7IIa/iIQbG53OQinqVX+LyyTNc4lJWpkrXPpmhYEripdgt/LuHVNMArZ
+         X6+7HpyLO94znXGTdoIZt6EHygZyR9nydLvDFm+xO2ZnJig9lgW3/SVYbdemc1ZzmV
+         uVAbKtWUEQbSm8kHpy5ZWQEgsB5eESPrB/O4Aw4Ta3kjyL4dpYgxEZ+4xR5bBrywNs
+         /qtd4xnJHtd+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 16/17] asm-generic/io.h: suppress endianness warnings for readq() and writeq()
-Date:   Wed, 12 Apr 2023 22:36:44 -0400
-Message-Id: <20230413023647.74661-16-sashal@kernel.org>
+Cc:     Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Sasha Levin <sashal@kernel.org>, x86@kernel.org,
+        tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com
+Subject: [PATCH AUTOSEL 6.1 17/17] x86/cpu: Add model number for Intel Arrow Lake processor
+Date:   Wed, 12 Apr 2023 22:36:45 -0400
+Message-Id: <20230413023647.74661-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023647.74661-1-sashal@kernel.org>
 References: <20230413023647.74661-1-sashal@kernel.org>
@@ -56,48 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit d564fa1ff19e893e2971d66e5c8f49dc1cdc8ffc ]
+[ Upstream commit 81515ecf155a38f3532bf5ddef88d651898df6be ]
 
-Commit c1d55d50139b ("asm-generic/io.h: Fix sparse warnings on
-big-endian architectures") missed fixing the 64-bit accessors.
+Successor to Lunar Lake.
 
-Arnd explains in the attached link why the casts are necessary, even if
-__raw_readq() and __raw_writeq() do not take endian-specific types.
-
-Link: https://lore.kernel.org/lkml/9105d6fc-880b-4734-857d-e3d30b87ccf6@app.fastmail.com/
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/20230404174641.426593-1-tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/io.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/intel-family.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index a68f8fbf423be..cde032f86856e 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -236,7 +236,7 @@ static inline u64 readq(const volatile void __iomem *addr)
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index cbaf174d8efd9..b3af2d45bbbb5 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -125,6 +125,8 @@
  
- 	log_read_mmio(64, addr, _THIS_IP_);
- 	__io_br();
--	val = __le64_to_cpu(__raw_readq(addr));
-+	val = __le64_to_cpu((__le64 __force)__raw_readq(addr));
- 	__io_ar(val);
- 	log_post_read_mmio(val, 64, addr, _THIS_IP_);
- 	return val;
-@@ -287,7 +287,7 @@ static inline void writeq(u64 value, volatile void __iomem *addr)
- {
- 	log_write_mmio(value, 64, addr, _THIS_IP_);
- 	__io_bw();
--	__raw_writeq(__cpu_to_le64(value), addr);
-+	__raw_writeq((u64 __force)__cpu_to_le64(value), addr);
- 	__io_aw();
- 	log_post_write_mmio(value, 64, addr, _THIS_IP_);
- }
+ #define INTEL_FAM6_LUNARLAKE_M		0xBD
+ 
++#define INTEL_FAM6_ARROWLAKE		0xC6
++
+ /* "Small Core" Processors (Atom/E-Core) */
+ 
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
 -- 
 2.39.2
 
