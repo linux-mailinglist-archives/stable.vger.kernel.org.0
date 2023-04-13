@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FF1F6E094B
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914616E094D
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbjDMIt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 04:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46198 "EHLO
+        id S229586AbjDMIuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 04:50:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230306AbjDMItz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:49:55 -0400
-X-Greylist: delayed 428 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 13 Apr 2023 01:49:53 PDT
+        with ESMTP id S229580AbjDMIuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:50:35 -0400
 Received: from gofer.mess.org (gofer.mess.org [88.97.38.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CDC386A8;
-        Thu, 13 Apr 2023 01:49:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8F97DA5;
+        Thu, 13 Apr 2023 01:50:33 -0700 (PDT)
 Received: by gofer.mess.org (Postfix, from userid 1000)
-        id 7771010006C; Thu, 13 Apr 2023 09:42:44 +0100 (BST)
+        id 827DD10006C; Thu, 13 Apr 2023 09:50:32 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mess.org; s=2020;
-        t=1681375364; bh=dWFaTBn76v8qs1jmAT0tyTp0lKdEB5L7C9K57ylBhE8=;
+        t=1681375832; bh=cjjs7O5NakfwtXtoeoEFfJIPF9km/TVa8zs1rP16FAk=;
         h=From:To:Cc:Subject:Date:From;
-        b=YIBZUE0q07uXRNOAHMsLL9aAFr1TB5962vY2tC8vNxfDqJdInl0Zu4ri7cfte0pKD
-         an0mvxxAIzQWoUYr4ER6/DHGwSQ9ruoME98rRyQ5UhMv6NjyliaCGZ7hSDAOW3ciFi
-         L9zn/QIY3MUn3TrJ7SYiiaH4MuaNHu0flfijGrwtjoUHy1mmcKxXLmRR/Ojt5vsqiU
-         hKaCqd8PfFdazfKj2+aY7I4/IN82jpeyPdGVCMDnxloLeBwZMkWBN0KfQOiKIADYuc
-         oqW9MPT8XWkv/5+scIURtT7j/z4lpI/APn58levzxySJd2lVm42vtLqfclXkBHrC2v
-         PGLBdwcRzLC3A==
+        b=lxrwJJEoZQ1Bw3gJ2MfFL13Cda/Y2xL414/5xSWROD6mTWLC8HIICKsWxVPvKpkv3
+         JWhlnyqv7gPGaZsktX4+awhRIwpZ/vwSEuN9YpKi837orGkfRG4FTRofnDFcCIboNP
+         1OBwJU7dWi2TMb/JeU7Fxhjl7uON3WjfOa1dNZO4pG20evP/g5DTsWSIamugyyfxud
+         zAE3PZ8sKVPsZHNMvowl5PHfkFlrUnj6ZutyogKjYhiJFIqS42GGG0FaGRWrSKkF5P
+         N3PUuW+sJ433A1VmIUpbvI7ALqdWSrXvSpP+3AJlmQAGhIb0A7V5aR/XxVxYcOX43L
+         mMmY0r26RxFkw==
 From:   Sean Young <sean@mess.org>
 To:     linux-media@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: [PATCH] media: rc: bpf attach/detach requires write permission
-Date:   Thu, 13 Apr 2023 09:42:44 +0100
-Message-Id: <20230413084244.709562-1-sean@mess.org>
+Subject: [PATCH v2] media: rc: bpf attach/detach requires write permission
+Date:   Thu, 13 Apr 2023 09:50:32 +0100
+Message-Id: <20230413085032.709757-1-sean@mess.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -86,7 +85,7 @@ index fe17c7f98e81..52d82cbe7685 100644
  		return PTR_ERR(rcdev);
  
 diff --git a/drivers/media/rc/lirc_dev.c b/drivers/media/rc/lirc_dev.c
-index 25ab61dae126..b4645e8484d1 100644
+index 25ab61dae126..d9b316eb86dd 100644
 --- a/drivers/media/rc/lirc_dev.c
 +++ b/drivers/media/rc/lirc_dev.c
 @@ -810,7 +810,7 @@ void __exit lirc_dev_exit(void)
@@ -102,7 +101,7 @@ index 25ab61dae126..b4645e8484d1 100644
  		return ERR_PTR(-EINVAL);
  	}
  
-+	if (write && !(f.file->mode & FMODE_WRITE))
++	if (write && !(f.file->f_mode & FMODE_WRITE))
 +		return ERR_PTR(-EPERM);
 +
  	fh = f.file->private_data;
