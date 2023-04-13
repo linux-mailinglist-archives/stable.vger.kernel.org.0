@@ -2,63 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10BF36E08EC
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BA26E08FB
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbjDMIaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 04:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
+        id S229734AbjDMIeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 04:34:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbjDMIap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:30:45 -0400
+        with ESMTP id S229708AbjDMIeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:34:13 -0400
 Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41E0CB5;
-        Thu, 13 Apr 2023 01:30:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7942108;
+        Thu, 13 Apr 2023 01:34:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net; s=s31663417;
-        t=1681374640; i=secu100@gmx.net;
+        t=1681374846; i=secu100@gmx.net;
         bh=JuB/8Df5JPEkDBJvzkYX19UwLMGlrI3SNhkkgdoSeJo=;
-        h=X-UI-Sender-Class:Date:To:Cc:From:Subject;
-        b=Pz2poCRg44qD28wNOz52xNsjatSLqfsP4utblB93n3gS1W581WwFIObtTozyQRja6
-         qglUPO9aeVaRngm18eEf1LqTtCwlGY5UhkegV8zjrXhMTrlOeRCBiGCwD3h6o4NRtV
-         OdDtLUExXNFEnZnydz2SsYuphN5wVh5Fd4FJtXrsBnekSN3MMdqEFAPUz3/G3wCG8N
-         7FWx5HQJO0hsCN6fQRg8B5UuSzo6wkNhIToCev0MVkm5W+wnCc9aof0oFa0r574b4J
-         I4qm8tAyAVi4zC4K8ywNxVI2tkZ+JW1YKHWb7DJdOW9eYUcx3oG94uKJH2Tz7jY0YM
-         iQRP9HzPi/jaw==
+        h=X-UI-Sender-Class:Date:Subject:References:To:Cc:From:In-Reply-To;
+        b=iBPaUVJE2Tw9ftzeoxrvp8G+jwPE+L4NQOhDQQXW9vAXQTI5qG16np9HmqFvieWaK
+         ITIU1thk0m11eyb/ZwWp3sRfDcnT5p/Z9XX9M+SADpYpV80cQeqmm6ppqdEwzzxp7F
+         Rnin1Bk71Bw+snM9CYYuh4+tRcgScnsfOx89DVSNLwStCtU1ZU8grZndLBRfmHymHc
+         tJXSYY3VvKcdZVI950UdNsZwt5xzB5wOG0bj2fqs4GnGfqIUkoAeyfj4r3C76FkK/Y
+         uF1+BVqx5ha9dEjuJnvMDKSWC7eHDTCLzMH+IMBXFJXOsGLgJhsNNt9X8ouG4FgL+X
+         Acf449GFKDTUg==
 X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.178.22] ([93.212.130.164]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M2O2W-1pnPmL3t5K-003z9R; Thu, 13
- Apr 2023 10:30:39 +0200
-Message-ID: <25ce0797-1d40-6e2b-0895-c4ca85aad2e6@gmx.net>
-Date:   Thu, 13 Apr 2023 10:28:54 +0200
+Received: from [192.168.178.22] ([93.212.130.164]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MTABZ-1pvyFt1AQ3-00Uce3; Thu, 13
+ Apr 2023 10:34:06 +0200
+Message-ID: <30f48ec1-df68-68e2-f81f-538e5526599e@gmx.net>
+Date:   Thu, 13 Apr 2023 10:32:20 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.9.1
-To:     stable@vger.kernel.org
-Cc:     kernel@vger.kernel.org, ",patches"@lists.linux.dev
-From:   "secu100@gmx.net" <secu100@gmx.net>
 Subject: [PATCH 6.1.23] ALSA: hda/realtek: Add quirk for HP ENVY Laptop
  17-cr0xxx
+References: <25ce0797-1d40-6e2b-0895-c4ca85aad2e6@gmx.net>
+To:     stable@vger.kernel.org
+Cc:     kernel@vger.kernel.org, patches@lists.linux.dev
+From:   "secu100@gmx.net" <secu100@gmx.net>
+In-Reply-To: <25ce0797-1d40-6e2b-0895-c4ca85aad2e6@gmx.net>
+X-Forwarded-Message-Id: <25ce0797-1d40-6e2b-0895-c4ca85aad2e6@gmx.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:weZ28mZKBKQwTACGQV6Era4MKTLhKvXLYCGJ84pkUy849IXLsBT
- OXyd22fsOTs3iTGXKr+Jq/LDi/pKfcM3um8oMpyuiktsMry47G9X14rnVVnDUT0pt9+Z5wQ
- eHL9er40OtS0uc23utUPVu9QmHAIOo/Fhw1oK+taoYNRuVBq5U5z0/3xjpEUC5aXIS9Ssye
- yDxQ42/aZIXilI2gL4WnA==
-UI-OutboundReport: notjunk:1;M01:P0:0aXAkIkYhhk=;z5ydRsju0G8G1vmoBRGOI/354l4
- Lwh9steMrLeaJxhGZsxOqr11DYkkWZLH+A9LLTmiopaXv4CbebWaPh8hL7wjN44I2djEadK9t
- 2MzZYGSBSXmdiJTL59qQHUvalhvdxXrftN+KvzTgh/vmvbu98SdH9HxG4sGkhJmk4dbLXBa5k
- tB0cuviTFXzbMwtpEdeyguQBbzJk5596mbNw9bGqycxsZzCSTjS3xCto6gJLZ8SXi+kz110qg
- AOH2NQE6Jlzob3FZulTcYvLc2MzD0eOc0L3fWFyU+crPcb/BdkMTyIZBxCIV+wS06FjkWIyJr
- zimGgmWKcnAK8sDdWIc5J7QpWZdZ1g8/z8qok2aPsQgsvWuBQ+ZnVrzwT4qsJyo5KJIdFej38
- Pm3TgG1NpBSIhBruC2xuQ5YmaK6wC4yql0xEEi328Eio7PJpw83/QPGkN8T7jwmYwUk2XW2d4
- CRZUK6zsAD0Lo5JMjpSgwtrt30mRu1bBDsWPrxDHb1YNUIUdGgF7mn7yVwvvXltb5A1XwLdQ0
- SeBFUcbN/z8ZY/4iZ1gXHZ616/SPL3Xwk1wvNqASFnYjh1BFYTUNJuNjVsh3+YFOEtiuR8lN7
- rqWDNwowN2Q3hGxZ7M3UWrYthYSv4/wFzviaYtuZWx03t2ID83Am47eAyJNT3qFZC4sPs2K5c
- MD/Uh9eaGGSO+ggzzf1TZnVDxoj4Q74tdbheW3FilGhv0n8h/DdfBcTKucKQjpMZ1zrVmGiq6
- 3wsen4e/ton2cNnyBYdjW2c8/9hjqIiPyNCrAqRE8ngRshIU+nqZER7HNOCC7h2EmdizXgEBM
- 5c+lyah7piDE3aLpYVqtMpZ2g55tKLPkfVfTVRsdPTT38P+NkdvU8bmOaKwlBrkW5eF6JVzyc
- 3OCVBQOoeSqtJ/Rxt39EaRQDu/txm0lzQ77HML8bnz6/NQa3xznPa3UV5xfAD8m66plcQhJzO
- fp3I/6gTikIFzZ4k1Yie+SWQ3kA=
+X-Provags-ID: V03:K1:AeR3DtBk8wIp4Pd/PFDBNXTo5fGJiSxRvhN60wUsgQfF8o2QPo4
+ RV65YwiJWjUYIHNYERbg6vpUx3d8xU7CMVAIaBTh726xtG0zeDIq2e7tryS0stBYwXK7zDQ
+ SPsGZ+zjWAKn2ZpfefexDiqdSq1Kq5y6T+CEFyYMUik+/iHXmb8VfjZMPrfYo3kfY10dNNq
+ Ree1HGWITyF8wu0NY2kTg==
+UI-OutboundReport: notjunk:1;M01:P0:LrXcOaS+3w8=;+SjxOydbkme88SKtQG+LSv0mYKu
+ epgNC3JHX0vp5bOR7LSjsafxKHVRRFtNIo2RpShLQGnYNXPL5sDLrRyq6huVgGMi5bJmX0ouS
+ kNcx2moa0WhnY2zO3YcMQixOs0iJeZwsjeOQKlF//VvL/EvkAdMMEtXllfbH+o9hq40SDQTYJ
+ 0yR5GT2TSmvmN7HyG1KwnG98y/qRipz0EYyk62WPgpRnoABRfURlo/r4wJ6BS4nxtNAKed4KF
+ yNH2D6+WK4XguJzMIvt6rLbbGETR/9l2gEEg2EdP3AOxLp6cIMm+bukmh8PNgub8L0sZNXimM
+ UJZ6DBMFAQ09oFQenZVtAMzWxEuGRc/yuaRo8BjMRc+xAUxjxLC100LAux8Xk9d9GVoVQ+LtX
+ fu5jJbfRNLO114U5Ka/j8MILJ0uWrC+hD8iHdEy2VFIcdybsOhbrf218Lxs+bazpUJLuSPkbc
+ WDmIuOVMCcGJblBlZcwcnL/ATUcxZPuFSXlYbDk6NS6cNpcR9jpuHPXC2rf2aNFhUcYmD0uxZ
+ j5KkNobRvDXXBm/RHoHpPEVeNje+Ed7o74T9TO9L0VqKctFtfKAbo3Fech8tapWSzXXehGMNp
+ udd0ZhyWTqVhwyy9oXCN+4JlQuf1yVQSGHLsNC8uplupH69WrzRu5wTEXPx4wUltf2dsMuHj0
+ 9kjz90JY1V6WonlaU24F8rTxlO13fnUbh4cETSffVwSBscF/8yXO9FhUILztZwIVhgiRz/fuf
+ 6j8C4EhuFmca1MvEJ41IAe7RR50uB3qQ+vsdBAo9NPLbs5hS2ebP+fnv3HZobcaLMoEkObvY+
+ F+i18BDAUBekRCqylYXbg7Z09wtP81h5kBognq/o+F9mSRwMsE9o1KFVbpmRjwfE4ZPXbgwUC
+ IW2eRlyuLqjDud1hVZbt72ShrCTcwrWUOAA6PFgtAR/IBSLn6ulzqqDhuIdYjtOTTUsVFrmao
+ wL1dMQ/qgBWHxXHB1CUW+FPTH08=
 X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
         FREEMAIL_FROM,GB_FREEMAIL_DISPTO,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
