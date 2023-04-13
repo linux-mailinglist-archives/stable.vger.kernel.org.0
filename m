@@ -2,148 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 092A16E0978
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C016E097F
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 10:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbjDMI4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 04:56:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47652 "EHLO
+        id S230340AbjDMI5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 04:57:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229938AbjDMIzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:55:54 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F6AA5E5
-        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 01:54:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681376086; x=1712912086;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=tfAoIKfWayM4xmxfJpBuzkgkVCUcE32N1uH+iLjpzFk=;
-  b=iUSU3l13E23Oum0gc8qc8XnZS6jCgI3CBZW7r/PYnwO9B/Ce1nURp6Ay
-   p00ijzp68PLLzLNFNoVFCJoxuYPV/0qjBnJviTges42PZoIL8zzGCioL5
-   WS7U224+ic+j/0vguFcRVAyT0UTw3Wlnyw5j4JyokMFgWejKCH3/KlzD2
-   MnF1OyrhbGTf0dxy1uLfuiS3BEdX3R7zFpXDGPXE8Cd30dItv1imPCLRm
-   hCJ399obf/n5lZuiPUc4MTzoNACWQ65jTxq7pNrMzoXWoHkFkHbVeq+Pl
-   hCzN5YXmrTxJRGi6tGyiHg3nwoCrH4bV0VHLP/xauqinDAvubdgYMt8oN
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10678"; a="342874522"
-X-IronPort-AV: E=Sophos;i="5.98,341,1673942400"; 
-   d="scan'208";a="342874522"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 01:54:22 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10678"; a="758617012"
-X-IronPort-AV: E=Sophos;i="5.98,341,1673942400"; 
-   d="scan'208";a="758617012"
-Received: from zbiro-mobl.ger.corp.intel.com (HELO intel.com) ([10.251.212.144])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 01:54:19 -0700
-Date:   Thu, 13 Apr 2023 10:53:51 +0200
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>
-Cc:     Andi Shyti <andi.shyti@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        Maciej Patelczyk <maciej.patelczyk@intel.com>,
-        Chris Wilson <chris.p.wilson@linux.intel.com>,
-        Nirmoy Das <nirmoy.das@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Subject: Re: [PATCH v5 2/5] drm/i915: Create the locked version of the
- request create
-Message-ID: <ZDfDHwrNEsaiCQ7T@ashyti-mobl2.lan>
-References: <20230412113308.812468-1-andi.shyti@linux.intel.com>
- <20230412113308.812468-3-andi.shyti@linux.intel.com>
- <04f9e2ac-0967-1e26-fbfc-da7ff54c9a62@intel.com>
+        with ESMTP id S230032AbjDMI5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 04:57:16 -0400
+Received: from mail-ua1-x936.google.com (mail-ua1-x936.google.com [IPv6:2607:f8b0:4864:20::936])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED04A5EA
+        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 01:55:42 -0700 (PDT)
+Received: by mail-ua1-x936.google.com with SMTP id w19so881469uad.7
+        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 01:55:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681376140; x=1683968140;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7PrjGClB6aBMd5jPrkLLFovctALNVXzd7tpLMl0zzO4=;
+        b=y60vwBrMosjjUa5lWyKi3dJna9t5hEp6YTEeDt8R0sXW2YmWqyudV4JZf0AfvtLahj
+         IfvyeBlTSKKBmjvUdckFYjgOT6n0kOhhKaDUc2nA1oxJ0xqOL1RqjEb7x/If6mJHeLB+
+         ZsaH0kNwtcWlH08gsThfdQuYigJUhHFXMlIkbtHyZlBQdHoeVjHxtA+oO5AZsm3ncMq1
+         96XpADM6UiaMk0978OgkI7UOc4pRsup2GcI+osduGZtJeGLY/3e3eBq/AzQSZP9M+H6O
+         KcVpfWz3ORh2ZKPCw1A+duiuWyh2SmRdxYBFnRJOw1C+YM6nOvF5RsioVJHETscGsaw0
+         Qr/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681376140; x=1683968140;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7PrjGClB6aBMd5jPrkLLFovctALNVXzd7tpLMl0zzO4=;
+        b=lZLJ5pF5+Ddt9bA6F62Os/rLavqCqnqI0+Qy1G4/0usBzcC+To7Q0ilhhCX3ac4NiP
+         wxSZKpkVPkWKKQiSIBc6K6Sg9EcNvLbYfPxNs79F3MvKEXBeA0dga3OcOvFyL1kZsNWu
+         5VHTyw6rcJ12fH8glUH1tmvOXSb/G3EMQDdDtE/KjI2bLioTAQ4o67Ax4bMwJQiLPVj9
+         LkhcqusaBRBLQ3vnTBH9wiw+ZL3AGHBkQPNvqroRphry3iuaK4SO64T+NVx+bqE0c0Fm
+         vEaNN6txGZ5yWtYje4HR9UC4N+JvKkedGksC8xWpq3msTjqCKr+kkMUhwKm1/eC8JII5
+         vBZg==
+X-Gm-Message-State: AAQBX9cniim7TPMn4ddoj6vCKfNEX6VXDyImLhqepsRxLux+32ZdYJAx
+        NJl8hgn3/mXFdcHlxEUjzC0fRsPT/AMRvThv3EPByA==
+X-Google-Smtp-Source: AKy350Z81to55BJMvhHs6QbXIb8eH6eaUTqPmN7DYMdBoFqQZcGxnpkaVC8M63nSp71akXc2AIK9BL9UAGSl8AFP/lY=
+X-Received: by 2002:a9f:3012:0:b0:6cd:2038:4911 with SMTP id
+ h18-20020a9f3012000000b006cd20384911mr646593uab.1.1681376139699; Thu, 13 Apr
+ 2023 01:55:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <04f9e2ac-0967-1e26-fbfc-da7ff54c9a62@intel.com>
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+References: <20230412082838.125271466@linuxfoundation.org>
+In-Reply-To: <20230412082838.125271466@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 13 Apr 2023 14:25:28 +0530
+Message-ID: <CA+G9fYvNNULQQ809qOxfk=3jqQpSfRvNwW80zNRXXCxbzqxFbQ@mail.gmail.com>
+Subject: Re: [PATCH 6.2 000/173] 6.2.11-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrzej,
+On Wed, 12 Apr 2023 at 14:17, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.2.11 release.
+> There are 173 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 14 Apr 2023 08:28:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
+6.2.11-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-6.2.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-> > Make version of the request creation that doesn't hold any
-> > lock.
-> > 
-> > Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-> > Cc: stable@vger.kernel.org
-> > Reviewed-by: Nirmoy Das <nirmoy.das@intel.com>
-> > ---
-> >   drivers/gpu/drm/i915/i915_request.c | 38 +++++++++++++++++++++--------
-> >   drivers/gpu/drm/i915/i915_request.h |  2 ++
-> >   2 files changed, 30 insertions(+), 10 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-> > index 630a732aaecca..58662360ac34e 100644
-> > --- a/drivers/gpu/drm/i915/i915_request.c
-> > +++ b/drivers/gpu/drm/i915/i915_request.c
-> > @@ -1028,15 +1028,11 @@ __i915_request_create(struct intel_context *ce, gfp_t gfp)
-> >   	return ERR_PTR(ret);
-> >   }
-> > -struct i915_request *
-> > -i915_request_create(struct intel_context *ce)
-> > +static struct i915_request *
-> > +__i915_request_create_locked(struct intel_context *ce)
-> >   {
-> > +	struct intel_timeline *tl = ce->timeline;
-> >   	struct i915_request *rq;
-> > -	struct intel_timeline *tl;
-> > -
-> > -	tl = intel_context_timeline_lock(ce);
-> > -	if (IS_ERR(tl))
-> > -		return ERR_CAST(tl);
-> >   	/* Move our oldest request to the slab-cache (if not in use!) */
-> >   	rq = list_first_entry(&tl->requests, typeof(*rq), link);
-> > @@ -1046,16 +1042,38 @@ i915_request_create(struct intel_context *ce)
-> >   	intel_context_enter(ce);
-> >   	rq = __i915_request_create(ce, GFP_KERNEL);
-> >   	intel_context_exit(ce); /* active reference transferred to request */
-> > +
-> >   	if (IS_ERR(rq))
-> > -		goto err_unlock;
-> > +		return rq;
-> >   	/* Check that we do not interrupt ourselves with a new request */
-> >   	rq->cookie = lockdep_pin_lock(&tl->mutex);
-> >   	return rq;
-> > +}
-> > +
-> > +struct i915_request *
-> > +i915_request_create_locked(struct intel_context *ce)
-> > +{
-> > +	intel_context_assert_timeline_is_locked(ce->timeline);
-> > +
-> > +	return __i915_request_create_locked(ce);
-> > +}
-> 
-> I wonder if we really need to have such granularity? Leaving only
-> i915_request_create_locked and removing __i915_request_create_locked would
-> simplify little bit the code,
-> I guess the cost of calling intel_context_assert_timeline_is_locked twice
-> sometimes is not big, or maybe it can be re-arranged, up to you.
 
-There is some usage of such granularity in patch 4. I am adding
-here the throttle on the timeline. I am adding it in the
-"_locked" version to avoid potential deadlocks coming from
-selftests (and from realworld?).
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Here I'd love to have some comments from Chris and Matt.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I might still add this in the commit message:
+## Build
+* kernel: 6.2.11-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-6.2.y
+* git commit: 5f50ce97de71b5278626756de07d906a3a4882d0
+* git describe: v6.2.9-361-g5f50ce97de71
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.2.y/build/v6.2.9=
+-361-g5f50ce97de71
 
-"i915_request_create_locked() is now empty but will be used in
-later commits where a throttle on the ringspace will be executed
-to ensure exclusive ownership of the timeline."
+## Test Regressions (compared to v6.2.9)
 
-> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+## Metric Regressions (compared to v6.2.9)
 
-Thanks!
+## Test Fixes (compared to v6.2.9)
 
-Andi
+## Metric Fixes (compared to v6.2.9)
+
+## Test result summary
+total: 186207, pass: 158993, fail: 4143, skip: 22756, xfail: 315
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 145 total, 142 passed, 3 failed
+* arm64: 54 total, 53 passed, 1 failed
+* i386: 41 total, 38 passed, 3 failed
+* mips: 30 total, 28 passed, 2 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 38 total, 36 passed, 2 failed
+* riscv: 26 total, 25 passed, 1 failed
+* s390: 16 total, 16 passed, 0 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 7 passed, 1 failed
+* x86_64: 46 total, 46 passed, 0 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-exec
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-user_events
+* kselftest-vDSO
+* kselftest-vm
+* kselftest-watchdog
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
