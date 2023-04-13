@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB06F6E0427
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:36:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4FED6E0429
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbjDMCg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:36:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34350 "EHLO
+        id S229760AbjDMCgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbjDMCgV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:36:21 -0400
+        with ESMTP id S229526AbjDMCg3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:36:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D17E7EE3;
-        Wed, 12 Apr 2023 19:36:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB7BE7EF0;
+        Wed, 12 Apr 2023 19:36:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3822963A61;
-        Thu, 13 Apr 2023 02:36:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40686C433D2;
-        Thu, 13 Apr 2023 02:36:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3059A63A8B;
+        Thu, 13 Apr 2023 02:36:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97EAC433EF;
+        Thu, 13 Apr 2023 02:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353374;
-        bh=d0X3yg7haQvgsR2Vxh0jBkmYqiZKufzWZYdFlrBGUqM=;
+        s=k20201202; t=1681353377;
+        bh=0tlCgn/g2uLNgXFgxB/PsjI7UdfHzqyRNbDgd1eDnxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dn4Ct3Cb96EUShoHhbzYgfP/dc0zaUfUJxd2365nVQKlxvyTuvxIMqiiORy7WJ15B
-         ANBjS9g0H/oyQ8y3WyiZynRum1mYlGiICNnoB1zb1tUL6lYNcuPzABvVBCSIS7xraR
-         VGBSJ1giS0dt0YdrSrrZ0X6twGWx2tAkpsAew9aZBT9sJ0+SL4p89+DaQoFD/QlnmK
-         A+o0FsP2o4cmQcvn4MC4Dvx9lerrktu8WF8NhrRZ87p2iKcsJmRezaSM9g1Fbmx58O
-         AgsthEvaUpSODKvu8Kd9V9lFeTa/s7Hc/JfVXg+1YeTEChaTRU5bT9GrsBku2k6BfD
-         2eFYGKbKZcvlQ==
+        b=Q9n5pSiOyLSUsI7ini0x4T1/72aCk9c0NSLgs5B4gkzo0E2muQNpAH1q3c0ql0/tE
+         ryZdFdIyrnstcybf/nzGk4LLKd9gbhCCyNg9AYMfCvuLy4KulCcSzCRUMgaq0Uqqwd
+         GMoZdkzGhI7Jc8XTwjSDkXNSRJpeUjpk8eYbNcourRRP7ihxbjfwlxzY3y0THhmNjG
+         sV2ioyYX2DifNcRAsW8gW2g0pqRBercdESz/Ty7fGZ0Vqbp1LewYjTi8b/OLF/8+VN
+         qBuo4Z8PTXdoU0vwcAst37BPBb8JexnZ6vhheAQ3189ll2Y/IsF631TWD7GHuRL7Tu
+         Tg/sy0wwV9Ptw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ge-org Brohammer <gbrohammer@outlook.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, mario.limonciello@amd.com,
-        Syed.SabaKareem@amd.com, leohearts@leohearts.com,
-        wimvanboven@gmail.com, fengwk94@gmail.com, xazrael@hotmail.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 05/20] ASoC: amd: yc: Add DMI entries to support Victus by HP Laptop 16-e1xxx (8A22)
-Date:   Wed, 12 Apr 2023 22:35:43 -0400
-Message-Id: <20230413023601.74410-5-sashal@kernel.org>
+Cc:     =?UTF-8?q?Patrik=20Dahlstr=C3=B6m?= <risca@dalakolonin.se>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 06/20] iio: adc: palmas_gpadc: fix NULL dereference on rmmod
+Date:   Wed, 12 Apr 2023 22:35:44 -0400
+Message-Id: <20230413023601.74410-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023601.74410-1-sashal@kernel.org>
 References: <20230413023601.74410-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,41 +57,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ge-org Brohammer <gbrohammer@outlook.com>
+From: Patrik Dahlström <risca@dalakolonin.se>
 
-[ Upstream commit 205efd4619b860404ebb5882e5a119eb3b3b3716 ]
+[ Upstream commit 49f76c499d38bf67803438eee88c8300d0f6ce09 ]
 
-This model requires an additional detection quirk to
-enable the internal microphone.
+Calling dev_to_iio_dev() on a platform device pointer is undefined and
+will make adc NULL.
 
-Tried to use git send-email this time.
-
-Signed-off-by: Ge-org Brohammer <gbrohammer@outlook.com>
-Link: https://lore.kernel.org/r/PAVP195MB2261322C220E95D7F4B2732ADABC9@PAVP195MB2261.EURP195.PROD.OUTLOOK.COM
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Patrik Dahlström <risca@dalakolonin.se>
+Link: https://lore.kernel.org/r/20230313205029.1881745-1-risca@dalakolonin.se
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/iio/adc/palmas_gpadc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 4a69ce702360c..0acdf0156f075 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -269,6 +269,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "8A43"),
- 		}
- 	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
-+			DMI_MATCH(DMI_BOARD_NAME, "8A22"),
-+		}
-+	},
- 	{}
- };
+diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
+index fd000345ec5cf..849a697a467e5 100644
+--- a/drivers/iio/adc/palmas_gpadc.c
++++ b/drivers/iio/adc/palmas_gpadc.c
+@@ -639,7 +639,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
  
+ static int palmas_gpadc_remove(struct platform_device *pdev)
+ {
+-	struct iio_dev *indio_dev = dev_to_iio_dev(&pdev->dev);
++	struct iio_dev *indio_dev = dev_get_drvdata(&pdev->dev);
+ 	struct palmas_gpadc *adc = iio_priv(indio_dev);
+ 
+ 	if (adc->wakeup1_enable || adc->wakeup2_enable)
 -- 
 2.39.2
 
