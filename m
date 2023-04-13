@@ -2,135 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 349506E156A
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 21:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06CF56E1587
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 21:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229867AbjDMTvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 15:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44258 "EHLO
+        id S229787AbjDMT7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 15:59:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229492AbjDMTvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 15:51:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAEF271E;
-        Thu, 13 Apr 2023 12:51:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE0A3615B7;
-        Thu, 13 Apr 2023 19:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 251F8C433EF;
-        Thu, 13 Apr 2023 19:51:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681415488;
-        bh=VD3AH8/BOXPv2IMvKmDKEehX7IswoAmODYA+TR627Jo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VCtYT890v2FRNOna+n2kFlQUZGsy0rBa70/M8Fi0623Yy6A8HCCzDldPFgV/ej/xA
-         F1YzJ+Iq1TUbxiDFT+wAZQYKhXSeSDYdq3tkrl+fimUZ0kTr5BryN3l884PPyUGjwt
-         X8cOefnM3db3riLehwMJJ6vV4E/KLhNRL6ikaUoN4tIK/Vdqp/PBwp+6oDrHRc4e/C
-         B/1+1g8M3Z7pWFX4iIjYdKgmVfCM+bMU5z5/iQ5Nu5SPF4CkzTzP1JEpTG1CpKb/Ws
-         GGc3M/KZegRLpXQBISjk4gvp1tRkumWNf7zu5pxa2YVlro/J3OSz5us5R5z+FfF6fz
-         CS5IjwjBxtgUQ==
-Date:   Thu, 13 Apr 2023 21:51:25 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Benjamin Bara <bbara93@gmail.com>
-Cc:     Lee Jones <lee@kernel.org>, rafael.j.wysocki@intel.com,
-        dmitry.osipenko@collabora.com, peterz@infradead.org,
-        jonathanh@nvidia.com, richard.leitner@linux.dev,
-        treding@nvidia.com, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        Benjamin Bara <benjamin.bara@skidata.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4 2/4] i2c: core: run atomic i2c xfer when !preemptible
-Message-ID: <ZDhdPbcHFaR+2dhR@sai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Benjamin Bara <bbara93@gmail.com>, Lee Jones <lee@kernel.org>,
-        rafael.j.wysocki@intel.com, dmitry.osipenko@collabora.com,
-        peterz@infradead.org, jonathanh@nvidia.com,
-        richard.leitner@linux.dev, treding@nvidia.com,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-tegra@vger.kernel.org,
-        Benjamin Bara <benjamin.bara@skidata.com>, stable@vger.kernel.org
-References: <20230327-tegra-pmic-reboot-v4-0-b24af219fb47@skidata.com>
- <20230327-tegra-pmic-reboot-v4-2-b24af219fb47@skidata.com>
+        with ESMTP id S229749AbjDMT7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 15:59:22 -0400
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9209018;
+        Thu, 13 Apr 2023 12:59:14 -0700 (PDT)
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33DIGjhD014140;
+        Thu, 13 Apr 2023 19:59:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=qcppdkim1;
+ bh=/9JVEJAyyziYkzc4LrGvmWBTmaDc6A5LIeo+a2GSbLU=;
+ b=gRaDLLklFKJPIUbxm8b7vM0e7uUOWAYMvV7w1BSpv7R5Y6b7U1KIGox2TCFJcmecJ3VO
+ 5iRk9Bx9Lm6DJqiWhrsbJEMs3yeKjMhKfE0Gzsz6Tnujn4pYMJQwSgO8tvGiEI1rgEII
+ jlW/+Ei7WJehfrFN3NdquPcRV5AsLpQ0fjcUsHEBm2Yl6Vtt0+23oagexoLhhm0XAWLH
+ i9gECuCtYY1bIxNdBV7GJ2gStJ5twHQLeCn+GST/9+As3kMe7NYPX6BtHl00Lb8lF38m
+ 6SHbo/v/YS9h/0kKTlQJU1s7q3SWOGJj2Cdv804xIOwfQAMzB1Hooo8Zi9VzMAaN5YKB Nw== 
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3px9g59xss-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Apr 2023 19:59:11 +0000
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+        by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 33DJxAFB014698
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Apr 2023 19:59:10 GMT
+Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.42; Thu, 13 Apr 2023 12:59:10 -0700
+From:   Wesley Cheng <quic_wcheng@quicinc.com>
+To:     <gregkh@linuxfoundation.org>, <Thinh.Nguyen@synopsys.com>
+CC:     <linux-kernel@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+        Wesley Cheng <quic_wcheng@quicinc.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v5 1/3] usb: dwc3: gadget: Stall and restart EP0 if host is unresponsive
+Date:   Thu, 13 Apr 2023 12:57:40 -0700
+Message-ID: <20230413195742.11821-2-quic_wcheng@quicinc.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230413195742.11821-1-quic_wcheng@quicinc.com>
+References: <20230413195742.11821-1-quic_wcheng@quicinc.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="+d+oo9lOK+g04O7i"
-Content-Disposition: inline
-In-Reply-To: <20230327-tegra-pmic-reboot-v4-2-b24af219fb47@skidata.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.49.16.6]
+X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: v3CZlLz6HKraKIngYwszbXUtyTV-bhJm
+X-Proofpoint-GUID: v3CZlLz6HKraKIngYwszbXUtyTV-bhJm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-13_14,2023-04-13_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 spamscore=0 adultscore=0 clxscore=1011 malwarescore=0
+ mlxlogscore=925 suspectscore=0 impostorscore=0 bulkscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2303200000 definitions=main-2304130177
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+It was observed that there are hosts that may complete pending SETUP
+transactions before the stop active transfers and controller halt occurs,
+leading to lingering endxfer commands on DEPs on subsequent pullup/gadget
+start iterations.
 
---+d+oo9lOK+g04O7i
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  dwc3_gadget_ep_disable   name=ep8in flags=0x3009  direction=1
+  dwc3_gadget_ep_disable   name=ep4in flags=1  direction=1
+  dwc3_gadget_ep_disable   name=ep3out flags=1  direction=0
+  usb_gadget_disconnect   deactivated=0  connected=0  ret=0
 
-On Thu, Apr 13, 2023 at 09:46:40AM +0200, Benjamin Bara wrote:
-> From: Benjamin Bara <benjamin.bara@skidata.com>
->=20
-> Since bae1d3a05a8b, i2c transfers are non-atomic if preemption is
-> disabled. However, non-atomic i2c transfers require preemption (e.g. in
-> wait_for_completion() while waiting for the DMA).
->=20
-> panic() calls preempt_disable_notrace() before calling
-> emergency_restart(). Therefore, if an i2c device is used for the
-> restart, the xfer should be atomic. This avoids warnings like:
->=20
-> [   12.667612] WARNING: CPU: 1 PID: 1 at kernel/rcu/tree_plugin.h:318 rcu=
-_note_context_switch+0x33c/0x6b0
-> [   12.676926] Voluntary context switch within RCU read-side critical sec=
-tion!
-> ...
-> [   12.742376]  schedule_timeout from wait_for_completion_timeout+0x90/0x=
-114
-> [   12.749179]  wait_for_completion_timeout from tegra_i2c_wait_completio=
-n+0x40/0x70
-> ...
-> [   12.994527]  atomic_notifier_call_chain from machine_restart+0x34/0x58
-> [   13.001050]  machine_restart from panic+0x2a8/0x32c
->=20
-> Use !preemptible() instead, which is basically the same check as
-> pre-v5.2.
->=20
-> Fixes: bae1d3a05a8b ("i2c: core: remove use of in_atomic()")
-> Cc: stable@vger.kernel.org # v5.2+
-> Suggested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Signed-off-by: Benjamin Bara <benjamin.bara@skidata.com>
+The sequence shows that the USB gadget disconnect (dwc3_gadget_pullup(0))
+routine completed successfully, allowing for the USB gadget to proceed with
+a USB gadget connect.  However, if this occurs the system runs into an
+issue where:
 
-So, with Peter's input and me checking again:
+  BUG: spinlock already unlocked on CPU
+  spin_bug+0x0
+  dwc3_remove_requests+0x278
+  dwc3_ep0_out_start+0xb0
+  __dwc3_gadget_start+0x25c
 
-Acked-by: Wolfram Sang <wsa@kernel.org>
+This is due to the pending endxfers, leading to gadget start (w/o lock
+held) to execute the remove requests, which will unlock the dwc3
+spinlock as part of giveback.
 
-I assume this shall go in via the mfd-tree. Let me know if I should pick
-it instead.
+To mitigate this, resolve the pending endxfers on the pullup disable
+path by re-locating the SETUP phase check after stop active transfers, since
+that is where the DWC3_EP_DELAY_STOP is potentially set.  This also allows
+for handling of a host that may be unresponsive by using the completion
+timeout to trigger the stall and restart for EP0.
 
+Fixes: c96683798e27 ("usb: dwc3: ep0: Don't prepare beyond Setup stage")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+---
+ drivers/usb/dwc3/gadget.c | 49 +++++++++++++++++++++++++--------------
+ 1 file changed, 32 insertions(+), 17 deletions(-)
 
---+d+oo9lOK+g04O7i
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmQ4XT0ACgkQFA3kzBSg
-KbbAJA//f+xXOS04L16X+BQ/HPdV9h08kJltv/KDQ7sfvNd+ALOJslAZbEdgNVKH
-zj96ZFX4u75ZdDH6YiImSGUfXqWoseKZiK4ZvkPaKabsG8uv/uHZIJdYG6qXpD7Q
-b0sg6z6TgvpVSAp0l4n0FgeNQE2KVCZ5WAcjFQx46vcXufyvyycZPUU0Ht37ufZL
-x0kCd04YeX+wnRUp9nH9JNI4frjnR/uqwfTM4MCdnyrX1WXk70J6AMQ/C5UuKfGe
-EYsWRs6cTUyo7vMqLEImkb4XXTZMJqCl+dmC1oP2w8w+Lvm9P7RcwuI0Q1yuKKp/
-1fypvphtyrsqnIzaox57pMgE6Fzh8qVSaC0ZMZWX1fje9PWwFhnBX79RBx6V3OIA
-4NKWEtyB2KeCtEPeimh2d2ZUKg4VHjKuT4gHafLx417s7qjRe2jYLg8VM81rgukC
-Qe36LnTryBcGq7TBBGCVZehnwtnHxiYmGJ5cZtKP+Tp4uFUxD8MN9UQDNoeLnI+L
-mXxpmDptYoxPbJBBSCgvgMcnuW2LAAL9Jjtpt/xestPqgSdQhWQ03KwyrNkFztl/
-h59ULzWc90RQoNG8lK++XEI3jyB5VpAfPE/axAjhUTtS3bxZ1iuGh6Vywn3b3iD/
-M/JlFy5nloZAuabCFKByKf7emEp/Wc36fA0r42RkKQsL7IVSXbc=
-=KAjA
------END PGP SIGNATURE-----
-
---+d+oo9lOK+g04O7i--
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 3c63fa97a680..be84c133f0d7 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2528,29 +2528,17 @@ static int __dwc3_gadget_start(struct dwc3 *dwc);
+ static int dwc3_gadget_soft_disconnect(struct dwc3 *dwc)
+ {
+ 	unsigned long flags;
++	int ret;
+ 
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 	dwc->connected = false;
+ 
+ 	/*
+-	 * Per databook, when we want to stop the gadget, if a control transfer
+-	 * is still in process, complete it and get the core into setup phase.
++	 * Attempt to end pending SETUP status phase, and not wait for the
++	 * function to do so.
+ 	 */
+-	if (dwc->ep0state != EP0_SETUP_PHASE) {
+-		int ret;
+-
+-		if (dwc->delayed_status)
+-			dwc3_ep0_send_delayed_status(dwc);
+-
+-		reinit_completion(&dwc->ep0_in_setup);
+-
+-		spin_unlock_irqrestore(&dwc->lock, flags);
+-		ret = wait_for_completion_timeout(&dwc->ep0_in_setup,
+-				msecs_to_jiffies(DWC3_PULL_UP_TIMEOUT));
+-		spin_lock_irqsave(&dwc->lock, flags);
+-		if (ret == 0)
+-			dev_warn(dwc->dev, "timed out waiting for SETUP phase\n");
+-	}
++	if (dwc->delayed_status)
++		dwc3_ep0_send_delayed_status(dwc);
+ 
+ 	/*
+ 	 * In the Synopsys DesignWare Cores USB3 Databook Rev. 3.30a
+@@ -2563,6 +2551,33 @@ static int dwc3_gadget_soft_disconnect(struct dwc3 *dwc)
+ 	__dwc3_gadget_stop(dwc);
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+ 
++	/*
++	 * Per databook, when we want to stop the gadget, if a control transfer
++	 * is still in process, complete it and get the core into setup phase.
++	 * In case the host is unresponsive to a SETUP transaction, forcefully
++	 * stall the transfer, and move back to the SETUP phase, so that any
++	 * pending endxfers can be executed.
++	 */
++	if (dwc->ep0state != EP0_SETUP_PHASE) {
++		reinit_completion(&dwc->ep0_in_setup);
++
++		ret = wait_for_completion_timeout(&dwc->ep0_in_setup,
++				msecs_to_jiffies(DWC3_PULL_UP_TIMEOUT));
++		if (ret == 0) {
++			unsigned int    dir;
++
++			dev_warn(dwc->dev, "wait for SETUP phase timed out\n");
++			spin_lock_irqsave(&dwc->lock, flags);
++			dir = !!dwc->ep0_expect_in;
++			if (dwc->ep0state == EP0_DATA_PHASE)
++				dwc3_ep0_end_control_data(dwc, dwc->eps[dir]);
++			else
++				dwc3_ep0_end_control_data(dwc, dwc->eps[!dir]);
++			dwc3_ep0_stall_and_restart(dwc);
++			spin_unlock_irqrestore(&dwc->lock, flags);
++		}
++	}
++
+ 	/*
+ 	 * Note: if the GEVNTCOUNT indicates events in the event buffer, the
+ 	 * driver needs to acknowledge them before the controller can halt.
