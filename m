@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CAE6E04BA
-	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 295886E0492
+	for <lists+stable@lfdr.de>; Thu, 13 Apr 2023 04:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230419AbjDMClk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Apr 2023 22:41:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
+        id S230084AbjDMCkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Apr 2023 22:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231240AbjDMClX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:41:23 -0400
+        with ESMTP id S230034AbjDMCjk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Apr 2023 22:39:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4BE8A74;
-        Wed, 12 Apr 2023 19:39:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD8D9006;
+        Wed, 12 Apr 2023 19:38:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA3563A87;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E10F63AB1;
+        Thu, 13 Apr 2023 02:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DD6C433EF;
         Thu, 13 Apr 2023 02:38:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16543C433AA;
-        Thu, 13 Apr 2023 02:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681353485;
-        bh=8aLaGvCxyMHhpuSJf95pFB+rwa37xHUxg58lShunst0=;
+        s=k20201202; t=1681353487;
+        bh=4MSEWpCPmsHnmUimKtkF4utaACAQQHhpJqm1WmamqPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DglylogNXYCLqKt49G4r6kLqtM3aSL+H7Tt8JFye5LbwL6nykLavJOTOeUgWYKq3F
-         0Xi4UOKYolRk+rusfWQVVvc4YnrGNnmLMNpDpphPPpSMrpX91yJVYsyzUcVClLFhz0
-         rSRIPpZhCWHa9iz62tw/2iHWxOSoX2AOON0oBXmZaKesUPxW92HgvVQlwJjtwXCVsm
-         F8FqApydZtftJllMJBJVjYRIveO7r9/yO4uRIrorpMtG6a2Xbbb1I59swWHMR/MpnK
-         1iOaVAU8OLZbjmRaakQUu/OjEmTKtB0sfF1UQffwsNufVovzuVI02DnXm8361XFmT/
-         /TWcfBTuhf5pw==
+        b=fJ6QGMN0pG1gr1d7Oi6zw25f1Wa/w+Y5oeaJ5Ge6Eo6+oqjcHYb6dJHqwhf6QhLaO
+         HExE/QhpcWTlhVQXxVvRNWKvklhzbTskIIMrlCg71TVvxdsmMgeOzNlA51h0SFPSWn
+         0c1qGQbfHVERBs/t3wV29c4Ygw51SsgyhAzz99ylYW1V0s68xOuWxbWx9+0h82gyw9
+         tzZjViqfDwjEbmcpD7QpVHcqt/zS0c2RlxfwkVkusGg/fUzoaq8ieGpzbkWehcjW4W
+         RrKqF+NfpdYOmGK6TAAIml9sLq/9yBq9h3uLcBUvWcaEUkoSoCRZ0xLZ0lscVuMoPR
+         UsTGpoAahPk+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
-        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        andriy.shevchenko@linux.intel.com, moisesmcardona@gmail.com,
-        oder_chiou@realtek.com, amadeuszx.slawinski@linux.intel.com,
-        akihiko.odaki@gmail.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 2/3] ASoC: Intel: bytcr_rt5640: Add quirk for the Acer Iconia One 7 B1-750
-Date:   Wed, 12 Apr 2023 22:37:57 -0400
-Message-Id: <20230413023759.75048-2-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-arch@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 3/3] asm-generic/io.h: suppress endianness warnings for readq() and writeq()
+Date:   Wed, 12 Apr 2023 22:37:58 -0400
+Message-Id: <20230413023759.75048-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413023759.75048-1-sashal@kernel.org>
 References: <20230413023759.75048-1-sashal@kernel.org>
@@ -62,48 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit e38c5e80c3d293a883c6f1d553f2146ec0bda35e ]
+[ Upstream commit d564fa1ff19e893e2971d66e5c8f49dc1cdc8ffc ]
 
-The Acer Iconia One 7 B1-750 tablet mostly works fine with the defaults
-for an Bay Trail CR tablet. Except for the internal mic, instead of
-an analog mic on IN3 a digital mic on DMIC1 is uses.
+Commit c1d55d50139b ("asm-generic/io.h: Fix sparse warnings on
+big-endian architectures") missed fixing the 64-bit accessors.
 
-Add a quirk with these settings for this tablet.
+Arnd explains in the attached link why the casts are necessary, even if
+__raw_readq() and __raw_writeq() do not take endian-specific types.
 
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230322145332.131525-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/lkml/9105d6fc-880b-4734-857d-e3d30b87ccf6@app.fastmail.com/
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/asm-generic/io.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 6a8edb0a559de..df3b370fe7292 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -391,6 +391,18 @@ static int byt_rt5640_aif1_hw_params(struct snd_pcm_substream *substream,
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index d02806513670c..3dd3416f1df03 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -190,7 +190,7 @@ static inline u64 readq(const volatile void __iomem *addr)
+ 	u64 val;
  
- /* Please keep this list alphabetically sorted */
- static const struct dmi_system_id byt_rt5640_quirk_table[] = {
-+	{	/* Acer Iconia One 7 B1-750 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Insyde"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "VESPA2"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_DMIC1_MAP |
-+					BYT_RT5640_JD_SRC_JD1_IN4P |
-+					BYT_RT5640_OVCD_TH_1500UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{	/* Acer Iconia Tab 8 W1-810 */
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
+ 	__io_br();
+-	val = __le64_to_cpu(__raw_readq(addr));
++	val = __le64_to_cpu((__le64 __force)__raw_readq(addr));
+ 	__io_ar(val);
+ 	return val;
+ }
+@@ -233,7 +233,7 @@ static inline void writel(u32 value, volatile void __iomem *addr)
+ static inline void writeq(u64 value, volatile void __iomem *addr)
+ {
+ 	__io_bw();
+-	__raw_writeq(__cpu_to_le64(value), addr);
++	__raw_writeq((u64 __force)__cpu_to_le64(value), addr);
+ 	__io_aw();
+ }
+ #endif
 -- 
 2.39.2
 
