@@ -2,72 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4CBE6E1885
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 01:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61ED86E18E0
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 02:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbjDMX67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Apr 2023 19:58:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39612 "EHLO
+        id S229522AbjDNAOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 20:14:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229853AbjDMX66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 19:58:58 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC0AD3C06
-        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 16:58:57 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1a273b3b466so251655ad.1
-        for <stable@vger.kernel.org>; Thu, 13 Apr 2023 16:58:57 -0700 (PDT)
+        with ESMTP id S229577AbjDNAOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 20:14:30 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E75D5FD0;
+        Thu, 13 Apr 2023 17:13:49 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id c10-20020a17090abf0a00b0023d1bbd9f9eso20106471pjs.0;
+        Thu, 13 Apr 2023 17:13:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1681430337; x=1684022337;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EefSkyZ3Lf0FxAAlOktzH9a+rP5j/aHtRq9oKYJfYbo=;
-        b=a3byag42DLwFJ6SRJEJQ1CcOmIM/nt97jvXvLVycLr+Vz6t8EuDD3sfm40CDOIf2l+
-         CWnXHMfEZ9X0fhqgtzPG+zqEGL/DmRKb5uFzisQdqhsMYKi2FTj6pW25nSR9jIv/TrhH
-         d0sv/sposQqbLpPuM9L+y+vBg8xN8XjARVzLMSSMPrKJJVxX9Na1q0mDetHv8ISLhI1H
-         Fxc1ejXe8TUp1biTe/A2rKuRtETHTzgVp6Btl5QXZCzGmH6p0qWTIIYYZBj3a+tjVq5H
-         dSl9te0h/slqxMAmE/8u+tC+ViHh/1jJrqttvZd2/SAl8mgV5eT9eYY1Ywf8DluAngIb
-         JgQA==
+        d=gmail.com; s=20221208; t=1681431191; x=1684023191;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=WJQn8xlUXGO8WXDwuesuglKEx8PEVVyreK/tNf7kaQ8=;
+        b=C2Ylhbi83oEcJ+Pl6mYnd5e/4cYbF7z7TIhJoV60QIIHSzNak/9XG5hfI5PrvadNyd
+         nSIFxi2Ihdt9V91JfnQbi+hyFTP9wWie05OBgCoJRuZYtYUVoUBRWjWzB2MOXtnvkhpX
+         WNqEzBdGtqw1OK7+Nv0GCjEkR5B6z/Jj6WqjBDzQWCE/CCcqZ6w0/WH8hyGhRq0B7jQu
+         lQPnedLfThkA7MxOOwc/i8QmJc+jpEvAlqAjqUQs2k2DU6RZXd+H1BFv5oF9kgMJRRSR
+         bwiX/QsTEGNj3M+oA+0+o4k7mbeMgvgUl0VjHnwCAzj0K8U5smnGgVlN7vRyxvd2PCLA
+         O3zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681430337; x=1684022337;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=EefSkyZ3Lf0FxAAlOktzH9a+rP5j/aHtRq9oKYJfYbo=;
-        b=CGN4eTNz01FtX1a6c1zMeAKs82HvYfsuKGADCl8MEQNFf0DxYlh/9whsxZN9xRndHV
-         81n1qdfKm7wq36qcc0R2iCSnV9GLCz1XuTntRlFgtLGNLQIdiVYLhX9KkGhSkCQEuLGP
-         MUWkIGVOWv2Zqf7V+KlA5S1ntZJLcuHjShNbVJHgZOdvRmo0SF0RkChHh+k1RjkQuTQP
-         XzRDgsaonVwn8REtFwNY6L7GLqWzhOAkUe3tLNhSH7kRbrWqNzLyKNWwyhEoMvMk1eua
-         Rwwt8scuZvOHNB+4aYl9EO/QAa3UPw6NSkfEkF191+P2dcc2Ch8+Ss6h0LPmnl8GtPso
-         K0qg==
-X-Gm-Message-State: AAQBX9dFrRHfCMGJ485immwk05YclXnrjApBfnDSSB3HN63JKua8uy5H
-        wtffGU3amJXRAOQf3CfMXLtzug==
-X-Google-Smtp-Source: AKy350YH5HIo+Pnar7dEHZwI83HNlquD0aFwYwkXZ4qi+fngzr+A7Sa4LTPVo1hWYWBDnD1pMLkLMQ==
-X-Received: by 2002:a17:902:d546:b0:19c:c5d4:afd2 with SMTP id z6-20020a170902d54600b0019cc5d4afd2mr28099plf.11.1681430336852;
-        Thu, 13 Apr 2023 16:58:56 -0700 (PDT)
-Received: from [2620:0:1008:11:dd63:9ab7:90b4:a420] ([2620:0:1008:11:dd63:9ab7:90b4:a420])
-        by smtp.gmail.com with ESMTPSA id k14-20020aa792ce000000b0062e15c22cd8sm1901961pfa.48.2023.04.13.16.58.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Apr 2023 16:58:56 -0700 (PDT)
-Date:   Thu, 13 Apr 2023 16:58:55 -0700 (PDT)
-From:   David Rientjes <rientjes@google.com>
-To:     Yang Shi <shy828301@gmail.com>, willemb@google.com
-cc:     David Hildenbrand <david@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        kirill.shutemov@linux.intel.com, jannh@google.com,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [v4 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration
- entry
-In-Reply-To: <CAHbLzkp16tAzFRnM3BUnspnR-qR2JG3c9TqaNq3YHxy9u5ZC6w@mail.gmail.com>
-Message-ID: <67d3e5e1-57be-590d-f925-47b49442a67e@google.com>
-References: <20220203182641.824731-1-shy828301@gmail.com> <132ba4a4-3b1d-329d-1db4-f102eea2fd08@suse.cz> <9ba70a5e-4e12-0e9f-a6a4-d955bf25d0fe@redhat.com> <64ec7939-0733-7925-0ec0-d333e62c5f21@suse.cz> <CAHbLzkoZctsJf92Lw3wKMuSqT7-aje0SiAjc6JVW5Z3bNS1JNg@mail.gmail.com>
- <efab25ef-c29c-3671-5f26-060bba76d481@suse.cz> <CAHbLzkomXCwabFrNaNyuGBozmindHqVD0ki4n75XJ2V8Uw=9rw@mail.gmail.com> <5618f454-7a88-0443-59e7-df9780e9fa50@redhat.com> <CAHbLzkp16tAzFRnM3BUnspnR-qR2JG3c9TqaNq3YHxy9u5ZC6w@mail.gmail.com>
+        d=1e100.net; s=20221208; t=1681431191; x=1684023191;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=WJQn8xlUXGO8WXDwuesuglKEx8PEVVyreK/tNf7kaQ8=;
+        b=TRxP5FjBkqKOdX3kBQmWl/B+pPvjOSgvO0tEee29SNVFuB93zrubvb8N41NbxQG6ve
+         ryyg/n/gc9dC+ic52BJwhsenkTPkSKJ2MG9d5aKak38YEMdm1o9RsBgZk/m6IflQEDZq
+         ADU2EMMBW/0Ow4RS7DiI6+SXgvWxvZC7ek2yfikvF9TaziT3mTXrifWI1igvHwm8nFDr
+         2D9m7VeuZe308m5ue1UJPJkjBnZy9J0M4wc/tjEB6S5BLRC8IpCm4je855SsPt5GZuVd
+         VBA6QR30vX3l+x6DPgTyMn9lVoDAhJjNvBOw7n3W7i3ajP+RF7JCmZu4yV7Z50njLtGb
+         VZFA==
+X-Gm-Message-State: AAQBX9cJnQu3QTu8mhh5j1L+Bxn+jN04MQvq43R96mWiuwjEcmQlCbu4
+        op0i+bO5HmvTqDRLHhQ86uM=
+X-Google-Smtp-Source: AKy350ZNzGuilfrbZYFX/ozYgyPOUjmKHTLeRWP3lNOGxrmFegL4vBQnImajURZ3gYAVkmhnC6zC0w==
+X-Received: by 2002:a17:90b:e90:b0:246:fd10:a652 with SMTP id fv16-20020a17090b0e9000b00246fd10a652mr3591599pjb.33.1681431191463;
+        Thu, 13 Apr 2023 17:13:11 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id oa4-20020a17090b1bc400b002469a865810sm3745477pjb.28.2023.04.13.17.13.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Apr 2023 17:13:10 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <c19781d1-8cb9-ee38-9892-b4bc9016dd38@roeck-us.net>
+Date:   Thu, 13 Apr 2023 17:13:08 -0700
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="2003089352-1481215759-1681430336=:63269"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 5.10 5.4 4.19 4.14] watchdog: sbsa_wdog: Make sure the
+ timeout programming is within the limits
+Content-Language: en-US
+To:     "Tyler Hicks (Microsoft)" <code@tyhicks.com>,
+        stable@vger.kernel.org
+Cc:     George Cherian <george.cherian@marvell.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-watchdog@vger.kernel.org
+References: <20230413204823.724485-1-code@tyhicks.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <20230413204823.724485-1-code@tyhicks.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,51 +80,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---2003089352-1481215759-1681430336=:63269
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-
-On Mon, 3 Apr 2023, Yang Shi wrote:
-
-> On Mon, Apr 3, 2023 at 12:30 AM David Hildenbrand <david@redhat.com> wrote:
-> >
-> > On 24.03.23 21:12, Yang Shi wrote:
-> > > On Fri, Mar 24, 2023 at 4:25 AM Vlastimil Babka <vbabka@suse.cz> wrote:
-> > >>
-> > >> On 3/23/23 21:45, Yang Shi wrote:
-> > >>> On Thu, Mar 23, 2023 at 3:11 AM Vlastimil Babka <vbabka@suse.cz> wrote:
-> > >>>
-> > >>> Out of curiosity, is there any public link for this CVE? Google search
-> > >>> can't find it.
-> > >>
-> > >> Only this one is live so far, AFAIK
-> > >>
-> > >> https://bugzilla.redhat.com/show_bug.cgi?id=2180936
-> > >
-> > > Thank you.
-> >
-> > There is now
-> >
-> > https://access.redhat.com/security/cve/cve-2023-1582
+On 4/13/23 13:48, Tyler Hicks (Microsoft) wrote:
+> From: George Cherian <george.cherian@marvell.com>
 > 
-> Thank you.
+> [ Upstream commit 000987a38b53c172f435142a4026dd71378ca464 ]
 > 
+> Make sure to honour the max_hw_heartbeat_ms while programming the timeout
+> value to WOR. Clamp the timeout passed to sbsa_gwdt_set_timeout() to
+> make sure the programmed value is within the permissible range.
+> 
+> Fixes: abd3ac7902fb ("watchdog: sbsa: Support architecture version 1")
+> 
+> Signed-off-by: George Cherian <george.cherian@marvell.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Link: https://lore.kernel.org/r/20230209021117.1512097-1-george.cherian@marvell.com
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+> Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
 
-Hi Yang,
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-commit 24d7275ce2791829953ed4e72f68277ceb2571c6
-Author: Yang Shi <shy828301@gmail.com>
-Date:   Fri Feb 11 16:32:26 2022 -0800
+> ---
+> 
+> The Fixes line in the original commit is incorrect. This commit fixes a
+> bug that goes all the way back to v4.6 commit 57d2caaabfc7 ("Watchdog:
+> introduce ARM SBSA watchdog driver") when only 32-bit Watchdog Offset
+> Registers (WOR) were supported.
+> 
+> Without this fix, there's a truncation on the first argument, of u32
+> type, passed to writel() in the following situation situation:
+> 
+> Generic Watchdog architecture version is 1 (WOR is 32-bit)
+> action is 1
+> timeout is 240s
+> CNTFRQ_EL0 is 25000050 Hz
+> wdd.max_hw_heartbeat_ms is 171s
+> 
+> 25000050 * 240 = 6000012000  <--- requires 33 bits to store
+> 6000012000 & 0xFFFFFFFF = 1705044704  <--- truncated value written to WOR
+> 1705044704 / 25000050 = 68.2s  <--- timeout incorrectly set to 68.2s
+> 
+> The timeout from userspace is greater than wdd.max_hw_heartbeat_ms so
+> the watchdog core pings at 69s (240 - 171) which results in
+> intermittent and unexpected panics (action=1).
+> 
+> With this patch applied, the timeout passed to writel() never exceeds
+> 32-bits and the watchdog core + systemd keeps the watchdog happy.
+> 
+> I've validated this fix on real hardware running a linux-5.10.y stable
+> kernel. Please apply this patch to 5.10 through 4.14. Thanks!
+> 
+> Tyler
+> 
+>   drivers/watchdog/sbsa_gwdt.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
+> index f0f1e3b2e463..4cbe6ba52754 100644
+> --- a/drivers/watchdog/sbsa_gwdt.c
+> +++ b/drivers/watchdog/sbsa_gwdt.c
+> @@ -121,6 +121,7 @@ static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
+>   	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
+>   
+>   	wdd->timeout = timeout;
+> +	timeout = clamp_t(unsigned int, timeout, 1, wdd->max_hw_heartbeat_ms / 1000);
+>   
+>   	if (action)
+>   		writel(gwdt->clk * timeout,
 
-    fs/proc: task_mmu.c: don't read mapcount for migration entry
-
-is backported to 5.10 stable but not to 5.4 or earlier stable trees.  The 
-commit advertises to fix a commit from 4.5.
-
-Do we need stable backports for earlier trees or are they not affected?
-
-Thanks!
---2003089352-1481215759-1681430336=:63269--
