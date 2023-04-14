@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4931A6E1E59
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 10:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E2D6E1E74
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 10:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbjDNIch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Apr 2023 04:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
+        id S229959AbjDNIgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Apr 2023 04:36:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229625AbjDNIcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 04:32:36 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4EA8F
-        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 01:32:35 -0700 (PDT)
+        with ESMTP id S229546AbjDNIgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 04:36:35 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02156E9F
+        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 01:36:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681461155; x=1712997155;
+  t=1681461390; x=1712997390;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=cizAa6LeXSOpydsKGwGBUsyWeqdiD8KSNK9mjvq1cd0=;
-  b=aMyzLUHt3RykY5heaj01LtNLDASO461zUK69M1dYIhJ4nmoHxu6pbQwR
-   k++5Kek1xVwtCZdD8XKGzWOgVaNvZ/qe2VbNmPmwOMnq/Nl1G/zeAnhdP
-   z8sfZyR6Dsma4dM9vjXrY6KNHKt1LcD5vMwX0u+U6NFksEpE8LcomyGYi
-   eYAfZeeWn8os22yzVCST2SzqL5mYG8YctwuNRJ5UMmO6N+XbvEA01WDVL
-   N9VZ79dNmvlIQuKbh1/qeqF6UuK1lh7KHucj1wyhZFRQdY9ally1F2Ceq
-   J+kdL0Aoju+9UTOOV9VaDg+0CcfLmC+5FB29d5d7ibIrgfC496IKxXMsL
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="346245852"
+  bh=Y+MJQvUWZmgegrJGFj0Lb0sOII4jc6YRDIADrQ0XqYo=;
+  b=h2WAtJ7E9vANIB1q3/s9vuuX7ovSJDW8xGi4KANgojeOmMmZXmr5EGW4
+   RS4Ox/XoBsknXfJB4FExIqKXGlO/iZH9wXZrE9FUoqPCfdNq79gs+JwXw
+   ufyezyKaqjrm6Qusj+ePxkrC7prNz55ddHJAxeT275JdI7G2P6+MQlesF
+   7pE7H8g5pNbe6GeBjm5PNwt1hUbZqeiWtIXETZRCo07L+Kri6Zx0ye9d+
+   g6Adk5HDeX8jVMTfbxlY2fxu7Ag3MrtrfXHP+7C3FFJbDdQkIwhAYA2Co
+   WAFNVSd3Vms75mrSF04n8IwXFBfySqku1EZq5C6iRUDlirjrBwcgqR/qx
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="343174315"
 X-IronPort-AV: E=Sophos;i="5.99,195,1677571200"; 
-   d="scan'208";a="346245852"
+   d="scan'208";a="343174315"
 Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 01:31:49 -0700
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 01:36:30 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="779110862"
+X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="779117002"
 X-IronPort-AV: E=Sophos;i="5.99,195,1677571200"; 
-   d="scan'208";a="779110862"
+   d="scan'208";a="779117002"
 Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
-  by FMSMGA003.fm.intel.com with SMTP; 14 Apr 2023 01:31:45 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 14 Apr 2023 11:31:44 +0300
+  by FMSMGA003.fm.intel.com with SMTP; 14 Apr 2023 01:36:27 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 14 Apr 2023 11:36:26 +0300
 From:   Ville Syrjala <ville.syrjala@linux.intel.com>
 To:     stable@vger.kernel.org
-Cc:     Greg KH <greg@kroah.com>, Manasi Navare <navaremanasi@google.com>,
+Cc:     gregkh@linuxfoundation.org,
+        Manasi Navare <navaremanasi@google.com>,
         Drew Davenport <ddavenport@chromium.org>,
         Imre Deak <imre.deak@intel.com>,
         =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>
-Subject: [PATCH 6.1.y 2/2] drm/i915: Workaround ICL CSC_MODE sticky arming
-Date:   Fri, 14 Apr 2023 11:31:40 +0300
-Message-Id: <20230414083140.24095-2-ville.syrjala@linux.intel.com>
+Subject: [PATCH 6.2.y] drm/i915: Workaround ICL CSC_MODE sticky arming
+Date:   Fri, 14 Apr 2023 11:36:26 +0300
+Message-Id: <20230414083626.24423-1-ville.syrjala@linux.intel.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230414083140.24095-1-ville.syrjala@linux.intel.com>
-References: <2023041254-wok-shine-8aaf@gregkh>
- <20230414083140.24095-1-ville.syrjala@linux.intel.com>
+In-Reply-To: <2023040350-surfer-virus-66bb@gregkh>
+References: <2023040350-surfer-virus-66bb@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -80,9 +80,6 @@ from persisting into the next frame's .color_commit_noarm()
 call.
 
 Cc: <stable@vger.kernel.org> #v5.19+
-Cc: <stable@vger.kernel.org> # 064751a6c5dc: drm/i915: Split up intel_color_init()
-Cc: <stable@vger.kernel.org> # 1bd3a1e5b1f7: drm/i915: Simplify the intel_color_init_hooks() if ladder
-Cc: <stable@vger.kernel.org> # 7671fc626526: drm/i915: Clean up intel_color_init_hooks()
 Cc: Manasi Navare <navaremanasi@google.com>
 Cc: Drew Davenport <ddavenport@chromium.org>
 Cc: Imre Deak <imre.deak@intel.com>
@@ -99,10 +96,10 @@ Signed-off-by: Jani Nikula <jani.nikula@intel.com>
  1 file changed, 42 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/i915/display/intel_color.c b/drivers/gpu/drm/i915/display/intel_color.c
-index caa87187ee45..ed60a294d7b3 100644
+index 85a38d794dd9..c9c9af795638 100644
 --- a/drivers/gpu/drm/i915/display/intel_color.c
 +++ b/drivers/gpu/drm/i915/display/intel_color.c
-@@ -501,6 +501,14 @@ static void icl_lut_multi_seg_pack(struct drm_color_lut *entry, u32 ldw, u32 udw
+@@ -516,6 +516,14 @@ static void ilk_lut_12p4_pack(struct drm_color_lut *entry, u32 ldw, u32 udw)
  
  static void icl_color_commit_noarm(const struct intel_crtc_state *crtc_state)
  {
@@ -117,7 +114,7 @@ index caa87187ee45..ed60a294d7b3 100644
  	icl_load_csc_matrix(crtc_state);
  }
  
-@@ -583,6 +591,28 @@ static void skl_color_commit_arm(const struct intel_crtc_state *crtc_state)
+@@ -617,6 +625,28 @@ static void icl_color_commit_arm(const struct intel_crtc_state *crtc_state)
  			  crtc_state->csc_mode);
  }
  
@@ -143,10 +140,10 @@ index caa87187ee45..ed60a294d7b3 100644
 +	intel_de_read_fw(i915, PIPE_CSC_PREOFF_HI(crtc->pipe));
 +}
 +
- static void i9xx_load_lut_8(struct intel_crtc *crtc,
- 			    const struct drm_property_blob *blob)
+ static struct drm_property_blob *
+ create_linear_lut(struct drm_i915_private *i915, int lut_size)
  {
-@@ -2222,10 +2252,19 @@ static const struct intel_color_funcs i9xx_color_funcs = {
+@@ -2345,10 +2375,19 @@ static const struct intel_color_funcs i9xx_color_funcs = {
  	.read_luts = i9xx_read_luts,
  };
  
@@ -166,7 +163,7 @@ index caa87187ee45..ed60a294d7b3 100644
  	.load_luts = icl_load_luts,
  	.read_luts = icl_read_luts,
  };
-@@ -2301,7 +2340,9 @@ void intel_color_init_hooks(struct drm_i915_private *i915)
+@@ -2440,7 +2479,9 @@ void intel_color_init_hooks(struct drm_i915_private *i915)
  		else
  			i915->display.funcs.color = &i9xx_color_funcs;
  	} else {
