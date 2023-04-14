@@ -2,98 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23FC86E1DE0
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 10:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 006EC6E1E58
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 10:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229977AbjDNIPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Apr 2023 04:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53024 "EHLO
+        id S229464AbjDNIch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Apr 2023 04:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229935AbjDNIPN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 04:15:13 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A652738;
-        Fri, 14 Apr 2023 01:15:11 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pnEaK-0007W3-UA; Fri, 14 Apr 2023 10:15:08 +0200
-Message-ID: <b2edf1ed-2777-03ef-4d5e-e355a6074f78@leemhuis.info>
-Date:   Fri, 14 Apr 2023 10:15:08 +0200
+        with ESMTP id S229543AbjDNIcg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 04:32:36 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5851B2719
+        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 01:32:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681461155; x=1712997155;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=cKDsouNK9k5k548Y7/ahdR7jLFjpd9Rvo/qhCLGcY6c=;
+  b=gI65MIzWmEPGnzoEHktlkHBjTdUW+eUyTdstqv8fJ4LNVy6Z/RHuLLim
+   Pu07BtyIHY/RMMcz94MeH5AShO3n41yq77jxR7E0z3tBXog/+4s8xe5oT
+   qLEyixXqPZrPi92CWqoBujdyQarPObiYi0YzRONO7BKEd5RJcDZIXNire
+   PqCoiyu7s5zqJK2N+QmbKQLSe3xJlBs6B8AmaW/PTuEQStj9S5MTscl1b
+   7/ojggwhPL18bOGZTWwOyYf0DlavqcL3SCdnW2LucC6yvuNRv7C2Hfi3T
+   DGzOaMWDtnO7VzWd0KKqb4ib9rN4cERqgT/gRUPcoD0qwsjYWVmU7Y9j+
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="346245826"
+X-IronPort-AV: E=Sophos;i="5.99,195,1677571200"; 
+   d="scan'208";a="346245826"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 01:31:44 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="779110840"
+X-IronPort-AV: E=Sophos;i="5.99,195,1677571200"; 
+   d="scan'208";a="779110840"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
+  by FMSMGA003.fm.intel.com with SMTP; 14 Apr 2023 01:31:41 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 14 Apr 2023 11:31:40 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     stable@vger.kernel.org
+Cc:     Greg KH <greg@kroah.com>, Manasi Navare <navaremanasi@google.com>,
+        Drew Davenport <ddavenport@chromium.org>,
+        Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>
+Subject: [PATCH 6.1.y 1/2] drm/i915: Add a .color_post_update() hook
+Date:   Fri, 14 Apr 2023 11:31:39 +0300
+Message-Id: <20230414083140.24095-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <2023041254-wok-shine-8aaf@gregkh>
+References: <2023041254-wok-shine-8aaf@gregkh>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [REGRESSION] Asus X541UAK hangs on suspend and poweroff (v6.1.6
- onward)
-Content-Language: en-US, de-DE
-To:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        Acid Bong <acidbong@tilde.cafe>, regressions@lists.linux.dev
-Cc:     stable@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <CRVU11I7JJWF.367PSO4YAQQEI@bong>
- <5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1681460111;2a3dfd93;
-X-HE-SMSGID: 1pnEaK-0007W3-UA
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14.04.23 09:51, Bagas Sanjaya wrote:
-> On 4/14/23 02:35, Acid Bong wrote:
->> The issue appeared when I was using pf-kernel with genpatches and
->> updated from 6.1-pf2 to 6.1-pf3 (corresponding to vanilla versions 6.1.3
->> -> 6.1.6). I used that fork until 6.2-pf2, but since then (early March)
->> moved to vanilla sources and started following the 6.1.y branch when it
->> was declared LTS. And the issue was present on all of them.
->>
->> The hang was last detected 3 days ago on 6.1.22 and today on 6.1.23.
-> 
-> Have you tried testing latest mainline to see if commits which are
-> backported to 6.1.y cause your regression?
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Well, if it something that started between v6.1.3 and v6.1.6 it must be
-a backported commit from mainline that causes the regression.
+We're going to need stuff after the color management
+register latching has happened. Add a corresponding hook.
 
-But yeah, testing mainline would be wise to differentiate between "this
-is something that is caused by a change in mainline" and "this is
-something stable specific and might be caused by a bad or incomplete
-backport".
+Cc: <stable@vger.kernel.org> #v5.19+
+Cc: <stable@vger.kernel.org> # 52a90349f2ed: drm/i915: Introduce intel_crtc_needs_fastset()
+Cc: <stable@vger.kernel.org> # 925ac8bc33bf: drm/i915: Remove some local 'mode_changed' bools
+Cc: <stable@vger.kernel.org> # f5e674e92e95: drm/i915: Introduce intel_crtc_needs_color_update()
+Cc: <stable@vger.kernel.org> # 4c35e5d11900: drm/i915: Activate DRRS after state readout
+Cc: <stable@vger.kernel.org> # efb2b57edf20: drm/i915: Move the DSB setup/cleaup into the color code
+Cc: Manasi Navare <navaremanasi@google.com>
+Cc: Drew Davenport <ddavenport@chromium.org>
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-4-ville.syrjala@linux.intel.com
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+(cherry picked from commit 3962ca4e080a525fc9eae87aa6b2286f1fae351d)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit c880f855d1e240a956dcfce884269bad92fc849c)
+---
+Picked up one more dependency to ease the backport.
 
-It's not totally clear to me, but it seems 6.2 is affected as well?
-Well, then it's a mainline issue. Testing latest mainline nevertheless
-would be good to know if this maybe was fixed already.
+ drivers/gpu/drm/i915/display/intel_color.c   | 13 +++++++++++++
+ drivers/gpu/drm/i915/display/intel_color.h   |  1 +
+ drivers/gpu/drm/i915/display/intel_display.c |  3 +++
+ 3 files changed, 17 insertions(+)
 
-But first something else: acidbong, why do you pass "pci=nomsi" to your
-kernel? Maybe that makes your machine run in a unusual configuration
-that directly or indirectly leads to your problem (which only worked by
-chance earlier).
+diff --git a/drivers/gpu/drm/i915/display/intel_color.c b/drivers/gpu/drm/i915/display/intel_color.c
+index 537106c98220..caa87187ee45 100644
+--- a/drivers/gpu/drm/i915/display/intel_color.c
++++ b/drivers/gpu/drm/i915/display/intel_color.c
+@@ -47,6 +47,11 @@ struct intel_color_funcs {
+ 	 * registers involved with the same commit.
+ 	 */
+ 	void (*color_commit_arm)(const struct intel_crtc_state *crtc_state);
++	/*
++	 * Perform any extra tasks needed after all the
++	 * double buffered registers have been latched.
++	 */
++	void (*color_post_update)(const struct intel_crtc_state *crtc_state);
+ 	/*
+ 	 * Load LUTs (and other single buffered color management
+ 	 * registers). Will (hopefully) be called during the vblank
+@@ -1205,6 +1210,14 @@ void intel_color_commit_arm(const struct intel_crtc_state *crtc_state)
+ 	dev_priv->display.funcs.color->color_commit_arm(crtc_state);
+ }
+ 
++void intel_color_post_update(const struct intel_crtc_state *crtc_state)
++{
++	struct drm_i915_private *i915 = to_i915(crtc_state->uapi.crtc->dev);
++
++	if (i915->display.funcs.color->color_post_update)
++		i915->display.funcs.color->color_post_update(crtc_state);
++}
++
+ void intel_color_prepare_commit(struct intel_crtc_state *crtc_state)
+ {
+ 	intel_dsb_prepare(crtc_state);
+diff --git a/drivers/gpu/drm/i915/display/intel_color.h b/drivers/gpu/drm/i915/display/intel_color.h
+index 2fa6e40ebd22..5ebe040a6042 100644
+--- a/drivers/gpu/drm/i915/display/intel_color.h
++++ b/drivers/gpu/drm/i915/display/intel_color.h
+@@ -20,6 +20,7 @@ void intel_color_prepare_commit(struct intel_crtc_state *crtc_state);
+ void intel_color_cleanup_commit(struct intel_crtc_state *crtc_state);
+ void intel_color_commit_noarm(const struct intel_crtc_state *crtc_state);
+ void intel_color_commit_arm(const struct intel_crtc_state *crtc_state);
++void intel_color_post_update(const struct intel_crtc_state *crtc_state);
+ void intel_color_load_luts(const struct intel_crtc_state *crtc_state);
+ void intel_color_get_config(struct intel_crtc_state *crtc_state);
+ int intel_color_get_gamma_bit_precision(const struct intel_crtc_state *crtc_state);
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index bfaf17a219ff..067bb11c5ebe 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -1251,6 +1251,9 @@ static void intel_post_plane_update(struct intel_atomic_state *state,
+ 	if (needs_cursorclk_wa(old_crtc_state) &&
+ 	    !needs_cursorclk_wa(new_crtc_state))
+ 		icl_wa_cursorclkgating(dev_priv, pipe, false);
++
++	if (intel_crtc_needs_color_update(new_crtc_state))
++		intel_color_post_update(new_crtc_state);
+ }
+ 
+ static void intel_crtc_enable_flip_done(struct intel_atomic_state *state,
+-- 
+2.39.2
 
->> # regzbot introduced v6.1.3..v6.1.6
-> 
-> Anyway, I'm adding this to regzbot:
-
-Well, the quoted string above already did that. But whatever, a...
-
-> #regzbot ^introduced v6.1.3..v6.1.6
-
-...should do no harm and this...
-
-> #regzbot title Asus X541UAK hangs on suspend and poweroff
-
-... has improved the title (which was derived from the subject
-beforehand) somewhat. :-D
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
