@@ -2,134 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC14E6E2B06
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 22:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8856E2B23
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 22:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229937AbjDNURd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Apr 2023 16:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
+        id S229902AbjDNUcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Apr 2023 16:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229760AbjDNURc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 16:17:32 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E8065B8
-        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 13:17:30 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-54f1ffb8ccfso168256297b3.9
-        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 13:17:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1681503450; x=1684095450;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y/5C5pFTMpWmw6q1ESZeLufu8w/TNW0cEsKrwVB2i8I=;
-        b=VVcKhSAMi40wRLT8awQx5mrC895yRH5nNqowq2lpmFwUT+BOgRMC515AyE0PGXpiQA
-         HLQB9s1kZNWeYDSXZ2ujzXLeLYfD8Gf9luhbBMRtqoRByPxo4hFaVwPovcBoaB2BkfEB
-         g3+UilnZ/twp+pWbku7EF/EC/KdhLi+xkSGMWoj8YSa/3wJJ+aDvqU34svBGSYTA/2NU
-         nxUj3ITKnnAeHIpF8X3047pu3g9+PBL4bFOA4nzmcSK0pQAHd6miLNi/vRs2YfsumGKn
-         5/n+Zh2EywjqWgTQ6po4iCVr3zwUyObFyeoPfPS9ox7f6U6QFxPz8AgFqNywHDjsg0HZ
-         egbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681503450; x=1684095450;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y/5C5pFTMpWmw6q1ESZeLufu8w/TNW0cEsKrwVB2i8I=;
-        b=BMba0YMyM/HV6xgGYPIUrnaoBkEom5jQNuBxJ5fwmthCX8gLQD7t91+Rh+DKoQe09X
-         a9uqcwO5lxCd0RrgUM8TMHp+uMgBy9mYn+VApz7X9I0jv+FSpfuEJWitlkKPMvmP3Yc8
-         cO66u5leGRxTcTKqr39s8Vw5qrBb06JPL7tUpH7I4wy3QGC9ZE3+R4Ylc6NFruHzecqQ
-         NneV+ZXfssHk337V0quQJwe06sjtHXy6eUPZA+lxybBglKizCuGEroF3uV9KgYjfCTlk
-         mH+hoZPyIbTPXGGSFmbdpFcjmOX1aFStGNZl27L6IOHsfpL2WdE3X9+a5LCQOUiFXO3S
-         ZvMQ==
-X-Gm-Message-State: AAQBX9fVU3NQU1PB7TvlNjYWtGfrg7cl1ihYRekczH0HOeDc5mjVMq0z
-        ije1Dx8ooveWyLZytHLJm1ixscePlrM=
-X-Google-Smtp-Source: AKy350YoxNXEfnS9yH8K+WuYVv8a5aD5F6GKq+hwQ1zTgCg7AqDRSJ8w3a+/kyls4mpLBzOqXTcmyG+/wuI=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:690c:706:b0:545:5f92:f7ee with SMTP id
- bs6-20020a05690c070600b005455f92f7eemr4642509ywb.2.1681503450151; Fri, 14 Apr
- 2023 13:17:30 -0700 (PDT)
-Date:   Fri, 14 Apr 2023 13:17:28 -0700
-In-Reply-To: <20230414200941.GA6776@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-Mime-Version: 1.0
-References: <20230322013731.102955-1-minipli@grsecurity.net>
- <167949641597.2215962.13042575709754610384.b4-ty@google.com>
- <190509c8-0f05-d05c-831c-596d2c9664ac@grsecurity.net> <ZB7oKD6CHa6f2IEO@kroah.com>
- <ZC4tocf+PeuUEe4+@google.com> <0c47acc0-1f13-ebe5-20e5-524e5b6930e3@grsecurity.net>
- <026dcbfe-a306-85c3-600e-17cae3d3b7c5@grsecurity.net> <ZDmEGM+CgYpvDLh6@google.com>
- <20230414200941.GA6776@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-Message-ID: <ZDm02GVx0/tiIoiM@google.com>
-Subject: Re: [PATCH v4 0/6] KVM: MMU: performance tweaks for heavy CR0.WP users
-From:   Sean Christopherson <seanjc@google.com>
-To:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Cc:     Mathias Krause <minipli@grsecurity.net>, Greg KH <greg@kroah.com>,
-        kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229830AbjDNUcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 16:32:47 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 167CF8A5A;
+        Fri, 14 Apr 2023 13:32:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681504359; x=1713040359;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=GqJYbdZM7uH2OZYGFBf+0Bp8T7h2XOaSCphj9PDCYEA=;
+  b=HJ4N3EfS0siebyyBbMvQNC3VBOWhSfnpy0lU1JQ+FKKvw/PcYBispRXX
+   EzM4SgPFVTtR7Mm5fwX17SlOVdXNJviPjdcwKxG//V9z00878EDqcrE21
+   DqnEEEFFNBH+HTRisdmCt7MJt70Qd++LCyvp0mojTHxyXGUJ+dgWnuRVd
+   Z02xlxiVnadefKdDhSuxjPquJ7aQlK9Kr/oCToLC2Sw5zIhJf+LpwBnH8
+   n8QQ++ateJoxoVFP2xw8qhl4riJ21iOOVTWb7yoHUeJcwX6CZbjiY1636
+   Hc5Pqz5sbL7aD8TjEGIDI46uyO5irEVhYHLyciRx2NamY0Q081OWuIdZc
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10680"; a="346407505"
+X-IronPort-AV: E=Sophos;i="5.99,197,1677571200"; 
+   d="scan'208";a="346407505"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 13:32:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10680"; a="722579928"
+X-IronPort-AV: E=Sophos;i="5.99,197,1677571200"; 
+   d="scan'208";a="722579928"
+Received: from aschofie-mobl2.amr.corp.intel.com (HELO aschofie-mobl2) ([10.209.22.80])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 13:32:16 -0700
+Date:   Fri, 14 Apr 2023 13:32:14 -0700
+From:   Alison Schofield <alison.schofield@intel.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     linux-cxl@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/5] cxl/hdm: Use 4-byte reads to retrieve HDM decoder
+ base+limit
+Message-ID: <ZDm4TqspwS3AAQSr@aschofie-mobl2>
+References: <168149842935.792294.13212627946146993066.stgit@dwillia2-xfh.jf.intel.com>
+ <168149844056.792294.8224490474529733736.stgit@dwillia2-xfh.jf.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <168149844056.792294.8224490474529733736.stgit@dwillia2-xfh.jf.intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 14, 2023, Jeremi Piotrowski wrote:
-> On Fri, Apr 14, 2023 at 09:49:28AM -0700, Sean Christopherson wrote:
-> > +Jeremi
-> > 
+On Fri, Apr 14, 2023 at 11:54:00AM -0700, Dan Williams wrote:
+> The CXL specification mandates that 4-byte registers must be accessed
+> with 4-byte access cycles. CXL 3.0 8.2.3 "Component Register Layout and
+> Definition" states that the behavior is undefined if (2) 32-bit
+> registers are accessed as an 8-byte quantity. It turns out that at least
+> one hardware implementation is sensitive to this in practice. The @size
+> variable results in zero with:
 > 
-> Adding myself :)
-
-/facepalm
-
-This isn't some mundane detail, Michael!!!
-
-> > On Fri, Apr 14, 2023, Mathias Krause wrote:
+>     size = readq(hdm + CXL_HDM_DECODER0_SIZE_LOW_OFFSET(which));
 > 
-> ...
+> ...and the correct size with:
 > 
-> > > OTOH, the backports give nice speed-ups, ranging from ~2.2 times faster
-> > > for pure EPT (legacy) MMU setups up to 18(!!!) times faster for TDP MMU
-> > > on v5.10.
-> > 
-> > Anyone that's enabling the TDP MMU on v5.10 is on their own, we didn't enable the
-> > TDP MMU by default until v5.14 for very good reasons.
-> > 
-> > > I backported the whole series down to v5.10 but left out the CR0.WP
-> > > guest owning patch+fix for v5.4 as the code base is too different to get
-> > > all the nuances right, as Sean already hinted. However, even this
-> > > limited backport provides a big performance fix for our use case!
-> > 
-> > As a compromise of sorts, I propose that we disable the TDP MMU by default on v5.15,
-> > and backport these fixes to v6.1.  v5.15 and earlier won't get "ludicrous speed", but
-> > I think that's perfectly acceptable since KVM has had the suboptimal behavior
-> > literally since EPT/NPT support was first added.
-> > 
+>     lo = readl(hdm + CXL_HDM_DECODER0_SIZE_LOW_OFFSET(which));
+>     hi = readl(hdm + CXL_HDM_DECODER0_SIZE_HIGH_OFFSET(which));
+>     size = (hi << 32) + lo;
 > 
-> Disabling TDP MMU for v5.15, and backporting things to v6.1 works for me.
-> 
-> > I'm comfortable backporting to v6.1 as that is recent enough, and there weren't
-> > substantial MMU changes between v6.1 and v6.3 in this area.  I.e. I have a decent
-> > level of confidence that we aren't overlooking some subtle dependency.
-> > 
-> > For v5.15, I am less confident in the safety of a backport, and more importantly,
-> > I think we should disable the TDP MMU by default to mitigate the underlying flaw
-> > that makes the 18x speedup possible.  That flaw is that KVM can end up freeing and
-> > rebuilding TDP MMU roots every time CR0.WP is toggled or a vCPU transitions to/from
-> > SMM.
-> > 
-> 
-> The interesting thing here is that these CR0.WP fixes seem to improve things
-> with legacy MMU as well, and legacy MMU is not affected/touched by [3].
+> Fixes: d17d0540a0db ("cxl/core/hdm: Add CXL standard decoder enumeration to the core")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
-Yep, that's totally expected.  The final patch in this series allows KVM to elide
-VM-Exits when the guest toggles CR0.WP (but only on Intel hardware).  Avoiding
-VM-Exit entirely is a big performance win when the guest is constantly toggling
-CR0.WP, e.g. each exit is roughly 1500 cycles, versus probalby something like ~50
-for a native write to CR0.WP.
+I see you got rid of ioread64_hi_lo(), so this can't be
+happening anywhere else. Are all the other readl, writel
+usages known to be OK, or do you need review help against
+the spec?
 
-> So I think you can consider Mathias' ask independent of disabling TDP MMU. On the one
-> hand: there is no regression here. On the other: the gain is big and seems important
-> to him.
+Reviewed-by: Alison Schofield <alison.schofield@intel.com>
 
-Ya, that's the compromise I am proposing.  Give v6.1 the full tune-up, but only
-do the super safe change for v5.15.
+
+> ---
+>  drivers/cxl/core/hdm.c |   20 +++++++++++++-------
+>  1 file changed, 13 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/cxl/core/hdm.c b/drivers/cxl/core/hdm.c
+> index 35b338b716fe..6fdf7981ddc7 100644
+> --- a/drivers/cxl/core/hdm.c
+> +++ b/drivers/cxl/core/hdm.c
+> @@ -1,6 +1,5 @@
+>  // SPDX-License-Identifier: GPL-2.0-only
+>  /* Copyright(c) 2022 Intel Corporation. All rights reserved. */
+> -#include <linux/io-64-nonatomic-hi-lo.h>
+>  #include <linux/seq_file.h>
+>  #include <linux/device.h>
+>  #include <linux/delay.h>
+> @@ -785,8 +784,8 @@ static int init_hdm_decoder(struct cxl_port *port, struct cxl_decoder *cxld,
+>  			    int *target_map, void __iomem *hdm, int which,
+>  			    u64 *dpa_base, struct cxl_endpoint_dvsec_info *info)
+>  {
+> +	u64 size, base, skip, dpa_size, lo, hi;
+>  	struct cxl_endpoint_decoder *cxled;
+> -	u64 size, base, skip, dpa_size;
+>  	bool committed;
+>  	u32 remainder;
+>  	int i, rc;
+> @@ -801,8 +800,12 @@ static int init_hdm_decoder(struct cxl_port *port, struct cxl_decoder *cxld,
+>  							which, info);
+>  
+>  	ctrl = readl(hdm + CXL_HDM_DECODER0_CTRL_OFFSET(which));
+> -	base = ioread64_hi_lo(hdm + CXL_HDM_DECODER0_BASE_LOW_OFFSET(which));
+> -	size = ioread64_hi_lo(hdm + CXL_HDM_DECODER0_SIZE_LOW_OFFSET(which));
+> +	lo = readl(hdm + CXL_HDM_DECODER0_BASE_LOW_OFFSET(which));
+> +	hi = readl(hdm + CXL_HDM_DECODER0_BASE_HIGH_OFFSET(which));
+> +	base = (hi << 32) + lo;
+> +	lo = readl(hdm + CXL_HDM_DECODER0_SIZE_LOW_OFFSET(which));
+> +	hi = readl(hdm + CXL_HDM_DECODER0_SIZE_HIGH_OFFSET(which));
+> +	size = (hi << 32) + lo;
+>  	committed = !!(ctrl & CXL_HDM_DECODER0_CTRL_COMMITTED);
+>  	cxld->commit = cxl_decoder_commit;
+>  	cxld->reset = cxl_decoder_reset;
+> @@ -865,8 +868,9 @@ static int init_hdm_decoder(struct cxl_port *port, struct cxl_decoder *cxld,
+>  		return rc;
+>  
+>  	if (!info) {
+> -		target_list.value =
+> -			ioread64_hi_lo(hdm + CXL_HDM_DECODER0_TL_LOW(which));
+> +		lo = readl(hdm + CXL_HDM_DECODER0_TL_LOW(which));
+> +		hi = readl(hdm + CXL_HDM_DECODER0_TL_HIGH(which));
+> +		target_list.value = (hi << 32) + lo;
+>  		for (i = 0; i < cxld->interleave_ways; i++)
+>  			target_map[i] = target_list.target_id[i];
+>  
+> @@ -883,7 +887,9 @@ static int init_hdm_decoder(struct cxl_port *port, struct cxl_decoder *cxld,
+>  			port->id, cxld->id, size, cxld->interleave_ways);
+>  		return -ENXIO;
+>  	}
+> -	skip = ioread64_hi_lo(hdm + CXL_HDM_DECODER0_SKIP_LOW(which));
+> +	lo = readl(hdm + CXL_HDM_DECODER0_SKIP_LOW(which));
+> +	hi = readl(hdm + CXL_HDM_DECODER0_SKIP_HIGH(which));
+> +	skip = (hi << 32) + lo;
+>  	cxled = to_cxl_endpoint_decoder(&cxld->dev);
+>  	rc = devm_cxl_dpa_reserve(cxled, *dpa_base + skip, dpa_size, skip);
+>  	if (rc) {
+> 
