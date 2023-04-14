@@ -2,256 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82CFF6E19FA
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 04:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837D36E19FF
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 04:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbjDNCGu convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 13 Apr 2023 22:06:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39368 "EHLO
+        id S229742AbjDNCJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Apr 2023 22:09:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbjDNCGu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 22:06:50 -0400
-Received: from rtits2.realtek.com.tw (rtits2.realtek.com [211.75.126.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B573C3A;
-        Thu, 13 Apr 2023 19:06:47 -0700 (PDT)
-Authenticated-By: 
-X-SpamFilter-By: ArmorX SpamTrap 5.77 with qID 33E25M9L0008987, This message is accepted by code: ctloc85258
-Received: from mail.realtek.com (rtexh36505.realtek.com.tw[172.21.6.25])
-        by rtits2.realtek.com.tw (8.15.2/2.81/5.90) with ESMTPS id 33E25M9L0008987
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=OK);
-        Fri, 14 Apr 2023 10:05:22 +0800
-Received: from RTEXMBS01.realtek.com.tw (172.21.6.94) by
- RTEXH36505.realtek.com.tw (172.21.6.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.32; Fri, 14 Apr 2023 10:05:44 +0800
-Received: from RTEXMBS04.realtek.com.tw (172.21.6.97) by
- RTEXMBS01.realtek.com.tw (172.21.6.94) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.7; Fri, 14 Apr 2023 10:05:44 +0800
-Received: from RTEXMBS04.realtek.com.tw ([fe80::b4a2:2bcc:48d1:8b02]) by
- RTEXMBS04.realtek.com.tw ([fe80::b4a2:2bcc:48d1:8b02%5]) with mapi id
- 15.01.2375.007; Fri, 14 Apr 2023 10:05:44 +0800
-From:   Ping-Ke Shih <pkshih@realtek.com>
-To:     Sascha Hauer <s.hauer@pengutronix.de>
-CC:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Hans Ulli Kroll <linux@ulli-kroll.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Tim K <tpkuester@gmail.com>, "Alex G ." <mr.nuke.me@gmail.com>,
-        Nick Morrow <morrownr@gmail.com>,
-        Viktor Petrenko <g0000ga@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        ValdikSS <iam@valdikss.org.ru>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-Thread-Topic: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-Thread-Index: AQHZZsamg/4VwhlxlEqb+Fqs2PgqWa8dhrAAgAfltoCABKdF8A==
-Date:   Fri, 14 Apr 2023 02:05:44 +0000
-Message-ID: <303221420e8e467dba0857261970d254@realtek.com>
-References: <20230404072508.578056-1-s.hauer@pengutronix.de>
- <20230404072508.578056-3-s.hauer@pengutronix.de>
- <e9c9b7d470904d9f8c8d6892cb8efd7d@realtek.com>
- <20230411102609.GB19113@pengutronix.de>
-In-Reply-To: <20230411102609.GB19113@pengutronix.de>
-Accept-Language: en-US, zh-TW
-Content-Language: zh-TW
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [172.21.69.188]
-x-kse-serverinfo: RTEXMBS01.realtek.com.tw, 9
-x-kse-antispam-interceptor-info: fallback
-x-kse-antivirus-interceptor-info: fallback
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S229577AbjDNCJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Apr 2023 22:09:58 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965132D4A;
+        Thu, 13 Apr 2023 19:09:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681438197; x=1712974197;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=V6yxTKpwndzirxcebJgSFtOtxmxSXQn9YpBYMRBfZ4M=;
+  b=IwmEk92YKmlopoiubdxsDjVO5YVj8uqSre6G7rLEt9+f9p7e2Sf5w3FE
+   8JigK0pHLHdTMWgoTTrnFqoG1BrZrPhSEIeCL4meE+Y+m71/a0Bb8aiZj
+   oeEUQ5MbDTkQazeGt7kKnx4ZVGFWJwmcL39tOw87jkOqLfcSHboDhCVVg
+   WfS7L+OpJ0q/E0hgxTfLj3y6mY9fZAwPn5WTCBIIH3LKb7eIdaOb/0u5f
+   o0fcVRuD6KdC91ro0gULGfX1uOS/VRkpTNE8QWq2MGdXZT6XPpwFP9Jgo
+   94ssCv5U6njevTYfLDapt2tzEzO7xkNNbdAIQNQL55Swd8tk+OvvOge0+
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="333124446"
+X-IronPort-AV: E=Sophos;i="5.99,195,1677571200"; 
+   d="scan'208";a="333124446"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 19:09:57 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="779019528"
+X-IronPort-AV: E=Sophos;i="5.99,195,1677571200"; 
+   d="scan'208";a="779019528"
+Received: from p12ill20yoongsia.png.intel.com ([10.88.227.28])
+  by FMSMGA003.fm.intel.com with ESMTP; 13 Apr 2023 19:09:51 -0700
+From:   Song Yoong Siang <yoong.siang.song@intel.com>
+To:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Vedang Patel <vedang.patel@intel.com>,
+        Jithu Joseph <jithu.joseph@intel.com>,
+        Andre Guedes <andre.guedes@intel.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Jacob Keller <jacob.e.keller@intel.com>
+Cc:     intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+        xdp-hints@xdp-project.net, stable@vger.kernel.org,
+        Song Yoong Siang <yoong.siang.song@intel.com>
+Subject: [PATCH net v2 1/1] igc: read before write to SRRCTL register
+Date:   Fri, 14 Apr 2023 10:09:15 +0800
+Message-Id: <20230414020915.1869456-1-yoong.siang.song@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-KSE-AntiSpam-Interceptor-Info: fallback
-X-KSE-ServerInfo: RTEXH36505.realtek.com.tw, 9
-X-KSE-AntiSpam-Interceptor-Info: fallback
-X-KSE-Antivirus-Interceptor-Info: fallback
-X-KSE-AntiSpam-Interceptor-Info: fallback
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+igc_configure_rx_ring() function will be called as part of XDP program
+setup. If Rx hardware timestamp is enabled prio to XDP program setup,
+this timestamp enablement will be overwritten when buffer size is
+written into SRRCTL register.
 
-> -----Original Message-----
-> From: Sascha Hauer <s.hauer@pengutronix.de>
-> Sent: Tuesday, April 11, 2023 6:26 PM
-> To: Ping-Ke Shih <pkshih@realtek.com>
-> Cc: linux-wireless <linux-wireless@vger.kernel.org>; Hans Ulli Kroll <linux@ulli-kroll.de>; Larry Finger
-> <Larry.Finger@lwfinger.net>; Tim K <tpkuester@gmail.com>; Alex G . <mr.nuke.me@gmail.com>; Nick Morrow
-> <morrownr@gmail.com>; Viktor Petrenko <g0000ga@gmail.com>; Andreas Henriksson <andreas@fatal.se>;
-> ValdikSS <iam@valdikss.org.ru>; kernel@pengutronix.de; stable@vger.kernel.org
-> Subject: Re: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-> 
-> On Thu, Apr 06, 2023 at 01:54:55AM +0000, Ping-Ke Shih wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Sascha Hauer <s.hauer@pengutronix.de>
-> > > Sent: Tuesday, April 4, 2023 3:25 PM
-> > > To: linux-wireless <linux-wireless@vger.kernel.org>
-> > > Cc: Hans Ulli Kroll <linux@ulli-kroll.de>; Larry Finger <Larry.Finger@lwfinger.net>; Ping-Ke Shih
-> > > <pkshih@realtek.com>; Tim K <tpkuester@gmail.com>; Alex G . <mr.nuke.me@gmail.com>; Nick Morrow
-> > > <morrownr@gmail.com>; Viktor Petrenko <g0000ga@gmail.com>; Andreas Henriksson <andreas@fatal.se>;
-> > > ValdikSS <iam@valdikss.org.ru>; kernel@pengutronix.de; Sascha Hauer <s.hauer@pengutronix.de>;
-> > > stable@vger.kernel.org
-> > > Subject: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-> > >
-> > > On my RTW8821CU chipset rfe_option reads as 0x22. Looking at the
-> > > downstream driver suggests that the field width of rfe_option is 5 bit,
-> > > so rfe_option should be masked with 0x1f.
-> >
-> > I don't aware of this. Could you point where you get it?
-> 
-> See
-> https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c1ant.c#L2480
-> and
-> https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c2ant.c#L2519
-> 
-> But I now see that this masked value is only used at the places I
-> pointed to, there are other places in the driver that use the unmasked
-> value.
+Thus, this commit read the register value before write to SRRCTL
+register. This commit is tested by using xdp_hw_metadata bpf selftest
+tool. The tool enables Rx hardware timestamp and then attach XDP program
+to igc driver. It will display hardware timestamp of UDP packet with
+port number 9092. Below are detail of test steps and results.
 
-After I read vendor driver, there are three variety of rfe_option for 8821C.
-1. raw value from efuse
-   hal->rfe_type = map[EEPROM_RFE_OPTION_8821C];
+Command on DUT:
+  sudo ./xdp_hw_metadata <interface name>
 
-2. BT-coexistence 
-   rfe_type->rfe_module_type = board_info->rfe_type & 0x1f;
+Command on Link Partner:
+  echo -n skb | nc -u -q1 <destination IPv4 addr> 9092
 
-3. PHY
-   dm->rfe_type_expand = hal->rfe_type = raw value
-   dm->rfe_type = dm->rfe_type_expand >> 3;
+Result before this patch:
+  skb hwtstamp is not found!
 
+Result after this patch:
+  found skb hwtstamp = 1677800973.642836757
 
-For rtw88, there are only two variety, but they are identical
-   coex_rfe->rfe_module_type = efuse->rfe_option;
+Optionally, read PHC to confirm the values obtained are almost the same:
+Command:
+  sudo ./testptp -d /dev/ptp0 -g
+Result:
+  clock time: 1677800973.913598978 or Fri Mar  3 07:49:33 2023
 
-The flaws are rfe_type->rfe_module_type of item 2 and dm->rfe_type of item 3
-above, and most things are addressed by your draft patch. Exception is
-check_positive() check dm->rfe_type, but we don't have this conversion in
-rtw88 (i.e. cond.rfe = efuse->rfe_option; in rtw_phy_setup_phy_cond()).
+Fixes: fc9df2a0b520 ("igc: Enable RX via AF_XDP zero-copy")
+Cc: <stable@vger.kernel.org> # 5.14+
+Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+---
+v2 changelog:
+ - Fix indention
+---
+ drivers/net/ethernet/intel/igc/igc_base.h | 7 +++++--
+ drivers/net/ethernet/intel/igc/igc_main.c | 5 ++++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-Since I don't have a hardware with rfe_option larger than 8, could you
-please give below patch a try?
-
---- a/phy.c
-+++ b/phy.c
-@@ -1048,6 +1048,9 @@ void rtw_phy_setup_phy_cond(struct rtw_dev *rtwdev, u32 pkg)
-        cond.plat = 0x04;
-        cond.rfe = efuse->rfe_option;
-
-+       if (rtwdev->chip->id == RTW_CHIP_TYPE_8821C)
-+               cond.rfe = efuse->rfe_option >> 3;
-+
-        switch (rtw_hci_type(rtwdev)) {
-        case RTW_HCI_TYPE_USB:
-                cond.intf = INTF_USB;
-
-
-8821C is more complex than others, and I'm not familiar with it, so maybe I
-could miss something. Please correct me if any.
-
-> 
-> >
-> > As I check it internally, 0x22 is expected, so I suggest to have 0x22 entry
-> > as below
-> >
-> > -       [34] = RTW_DEF_RFE(8821c, 0, 0),
-> > +       [34] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),  // copy from type 2
-> 
-> That alone is not enough. There are other places in rtw8821c.c that
-> compare with rfe_option. See below for a patch with annotations where to
-> find the corresponding code in the downstream driver. Note how BIT(5) is
-> irrelevant for all decisions. I can't tell of course if that's just by
-> chance or by intent.
-
-You're right. I miss these points.
-
-> 
-> I don't know where to go from here. It looks like we really only want to
-> make a decision between SWITCH_TO_WLG and SWITCH_TO_BTG at most places,
-> so it might be better to store a flag somewhere rather than having the
-> big switch/case in multiple places.
-> 
-
-Agreed. Add something like:
-
---- a/main.h
-+++ b/main.h
-@@ -2076,6 +2076,7 @@ struct rtw_hal {
-        u8 mp_chip;
-        u8 oem_id;
-        struct rtw_phy_cond phy_cond;
-+       bool rfe_btg;
-
-        u8 ps_mode;
-        u8 current_channel;
-
---- a/rtw8821c.c
-+++ b/rtw8821c.c
-@@ -47,6 +47,7 @@ enum rtw8821ce_rf_set {
-
- static int rtw8821c_read_efuse(struct rtw_dev *rtwdev, u8 *log_map)
- {
-+       struct rtw_hal *hal = &rtwdev->hal;
-        struct rtw_efuse *efuse = &rtwdev->efuse;
-        struct rtw8821c_efuse *map;
-        int i;
-@@ -91,6 +92,12 @@ static int rtw8821c_read_efuse(struct rtw_dev *rtwdev, u8 *log_map)
-                return -ENOTSUPP;
-        }
-
-+       switch (efuse->rfe_option) {
-+       case 0x02: case 0x22: // ...
-+               hal->rfe_btg = true;
-+               break;
-+       }
-+
-        return 0;
- }
-
-
-[...]
-
->  static const struct rtw_rfe_def rtw8821c_rfe_defs[] = {
-> -       [0] = RTW_DEF_RFE(8821c, 0, 0),
-> -       [2] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> -       [4] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> -       [6] = RTW_DEF_RFE(8821c, 0, 0),
-> -       [34] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x00] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x01] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x02] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x03] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x04] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x05] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x06] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x07] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x20] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x21] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x22] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x23] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x24] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x25] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x26] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x27] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x28] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x29] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x2a] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x2b] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x2c] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-> +       [0x2d] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x2e] = RTW_DEF_RFE(8821c, 0, 0),
-> +       [0x2f] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-
-I'm not sure if we add all of them, since some aren't tested, but maybe it would
-be better than nothing. 
-
-Ping-Ke
+diff --git a/drivers/net/ethernet/intel/igc/igc_base.h b/drivers/net/ethernet/intel/igc/igc_base.h
+index 7a992befca24..b95007d51d13 100644
+--- a/drivers/net/ethernet/intel/igc/igc_base.h
++++ b/drivers/net/ethernet/intel/igc/igc_base.h
+@@ -87,8 +87,11 @@ union igc_adv_rx_desc {
+ #define IGC_RXDCTL_SWFLUSH		0x04000000 /* Receive Software Flush */
+ 
+ /* SRRCTL bit definitions */
+-#define IGC_SRRCTL_BSIZEPKT_SHIFT		10 /* Shift _right_ */
+-#define IGC_SRRCTL_BSIZEHDRSIZE_SHIFT		2  /* Shift _left_ */
++#define IGC_SRRCTL_BSIZEPKT_MASK	GENMASK(6, 0)
++#define IGC_SRRCTL_BSIZEPKT_SHIFT	10 /* Shift _right_ */
++#define IGC_SRRCTL_BSIZEHDRSIZE_MASK	GENMASK(13, 8)
++#define IGC_SRRCTL_BSIZEHDRSIZE_SHIFT	2  /* Shift _left_ */
++#define IGC_SRRCTL_DESCTYPE_MASK	GENMASK(27, 25)
+ #define IGC_SRRCTL_DESCTYPE_ADV_ONEBUF	0x02000000
+ 
+ #endif /* _IGC_BASE_H */
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 25fc6c65209b..88fac08d8a14 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -641,7 +641,10 @@ static void igc_configure_rx_ring(struct igc_adapter *adapter,
+ 	else
+ 		buf_size = IGC_RXBUFFER_2048;
+ 
+-	srrctl = IGC_RX_HDR_LEN << IGC_SRRCTL_BSIZEHDRSIZE_SHIFT;
++	srrctl = rd32(IGC_SRRCTL(reg_idx));
++	srrctl &= ~(IGC_SRRCTL_BSIZEPKT_MASK | IGC_SRRCTL_BSIZEHDRSIZE_MASK |
++		    IGC_SRRCTL_DESCTYPE_MASK);
++	srrctl |= IGC_RX_HDR_LEN << IGC_SRRCTL_BSIZEHDRSIZE_SHIFT;
+ 	srrctl |= buf_size >> IGC_SRRCTL_BSIZEPKT_SHIFT;
+ 	srrctl |= IGC_SRRCTL_DESCTYPE_ADV_ONEBUF;
+ 
+-- 
+2.34.1
 
