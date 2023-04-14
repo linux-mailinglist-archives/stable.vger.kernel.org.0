@@ -2,129 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF656E2A48
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 20:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CD06E2AA2
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 21:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229828AbjDNSyO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Apr 2023 14:54:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
+        id S229544AbjDNTcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Apr 2023 15:32:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjDNSyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 14:54:13 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C9493C5;
-        Fri, 14 Apr 2023 11:54:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681498451; x=1713034451;
-  h=subject:from:to:cc:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=2tCSj7igG3BleFoSj2JuUFpahXZH2jJ5DmqMSrBNMJk=;
-  b=Ctq+3IxIklSz1pgulmGlvqNnY2AazT90npf+uZGbJ4yTINfK8CSeEhj4
-   Pmekno5wVJlkILJmqX74n0DkSN8TYVOY5WFpWPB05uVlqS8Lg18V0vPi2
-   o7B74/IMcZhP91nLo7AFZBsR4aokgT86wxbHlxKwXnJ5mH3ggBuug2JoX
-   btN2569kVx9qoNRqF/OQIvrUO4kaFlfnoprWBX1QQrth+HBqH0pcQghWB
-   B5kgdvWV7va+t8UaRExZ7y6buVxjMJTybw+XfK/zgfe5NA3L1Aqas8Zy4
-   Jh0V5WsJ179sWDW/GMYv1sd4MUeVvWhOwqFoOkP8BNGzakU6u+H2nLID+
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10680"; a="347270285"
-X-IronPort-AV: E=Sophos;i="5.99,197,1677571200"; 
-   d="scan'208";a="347270285"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 11:54:11 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10680"; a="683437746"
-X-IronPort-AV: E=Sophos;i="5.99,197,1677571200"; 
-   d="scan'208";a="683437746"
-Received: from rkulesho-mobl1.amr.corp.intel.com (HELO dwillia2-xfh.jf.intel.com) ([10.209.41.243])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2023 11:54:11 -0700
-Subject: [PATCH 4/5] cxl/port: Scan single-target ports for decoders
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     linux-cxl@vger.kernel.org
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        stable@vger.kernel.org
-Date:   Fri, 14 Apr 2023 11:54:11 -0700
-Message-ID: <168149845130.792294.3210421233937427962.stgit@dwillia2-xfh.jf.intel.com>
-In-Reply-To: <168149842935.792294.13212627946146993066.stgit@dwillia2-xfh.jf.intel.com>
-References: <168149842935.792294.13212627946146993066.stgit@dwillia2-xfh.jf.intel.com>
-User-Agent: StGit/0.18-3-g996c
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229468AbjDNTb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 15:31:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E9D46B7;
+        Fri, 14 Apr 2023 12:31:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E58F644FB;
+        Fri, 14 Apr 2023 19:31:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6053C433D2;
+        Fri, 14 Apr 2023 19:31:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1681500717;
+        bh=ekf40hpGLWd8+gjCt5fUuF4ZVaB3St4OkJns0FMBUpw=;
+        h=Date:To:From:Subject:From;
+        b=J2Q1iwE/agjizziHOSYPPux8PSnlyq7CaXc+ZLuBDYpumvC8xpGwdhHr3li6hep1+
+         Bm4oz+AiM1bAFnJqHqoR8CVKqR+vFzfsEVx/7HzKHoRsd74/43VlN9G9wX/ZnpiHtK
+         YalzRS73DbVtOFaSpTJl79Wn96X5P3wEYrdHnCZA=
+Date:   Fri, 14 Apr 2023 12:31:56 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        rick.p.edgecombe@intel.com, Liam.Howlett@oracle.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + maple_tree-make-maple-state-reusable-after-mas_empty_area_rev.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230414193157.A6053C433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Do not assume that a single-target port falls back to a passthrough
-decoder configuration. Scan for decoders and only fallback after probing
-that the HDM decoder capability is not present.
 
-One user visible affect of this bug is the inability to enumerate
-present CXL regions as the decoder settings for the present decoders are
-skipped.
+The patch titled
+     Subject: maple_tree: make maple state reusable after mas_empty_area_rev()
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     maple_tree-make-maple-state-reusable-after-mas_empty_area_rev.patch
 
-Fixes: d17d0540a0db ("cxl/core/hdm: Add CXL standard decoder enumeration to the core")
-Reported-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: http://lore.kernel.org/r/20230227153128.8164-1-Jonathan.Cameron@huawei.com
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/maple_tree-make-maple-state-reusable-after-mas_empty_area_rev.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Subject: maple_tree: make maple state reusable after mas_empty_area_rev()
+Date: Fri, 14 Apr 2023 10:57:26 -0400
+
+Stop using maple state min/max for the range by passing through pointers
+for those values.  This will allow the maple state to be reused without
+resetting.
+
+Also add some logic to fail out early on searching with invalid
+arguments.
+
+Link: https://lkml.kernel.org/r/20230414145728.4067069-1-Liam.Howlett@oracle.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/cxl/core/hdm.c |    5 +++--
- drivers/cxl/port.c     |   18 +++++++++++++-----
- 2 files changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/cxl/core/hdm.c b/drivers/cxl/core/hdm.c
-index 6fdf7981ddc7..abe3877cfa63 100644
---- a/drivers/cxl/core/hdm.c
-+++ b/drivers/cxl/core/hdm.c
-@@ -92,8 +92,9 @@ static int map_hdm_decoder_regs(struct cxl_port *port, void __iomem *crb,
+ lib/maple_tree.c |   27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
+
+--- a/lib/maple_tree.c~maple_tree-make-maple-state-reusable-after-mas_empty_area_rev
++++ a/lib/maple_tree.c
+@@ -4965,7 +4965,8 @@ not_found:
+  * Return: True if found in a leaf, false otherwise.
+  *
+  */
+-static bool mas_rev_awalk(struct ma_state *mas, unsigned long size)
++static bool mas_rev_awalk(struct ma_state *mas, unsigned long size,
++		unsigned long *gap_min, unsigned long *gap_max)
+ {
+ 	enum maple_type type = mte_node_type(mas->node);
+ 	struct maple_node *node = mas_mn(mas);
+@@ -5030,8 +5031,8 @@ static bool mas_rev_awalk(struct ma_stat
  
- 	cxl_probe_component_regs(&port->dev, crb, &map.component_map);
- 	if (!map.component_map.hdm_decoder.valid) {
--		dev_err(&port->dev, "HDM decoder registers invalid\n");
--		return -ENXIO;
-+		dev_dbg(&port->dev, "HDM decoder registers not implemented\n");
-+		/* unique error code to indicate no HDM decoder capability */
-+		return -ENODEV;
+ 	if (unlikely(ma_is_leaf(type))) {
+ 		mas->offset = offset;
+-		mas->min = min;
+-		mas->max = min + gap - 1;
++		*gap_min = min;
++		*gap_max = min + gap - 1;
+ 		return true;
  	}
  
- 	return cxl_map_component_regs(&port->dev, regs, &map,
-diff --git a/drivers/cxl/port.c b/drivers/cxl/port.c
-index 22a7ab2bae7c..eb57324c4ad4 100644
---- a/drivers/cxl/port.c
-+++ b/drivers/cxl/port.c
-@@ -66,14 +66,22 @@ static int cxl_switch_port_probe(struct cxl_port *port)
- 	if (rc < 0)
- 		return rc;
+@@ -5307,6 +5308,9 @@ int mas_empty_area(struct ma_state *mas,
+ 	unsigned long *pivots;
+ 	enum maple_type mt;
  
--	if (rc == 1)
--		return devm_cxl_add_passthrough_decoder(port);
++	if (min >= max)
++		return -EINVAL;
++
+ 	if (mas_is_start(mas))
+ 		mas_start(mas);
+ 	else if (mas->offset >= 2)
+@@ -5361,6 +5365,9 @@ int mas_empty_area_rev(struct ma_state *
+ {
+ 	struct maple_enode *last = mas->node;
+ 
++	if (min >= max)
++		return -EINVAL;
++
+ 	if (mas_is_start(mas)) {
+ 		mas_start(mas);
+ 		mas->offset = mas_data_end(mas);
+@@ -5380,7 +5387,7 @@ int mas_empty_area_rev(struct ma_state *
+ 	mas->index = min;
+ 	mas->last = max;
+ 
+-	while (!mas_rev_awalk(mas, size)) {
++	while (!mas_rev_awalk(mas, size, &min, &max)) {
+ 		if (last == mas->node) {
+ 			if (!mas_rewind_node(mas))
+ 				return -EBUSY;
+@@ -5395,17 +5402,9 @@ int mas_empty_area_rev(struct ma_state *
+ 	if (unlikely(mas->offset == MAPLE_NODE_SLOTS))
+ 		return -EBUSY;
+ 
+-	/*
+-	 * mas_rev_awalk() has set mas->min and mas->max to the gap values.  If
+-	 * the maximum is outside the window we are searching, then use the last
+-	 * location in the search.
+-	 * mas->max and mas->min is the range of the gap.
+-	 * mas->index and mas->last are currently set to the search range.
+-	 */
 -
- 	cxlhdm = devm_cxl_setup_hdm(port, NULL);
--	if (IS_ERR(cxlhdm))
-+	if (!IS_ERR(cxlhdm))
-+		return devm_cxl_enumerate_decoders(cxlhdm, NULL);
-+
-+	if (PTR_ERR(cxlhdm) != -ENODEV) {
-+		dev_err(&port->dev, "Failed to map HDM decoder capability\n");
- 		return PTR_ERR(cxlhdm);
-+	}
-+
-+	if (rc == 1) {
-+		dev_dbg(&port->dev, "Fallback to passthrough decoder\n");
-+		return devm_cxl_add_passthrough_decoder(port);
-+	}
+ 	/* Trim the upper limit to the max. */
+-	if (mas->max <= mas->last)
+-		mas->last = mas->max;
++	if (max <= mas->last)
++		mas->last = max;
  
--	return devm_cxl_enumerate_decoders(cxlhdm, NULL);
-+	dev_err(&port->dev, "HDM decoder capability not found\n");
-+	return -ENXIO;
- }
- 
- static int cxl_endpoint_port_probe(struct cxl_port *port)
+ 	mas->index = mas->last - size + 1;
+ 	return 0;
+_
+
+Patches currently in -mm which might be from Liam.Howlett@oracle.com are
+
+mm-mprotect-fix-do_mprotect_pkey-return-on-error.patch
+mm-mempolicy-fix-use-after-free-of-vma-iterator.patch
+maple_tree-make-maple-state-reusable-after-mas_empty_area_rev.patch
+maple_tree-fix-mas_empty_area-search.patch
+mm-mmap-regression-fix-for-unmapped_area_topdown.patch
 
