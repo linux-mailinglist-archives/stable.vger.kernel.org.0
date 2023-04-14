@@ -2,75 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94EB56E234F
-	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 14:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E6B6E24E6
+	for <lists+stable@lfdr.de>; Fri, 14 Apr 2023 15:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230408AbjDNMch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Apr 2023 08:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
+        id S229888AbjDNN5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Apr 2023 09:57:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230356AbjDNMcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 08:32:36 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854B4977F
-        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 05:32:33 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-185-VqRPGaRUPQWesYHLYOoMpg-1; Fri, 14 Apr 2023 13:32:30 +0100
-X-MC-Unique: VqRPGaRUPQWesYHLYOoMpg-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 14 Apr
- 2023 13:32:27 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 14 Apr 2023 13:32:27 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     "'Song, Yoong Siang'" <yoong.siang.song@intel.com>,
-        Jesper Dangaard Brouer <jbrouer@redhat.com>,
-        "Brandeburg, Jesse" <jesse.brandeburg@intel.com>,
-        "Nguyen, Anthony L" <anthony.l.nguyen@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Jesper Dangaard Brouer" <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        "Fijalkowski, Maciej" <maciej.fijalkowski@intel.com>,
-        Vedang Patel <vedang.patel@intel.com>,
-        "Joseph, Jithu" <jithu.joseph@intel.com>,
-        "Andre Guedes" <andre.guedes@intel.com>,
-        Stanislav Fomichev <sdf@google.com>,
-        "Keller, Jacob E" <jacob.e.keller@intel.com>
-CC:     "Brouer, Jesper" <brouer@redhat.com>,
-        "intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "xdp-hints@xdp-project.net" <xdp-hints@xdp-project.net>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH net v2 1/1] igc: read before write to SRRCTL register
-Thread-Topic: [PATCH net v2 1/1] igc: read before write to SRRCTL register
-Thread-Index: AQHZbnY42u7Gz9ET40eYzbfYWKvVVq8qkCGAgAAQJMCAABqMIA==
-Date:   Fri, 14 Apr 2023 12:32:27 +0000
-Message-ID: <4dc9ea6c77ff49138a49d7f73f7301fd@AcuMS.aculab.com>
-References: <20230414020915.1869456-1-yoong.siang.song@intel.com>
- <8214fb10-8caa-4418-8435-85b6ac27b69e@redhat.com>
- <PH0PR11MB5830D3F9144B61A6959A4A0FD8999@PH0PR11MB5830.namprd11.prod.outlook.com>
-In-Reply-To: <PH0PR11MB5830D3F9144B61A6959A4A0FD8999@PH0PR11MB5830.namprd11.prod.outlook.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S229705AbjDNN5z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Apr 2023 09:57:55 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F733DF
+        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 06:57:54 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id i26so23844497lfc.6
+        for <stable@vger.kernel.org>; Fri, 14 Apr 2023 06:57:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681480672; x=1684072672;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mXvnZiBUYIq053kMTXG6IiE5H5AHN38vkwVpGrxQfAM=;
+        b=FvxzrKFv6qu6gY8IkmUHTLBKvwF2rccNgKQ52wFuyK+and5ZOaYZ/z+7oEc+6g+kba
+         EGeQXR/H/gRG2Z9jiwdIaJs5+5oIDAHZMovZENKlE4qF2de4lDil03ixMVVdG4CNbhkB
+         IVO8D3jCKDH0Nb1bGcXO0hY5ntWDOc4dlbreaI0IDnu7EPdBssCQpy/uQvDFLY+FLAsi
+         /TrnBq2jnQd9VLBaVY8U/Q3uGGjuxT6N36e4mtenNLeU5WCGZMnONTlFowW3e3sbwXc/
+         j/KKpsqJfmSR0Uyj+VDB+br8ae3DguLzeZeSUt/HZmuLUSvAV45O1cq6yCPp1cw70dVl
+         s/sQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681480672; x=1684072672;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mXvnZiBUYIq053kMTXG6IiE5H5AHN38vkwVpGrxQfAM=;
+        b=R34qe2lNq2SYGEa6hi7ZtybKllj9SqT/zd7mQPfZ3g0wUdyJ3yeLHh5xGmf1DkqQq/
+         jePfphb4F98s881ZcW1hbYasVgyoZnRnLta2yknRDiq2IVqOajOYQkBKnJpaQp9XApUU
+         DCUJH8VCwGg9trLFBYA7MEwrqudr1YEs+9XnESNkeG1rlUT8WbaE8lAj9p+41XQA5+Nv
+         XYaYbM2mxLUpCqJn7e1X/PeDMjpQTrapyDMUQFM/AVby09xOTg8h8OvXYj7hZhwKB14B
+         uq/S/YA3kk64Deq5Y9ZuU2Vn9zZgouZbYM/CGrt72ccpcNhDkn29ViFnJA2aZCOhXCeK
+         iAfQ==
+X-Gm-Message-State: AAQBX9fJ5TdpxCk8gNEH84aGGLSDb5fHwwc8NPlfJ1NfX3o5263MkwY+
+        c4RNnfzw6+Yad8TO0X+zEB4sWg==
+X-Google-Smtp-Source: AKy350Y8w02zr0TOBQcRwvabEdWzYKknhuOt7AYhTw22LkM3il3oYtICOWzkj4zlx9357TC0SMPSgQ==
+X-Received: by 2002:ac2:5937:0:b0:4e8:61d2:72ee with SMTP id v23-20020ac25937000000b004e861d272eemr2693701lfi.5.1681480672256;
+        Fri, 14 Apr 2023 06:57:52 -0700 (PDT)
+Received: from Linus-Dell.lan ([85.235.12.238])
+        by smtp.gmail.com with ESMTPSA id b7-20020ac247e7000000b004cc5f44747dsm808161lfp.220.2023.04.14.06.57.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Apr 2023 06:57:51 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     linux-arm-msm@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Herman van Hazendonk <me@herrie.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] ARM: dts: qcom-apq8060: Fix regulator node names
+Date:   Fri, 14 Apr 2023 15:57:47 +0200
+Message-Id: <20230414135747.34994-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -79,38 +72,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogU29uZywgWW9vbmcgU2lhbmcNCj4gU2VudDogMTQgQXByaWwgMjAyMyAxMjoxNg0KLi4u
-DQo+ID5JIGhhdmUgY2hlY2tlZCBGb3h2aWxsZSBtYW51YWwgZm9yIFNSUkNUTCAoU3BsaXQgYW5k
-IFJlcGxpY2F0aW9uIFJlY2VpdmUNCj4gPkNvbnRyb2wpIHJlZ2lzdGVyIGFuZCBiZWxvdyBHRU5N
-QVNLcyBsb29rcyBjb3JyZWN0Lg0KPiA+DQo+ID4+IC0jZGVmaW5lIElHQ19TUlJDVExfQlNJWkVQ
-S1RfU0hJRlQJCTEwIC8qIFNoaWZ0IF9yaWdodF8gKi8NCj4gPj4gLSNkZWZpbmUgSUdDX1NSUkNU
-TF9CU0laRUhEUlNJWkVfU0hJRlQJCTIgIC8qIFNoaWZ0IF9sZWZ0XyAqLw0KPiA+PiArI2RlZmlu
-ZSBJR0NfU1JSQ1RMX0JTSVpFUEtUX01BU0sJR0VOTUFTSyg2LCAwKQ0KPiA+PiArI2RlZmluZSBJ
-R0NfU1JSQ1RMX0JTSVpFUEtUX1NISUZUCTEwIC8qIFNoaWZ0IF9yaWdodF8gKi8NCj4gPg0KPiA+
-U2hpZnQgZHVlIHRvIDEgS0IgcmVzb2x1dGlvbiBvZiBCU0laRVBLVCAobWFudWFsIGZpZWxkIEJT
-SVpFUEFDS0VUKQ0KPiANCj4gWWEsIDFLID0gQklUKDEwKSwgc28gbmVlZCB0byBzaGlmdCByaWdo
-dCAxMCBiaXRzLg0KDQpJIGJldCB0aGUgY29kZSB3b3VsZCBiZSBlYXNpZXIgdG8gcmVhZCBpZiBp
-dCBkaWQgJ3ZhbHVlIC8gMTAyNHUnLg0KVGhlIG9iamVjdCBjb2RlIHdpbGwgYmUgKG11Y2gpIHRo
-ZSBzYW1lLg0KDQo+ID4+ICsjZGVmaW5lIElHQ19TUlJDVExfQlNJWkVIRFJTSVpFX01BU0sJR0VO
-TUFTSygxMywgOCkNCj4gPj4gKyNkZWZpbmUgSUdDX1NSUkNUTF9CU0laRUhEUlNJWkVfU0hJRlQJ
-MiAgLyogU2hpZnQgX2xlZnRfICovDQo+ID4NCj4gPlRoaXMgc2hpZnQgaXMgc3VzcGljaW91cywg
-YnV0IGFzIHlvdSBpbmhlcml0ZWQgaXQgSSBndWVzcyBpdCB3b3Jrcy4NCj4gPkkgZGlkIHRoZSBt
-YXRoLCBhbmQgaXQgaGFwcGVucyB0byB3b3JrLCBrbm93aW5nIChmcm9tIG1hbnVhbCkgdmFsdWUg
-aXMgaW4gNjQgYnl0ZXMNCj4gPnJlc29sdXRpb24uDQo+IA0KPiBJdCBpcyBpbiA2NCA9IEJJVCg2
-KSByZXNvbHV0aW9uLCBzbyBuZWVkIHRvIHNoaWZ0IHJpZ2h0IDYgYml0cy4NCj4gQnV0IGl0IHN0
-YXJ0IG9uIDh0aCBiaXQsIHNvIG5lZWQgdG8gc2hpZnQgbGVmdCA4IGJpdHMuDQo+IFRodXMsIHRv
-dGFsID0gc2hpZnQgbGVmdCAyIGJpdHMuDQo+IA0KPiBJIGRpbnQgcHV0IHRoZSBleHBsYW5hdGlv
-biBpbnRvIHRoZSBoZWFkZXIgZmlsZSBiZWNhdXNlIGl0IGlzIHRvbyBsZW5ndGh5DQo+IGFuZCB1
-c2VyIGNhbiBrbm93IGZyb20gZGF0YWJvb2suDQo+IA0KPiBIb3cgZG8geW91IGZlZWwgb24gdGhl
-IG5lY2Vzc2FyeSBvZiBleHBsYWluaW5nIHRoZSBzaGlmdGluZyBsb2dpYz8NCg0KTm90IGV2ZXJ5
-b25lIHRyeWluZyB0byBncm9rIHRoZSBjb2RlIHdpbGwgaGF2ZSB0aGUgbWFudWFsLg0KRXZlbiB3
-cml0aW5nICg4IC0gNikgd2lsbCBoZWxwLg0KT3IgKEkgdGhpbmspIGlmIHRoZSB2YWx1ZSBpcyBp
-biBiaXRzIDEzLTggaW4gdW5pdHMgb2YgNjQgdGhlbiBqdXN0Og0KCSgodmFsdWUgPj4gOCkgJiAw
-eDFmKSAqIDY0DQpnY2Mgd2lsbCBkbyBhIHNpbmdsZSBzaGlmdCByaWdodCBhbmQgYSBtYXNrIDlh
-dCBzb21lIHBvaW50KS4NCllvdSBtaWdodCB3YW50IHNvbWUgZGVmaW5lcywgYnV0IGlmIHRoZXkg
-YXJlbid0IHVzZWQgbXVjaA0KanVzdCBjb21tZW50cyB0aGF0IHJlZmVyIHRvIHRoZSBuYW1lcyBp
-biB0aGUgbWFudWFsL2RhdGFzaGVldA0KY2FuIGJlIGVub3VnaC4NCg0KCURhdmlkDQoNCi0NClJl
-Z2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0
-b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykN
-Cg==
+commit 04715461abf7 altered the node names in a DTSI file
+used by qcom-apq8060-dragonboard.dts breaking the board.
+Align the node names in the DTS file and the board boots
+again.
+
+Cc: stable@vger.kernel.org
+Fixes: 04715461abf7 ("ARM: dts: qcom-msm8660: align RPM regulators node name with bindings")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ arch/arm/boot/dts/qcom-apq8060-dragonboard.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/qcom-apq8060-dragonboard.dts b/arch/arm/boot/dts/qcom-apq8060-dragonboard.dts
+index 8e4b61e4d4b1..e8fe321f3d89 100644
+--- a/arch/arm/boot/dts/qcom-apq8060-dragonboard.dts
++++ b/arch/arm/boot/dts/qcom-apq8060-dragonboard.dts
+@@ -451,7 +451,7 @@ &rpm {
+ 	 * PM8901 supplies "preliminary regulators" whatever
+ 	 * that means
+ 	 */
+-	pm8901-regulators {
++	regulators-0 {
+ 		vdd_l0-supply = <&pm8901_s4>;
+ 		vdd_l1-supply = <&vph>;
+ 		vdd_l2-supply = <&vph>;
+@@ -537,7 +537,7 @@ lvs0 {
+ 
+ 	};
+ 
+-	pm8058-regulators {
++	regulators-1 {
+ 		vdd_l0_l1_lvs-supply = <&pm8058_s3>;
+ 		vdd_l2_l11_l12-supply = <&vph>;
+ 		vdd_l3_l4_l5-supply = <&vph>;
+-- 
+2.34.1
 
