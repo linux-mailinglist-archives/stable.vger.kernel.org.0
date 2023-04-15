@@ -2,87 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C077F6E3209
-	for <lists+stable@lfdr.de>; Sat, 15 Apr 2023 17:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6CD6E3245
+	for <lists+stable@lfdr.de>; Sat, 15 Apr 2023 18:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229994AbjDOPHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Apr 2023 11:07:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56694 "EHLO
+        id S230060AbjDOQI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Apr 2023 12:08:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbjDOPHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Apr 2023 11:07:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20AA340D6;
-        Sat, 15 Apr 2023 08:07:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S230050AbjDOQI2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Apr 2023 12:08:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C02E030FC
+        for <stable@vger.kernel.org>; Sat, 15 Apr 2023 09:07:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681574862;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=divcLMMri/nzDRpy8HMRAigJzG5y+LRUjzx7gftew9I=;
+        b=OEXDNklpTj4NbFY5mJv0IKD7n03PtXn0sksiOfb0rRpWnWZWfEKcWJUANLA/nqDkF2CJSG
+        tbyt9my/UH+HNVCDPz84uLJS23SsrgI5XapD4YdzKoRKgi1qjppKT+Zbyua17oxwDn59Jk
+        kYD/zca4lwusXt2w/b19Ivk8Z+l2wPQ=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-475-Y_9NcvFBOjS6dd1mQCg1mQ-1; Sat, 15 Apr 2023 12:07:38 -0400
+X-MC-Unique: Y_9NcvFBOjS6dd1mQCg1mQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2F2160F91;
-        Sat, 15 Apr 2023 15:07:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C094AC433D2;
-        Sat, 15 Apr 2023 15:07:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681571266;
-        bh=Fl/gTvlCoViEMPTAMS2nrZbrWPrbjIjS7GU06V6dev8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u9u+LEf76lHNymV/w4KL2lcwmfO18+8hx/35jXjq5vY+5OqkKYq7qQyQ7OK6kltOk
-         OEwl6XVgEm58klJCMyABK+dUGW7ow1oXcuGHCDzx5aHkAuYphcQ4wtmKMnzWjPvnQU
-         ysl3e5T/LBKNLMp5jSduI7KLdCBgVdh2prgkTRc8=
-Date:   Sat, 15 Apr 2023 17:07:43 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Gaosheng Cui <cuigaosheng1@huawei.com>
-Cc:     stable@vger.kernel.org, herbert@gondor.apana.org.au,
-        davem@davemloft.net, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH 5.10 1/4] crypto: api - Fix built-in testing dependency
- failures
-Message-ID: <2023041513-sloppily-external-4c18@gregkh>
-References: <20230415101158.1648486-1-cuigaosheng1@huawei.com>
- <20230415101158.1648486-2-cuigaosheng1@huawei.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5B2B2811E7C;
+        Sat, 15 Apr 2023 16:07:38 +0000 (UTC)
+Received: from shalem.redhat.com (unknown [10.39.192.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9BA5F2166B26;
+        Sat, 15 Apr 2023 16:07:37 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Sebastian Reichel <sre@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        laji Xiao <3252204392abc@gmail.com>, linux-pm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 2/6] power: supply: axp288_fuel_gauge: Fix external_power_changed race
+Date:   Sat, 15 Apr 2023 18:07:30 +0200
+Message-Id: <20230415160734.70475-3-hdegoede@redhat.com>
+In-Reply-To: <20230415160734.70475-1-hdegoede@redhat.com>
+References: <20230415160734.70475-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230415101158.1648486-2-cuigaosheng1@huawei.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 15, 2023 at 06:11:55PM +0800, Gaosheng Cui wrote:
-> From: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> When complex algorithms that depend on other algorithms are built
-> into the kernel, the order of registration must be done such that
-> the underlying algorithms are ready before the ones on top are
-> registered.  As otherwise they would fail during the self-test
-> which is required during registration.
-> 
-> In the past we have used subsystem initialisation ordering to
-> guarantee this.  The number of such precedence levels are limited
-> and they may cause ripple effects in other subsystems.
-> 
-> This patch solves this problem by delaying all self-tests during
-> boot-up for built-in algorithms.  They will be tested either when
-> something else in the kernel requests for them, or when we have
-> finished registering all built-in algorithms, whichever comes
-> earlier.
-> 
-> Reported-by: Vladis Dronov <vdronov@redhat.com>
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-> ---
->  crypto/algapi.c   | 73 +++++++++++++++++++++++++++++++++--------------
->  crypto/api.c      | 52 +++++++++++++++++++++++++++++----
->  crypto/internal.h | 10 +++++++
->  3 files changed, 108 insertions(+), 27 deletions(-)
+fuel_gauge_external_power_changed() dereferences info->bat,
+which gets sets in axp288_fuel_gauge_probe() like this:
 
-What is the git commit id of this, and the other 3 patches, in Linus's
-tree?  That is required to have here, as you know.
+  info->bat = devm_power_supply_register(dev, &fuel_gauge_desc, &psy_cfg);
 
-thanks,
+As soon as devm_power_supply_register() has called device_add()
+the external_power_changed callback can get called. So there is a window
+where fuel_gauge_external_power_changed() may get called while
+info->bat has not been set yet leading to a NULL pointer dereference.
 
-greg k-h
+Fixing this is easy. The external_power_changed callback gets passed
+the power_supply which will eventually get stored in info->bat,
+so fuel_gauge_external_power_changed() can simply directly use
+the passed in psy argument which is always valid.
+
+Fixes: 30abb3d07929 ("power: supply: axp288_fuel_gauge: Take lock before updating the valid flag")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/power/supply/axp288_fuel_gauge.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index 05f413178462..3be6f3b10ea4 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -507,7 +507,7 @@ static void fuel_gauge_external_power_changed(struct power_supply *psy)
+ 	mutex_lock(&info->lock);
+ 	info->valid = 0; /* Force updating of the cached registers */
+ 	mutex_unlock(&info->lock);
+-	power_supply_changed(info->bat);
++	power_supply_changed(psy);
+ }
+ 
+ static struct power_supply_desc fuel_gauge_desc = {
+-- 
+2.39.1
+
