@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 011676E3074
+	by mail.lfdr.de (Postfix) with ESMTP id BDE3C6E3077
 	for <lists+stable@lfdr.de>; Sat, 15 Apr 2023 12:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbjDOKME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Apr 2023 06:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59756 "EHLO
+        id S229762AbjDOKMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Apr 2023 06:12:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229772AbjDOKMD (ORCPT
+        with ESMTP id S229760AbjDOKMD (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 15 Apr 2023 06:12:03 -0400
 Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E352D4A;
-        Sat, 15 Apr 2023 03:12:01 -0700 (PDT)
-Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.57])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Pz8CV1cCLz17SYJ;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10307358C;
+        Sat, 15 Apr 2023 03:12:02 -0700 (PDT)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Pz8CV3xsRz17SYK;
         Sat, 15 Apr 2023 18:08:22 +0800 (CST)
 Received: from cgs.huawei.com (10.244.148.83) by
  kwepemi500012.china.huawei.com (7.221.188.12) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Sat, 15 Apr 2023 18:11:59 +0800
+ 15.1.2507.23; Sat, 15 Apr 2023 18:12:00 +0800
 From:   Gaosheng Cui <cuigaosheng1@huawei.com>
 To:     <stable@vger.kernel.org>, <cuigaosheng1@huawei.com>
 CC:     <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
         <gregkh@linuxfoundation.org>, <linux-crypto@vger.kernel.org>
-Subject: [PATCH 5.10 3/4] crypto: api - Export crypto_boot_test_finished
-Date:   Sat, 15 Apr 2023 18:11:57 +0800
-Message-ID: <20230415101158.1648486-4-cuigaosheng1@huawei.com>
+Subject: [PATCH 5.10 4/4] crypto: api - Fix boot-up crash when crypto manager is disabled
+Date:   Sat, 15 Apr 2023 18:11:58 +0800
+Message-ID: <20230415101158.1648486-5-cuigaosheng1@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230415101158.1648486-1-cuigaosheng1@huawei.com>
 References: <20230415101158.1648486-1-cuigaosheng1@huawei.com>
@@ -49,29 +49,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Herbert Xu <herbert@gondor.apana.org.au>
 
-We need to export crypto_boot_test_finished in case api.c is
-built-in while algapi.c is built as a module.
+When the crypto manager is disabled, we need to explicitly set
+the crypto algorithms' tested status so that they can be used.
 
-Fixes: adad556efcdd ("crypto: api - Fix built-in testing dependency failures")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Fixes: cad439fc040e ("crypto: api - Do not create test larvals if...")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: Ido Schimmel <idosch@idosch.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Stephen Rothwell <sfr@canb.auug.org.au> # ppc32 build
+Tested-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
 ---
- crypto/api.c | 1 +
- 1 file changed, 1 insertion(+)
+ crypto/algapi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/crypto/api.c b/crypto/api.c
-index 0e7a255252ca..7ddfe946dd56 100644
---- a/crypto/api.c
-+++ b/crypto/api.c
-@@ -32,6 +32,7 @@ BLOCKING_NOTIFIER_HEAD(crypto_chain);
- EXPORT_SYMBOL_GPL(crypto_chain);
+diff --git a/crypto/algapi.c b/crypto/algapi.c
+index f6481cb79946..0d0c3e937e36 100644
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -284,6 +284,8 @@ static struct crypto_larval *__crypto_register_alg(struct crypto_alg *alg)
  
- DEFINE_STATIC_KEY_FALSE(crypto_boot_test_finished);
-+EXPORT_SYMBOL_GPL(crypto_boot_test_finished);
+ 	if (larval)
+ 		list_add(&larval->alg.cra_list, &crypto_alg_list);
++	else
++		alg->cra_flags |= CRYPTO_ALG_TESTED;
  
- static struct crypto_alg *crypto_larval_wait(struct crypto_alg *alg);
+ 	crypto_stats_init(alg);
  
 -- 
 2.25.1
