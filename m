@@ -2,74 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFFAF6E31D6
-	for <lists+stable@lfdr.de>; Sat, 15 Apr 2023 16:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C077F6E3209
+	for <lists+stable@lfdr.de>; Sat, 15 Apr 2023 17:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbjDOOcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Apr 2023 10:32:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47762 "EHLO
+        id S229994AbjDOPHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Apr 2023 11:07:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjDOOcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Apr 2023 10:32:15 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FEDF1FDE
-        for <stable@vger.kernel.org>; Sat, 15 Apr 2023 07:32:14 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-94e53ef6815so236947766b.1
-        for <stable@vger.kernel.org>; Sat, 15 Apr 2023 07:32:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681569133; x=1684161133;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
-        b=Lpbh5X1w82H2RM5TJF//dOL7QXbOEa2s37G4VQX5PfxrANiksdiA/OrFmB+AZZJjv4
-         T+g4cdaX2/V6wjS6dpIy1DcudFbC+/Zl4554WRWv6B81gA8k3FNzdPT5ssgg0pWRVh4O
-         Yz3bB5ptTjPdPo/I/DAv+KBP1P3g1cY3QsN7rNNlP3l7RV72Bg4uNU3RFgw9VqOYzBMg
-         RZzEqTlqVyGmVrPM474v/1p9zpt9dPDLn4DZFlLjnQLYr4yNzwewII98nQaJdCeaRjR3
-         F1QYG5JwlOfZE8KH9JQN5j9M3Bk+EqTvndfRsokJwNxEU7Hr1TKXzcnM1bnq0fq+XWxD
-         3BhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681569133; x=1684161133;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
-        b=GaBmKn8+BDyBah1+qQx8DjY+/TT+8BGMsWvyEvf2C/h8cGbuW1MiAtIGrNw4MAIi/t
-         cNQFlJ9maCHESJawzjy/YpynV2AuOA5I43s4TR13SxyfruCO09tvJ7T89jN/Nriem1fK
-         flqYXEuBRCS3RiU70JIMunrASA1g6e+PY35zyr/8Bqg63EGTrJtfgugU5VfMw86C9HnB
-         OOqfxA9js1Dl5qFm5dcngGUV9C9yyOtATmz0E9/nrRJD1sGLtPlvNO4O/mHahNwm27JQ
-         Y/kaOfWEqo0HT8cNyYMbDZ8sVF7qaGeAMfqS3ajETp8MtyuOOqhYz8YdYDNB5LtOhgzt
-         RwKA==
-X-Gm-Message-State: AAQBX9cypaBCeGv+Vch05XZeq+n5KstKT9/3Uk3zAUYjPMQy52FZfNee
-        Pcd2FS9I2KPPqmhwPc3drthIIRq9knxLysfYLaM=
-X-Google-Smtp-Source: AKy350YFGHL4vpq4i8YMWsviwKFv9q0Y8WzexouAvwu5PkY+zPK6UseuUgOH1o2ryTDiRdEIZgiwKoyehk5gkgawe80=
-X-Received: by 2002:a50:8acd:0:b0:506:2750:d2a5 with SMTP id
- k13-20020a508acd000000b005062750d2a5mr4698399edk.0.1681569132760; Sat, 15 Apr
- 2023 07:32:12 -0700 (PDT)
+        with ESMTP id S229535AbjDOPHs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Apr 2023 11:07:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20AA340D6;
+        Sat, 15 Apr 2023 08:07:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2F2160F91;
+        Sat, 15 Apr 2023 15:07:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C094AC433D2;
+        Sat, 15 Apr 2023 15:07:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681571266;
+        bh=Fl/gTvlCoViEMPTAMS2nrZbrWPrbjIjS7GU06V6dev8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=u9u+LEf76lHNymV/w4KL2lcwmfO18+8hx/35jXjq5vY+5OqkKYq7qQyQ7OK6kltOk
+         OEwl6XVgEm58klJCMyABK+dUGW7ow1oXcuGHCDzx5aHkAuYphcQ4wtmKMnzWjPvnQU
+         ysl3e5T/LBKNLMp5jSduI7KLdCBgVdh2prgkTRc8=
+Date:   Sat, 15 Apr 2023 17:07:43 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Gaosheng Cui <cuigaosheng1@huawei.com>
+Cc:     stable@vger.kernel.org, herbert@gondor.apana.org.au,
+        davem@davemloft.net, linux-crypto@vger.kernel.org
+Subject: Re: [PATCH 5.10 1/4] crypto: api - Fix built-in testing dependency
+ failures
+Message-ID: <2023041513-sloppily-external-4c18@gregkh>
+References: <20230415101158.1648486-1-cuigaosheng1@huawei.com>
+ <20230415101158.1648486-2-cuigaosheng1@huawei.com>
 MIME-Version: 1.0
-Received: by 2002:ab4:a5d0:0:b0:207:9d22:3f56 with HTTP; Sat, 15 Apr 2023
- 07:32:11 -0700 (PDT)
-Reply-To: dravasmith27@gmail.com
-From:   Dr Ava Smith <avasmt002@gmail.com>
-Date:   Sat, 15 Apr 2023 07:32:11 -0700
-Message-ID: <CAGJq2vsx_6SJ=e=Pd44BR5gjqE27SAvKeE=Ckx8qo61tRdtUzA@mail.gmail.com>
-Subject: GREETINGS FROM DR AVA SMITH
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=2.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230415101158.1648486-2-cuigaosheng1@huawei.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hello Dear,
-how are you today?hope you are fine
-My name is Dr Ava Smith ,Am an English and French nationalities.
-I will give you pictures and more details about me as soon as i hear from you
-Thanks
-Ava
+On Sat, Apr 15, 2023 at 06:11:55PM +0800, Gaosheng Cui wrote:
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> 
+> When complex algorithms that depend on other algorithms are built
+> into the kernel, the order of registration must be done such that
+> the underlying algorithms are ready before the ones on top are
+> registered.  As otherwise they would fail during the self-test
+> which is required during registration.
+> 
+> In the past we have used subsystem initialisation ordering to
+> guarantee this.  The number of such precedence levels are limited
+> and they may cause ripple effects in other subsystems.
+> 
+> This patch solves this problem by delaying all self-tests during
+> boot-up for built-in algorithms.  They will be tested either when
+> something else in the kernel requests for them, or when we have
+> finished registering all built-in algorithms, whichever comes
+> earlier.
+> 
+> Reported-by: Vladis Dronov <vdronov@redhat.com>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+> ---
+>  crypto/algapi.c   | 73 +++++++++++++++++++++++++++++++++--------------
+>  crypto/api.c      | 52 +++++++++++++++++++++++++++++----
+>  crypto/internal.h | 10 +++++++
+>  3 files changed, 108 insertions(+), 27 deletions(-)
+
+What is the git commit id of this, and the other 3 patches, in Linus's
+tree?  That is required to have here, as you know.
+
+thanks,
+
+greg k-h
