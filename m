@@ -2,112 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 631256E3604
-	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 10:14:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE156E3781
+	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 12:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230078AbjDPIO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Apr 2023 04:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49136 "EHLO
+        id S229535AbjDPKkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Apr 2023 06:40:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbjDPIO0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 04:14:26 -0400
-X-Greylist: delayed 420 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 16 Apr 2023 01:14:23 PDT
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [207.46.229.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0B3BF1FCC;
-        Sun, 16 Apr 2023 01:14:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pku.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
-        Message-Id:MIME-Version:Content-Transfer-Encoding; bh=1q0y+uK+PK
-        am5wXdZTymKic3XyLnYvqjw4Kuxn+7cVk=; b=RM9rjXyw/dQrij7m5AdIGiUSG2
-        0R7lHoKnhi7qpGvhecNJMQ6sV0dFVrfB/k3y99E9pQTCxw4Uuhjutn3Emkr5j/dn
-        I3mWX09ZyqqpQGw0NPh95r3+q2meEEW87bDhDROSLzp5rc9sH6yCP2LDWgcj2ZVA
-        Cqx9oKmbc0/b+vMhQ=
-Received: from localhost.localdomain (unknown [10.7.101.92])
-        by front01 (Coremail) with SMTP id 5oFpogA3pDxRrjtk2hfIDg--.8669S2;
-        Sun, 16 Apr 2023 16:14:11 +0800 (CST)
-From:   Ruihan Li <lrh2000@pku.edu.cn>
-To:     linux-bluetooth@vger.kernel.org
-Cc:     Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Ruihan Li <lrh2000@pku.edu.cn>, stable@vger.kernel.org
-Subject: [PATCH] bluetooth: Perform careful capability checks in hci_sock_ioctl()
-Date:   Sun, 16 Apr 2023 16:14:04 +0800
-Message-Id: <20230416081404.8227-1-lrh2000@pku.edu.cn>
-X-Mailer: git-send-email 2.40.0
+        with ESMTP id S229532AbjDPKks (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 06:40:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C2C1BFE
+        for <stable@vger.kernel.org>; Sun, 16 Apr 2023 03:40:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABECE60C32
+        for <stable@vger.kernel.org>; Sun, 16 Apr 2023 10:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6823C433D2;
+        Sun, 16 Apr 2023 10:40:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681641646;
+        bh=r6aO0Q1kiQqoWnD8k4czBBvEENpFKVhh+Rq/3+8fQLs=;
+        h=Subject:To:Cc:From:Date:From;
+        b=unGOObZX8dhoKYjg8eIaMiFjIOFep7eGWqMxXQ5VnMyES68RU8In2Ck6bhJVDDg8B
+         N/iaEdkQ+B+Myzzjbn1RI+M3G7K3LpYaMXhH9kNtpe36QJBIoowrI3SHbapIhvhaYv
+         sePOqqFlRuv0NIoQWj5OkvE+GiKT9Si1nlc7vNpI=
+Subject: FAILED: patch "[PATCH] drm/i915/dsi: fix DSS CTL register offsets for TGL+" failed to apply to 5.10-stable tree
+To:     jani.nikula@intel.com, ville.syrjala@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 16 Apr 2023 12:40:43 +0200
+Message-ID: <2023041642-revenue-jawline-b0b4@gregkh>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: 5oFpogA3pDxRrjtk2hfIDg--.8669S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Ww18ury8WFy5Kw4UGFWktFb_yoW8CF1kpF
-        ZakFn8trWkJF1IvwnrJa1fJFWUAa4vgrW7GFZrC3y5AwsxCa10g3yFkryUKanrArsrAF4S
-        vF129ryxKr1DJ37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUB01xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-        w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-        IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJr0_GcWl84ACjcxK6I8E
-        87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1lnxkEFVAIw20F6c
-        xK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2Wl
-        Yx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbV
-        WUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lc7CjxVAaw2AF
-        wI0_JF0_Jw1lc2xSY4AK6svPMxAIw28IcxkI7VAKI48JMxAIw28IcVCjz48v1sIEY20_Kr
-        1UJr1l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
-        jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE2I
-        x0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK
-        8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I
-        0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfUO0PfDUUUU
-X-CM-SenderInfo: yssqiiarrvmko6sn3hxhgxhubq/1tbiAgEBBVPy77oXEgAKs8
-X-Spam-Status: No, score=1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: *
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Previously, capability was checked using capable(), which verified that the
-caller of the ioctl system call had the required capability. In addition,
-the result of the check would be stored in the HCI_SOCK_TRUSTED flag,
-making it persistent for the socket.
 
-However, malicious programs can abuse this approach by deliberately sharing
-an HCI socket with a privileged task. The HCI socket will be marked as
-trusted when the privileged task occasionally makes an ioctl call.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This problem can be solved by using sk_capable() to check capability, which
-ensures that not only the current task but also the socket opener has the
-specified capability, thus reducing the risk of privilege escalation
-through the previously identified vulnerability.
+To reproduce the conflict and resubmit, you may use the following commands:
 
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git checkout FETCH_HEAD
+git cherry-pick -x 6b8446859c971a5783a2cdc90adf32e64de3bd23
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041642-revenue-jawline-b0b4@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+
+Possible dependencies:
+
+6b8446859c97 ("drm/i915/dsi: fix DSS CTL register offsets for TGL+")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 6b8446859c971a5783a2cdc90adf32e64de3bd23 Mon Sep 17 00:00:00 2001
+From: Jani Nikula <jani.nikula@intel.com>
+Date: Wed, 1 Mar 2023 17:14:09 +0200
+Subject: [PATCH] drm/i915/dsi: fix DSS CTL register offsets for TGL+
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On TGL+ the DSS control registers are at different offsets, and there's
+one per pipe. Fix the offsets to fix dual link DSI for TGL+.
+
+There would be helpers for this in the DSC code, but just do the quick
+fix now for DSI. Long term, we should probably move all the DSS handling
+into intel_vdsc.c, so exporting the helpers seems counter-productive.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8232
+Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
 Cc: stable@vger.kernel.org
-Fixes: f81f5b2db869 ("Bluetooth: Send control open and close messages for HCI raw sockets")
-Signed-off-by: Ruihan Li <lrh2000@pku.edu.cn>
----
- net/bluetooth/hci_sock.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230301151409.1581574-1-jani.nikula@intel.com
+(cherry picked from commit 1a62dd9895dca78bee28bba3a36f08836fdd143d)
 
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 065812232..f597fe0db 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -1003,7 +1003,14 @@ static int hci_sock_ioctl(struct socket *sock, unsigned int cmd,
- 	if (hci_sock_gen_cookie(sk)) {
- 		struct sk_buff *skb;
+diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
+index 468a792e6a40..fc0eaf40dc94 100644
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -300,9 +300,21 @@ static void configure_dual_link_mode(struct intel_encoder *encoder,
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+ 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
++	i915_reg_t dss_ctl1_reg, dss_ctl2_reg;
+ 	u32 dss_ctl1;
  
--		if (capable(CAP_NET_ADMIN))
-+		/* Perform careful checks before setting the HCI_SOCK_TRUSTED
-+		 * flag. Make sure that not only the current task but also
-+		 * the socket opener has the required capability, since
-+		 * privileged programs can be tricked into making ioctl calls
-+		 * on HCI sockets, and the socket should not be marked as
-+		 * trusted simply because the ioctl caller is privileged.
-+		 */
-+		if (sk_capable(sk, CAP_NET_ADMIN))
- 			hci_sock_set_flag(sk, HCI_SOCK_TRUSTED);
+-	dss_ctl1 = intel_de_read(dev_priv, DSS_CTL1);
++	/* FIXME: Move all DSS handling to intel_vdsc.c */
++	if (DISPLAY_VER(dev_priv) >= 12) {
++		struct intel_crtc *crtc = to_intel_crtc(pipe_config->uapi.crtc);
++
++		dss_ctl1_reg = ICL_PIPE_DSS_CTL1(crtc->pipe);
++		dss_ctl2_reg = ICL_PIPE_DSS_CTL2(crtc->pipe);
++	} else {
++		dss_ctl1_reg = DSS_CTL1;
++		dss_ctl2_reg = DSS_CTL2;
++	}
++
++	dss_ctl1 = intel_de_read(dev_priv, dss_ctl1_reg);
+ 	dss_ctl1 |= SPLITTER_ENABLE;
+ 	dss_ctl1 &= ~OVERLAP_PIXELS_MASK;
+ 	dss_ctl1 |= OVERLAP_PIXELS(intel_dsi->pixel_overlap);
+@@ -323,16 +335,16 @@ static void configure_dual_link_mode(struct intel_encoder *encoder,
  
- 		/* Send event to monitor */
--- 
-2.40.0
+ 		dss_ctl1 &= ~LEFT_DL_BUF_TARGET_DEPTH_MASK;
+ 		dss_ctl1 |= LEFT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
+-		dss_ctl2 = intel_de_read(dev_priv, DSS_CTL2);
++		dss_ctl2 = intel_de_read(dev_priv, dss_ctl2_reg);
+ 		dss_ctl2 &= ~RIGHT_DL_BUF_TARGET_DEPTH_MASK;
+ 		dss_ctl2 |= RIGHT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
+-		intel_de_write(dev_priv, DSS_CTL2, dss_ctl2);
++		intel_de_write(dev_priv, dss_ctl2_reg, dss_ctl2);
+ 	} else {
+ 		/* Interleave */
+ 		dss_ctl1 |= DUAL_LINK_MODE_INTERLEAVE;
+ 	}
+ 
+-	intel_de_write(dev_priv, DSS_CTL1, dss_ctl1);
++	intel_de_write(dev_priv, dss_ctl1_reg, dss_ctl1);
+ }
+ 
+ /* aka DSI 8X clock */
 
