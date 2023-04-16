@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CBA6E3AC2
-	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 19:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2E546E3AC3
+	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 19:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229879AbjDPRm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Apr 2023 13:42:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
+        id S229868AbjDPRmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Apr 2023 13:42:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229917AbjDPRmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 13:42:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5633835A5;
-        Sun, 16 Apr 2023 10:42:06 -0700 (PDT)
+        with ESMTP id S229986AbjDPRmN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 13:42:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35EB3AA7;
+        Sun, 16 Apr 2023 10:42:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3737F61C5E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4110B61C60;
+        Sun, 16 Apr 2023 17:42:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9800FC433EF;
         Sun, 16 Apr 2023 17:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C4A5C433EF;
-        Sun, 16 Apr 2023 17:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681666925;
-        bh=BIUoesCXxEynaw2w2epk8+xUA+pqoxYgzsgx/AfYwSg=;
+        s=korg; t=1681666926;
+        bh=D4qhR4GbiXGiOxFvy28qVgkD4TVHqbstGsuB71+EBp4=;
         h=Date:To:From:Subject:From;
-        b=Q2X67Ga3mBU7uXZalJUV3rhwUluvmCd6bvBufa1liPs/RXPoM08HyOAOBy02wTBrH
-         3bBghSowh9czb0spMe0wUtREllf8IhHgWtIyR4QfmbXwzVEK8GZpue/IbusA9VTcvM
-         E2kXW9VhcI2X9jPhGs0moxY76bAeLnFvLrU1rWYs=
-Date:   Sun, 16 Apr 2023 10:42:04 -0700
-To:     mm-commits@vger.kernel.org, yi.zhang@huawei.com,
-        yangerkun@huawei.com, viro@zeniv.linux.org.uk, tj@kernel.org,
-        stable@vger.kernel.org, jack@suse.cz, houtao1@huawei.com,
-        dennis@kernel.org, brauner@kernel.org, axboe@kernel.dk,
-        adilger.kernel@dilger.ca, libaokun1@huawei.com,
-        akpm@linux-foundation.org
+        b=EvorFA6Y8WeOTqpvzVs8EEsqi5jQPWiMcd1TjIfSBr2Qx/3goT53fgsT5Cv+X83B5
+         c9QDxdjPPi97Daci3riRCjOsiD1Y2W/MMlj27/F0FBc2zGdp0IEZ3Kx457D1CgvSJW
+         +xH0WOLq8oVUu/raaQnCWa528FfKiEK3kG9lRJxo=
+Date:   Sun, 16 Apr 2023 10:42:06 -0700
+To:     mm-commits@vger.kernel.org, zokeefe@google.com,
+        stable@vger.kernel.org, rppt@kernel.org, mike.kravetz@oracle.com,
+        david@redhat.com, axelrasmussen@google.com, 0x7f454c46@gmail.com,
+        peterx@redhat.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch removed from -mm tree
-Message-Id: <20230416174205.8C4A5C433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+Subject: [merged mm-hotfixes-stable] revert-userfaultfd-dont-fail-on-unrecognized-features.patch removed from -mm tree
+Message-Id: <20230416174206.9800FC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -50,183 +48,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
+     Subject: Revert "userfaultfd: don't fail on unrecognized features"
 has been removed from the -mm tree.  Its filename was
-     writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch
+     revert-userfaultfd-dont-fail-on-unrecognized-features.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Baokun Li <libaokun1@huawei.com>
-Subject: writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
-Date: Mon, 10 Apr 2023 21:08:26 +0800
+From: Peter Xu <peterx@redhat.com>
+Subject: Revert "userfaultfd: don't fail on unrecognized features"
+Date: Wed, 12 Apr 2023 12:38:52 -0400
 
-KASAN report null-ptr-deref:
-==================================================================
-BUG: KASAN: null-ptr-deref in bdi_split_work_to_wbs+0x5c5/0x7b0
-Write of size 8 at addr 0000000000000000 by task sync/943
-CPU: 5 PID: 943 Comm: sync Tainted: 6.3.0-rc5-next-20230406-dirty #461
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7f/0xc0
- print_report+0x2ba/0x340
- kasan_report+0xc4/0x120
- kasan_check_range+0x1b7/0x2e0
- __kasan_check_write+0x24/0x40
- bdi_split_work_to_wbs+0x5c5/0x7b0
- sync_inodes_sb+0x195/0x630
- sync_inodes_one_sb+0x3a/0x50
- iterate_supers+0x106/0x1b0
- ksys_sync+0x98/0x160
-[...]
-==================================================================
+This is a proposal to revert commit 914eedcb9ba0ff53c33808.
 
-The race that causes the above issue is as follows:
+I found this when writing a simple UFFDIO_API test to be the first unit
+test in this set.  Two things breaks with the commit:
 
-           cpu1                     cpu2
--------------------------|-------------------------
-inode_switch_wbs
- INIT_WORK(&isw->work, inode_switch_wbs_work_fn)
- queue_rcu_work(isw_wq, &isw->work)
- // queue_work async
-  inode_switch_wbs_work_fn
-   wb_put_many(old_wb, nr_switched)
-    percpu_ref_put_many
-     ref->data->release(ref)
-     cgwb_release
-      queue_work(cgwb_release_wq, &wb->release_work)
-      // queue_work async
-       &wb->release_work
-       cgwb_release_workfn
-                            ksys_sync
-                             iterate_supers
-                              sync_inodes_one_sb
-                               sync_inodes_sb
-                                bdi_split_work_to_wbs
-                                 kmalloc(sizeof(*work), GFP_ATOMIC)
-                                 // alloc memory failed
-        percpu_ref_exit
-         ref->data = NULL
-         kfree(data)
-                                 wb_get(wb)
-                                  percpu_ref_get(&wb->refcnt)
-                                   percpu_ref_get_many(ref, 1)
-                                    atomic_long_add(nr, &ref->data->count)
-                                     atomic64_add(i, v)
-                                     // trigger null-ptr-deref
+  - UFFDIO_API check was lost and missing.  According to man page, the
+  kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
+  check is needed if the api version will be extended in the future, or
+  user app won't be able to identify which is a new kernel.
 
-bdi_split_work_to_wbs() traverses &bdi->wb_list to split work into all
-wbs.  If the allocation of new work fails, the on-stack fallback will be
-used and the reference count of the current wb is increased afterwards. 
-If cgroup writeback membership switches occur before getting the reference
-count and the current wb is released as old_wd, then calling wb_get() or
-wb_put() will trigger the null pointer dereference above.
+  - Feature flags checks were removed, which means UFFDIO_API with a
+  feature that does not exist will also succeed.  According to the man
+  page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
+  unknown features passed in.
 
-This issue was introduced in v4.3-rc7 (see fix tag1).  Both
-sync_inodes_sb() and __writeback_inodes_sb_nr() calls to
-bdi_split_work_to_wbs() can trigger this issue.  For scenarios called via
-sync_inodes_sb(), originally commit 7fc5854f8c6e ("writeback: synchronize
-sync(2) against cgroup writeback membership switches") reduced the
-possibility of the issue by adding wb_switch_rwsem, but in v5.14-rc1 (see
-fix tag2) removed the "inode_io_list_del_locked(inode, old_wb)" from
-inode_switch_wbs_work_fn() so that wb->state contains WB_has_dirty_io,
-thus old_wb is not skipped when traversing wbs in bdi_split_work_to_wbs(),
-and the issue becomes easily reproducible again.
-
-To solve this problem, percpu_ref_exit() is called under RCU protection to
-avoid race between cgwb_release_workfn() and bdi_split_work_to_wbs(). 
-Moreover, replace wb_get() with wb_tryget() in bdi_split_work_to_wbs(),
-and skip the current wb if wb_tryget() fails because the wb has already
-been shutdown.
-
-Link: https://lkml.kernel.org/r/20230410130826.1492525-1-libaokun1@huawei.com
-Fixes: b817525a4a80 ("writeback: bdi_writeback iteration must not skip dying ones")
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Dennis Zhou <dennis@kernel.org>
-Cc: Hou Tao <houtao1@huawei.com>
-Cc: yangerkun <yangerkun@huawei.com>
-Cc: Zhang Yi <yi.zhang@huawei.com>
-Cc: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220722201513.1624158-1-axelrasmussen@google.com
+Link: https://lkml.kernel.org/r/20230412163922.327282-2-peterx@redhat.com
+Fixes: 914eedcb9ba0 ("userfaultfd: don't fail on unrecognized features")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mike Rapoport (IBM) <rppt@kernel.org>
+Cc: Zach O'Keefe <zokeefe@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/fs-writeback.c |   17 ++++++++++-------
- mm/backing-dev.c  |   12 ++++++++++--
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ fs/userfaultfd.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/fs-writeback.c~writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs
-+++ a/fs/fs-writeback.c
-@@ -978,6 +978,16 @@ restart:
- 			continue;
- 		}
- 
-+		/*
-+		 * If wb_tryget fails, the wb has been shutdown, skip it.
-+		 *
-+		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
-+		 * continuing iteration from @wb after dropping and
-+		 * regrabbing rcu read lock.
-+		 */
-+		if (!wb_tryget(wb))
-+			continue;
-+
- 		/* alloc failed, execute synchronously using on-stack fallback */
- 		work = &fallback_work;
- 		*work = *base_work;
-@@ -986,13 +996,6 @@ restart:
- 		work->done = &fallback_work_done;
- 
- 		wb_queue_work(wb, work);
--
--		/*
--		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
--		 * continuing iteration from @wb after dropping and
--		 * regrabbing rcu read lock.
--		 */
--		wb_get(wb);
- 		last_wb = wb;
- 
- 		rcu_read_unlock();
---- a/mm/backing-dev.c~writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs
-+++ a/mm/backing-dev.c
-@@ -507,6 +507,15 @@ static LIST_HEAD(offline_cgwbs);
- static void cleanup_offline_cgwbs_workfn(struct work_struct *work);
- static DECLARE_WORK(cleanup_offline_cgwbs_work, cleanup_offline_cgwbs_workfn);
- 
-+static void cgwb_free_rcu(struct rcu_head *rcu_head)
-+{
-+	struct bdi_writeback *wb = container_of(rcu_head,
-+			struct bdi_writeback, rcu);
-+
-+	percpu_ref_exit(&wb->refcnt);
-+	kfree(wb);
-+}
-+
- static void cgwb_release_workfn(struct work_struct *work)
- {
- 	struct bdi_writeback *wb = container_of(work, struct bdi_writeback,
-@@ -529,11 +538,10 @@ static void cgwb_release_workfn(struct w
- 	list_del(&wb->offline_node);
- 	spin_unlock_irq(&cgwb_lock);
- 
--	percpu_ref_exit(&wb->refcnt);
- 	wb_exit(wb);
- 	bdi_put(bdi);
- 	WARN_ON_ONCE(!list_empty(&wb->b_attached));
--	kfree_rcu(wb, rcu);
-+	call_rcu(&wb->rcu, cgwb_free_rcu);
- }
- 
- static void cgwb_release(struct percpu_ref *refcnt)
+--- a/fs/userfaultfd.c~revert-userfaultfd-dont-fail-on-unrecognized-features
++++ a/fs/userfaultfd.c
+@@ -1955,8 +1955,10 @@ static int userfaultfd_api(struct userfa
+ 	ret = -EFAULT;
+ 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
+ 		goto out;
+-	/* Ignore unsupported features (userspace built against newer kernel) */
+-	features = uffdio_api.features & UFFD_API_FEATURES;
++	features = uffdio_api.features;
++	ret = -EINVAL;
++	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
++		goto err_out;
+ 	ret = -EPERM;
+ 	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
+ 		goto err_out;
 _
 
-Patches currently in -mm which might be from libaokun1@huawei.com are
+Patches currently in -mm which might be from peterx@redhat.com are
 
+selftests-mm-update-gitignore-with-two-missing-tests.patch
+selftests-mm-dump-a-summary-in-run_vmtestssh.patch
+selftests-mm-merge-utilh-into-vm_utilh.patch
+selftests-mm-use-test_gen_progs-where-proper.patch
+selftests-mm-link-vm_utilc-always.patch
+selftests-mm-merge-default_huge_page_size-into-one.patch
+selftests-mm-use-pm_-macros-in-vm_utilsh.patch
+selftests-mm-reuse-pagemap_get_entry-in-vm_utilh.patch
+selftests-mm-test-uffdio_zeropage-only-when-hugetlb.patch
+selftests-mm-drop-test_uffdio_zeropage_eexist.patch
+selftests-mm-create-uffd-common.patch
+selftests-mm-split-uffd-tests-into-uffd-stress-and-uffd-unit-tests.patch
+selftests-mm-uffd_register.patch
+selftests-mm-uffd_open_devsys.patch
+selftests-mm-uffdio_api-test.patch
+selftests-mm-drop-global-mem_fd-in-uffd-tests.patch
+selftests-mm-drop-global-hpage_size-in-uffd-tests.patch
+selftests-mm-rename-uffd_stats-to-uffd_args.patch
+selftests-mm-let-uffd_handle_page_fault-take-wp-parameter.patch
+selftests-mm-allow-allocate_area-to-fail-properly.patch
+selftests-mm-add-framework-for-uffd-unit-test.patch
+selftests-mm-move-uffd-pagemap-test-to-unit-test.patch
+selftests-mm-move-uffd-minor-test-to-unit-test.patch
+selftests-mm-move-uffd-sig-events-tests-into-uffd-unit-tests.patch
+selftests-mm-move-zeropage-test-into-uffd-unit-tests.patch
+selftests-mm-workaround-no-way-to-detect-uffd-minor-wp.patch
+selftests-mm-allow-uffd-test-to-skip-properly-with-no-privilege.patch
+selftests-mm-drop-sys-dev-test-in-uffd-stress-test.patch
+selftests-mm-add-shmem-private-test-to-uffd-stress.patch
+selftests-mm-add-uffdio-register-ioctls-test.patch
 
