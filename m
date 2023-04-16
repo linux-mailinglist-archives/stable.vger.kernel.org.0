@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B75846E3AC1
-	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 19:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01CBA6E3AC2
+	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 19:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230025AbjDPRm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Apr 2023 13:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52160 "EHLO
+        id S229879AbjDPRm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Apr 2023 13:42:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229912AbjDPRmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 13:42:10 -0400
+        with ESMTP id S229917AbjDPRmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 13:42:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A193A9C;
-        Sun, 16 Apr 2023 10:42:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5633835A5;
+        Sun, 16 Apr 2023 10:42:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB22C61C43;
-        Sun, 16 Apr 2023 17:42:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DDAEC433EF;
-        Sun, 16 Apr 2023 17:42:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3737F61C5E;
+        Sun, 16 Apr 2023 17:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C4A5C433EF;
+        Sun, 16 Apr 2023 17:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681666924;
-        bh=wEO6UviCh7NVVm0cGNKFVWpO5B+A/QteLLkrZjMSb2s=;
+        s=korg; t=1681666925;
+        bh=BIUoesCXxEynaw2w2epk8+xUA+pqoxYgzsgx/AfYwSg=;
         h=Date:To:From:Subject:From;
-        b=byJyC1RwoxOwTWT1VyGr36++3OtaupzT3xXWZc6RTEMcHI3U9JGKh2flwrLj2y8QN
-         MbRH2oaeIgJbj2eqr0Ix0nU+xbTcQv53eUHHBeIoK7eNneTYZy58urEUJoMOvydUi4
-         K2DWnTvPqUUP2kPjzmMlS2n4+ejglkWD1crVkrk0=
-Date:   Sun, 16 Apr 2023 10:42:03 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        Liam.Howlett@oracle.com, zhangpeng.00@bytedance.com,
+        b=Q2X67Ga3mBU7uXZalJUV3rhwUluvmCd6bvBufa1liPs/RXPoM08HyOAOBy02wTBrH
+         3bBghSowh9czb0spMe0wUtREllf8IhHgWtIyR4QfmbXwzVEK8GZpue/IbusA9VTcvM
+         E2kXW9VhcI2X9jPhGs0moxY76bAeLnFvLrU1rWYs=
+Date:   Sun, 16 Apr 2023 10:42:04 -0700
+To:     mm-commits@vger.kernel.org, yi.zhang@huawei.com,
+        yangerkun@huawei.com, viro@zeniv.linux.org.uk, tj@kernel.org,
+        stable@vger.kernel.org, jack@suse.cz, houtao1@huawei.com,
+        dennis@kernel.org, brauner@kernel.org, axboe@kernel.dk,
+        adilger.kernel@dilger.ca, libaokun1@huawei.com,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug.patch removed from -mm tree
-Message-Id: <20230416174204.2DDAEC433EF@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch removed from -mm tree
+Message-Id: <20230416174205.8C4A5C433EF@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
@@ -47,82 +50,183 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
+     Subject: writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
 has been removed from the -mm tree.  Its filename was
-     maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug.patch
+     writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Peng Zhang <zhangpeng.00@bytedance.com>
-Subject: maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
-Date: Tue, 11 Apr 2023 12:10:04 +0800
+From: Baokun Li <libaokun1@huawei.com>
+Subject: writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
+Date: Mon, 10 Apr 2023 21:08:26 +0800
 
-In mas_alloc_nodes(), "node->node_count = 0" means to initialize the
-node_count field of the new node, but the node may not be a new node.  It
-may be a node that existed before and node_count has a value, setting it
-to 0 will cause a memory leak.  At this time, mas->alloc->total will be
-greater than the actual number of nodes in the linked list, which may
-cause many other errors.  For example, out-of-bounds access in
-mas_pop_node(), and mas_pop_node() may return addresses that should not be
-used.  Fix it by initializing node_count only for new nodes.
+KASAN report null-ptr-deref:
+==================================================================
+BUG: KASAN: null-ptr-deref in bdi_split_work_to_wbs+0x5c5/0x7b0
+Write of size 8 at addr 0000000000000000 by task sync/943
+CPU: 5 PID: 943 Comm: sync Tainted: 6.3.0-rc5-next-20230406-dirty #461
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7f/0xc0
+ print_report+0x2ba/0x340
+ kasan_report+0xc4/0x120
+ kasan_check_range+0x1b7/0x2e0
+ __kasan_check_write+0x24/0x40
+ bdi_split_work_to_wbs+0x5c5/0x7b0
+ sync_inodes_sb+0x195/0x630
+ sync_inodes_one_sb+0x3a/0x50
+ iterate_supers+0x106/0x1b0
+ ksys_sync+0x98/0x160
+[...]
+==================================================================
 
-Also, by the way, an if-else statement was removed to simplify the code.
+The race that causes the above issue is as follows:
 
-Link: https://lkml.kernel.org/r/20230411041005.26205-1-zhangpeng.00@bytedance.com
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+           cpu1                     cpu2
+-------------------------|-------------------------
+inode_switch_wbs
+ INIT_WORK(&isw->work, inode_switch_wbs_work_fn)
+ queue_rcu_work(isw_wq, &isw->work)
+ // queue_work async
+  inode_switch_wbs_work_fn
+   wb_put_many(old_wb, nr_switched)
+    percpu_ref_put_many
+     ref->data->release(ref)
+     cgwb_release
+      queue_work(cgwb_release_wq, &wb->release_work)
+      // queue_work async
+       &wb->release_work
+       cgwb_release_workfn
+                            ksys_sync
+                             iterate_supers
+                              sync_inodes_one_sb
+                               sync_inodes_sb
+                                bdi_split_work_to_wbs
+                                 kmalloc(sizeof(*work), GFP_ATOMIC)
+                                 // alloc memory failed
+        percpu_ref_exit
+         ref->data = NULL
+         kfree(data)
+                                 wb_get(wb)
+                                  percpu_ref_get(&wb->refcnt)
+                                   percpu_ref_get_many(ref, 1)
+                                    atomic_long_add(nr, &ref->data->count)
+                                     atomic64_add(i, v)
+                                     // trigger null-ptr-deref
+
+bdi_split_work_to_wbs() traverses &bdi->wb_list to split work into all
+wbs.  If the allocation of new work fails, the on-stack fallback will be
+used and the reference count of the current wb is increased afterwards. 
+If cgroup writeback membership switches occur before getting the reference
+count and the current wb is released as old_wd, then calling wb_get() or
+wb_put() will trigger the null pointer dereference above.
+
+This issue was introduced in v4.3-rc7 (see fix tag1).  Both
+sync_inodes_sb() and __writeback_inodes_sb_nr() calls to
+bdi_split_work_to_wbs() can trigger this issue.  For scenarios called via
+sync_inodes_sb(), originally commit 7fc5854f8c6e ("writeback: synchronize
+sync(2) against cgroup writeback membership switches") reduced the
+possibility of the issue by adding wb_switch_rwsem, but in v5.14-rc1 (see
+fix tag2) removed the "inode_io_list_del_locked(inode, old_wb)" from
+inode_switch_wbs_work_fn() so that wb->state contains WB_has_dirty_io,
+thus old_wb is not skipped when traversing wbs in bdi_split_work_to_wbs(),
+and the issue becomes easily reproducible again.
+
+To solve this problem, percpu_ref_exit() is called under RCU protection to
+avoid race between cgwb_release_workfn() and bdi_split_work_to_wbs(). 
+Moreover, replace wb_get() with wb_tryget() in bdi_split_work_to_wbs(),
+and skip the current wb if wb_tryget() fails because the wb has already
+been shutdown.
+
+Link: https://lkml.kernel.org/r/20230410130826.1492525-1-libaokun1@huawei.com
+Fixes: b817525a4a80 ("writeback: bdi_writeback iteration must not skip dying ones")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andreas Dilger <adilger.kernel@dilger.ca>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Hou Tao <houtao1@huawei.com>
+Cc: yangerkun <yangerkun@huawei.com>
+Cc: Zhang Yi <yi.zhang@huawei.com>
+Cc: Jens Axboe <axboe@kernel.dk>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- lib/maple_tree.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ fs/fs-writeback.c |   17 ++++++++++-------
+ mm/backing-dev.c  |   12 ++++++++++--
+ 2 files changed, 20 insertions(+), 9 deletions(-)
 
---- a/lib/maple_tree.c~maple_tree-fix-a-potential-memory-leak-oob-access-or-other-unpredictable-bug
-+++ a/lib/maple_tree.c
-@@ -1303,26 +1303,21 @@ static inline void mas_alloc_nodes(struc
- 	node = mas->alloc;
- 	node->request_count = 0;
- 	while (requested) {
--		max_req = MAPLE_ALLOC_SLOTS;
--		if (node->node_count) {
--			unsigned int offset = node->node_count;
--
--			slots = (void **)&node->slot[offset];
--			max_req -= offset;
--		} else {
--			slots = (void **)&node->slot;
--		}
--
-+		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
-+		slots = (void **)&node->slot[node->node_count];
- 		max_req = min(requested, max_req);
- 		count = mt_alloc_bulk(gfp, max_req, slots);
- 		if (!count)
- 			goto nomem_bulk;
+--- a/fs/fs-writeback.c~writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs
++++ a/fs/fs-writeback.c
+@@ -978,6 +978,16 @@ restart:
+ 			continue;
+ 		}
  
-+		if (node->node_count == 0) {
-+			node->slot[0]->node_count = 0;
-+			node->slot[0]->request_count = 0;
-+		}
++		/*
++		 * If wb_tryget fails, the wb has been shutdown, skip it.
++		 *
++		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
++		 * continuing iteration from @wb after dropping and
++		 * regrabbing rcu read lock.
++		 */
++		if (!wb_tryget(wb))
++			continue;
 +
- 		node->node_count += count;
- 		allocated += count;
- 		node = node->slot[0];
--		node->node_count = 0;
--		node->request_count = 0;
- 		requested -= count;
- 	}
- 	mas->alloc->total = allocated;
+ 		/* alloc failed, execute synchronously using on-stack fallback */
+ 		work = &fallback_work;
+ 		*work = *base_work;
+@@ -986,13 +996,6 @@ restart:
+ 		work->done = &fallback_work_done;
+ 
+ 		wb_queue_work(wb, work);
+-
+-		/*
+-		 * Pin @wb so that it stays on @bdi->wb_list.  This allows
+-		 * continuing iteration from @wb after dropping and
+-		 * regrabbing rcu read lock.
+-		 */
+-		wb_get(wb);
+ 		last_wb = wb;
+ 
+ 		rcu_read_unlock();
+--- a/mm/backing-dev.c~writeback-cgroup-fix-null-ptr-deref-write-in-bdi_split_work_to_wbs
++++ a/mm/backing-dev.c
+@@ -507,6 +507,15 @@ static LIST_HEAD(offline_cgwbs);
+ static void cleanup_offline_cgwbs_workfn(struct work_struct *work);
+ static DECLARE_WORK(cleanup_offline_cgwbs_work, cleanup_offline_cgwbs_workfn);
+ 
++static void cgwb_free_rcu(struct rcu_head *rcu_head)
++{
++	struct bdi_writeback *wb = container_of(rcu_head,
++			struct bdi_writeback, rcu);
++
++	percpu_ref_exit(&wb->refcnt);
++	kfree(wb);
++}
++
+ static void cgwb_release_workfn(struct work_struct *work)
+ {
+ 	struct bdi_writeback *wb = container_of(work, struct bdi_writeback,
+@@ -529,11 +538,10 @@ static void cgwb_release_workfn(struct w
+ 	list_del(&wb->offline_node);
+ 	spin_unlock_irq(&cgwb_lock);
+ 
+-	percpu_ref_exit(&wb->refcnt);
+ 	wb_exit(wb);
+ 	bdi_put(bdi);
+ 	WARN_ON_ONCE(!list_empty(&wb->b_attached));
+-	kfree_rcu(wb, rcu);
++	call_rcu(&wb->rcu, cgwb_free_rcu);
+ }
+ 
+ static void cgwb_release(struct percpu_ref *refcnt)
 _
 
-Patches currently in -mm which might be from zhangpeng.00@bytedance.com are
+Patches currently in -mm which might be from libaokun1@huawei.com are
 
-mm-kfence-improve-the-performance-of-__kfence_alloc-and-__kfence_free.patch
-maple_tree-simplify-mas_wr_node_walk.patch
-maple_tree-use-correct-variable-type-in-sizeof.patch
-maple_tree-add-a-test-case-to-check-maple_alloc.patch
 
