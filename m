@@ -2,128 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2BF6E4E02
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 18:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332CF6E4E31
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 18:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230147AbjDQQHo convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 17 Apr 2023 12:07:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34510 "EHLO
+        id S229849AbjDQQWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 12:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229896AbjDQQHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 12:07:43 -0400
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB4E659D;
-        Mon, 17 Apr 2023 09:07:40 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id F33EA64551BD;
-        Mon, 17 Apr 2023 18:07:37 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id n1W0Qrtyq6yM; Mon, 17 Apr 2023 18:07:37 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 913E76431C58;
-        Mon, 17 Apr 2023 18:07:37 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Ln_Xl0bMsm8o; Mon, 17 Apr 2023 18:07:37 +0200 (CEST)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 3DEF464551BD;
-        Mon, 17 Apr 2023 18:07:37 +0200 (CEST)
-Date:   Mon, 17 Apr 2023 18:07:37 +0200 (CEST)
-From:   Richard Weinberger <richard@nod.at>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     George Kennedy <george.kennedy@oracle.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        eorge kennedy <eorge.kennedy@oracle.com>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        syzkaller <syzkaller@googlegroups.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        harshit m mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        kernel <kernel@pengutronix.de>, stable <stable@vger.kernel.org>
-Message-ID: <1791587113.113210.1681747656999.JavaMail.zimbra@nod.at>
-In-Reply-To: <20230417160102.lw6n7bdxwrlkluwj@pengutronix.de>
-References: <ae901608-0580-010a-26e3-99d0b704b88b@oracle.com> <20230417160102.lw6n7bdxwrlkluwj@pengutronix.de>
-Subject: Re: [Regression] Cannot overwrite VID header offset any more [Was:
- [PATCH] ubi: ensure that VID header offset + VID header size <= alloc,
- size]
+        with ESMTP id S230393AbjDQQWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 12:22:32 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B3A5BB3
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 09:22:26 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-552ae3e2cbeso51676267b3.13
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 09:22:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1681748545; x=1684340545;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9qqF9B0Sz3hWGl8lp8w0SC9VFttXX9F/0UBZXJc8LdE=;
+        b=O+IupxaO3kOEk4LZ8PMz7M1+WC06Ctx7jwcKQOXom5VE2vP548mPHKM62zpIsbZ/z5
+         J/bUAgd38QG9yjfv6lFEa92MzyY5mDDeU7qY2XEAmv4WHIL3o6ZQStKvK53ZyqXTG1Ux
+         raay+P0IBseG5ELTRQWxxGHsUEAm8/y33N2BM/dO9nsU/IqsdEz5SqKAG9AVQWakzb/i
+         i6A1Nc9BlTL4Gmce2wcpjpusihjc7uyl+Gq2O5LVk22cDjm9olATWEg+V1qRiTDvYZK8
+         u1sazrm+KAwfJf8RESywW7ocFI80bOLzXHGcfH2NghpmkfBzt9mlx5uiX2jGnjxLMUke
+         EZrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681748545; x=1684340545;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9qqF9B0Sz3hWGl8lp8w0SC9VFttXX9F/0UBZXJc8LdE=;
+        b=LW0s1ZXpV/5X9wBOPlS+KRilnyqB4VeYlpqVFThpqpLMurSf0iQVkYMYjjq8gUrvTF
+         WrbkvqtFa4j1438PH0oNSMbDF2FtLMZwefNFJ59IoturjMuVkTG2PL5Wx8Nwy6LjXbR1
+         B/dZSfsTGICsyTiYMO1BCMYSZ0An2E0HM8FLsJlbpx+7W0MOAdo3ftaeeofdwvpN0rJK
+         lXxWa+ZfNlCzs2jIDuXxqgcdE72TfbR4RYqCl0jSJ9jCtMLfkWeBPbEdpTYuqsPfUaSc
+         2+vUCMnNDzDgas0V5+q2mQ2IUgPYEhcYHYYDtVNY8BTMu/x2yYLeFdmOiXLeYhhbWM5X
+         CFLg==
+X-Gm-Message-State: AAQBX9dusrj/LRSycDP+eRZBVSxYlwXm0Uzr6YKAg47UEueX4fRPivMU
+        xnAYhzPYCTwwjBss3jftC8U3SwHNqWPxrPZuBnBv
+X-Google-Smtp-Source: AKy350Y0DLw5tz9PIc3EICASrVKN0fK1tXB+NpmFnsqUhEJX+BLy04ShEbasbAaSm0yXOilWHxcbl2myHRlWIK/xP64=
+X-Received: by 2002:a81:b50a:0:b0:54b:fd28:c5ff with SMTP id
+ t10-20020a81b50a000000b0054bfd28c5ffmr9878142ywh.3.1681748545541; Mon, 17 Apr
+ 2023 09:22:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF97 (Linux)/8.8.12_GA_3809)
-Thread-Topic: Cannot overwrite VID header offset any more [Was: [PATCH] ubi: ensure that VID header offset + VID header size <= alloc, size]
-Thread-Index: QZS7NxF6po442+3+qhw1upzn2ik3iw==
-X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,PDS_BAD_THREAD_QP_64,
-        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR autolearn=no
-        autolearn_force=no version=3.4.6
+References: <20230412023839.2869114-1-jstultz@google.com> <20230412035905.3184199-1-jstultz@google.com>
+ <20230417111949.GJ83892@hirez.programming.kicks-ass.net>
+In-Reply-To: <20230417111949.GJ83892@hirez.programming.kicks-ass.net>
+From:   John Stultz <jstultz@google.com>
+Date:   Mon, 17 Apr 2023 18:22:14 +0200
+Message-ID: <CANDhNCp2WEAMjK1DUVKCen05-EdwVBYZxxLSP3ZSZvRh1ayAhQ@mail.gmail.com>
+Subject: Re: [PATCH v2] locking/rwsem: Add __always_inline annotation to __down_read_common()
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Tim Murray <timmurray@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Boqun Feng <boqun.feng@gmail.com>, kernel-team@android.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Uwe,
+On Mon, Apr 17, 2023 at 1:19=E2=80=AFPM Peter Zijlstra <peterz@infradead.or=
+g> wrote:
+>
+> On Wed, Apr 12, 2023 at 03:59:05AM +0000, John Stultz wrote:
+> > Apparently despite it being marked inline, the compiler
+> > may not inline __down_read_common() which makes it difficult
+> > to identify the cause of lock contention, as the blocked
+> > function will always be listed as __down_read_common().
+> >
+> > So this patch adds __always_inline annotation to the
+> > function to force it to be inlines so the calling function
+> > will be listed.
+>
+> I'm a wee bit confused; what are you looking at? Wchan?
 
------ Ursprüngliche Mail -----
-> Von: "Uwe Kleine-König" <u.kleine-koenig@pengutronix.de>
-> This patch is in mainline as 1b42b1a36fc946f0d7088425b90d491b4257ca3e,
-> and backported to various stable releases.
-> 
-> For me this breaks
-> 
->	ubiattach -m 0 -O 2048
-> 
-> I think the check
-> 
->	ubi->vid_hdr_offset + UBI_VID_HDR_SIZE > ubi->vid_hdr_alsize
-> 
-> is wrong. Without -O passed to ubiattach (and dynamic debug enabled) I
-> get:
-> 
-> [ 5294.936762] UBI DBG gen (pid 9619): sizeof(struct ubi_ainf_peb) 56
-> [ 5294.936769] UBI DBG gen (pid 9619): sizeof(struct ubi_wl_entry) 32
-> [ 5294.936774] UBI DBG gen (pid 9619): min_io_size      2048
-> [ 5294.936779] UBI DBG gen (pid 9619): max_write_size   2048
-> [ 5294.936783] UBI DBG gen (pid 9619): hdrs_min_io_size 512
-> [ 5294.936787] UBI DBG gen (pid 9619): ec_hdr_alsize    512
-> [ 5294.936791] UBI DBG gen (pid 9619): vid_hdr_alsize   512
-> [ 5294.936796] UBI DBG gen (pid 9619): vid_hdr_offset   512
-> [ 5294.936800] UBI DBG gen (pid 9619): vid_hdr_aloffset 512
-> [ 5294.936804] UBI DBG gen (pid 9619): vid_hdr_shift    0
-> [ 5294.936808] UBI DBG gen (pid 9619): leb_start        2048
-> [ 5294.936812] UBI DBG gen (pid 9619): max_erroneous    409
-> 
-> So the check would only pass for vid_hdr_offset <= 512 -
-> UBI_VID_HDR_SIZE; note that even specifying the default value 512 (i.e.
-> 
->	ubiattach -m 0 -O 512
-> 
-> ) fails the check.
-> 
-> A less strong check would be:
-> 
-> diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-> index 0904eb40c95f..69c28a862430 100644
-> --- a/drivers/mtd/ubi/build.c
-> +++ b/drivers/mtd/ubi/build.c
-> @@ -666,8 +666,8 @@ static int io_init(struct ubi_device *ubi, int
-> max_beb_per1024)
-> 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
-> 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
-> 
-> -	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
-> -	    ubi->vid_hdr_alsize)) {
-> +	if (ubi->vid_hdr_offset &&
-> +	    ubi->vid_hdr_offset + UBI_VID_HDR_SIZE > ubi->peb_size) {
-> 		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
-> 		return -EINVAL;
-> 	}
-> 
-> But I'm unsure if this would be too lax?!
+Apologies! Yes, traceevent data via wchan, sorry I didn't make that clear.
 
-As written on IRC, 1e020e1b96af ("ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size") is supposed to fix that
-and on it's way into stable.
+> What is stopping
+> the compiler from now handing you
+> __down_read{,_interruptible,_killable}() instead? Is that fine?
 
-Thanks,
-//richard
+No, we want to make the blocked calling function, rather than the
+locking functions, visible in the tracepoints captured. That said, the
+other __down_read* functions seem to be properly inlined in practice
+(Waiman's theory as to why sounds convincing to me).
+
+If you'd like I can add those as well to be always_inline, as well so
+it's more consistent?
+
+thanks
+-john
