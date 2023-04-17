@@ -2,289 +2,345 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41356E4D82
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 17:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B12A36E4DC1
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 17:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230325AbjDQPqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 11:46:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40860 "EHLO
+        id S231472AbjDQP4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 11:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229955AbjDQPqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 11:46:10 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2041.outbound.protection.outlook.com [40.107.93.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A51F210D;
-        Mon, 17 Apr 2023 08:46:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=d7Sb+6LV53P0MYwjVRkLal6nefLEEXINaoTpAVaRaT1BkcipT9tbaUc+wx0ntaDXNgDWq3KpwDsLr2YWYESuAW5ke2eshTk7KGxQarrRf/yDAeouK1O8m4gTU4lGJFuBad+tfjOhcG0xX2AMp2YBhxqKzdPZvAbOA6s1OAMEQyD8FpUeHPdYsSR7LXKEoqlWASVqkpzAUnPw5DVqUPWUXq09+BfeNAgdQ0ZnsRIBZOFtgfl1RovyF+25ZQqzOvNZ+jQBtLcpo8wqWc61HqjGvzSEROAd10SANKPsH9UEQcYDmzj+7qDTyzde7g9bp9YUak52XNSsJr7LGiLnrEIIjg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UEMrHtzQQjuyXQK26vcOQPAuRkNoQgNTTbncvj6Bdhg=;
- b=YTKmAolxVWHzTttHYpKyd9YcuTdv6+lXTuLrpDTwsXztvl3HUJW7taiUXx37xWxjCtbUZHK+6h4Or5gmhvrR9W8yq4vgPVVLsZH3AB2XaCfZe7gc7E+BUVr6h4hYdAnOz1S2288XA6uCxBe9iNifNS5KBVy8xseSQVx3vhbpz2sV8o4+77w8yDv8sc48MW67K4dODiADL2c2dhKTTftZA5BuQaCmXqam9GQFwFX1TtmDUX6HHXR6JNZiES2oiW9AjURttyopxsQwsgWRM7Dgw7gdn/pxz8j/T7gWyeSX6lXV9Z9Wy5GuugOpVq1yneokYsaUuIgjNOxk1Y8ghbRvQA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UEMrHtzQQjuyXQK26vcOQPAuRkNoQgNTTbncvj6Bdhg=;
- b=qhcXidBzVdK4jToqOBkDRkER7Owhjk+GnIrs5uqAvTsDgVwluYoRFIWSqfTr6delLZMNdPMtPgbnxB65xMSkhmsCigokX75nX8uZ3rKzkLKQDubJXLMFXLM6z3yUczRqKZsaJxIDHWooiO7sv6ji5QRhD3wkVz7HashXpRi61sc=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
- by BL1PR12MB5756.namprd12.prod.outlook.com (2603:10b6:208:393::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Mon, 17 Apr
- 2023 15:46:06 +0000
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::d2f8:7388:39c1:bbed]) by BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::d2f8:7388:39c1:bbed%3]) with mapi id 15.20.6298.045; Mon, 17 Apr 2023
- 15:46:05 +0000
-Message-ID: <a13a38a4-6327-7af0-56b7-930f4258eee5@amd.com>
-Date:   Mon, 17 Apr 2023 17:46:00 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH] drm/amd/display: fix flickering caused by S/G mode
-Content-Language: en-US
-To:     Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        amd-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-References: <20230414193331.199598-1-hamza.mahfooz@amd.com>
- <4207e848-4e79-29a7-2bb0-44f74a2d62c7@amd.com>
- <23ebe744-bd4b-c411-99f1-c4ae9dc132f7@amd.com>
- <d9fd286d-7f06-be80-7b81-b2aa2c074f1f@amd.com>
- <b112c88a-c3b2-67a2-b401-8d8962bbe01b@amd.com>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-In-Reply-To: <b112c88a-c3b2-67a2-b401-8d8962bbe01b@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR3P281CA0074.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:1f::12) To BN8PR12MB3587.namprd12.prod.outlook.com
- (2603:10b6:408:43::13)
+        with ESMTP id S231499AbjDQP4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 11:56:02 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF52440CD;
+        Mon, 17 Apr 2023 08:55:55 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 410CA219FB;
+        Mon, 17 Apr 2023 15:55:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1681746954; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wEk0ZNBjt4S2t/wbsSwJCfF0qX8aYfy5nXrFzhWIpEE=;
+        b=B3cqQUlgz8d9wS5ZBek2c0pfM6h/ZcISWX+Hvi+2rJgw9joIF1GEy5FiztOXD6mDCegymu
+        keWeZDoh8Ee6HUaDMxrXXA2o85YKTAJORYPeO9skx9gKwl3cuR1RFUveTN533tR9rJgqS7
+        7PDJ7EOuP4tX1U6GRlrO6hO7gAMGIqU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1681746954;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wEk0ZNBjt4S2t/wbsSwJCfF0qX8aYfy5nXrFzhWIpEE=;
+        b=dEd/TwjyMWbB2dq4r+HpjA7rIZvVel5l5ouQ6uLdOHNLJqsJ76bXecL4j+RZ/QyXvdTYJG
+        UCk8hXiWZAOAgpBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C428713319;
+        Mon, 17 Apr 2023 15:55:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id NWm/LAlsPWQ7RAAAMHmgww
+        (envelope-from <lhenriques@suse.de>); Mon, 17 Apr 2023 15:55:53 +0000
+Received: from localhost (brahms.olymp [local])
+        by brahms.olymp (OpenSMTPD) with ESMTPA id 7bdb5741;
+        Mon, 17 Apr 2023 15:55:53 +0000 (UTC)
+From:   =?utf-8?Q?Lu=C3=ADs_Henriques?= <lhenriques@suse.de>
+To:     xiubli@redhat.com
+Cc:     idryomov@gmail.com, ceph-devel@vger.kernel.org, jlayton@kernel.org,
+        vshankar@redhat.com, mchangir@redhat.com, stable@vger.kernel.org
+Subject: Re: [PATCH v2] ceph: fix potential use-after-free bug when trimming
+ caps
+References: <20230417120850.60880-1-xiubli@redhat.com>
+Date:   Mon, 17 Apr 2023 16:55:52 +0100
+In-Reply-To: <20230417120850.60880-1-xiubli@redhat.com> (xiubli@redhat.com's
+        message of "Mon, 17 Apr 2023 20:08:50 +0800")
+Message-ID: <87354yec53.fsf@brahms.olymp>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3587:EE_|BL1PR12MB5756:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7b9f6cd4-35b7-49aa-71e0-08db3f5adab0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: BSwF7MFWesgLgTUzIyuPpnfs2tIIenRlvnSZHs6lCO3JwFE94P55EASQbIQ+zaGA5qT+stOl1emd6yxzjgMnw1moyHms6wfqSoqLodV+jZeLp4AmotuEBoJvVKbIxZ0Eh+Pn1heTvwwU29d7nSLi8qpih54Wvcj0wGC3axcxzznOSWCYu1SqBA7M3KA2MtPpM3c8e8VNLrsky6YbhqpJrhUst++bDmtC0GGEGNpigyKWk+VsyZGi4QBIKq21YcuBQTYiezDYCSKYiz5ygvEB6cKUT0XMZ9FO4RNxtnyPuT3vCZajde3/CcS6a/MOTHNn5oBSakgPTnvMUsJZP5OVe7Ns+FeeWrm00u7Oq4bD+PMCNmtBq+md+MZDMn5y20xtGYIiYRA6xCPn4O+UdPc0mone6yBcN4hZ6MnpEbx/40o0tBtbMVfHCNBIq6hU8Vxn+GGv9mRdPVWbeY5IbrDrCIjJ4BghA9Gb1ixj9RzppIK64urNx0UW0vwv9K6s1KXiqJ24e0xBSqdIS9l+VkJGVfGzo58gn7XtUogUBJH/L5qn43U3fxhu201bAyO/C/THj/4U6bAKuPxEsDEv/FgU5tuIoYlRSCx78+H7sEjmZOXodXkFFmrxPF9d5jPsoCCxB/7wWSvP7/pR8l/46aokPQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB3587.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(366004)(346002)(376002)(39860400002)(396003)(451199021)(86362001)(31696002)(83380400001)(53546011)(36756003)(6506007)(6512007)(66574015)(186003)(2906002)(31686004)(2616005)(6486002)(5660300002)(38100700002)(6666004)(8936002)(8676002)(478600001)(54906003)(41300700001)(316002)(66946007)(66556008)(66476007)(4326008)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NThSUklpWGd6d1pqUWV5NlVlMzkwdDdPbjMzWUJjbkpzT1FRd21JTGhVVDVh?=
- =?utf-8?B?dk91VWRMZmZEbThwdyt2blFzYWQ0Q3JJSEF4ZFFXenp5UUFGSGpTN0c0emNV?=
- =?utf-8?B?M0wyTHZpcnF6RDRrQmJ2aENzS1dMc0RJQXB6a25JbEptN1Y2RGFNWEFXL0Vi?=
- =?utf-8?B?VnhzTUdybk5WR0IzTjh2Y1FGTXcxSU5VeVJySW9ha0s2bHduZnJCTVE1YlVS?=
- =?utf-8?B?MGZTNXh2MGIrZUZCZGtERDJ1aG9qV29UUjd6Z2lmNDJDK2Z6WEhWYm9JOU1S?=
- =?utf-8?B?VWZwUk45ODhCMWNuSXQ3d21ESk9leTAydWEvcHlNUTlPdXVoTmxpWVlLam5X?=
- =?utf-8?B?Q0pxbDlKNHJMQm52RVg0L3dEU09HdUFMMlFGd2VCeEFmWmlMUWlaeFFiZVpa?=
- =?utf-8?B?NEh2Z1g5dWFNVUY1L1lFM0Nib29Ea0RrdU1ZUGZYdFNqYlpKUlZsYTNQS0NK?=
- =?utf-8?B?ejBjSFp0bzRjZXlCdXkvOW9mV0FrTUk0Zm0vbDlHWm45L3p4TWJ5aDNyTkxn?=
- =?utf-8?B?clJvaUx4eVE3am1IaHpmeHZGRExCODNieEtOR2ZadDJXMThZNXVrV2ZaTnV5?=
- =?utf-8?B?RGxMcDhQMnA3TFZncGVRb1NqbWowdXRLL2h0L3M2dVNyQmRUbEFhS1JDK0VI?=
- =?utf-8?B?U0hCVnRlZmE3OW5mN25WeUZHUjRiNWtwNFVENXI4MXFabHRyMnJES0ZrRzl4?=
- =?utf-8?B?eFByWGsyVTZzV0ZzVzcyL01SY0thM0p4UUlCVHhOWmptdFcybm9SNEFEYSt1?=
- =?utf-8?B?R0lJMnhhRExGQXRlekQ4MXhrLzJDOXRZRzVnYlVlK1FPcUNCOHI3SDcrdXFN?=
- =?utf-8?B?dWhsSTd1Rm1zNWdZWE1ZUlNicHJIVmc0VWttTU14bTFRRVUxRy9STER1RGNK?=
- =?utf-8?B?WE9LM1ZaeDRrZ3NqTXRiaTI2K1cvWHFWUVZ4SlErcmRpZ1hVS3RkOFRMRy9V?=
- =?utf-8?B?ZzBFdW9NVVVQdTM2MlZzNjJ4ckRuWHlUSmcyc05STFRlUHVnZVdSZERaOWJG?=
- =?utf-8?B?NkFEYWpFWkRadngwbU5BSDFNWjd6M1Q5aVlVQkxtczdLcnJZNnAxN3k2RnFh?=
- =?utf-8?B?bDNDWmwrVVNSOHByeExhWS9mOVZTT2h1eG1VWWVVVmVwNjlwTExhZEdNN3Fn?=
- =?utf-8?B?QkRCZFZDV0dJWGpNUjdRU2R3bytlWDBqZzFKZ0FuVzY2dE45cG1iMG1xMWhF?=
- =?utf-8?B?TjhvUzQ0VmJtNmZBMkFpNlFMK3FFVTVrbVBSQUdNU2plU1p6Z3Nkb2gvYVc4?=
- =?utf-8?B?MDZFem1XL0UxVEl3ZXRscmtPQTdoUE40ZGxKMGdKYkdMYzFTeVJaVFF2a093?=
- =?utf-8?B?R1FiSWhVZlVtWDhReFVudm9aeERtSUlVWjhqVStyK2lLVHVNbHNtSUhaQ1I5?=
- =?utf-8?B?UGFjc1BTVkFOVW5FRW41YVZYQUhpNE8wVW5EeU9YQTdaK2IrMkNZYWp2cUpt?=
- =?utf-8?B?RFBRM091NjNWaVhhVUJSY0dTTS9PcEVUcklSSmVCSmVocTJVc3h5emYxZnFB?=
- =?utf-8?B?NS9uYjJrVkVvQnIyMFFzU2MrcnU0ZDk4d3J2WGFtbzBWcGJ0TDlVMEpWL0lo?=
- =?utf-8?B?OHU0dWd0d2syWFlhK3h3bUpZZ2wvWXcvTFFWNlBtUEx5Mmx2RHFqdGQrbFFH?=
- =?utf-8?B?Wnl1d2JtWDh3cTlicWpIMG5mRkE0QlFKN3M4ZGV4YzRsczZBaTNZd3NrY2g5?=
- =?utf-8?B?T0NZNzZEbkdnMUp2eldvYUNKbWlrRWFrMkVpWHRQT2FCL3JFcE4xMXNxb2ZC?=
- =?utf-8?B?bGZRWE1keGp4UFVuYkFNRGNtdlhmSGFxZEx4cUtkKy9nbWdaUm5ZSitvUDNW?=
- =?utf-8?B?NlAwTVM0YURucVY0WXJVYmRvM1QyMTQ4WkhRdkY1WWs4UG1KenM0RjVjbWs3?=
- =?utf-8?B?VVpKUUEzUE9MSlRsQ2pJU1dTT1NPb3phVnVIcmtNQmRsdXNhRm5VNEQzOG50?=
- =?utf-8?B?dkNOL1JpZjMyS3VDNE9tTlVPbzYvSEpoQ3dDWSttVmd5Q3RycUZOSDdmZ01T?=
- =?utf-8?B?R1VFMGQ5TVp2STBTcHZ5M3o3QmxLTm1Ka1ZSbmovZnVLV3hIRm1ZWk9YOEVi?=
- =?utf-8?B?bVhlc010OXlMaGg4Yyt1YjhwUmdFSUdsSXVSbmJ5QWVyQzlDSmVrNUhwRkRk?=
- =?utf-8?B?dWtjTUQydW5NZjlEUXJ5MU5pUmFWdkxTeTUwcWliTFVyd0xEMDM5OFRYYzE3?=
- =?utf-8?Q?Sn5MdGGd1IyM6HndbFFAztnruSFzhyjSdQEWxTmxV8lB?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7b9f6cd4-35b7-49aa-71e0-08db3f5adab0
-X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Apr 2023 15:46:05.4717
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5EaTNcAGbEcgbJh7EJB9sKut6X49ZksHoJ3KWM8/jvaEHof0Zp6Fd2Qeeaa1Pu8f
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5756
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 17.04.23 um 17:25 schrieb Hamza Mahfooz:
+xiubli@redhat.com writes:
+
+> From: Xiubo Li <xiubli@redhat.com>
 >
-> On 4/17/23 11:03, Christian König wrote:
->> Am 17.04.23 um 16:51 schrieb Hamza Mahfooz:
->>>
->>> On 4/17/23 01:59, Christian König wrote:
->>>> Am 14.04.23 um 21:33 schrieb Hamza Mahfooz:
->>>>> Currently, we allow the framebuffer for a given plane to move between
->>>>> memory domains, however when that happens it causes the screen to
->>>>> flicker, it is even possible for the framebuffer to change memory
->>>>> domains on every plane update (causing a continuous flicker 
->>>>> effect). So,
->>>>> to fix this, don't perform an immediate flip in the aforementioned 
->>>>> case.
->>>>
->>>> That sounds strongly like you just forget to wait for the move to 
->>>> finish!
->>>>
->>>> What is the order of things done here? E.g. who calls 
->>>> amdgpu_bo_pin() and who waits for fences for finish signaling? Is 
->>>> that maybe just in the wrong order?
->>>
->>> The pinning logic is in dm_plane_helper_prepare_fb(). Also, it seems
->>> like we wait for the fences in amdgpu_dm_atomic_commit_tail(), using
->>> drm_atomic_helper_wait_for_fences(). The ordering should be fine as
->>> well, since prepare_fb() is always called before atomic_commit_tail().
->>
->> Ok, then why is there any flickering?
->>
->> BTW reserving a fence slot is completely unnecessary. That looks like 
->> you copy&pasted the code from somewhere else without checking what it 
->> actually does.
+> When trimming the caps and just after the 'session->s_cap_lock' is
+> released in ceph_iterate_session_caps() the cap maybe removed by
+> another thread, and when using the stale cap memory in the callbacks
+> it will trigger use-after-free crash.
 >
-> It seemed like it was necessary to read `tbo.resource` since the
-> documentation for `struct ttm_buffer_object` makes mention of a
-> "bo::resv::reserved" lock.
-
-What? No, that sounds like you completely misunderstood that. I think we 
-need to improve the documentation.
-
-As long as the object is pinned for scanout you don't even need to 
-reserve it.
-
-Just use something like "abo->tbo.resource ? abo->tbo.resource->mem_type 
-: 0" here.
-
-Regards,
-Christian.
-
+> We need to check the existence of the cap just after the 'ci->i_ceph_lock'
+> being acquired. And do nothing if it's already removed.
 >
->>
->> Regards,
->> Christian.
->>
->>>
->>>>
->>>> Regards,
->>>> Christian.
->>>>
->>>>>
->>>>> Cc: stable@vger.kernel.org
->>>>> Fixes: 81d0bcf99009 ("drm/amdgpu: make display pinning more 
->>>>> flexible (v2)")
->>>>> Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
->>>>> ---
->>>>>   .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 41 
->>>>> ++++++++++++++++++-
->>>>>   1 file changed, 39 insertions(+), 2 deletions(-)
->>>>>
->>>>> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c 
->>>>> b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
->>>>> index da3045fdcb6d..9a4e7408384a 100644
->>>>> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
->>>>> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
->>>>> @@ -7897,6 +7897,34 @@ static void amdgpu_dm_commit_cursors(struct 
->>>>> drm_atomic_state *state)
->>>>>               amdgpu_dm_plane_handle_cursor_update(plane, 
->>>>> old_plane_state);
->>>>>   }
->>>>> +static inline uint32_t get_mem_type(struct amdgpu_device *adev,
->>>>> +                    struct drm_gem_object *obj,
->>>>> +                    bool check_domain)
->>>>> +{
->>>>> +    struct amdgpu_bo *abo = gem_to_amdgpu_bo(obj);
->>>>> +    uint32_t mem_type;
->>>>> +
->>>>> +    if (unlikely(amdgpu_bo_reserve(abo, true)))
->>>>> +        return 0;
->>>>> +
->>>>> +    if (unlikely(dma_resv_reserve_fences(abo->tbo.base.resv, 1)))
->>>>> +        goto err;
->>>>> +
->>>>> +    if (check_domain &&
->>>>> +        amdgpu_display_supported_domains(adev, abo->flags) !=
->>>>> +        (AMDGPU_GEM_DOMAIN_VRAM | AMDGPU_GEM_DOMAIN_GTT))
->>>>> +        goto err;
->>>>> +
->>>>> +    mem_type = abo->tbo.resource->mem_type;
->>>>> +    amdgpu_bo_unreserve(abo);
->>>>> +
->>>>> +    return mem_type;
->>>>> +
->>>>> +err:
->>>>> +    amdgpu_bo_unreserve(abo);
->>>>> +    return 0;
->>>>> +}
->>>>> +
->>>>>   static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
->>>>>                       struct dc_state *dc_state,
->>>>>                       struct drm_device *dev,
->>>>> @@ -7916,6 +7944,7 @@ static void amdgpu_dm_commit_planes(struct 
->>>>> drm_atomic_state *state,
->>>>> to_dm_crtc_state(drm_atomic_get_old_crtc_state(state, pcrtc));
->>>>>       int planes_count = 0, vpos, hpos;
->>>>>       unsigned long flags;
->>>>> +    uint32_t mem_type;
->>>>>       u32 target_vblank, last_flip_vblank;
->>>>>       bool vrr_active = amdgpu_dm_crtc_vrr_active(acrtc_state);
->>>>>       bool cursor_update = false;
->>>>> @@ -8035,13 +8064,21 @@ static void amdgpu_dm_commit_planes(struct 
->>>>> drm_atomic_state *state,
->>>>>               }
->>>>>           }
->>>>> +        mem_type = get_mem_type(dm->adev, 
->>>>> old_plane_state->fb->obj[0],
->>>>> +                    true);
->>>>> +
->>>>>           /*
->>>>>            * Only allow immediate flips for fast updates that don't
->>>>> -         * change FB pitch, DCC state, rotation or mirroing.
->>>>> +         * change memory domain, FB pitch, DCC state, rotation or
->>>>> +         * mirroring.
->>>>>            */
->>>>> bundle->flip_addrs[planes_count].flip_immediate =
->>>>>               crtc->state->async_flip &&
->>>>> -            acrtc_state->update_type == UPDATE_TYPE_FAST;
->>>>> +            acrtc_state->update_type == UPDATE_TYPE_FAST &&
->>>>> +            (!mem_type || (mem_type && get_mem_type(dm->adev,
->>>>> +                                fb->obj[0],
->>>>> +                                false) ==
->>>>> +                       mem_type));
->>>>>           timestamp_ns = ktime_get_ns();
->>>>> bundle->flip_addrs[planes_count].flip_timestamp_in_us = 
->>>>> div_u64(timestamp_ns, 1000);
->>>>
->>
+> Cc: stable@vger.kernel.org
+> URL: https://bugzilla.redhat.com/show_bug.cgi?id=3D2186264
 
+I didn't had time to look closer at what this patch is fixing but the
+above URL requires a account to access it.  So I guess it should be
+dropped or replaced by another one from the tracker...?
+
+Also, just skimming through the patch, there are at least 2 obvious issues
+with it.  See below.
+
+> Signed-off-by: Xiubo Li <xiubli@redhat.com>
+> ---
+>
+> V2:
+> - Fix this in ceph_iterate_session_caps instead.
+>
+>
+>  fs/ceph/debugfs.c    |  7 +++++-
+>  fs/ceph/mds_client.c | 56 ++++++++++++++++++++++++++++++--------------
+>  fs/ceph/mds_client.h |  2 +-
+>  3 files changed, 46 insertions(+), 19 deletions(-)
+>
+> diff --git a/fs/ceph/debugfs.c b/fs/ceph/debugfs.c
+> index bec3c4549c07..5c0f07df5b02 100644
+> --- a/fs/ceph/debugfs.c
+> +++ b/fs/ceph/debugfs.c
+> @@ -248,14 +248,19 @@ static int metrics_caps_show(struct seq_file *s, vo=
+id *p)
+>  	return 0;
+>  }
+>=20=20
+> -static int caps_show_cb(struct inode *inode, struct ceph_cap *cap, void =
+*p)
+> +static int caps_show_cb(struct inode *inode, struct rb_node *ci_node, vo=
+id *p)
+>  {
+> +	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	struct seq_file *s =3D p;
+> +	struct ceph_cap *cap;
+>=20=20
+> +	spin_lock(&ci->i_ceph_lock);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+>  	seq_printf(s, "0x%-17llx%-3d%-17s%-17s\n", ceph_ino(inode),
+>  		   cap->session->s_mds,
+>  		   ceph_cap_string(cap->issued),
+>  		   ceph_cap_string(cap->implemented));
+> +	spin_unlock(&ci->i_ceph_lock);
+>  	return 0;
+>  }
+>=20=20
+> diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+> index 294af79c25c9..7fcfbddd534d 100644
+> --- a/fs/ceph/mds_client.c
+> +++ b/fs/ceph/mds_client.c
+> @@ -1786,7 +1786,7 @@ static void cleanup_session_requests(struct ceph_md=
+s_client *mdsc,
+>   * Caller must hold session s_mutex.
+>   */
+>  int ceph_iterate_session_caps(struct ceph_mds_session *session,
+> -			      int (*cb)(struct inode *, struct ceph_cap *,
+> +			      int (*cb)(struct inode *, struct rb_node *ci_node,
+>  					void *), void *arg)
+>  {
+>  	struct list_head *p;
+> @@ -1799,6 +1799,8 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
+on *session,
+>  	spin_lock(&session->s_cap_lock);
+>  	p =3D session->s_caps.next;
+>  	while (p !=3D &session->s_caps) {
+> +		struct rb_node *ci_node;
+> +
+>  		cap =3D list_entry(p, struct ceph_cap, session_caps);
+>  		inode =3D igrab(&cap->ci->netfs.inode);
+>  		if (!inode) {
+> @@ -1806,6 +1808,7 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
+on *session,
+>  			continue;
+>  		}
+>  		session->s_cap_iterator =3D cap;
+> +		ci_node =3D &cap->ci_node;
+>  		spin_unlock(&session->s_cap_lock);
+>=20=20
+>  		if (last_inode) {
+> @@ -1817,7 +1820,7 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
+on *session,
+>  			old_cap =3D NULL;
+>  		}
+>=20=20
+> -		ret =3D cb(inode, cap, arg);
+> +		ret =3D cb(inode, ci_node, arg);
+>  		last_inode =3D inode;
+>=20=20
+>  		spin_lock(&session->s_cap_lock);
+> @@ -1850,17 +1853,22 @@ int ceph_iterate_session_caps(struct ceph_mds_ses=
+sion *session,
+>  	return ret;
+>  }
+>=20=20
+> -static int remove_session_caps_cb(struct inode *inode, struct ceph_cap *=
+cap,
+> +static int remove_session_caps_cb(struct inode *inode, struct rb_node *c=
+i_node,
+>  				  void *arg)
+>  {
+>  	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	bool invalidate =3D false;
+> +	struct ceph_cap *cap;
+>  	int iputs;
+>=20=20
+> -	dout("removing cap %p, ci is %p, inode is %p\n",
+> -	     cap, ci, &ci->netfs.inode);
+>  	spin_lock(&ci->i_ceph_lock);
+> -	iputs =3D ceph_purge_inode_cap(inode, cap, &invalidate);
+
+This will leave iputs uninitialized if the statement below returns NULL.
+Which will cause issues later in the function.
+
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +	if (cap) {
+> +		dout(" removing cap %p, ci is %p, inode is %p\n",
+> +		     cap, ci, &ci->netfs.inode);
+> +
+> +		iputs =3D ceph_purge_inode_cap(inode, cap, &invalidate);
+> +	}
+>  	spin_unlock(&ci->i_ceph_lock);
+>=20=20
+>  	wake_up_all(&ci->i_cap_wq);
+> @@ -1934,11 +1942,11 @@ enum {
+>   *
+>   * caller must hold s_mutex.
+>   */
+> -static int wake_up_session_cb(struct inode *inode, struct ceph_cap *cap,
+> -			      void *arg)
+> +static int wake_up_session_cb(struct inode *inode, struct rb_node *ci_no=
+de, void *arg)
+>  {
+>  	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	unsigned long ev =3D (unsigned long)arg;
+> +	struct ceph_cap *cap;
+>=20=20
+>  	if (ev =3D=3D RECONNECT) {
+>  		spin_lock(&ci->i_ceph_lock);
+> @@ -1949,7 +1957,9 @@ static int wake_up_session_cb(struct inode *inode, =
+struct ceph_cap *cap,
+>  		if (cap->cap_gen < atomic_read(&cap->session->s_cap_gen)) {
+
+Since we're replacing the 'cap' argument by the 'ci_node', the
+above statement will have garbage in 'cap'.
+
+Cheers,
+--=20
+Lu=C3=ADs
+
+>  			/* mds did not re-issue stale cap */
+>  			spin_lock(&ci->i_ceph_lock);
+> -			cap->issued =3D cap->implemented =3D CEPH_CAP_PIN;
+> +			cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +			if (cap)
+> +				cap->issued =3D cap->implemented =3D CEPH_CAP_PIN;
+>  			spin_unlock(&ci->i_ceph_lock);
+>  		}
+>  	} else if (ev =3D=3D FORCE_RO) {
+> @@ -2113,16 +2123,22 @@ static bool drop_negative_children(struct dentry =
+*dentry)
+>   * Yes, this is a bit sloppy.  Our only real goal here is to respond to
+>   * memory pressure from the MDS, though, so it needn't be perfect.
+>   */
+> -static int trim_caps_cb(struct inode *inode, struct ceph_cap *cap, void =
+*arg)
+> +static int trim_caps_cb(struct inode *inode, struct rb_node *ci_node, vo=
+id *arg)
+>  {
+>  	int *remaining =3D arg;
+>  	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	int used, wanted, oissued, mine;
+> +	struct ceph_cap *cap;
+>=20=20
+>  	if (*remaining <=3D 0)
+>  		return -1;
+>=20=20
+>  	spin_lock(&ci->i_ceph_lock);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +	if (!cap) {
+> +		spin_unlock(&ci->i_ceph_lock);
+> +		return 0;
+> +	}
+>  	mine =3D cap->issued | cap->implemented;
+>  	used =3D __ceph_caps_used(ci);
+>  	wanted =3D __ceph_caps_file_wanted(ci);
+> @@ -4265,26 +4281,23 @@ static struct dentry* d_find_primary(struct inode=
+ *inode)
+>  /*
+>   * Encode information about a cap for a reconnect with the MDS.
+>   */
+> -static int reconnect_caps_cb(struct inode *inode, struct ceph_cap *cap,
+> +static int reconnect_caps_cb(struct inode *inode, struct rb_node *ci_nod=
+e,
+>  			  void *arg)
+>  {
+>  	union {
+>  		struct ceph_mds_cap_reconnect v2;
+>  		struct ceph_mds_cap_reconnect_v1 v1;
+>  	} rec;
+> -	struct ceph_inode_info *ci =3D cap->ci;
+> +	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	struct ceph_reconnect_state *recon_state =3D arg;
+>  	struct ceph_pagelist *pagelist =3D recon_state->pagelist;
+>  	struct dentry *dentry;
+> +	struct ceph_cap *cap;
+>  	char *path;
+> -	int pathlen =3D 0, err;
+> +	int pathlen =3D 0, err =3D 0;
+>  	u64 pathbase;
+>  	u64 snap_follows;
+>=20=20
+> -	dout(" adding %p ino %llx.%llx cap %p %lld %s\n",
+> -	     inode, ceph_vinop(inode), cap, cap->cap_id,
+> -	     ceph_cap_string(cap->issued));
+> -
+>  	dentry =3D d_find_primary(inode);
+>  	if (dentry) {
+>  		/* set pathbase to parent dir when msg_version >=3D 2 */
+> @@ -4301,6 +4314,15 @@ static int reconnect_caps_cb(struct inode *inode, =
+struct ceph_cap *cap,
+>  	}
+>=20=20
+>  	spin_lock(&ci->i_ceph_lock);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +	if (!cap) {
+> +		spin_lock(&ci->i_ceph_lock);
+> +		goto out_err;
+> +	}
+> +	dout(" adding %p ino %llx.%llx cap %p %lld %s\n",
+> +	     inode, ceph_vinop(inode), cap, cap->cap_id,
+> +	     ceph_cap_string(cap->issued));
+> +
+>  	cap->seq =3D 0;        /* reset cap seq */
+>  	cap->issue_seq =3D 0;  /* and issue_seq */
+>  	cap->mseq =3D 0;       /* and migrate_seq */
+> diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
+> index 0f70ca3cdb21..001b69d04307 100644
+> --- a/fs/ceph/mds_client.h
+> +++ b/fs/ceph/mds_client.h
+> @@ -569,7 +569,7 @@ extern void ceph_queue_cap_reclaim_work(struct ceph_m=
+ds_client *mdsc);
+>  extern void ceph_reclaim_caps_nr(struct ceph_mds_client *mdsc, int nr);
+>  extern int ceph_iterate_session_caps(struct ceph_mds_session *session,
+>  				     int (*cb)(struct inode *,
+> -					       struct ceph_cap *, void *),
+> +					       struct rb_node *ci_node, void *),
+>  				     void *arg);
+>  extern void ceph_mdsc_pre_umount(struct ceph_mds_client *mdsc);
+>=20=20
+> --=20
+>
+> 2.39.2
+>
