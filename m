@@ -2,60 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9496E4792
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 14:23:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6F26E47BE
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 14:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229883AbjDQMXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 08:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43110 "EHLO
+        id S231126AbjDQMaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 08:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbjDQMXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 08:23:19 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976F419A5
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 05:22:37 -0700 (PDT)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1poNrw-000410-JM; Mon, 17 Apr 2023 14:22:04 +0200
-Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1poNrs-00018M-Fb; Mon, 17 Apr 2023 14:22:00 +0200
-Date:   Mon, 17 Apr 2023 14:22:00 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     Ping-Ke Shih <pkshih@realtek.com>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Hans Ulli Kroll <linux@ulli-kroll.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Tim K <tpkuester@gmail.com>, "Alex G ." <mr.nuke.me@gmail.com>,
-        Nick Morrow <morrownr@gmail.com>,
-        Viktor Petrenko <g0000ga@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        ValdikSS <iam@valdikss.org.ru>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-Message-ID: <20230417122200.GN13543@pengutronix.de>
-References: <20230404072508.578056-1-s.hauer@pengutronix.de>
- <20230404072508.578056-3-s.hauer@pengutronix.de>
- <e9c9b7d470904d9f8c8d6892cb8efd7d@realtek.com>
- <20230411102609.GB19113@pengutronix.de>
- <303221420e8e467dba0857261970d254@realtek.com>
+        with ESMTP id S230429AbjDQMaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 08:30:19 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE01468F
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 05:30:13 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2a8aea2a654so13220381fa.1
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 05:30:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681734612; x=1684326612;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=G/JB5DRDshib4Tz8g7yVBW+9lQnfgBzFAQIBePQQwSg=;
+        b=vCxJdFhdT+WCdGm7iu3cW5J4HK1ht+4ta0pd6M/4Mx/Jr+uAZq31KR0AYIxFlYex10
+         nrmTFjSLjZKAKIadFTbS2ZPZvGno4TuQAUNY6xOyAR+rqoLdzLJqFpzk5w2QnY0zrU0B
+         z9AUV+qXvtTi8r9hE0+HDTLzryfade54+QIUZcG+C94fqFyfOjTiRFU21BCEnWtGuTMh
+         zdrSYa86ucUMDuuQtx7ESPaBvN/3LOQjI1uu5zpBTwkZFCPGx6fNgbrLg9HvFWqJlfJc
+         i2F1r6ZshEcXDi6HRd4xOgP7ACrmFah9b3JDhVbOVwL5H/NtQzGHKVXVXZf1UfSl9s9+
+         ipCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681734612; x=1684326612;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=G/JB5DRDshib4Tz8g7yVBW+9lQnfgBzFAQIBePQQwSg=;
+        b=YN8JaorkzO8TJwQiznnqq+1tdQyHXVCUZw84ImbZAtmTX77WNJulUn1Iw7AbW1VXcJ
+         qNren3YKpvz9tkqUbmMdmVlnf0Yam+hYQ56vGJdV99OTeFG2Hlhn/wETfhz5GES4/rXn
+         lEom82EYXC2P0+T4UsCjLithXv1HBoqL+U+1RwI3DbMOaYtrSsA9cudHaw6LGpYsK5Bg
+         bIJJ6LNX1FWiaHv0p3JToFVmdw+OmQFZp76K0lzPepXaJuhtKBYFk4ZCvMc6Hlyje46K
+         PBIcDStbYG4fIF9P7R5nXfqm20U/13L8rJT/kpIOTEdmJliLx7dxHaveuLB4DwNTk1ah
+         DSmw==
+X-Gm-Message-State: AAQBX9ffmvYLQN7DGCGJ+vSd0AQNr8Kdp2NJNkCpHETz6RtAbq4X6ZqI
+        tWaHtroeL3Ls2rnWxTZK+BGLrIUk7u8KyiotSOFEsw==
+X-Google-Smtp-Source: AKy350asj3McUx7cd43SB9wv7K+s/l9AmPs16fLHun2t6r4FImgn7a2GqXnKPqh6TsP4gy2ji6dEKA==
+X-Received: by 2002:ac2:4210:0:b0:4ea:f5dd:8aa1 with SMTP id y16-20020ac24210000000b004eaf5dd8aa1mr1972414lfh.18.1681734611756;
+        Mon, 17 Apr 2023 05:30:11 -0700 (PDT)
+Received: from localhost (c-9b0ee555.07-21-73746f28.bbcust.telenor.se. [85.229.14.155])
+        by smtp.gmail.com with ESMTPSA id m10-20020ac2428a000000b004cb23904bd9sm2020078lfh.144.2023.04.17.05.30.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Apr 2023 05:30:11 -0700 (PDT)
+From:   Anders Roxell <anders.roxell@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     acme@redhat.com, andres@anarazel.de, linux-kernel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [backport PATCH 0/2] stable v5.15, v5.10 and v5.4: fix perf build errors
+Date:   Mon, 17 Apr 2023 14:29:41 +0200
+Message-Id: <20230417122943.2155502-1-anders.roxell@linaro.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <303221420e8e467dba0857261970d254@realtek.com>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -64,167 +69,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 14, 2023 at 02:05:44AM +0000, Ping-Ke Shih wrote:
-> 
-> > -----Original Message-----
-> > From: Sascha Hauer <s.hauer@pengutronix.de>
-> > Sent: Tuesday, April 11, 2023 6:26 PM
-> > To: Ping-Ke Shih <pkshih@realtek.com>
-> > Cc: linux-wireless <linux-wireless@vger.kernel.org>; Hans Ulli Kroll <linux@ulli-kroll.de>; Larry Finger
-> > <Larry.Finger@lwfinger.net>; Tim K <tpkuester@gmail.com>; Alex G . <mr.nuke.me@gmail.com>; Nick Morrow
-> > <morrownr@gmail.com>; Viktor Petrenko <g0000ga@gmail.com>; Andreas Henriksson <andreas@fatal.se>;
-> > ValdikSS <iam@valdikss.org.ru>; kernel@pengutronix.de; stable@vger.kernel.org
-> > Subject: Re: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-> > 
-> > On Thu, Apr 06, 2023 at 01:54:55AM +0000, Ping-Ke Shih wrote:
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: Sascha Hauer <s.hauer@pengutronix.de>
-> > > > Sent: Tuesday, April 4, 2023 3:25 PM
-> > > > To: linux-wireless <linux-wireless@vger.kernel.org>
-> > > > Cc: Hans Ulli Kroll <linux@ulli-kroll.de>; Larry Finger <Larry.Finger@lwfinger.net>; Ping-Ke Shih
-> > > > <pkshih@realtek.com>; Tim K <tpkuester@gmail.com>; Alex G . <mr.nuke.me@gmail.com>; Nick Morrow
-> > > > <morrownr@gmail.com>; Viktor Petrenko <g0000ga@gmail.com>; Andreas Henriksson <andreas@fatal.se>;
-> > > > ValdikSS <iam@valdikss.org.ru>; kernel@pengutronix.de; Sascha Hauer <s.hauer@pengutronix.de>;
-> > > > stable@vger.kernel.org
-> > > > Subject: [PATCH v2 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-> > > >
-> > > > On my RTW8821CU chipset rfe_option reads as 0x22. Looking at the
-> > > > downstream driver suggests that the field width of rfe_option is 5 bit,
-> > > > so rfe_option should be masked with 0x1f.
-> > >
-> > > I don't aware of this. Could you point where you get it?
-> > 
-> > See
-> > https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c1ant.c#L2480
-> > and
-> > https://github.com/morrownr/8821cu-20210916/blob/main/hal/btc/halbtc8821c2ant.c#L2519
-> > 
-> > But I now see that this masked value is only used at the places I
-> > pointed to, there are other places in the driver that use the unmasked
-> > value.
-> 
-> After I read vendor driver, there are three variety of rfe_option for 8821C.
-> 1. raw value from efuse
->    hal->rfe_type = map[EEPROM_RFE_OPTION_8821C];
-> 
-> 2. BT-coexistence 
->    rfe_type->rfe_module_type = board_info->rfe_type & 0x1f;
-> 
-> 3. PHY
->    dm->rfe_type_expand = hal->rfe_type = raw value
->    dm->rfe_type = dm->rfe_type_expand >> 3;
-> 
-> 
-> For rtw88, there are only two variety, but they are identical
->    coex_rfe->rfe_module_type = efuse->rfe_option;
-> 
-> The flaws are rfe_type->rfe_module_type of item 2 and dm->rfe_type of item 3
-> above, and most things are addressed by your draft patch. Exception is
-> check_positive() check dm->rfe_type, but we don't have this conversion in
-> rtw88 (i.e. cond.rfe = efuse->rfe_option; in rtw_phy_setup_phy_cond()).
-> 
-> Since I don't have a hardware with rfe_option larger than 8, could you
-> please give below patch a try?
-> 
-> --- a/phy.c
-> +++ b/phy.c
-> @@ -1048,6 +1048,9 @@ void rtw_phy_setup_phy_cond(struct rtw_dev *rtwdev, u32 pkg)
->         cond.plat = 0x04;
->         cond.rfe = efuse->rfe_option;
-> 
-> +       if (rtwdev->chip->id == RTW_CHIP_TYPE_8821C)
-> +               cond.rfe = efuse->rfe_option >> 3;
-> +
->         switch (rtw_hci_type(rtwdev)) {
->         case RTW_HCI_TYPE_USB:
->                 cond.intf = INTF_USB;
+Hi,
 
-This change doesn't make any difference. cond.rfe is only used in
-check_positive() which is implemented like this:
+I would like to see these patches backported. They are needed so perf
+can be cross compiled with gcc on v5.15, v5.10 and v5.4.
+I built it with tuxmake [1] here are two example commandlines:
+tuxmake --runtime podman --target-arch arm64 --toolchain gcc-12 --kconfig defconfig perf
+tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-12 --kconfig defconfig perf
 
-static bool check_positive(struct rtw_dev *rtwdev, struct rtw_phy_cond cond)
-{
-	struct rtw_hal *hal = &rtwdev->hal;
-	struct rtw_phy_cond drv_cond = hal->phy_cond;
+Tried to build perf with both gcc-11 and gcc-12.
 
-	if (cond.cut && cond.cut != drv_cond.cut)
-		return false;
+Patch 'tools perf: Fix compilation error with new binutils'
+and 'tools build: Add feature test for init_disassemble_info API changes'
+didn't apply cleanly, thats why I send these in a patchset.
 
-	if (cond.pkg && cond.pkg != drv_cond.pkg)
-		return false;
+When apply 'tools build: Add feature test for
+init_disassemble_info API changes' to 5.4 it will be a minor merge
+conflict, do you want me to send this patch in two separate patches one
+for 5.4 and another for v5.10?
 
-	if (cond.intf && cond.intf != drv_cond.intf)
-		return false;
+The sha for these two patches in mainline are.
+cfd59ca91467 tools build: Add feature test for init_disassemble_info API changes
+83aa0120487e tools perf: Fix compilation error with new binutils
 
-	if (cond.rfe != drv_cond.rfe)
-		return false;
+The above patches solves these:
+util/annotate.c: In function 'symbol__disassemble_bpf':
+util/annotate.c:1729:9: error: too few arguments to function 'init_disassemble_info'
+ 1729 |         init_disassemble_info(&info, s,
+      |         ^~~~~~~~~~~~~~~~~~~~~
 
-	return true;
-}
 
-In my case check_positive() always returns early when comparing cond.pkg which
-is always set to '15' in rtw_phy_setup_phy_cond():
+Please apply these to v5.10 and v5.4
+a45b3d692623 tools include: add dis-asm-compat.h to handle version differences
+d08c84e01afa perf sched: Cast PTHREAD_STACK_MIN to int as it may turn into sysconf(__SC_THREAD_STACK>
 
-void rtw_phy_setup_phy_cond(struct rtw_dev *rtwdev, u32 pkg)
-{
-	...
-	cond.pkg = pkg ? pkg : 15;
-	...
-}
+The above patches solves these:
+/home/anders/src/kernel/stable-5.10/tools/include/linux/kernel.h:43:24: error: comparison of distinct pointer types lacks a cast [-Werror]
+   43 |         (void) (&_max1 == &_max2);              \
+      |                        ^~
+builtin-sched.c:673:34: note: in expansion of macro 'max'
+  673 |                         (size_t) max(16 * 1024, PTHREAD_STACK_MIN));
+      |                                  ^~~
 
-In the upstream driver rtw_phy_setup_phy_cond() is only ever called with
-'0' as pkg argument. Now in the downstream driver I found this snippet:
 
-void phydm_init_hw_info_by_rfe_type_8821c(struct dm_struct *dm)
-{
-	...
+Please apply these to v5.15, v5.10 and v5.4
+8e8bf60a6754 perf build: Fixup disabling of -Wdeprecated-declarations for the python scripting engine
+4ee3c4da8b1b perf scripting python: Do not build fail on deprecation warnings
+63a4354ae75c perf scripting perl: Ignore some warnings to keep building with perl headers
 
-        if (dm->rfe_type_expand == 2 || dm->rfe_type_expand == 4 || dm->rfe_type_expand == 7) {
-                dm->default_rf_set_8821c = SWITCH_TO_BTG;
-        } else if (dm->rfe_type_expand == 0 || dm->rfe_type_expand == 1 ||
-                   dm->rfe_type_expand == 3 || dm->rfe_type_expand == 5 ||
-                   dm->rfe_type_expand == 6) {
-                dm->default_rf_set_8821c = SWITCH_TO_WLG;
-        } else if (dm->rfe_type_expand == 0x22 || dm->rfe_type_expand == 0x24 ||
-                   dm->rfe_type_expand == 0x27 || dm->rfe_type_expand == 0x2a ||
-                   dm->rfe_type_expand == 0x2c || dm->rfe_type_expand == 0x2f) {
-                dm->default_rf_set_8821c = SWITCH_TO_BTG;
-                odm_cmn_info_init(dm, ODM_CMNINFO_PACKAGE_TYPE, 1);
-        } else if (dm->rfe_type_expand == 0x20 || dm->rfe_type_expand == 0x21 ||
-                   dm->rfe_type_expand == 0x23 || dm->rfe_type_expand == 0x25 ||
-                   dm->rfe_type_expand == 0x26 || dm->rfe_type_expand == 0x28 ||
-                   dm->rfe_type_expand == 0x29 || dm->rfe_type_expand == 0x2b ||
-                   dm->rfe_type_expand == 0x2d || dm->rfe_type_expand == 0x2e) {
-                dm->default_rf_set_8821c = SWITCH_TO_WLG;
-                odm_cmn_info_init(dm, ODM_CMNINFO_PACKAGE_TYPE, 1);
-        }
+Build error that the above 3 patches solves are:
+/usr/lib/x86_64-linux-gnu/perl/5.36/CORE/handy.h:125:23: error: cast from function call of type 'STRLEN' {aka 'long unsigned int'} to non-matching type '_Bool' [-Werror=bad-function-cast]
+  125 | #define cBOOL(cbool) ((bool) (cbool))
+      |                       ^
 
-	...
-}
+Cheers,
+Anders
+[1] https://tuxmake.org/
 
-odm_cmn_info_init(dm, ODM_CMNINFO_PACKAGE_TYPE, 1); seems to be the
-analogue of the pkg type argument. This suggests that for rfe_type >=
-0x20 we should call rtw_phy_setup_phy_cond() with '1' as pkg argument.
-When doing this here I will end up with check_positive() returning
-'true' in some cases.  However, I didn't notice any change in the driver
-behaviour then.
+Andres Freund (2):
+  tools perf: Fix compilation error with new binutils
+  tools build: Add feature test for init_disassemble_info API changes
 
-Note how the above code snippet looks like the rfe_type is indeed
-encoded in the lower 5 bits whereas BIT(5) could be used as the package
-type. That could be by chance, but it's striking that rfe_type (x) always
-ends up in the same code path as (x + 0x20) also in other parts of this
-file.
+ tools/build/Makefile.feature                        |  1 +
+ tools/build/feature/Makefile                        |  4 ++++
+ tools/build/feature/test-all.c                      |  4 ++++
+ tools/build/feature/test-disassembler-init-styled.c | 13 +++++++++++++
+ tools/perf/Makefile.config                          |  8 ++++++++
+ tools/perf/util/annotate.c                          |  7 ++++---
+ 6 files changed, 34 insertions(+), 3 deletions(-)
+ create mode 100644 tools/build/feature/test-disassembler-init-styled.c
 
-I'm a bit lost here. I suggest that we stick with the variant I tried in
-v1 of this series, but I'll add a note that there might be some
-inaccuracies in how some currently unknown chip variants are handled.
+--
+2.39.2
 
-Sascha
-
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
