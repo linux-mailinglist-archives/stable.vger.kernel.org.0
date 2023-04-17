@@ -2,70 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C7366E5108
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 21:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0CB6E513B
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 21:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230029AbjDQTee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 15:34:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50744 "EHLO
+        id S229515AbjDQTyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 15:54:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbjDQTed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 15:34:33 -0400
-Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB27F2107;
-        Mon, 17 Apr 2023 12:34:30 -0700 (PDT)
-Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-1878504c22aso18258266fac.8;
-        Mon, 17 Apr 2023 12:34:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681760069; x=1684352069;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5q1UADTLtxpaMg26Rskq3kK3zFrTI6WC2dwC06gJvSg=;
-        b=IHqpf2sk6GocJcMUsxs7EfH25jwhs8pny+rgCsFkFVvee5zh6VW+fji3F7acj7NOGM
-         NpBLJkBPE0evdOqIk9nHBFmZ0D/QICtqPzJ7acbSKBVgL0Q4CpBsvp2txsIQF2jQfMd1
-         R+Otpjdk8UUdxApKTKmST3WGlH9msFY2to5R/93AHeg+a5vnsnAEAgZfU+Isv2tZ9GmS
-         NG04Tkw+pn/Kisy0rasEpqktx3KY7CEKxoun7E4eXM528b7uY2tftG+4nDJ1T0yCXZhr
-         447bUjFW0u8MktcRXncryfD4L8+RdOntdBX3PiE6a3YBG/BrwIM39xxzgz0e831t7Z0X
-         2nBg==
+        with ESMTP id S229804AbjDQTyV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 15:54:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA0BE5FF9
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 12:53:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681761203;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4kH7JNUmkrK1TIcnPTAjFCorjkRaA4Lvx3pRbnAdGF0=;
+        b=Jc/g3aGxW4mP0ok7lmnh6c0cqujuaRkpH2tRo2yppUNtOj6ZB7d1fVd3zHQ74n1YABPJEU
+        IxUIa4H+JiNNenx4fNQQJGfvPxRsoCil0RT1KnWEkawSo16wsKrOtvzhn++X6gycw7Nn6j
+        NkPENvg1gDYvzCIq676pYgesjf5sCqA=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-622-4slqHEaROaiukU-ImL-KUQ-1; Mon, 17 Apr 2023 15:53:22 -0400
+X-MC-Unique: 4slqHEaROaiukU-ImL-KUQ-1
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-3e9956069e5so6033341cf.0
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 12:53:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681760069; x=1684352069;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1681761202; x=1684353202;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5q1UADTLtxpaMg26Rskq3kK3zFrTI6WC2dwC06gJvSg=;
-        b=awD6lT/4ArN5WWl+hG+hSqn6y95zlBIfqCdi8ClhfGSFqP3ScahCltwjS8j/WNeeSL
-         KdcpRz+yV2rCVKj0UTTSILPC55r8IBNG7ZIFfRjuQgNEAp+hmQoSZYIBOQcScpMjm2Py
-         0owZTia3QknQC9nuyejrwJWnDHe08YtNyx3BjOTqaPhHhI+W++b9Mt4OHnAhHP4uRvqR
-         N3QEK2Ni6GDGSFT00Q/q23iekpOaOx74hMdmfNAZIDzBy1zQjg4CnI+bLU+OecZTZjS3
-         gmCgHdt5G9ImKFFSTm3YHUDz9nnYK2mQEULOj5RR+9HBNUjIrQidWPcGb87SwYAg40oJ
-         8i0w==
-X-Gm-Message-State: AAQBX9fA4cBDEmL5ztgf9sZ2qNo4Skh4nnYFE6WCDv7NEYxGRSEFEaqu
-        S/yfb83U7l/Dz5GbRghP2LH9YVAjphdvxFcRVeA=
-X-Google-Smtp-Source: AKy350Y6q2hi+cxptjOwoPFYriOiGtU+hYfqGDp+Z7d0toixkRxdfroHewDdXnL5ss2zptH/e+7WDkWHMI6tvpahUWU=
-X-Received: by 2002:a05:6870:32ca:b0:188:438:d4b6 with SMTP id
- r10-20020a05687032ca00b001880438d4b6mr515953oac.3.1681760069194; Mon, 17 Apr
- 2023 12:34:29 -0700 (PDT)
+        bh=4kH7JNUmkrK1TIcnPTAjFCorjkRaA4Lvx3pRbnAdGF0=;
+        b=i6QDa8EOGmH4m9MOUxvVdOzGVFvDl1R6HMZFilSKlRT9YYjDrVEtbejCu5IgG1Zl0z
+         FPg/HwGbCaLxdMS+wJKWsxE6RJJzay+OuxHNfS20+C7i8JlnzgcFoF/j7SniXdJD3Ogi
+         U0BIpH4hc/ybLdDPdqbOrTVzO6AqrUX237E/Cq1pUKBXlgK62OhSmXCNPosmvQVdQI6h
+         Y+eFoE5lLY4doDmrgcxQL7KUWUuUEIAaK5/C6ONoYo5EBWyIba95GwWIPz4yJ23p/LM9
+         6BHEzf7De39l3QSWcmHXrwI0p2JHQ+FrWamGTA5qQ4mOCEaC+YpkNdR3NnGdMydOyFNP
+         inOw==
+X-Gm-Message-State: AAQBX9eUzjB39GpDn2sbgSSUknIeZRpFNcHXb1OfaCCqb74Vh970fW8v
+        TAPoX6Nh7uCraX3tvhBvZSMq/y6NeGlP5xu6JDJ+LQ1/AtTUXkF7BhebxVXQtjBfdqDGUFOir9y
+        BDreaIS6+gkaDzWr6
+X-Received: by 2002:a05:622a:19a4:b0:3e8:e986:b20b with SMTP id u36-20020a05622a19a400b003e8e986b20bmr17654469qtc.6.1681761201983;
+        Mon, 17 Apr 2023 12:53:21 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZImFWbK1bH7N466hKMggFlbQGVKGvl3FHNzHOn9K4F9JpZRZ/yhdls5xIATBP5zpu3FcayoQ==
+X-Received: by 2002:a05:622a:19a4:b0:3e8:e986:b20b with SMTP id u36-20020a05622a19a400b003e8e986b20bmr17654449qtc.6.1681761201723;
+        Mon, 17 Apr 2023 12:53:21 -0700 (PDT)
+Received: from x1n.redhat.com (bras-base-aurron9127w-grc-40-70-52-229-124.dsl.bell.ca. [70.52.229.124])
+        by smtp.gmail.com with ESMTPSA id r17-20020ac87ef1000000b003edfb5d7637sm1731278qtc.73.2023.04.17.12.53.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Apr 2023 12:53:21 -0700 (PDT)
+From:   Peter Xu <peterx@redhat.com>
+To:     linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        =?UTF-8?q?Mika=20Penttil=C3=A4?= <mpenttil@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>, peterx@redhat.com,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-stable <stable@vger.kernel.org>
+Subject: [PATCH v2 1/6] mm/hugetlb: Fix uffd-wp during fork()
+Date:   Mon, 17 Apr 2023 15:53:12 -0400
+Message-Id: <20230417195317.898696-2-peterx@redhat.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230417195317.898696-1-peterx@redhat.com>
+References: <20230417195317.898696-1-peterx@redhat.com>
 MIME-Version: 1.0
-References: <20230413151228.19714-1-n.zhandarovich@fintech.ru>
-In-Reply-To: <20230413151228.19714-1-n.zhandarovich@fintech.ru>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Mon, 17 Apr 2023 15:34:18 -0400
-Message-ID: <CADnq5_MqJ7jnYrRus+HFy+Qk5F6b3627TN-gpxSbGgPdgfLkfw@mail.gmail.com>
-Subject: Re: [PATCH v2] radeon: avoid double free in ci_dpm_init()
-To:     Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Natalia Petrova <n.petrova@fintech.ru>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>, linux-kernel@vger.kernel.org,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        stable@vger.kernel.org,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
-        lvc-project@linuxtesting.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,118 +83,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks.  Applied!
+There're a bunch of things that were wrong:
 
-Alex
+  - Reading uffd-wp bit from a swap entry should use pte_swp_uffd_wp()
+    rather than huge_pte_uffd_wp().
 
-On Thu, Apr 13, 2023 at 11:12=E2=80=AFAM Nikita Zhandarovich
-<n.zhandarovich@fintech.ru> wrote:
->
-> Several calls to ci_dpm_fini() will attempt to free resources that
-> either have been freed before or haven't been allocated yet. This
-> may lead to undefined or dangerous behaviour.
->
-> For instance, if r600_parse_extended_power_table() fails, it might
-> call r600_free_extended_power_table() as will ci_dpm_fini() later
-> during error handling.
->
-> Fix this by only freeing pointers to objects previously allocated.
->
-> Found by Linux Verification Center (linuxtesting.org) with static
-> analysis tool SVACE.
->
-> Fixes: cc8dbbb4f62a ("drm/radeon: add dpm support for CI dGPUs (v2)")
-> Cc: stable@vger.kernel.org
-> Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
-> Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-> ---
-> v2: free only resouces allocated prior, do not remove ci_dpm_fini()
-> or other deallocating calls altogether; fix commit message.
-> v1: https://lore.kernel.org/all/20230403182808.8699-1-n.zhandarovich@fint=
-ech.ru/
->
->  drivers/gpu/drm/radeon/ci_dpm.c | 28 ++++++++++++++++++++--------
->  1 file changed, 20 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/gpu/drm/radeon/ci_dpm.c b/drivers/gpu/drm/radeon/ci_=
-dpm.c
-> index 8ef25ab305ae..b8f4dac68d85 100644
-> --- a/drivers/gpu/drm/radeon/ci_dpm.c
-> +++ b/drivers/gpu/drm/radeon/ci_dpm.c
-> @@ -5517,6 +5517,7 @@ static int ci_parse_power_table(struct radeon_devic=
-e *rdev)
->         u8 frev, crev;
->         u8 *power_state_offset;
->         struct ci_ps *ps;
-> +       int ret;
->
->         if (!atom_parse_data_header(mode_info->atom_context, index, NULL,
->                                    &frev, &crev, &data_offset))
-> @@ -5546,11 +5547,15 @@ static int ci_parse_power_table(struct radeon_dev=
-ice *rdev)
->                 non_clock_array_index =3D power_state->v2.nonClockInfoInd=
-ex;
->                 non_clock_info =3D (struct _ATOM_PPLIB_NONCLOCK_INFO *)
->                         &non_clock_info_array->nonClockInfo[non_clock_arr=
-ay_index];
-> -               if (!rdev->pm.power_state[i].clock_info)
-> -                       return -EINVAL;
-> +               if (!rdev->pm.power_state[i].clock_info) {
-> +                       ret =3D -EINVAL;
-> +                       goto err_free_ps;
-> +               }
->                 ps =3D kzalloc(sizeof(struct ci_ps), GFP_KERNEL);
-> -               if (ps =3D=3D NULL)
-> -                       return -ENOMEM;
-> +               if (ps =3D=3D NULL) {
-> +                       ret =3D -ENOMEM;
-> +                       goto err_free_ps;
-> +               }
->                 rdev->pm.dpm.ps[i].ps_priv =3D ps;
->                 ci_parse_pplib_non_clock_info(rdev, &rdev->pm.dpm.ps[i],
->                                               non_clock_info,
-> @@ -5590,6 +5595,12 @@ static int ci_parse_power_table(struct radeon_devi=
-ce *rdev)
->         }
->
->         return 0;
-> +
-> +err_free_ps:
-> +       for (i =3D 0; i < rdev->pm.dpm.num_ps; i++)
-> +               kfree(rdev->pm.dpm.ps[i].ps_priv);
-> +       kfree(rdev->pm.dpm.ps);
-> +       return ret;
->  }
->
->  static int ci_get_vbios_boot_values(struct radeon_device *rdev,
-> @@ -5678,25 +5689,26 @@ int ci_dpm_init(struct radeon_device *rdev)
->
->         ret =3D ci_get_vbios_boot_values(rdev, &pi->vbios_boot_state);
->         if (ret) {
-> -               ci_dpm_fini(rdev);
-> +               kfree(rdev->pm.dpm.priv);
->                 return ret;
->         }
->
->         ret =3D r600_get_platform_caps(rdev);
->         if (ret) {
-> -               ci_dpm_fini(rdev);
-> +               kfree(rdev->pm.dpm.priv);
->                 return ret;
->         }
->
->         ret =3D r600_parse_extended_power_table(rdev);
->         if (ret) {
-> -               ci_dpm_fini(rdev);
-> +               kfree(rdev->pm.dpm.priv);
->                 return ret;
->         }
->
->         ret =3D ci_parse_power_table(rdev);
->         if (ret) {
-> -               ci_dpm_fini(rdev);
-> +               kfree(rdev->pm.dpm.priv);
-> +               r600_free_extended_power_table(rdev);
->                 return ret;
->         }
->
+  - When copying over a pte, we should drop uffd-wp bit when
+    !EVENT_FORK (aka, when !userfaultfd_wp(dst_vma)).
+
+  - When doing early CoW for private hugetlb (e.g. when the parent page was
+    pinned), uffd-wp bit should be properly carried over if necessary.
+
+No bug reported probably because most people do not even care about these
+corner cases, but they are still bugs and can be exposed by the recent unit
+tests introduced, so fix all of them in one shot.
+
+Cc: linux-stable <stable@vger.kernel.org>
+Fixes: bc70fbf269fd ("mm/hugetlb: handle uffd-wp during fork()")
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+---
+ mm/hugetlb.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index f16b25b1a6b9..0213efaf31be 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4953,11 +4953,15 @@ static bool is_hugetlb_entry_hwpoisoned(pte_t pte)
+ 
+ static void
+ hugetlb_install_folio(struct vm_area_struct *vma, pte_t *ptep, unsigned long addr,
+-		     struct folio *new_folio)
++		      struct folio *new_folio, pte_t old)
+ {
++	pte_t newpte = make_huge_pte(vma, &new_folio->page, 1);
++
+ 	__folio_mark_uptodate(new_folio);
+ 	hugepage_add_new_anon_rmap(new_folio, vma, addr);
+-	set_huge_pte_at(vma->vm_mm, addr, ptep, make_huge_pte(vma, &new_folio->page, 1));
++	if (userfaultfd_wp(vma) && huge_pte_uffd_wp(old))
++		newpte = huge_pte_mkuffd_wp(newpte);
++	set_huge_pte_at(vma->vm_mm, addr, ptep, newpte);
+ 	hugetlb_count_add(pages_per_huge_page(hstate_vma(vma)), vma->vm_mm);
+ 	folio_set_hugetlb_migratable(new_folio);
+ }
+@@ -5032,14 +5036,12 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+ 			 */
+ 			;
+ 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry))) {
+-			bool uffd_wp = huge_pte_uffd_wp(entry);
+-
+-			if (!userfaultfd_wp(dst_vma) && uffd_wp)
++			if (!userfaultfd_wp(dst_vma))
+ 				entry = huge_pte_clear_uffd_wp(entry);
+ 			set_huge_pte_at(dst, addr, dst_pte, entry);
+ 		} else if (unlikely(is_hugetlb_entry_migration(entry))) {
+ 			swp_entry_t swp_entry = pte_to_swp_entry(entry);
+-			bool uffd_wp = huge_pte_uffd_wp(entry);
++			bool uffd_wp = pte_swp_uffd_wp(entry);
+ 
+ 			if (!is_readable_migration_entry(swp_entry) && cow) {
+ 				/*
+@@ -5050,10 +5052,10 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+ 							swp_offset(swp_entry));
+ 				entry = swp_entry_to_pte(swp_entry);
+ 				if (userfaultfd_wp(src_vma) && uffd_wp)
+-					entry = huge_pte_mkuffd_wp(entry);
++					entry = pte_swp_mkuffd_wp(entry);
+ 				set_huge_pte_at(src, addr, src_pte, entry);
+ 			}
+-			if (!userfaultfd_wp(dst_vma) && uffd_wp)
++			if (!userfaultfd_wp(dst_vma))
+ 				entry = huge_pte_clear_uffd_wp(entry);
+ 			set_huge_pte_at(dst, addr, dst_pte, entry);
+ 		} else if (unlikely(is_pte_marker(entry))) {
+@@ -5114,7 +5116,8 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+ 					/* huge_ptep of dst_pte won't change as in child */
+ 					goto again;
+ 				}
+-				hugetlb_install_folio(dst_vma, dst_pte, addr, new_folio);
++				hugetlb_install_folio(dst_vma, dst_pte, addr,
++						      new_folio, src_pte_old);
+ 				spin_unlock(src_ptl);
+ 				spin_unlock(dst_ptl);
+ 				continue;
+@@ -5132,6 +5135,9 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+ 				entry = huge_pte_wrprotect(entry);
+ 			}
+ 
++			if (!userfaultfd_wp(dst_vma))
++				entry = huge_pte_clear_uffd_wp(entry);
++
+ 			set_huge_pte_at(dst, addr, dst_pte, entry);
+ 			hugetlb_count_add(npages, dst);
+ 		}
+-- 
+2.39.1
+
