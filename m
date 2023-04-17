@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 065AC6E41D0
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAFE06E41DD
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 10:01:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbjDQH6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 03:58:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42238 "EHLO
+        id S229542AbjDQIBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 04:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230445AbjDQH6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:58:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C15413D
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:58:02 -0700 (PDT)
+        with ESMTP id S230203AbjDQIAv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 04:00:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6003E49F2
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 01:00:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA85560F8A
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF7CC433EF;
-        Mon, 17 Apr 2023 07:58:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB0F061059
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 08:00:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D01C4339B;
+        Mon, 17 Apr 2023 08:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681718281;
-        bh=O5u9afjGa3Nc7jUaKpuhfRd9PR3I9Qc/3JgdDWIJsAU=;
+        s=korg; t=1681718411;
+        bh=9mfLPF+RA+fi/qBKb5MNlZ3CZ9pm5xhQCQiavBb0Ad4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Uy47erUPFIUcfD2cyuFNuzc9LmrUgjwunB1jUH7DfxIsOKZ6WZCgrh6TlneuelVBw
-         HtrPq1r/xoEbdIIkRy4nyz66Z7M18EMoceuZoCCbNKmjgQhuYT1ltr9PkSckfj8fOA
-         4QE7b8hMhyjVNCLj89i9FlAA5ugr6RK87gK7NTWA=
-Subject: FAILED: patch "[PATCH] ksmbd: avoid out of bounds access in decode_preauth_ctxt()" failed to apply to 5.15-stable tree
-To:     ddiss@suse.de, linkinjeon@kernel.org, stable@vger.kernel.org,
-        stfrench@microsoft.com
+        b=NPXwNopKmXXauY83ZhU3q7/CkLxBWOspfpo8POgDHqkhUpVsIxbOFKDUUjn5OSXUn
+         sslxgoRgohRvYMcDN04+UcZSph2IRjU9e90HR8biVK8yWjCYVG0h2PiJ3muXtrggrq
+         Ph44BSySVPy/WAbS6EUxb55s4YrjMwpjchdUm2Yw=
+Subject: FAILED: patch "[PATCH] scsi: ses: Handle enclosure with just a primary component" failed to apply to 4.14-stable tree
+To:     jkosina@suse.cz, dinghui@sangfor.com.cn,
+        martin.petersen@oracle.com, mich.k@seznam.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Apr 2023 09:57:54 +0200
-Message-ID: <2023041754-retread-approach-96af@gregkh>
+Date:   Mon, 17 Apr 2023 10:00:05 +0200
+Message-ID: <2023041705-wages-cabbage-66be@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -49,23 +49,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
-git cherry-pick -x e7067a446264a7514fa1cfaa4052cdb6803bc6a2
+git cherry-pick -x c8e22b7a1694bb8d025ea636816472739d859145
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041754-retread-approach-96af@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041705-wages-cabbage-66be@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
-e7067a446264 ("ksmbd: avoid out of bounds access in decode_preauth_ctxt()")
+c8e22b7a1694 ("scsi: ses: Handle enclosure with just a primary component gracefully")
+3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
+6396bb221514 ("treewide: kzalloc() -> kcalloc()")
+5f85942c2ea2 ("Merge tag 'scsi-misc' of git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi")
 
 thanks,
 
@@ -73,66 +76,140 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e7067a446264a7514fa1cfaa4052cdb6803bc6a2 Mon Sep 17 00:00:00 2001
-From: David Disseldorp <ddiss@suse.de>
-Date: Thu, 13 Apr 2023 23:49:57 +0900
-Subject: [PATCH] ksmbd: avoid out of bounds access in decode_preauth_ctxt()
+From c8e22b7a1694bb8d025ea636816472739d859145 Mon Sep 17 00:00:00 2001
+From: Jiri Kosina <jkosina@suse.cz>
+Date: Tue, 4 Apr 2023 21:23:42 +0200
+Subject: [PATCH] scsi: ses: Handle enclosure with just a primary component
+ gracefully
 
-Confirm that the accessed pneg_ctxt->HashAlgorithms address sits within
-the SMB request boundary; deassemble_neg_contexts() only checks that the
-eight byte smb2_neg_context header + (client controlled) DataLength are
-within the packet boundary, which is insufficient.
+This reverts commit 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure
+has no components") and introduces proper handling of case where there are
+no detected secondary components, but primary component (enumerated in
+num_enclosures) does exist. That fix was originally proposed by Ding Hui
+<dinghui@sangfor.com.cn>.
 
-Checking for sizeof(struct smb2_preauth_neg_context) is overkill given
-that the type currently assumes SMB311_SALT_SIZE bytes of trailing Salt.
+Completely ignoring devices that have one primary enclosure and no
+secondary one results in ses_intf_add() bailing completely
 
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+	scsi 2:0:0:254: enclosure has no enumerated components
+        scsi 2:0:0:254: Failed to bind enclosure -12ven in valid configurations such
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 8af939a181be..67b7e766a06b 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -876,17 +876,21 @@ static void assemble_neg_contexts(struct ksmbd_conn *conn,
- }
+even on valid configurations with 1 primary and 0 secondary enclosures as
+below:
+
+	# sg_ses /dev/sg0
+	  3PARdata  SES               3321
+	Supported diagnostic pages:
+	  Supported Diagnostic Pages [sdp] [0x0]
+	  Configuration (SES) [cf] [0x1]
+	  Short Enclosure Status (SES) [ses] [0x8]
+	# sg_ses -p cf /dev/sg0
+	  3PARdata  SES               3321
+	Configuration diagnostic page:
+	  number of secondary subenclosures: 0
+	  generation code: 0x0
+	  enclosure descriptor list
+	    Subenclosure identifier: 0 [primary]
+	      relative ES process id: 0, number of ES processes: 1
+	      number of type descriptor headers: 1
+	      enclosure logical identifier (hex): 20000002ac02068d
+	      enclosure vendor: 3PARdata  product: VV                rev: 3321
+	  type descriptor header and text list
+	    Element type: Unspecified, subenclosure id: 0
+	      number of possible elements: 1
+
+The changelog for the original fix follows
+
+=====
+We can get a crash when disconnecting the iSCSI session,
+the call trace like this:
+
+  [ffff00002a00fb70] kfree at ffff00000830e224
+  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
+  [ffff00002a00fbd0] device_del at ffff0000086b6a98
+  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
+  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
+  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
+  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
+  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
+  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
+  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
+  [ffff00002a00fe00] worker_thread at ffff00000810f648
+  [ffff00002a00fe70] kthread at ffff000008116e98
+
+In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
+but not saved in edev->component[i].scratch
+
+In this situation, edev->component[0].scratch is an invalid pointer,
+when kfree it in ses_intf_remove_enclosure, a crash like above would happen
+The call trace also could be other random cases when kfree cannot catch
+the invalid pointer
+
+We should not use edev->component[] array when the components count is 0
+We also need check index when use edev->component[] array in
+ses_enclosure_data_process
+=====
+
+Reported-by: Michal Kolar <mich.k@seznam.cz>
+Originally-by: Ding Hui <dinghui@sangfor.com.cn>
+Cc: stable@vger.kernel.org
+Fixes: 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2304042122270.29760@cbobk.fhfr.pm
+Tested-by: Michal Kolar <mich.k@seznam.cz>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+index b11a9162e73a..b54f2c6c08c3 100644
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -509,9 +509,6 @@ static int ses_enclosure_find_by_addr(struct enclosure_device *edev,
+ 	int i;
+ 	struct ses_component *scomp;
  
- static __le32 decode_preauth_ctxt(struct ksmbd_conn *conn,
--				  struct smb2_preauth_neg_context *pneg_ctxt)
-+				  struct smb2_preauth_neg_context *pneg_ctxt,
-+				  int len_of_ctxts)
- {
--	__le32 err = STATUS_NO_PREAUTH_INTEGRITY_HASH_OVERLAP;
-+	/*
-+	 * sizeof(smb2_preauth_neg_context) assumes SMB311_SALT_SIZE Salt,
-+	 * which may not be present. Only check for used HashAlgorithms[1].
-+	 */
-+	if (len_of_ctxts < MIN_PREAUTH_CTXT_DATA_LEN)
-+		return STATUS_INVALID_PARAMETER;
+-	if (!edev->component[0].scratch)
+-		return 0;
+-
+ 	for (i = 0; i < edev->components; i++) {
+ 		scomp = edev->component[i].scratch;
+ 		if (scomp->addr != efd->addr)
+@@ -602,8 +599,10 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
+ 						components++,
+ 						type_ptr[0],
+ 						name);
+-				else
++				else if (components < edev->components)
+ 					ecomp = &edev->component[components++];
++				else
++					ecomp = ERR_PTR(-EINVAL);
  
--	if (pneg_ctxt->HashAlgorithms == SMB2_PREAUTH_INTEGRITY_SHA512) {
--		conn->preauth_info->Preauth_HashId =
--			SMB2_PREAUTH_INTEGRITY_SHA512;
--		err = STATUS_SUCCESS;
+ 				if (!IS_ERR(ecomp)) {
+ 					if (addl_desc_ptr) {
+@@ -734,11 +733,6 @@ static int ses_intf_add(struct device *cdev,
+ 			components += type_ptr[1];
+ 	}
+ 
+-	if (components == 0) {
+-		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
+-		goto err_free;
 -	}
-+	if (pneg_ctxt->HashAlgorithms != SMB2_PREAUTH_INTEGRITY_SHA512)
-+		return STATUS_NO_PREAUTH_INTEGRITY_HASH_OVERLAP;
+-
+ 	ses_dev->page1 = buf;
+ 	ses_dev->page1_len = len;
+ 	buf = NULL;
+@@ -780,9 +774,11 @@ static int ses_intf_add(struct device *cdev,
+ 		buf = NULL;
+ 	}
+ page2_not_supported:
+-	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
+-	if (!scomp)
+-		goto err_free;
++	if (components > 0) {
++		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
++		if (!scomp)
++			goto err_free;
++	}
  
--	return err;
-+	conn->preauth_info->Preauth_HashId = SMB2_PREAUTH_INTEGRITY_SHA512;
-+	return STATUS_SUCCESS;
- }
- 
- static void decode_encrypt_ctxt(struct ksmbd_conn *conn,
-@@ -1014,7 +1018,8 @@ static __le32 deassemble_neg_contexts(struct ksmbd_conn *conn,
- 				break;
- 
- 			status = decode_preauth_ctxt(conn,
--						     (struct smb2_preauth_neg_context *)pctx);
-+						     (struct smb2_preauth_neg_context *)pctx,
-+						     len_of_ctxts);
- 			if (status != STATUS_SUCCESS)
- 				break;
- 		} else if (pctx->ContextType == SMB2_ENCRYPTION_CAPABILITIES) {
+ 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
+ 				  components, &ses_enclosure_callbacks);
 
