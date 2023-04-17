@@ -2,110 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FAF6E3C28
-	for <lists+stable@lfdr.de>; Sun, 16 Apr 2023 23:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCBC96E3D8D
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 04:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbjDPVau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Apr 2023 17:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
+        id S229894AbjDQCrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Apr 2023 22:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbjDPVat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 17:30:49 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D261D1FEB;
-        Sun, 16 Apr 2023 14:30:47 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 8BB8721A37;
-        Sun, 16 Apr 2023 21:30:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1681680646; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SFzJ92Ds6qpIDo63JHIGufVFHdpCoBu1yLuu/vLCv/E=;
-        b=pGl/KhniKaKPA2AmoBurACAVaaEw0wJKpHXCEvx09/+Et5bamkJV5N9nzWbz8u3E/+IpfV
-        htRQpqyBzljMiHS7B0u8fq+Ez/kmqH5C4vcpQ9hvAhzKmEA6pFdq5Lo7n3LoGkDwadFGqD
-        zJFEZXHJDEjy7vsHxFBK0ZmaGzugQw4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1681680646;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SFzJ92Ds6qpIDo63JHIGufVFHdpCoBu1yLuu/vLCv/E=;
-        b=BDeaN3KXAI1ePtF+toCwdJGEMbVvQYhwhpwCgyArKB5oi5/ucjo30JSNFNMsgSB/xvvVjY
-        W0uTTSzU7vqwpzAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0AA59139CC;
-        Sun, 16 Apr 2023 21:30:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id bYeUKwNpPGReWgAAMHmgww
-        (envelope-from <neilb@suse.de>); Sun, 16 Apr 2023 21:30:43 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229458AbjDQCrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Apr 2023 22:47:39 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E2F3599
+        for <stable@vger.kernel.org>; Sun, 16 Apr 2023 19:47:38 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id fw30so7620132ejc.5
+        for <stable@vger.kernel.org>; Sun, 16 Apr 2023 19:47:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681699657; x=1684291657;
+        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=l6AcQOWPPl31osjlzbfumJtFym0G0xYjfi3gbT4OeyU=;
+        b=KvM5NR8UjKvHFdl5MF9SCkfKC9sOQ05wJp9EmuwfzCV5yAWABs+X7rGaSoU/HvkeuZ
+         OBPCwwYmbGBCxUAX5MeuqP0RKPar9GeqcjJ+EkklLxwX6KeQlnQZ3yoz9rsq+cY1TJT9
+         1U/exQbc3K6Ocg5IEwDfNqyPg4275gRlueL5Fv8aK+yk7VjcaZmwBF7CXbQaj3GBEfn1
+         KiCyJu5uDpMOaA7Ze77C41QbA0V5E/XecNpQ+8eTKbSsWCaXJG5SlUFmL1b4KaeCuATX
+         l7/KVkJN7wlI+BvHYE9mjdjc4IxwuL5HpZqmlQbKuiguDxtoGpZZwM19u29fs4LCkheR
+         TswA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681699657; x=1684291657;
+        h=to:subject:message-id:date:from:sender:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=l6AcQOWPPl31osjlzbfumJtFym0G0xYjfi3gbT4OeyU=;
+        b=WC2NTn1pxrx99qlhrQAMfr2+m+W24815pOXBKrFq7r4Nq1si5spfk9s4hHlsXT6fwQ
+         hEJYmC733oSUoiOLUM0AsS17UYL/GTGMur+i42TjsTHiTO+mdaSPBvzTNFhTlXS/J4c7
+         CZBIwP/GeUe84+zERnV2bXxfqg5EHSOlgiFovvCtsAWucmlOE7bsetj6HLWaC2yEwAoW
+         TA/OnXgVHmFGBzmzPtxFWkUTCRggV0G3UY1GM5aiyCkkXcTDOeu2zLu/uE/fjGxKmHUX
+         ipxWuzGtn8zJYqX+Ht2J5X4Jh9qeRZJAVWT0sDOEzWIgjak+dE7DJIFdbZ4yGDieNqOc
+         gzJw==
+X-Gm-Message-State: AAQBX9d2tVU8YrWkeTbSs2mYTw4EJLG3maq4dhlrbFXMviIpL7xJ8e4u
+        1/xtkCytL+RVxOwEWoKN4OOGMYuahGYQNhXBIIs=
+X-Google-Smtp-Source: AKy350Y3frl+/W1Wsns3fqbDMya3uSJfLy4mqySY0kGh7LVjm5JVYfnM2Scp9PFuOoz+uWg5bmEovxsZ5Ou1I/zuLLQ=
+X-Received: by 2002:a17:906:974e:b0:94f:663b:9790 with SMTP id
+ o14-20020a170906974e00b0094f663b9790mr1110319ejy.8.1681699656957; Sun, 16 Apr
+ 2023 19:47:36 -0700 (PDT)
 MIME-Version: 1.0
-From:   "NeilBrown" <neilb@suse.de>
-To:     "Sylvain Menu" <sylvain.menu@gmail.com>
-Cc:     "Greg KH" <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        regressions@lists.linux.dev, chuck.lever@oracle.com,
-        jlayton@kernel.org, linux-nfs@vger.kernel.org
-Subject: Re: nfs mount disappears due to inode revalidate failure
-In-reply-to: <CACH9xG_v_2Y9d3Q16YB57Q5xVwSXe5FqLFSnjox6GotOT3DPmw@mail.gmail.com>
-References: <CACH9xG8-tEtWstUVmD9eZFEEAqx-E8Gs14wDL+=uNtBK=-KJvQ@mail.gmail.com>,
- <ZAmv57xeNqs7v9hY@kroah.com>,
- <CACH9xG9=BFszD9OXspttTFdki0e68b5Hw7o11AUQ7pptSMy9wQ@mail.gmail.com>,
- <ZAmzT/D8YxJ3844j@kroah.com>,
- <CACH9xG_v_2Y9d3Q16YB57Q5xVwSXe5FqLFSnjox6GotOT3DPmw@mail.gmail.com>
-Date:   Mon, 17 Apr 2023 07:30:40 +1000
-Message-id: <168168064006.24821.8358959637978538396@noble.neil.brown.name>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Sender: chiamakaj700@gmail.com
+Received: by 2002:a05:7208:d044:b0:67:242d:e796 with HTTP; Sun, 16 Apr 2023
+ 19:47:36 -0700 (PDT)
+From:   Mrs Aisha Al-Qaddafi <mrsaishag16@gmail.com>
+Date:   Mon, 17 Apr 2023 02:47:36 +0000
+X-Google-Sender-Auth: XnM_u5XFNF_vJh1x030pLNhm_tM
+Message-ID: <CAP-MpCnD_y5rjkRfJ4va-gFH+1eFGjR2WdKqV6tsYysVOC7eOg@mail.gmail.com>
+Subject: GREETINGS DEAR PLEASE KINDLY REPLY MY EMAIL IS URGENTLY
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,LOTS_OF_MONEY,MILLION_HUNDRED,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,T_HK_NAME_FM_MR_MRS,
+        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 10 Mar 2023, Sylvain Menu wrote:
-> No I don't have that, I found the bug in production by no chance.
-> I tried to dive into the code but it quickly becomes complex for me,
-> at least it's easy to reproduce with a little script (while(1) timeout
-> my_c.code)
->=20
-> thanks
-> sylvain menu
->=20
-> Le jeu. 9 mars 2023 =C3=A0 11:22, Greg KH <gregkh@linuxfoundation.org> a =
-=C3=A9crit :
-> >
-> > On Thu, Mar 09, 2023 at 11:17:30AM +0100, Sylvain Menu wrote:
-> > > I think it's a regression according to the old resolved bugs/tickets
-> > > but no idea since when it's broken again
-> >
-> > Any chance you can do 'git bisect' to find where it broke and what
-> > commit broke it?
+Please dear, did you receive the last email I sent to you
+I am Aisha Muammar Gaddafi, the only daughter of the embattled former
+president of Libya, Hon. Muammar Gaddafi.i have a business proposal
+for you that worth $27.5M (Twenty Seven Million Five Hundred Thousand
+Dollars)
+Please reply for more information. Sorry for my pictures. I will
+enclose it in my next mail  when I hear from you okay.
 
-Please see
-   https://lore.kernel.org/linux-nfs/87361aovm3.fsf@notabene.neil.brown.name/
-
-I posted a patch for this a couple of years ago, but Trond wouldn't take
-it.
-
-NeilBrown
-
-
-> >
-> > thanks,
-> >
-> > greg k-h
->=20
-
+Yours Sincerely
+Best Regard,
+Aisha Gaddafi
