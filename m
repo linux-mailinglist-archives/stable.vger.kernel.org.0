@@ -2,114 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 541366E4AAF
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 16:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE326E4AFC
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 16:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230053AbjDQOEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 10:04:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56072 "EHLO
+        id S230391AbjDQOKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 10:10:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbjDQOEg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 10:04:36 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502D37A9C
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:04:14 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1poPSb-00048U-RF; Mon, 17 Apr 2023 16:04:01 +0200
-Received: from [2a0a:edc0:0:1101:1d::28] (helo=dude02.red.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <sha@pengutronix.de>)
-        id 1poPSb-00BtK4-6S; Mon, 17 Apr 2023 16:04:01 +0200
-Received: from sha by dude02.red.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <sha@pengutronix.de>)
-        id 1poPSZ-009OrD-MC; Mon, 17 Apr 2023 16:03:59 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     linux-wireless <linux-wireless@vger.kernel.org>
-Cc:     Hans Ulli Kroll <linux@ulli-kroll.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Pkshih <pkshih@realtek.com>, Tim K <tpkuester@gmail.com>,
-        "Alex G ." <mr.nuke.me@gmail.com>,
-        Nick Morrow <morrownr@gmail.com>,
-        Viktor Petrenko <g0000ga@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
-        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org
-Subject: [PATCH v3 2/4] wifi: rtw88: rtw8821c: Fix rfe_option field width
-Date:   Mon, 17 Apr 2023 16:03:56 +0200
-Message-Id: <20230417140358.2240429-3-s.hauer@pengutronix.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230417140358.2240429-1-s.hauer@pengutronix.de>
-References: <20230417140358.2240429-1-s.hauer@pengutronix.de>
+        with ESMTP id S230285AbjDQOKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 10:10:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890AB7EF2
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:09:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681740550;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dq1ZaJrdSpk9YDp+gB/JqY8bgzdWvHUIe3Gl73jkbAI=;
+        b=NCLQZAu8GWB6WC07fzAe0KEFn7/F9/2vhQIV4lO/W59J5/F+ZUV+lVtPhXUKTwF3KQn6vz
+        YCHLEKP/pQiDM+HaEX6jBKy7Yh2buYb62HxpOOIBIUTOh1XYOM0TDJNurujk6Ti37T6i9g
+        ITQdDn2wg+aH3BlleSpQvqBVfiVUEps=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-325-yuJlK1hSNYOJOe91MOXTYg-1; Mon, 17 Apr 2023 10:09:06 -0400
+X-MC-Unique: yuJlK1hSNYOJOe91MOXTYg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4A5FD102F231;
+        Mon, 17 Apr 2023 14:09:05 +0000 (UTC)
+Received: from [10.18.17.153] (dhcp-17-153.bos.redhat.com [10.18.17.153])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 05EE440C83AC;
+        Mon, 17 Apr 2023 14:09:05 +0000 (UTC)
+Message-ID: <88977fec-16f9-a507-c717-709d6288084a@redhat.com>
+Date:   Mon, 17 Apr 2023 10:09:04 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v2] locking/rwsem: Add __always_inline annotation to
+ __down_read_common()
+Content-Language: en-US
+To:     Peter Zijlstra <peterz@infradead.org>,
+        John Stultz <jstultz@google.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Tim Murray <timmurray@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>, kernel-team@android.com,
+        stable@vger.kernel.org
+References: <20230412023839.2869114-1-jstultz@google.com>
+ <20230412035905.3184199-1-jstultz@google.com>
+ <20230417111949.GJ83892@hirez.programming.kicks-ass.net>
+From:   Waiman Long <longman@redhat.com>
+In-Reply-To: <20230417111949.GJ83892@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On my RTW8821CU chipset rfe_option reads as 0x22. Looking at the
-vendor driver suggests that the field width of rfe_option is 5 bit,
-so rfe_option should be masked with 0x1f.
 
-Without this the rfe_option comparisons with 2 further down the
-driver evaluate as false when they should really evaluate as true.
-The effect is that 2G channels do not work.
+On 4/17/23 07:19, Peter Zijlstra wrote:
+> On Wed, Apr 12, 2023 at 03:59:05AM +0000, John Stultz wrote:
+>> Apparently despite it being marked inline, the compiler
+>> may not inline __down_read_common() which makes it difficult
+>> to identify the cause of lock contention, as the blocked
+>> function will always be listed as __down_read_common().
+>>
+>> So this patch adds __always_inline annotation to the
+>> function to force it to be inlines so the calling function
+>> will be listed.
+> I'm a wee bit confused; what are you looking at? Wchan? What is stopping
+> the compiler from now handing you
+> __down_read{,_interruptible,_killable}() instead? Is that fine?
+>
+My theory is that the compiler may refuse to inline __down_read_common() 
+because it is called 3 times in order to reduce overall code size. The 
+other __down_read*() functions you listed are only called once.
 
-rfe_option is also used as an array index into rtw8821c_rfe_defs[].
-rtw8821c_rfe_defs[34] (0x22) was added as part of adding USB support,
-likely because rfe_option reads as 0x22. As this now becomes 0x2,
-rtw8821c_rfe_defs[34] is no longer used and can be removed.
+My 2 cents.
 
-Note that this might not be the whole truth. In the vendor driver
-there are indeed places where the unmasked rfe_option value is used.
-However, the driver has several places where rfe_option is tested
-with the pattern if (rfe_option == 2 || rfe_option == 0x22) or
-if (rfe_option == 4 || rfe_option == 0x24), so that rfe_option BIT(5)
-has no influence on the code path taken. We therefore mask BIT(5)
-out from rfe_option entirely until this assumption is proved wrong
-by some chip variant we do not know yet.
-
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Tested-by: Alexandru gagniuc <mr.nuke.me@gmail.com>
-Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
-Tested-by: ValdikSS <iam@valdikss.org.ru>
-Cc: stable@vger.kernel.org
----
- drivers/net/wireless/realtek/rtw88/rtw8821c.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8821c.c b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-index 17f800f6efbd0..67efa58dd78ee 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-@@ -47,7 +47,7 @@ static int rtw8821c_read_efuse(struct rtw_dev *rtwdev, u8 *log_map)
- 
- 	map = (struct rtw8821c_efuse *)log_map;
- 
--	efuse->rfe_option = map->rfe_option;
-+	efuse->rfe_option = map->rfe_option & 0x1f;
- 	efuse->rf_board_option = map->rf_board_option;
- 	efuse->crystal_cap = map->xtal_k;
- 	efuse->pa_type_2g = map->pa_type;
-@@ -1537,7 +1537,6 @@ static const struct rtw_rfe_def rtw8821c_rfe_defs[] = {
- 	[2] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
- 	[4] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
- 	[6] = RTW_DEF_RFE(8821c, 0, 0),
--	[34] = RTW_DEF_RFE(8821c, 0, 0),
- };
- 
- static struct rtw_hw_reg rtw8821c_dig[] = {
--- 
-2.39.2
+Cheers,
+Longman
 
