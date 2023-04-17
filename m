@@ -2,100 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 305926E4F28
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 19:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A91A6E4F4F
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 19:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230130AbjDQRXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 13:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50694 "EHLO
+        id S230139AbjDQRfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 13:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbjDQRXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 13:23:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F444EC7
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 10:22:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1681752141;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZYFTRQGDNFH6eOF0v3UAIXsZ4GgWXkmgoVXlVBEL91A=;
-        b=iYZfeQE6wREurf5zdHRN+HIby/9AJgDTTIOE+UIbWYkVPSyWdCK4pEz5Ae8Qm3asCf9xKY
-        ZLgN0/ep/cOSa1uunLJCwcOAucePj6YT1X0G/512PX7vkU8//eBiYzKij5MEDf/kssitW7
-        deuQ/4SrsGCOFZDl7H/tXhQwgn6cgzk=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-61-nU3gyLFIPjmPAEGjeTqeVg-1; Mon, 17 Apr 2023 13:22:20 -0400
-X-MC-Unique: nU3gyLFIPjmPAEGjeTqeVg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8FEAC29DD9B4;
-        Mon, 17 Apr 2023 17:22:19 +0000 (UTC)
-Received: from [10.18.17.153] (dhcp-17-153.bos.redhat.com [10.18.17.153])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 71FF42027044;
-        Mon, 17 Apr 2023 17:22:19 +0000 (UTC)
-Message-ID: <27aa72bf-9673-1247-e1e0-4089682173f4@redhat.com>
-Date:   Mon, 17 Apr 2023 13:22:19 -0400
+        with ESMTP id S230070AbjDQRfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 13:35:07 -0400
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 484F7B74D;
+        Mon, 17 Apr 2023 10:34:46 -0700 (PDT)
+Received: by mail-oi1-x233.google.com with SMTP id be20so3238135oib.4;
+        Mon, 17 Apr 2023 10:34:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681752885; x=1684344885;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eeGDsMuMU6qRe43N99vF2ssCtRufnnsTh9UIA9+QypE=;
+        b=IDInwrW+xH9jdKHhQwGZ9AMx5IBZdTD6+1g3OhLs9BWIvByeuF8PqXlZYUpbq13ny8
+         /CYUx0aSkCiH+tnQ1E70s+IGQ8WA2eqmH7hS/7MnAaKcHofmJ86YfSi1Y38FKGOCNdMA
+         g3m+DAZpNsBcTuqDcyVLYTwgcWMeqR0Jb3MZD8ZYVQNxghqAIUU6r/lyLwqGDpf0w29g
+         WjOwYOtrKN8/k4FPwJhoEp1I0+NGXF6sglPcQq3Qlo1TNlp6XLoWjB1IP4AI9+4i64bv
+         UqXueR38VYZqbwHAIWrwo/ZOTqmMuybmySOdU86AU7kuz5YsH33MG6ug6/G30vMd7Pl4
+         o6wQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681752885; x=1684344885;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eeGDsMuMU6qRe43N99vF2ssCtRufnnsTh9UIA9+QypE=;
+        b=hhosQUQGKgnWkTotJELwLCKQgevmSweGfwN+UW9UW9BrtFHY7ZyCjoJgD3GUMz9kzQ
+         a6ulSjOO9wSncF1E+ZHJrhBxxkcOV+07dYKDhr81IqVlkcehb/wggfeIUAO+fftYIj/G
+         HKktlu9sa7JtSaO8HLCi2a/7IcEIO/LRi4JvIJt/gy6fy7QzATsZsE5r8/Uz127xg44T
+         o5d8fnABRCFY/tY8fZRaAHMA9bZxAWpNyhhucaI9uUCohpkpt1OlOi9xExrse7cqmOTa
+         7qsTm3FuU1JVFD78F47nG+ksazktCufnLQ1EUsDop4UZH0l0lvzixZMwwhjiepKgXLMk
+         VnFg==
+X-Gm-Message-State: AAQBX9dPhDKUeEpNT3D8JIVQ2c4IxZK7Yy0FJz5brFPsWJWb/kPIj9rq
+        EvIwrpFAJZheJq7rN1eaOV7SkRlP/LnAr/bfqRY=
+X-Google-Smtp-Source: AKy350bTrioIHzK5dr57vHhkLOTsyDawAXA2vhtRBswSuZM9nYlM43t4FGB7iGqblWvkCMZohmexiSP4DPey+QT8DqY=
+X-Received: by 2002:aca:ea8b:0:b0:38e:2135:697f with SMTP id
+ i133-20020acaea8b000000b0038e2135697fmr426732oih.3.1681752885378; Mon, 17 Apr
+ 2023 10:34:45 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: FAILED: patch "[PATCH] cgroup/cpuset: Add cpuset_can_fork() and
- cpuset_cancel_fork()" failed to apply to 5.10-stable tree
-Content-Language: en-US
-To:     gregkh@linuxfoundation.org, mkoutny@suse.com, tj@kernel.org
-Cc:     stable@vger.kernel.org
-References: <2023041705-gauze-elated-d7c7@gregkh>
-From:   Waiman Long <longman@redhat.com>
-In-Reply-To: <2023041705-gauze-elated-d7c7@gregkh>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20230414193331.199598-1-hamza.mahfooz@amd.com> <4207e848-4e79-29a7-2bb0-44f74a2d62c7@amd.com>
+In-Reply-To: <4207e848-4e79-29a7-2bb0-44f74a2d62c7@amd.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Mon, 17 Apr 2023 13:34:33 -0400
+Message-ID: <CADnq5_MRMjr3byW_qO==Ps+X9grYQ9FLYGFEnd_Jsu3FLQBzCw@mail.gmail.com>
+Subject: Re: [PATCH] drm/amd/display: fix flickering caused by S/G mode
+To:     =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Cc:     Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        amd-gfx@lists.freedesktop.org, Stylon Wang <stylon.wang@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Hans de Goede <hdegoede@redhat.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        dri-devel@lists.freedesktop.org,
+        Alex Deucher <alexander.deucher@amd.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Apr 17, 2023 at 1:59=E2=80=AFAM Christian K=C3=B6nig
+<christian.koenig@amd.com> wrote:
+>
+> Am 14.04.23 um 21:33 schrieb Hamza Mahfooz:
+> > Currently, we allow the framebuffer for a given plane to move between
+> > memory domains, however when that happens it causes the screen to
+> > flicker, it is even possible for the framebuffer to change memory
+> > domains on every plane update (causing a continuous flicker effect). So=
+,
+> > to fix this, don't perform an immediate flip in the aforementioned case=
+.
+>
+> That sounds strongly like you just forget to wait for the move to finish!
 
-On 4/17/23 04:04, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.10-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->
-> To reproduce the conflict and resubmit, you may use the following commands:
->
-> git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
-> git checkout FETCH_HEAD
-> git cherry-pick -x eee87853794187f6adbe19533ed79c8b44b36a91
-> # <resolve conflicts, build, test, etc.>
-> git commit -s
-> git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041705-gauze-elated-d7c7@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
->
-> Possible dependencies:
->
-> eee878537941 ("cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods")
-> 42a11bf5c543 ("cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP properly")
-> 18f9a4d47527 ("cgroup/cpuset: Skip spread flags update on v2")
-> e2d59900d936 ("cgroup/cpuset: Allow no-task partition to have empty cpuset.cpus.effective")
-> 18065ebe9b33 ("cgroup/cpuset: Miscellaneous cleanups & add helper functions")
-> f9da322e864e ("cgroup: cleanup comments")
-> 8ca1b5a49885 ("mm/page_alloc: detect allocation forbidden by cpuset and bail out early")
-> b94f9ac79a73 ("cgroup/cpuset: Change references of cpuset_mutex to cpuset_rwsem")
-> 69dc8010b8fc ("Merge branch 'for-5.15' of git://git.kernel.org/pub/scm/linux/kernel/git/tj/cgroup")
-I have posted a patch series that also include commit 18f9a4d47527 
-("cgroup/cpuset: Skip spread flags update on v2") which is not 
-technically a fix but is relative simple and low risk.  I have also 
-twist the patches 1, 3 and 4 a bit to fit 5.10. Compile, boot and sanity 
-tests were done to verify its correctness.
+It doesn't exhibit when we allow only gtt or only vram, only when
+switches between pools does it flicker.
 
-Cheers,
-Longman
+Alex
 
+>
+> What is the order of things done here? E.g. who calls amdgpu_bo_pin()
+> and who waits for fences for finish signaling? Is that maybe just in the
+> wrong order?
+>
+> Regards,
+> Christian.
+>
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: 81d0bcf99009 ("drm/amdgpu: make display pinning more flexible (v=
+2)")
+> > Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+> > ---
+> >   .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 41 ++++++++++++++++++=
+-
+> >   1 file changed, 39 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/driver=
+s/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> > index da3045fdcb6d..9a4e7408384a 100644
+> > --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> > +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> > @@ -7897,6 +7897,34 @@ static void amdgpu_dm_commit_cursors(struct drm_=
+atomic_state *state)
+> >                       amdgpu_dm_plane_handle_cursor_update(plane, old_p=
+lane_state);
+> >   }
+> >
+> > +static inline uint32_t get_mem_type(struct amdgpu_device *adev,
+> > +                                 struct drm_gem_object *obj,
+> > +                                 bool check_domain)
+> > +{
+> > +     struct amdgpu_bo *abo =3D gem_to_amdgpu_bo(obj);
+> > +     uint32_t mem_type;
+> > +
+> > +     if (unlikely(amdgpu_bo_reserve(abo, true)))
+> > +             return 0;
+> > +
+> > +     if (unlikely(dma_resv_reserve_fences(abo->tbo.base.resv, 1)))
+> > +             goto err;
+> > +
+> > +     if (check_domain &&
+> > +         amdgpu_display_supported_domains(adev, abo->flags) !=3D
+> > +         (AMDGPU_GEM_DOMAIN_VRAM | AMDGPU_GEM_DOMAIN_GTT))
+> > +             goto err;
+> > +
+> > +     mem_type =3D abo->tbo.resource->mem_type;
+> > +     amdgpu_bo_unreserve(abo);
+> > +
+> > +     return mem_type;
+> > +
+> > +err:
+> > +     amdgpu_bo_unreserve(abo);
+> > +     return 0;
+> > +}
+> > +
+> >   static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
+> >                                   struct dc_state *dc_state,
+> >                                   struct drm_device *dev,
+> > @@ -7916,6 +7944,7 @@ static void amdgpu_dm_commit_planes(struct drm_at=
+omic_state *state,
+> >                       to_dm_crtc_state(drm_atomic_get_old_crtc_state(st=
+ate, pcrtc));
+> >       int planes_count =3D 0, vpos, hpos;
+> >       unsigned long flags;
+> > +     uint32_t mem_type;
+> >       u32 target_vblank, last_flip_vblank;
+> >       bool vrr_active =3D amdgpu_dm_crtc_vrr_active(acrtc_state);
+> >       bool cursor_update =3D false;
+> > @@ -8035,13 +8064,21 @@ static void amdgpu_dm_commit_planes(struct drm_=
+atomic_state *state,
+> >                       }
+> >               }
+> >
+> > +             mem_type =3D get_mem_type(dm->adev, old_plane_state->fb->=
+obj[0],
+> > +                                     true);
+> > +
+> >               /*
+> >                * Only allow immediate flips for fast updates that don't
+> > -              * change FB pitch, DCC state, rotation or mirroing.
+> > +              * change memory domain, FB pitch, DCC state, rotation or
+> > +              * mirroring.
+> >                */
+> >               bundle->flip_addrs[planes_count].flip_immediate =3D
+> >                       crtc->state->async_flip &&
+> > -                     acrtc_state->update_type =3D=3D UPDATE_TYPE_FAST;
+> > +                     acrtc_state->update_type =3D=3D UPDATE_TYPE_FAST =
+&&
+> > +                     (!mem_type || (mem_type && get_mem_type(dm->adev,
+> > +                                                             fb->obj[0=
+],
+> > +                                                             false) =
+=3D=3D
+> > +                                    mem_type));
+> >
+> >               timestamp_ns =3D ktime_get_ns();
+> >               bundle->flip_addrs[planes_count].flip_timestamp_in_us =3D=
+ div_u64(timestamp_ns, 1000);
+>
