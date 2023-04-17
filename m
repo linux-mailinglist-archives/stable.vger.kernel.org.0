@@ -2,152 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFAEF6E5573
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 01:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837F26E5578
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 01:56:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229930AbjDQXzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 19:55:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37486 "EHLO
+        id S229682AbjDQX4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 19:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229830AbjDQXzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 19:55:09 -0400
+        with ESMTP id S229521AbjDQX4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 19:56:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B32358C;
-        Mon, 17 Apr 2023 16:55:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F274358C;
+        Mon, 17 Apr 2023 16:55:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C8A1621C4;
-        Mon, 17 Apr 2023 23:55:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DCD4C4339C;
-        Mon, 17 Apr 2023 23:55:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681775707;
-        bh=EgtqkulILVECeKR2N6I/3hFuaLEzyMmxF2IWfVuKV9g=;
-        h=Date:To:From:Subject:From;
-        b=RYgi+TfJbnbPXRDYN+eGr+H5h8Df4KA4zsDxeeFB+AqkDznMgsG+FifrgWEkdYEC4
-         ALoG4CrmG17lxMhQB0AHPeGdLVRA0hjtny2lUn36ColsNHsQdrgZft6MTkvdaXdL44
-         wsLRJMviJuR47q8xfyDMApy/Z2iZNailrjpAKKhE=
-Date:   Mon, 17 Apr 2023 16:55:06 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        glider@google.com, konishi.ryusuke@gmail.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + nilfs2-initialize-unused-bytes-in-segment-summary-blocks.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230417235507.7DCD4C4339C@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87F7562B2E;
+        Mon, 17 Apr 2023 23:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AFDFC433EF;
+        Mon, 17 Apr 2023 23:55:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681775758;
+        bh=gJP/8hv3/McZQ0JN4pD74vpZuLlroBUE6hcZNQNm6Rw=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=cTZOpC56rkxIJOJESHXfHcrtDXSvQUl/pkgVjvci/W9Rx49/oYeqUbDo0isHbueM0
+         QfB63se6WnhN1aNlZOUrpgh+FMRkR+SpZdUcV7Xu60u6C7q+yukgY0LDL0xGi3tWOD
+         YEBvdzJxGvw3QeUN92pK/tPT+mXC66LyN3d0xj47n3xAAOQ0E83m15malYkyvx/fbI
+         V2WsWdIejrnadlMcFFAa2rfDTy4AT7B7KvUhUZ5O55q1ZA24run91+2OsxfSGTtdcc
+         KLFBnIsw5SJl4VJK9K2YQpyDTVDD+KOUCkJgEaD00nuAsf02lvJdiYJ6wnwW2zrA70
+         c+/PnZREzB6hQ==
+Message-ID: <85495f58-34f5-70b4-7536-ccab49bfa0ca@kernel.org>
+Date:   Tue, 18 Apr 2023 08:55:53 +0900
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH v4 08/11] PCI: rockchip: Fix window mapping and address
+ translation for endpoint
+Content-Language: en-US
+To:     Rick Wertenbroek <rick.wertenbroek@gmail.com>,
+        alberto.dassatti@heig-vd.ch
+Cc:     xxm@rock-chips.com, stable@vger.kernel.org,
+        Shawn Lin <shawn.lin@rock-chips.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Johan Jonker <jbx6244@gmail.com>,
+        Caleb Connolly <kc@postmarketos.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Hugh Cole-Baker <sigmaris@gmail.com>,
+        Judy Hsiao <judyhsiao@chromium.org>,
+        Arnaud Ferraris <arnaud.ferraris@collabora.com>,
+        linux-pci@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+References: <20230417092631.347976-1-rick.wertenbroek@gmail.com>
+ <20230417092631.347976-9-rick.wertenbroek@gmail.com>
+From:   Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <20230417092631.347976-9-rick.wertenbroek@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-9.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 4/17/23 18:26, Rick Wertenbroek wrote:
+> The RK3399 PCI endpoint core has 33 windows for PCIe space, now in the
+> driver up to 32 fixed size (1M) windows are used and pages are allocated
+> and mapped accordingly. The driver first used a single window and allocated
+> space inside which caused translation issues (between CPU space and PCI
+> space) because a window can only have a single translation at a given
+> time, which if multiple pages are allocated inside will cause conflicts.
+> Now each window is a single region of 1M which will always guarantee that
+> the translation is not in conflict.
+> 
+> Set the translation register addresses for physical function. As documented
+> in the technical reference manual (TRM) section 17.5.5 "PCIe Address
+> Translation" and section 17.6.8 "Address Translation Registers Description"
+> 
+> Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Rick Wertenbroek <rick.wertenbroek@gmail.com>
+> Tested-by: Damien Le Moal <dlemoal@kernel.org>
 
-The patch titled
-     Subject: nilfs2: initialize unused bytes in segment summary blocks
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     nilfs2-initialize-unused-bytes-in-segment-summary-blocks.patch
+[...]
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/nilfs2-initialize-unused-bytes-in-segment-summary-blocks.patch
+> @@ -600,7 +582,8 @@ static int rockchip_pcie_ep_probe(struct platform_device *pdev)
+>  
+>  	ep->irq_pci_addr = ROCKCHIP_PCIE_EP_DUMMY_IRQ_ADDR;
+>  
+> -	rockchip_pcie_write(rockchip, PCIE_CLIENT_CONF_ENABLE, PCIE_CLIENT_CONFIG);
+> +	rockchip_pcie_write(rockchip, PCIE_CLIENT_CONF_ENABLE,
+> +			    PCIE_CLIENT_CONFIG);
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+This change belongs to patch 3 of the series, not here.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Other than this, looks good. With that fixed,
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: initialize unused bytes in segment summary blocks
-Date: Tue, 18 Apr 2023 02:35:13 +0900
-
-Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
-KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
-initialize "struct nilfs_binfo_dat"->bi_pad field").
-
-This is because the unused bytes at the end of each block in segment
-summaries are not initialized.  So this fixes the issue by padding the
-unused bytes with null bytes.
-
-Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
-  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
-Cc: Alexander Potapenko <glider@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/nilfs2/segment.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
---- a/fs/nilfs2/segment.c~nilfs2-initialize-unused-bytes-in-segment-summary-blocks
-+++ a/fs/nilfs2/segment.c
-@@ -430,6 +430,23 @@ static int nilfs_segctor_reset_segment_b
- 	return 0;
- }
- 
-+/**
-+ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
-+ * @sci: segment constructor object
-+ *
-+ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
-+ * the current segment summary block.
-+ */
-+static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
-+{
-+	struct nilfs_segsum_pointer *ssp;
-+
-+	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
-+	if (ssp->offset < ssp->bh->b_size)
-+		memset(ssp->bh->b_data + ssp->offset, 0,
-+		       ssp->bh->b_size - ssp->offset);
-+}
-+
- static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
- {
- 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
-@@ -438,6 +455,7 @@ static int nilfs_segctor_feed_segment(st
- 				* The current segment is filled up
- 				* (internal code)
- 				*/
-+	nilfs_segctor_zeropad_segsum(sci);
- 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
- 	return nilfs_segctor_reset_segment_buffer(sci);
- }
-@@ -542,6 +560,7 @@ static int nilfs_segctor_add_file_block(
- 		goto retry;
- 	}
- 	if (unlikely(required)) {
-+		nilfs_segctor_zeropad_segsum(sci);
- 		err = nilfs_segbuf_extend_segsum(segbuf);
- 		if (unlikely(err))
- 			goto failed;
-@@ -1533,6 +1552,7 @@ static int nilfs_segctor_collect(struct
- 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
- 		sci->sc_stage = prev_stage;
- 	}
-+	nilfs_segctor_zeropad_segsum(sci);
- 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
- 	return 0;
- 
-_
-
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
-
-nilfs2-initialize-unused-bytes-in-segment-summary-blocks.patch
 
