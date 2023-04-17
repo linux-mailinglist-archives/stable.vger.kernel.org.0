@@ -2,64 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7E36E4EEB
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 19:15:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B27A6E4F11
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 19:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230113AbjDQRPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 13:15:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43920 "EHLO
+        id S230117AbjDQRTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 13:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbjDQRPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 13:15:08 -0400
+        with ESMTP id S230064AbjDQRTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 13:19:20 -0400
 Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D9149E9
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 10:15:06 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id 5b1f17b1804b1-3f04275b2bdso231495e9.1
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 10:15:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FC1C147
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 10:18:37 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id 5b1f17b1804b1-3f08b6a9f8aso231835e9.0
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 10:18:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1681751705; x=1684343705;
+        d=google.com; s=20221208; t=1681751901; x=1684343901;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=a3stGmteRzeKnj1XWwcELOuoYuh13a22U1AyLn+AXFA=;
-        b=USlKOpbDldphAUyai69TJ//1HRVKA+ShayAbY7sLGbOvQEvKIz5naSn8kFIiDcr28/
-         NIQJbOHZ8t3qCBFz3xrGTiZzjZeb3edXdAxv576q7gp/guq8USCQw3xlKGcIgm2F9wlh
-         czvyeui5XMogGuzZFqFg3RkSzMKnnDBMXFJ++iSePFy3yf5ijT7DBL196+/BykIq58yB
-         mCV0EAz3oaws1Mx2yyICHKgCqo+opOlSsTFGz2C9YDQXIbqoTXT9QDfJfo/feuB7Qelk
-         K1jUJryuv9g3iU2g0t9KSxnLF5jTTdFowzqOPr/k9fHkohYrGxSyWDWgs/u1KLsxaF5+
-         F59w==
+        bh=EwEUyZ1hv8C2cfjlNgeBtOKtK16Xrh+esjFWHHPRRb0=;
+        b=lbnr6J2jneenWoGXcHHKbrHIJWCE7J59mq6GOymAdiHW4J8rbrJp1V/iw+kmGIbqVB
+         XOROxum450K19zxRjwmeMG8pUrWGarSh29wH1f8ASCwm1rLZYOo2MKStJTUBaukxDavd
+         rDZaig633iSxicv9wrQiotJqnYdSBmSBGG1dKiHH0y0N7sqC5OGypqDXLt1Y9VqvNr4l
+         CtElPm5yVT3oj0I3xRobOxJoHLanQXoY72OebcqU8RLc7tkytmC4A2i3dOkJNxM+8sg1
+         p2VkJP+XO6fBArBEoeOfDCHH46Jq3eOjW17LatDWkf3+SX8rcQL+7yMwBoXVtfu01nOa
+         8n0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681751705; x=1684343705;
+        d=1e100.net; s=20221208; t=1681751901; x=1684343901;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=a3stGmteRzeKnj1XWwcELOuoYuh13a22U1AyLn+AXFA=;
-        b=k1pL00P1J/iXBXbWvY+VtfX6CcwAC3HB2Zu8GI8UNHd8Jt0cZ1HdRwz0AX1IqtOgOf
-         J9ff+wU1NP3kMzgS9kOORyaBIXFY84U9vhRfjcE0reGhd0n0FETVofCBMjCDIHW+MG8C
-         tZvWFL6NvOYuxdAJB+JHtcNuSvDfSEZlqt/QjSBNFQYH2P3yqBSFN0k7g87ZkFi6ZVAd
-         Ak9OUU2pDm7lmtKx4dXbOKI3Q//mJY1S/UZl+iLie/p2JmUd751Vt8E5Wd7jdAAIGp0E
-         T/+1Vn1O+z81LnqSye30DAroKJVe7JTIf2XnhzioPdKm7mo6er5N4joG8OV1Mh5Uvv4p
-         oZ0Q==
-X-Gm-Message-State: AAQBX9dHvzaHO0ftqm8S4AY1I3qjqCy1zT5s7rfIbEzzbRTrFdZM+JPs
-        5bNDHrghtqKd3pZXG6xFqpd6nUzHQdaGMalfp5BFSg==
-X-Google-Smtp-Source: AKy350Z7GLpgZB4nWfaWROBdqmPEACzgMPzNNdQCuM59lX1IGltn277CXYX21QobH4mjsaKVJbsxhora8Sr1e5fDRRg=
-X-Received: by 2002:a05:600c:5122:b0:3f1:70d1:21a6 with SMTP id
- o34-20020a05600c512200b003f170d121a6mr4313wms.0.1681751704759; Mon, 17 Apr
- 2023 10:15:04 -0700 (PDT)
+        bh=EwEUyZ1hv8C2cfjlNgeBtOKtK16Xrh+esjFWHHPRRb0=;
+        b=RmJPpdf/kZ1CTO7wrD/tUFlQyJmWlwUaJy2ty0wDKV3FgoVtHl57DTErnzbryrqfNh
+         Gth19Xct8bW018d7cx3Ena3IiQLASbKG8smWGs4E5svfT3baoqe1LFNz4rXbXCDGq02T
+         h5cGJamcMQFYUJkGObu0svHrYRK3EESKUtQI0sTXHrcBP3XaTQB3JF/0VohNX9zX63IO
+         WXmKtIiuUBOOjrtdZaVT7U1P9GNhq6xJAiV10FZuvn8BS6iUxoi+i7Jkr+n14CwbdGPl
+         Q12zvkPRsKS/htrOA92vud9MOvDxcAJgBsyZtzy2/XFu5YM+QJndk6rh9f4AIvQl9R/D
+         KfUg==
+X-Gm-Message-State: AAQBX9fu85viF1n20Aaw3NAGvW0y1zMgvfrczXaVNlt8zSrXCu1aM5eZ
+        H3q4qyP/BgUZuHvdUSCx/lxu3ITgdYWIanXgvKyeDg==
+X-Google-Smtp-Source: AKy350b7enRl0ByHp6ksDSKZ80A0ICKsu105uTsFcTC8eBxQHPrY3fGARG2RXOH9XJ/cVUvUgdKMxN+Ks+7k11OG1kc=
+X-Received: by 2002:a05:600c:3492:b0:3f1:6f35:f677 with SMTP id
+ a18-20020a05600c349200b003f16f35f677mr468016wmq.1.1681751900928; Mon, 17 Apr
+ 2023 10:18:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230417122943.2155502-1-anders.roxell@linaro.org> <20230417122943.2155502-2-anders.roxell@linaro.org>
-In-Reply-To: <20230417122943.2155502-2-anders.roxell@linaro.org>
+References: <20230417122943.2155502-1-anders.roxell@linaro.org>
+In-Reply-To: <20230417122943.2155502-1-anders.roxell@linaro.org>
 From:   Ian Rogers <irogers@google.com>
-Date:   Mon, 17 Apr 2023 10:14:51 -0700
-Message-ID: <CAP-5=fWUevSnyn5MtVO1p6cEVE8MvBTq4Qgth7RcPYueRERQKA@mail.gmail.com>
-Subject: Re: [backport PATCH 1/2] tools perf: Fix compilation error with new binutils
+Date:   Mon, 17 Apr 2023 10:18:06 -0700
+Message-ID: <CAP-5=fX=yftpSELUHmz3aCu6C4mknud8A_S4Q0UsdaagPLW5mA@mail.gmail.com>
+Subject: Re: [backport PATCH 0/2] stable v5.15, v5.10 and v5.4: fix perf build errors
 To:     Anders Roxell <anders.roxell@linaro.org>
 Cc:     stable@vger.kernel.org, acme@redhat.com, andres@anarazel.de,
-        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        Quentin Monnet <quentin@isovalent.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ben Hutchings <benh@debian.org>, Jiri Olsa <jolsa@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>, bpf@vger.kernel.org
+        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
@@ -76,138 +72,97 @@ X-Mailing-List: stable@vger.kernel.org
 On Mon, Apr 17, 2023 at 5:30=E2=80=AFAM Anders Roxell <anders.roxell@linaro=
 .org> wrote:
 >
-> From: Andres Freund <andres@anarazel.de>
+> Hi,
 >
-> binutils changed the signature of init_disassemble_info(), which now caus=
-es
-> compilation failures for tools/perf/util/annotate.c, e.g. on debian
-> unstable.
+> I would like to see these patches backported. They are needed so perf
+> can be cross compiled with gcc on v5.15, v5.10 and v5.4.
 
-Thanks, I believe the compilation issue may well be resolved by:
-https://lore.kernel.org/lkml/20230311065753.3012826-8-irogers@google.com/
-where binutils is made opt-in rather than opt-out.
-
-> Relevant binutils commit:
->
->   https://sourceware.org/git/?p=3Dbinutils-gdb.git;a=3Dcommit;h=3D60a3da0=
-0bd5407f07
->
-> Wire up the feature test and switch to init_disassemble_info_compat(),
-> which were introduced in prior commits, fixing the compilation failure.
-
-I was kind of surprised to see no version check ifdef. Is
-init_disassemble_info_compat is supported in older binutils?
+Thanks Anders, why not just use the latest perf for these kernels?
+Perhaps this discussion is relevant:
+https://lore.kernel.org/linux-perf-users/0b1c5f9af241327786a996a3ddd61602b5=
+a15987.camel@decadent.org.uk/
 
 Thanks,
 Ian
 
-> I verified that perf can still disassemble bpf programs by using bpftrace
-> under load, recording a perf trace, and then annotating the bpf "function=
-"
-> with and without the changes. With old binutils there's no change in outp=
-ut
-> before/after this patch. When comparing the output from old binutils (2.3=
-5)
-> to new bintuils with the patch (upstream snapshot) there are a few output
-> differences, but they are unrelated to this patch. An example hunk is:
+> I built it with tuxmake [1] here are two example commandlines:
+> tuxmake --runtime podman --target-arch arm64 --toolchain gcc-12 --kconfig=
+ defconfig perf
+> tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-12 --kconfi=
+g defconfig perf
 >
->        1.15 :   55:mov    %rbp,%rdx
->        0.00 :   58:add    $0xfffffffffffffff8,%rdx
->        0.00 :   5c:xor    %ecx,%ecx
->   -    1.03 :   5e:callq  0xffffffffe12aca3c
->   +    1.03 :   5e:call   0xffffffffe12aca3c
->        0.00 :   63:xor    %eax,%eax
->   -    2.18 :   65:leaveq
->   -    2.82 :   66:retq
->   +    2.18 :   65:leave
->   +    2.82 :   66:ret
+> Tried to build perf with both gcc-11 and gcc-12.
 >
-> Signed-off-by: Andres Freund <andres@anarazel.de>
-> Acked-by: Quentin Monnet <quentin@isovalent.com>
-> Cc: Alexei Starovoitov <ast@kernel.org>
-> Cc: Ben Hutchings <benh@debian.org>
-> Cc: Jiri Olsa <jolsa@kernel.org>
-> Cc: Sedat Dilek <sedat.dilek@gmail.com>
-> Cc: bpf@vger.kernel.org
-> Link: http://lore.kernel.org/lkml/20220622181918.ykrs5rsnmx3og4sv@alap3.a=
-narazel.de
-> Link: https://lore.kernel.org/r/20220801013834.156015-5-andres@anarazel.d=
-e
-> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-> ---
->  tools/perf/Makefile.config | 8 ++++++++
->  tools/perf/util/annotate.c | 7 ++++---
->  2 files changed, 12 insertions(+), 3 deletions(-)
+> Patch 'tools perf: Fix compilation error with new binutils'
+> and 'tools build: Add feature test for init_disassemble_info API changes'
+> didn't apply cleanly, thats why I send these in a patchset.
 >
-> diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-> index 3e7706c251e9..55905571f87b 100644
-> --- a/tools/perf/Makefile.config
-> +++ b/tools/perf/Makefile.config
-> @@ -281,6 +281,7 @@ FEATURE_CHECK_LDFLAGS-libpython :=3D $(PYTHON_EMBED_L=
-DOPTS)
->  FEATURE_CHECK_LDFLAGS-libaio =3D -lrt
+> When apply 'tools build: Add feature test for
+> init_disassemble_info API changes' to 5.4 it will be a minor merge
+> conflict, do you want me to send this patch in two separate patches one
+> for 5.4 and another for v5.10?
 >
->  FEATURE_CHECK_LDFLAGS-disassembler-four-args =3D -lbfd -lopcodes -ldl
-> +FEATURE_CHECK_LDFLAGS-disassembler-init-styled =3D -lbfd -lopcodes -ldl
+> The sha for these two patches in mainline are.
+> cfd59ca91467 tools build: Add feature test for init_disassemble_info API =
+changes
+> 83aa0120487e tools perf: Fix compilation error with new binutils
 >
->  CORE_CFLAGS +=3D -fno-omit-frame-pointer
->  CORE_CFLAGS +=3D -ggdb3
-> @@ -838,13 +839,16 @@ else
->    ifeq ($(feature-libbfd-liberty), 1)
->      EXTLIBS +=3D -lbfd -lopcodes -liberty
->      FEATURE_CHECK_LDFLAGS-disassembler-four-args +=3D -liberty -ldl
-> +    FEATURE_CHECK_LDFLAGS-disassembler-init-styled +=3D -liberty -ldl
->    else
->      ifeq ($(feature-libbfd-liberty-z), 1)
->        EXTLIBS +=3D -lbfd -lopcodes -liberty -lz
->        FEATURE_CHECK_LDFLAGS-disassembler-four-args +=3D -liberty -lz -ld=
-l
-> +      FEATURE_CHECK_LDFLAGS-disassembler-init-styled +=3D -liberty -ldl
->      endif
->    endif
->    $(call feature_check,disassembler-four-args)
-> +  $(call feature_check,disassembler-init-styled)
->  endif
+> The above patches solves these:
+> util/annotate.c: In function 'symbol__disassemble_bpf':
+> util/annotate.c:1729:9: error: too few arguments to function 'init_disass=
+emble_info'
+>  1729 |         init_disassemble_info(&info, s,
+>       |         ^~~~~~~~~~~~~~~~~~~~~
 >
->  ifeq ($(feature-libbfd-buildid), 1)
-> @@ -957,6 +961,10 @@ ifeq ($(feature-disassembler-four-args), 1)
->      CFLAGS +=3D -DDISASM_FOUR_ARGS_SIGNATURE
->  endif
 >
-> +ifeq ($(feature-disassembler-init-styled), 1)
-> +    CFLAGS +=3D -DDISASM_INIT_STYLED
-> +endif
-> +
->  ifeq (${IS_64_BIT}, 1)
->    ifndef NO_PERF_READ_VDSO32
->      $(call feature_check,compile-32)
-> diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-> index 308189454788..f2d1741b7610 100644
-> --- a/tools/perf/util/annotate.c
-> +++ b/tools/perf/util/annotate.c
-> @@ -1684,6 +1684,7 @@ static int dso__disassemble_filename(struct dso *ds=
-o, char *filename, size_t fil
->  #define PACKAGE "perf"
->  #include <bfd.h>
->  #include <dis-asm.h>
-> +#include <tools/dis-asm-compat.h>
+> Please apply these to v5.10 and v5.4
+> a45b3d692623 tools include: add dis-asm-compat.h to handle version differ=
+ences
+> d08c84e01afa perf sched: Cast PTHREAD_STACK_MIN to int as it may turn int=
+o sysconf(__SC_THREAD_STACK>
 >
->  static int symbol__disassemble_bpf(struct symbol *sym,
->                                    struct annotate_args *args)
-> @@ -1726,9 +1727,9 @@ static int symbol__disassemble_bpf(struct symbol *s=
-ym,
->                 ret =3D errno;
->                 goto out;
->         }
-> -       init_disassemble_info(&info, s,
-> -                             (fprintf_ftype) fprintf);
-> -
-> +       init_disassemble_info_compat(&info, s,
-> +                                    (fprintf_ftype) fprintf,
-> +                                    fprintf_styled);
->         info.arch =3D bfd_get_arch(bfdf);
->         info.mach =3D bfd_get_mach(bfdf);
+> The above patches solves these:
+> /home/anders/src/kernel/stable-5.10/tools/include/linux/kernel.h:43:24: e=
+rror: comparison of distinct pointer types lacks a cast [-Werror]
+>    43 |         (void) (&_max1 =3D=3D &_max2);              \
+>       |                        ^~
+> builtin-sched.c:673:34: note: in expansion of macro 'max'
+>   673 |                         (size_t) max(16 * 1024, PTHREAD_STACK_MIN=
+));
+>       |                                  ^~~
+>
+>
+> Please apply these to v5.15, v5.10 and v5.4
+> 8e8bf60a6754 perf build: Fixup disabling of -Wdeprecated-declarations for=
+ the python scripting engine
+> 4ee3c4da8b1b perf scripting python: Do not build fail on deprecation warn=
+ings
+> 63a4354ae75c perf scripting perl: Ignore some warnings to keep building w=
+ith perl headers
+>
+> Build error that the above 3 patches solves are:
+> /usr/lib/x86_64-linux-gnu/perl/5.36/CORE/handy.h:125:23: error: cast from=
+ function call of type 'STRLEN' {aka 'long unsigned int'} to non-matching t=
+ype '_Bool' [-Werror=3Dbad-function-cast]
+>   125 | #define cBOOL(cbool) ((bool) (cbool))
+>       |                       ^
+>
+> Cheers,
+> Anders
+> [1] https://tuxmake.org/
+>
+> Andres Freund (2):
+>   tools perf: Fix compilation error with new binutils
+>   tools build: Add feature test for init_disassemble_info API changes
+>
+>  tools/build/Makefile.feature                        |  1 +
+>  tools/build/feature/Makefile                        |  4 ++++
+>  tools/build/feature/test-all.c                      |  4 ++++
+>  tools/build/feature/test-disassembler-init-styled.c | 13 +++++++++++++
+>  tools/perf/Makefile.config                          |  8 ++++++++
+>  tools/perf/util/annotate.c                          |  7 ++++---
+>  6 files changed, 34 insertions(+), 3 deletions(-)
+>  create mode 100644 tools/build/feature/test-disassembler-init-styled.c
 >
 > --
 > 2.39.2
