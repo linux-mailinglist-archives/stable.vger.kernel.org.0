@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3596E4053
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2AE6E4054
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbjDQHDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 03:03:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53186 "EHLO
+        id S229826AbjDQHDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 03:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229826AbjDQHDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:03:13 -0400
+        with ESMTP id S229574AbjDQHDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:03:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD52B7
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:03:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51BDEB7
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:03:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 083D061356
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3C61C433D2;
-        Mon, 17 Apr 2023 07:03:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D485761356
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:03:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9DF5C433EF;
+        Mon, 17 Apr 2023 07:03:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681714990;
-        bh=cj6fw/oVXvEuP3KWLg7vnYwVHuq9USk1r845GaNc8NU=;
+        s=korg; t=1681715000;
+        bh=368a2z6O0RiUCEHNqQXU2t0JVUCEBP1Mc2VnVKaV0Vo=;
         h=Subject:To:Cc:From:Date:From;
-        b=mcymrcEN4Ja+ozQ0tco9uCIq8r2SmtA3LvethhEca7kqdKshUy/kHxBbgd6JOlaU/
-         +e8lrMQX/93N4jZUUjliXgLP2caeeeBhJyG0b9s6m7M4ycmvdGDj0fHZBPSRtABcd3
-         PWoDHLOM9p2nWd/dqKzxCNb7pKQpS90/SewzYRjA=
-Subject: FAILED: patch "[PATCH] riscv: Move early dtb mapping into the fixmap region" failed to apply to 6.1-stable tree
+        b=Kp0M6n1WlYfyC9ZrRXL+hVWihlOszM82jlpvicJ0V4ImusciTWJKoVhDqSfxrwPdS
+         Z5Yb4fo6CKzP3hx1kkdQnJBRqjh0smKLnzRTlm2u1BagG8Mm05I/6WQ+rNqfUCxaiC
+         vrQKsD+Qml4ys1jRpv9UpmibaxluCYb8zmP15xwQ=
+Subject: FAILED: patch "[PATCH] riscv: Move early dtb mapping into the fixmap region" failed to apply to 5.15-stable tree
 To:     alexghiti@rivosinc.com, conor.dooley@microchip.com,
         palmer@rivosinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Apr 2023 09:03:06 +0200
-Message-ID: <2023041706-esophagus-evacuate-b5a7@gregkh>
+Date:   Mon, 17 Apr 2023 09:03:08 +0200
+Message-ID: <2023041708-sinless-rectangle-f480@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,24 +49,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x ef69d2559fe91f23d27a3d6fd640b5641787d22e
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041706-esophagus-evacuate-b5a7@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041708-sinless-rectangle-f480@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 ef69d2559fe9 ("riscv: Move early dtb mapping into the fixmap region")
 dd3553793a75 ("Documentation: riscv: Document the sv57 VM layout")
+9d19f2b5256e ("Documentation: riscv: Add sv48 description to VM layout")
+f83050a82d4f ("RISC-V: Avoid empty create_*_mapping definitions")
+677b9eb8810e ("riscv: mm: Prepare pt_ops helper functions for sv57")
+e8a62cc26ddf ("riscv: Implement sv48 support")
+3270bfdb9e4a ("riscv: Allow to dynamically define VA_BITS")
+840125a97abc ("riscv: Introduce functions to switch pt_ops")
+2efad17e5794 ("riscv: Split early kasan mapping to prepare sv48 introduction")
+f7ae02333d13 ("riscv: Move KASAN mapping next to the kernel mapping")
+db1503d355a7 ("riscv: Get rid of MAXPHYSMEM configs")
 
 thanks,
 
