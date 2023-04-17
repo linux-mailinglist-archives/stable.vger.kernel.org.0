@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C086E404D
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25DA36E404E
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbjDQHBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 03:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        id S229876AbjDQHB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 03:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229587AbjDQHBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:01:52 -0400
+        with ESMTP id S229587AbjDQHB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:01:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 443A01BC2
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:01:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00205212F
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:01:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D316561017
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:01:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D14EAC433D2;
-        Mon, 17 Apr 2023 07:01:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F74461EA9
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:01:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62AA2C433EF;
+        Mon, 17 Apr 2023 07:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681714910;
-        bh=0cn+/tcVk5Xz93nxA4Ih5szo3RxlnTB2OO09x2bllQY=;
+        s=korg; t=1681714913;
+        bh=mLwYEw6VZttVf7Oq23YK8qoHJCcfoeRzQw6IjlK/VEc=;
         h=Subject:To:Cc:From:Date:From;
-        b=GIVPYfzH1sqYHwNDVCXFmaq+HISB4LACj2qa4itYqQ/3S5sMi4l4v+3u6uuUd0lCy
-         q4u0iibazEH1vAzcf0owCa9R0/ZLrWq67iMKv/U6IrkdxpJc+yUMTgolq8aDVUJYqj
-         WWhBm17UqQwZAZwUqAev35feZ5CdmNnPiMRmrCpc=
-Subject: FAILED: patch "[PATCH] purgatory: fix disabling debug info" failed to apply to 6.2-stable tree
+        b=bcnSoEypn2hZwALakQE7V9qsXVVZM2f2blNOoVTKf6vyZRfciHzAwU1bbIzyZ19Y0
+         +fDA6+OGI6BxMRJIIH3QzyGwo/+bBWqzj8Wd98tEeTcotgdWwkdCWB9jIF5BDkc5vu
+         rcDaO32vx+7demWTHOyQJqPv09oI8nBiIcy3stCc=
+Subject: FAILED: patch "[PATCH] purgatory: fix disabling debug info" failed to apply to 6.1-stable tree
 To:     hi@alyssa.is, masahiroy@kernel.org, ndesaulniers@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Apr 2023 09:01:46 +0200
-Message-ID: <2023041746-daybed-posing-b660@gregkh>
+Date:   Mon, 17 Apr 2023 09:01:47 +0200
+Message-ID: <2023041747-monogram-playpen-8e77@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
 git cherry-pick -x d83806c4c0cccc0d6d3c3581a11983a9c186a138
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041746-daybed-posing-b660@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041747-monogram-playpen-8e77@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
