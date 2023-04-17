@@ -2,108 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 421FA6E41A4
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 065AC6E41D0
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbjDQHy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 03:54:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41294 "EHLO
+        id S230139AbjDQH6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 03:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230384AbjDQHyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:54:45 -0400
-Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C34233594;
-        Mon, 17 Apr 2023 00:54:42 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S230445AbjDQH6G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:58:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C15413D
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:58:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: marcan@marcan.st)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id 18D6C4212E;
-        Mon, 17 Apr 2023 07:54:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
-        t=1681718080; bh=9BgjppDTP78o93QzzyDV1mwP9TOqlheAYnzrgGrUZvs=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=eLdiolIPfg0qDBvve6LIvtScZrynBCa3ibW75H4luminZX8h3ma+SdY/5AV9T+2u6
-         4MU53gW6ne8k2AFtYieKV6xUmBcFYhfHt/5/5BDDID3ltJq8dZKjudCMETmfiBiqbU
-         hV0Yrnq0uTfWuJPV1ugZsCU/fM/2dLHo9NgPqfiv7wHZvmH98Iie9iWlcJT75reqEw
-         VL/7zPMKCgqpDI6R9qLy1HTRaNuLz3g8kpqbDv9fg9MDLZkT6ZH6ULdsT/yXU7VObc
-         T42OVJU/Au5qj/Vs/wpQ5kmhH0nveANqT/8ZcSkSI9TukCzW0SYfBE+Kn+kCDjeQIp
-         kO/G4VJjlxXfQ==
-Message-ID: <8b2e7bb9-3681-0265-01bc-e7abdd0d08b8@marcan.st>
-Date:   Mon, 17 Apr 2023 16:54:33 +0900
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA85560F8A
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 07:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF7CC433EF;
+        Mon, 17 Apr 2023 07:58:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681718281;
+        bh=O5u9afjGa3Nc7jUaKpuhfRd9PR3I9Qc/3JgdDWIJsAU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Uy47erUPFIUcfD2cyuFNuzc9LmrUgjwunB1jUH7DfxIsOKZ6WZCgrh6TlneuelVBw
+         HtrPq1r/xoEbdIIkRy4nyz66Z7M18EMoceuZoCCbNKmjgQhuYT1ltr9PkSckfj8fOA
+         4QE7b8hMhyjVNCLj89i9FlAA5ugr6RK87gK7NTWA=
+Subject: FAILED: patch "[PATCH] ksmbd: avoid out of bounds access in decode_preauth_ctxt()" failed to apply to 5.15-stable tree
+To:     ddiss@suse.de, linkinjeon@kernel.org, stable@vger.kernel.org,
+        stfrench@microsoft.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 Apr 2023 09:57:54 +0200
+Message-ID: <2023041754-retread-approach-96af@gregkh>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 1/2] wifi: brcmfmac: Demote vendor-specific attach/detach
- messages to info
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Arend van Spriel <aspriel@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "John W. Linville" <linville@tuxdriver.com>,
-        linux-wireless@vger.kernel.org,
-        brcm80211-dev-list.pdl@broadcom.com,
-        SHA-cyfmac-dev-list@infineon.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
-        stable@vger.kernel.org
-References: <20230416-brcmfmac-noise-v1-0-f0624e408761@marcan.st>
- <20230416-brcmfmac-noise-v1-1-f0624e408761@marcan.st>
- <2023041631-crying-contour-5e11@gregkh>
-From:   Hector Martin <marcan@marcan.st>
-In-Reply-To: <2023041631-crying-contour-5e11@gregkh>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 16/04/2023 21.46, Greg KH wrote:
-> On Sun, Apr 16, 2023 at 09:42:17PM +0900, Hector Martin wrote:
->> People are getting spooked by brcmfmac errors on their boot console.
->> There's no reason for these messages to be errors.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: d6a5c562214f ("wifi: brcmfmac: add support for vendor-specific firmware api")
->> Signed-off-by: Hector Martin <marcan@marcan.st>
->> ---
->>  drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/core.c | 4 ++--
->>  drivers/net/wireless/broadcom/brcm80211/brcmfmac/cyw/core.c | 4 ++--
->>  drivers/net/wireless/broadcom/brcm80211/brcmfmac/wcc/core.c | 4 ++--
->>  3 files changed, 6 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/core.c
->> index ac3a36fa3640..c83bc435b257 100644
->> --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/core.c
->> +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/core.c
->> @@ -12,13 +12,13 @@
->>  
->>  static int brcmf_bca_attach(struct brcmf_pub *drvr)
->>  {
->> -	pr_err("%s: executing\n", __func__);
->> +	pr_info("%s: executing\n", __func__);
-> 
-> Why are these here at all?  Please just remove these entirely, you can
-> get this information normally with ftrace.
-> 
-> Or, just delete these functions, why have empty ones at all?
 
-This is a new WIP code path that Arend introduced which currently
-deliberately does nothing (but is intended to hold firmware vendor
-specific init in the future). So we can just drop the messages, but I
-don't think we want to remove the code entirely.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-- Hector
+To reproduce the conflict and resubmit, you may use the following commands:
+
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git checkout FETCH_HEAD
+git cherry-pick -x e7067a446264a7514fa1cfaa4052cdb6803bc6a2
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041754-retread-approach-96af@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
+
+Possible dependencies:
+
+e7067a446264 ("ksmbd: avoid out of bounds access in decode_preauth_ctxt()")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e7067a446264a7514fa1cfaa4052cdb6803bc6a2 Mon Sep 17 00:00:00 2001
+From: David Disseldorp <ddiss@suse.de>
+Date: Thu, 13 Apr 2023 23:49:57 +0900
+Subject: [PATCH] ksmbd: avoid out of bounds access in decode_preauth_ctxt()
+
+Confirm that the accessed pneg_ctxt->HashAlgorithms address sits within
+the SMB request boundary; deassemble_neg_contexts() only checks that the
+eight byte smb2_neg_context header + (client controlled) DataLength are
+within the packet boundary, which is insufficient.
+
+Checking for sizeof(struct smb2_preauth_neg_context) is overkill given
+that the type currently assumes SMB311_SALT_SIZE bytes of trailing Salt.
+
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 8af939a181be..67b7e766a06b 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -876,17 +876,21 @@ static void assemble_neg_contexts(struct ksmbd_conn *conn,
+ }
+ 
+ static __le32 decode_preauth_ctxt(struct ksmbd_conn *conn,
+-				  struct smb2_preauth_neg_context *pneg_ctxt)
++				  struct smb2_preauth_neg_context *pneg_ctxt,
++				  int len_of_ctxts)
+ {
+-	__le32 err = STATUS_NO_PREAUTH_INTEGRITY_HASH_OVERLAP;
++	/*
++	 * sizeof(smb2_preauth_neg_context) assumes SMB311_SALT_SIZE Salt,
++	 * which may not be present. Only check for used HashAlgorithms[1].
++	 */
++	if (len_of_ctxts < MIN_PREAUTH_CTXT_DATA_LEN)
++		return STATUS_INVALID_PARAMETER;
+ 
+-	if (pneg_ctxt->HashAlgorithms == SMB2_PREAUTH_INTEGRITY_SHA512) {
+-		conn->preauth_info->Preauth_HashId =
+-			SMB2_PREAUTH_INTEGRITY_SHA512;
+-		err = STATUS_SUCCESS;
+-	}
++	if (pneg_ctxt->HashAlgorithms != SMB2_PREAUTH_INTEGRITY_SHA512)
++		return STATUS_NO_PREAUTH_INTEGRITY_HASH_OVERLAP;
+ 
+-	return err;
++	conn->preauth_info->Preauth_HashId = SMB2_PREAUTH_INTEGRITY_SHA512;
++	return STATUS_SUCCESS;
+ }
+ 
+ static void decode_encrypt_ctxt(struct ksmbd_conn *conn,
+@@ -1014,7 +1018,8 @@ static __le32 deassemble_neg_contexts(struct ksmbd_conn *conn,
+ 				break;
+ 
+ 			status = decode_preauth_ctxt(conn,
+-						     (struct smb2_preauth_neg_context *)pctx);
++						     (struct smb2_preauth_neg_context *)pctx,
++						     len_of_ctxts);
+ 			if (status != STATUS_SUCCESS)
+ 				break;
+ 		} else if (pctx->ContextType == SMB2_ENCRYPTION_CAPABILITIES) {
 
