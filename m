@@ -2,78 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1356E4649
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 13:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B006E4662
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 13:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjDQLWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 07:22:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46158 "EHLO
+        id S229598AbjDQL1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 07:27:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229559AbjDQLWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 07:22:42 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F986135;
-        Mon, 17 Apr 2023 04:21:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=GgEqcuO3bbvAsK7wAkwmlSOx0DBqrerOevI4PeRVwUY=; b=JbKPCR55W8FRNyQwTjDNOYTFMP
-        NhkgQR8f0KlF4XiO4AnQCAtsntHHCrzvt8nuHC76oWWaO059gRqanmeTfqiD3mQS+sGPHmdX+jgi9
-        3uWDql5rkAQQz8QSEyXzGFyWenFe0oOS7Wc4LnALvJjSQeUdAszYeHvd3lmFSLLPzdGZ5JdqwNg86
-        4YP7caJWIrFeeLc3nUqOrDSYZ4kA+0435y6jzNu1r9eZmBNR+Q9qkIV/jrcwJCIhG2hEd8mzy2RKR
-        v5Et+5Ro7qmeps+u0xZm49qQGVFfLgBDIdS6q3XS9fBSznqHU9sRdbLnsqKtu+8QIl+py0f8Ztcv5
-        PboVCvjw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1poMti-00BHe6-Cy; Mon, 17 Apr 2023 11:19:50 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id DD55E3001E5;
-        Mon, 17 Apr 2023 13:19:49 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id B95C224248706; Mon, 17 Apr 2023 13:19:49 +0200 (CEST)
-Date:   Mon, 17 Apr 2023 13:19:49 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     John Stultz <jstultz@google.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Tim Murray <timmurray@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>, kernel-team@android.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] locking/rwsem: Add __always_inline annotation to
- __down_read_common()
-Message-ID: <20230417111949.GJ83892@hirez.programming.kicks-ass.net>
-References: <20230412023839.2869114-1-jstultz@google.com>
- <20230412035905.3184199-1-jstultz@google.com>
+        with ESMTP id S229583AbjDQL1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 07:27:42 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 756E24C1C;
+        Mon, 17 Apr 2023 04:26:51 -0700 (PDT)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1poMyw-0000Lo-Iw; Mon, 17 Apr 2023 13:25:14 +0200
+Message-ID: <69602f1b-4afa-d864-b6d3-d8237f81a51d@leemhuis.info>
+Date:   Mon, 17 Apr 2023 13:25:13 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230412035905.3184199-1-jstultz@google.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: kernel error at led trigger "phy0tpt"
+Content-Language: en-US, de-DE
+To:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        Tobias Dahms <dahms.tobias@web.de>,
+        Sean Wang <sean.wang@mediatek.com>
+Cc:     stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Lee Jones <lee@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, linux-leds@vger.kernel.org,
+        linux-wireless@vger.kernel.org,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+References: <91feceb2-0df4-19b9-5ffa-d37e3d344fdf@web.de>
+ <3fcc707b-f757-e74b-2800-3b6314217868@leemhuis.info>
+ <fcecf6fc-bf18-73a0-9fc1-6850e183323a@web.de>
+ <d14fb08c-70e3-4cc7-caf9-87e73eab9194@gmail.com>
+ <8b07ead5-f105-da86-e7da-ee49616f7c1d@collabora.com>
+From:   "Linux regression tracking (Thorsten Leemhuis)" 
+        <regressions@leemhuis.info>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+In-Reply-To: <8b07ead5-f105-da86-e7da-ee49616f7c1d@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1681730811;1bf629c5;
+X-HE-SMSGID: 1poMyw-0000Lo-Iw
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 12, 2023 at 03:59:05AM +0000, John Stultz wrote:
-> Apparently despite it being marked inline, the compiler
-> may not inline __down_read_common() which makes it difficult
-> to identify the cause of lock contention, as the blocked
-> function will always be listed as __down_read_common().
-> 
-> So this patch adds __always_inline annotation to the
-> function to force it to be inlines so the calling function
-> will be listed.
+[adding Matthias to the list of recipients, who back then applied to
+culprit]
 
-I'm a wee bit confused; what are you looking at? Wchan? What is stopping
-the compiler from now handing you
-__down_read{,_interruptible,_killable}() instead? Is that fine?
+Hi, Thorsten here, the Linux kernel's regression tracker. Top-posting
+for once, to make this easily accessible to everyone.
+
+AngeloGioacchino, Has any progress been made to fix below regression? It
+doesn't look like it from here, hence I wondered if it fall through the
+cracks.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+--
+Everything you wanna know about Linux kernel regression tracking:
+https://linux-regtracking.leemhuis.info/about/#tldr
+If I did something stupid, please tell me, as explained on that page.
+
+#regzbot poke
+
+On 27.03.23 10:23, AngeloGioacchino Del Regno wrote:
+> Il 26/03/23 15:23, Bagas Sanjaya ha scritto:
+>> On 3/26/23 02:20, Tobias Dahms wrote:
+>>> Hello,
+>>>
+>>> the bisection gives following result:
+>>> --------------------------------------------------------------------
+>>> 18c7deca2b812537aa4d928900e208710f1300aa is the first bad commit
+>>> commit 18c7deca2b812537aa4d928900e208710f1300aa
+>>> Author: AngeloGioacchino Del Regno
+>>> <angelogioacchino.delregno@collabora.com>
+>>> Date:   Tue May 17 12:47:08 2022 +0200
+>>>
+>>>      soc: mediatek: pwrap: Use readx_poll_timeout() instead of custom
+>>> function
+>>>
+>>>      Function pwrap_wait_for_state() is a function that polls an address
+>>>      through a helper function, but this is the very same operation that
+>>>      the readx_poll_timeout macro means to do.
+>>>      Convert all instances of calling pwrap_wait_for_state() to instead
+>>>      use the read_poll_timeout macro.
+>>>
+>>>      Signed-off-by: AngeloGioacchino Del Regno
+>>> <angelogioacchino.delregno@collabora.com>
+>>>      Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+>>>      Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+>>>      Link:
+>>> https://lore.kernel.org/r/20220517104712.24579-2-angelogioacchino.delregno@collabora.com
+>>>      Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+>>>
+>>>   drivers/soc/mediatek/mtk-pmic-wrap.c | 60
+>>> ++++++++++++++++++++----------------
+>>>   1 file changed, 33 insertions(+), 27 deletions(-)
+>>> --------------------------------------------------------------------
+>>>
+>>
+>> OK, I'm updating the regression status:
+>>
+>> #regzbot introduced: 18c7deca2b8125
+>>
+>> And for replying, don't top-post, but rather reply inline with
+>> appropriate context instead; hence I cut the replied context.
+>>
+> 
+> There are two possible solutions to that, specifically, either:
+>  1. Change readx_poll_timeout() to readx_poll_timeout_atomic(); or
+>  2. Fix the mt6323-led driver so that this operation gets done
+>     out of atomic context, which is IMO the option to prefer.
+> 
+> Ideas?
+> 
+> Regards,
+> Angelo
+> 
+> 
