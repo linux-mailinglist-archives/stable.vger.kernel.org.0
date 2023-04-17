@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B656E41F8
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 10:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7806E41F9
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 10:04:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230333AbjDQIEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 04:04:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
+        id S229662AbjDQIEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 04:04:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230343AbjDQIEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 04:04:07 -0400
+        with ESMTP id S230204AbjDQIEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 04:04:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51D5735A6
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 01:04:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A2F40C3
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 01:04:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C21E7615FC
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 08:04:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B53C4C433D2;
-        Mon, 17 Apr 2023 08:04:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42D28615FC
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 08:04:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35538C433EF;
+        Mon, 17 Apr 2023 08:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681718644;
-        bh=tXPimyd4Z7PHZtbLBXzramyPNlrCmiogUcd6PqZ1ufo=;
+        s=korg; t=1681718647;
+        bh=+3jAX3wUjnWrXFyKNsfurHLIi+qEV++at3hvkcu23t0=;
         h=Subject:To:Cc:From:Date:From;
-        b=hlDYRIgTfBUHO5sJwFUnO61I5gwgrSrPVfexhldo9E3786miqaVrL83dej9Pnk7Kj
-         71B/YtWgchuNzQ1NPS49Pr6KRvHUgYGzKRu3qu8OXqhAYBfEVHZf5mTsr6HjbK4AZq
-         tZxH6fq0LybpqP/+u6f9Bb83XrxPq9zY98zIogx4=
-Subject: FAILED: patch "[PATCH] cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP" failed to apply to 5.15-stable tree
+        b=NAvTFULYNSYOCh1gAm9ML6URG1YzqA1womSom1TYKoHxr50PldNKarMuK/8Ifor8M
+         ugd+xJ/GPApoonJzJac0S5blQ4J55PeQ4pOZd6E10WWvpjYoCYlyIgylV4C29WwDIn
+         1fYyCGVpgUlGRpLco84wFB9fGTmc993xm/GBtUOo=
+Subject: FAILED: patch "[PATCH] cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP" failed to apply to 5.10-stable tree
 To:     longman@redhat.com, gscrivan@redhat.com, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Apr 2023 10:03:50 +0200
-Message-ID: <2023041750-matchbook-operable-3285@gregkh>
+Date:   Mon, 17 Apr 2023 10:03:51 +0200
+Message-ID: <2023041751-latter-oaf-71e3@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,24 +48,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 42a11bf5c5436e91b040aeb04063be1710bb9f9c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041750-matchbook-operable-3285@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041751-latter-oaf-71e3@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
 42a11bf5c543 ("cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP properly")
 18f9a4d47527 ("cgroup/cpuset: Skip spread flags update on v2")
+b94f9ac79a73 ("cgroup/cpuset: Change references of cpuset_mutex to cpuset_rwsem")
+69dc8010b8fc ("Merge branch 'for-5.15' of git://git.kernel.org/pub/scm/linux/kernel/git/tj/cgroup")
 
 thanks,
 
