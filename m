@@ -2,81 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650526E415E
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 733156E4188
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 09:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbjDQHkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 03:40:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57386 "EHLO
+        id S229838AbjDQHpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 03:45:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbjDQHkw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:40:52 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B855253
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:40:27 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id n43-20020a05600c502b00b003f17466a9c1so658931wmr.2
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:40:27 -0700 (PDT)
+        with ESMTP id S229602AbjDQHpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 03:45:01 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BD71982
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:44:43 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id ffacd0b85a97d-2f46348728eso742523f8f.3
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 00:44:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1681717220; x=1684309220;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:from:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=3y8aPQgOvoJwSTlB16np8gZ7mEu48SprWU1OLM7t2EY=;
-        b=Q0kUWkbBARCqihzYfC7ynvUsdGTkhMsyh5fm7/hrg/kyLi3UR04bgDIUB4ijsOVsof
-         n4+aUNm6adB+iF9ilW/GhfMexNEp8a6+yj+45qlIP0UQOaC4h14EgODg+Mcs1vIZmiOq
-         4dvC4rT2aC0Fy8WAlHsfX5bhRvN5iPkAiNgKRZI/h2Q+ttwC7rOfSXXAZOPkx2lnXbHQ
-         uRnyTChkbe2DvC9PM9DWYIsDFd0KvSj1L9DAVyjgbeeyw+wgLM8Te5vqk9cF4qE7kiPs
-         znPe2LOvB1Gr6+UrxctYlyUDU80t4YcwCJSjCwGT13vzrmTKQL4I07XxekurnFx+WMG3
-         Xt3A==
+        d=linaro.org; s=google; t=1681717482; x=1684309482;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=q//e7qaqughnPCo1F/i+SeOq6/eX66Ej8mh5j/ct1pw=;
+        b=W2mD0MPRAkuFA3FfSr2vuJMF6S3FrJUcuA+8gz/Pfwe5nOBHdp06855HRV/c3AMXBB
+         KVUuRdxZ7uwMww2K2XZ0KXCooWYIlU0nx8c6CPANcXuYxfO9f0Dt7qrBL8Aj306lLTLR
+         1IYKSmyq1QzG2zovl6y0xqjwEkEJ1Lomu3rCOccWvTM26H+FsglTQ3AX5INCBQY2b/dO
+         CNN3nCXOM1H4orljD0v4I5IWURH6RgczeZYWial/x+sBnwZOV3yIydmWnBpTvQprpB/z
+         axgmH84N8pIRzICg5yz+cbAaREVhConb3FQ6E0Z+Sq4zh/Mz46GY1UeqjjoXUg+NKVgt
+         bVrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681717220; x=1684309220;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:from:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3y8aPQgOvoJwSTlB16np8gZ7mEu48SprWU1OLM7t2EY=;
-        b=VGSOJeH6SwCI9nIUz4mE7c7icAfwQBjbhYUSS1ZRKQFI22BKZ6H6eozDmI2UE1UYDR
-         Y/fJmNShCqGe30WMzOmjKPiisV1ncNnX2ad6CH9yoJJDwKFtCjSWBsT7UEWyLL7/cKdY
-         eI6SG6R1q17PVc5gqNEbwsKCStS7Vz5CjEl6k5xGWZhKOY7d54mCiE1G85MVc+Q01XUV
-         m97WVYd6lKjn+t1nL1o8CROJezlsPeD6ilQznm8iNpzKCZ2dCxkPyoZEun/AZBmK/GBq
-         gKr/ghEzPzxb6y3B31z3VwkczACUdMM0r9CH+jp04Kwl9o7N7FikTLO7qDsmqM48+BRH
-         8H5A==
-X-Gm-Message-State: AAQBX9c3xCz6E8MvFw/VUfxxKgelI9vgObpL8c6ouqk6d2um9MX2N7ea
-        ldYKJ/KSWvzB1ZKMFhhgn70aTw==
-X-Google-Smtp-Source: AKy350bC5HsSl1Rn6Xmxt8XlYpLz2a7Ubqu4/u6z89XV16jAKStdTlpNZTICilRh9Bz+VJLGEzgGLw==
-X-Received: by 2002:a05:600c:22c7:b0:3eb:3945:d405 with SMTP id 7-20020a05600c22c700b003eb3945d405mr10243498wmg.38.1681717220686;
-        Mon, 17 Apr 2023 00:40:20 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:982:cbb0:a1e1:81a8:1acc:2b91? ([2a01:e0a:982:cbb0:a1e1:81a8:1acc:2b91])
-        by smtp.gmail.com with ESMTPSA id g2-20020a05600c000200b003f0aa490336sm10481002wmc.26.2023.04.17.00.40.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Apr 2023 00:40:20 -0700 (PDT)
-Message-ID: <661a2ac6-adfe-dec9-5b7b-b006f2f31a90@linaro.org>
-Date:   Mon, 17 Apr 2023 09:40:19 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
+        d=1e100.net; s=20221208; t=1681717482; x=1684309482;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=q//e7qaqughnPCo1F/i+SeOq6/eX66Ej8mh5j/ct1pw=;
+        b=BJ/IbU6WdKuv7/Exal1qfw6XnWs3yJ6mvmQJ/Y4IGZ9mEeWOWC2FfPLon8qtffZFe8
+         irGqJPm5+Dh5Aa7zz23F0ws8nTt0z+MXqcvlLUUacmlFYbPSH3hn8r7KjdfwCO0dx48l
+         VZlrcfETmeqdhBURYjHYbSy7vhe5AGOuOfAE2fGGl1UwZaxgzdOWq4wZG7aJSQAqwMNb
+         MrINpIURInFGo40+xT4+QCxCPN2sTdxuTvNpYCf2bWs/lqEH7JWGxII4umoXmrVwZbqW
+         oltmv4uFvR43pzzLppHVnBnZMO97+Cj8wZOozlJcaHG+5+920nxXT/65vX4Mvpy931Qr
+         uU5Q==
+X-Gm-Message-State: AAQBX9ees/ycQxrGzSfFnR4paTEs6FtKMtEesWa+EZ/BUCQbeMjUYKhE
+        1uUIdrk1iBjyVjRxAz3ioAeIVA==
+X-Google-Smtp-Source: AKy350ZOVLQAlAzQbeb7qqULkqACRYkBlRFZOitvcvISxwquy2k86KPJKTIUe0y5GgOYg6CQjAjJuA==
+X-Received: by 2002:a05:6000:100a:b0:2f6:9368:63c5 with SMTP id a10-20020a056000100a00b002f6936863c5mr4694914wrx.10.1681717482001;
+        Mon, 17 Apr 2023 00:44:42 -0700 (PDT)
+Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
+        by smtp.gmail.com with ESMTPSA id k16-20020adff290000000b002f53fa16239sm9826899wro.103.2023.04.17.00.44.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Apr 2023 00:44:41 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Reply-To: neil.armstrong@linaro.org
-Subject: Re: [RESEND PATCH] drm/panel: otm8009a: Set backlight parent to panel
- device
-Content-Language: en-US
-To:     James Cowgill <james.cowgill@blaize.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        David Airlie <airlied@gmail.com>,
+To:     Sam Ravnborg <sam@ravnborg.org>, David Airlie <airlied@gmail.com>,
         Daniel Vetter <daniel@ffwll.ch>,
         Philippe CORNU <philippe.cornu@st.com>,
-        Thierry Reding <treding@nvidia.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20230412173450.199592-1-james.cowgill@blaize.com>
-Organization: Linaro Developer Services
+        Thierry Reding <treding@nvidia.com>,
+        James Cowgill <james.cowgill@blaize.com>
+Cc:     stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
 In-Reply-To: <20230412173450.199592-1-james.cowgill@blaize.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <20230412173450.199592-1-james.cowgill@blaize.com>
+Subject: Re: [RESEND PATCH] drm/panel: otm8009a: Set backlight parent to
+ panel device
+Message-Id: <168171748107.4136849.13756409513746780386.b4-ty@linaro.org>
+Date:   Mon, 17 Apr 2023 09:44:41 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Mailer: b4 0.12.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,32 +77,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/04/2023 19:35, James Cowgill wrote:
+Hi,
+
+On Wed, 12 Apr 2023 17:35:07 +0000, James Cowgill wrote:
 > This is the logical place to put the backlight device, and it also
 > fixes a kernel crash if the MIPI host is removed. Previously the
 > backlight device would be unregistered twice when this happened - once
 > as a child of the MIPI host through `mipi_dsi_host_unregister`, and
 > once when the panel device is destroyed.
 > 
-> Fixes: 12a6cbd4f3f1 ("drm/panel: otm8009a: Use new backlight API")
-> Signed-off-by: James Cowgill <james.cowgill@blaize.com>
-> Cc: stable@vger.kernel.org
-> ---
->   drivers/gpu/drm/panel/panel-orisetech-otm8009a.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c b/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c
-> index b4729a94c34a8..898b892f11439 100644
-> --- a/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c
-> +++ b/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c
-> @@ -471,7 +471,7 @@ static int otm8009a_probe(struct mipi_dsi_device *dsi)
->   		       DRM_MODE_CONNECTOR_DSI);
->   
->   	ctx->bl_dev = devm_backlight_device_register(dev, dev_name(dev),
-> -						     dsi->host->dev, ctx,
-> +						     dev, ctx,
->   						     &otm8009a_backlight_ops,
->   						     NULL);
->   	if (IS_ERR(ctx->bl_dev)) {
+> [...]
 
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Thanks, Applied to https://anongit.freedesktop.org/git/drm/drm-misc.git (drm-misc-next-fixes)
+
+[1/1] drm/panel: otm8009a: Set backlight parent to panel device
+      https://cgit.freedesktop.org/drm/drm-misc/commit/?id=ab4f869fba6119997f7630d600049762a2b014fa
+
+-- 
+Neil
+
