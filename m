@@ -2,215 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66B816E5093
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 21:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7366E5108
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 21:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229972AbjDQTGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 15:06:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60544 "EHLO
+        id S230029AbjDQTee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 15:34:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229966AbjDQTGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 15:06:01 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFF11FF3;
-        Mon, 17 Apr 2023 12:05:57 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id d2e1a72fcca58-63d32d21f95so76969b3a.1;
-        Mon, 17 Apr 2023 12:05:57 -0700 (PDT)
+        with ESMTP id S229531AbjDQTed (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 15:34:33 -0400
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB27F2107;
+        Mon, 17 Apr 2023 12:34:30 -0700 (PDT)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-1878504c22aso18258266fac.8;
+        Mon, 17 Apr 2023 12:34:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681758357; x=1684350357;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1681760069; x=1684352069;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VBueJxAlG6y1fXZLE74AlFUiUcaS4JSfD7jE9xvrGEI=;
-        b=izLBrfl9pU8gPsAnOkFmAv45xPNom1ln9VCR7+zmiNuEJG3nGnE6/GH4K3dVPJCMHd
-         x7wkoVtQkqe6Fyl6kfIdB3OxuxMhtyZOYg3mhaOm+JpRcFJvJIh/n9LqBbme3xIodfyo
-         Gsl46+yvjshwNLpYYf4l9G3J2FSbmu06LfbQXTHpbl0vwPWq6j2BcH7WjO6GqrkZyTrT
-         ty3uNCj530X3dCIuDEpLDte6p9WkPnzzhNsDfoZgaxRq4AZ3eVwQV4uztfpoRdtJ0Ekr
-         zZqNObpNjfRu8oa6TqPnmqNJUjOjvuyYw+jCq7/71iCCK617CPj9xRjKgfDSlB7npKFG
-         0I8g==
+        bh=5q1UADTLtxpaMg26Rskq3kK3zFrTI6WC2dwC06gJvSg=;
+        b=IHqpf2sk6GocJcMUsxs7EfH25jwhs8pny+rgCsFkFVvee5zh6VW+fji3F7acj7NOGM
+         NpBLJkBPE0evdOqIk9nHBFmZ0D/QICtqPzJ7acbSKBVgL0Q4CpBsvp2txsIQF2jQfMd1
+         R+Otpjdk8UUdxApKTKmST3WGlH9msFY2to5R/93AHeg+a5vnsnAEAgZfU+Isv2tZ9GmS
+         NG04Tkw+pn/Kisy0rasEpqktx3KY7CEKxoun7E4eXM528b7uY2tftG+4nDJ1T0yCXZhr
+         447bUjFW0u8MktcRXncryfD4L8+RdOntdBX3PiE6a3YBG/BrwIM39xxzgz0e831t7Z0X
+         2nBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681758357; x=1684350357;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1681760069; x=1684352069;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VBueJxAlG6y1fXZLE74AlFUiUcaS4JSfD7jE9xvrGEI=;
-        b=Vj5gwshp8VNExVpssSB2Nu/Bn4uzbZWV0EGIpGsCQkj8ICK7RpLXeLs0hFy1cvLG+w
-         Kd0V+PejVwHQCYhPbjRLzm3OafdYwZEt/wHnU84eTI800zeDmNGFgdVhej5XF1aJaah9
-         IiT6PdiZ9Uh9y/np9INsuBlwWDa3rqGlYDIpwr6HabSQhRb4TzR1XeVx2XzqnmoC8Hay
-         vhtDFsdjzAJgCBYsiwU0S1jgb2rHdl2AZPVCjHUCv+1fUUH9ergB990sb4/KZdMlWCOD
-         PCnmvKrNP8O+eJb5N8l4yK98svBgZ4epueVXopGKeZjx0K9QS61PBdPxFVwgJSzMlse8
-         P1RQ==
-X-Gm-Message-State: AAQBX9eod1SDi6f6DANbs2KQRIOlodx2Qd7NyF7cTBeK30rwFjQy0g1Q
-        v61wSGkiUUwrEKC+kuONxgM6kTGIjCU=
-X-Google-Smtp-Source: AKy350YhVt7So0AR1UMzwcgn7grqW9ryFPzViDC+OqXmjiDhB4rjUfCmWDU7kveSBGiyQnPgH15ueA==
-X-Received: by 2002:a05:6a20:440e:b0:f0:69de:6165 with SMTP id ce14-20020a056a20440e00b000f069de6165mr1633887pzb.4.1681758356745;
-        Mon, 17 Apr 2023 12:05:56 -0700 (PDT)
-Received: from dhcp-10-231-55-133.dhcp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id x18-20020aa793b2000000b0063b7c42a070sm4291439pff.68.2023.04.17.12.05.55
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 17 Apr 2023 12:05:56 -0700 (PDT)
-From:   Justin Tee <justintee8345@gmail.com>
-To:     linux-scsi@vger.kernel.org
-Cc:     jsmart2021@gmail.com, justin.tee@broadcom.com,
-        Justin Tee <justintee8345@gmail.com>, stable@vger.kernel.org,
-        Dan Carpenter <error27@gmail.com>
-Subject: [PATCH 2/7] lpfc: Fix double free in lpfc_cmpl_els_logo_acc caused by lpfc_nlp_not_used
-Date:   Mon, 17 Apr 2023 12:15:53 -0700
-Message-Id: <20230417191558.83100-3-justintee8345@gmail.com>
-X-Mailer: git-send-email 2.38.0
-In-Reply-To: <20230417191558.83100-1-justintee8345@gmail.com>
-References: <20230417191558.83100-1-justintee8345@gmail.com>
+        bh=5q1UADTLtxpaMg26Rskq3kK3zFrTI6WC2dwC06gJvSg=;
+        b=awD6lT/4ArN5WWl+hG+hSqn6y95zlBIfqCdi8ClhfGSFqP3ScahCltwjS8j/WNeeSL
+         KdcpRz+yV2rCVKj0UTTSILPC55r8IBNG7ZIFfRjuQgNEAp+hmQoSZYIBOQcScpMjm2Py
+         0owZTia3QknQC9nuyejrwJWnDHe08YtNyx3BjOTqaPhHhI+W++b9Mt4OHnAhHP4uRvqR
+         N3QEK2Ni6GDGSFT00Q/q23iekpOaOx74hMdmfNAZIDzBy1zQjg4CnI+bLU+OecZTZjS3
+         gmCgHdt5G9ImKFFSTm3YHUDz9nnYK2mQEULOj5RR+9HBNUjIrQidWPcGb87SwYAg40oJ
+         8i0w==
+X-Gm-Message-State: AAQBX9fA4cBDEmL5ztgf9sZ2qNo4Skh4nnYFE6WCDv7NEYxGRSEFEaqu
+        S/yfb83U7l/Dz5GbRghP2LH9YVAjphdvxFcRVeA=
+X-Google-Smtp-Source: AKy350Y6q2hi+cxptjOwoPFYriOiGtU+hYfqGDp+Z7d0toixkRxdfroHewDdXnL5ss2zptH/e+7WDkWHMI6tvpahUWU=
+X-Received: by 2002:a05:6870:32ca:b0:188:438:d4b6 with SMTP id
+ r10-20020a05687032ca00b001880438d4b6mr515953oac.3.1681760069194; Mon, 17 Apr
+ 2023 12:34:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20230413151228.19714-1-n.zhandarovich@fintech.ru>
+In-Reply-To: <20230413151228.19714-1-n.zhandarovich@fintech.ru>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Mon, 17 Apr 2023 15:34:18 -0400
+Message-ID: <CADnq5_MqJ7jnYrRus+HFy+Qk5F6b3627TN-gpxSbGgPdgfLkfw@mail.gmail.com>
+Subject: Re: [PATCH v2] radeon: avoid double free in ci_dpm_init()
+To:     Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Natalia Petrova <n.petrova@fintech.ru>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>, linux-kernel@vger.kernel.org,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        stable@vger.kernel.org,
+        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+        lvc-project@linuxtesting.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Smatch detected a double free path because lpfc_nlp_not_used releases an
-ndlp object before reaching lpfc_nlp_put at the end of
-lpfc_cmpl_els_logo_acc.
+Thanks.  Applied!
 
-Remove the outdated lpfc_nlp_not_used routine.  In
-lpfc_mbx_cmpl_ns_reg_login, replace the call with lpfc_nlp_put.  In
-lpfc_cmpl_els_logo_acc, replace the call with lpfc_unreg_rpi and keep the
-lpfc_nlp_put at the end of the routine.  If ndlp's rpi was registered, then
-lpfc_unreg_rpi's completion routine performs the final ndlp clean up after
-lpfc_nlp_put is called from lpfc_cmpl_els_logo_acc.  Otherwise if ndlp has
-no rpi registered, the lpfc_nlp_put at the end of lpfc_cmpl_els_logo_acc is
-the final ndlp clean up.
+Alex
 
-Fixes: 4430f7fd09ec ("scsi: lpfc: Rework locations of ndlp reference taking")
-Cc: <stable@vger.kernel.org> # v5.11+
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/all/Y3OefhyyJNKH%2Fiaf@kili/
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
----
- drivers/scsi/lpfc/lpfc_crtn.h    |  1 -
- drivers/scsi/lpfc/lpfc_els.c     | 30 +++++++-----------------------
- drivers/scsi/lpfc/lpfc_hbadisc.c | 24 +++---------------------
- 3 files changed, 10 insertions(+), 45 deletions(-)
-
-diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
-index b833b983e69d..0b9edde26abd 100644
---- a/drivers/scsi/lpfc/lpfc_crtn.h
-+++ b/drivers/scsi/lpfc/lpfc_crtn.h
-@@ -134,7 +134,6 @@ void lpfc_check_nlp_post_devloss(struct lpfc_vport *vport,
- 				 struct lpfc_nodelist *ndlp);
- void lpfc_ignore_els_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 			  struct lpfc_iocbq *rspiocb);
--int  lpfc_nlp_not_used(struct lpfc_nodelist *ndlp);
- struct lpfc_nodelist *lpfc_setup_disc_node(struct lpfc_vport *, uint32_t);
- void lpfc_disc_list_loopmap(struct lpfc_vport *);
- void lpfc_disc_start(struct lpfc_vport *);
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 6a15f879e517..a3c8550e9985 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -5205,14 +5205,9 @@ lpfc_els_free_iocb(struct lpfc_hba *phba, struct lpfc_iocbq *elsiocb)
-  *
-  * This routine is the completion callback function to the Logout (LOGO)
-  * Accept (ACC) Response ELS command. This routine is invoked to indicate
-- * the completion of the LOGO process. It invokes the lpfc_nlp_not_used() to
-- * release the ndlp if it has the last reference remaining (reference count
-- * is 1). If succeeded (meaning ndlp released), it sets the iocb ndlp
-- * field to NULL to inform the following lpfc_els_free_iocb() routine no
-- * ndlp reference count needs to be decremented. Otherwise, the ndlp
-- * reference use-count shall be decremented by the lpfc_els_free_iocb()
-- * routine. Finally, the lpfc_els_free_iocb() is invoked to release the
-- * IOCB data structure.
-+ * the completion of the LOGO process. If the node has transitioned to NPR,
-+ * this routine unregisters the RPI if it is still registered. The
-+ * lpfc_els_free_iocb() is invoked to release the IOCB data structure.
-  **/
- static void
- lpfc_cmpl_els_logo_acc(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
-@@ -5253,19 +5248,9 @@ lpfc_cmpl_els_logo_acc(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 		    (ndlp->nlp_last_elscmd == ELS_CMD_PLOGI))
- 			goto out;
- 
--		/* NPort Recovery mode or node is just allocated */
--		if (!lpfc_nlp_not_used(ndlp)) {
--			/* A LOGO is completing and the node is in NPR state.
--			 * Just unregister the RPI because the node is still
--			 * required.
--			 */
-+		if (ndlp->nlp_flag & NLP_RPI_REGISTERED)
- 			lpfc_unreg_rpi(vport, ndlp);
--		} else {
--			/* Indicate the node has already released, should
--			 * not reference to it from within lpfc_els_free_iocb.
--			 */
--			cmdiocb->ndlp = NULL;
--		}
-+
- 	}
-  out:
- 	/*
-@@ -5285,9 +5270,8 @@ lpfc_cmpl_els_logo_acc(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
-  * RPI (Remote Port Index) mailbox command to the @phba. It simply releases
-  * the associated lpfc Direct Memory Access (DMA) buffer back to the pool and
-  * decrements the ndlp reference count held for this completion callback
-- * function. After that, it invokes the lpfc_nlp_not_used() to check
-- * whether there is only one reference left on the ndlp. If so, it will
-- * perform one more decrement and trigger the release of the ndlp.
-+ * function. After that, it invokes the lpfc_drop_node to check
-+ * whether it is appropriate to release the node.
-  **/
- void
- lpfc_mbx_cmpl_dflt_rpi(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
-diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
-index 5ba3a9ad9501..67bfdddb897c 100644
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -4333,13 +4333,14 @@ lpfc_mbx_cmpl_ns_reg_login(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
- 
- 		/* If the node is not registered with the scsi or nvme
- 		 * transport, remove the fabric node.  The failed reg_login
--		 * is terminal.
-+		 * is terminal and forces the removal of the last node
-+		 * reference.
- 		 */
- 		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD))) {
- 			spin_lock_irq(&ndlp->lock);
- 			ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
- 			spin_unlock_irq(&ndlp->lock);
--			lpfc_nlp_not_used(ndlp);
-+			lpfc_nlp_put(ndlp);
- 		}
- 
- 		if (phba->fc_topology == LPFC_TOPOLOGY_LOOP) {
-@@ -6704,25 +6705,6 @@ lpfc_nlp_put(struct lpfc_nodelist *ndlp)
- 	return ndlp ? kref_put(&ndlp->kref, lpfc_nlp_release) : 0;
- }
- 
--/* This routine free's the specified nodelist if it is not in use
-- * by any other discovery thread. This routine returns 1 if the
-- * ndlp has been freed. A return value of 0 indicates the ndlp is
-- * not yet been released.
-- */
--int
--lpfc_nlp_not_used(struct lpfc_nodelist *ndlp)
--{
--	lpfc_debugfs_disc_trc(ndlp->vport, LPFC_DISC_TRC_NODE,
--		"node not used:   did:x%x flg:x%x refcnt:x%x",
--		ndlp->nlp_DID, ndlp->nlp_flag,
--		kref_read(&ndlp->kref));
--
--	if (kref_read(&ndlp->kref) == 1)
--		if (lpfc_nlp_put(ndlp))
--			return 1;
--	return 0;
--}
--
- /**
-  * lpfc_fcf_inuse - Check if FCF can be unregistered.
-  * @phba: Pointer to hba context object.
--- 
-2.38.0
-
+On Thu, Apr 13, 2023 at 11:12=E2=80=AFAM Nikita Zhandarovich
+<n.zhandarovich@fintech.ru> wrote:
+>
+> Several calls to ci_dpm_fini() will attempt to free resources that
+> either have been freed before or haven't been allocated yet. This
+> may lead to undefined or dangerous behaviour.
+>
+> For instance, if r600_parse_extended_power_table() fails, it might
+> call r600_free_extended_power_table() as will ci_dpm_fini() later
+> during error handling.
+>
+> Fix this by only freeing pointers to objects previously allocated.
+>
+> Found by Linux Verification Center (linuxtesting.org) with static
+> analysis tool SVACE.
+>
+> Fixes: cc8dbbb4f62a ("drm/radeon: add dpm support for CI dGPUs (v2)")
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
+> Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+> ---
+> v2: free only resouces allocated prior, do not remove ci_dpm_fini()
+> or other deallocating calls altogether; fix commit message.
+> v1: https://lore.kernel.org/all/20230403182808.8699-1-n.zhandarovich@fint=
+ech.ru/
+>
+>  drivers/gpu/drm/radeon/ci_dpm.c | 28 ++++++++++++++++++++--------
+>  1 file changed, 20 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/radeon/ci_dpm.c b/drivers/gpu/drm/radeon/ci_=
+dpm.c
+> index 8ef25ab305ae..b8f4dac68d85 100644
+> --- a/drivers/gpu/drm/radeon/ci_dpm.c
+> +++ b/drivers/gpu/drm/radeon/ci_dpm.c
+> @@ -5517,6 +5517,7 @@ static int ci_parse_power_table(struct radeon_devic=
+e *rdev)
+>         u8 frev, crev;
+>         u8 *power_state_offset;
+>         struct ci_ps *ps;
+> +       int ret;
+>
+>         if (!atom_parse_data_header(mode_info->atom_context, index, NULL,
+>                                    &frev, &crev, &data_offset))
+> @@ -5546,11 +5547,15 @@ static int ci_parse_power_table(struct radeon_dev=
+ice *rdev)
+>                 non_clock_array_index =3D power_state->v2.nonClockInfoInd=
+ex;
+>                 non_clock_info =3D (struct _ATOM_PPLIB_NONCLOCK_INFO *)
+>                         &non_clock_info_array->nonClockInfo[non_clock_arr=
+ay_index];
+> -               if (!rdev->pm.power_state[i].clock_info)
+> -                       return -EINVAL;
+> +               if (!rdev->pm.power_state[i].clock_info) {
+> +                       ret =3D -EINVAL;
+> +                       goto err_free_ps;
+> +               }
+>                 ps =3D kzalloc(sizeof(struct ci_ps), GFP_KERNEL);
+> -               if (ps =3D=3D NULL)
+> -                       return -ENOMEM;
+> +               if (ps =3D=3D NULL) {
+> +                       ret =3D -ENOMEM;
+> +                       goto err_free_ps;
+> +               }
+>                 rdev->pm.dpm.ps[i].ps_priv =3D ps;
+>                 ci_parse_pplib_non_clock_info(rdev, &rdev->pm.dpm.ps[i],
+>                                               non_clock_info,
+> @@ -5590,6 +5595,12 @@ static int ci_parse_power_table(struct radeon_devi=
+ce *rdev)
+>         }
+>
+>         return 0;
+> +
+> +err_free_ps:
+> +       for (i =3D 0; i < rdev->pm.dpm.num_ps; i++)
+> +               kfree(rdev->pm.dpm.ps[i].ps_priv);
+> +       kfree(rdev->pm.dpm.ps);
+> +       return ret;
+>  }
+>
+>  static int ci_get_vbios_boot_values(struct radeon_device *rdev,
+> @@ -5678,25 +5689,26 @@ int ci_dpm_init(struct radeon_device *rdev)
+>
+>         ret =3D ci_get_vbios_boot_values(rdev, &pi->vbios_boot_state);
+>         if (ret) {
+> -               ci_dpm_fini(rdev);
+> +               kfree(rdev->pm.dpm.priv);
+>                 return ret;
+>         }
+>
+>         ret =3D r600_get_platform_caps(rdev);
+>         if (ret) {
+> -               ci_dpm_fini(rdev);
+> +               kfree(rdev->pm.dpm.priv);
+>                 return ret;
+>         }
+>
+>         ret =3D r600_parse_extended_power_table(rdev);
+>         if (ret) {
+> -               ci_dpm_fini(rdev);
+> +               kfree(rdev->pm.dpm.priv);
+>                 return ret;
+>         }
+>
+>         ret =3D ci_parse_power_table(rdev);
+>         if (ret) {
+> -               ci_dpm_fini(rdev);
+> +               kfree(rdev->pm.dpm.priv);
+> +               r600_free_extended_power_table(rdev);
+>                 return ret;
+>         }
+>
