@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 151076E41E8
-	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 10:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B19536E41E9
+	for <lists+stable@lfdr.de>; Mon, 17 Apr 2023 10:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229664AbjDQICY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Apr 2023 04:02:24 -0400
+        id S230128AbjDQIC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Apr 2023 04:02:26 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229982AbjDQICW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 04:02:22 -0400
+        with ESMTP id S230125AbjDQICZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Apr 2023 04:02:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09F933594
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 01:02:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A35C2698
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 01:02:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99AD561FC0
-        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 08:02:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F7FC433D2;
-        Mon, 17 Apr 2023 08:02:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1A3261FC0
+        for <stable@vger.kernel.org>; Mon, 17 Apr 2023 08:02:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8D3C433EF;
+        Mon, 17 Apr 2023 08:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681718540;
-        bh=CrT9gSWa9e7ba/levl417NPwTL/18Xv7pjsmoJSZMN4=;
+        s=korg; t=1681718543;
+        bh=pC0U+zmxCZpx1YwZeIYqvnjVa8KCw0QFer35qNau1g8=;
         h=Subject:To:Cc:From:Date:From;
-        b=t/o7o98UOjguMszUvU7PsCf9ZazcLcfLIzgPlT9/AGCEcTQ7ZMrwRNEvhLIr53h22
-         XWXTEN1lcXCmEElhvtLM1yhL/1fsE3svOdtZIeGOzLzcBiOWBmNCLnvcsQBDREBwek
-         ug04pfvdg+zNGCL/sSyi1zC3CbdHrc90ZrjxoILc=
-Subject: FAILED: patch "[PATCH] nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD" failed to apply to 5.10-stable tree
+        b=bUc10nP3kdJ0h5/yaO1iCIcvO9dGokGEEDqz6bM1vREUTj4Uzdn4knh99bDZm5bbS
+         sQ1yvQcfcobnERanUTG8/rgp2fROgxvTMnz2Z+pbAr90B5x6wQOR6d9isoTv7vGHpr
+         D5lV9lk8z5UlQpaZqNGH+I/CksdRCtyUbAdVtUrE=
+Subject: FAILED: patch "[PATCH] nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD" failed to apply to 5.4-stable tree
 To:     dory@dory.moe, hch@lst.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Apr 2023 10:02:06 +0200
-Message-ID: <2023041706-from-upper-6dbc@gregkh>
+Date:   Mon, 17 Apr 2023 10:02:07 +0200
+Message-ID: <2023041706-brewery-reliant-ee72@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 74391b3e69855e7dd65a9cef36baf5fc1345affd
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041706-from-upper-6dbc@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023041706-brewery-reliant-ee72@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -73,6 +73,17 @@ d6c52fa3e955 ("nvme-pci: Crucial P2 has bogus namespace ids")
 3765fad50896 ("nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG GAMMIX S50")
 a98a945b80f8 ("nvme-pci: disable namespace identifiers for the MAXIO MAP1002/1202")
 4bdf260362b3 ("nvme: add 48-bit DMA address quirk for Amazon NVMe controllers")
+02ca079c9931 ("nvme-pci: disable Write Zeroes on Sandisk Skyhawk")
+0b85f59d30b9 ("nvme-pci: Move enumeration by class to be last in the table")
+5bedd3afee8e ("nvme: add a Identify Namespace Identification Descriptor list quirk")
+5611ec2b9814 ("nvme-pci: prevent SK hynix PC400 from using Write Zeroes command")
+ea43d9709f72 ("nvme: fix identify error status silent ignore")
+59c7c3caaaf8 ("nvme: fix possible hang when ns scanning fails during error recovery")
+fb314eb0cbb2 ("nvme: refactor nvme_identify_ns_descs error handling")
+98f7b86a0bec ("nvme-pci: Use single IRQ vector for old Apple models")
+22802bf742c2 ("nvme: Namepace identification descriptor list is optional")
+6c6aa2f26c68 ("nvme: hwmon: add quirk to avoid changing temperature threshold")
+52deba0f02a9 ("nvme: hwmon: provide temperature min and max values for each sensor")
 
 thanks,
 
