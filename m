@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6496E61D8
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F356E6238
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbjDRM2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38060 "EHLO
+        id S231142AbjDRMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231392AbjDRM2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF37AF2F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:42 -0700 (PDT)
+        with ESMTP id S231643AbjDRMav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B610B768
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C3D1624C0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F198C433EF;
-        Tue, 18 Apr 2023 12:26:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CA10631E6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB46C433EF;
+        Tue, 18 Apr 2023 12:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820812;
-        bh=BMr0ezNsO/wEAu8Oyg2t+sow/kPTDi5XMWv+pNsoAcg=;
+        s=korg; t=1681821032;
+        bh=UdfLNpzNXIU8RRCdHeHy5c8lo2uTtmZZEQ1ODzw6GGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocbJHKBv+2Sj46eivX3IaPMWr32hMSg/OSIh65j3AxcuprQDywoxZ4t9uhsHbGFoP
-         g/InZfCdcISCPwU8IKsIZB9Uw0JCrrnEN6TGqZ2YIvcZbx6w4jYRgVONcLIc1FpYh7
-         AWklm/wQWxvaoyweSdzJXUAjhN/gekqOkP2RekXA=
+        b=kfiLH4SMitBTRn9O81fC5EJvyPb2xAUB7Gqoj2pbmBkuacgCtKmeFy1hNowXqLxWr
+         USEYsgDRt0cGktCfNI1+nsUBKSA6PUUfDKSBU26vyuBK6pJOXBHGZgLHTbASOtEhKT
+         Fu4qM1JM6NWLe4fQYrDk05KoPqZdP/YK88ESfOvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roman Gushchin <roman.gushchin@linux.dev>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/57] net: dont let netpoll invoke NAPI if in xmit context
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 36/92] tracing: Free error logs of tracing instances
 Date:   Tue, 18 Apr 2023 14:21:11 +0200
-Message-Id: <20230418120259.114269603@linuxfoundation.org>
+Message-Id: <20230418120306.110227180@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,80 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 275b471e3d2daf1472ae8fa70dc1b50c9e0b9e75 ]
+commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
 
-Commit 0db3dc73f7a3 ("[NETPOLL]: tx lock deadlock fix") narrowed
-down the region under netif_tx_trylock() inside netpoll_send_skb().
-(At that point in time netif_tx_trylock() would lock all queues of
-the device.) Taking the tx lock was problematic because driver's
-cleanup method may take the same lock. So the change made us hold
-the xmit lock only around xmit, and expected the driver to take
-care of locking within ->ndo_poll_controller().
+When a tracing instance is removed, the error messages that hold errors
+that occurred in the instance needs to be freed. The following reports a
+memory leak:
 
-Unfortunately this only works if netpoll isn't itself called with
-the xmit lock already held. Netpoll code is careful and uses
-trylock(). The drivers, however, may be using plain lock().
-Printing while holding the xmit lock is going to result in rare
-deadlocks.
+ # cd /sys/kernel/tracing
+ # mkdir instances/foo
+ # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
+ # cat instances/foo/error_log
+ [  117.404795] hist:sched:sched_switch: error: Couldn't find field
+   Command: hist:keys=x
+                      ^
+ # rmdir instances/foo
 
-Luckily we record the xmit lock owners, so we can scan all the queues,
-the same way we scan NAPI owners. If any of the xmit locks is held
-by the local CPU we better not attempt any polling.
+Then check for memory leaks:
 
-It would be nice if we could narrow down the check to only the NAPIs
-and the queue we're trying to use. I don't see a way to do that now.
+ # echo scan > /sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff88810d8ec700 (size 192):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
+    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
+  backtrace:
+    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
+    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+unreferenced object 0xffff888170c35a00 (size 32):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
+    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
+  backtrace:
+    [<000000006a747de5>] __kmalloc+0x4d/0x160
+    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-Reported-by: Roman Gushchin <roman.gushchin@linux.dev>
-Fixes: 0db3dc73f7a3 ("[NETPOLL]: tx lock deadlock fix")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem is that the error log needs to be freed when the instance is
+removed.
+
+Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
+Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/netpoll.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index 41e32a958d08d..08f0da9e6a809 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -136,6 +136,20 @@ static void queue_process(struct work_struct *work)
- 	}
- }
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -8542,6 +8542,7 @@ static int __remove_instance(struct trac
+ 	ftrace_destroy_function_files(tr);
+ 	tracefs_remove_recursive(tr->dir);
+ 	free_trace_buffers(tr);
++	clear_tracing_err_log(tr);
  
-+static int netif_local_xmit_active(struct net_device *dev)
-+{
-+	int i;
-+
-+	for (i = 0; i < dev->num_tx_queues; i++) {
-+		struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
-+
-+		if (READ_ONCE(txq->xmit_lock_owner) == smp_processor_id())
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
- static void poll_one_napi(struct napi_struct *napi)
- {
- 	int work;
-@@ -182,7 +196,10 @@ void netpoll_poll_dev(struct net_device *dev)
- 	if (!ni || down_trylock(&ni->dev_lock))
- 		return;
- 
--	if (!netif_running(dev)) {
-+	/* Some drivers will take the same locks in poll and xmit,
-+	 * we can't poll if local CPU is already in xmit.
-+	 */
-+	if (!netif_running(dev) || netif_local_xmit_active(dev)) {
- 		up(&ni->dev_lock);
- 		return;
- 	}
--- 
-2.39.2
-
+ 	for (i = 0; i < tr->nr_topts; i++) {
+ 		kfree(tr->topts[i].topts);
 
 
