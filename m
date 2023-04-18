@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B03B86E630E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24966E638F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231760AbjDRMhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53086 "EHLO
+        id S231854AbjDRMlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231280AbjDRMhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:35 -0400
+        with ESMTP id S231861AbjDRMlj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8695419A4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76471146E1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 260F9632AF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3794CC433EF;
-        Tue, 18 Apr 2023 12:37:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E83C63320
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A25C4339C;
+        Tue, 18 Apr 2023 12:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821453;
-        bh=99KVA1pyi/31gM2Ys5xODUxM6Ekz4q/O+uSLZ6UzONo=;
+        s=korg; t=1681821682;
+        bh=XAdkwq/v7ensHuK/Jwi7tilFGTqQ2dc2NiexxrLVGSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1HCPP16RvmjN3JzXzvKvyrAzuhC+rArfhBmZdQVT7JjtcIjafGOsU3MjNUafAoIuB
-         u1ELhcAdF8q/lWpa8TygvbOLUUM/dit55MY3Swe+GQEjMuXME+jIQxXA1XFcIHi3wT
-         LjhMJv0pGSttoNRxUwKjSZ4yHhV7WClYIAjtixu4=
+        b=CVCAw0/B9uibM6f83HvoVNefKvx9JGGTdAm2l7aBilz1/mbNP+75PFb3bffHMix4o
+         e0vZuZLt7HwfbcXsiW4ltCCCUoXVgBz8c9JETn+ny3ce1w8++yil0HJYEP7eaa36z4
+         21iCCgU26xu2tk+TbSPxgAPhMA01is+136ptZx10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.10 118/124] kbuild: Switch to f variants of integrated assembler flag
+        Gregor Herburger <gregor.herburger@tq-group.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Federico Vaga <federico.vaga@cern.ch>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 73/91] i2c: ocores: generate stop condition after timeout in polling mode
 Date:   Tue, 18 Apr 2023 14:22:17 +0200
-Message-Id: <20230418120314.063599991@linuxfoundation.org>
+Message-Id: <20230418120308.082437992@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Gregor Herburger <gregor.herburger@tq-group.com>
 
-commit 2185a7e4b0ade86c2c57fc63d4a7535c40254bd0 upstream.
+[ Upstream commit f8160d3b35fc94491bb0cb974dbda310ef96c0e2 ]
 
-It has been brought up a few times in various code reviews that clang
-3.5 introduced -f{,no-}integrated-as as the preferred way to enable and
-disable the integrated assembler, mentioning that -{no-,}integrated-as
-are now considered legacy flags.
+In polling mode, no stop condition is generated after a timeout. This
+causes SCL to remain low and thereby block the bus. If this happens
+during a transfer it can cause slaves to misinterpret the subsequent
+transfer and return wrong values.
 
-Switch the kernel over to using those variants in case there is ever a
-time where clang decides to remove the non-'f' variants of the flag.
+To solve this, pass the ETIMEDOUT error up from ocores_process_polling()
+instead of setting STATE_ERROR directly. The caller is adjusted to call
+ocores_process_timeout() on error both in polling and in IRQ mode, which
+will set STATE_ERROR and generate a stop condition.
 
-Also, fix a typo in a comment ("intergrated" -> "integrated").
-
-Link: https://releases.llvm.org/3.5.0/tools/clang/docs/ReleaseNotes.html#new-compiler-flags
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nathan: Backport to 5.10]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 69c8c0c0efa8 ("i2c: ocores: add polling interface")
+Signed-off-by: Gregor Herburger <gregor.herburger@tq-group.com>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Acked-by: Peter Korsgaard <peter@korsgaard.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Federico Vaga <federico.vaga@cern.ch>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile              |    4 ++--
- scripts/as-version.sh |    8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c | 35 ++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 16 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -581,9 +581,9 @@ ifneq ($(GCC_TOOLCHAIN),)
- CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
- endif
- ifeq ($(LLVM_IAS),1)
--CLANG_FLAGS	+= -integrated-as
-+CLANG_FLAGS	+= -fintegrated-as
- else
--CLANG_FLAGS	+= -no-integrated-as
-+CLANG_FLAGS	+= -fno-integrated-as
- endif
- CLANG_FLAGS	+= -Werror=unknown-warning-option
- KBUILD_CFLAGS	+= $(CLANG_FLAGS)
---- a/scripts/as-version.sh
-+++ b/scripts/as-version.sh
-@@ -21,14 +21,14 @@ get_canonical_version()
- 	echo $((10000 * $1 + 100 * ${2:-0} + ${3:-0}))
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index a0af027db04c1..2e575856c5cd5 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -342,18 +342,18 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
+  * ocores_isr(), we just add our polling code around it.
+  *
+  * It can run in atomic context
++ *
++ * Return: 0 on success, -ETIMEDOUT on timeout
+  */
+-static void ocores_process_polling(struct ocores_i2c *i2c)
++static int ocores_process_polling(struct ocores_i2c *i2c)
+ {
+-	while (1) {
+-		irqreturn_t ret;
+-		int err;
++	irqreturn_t ret;
++	int err = 0;
+ 
++	while (1) {
+ 		err = ocores_poll_wait(i2c);
+-		if (err) {
+-			i2c->state = STATE_ERROR;
++		if (err)
+ 			break; /* timeout */
+-		}
+ 
+ 		ret = ocores_isr(-1, i2c);
+ 		if (ret == IRQ_NONE)
+@@ -364,13 +364,15 @@ static void ocores_process_polling(struct ocores_i2c *i2c)
+ 					break;
+ 		}
+ 	}
++
++	return err;
  }
  
--# Clang fails to handle -Wa,--version unless -no-integrated-as is given.
--# We check -(f)integrated-as, expecting it is explicitly passed in for the
-+# Clang fails to handle -Wa,--version unless -fno-integrated-as is given.
-+# We check -fintegrated-as, expecting it is explicitly passed in for the
- # integrated assembler case.
- check_integrated_as()
+ static int ocores_xfer_core(struct ocores_i2c *i2c,
+ 			    struct i2c_msg *msgs, int num,
+ 			    bool polling)
  {
- 	while [ $# -gt 0 ]; do
--		if [ "$1" = -integrated-as -o "$1" = -fintegrated-as ]; then
--			# For the intergrated assembler, we do not check the
-+		if [ "$1" = -fintegrated-as ]; then
-+			# For the integrated assembler, we do not check the
- 			# version here. It is the same as the clang version, and
- 			# it has been already checked by scripts/cc-version.sh.
- 			echo LLVM 0
+-	int ret;
++	int ret = 0;
+ 	u8 ctrl;
+ 
+ 	ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+@@ -388,15 +390,16 @@ static int ocores_xfer_core(struct ocores_i2c *i2c,
+ 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+ 
+ 	if (polling) {
+-		ocores_process_polling(i2c);
++		ret = ocores_process_polling(i2c);
+ 	} else {
+-		ret = wait_event_timeout(i2c->wait,
+-					 (i2c->state == STATE_ERROR) ||
+-					 (i2c->state == STATE_DONE), HZ);
+-		if (ret == 0) {
+-			ocores_process_timeout(i2c);
+-			return -ETIMEDOUT;
+-		}
++		if (wait_event_timeout(i2c->wait,
++				       (i2c->state == STATE_ERROR) ||
++				       (i2c->state == STATE_DONE), HZ) == 0)
++			ret = -ETIMEDOUT;
++	}
++	if (ret) {
++		ocores_process_timeout(i2c);
++		return ret;
+ 	}
+ 
+ 	return (i2c->state == STATE_DONE) ? num : -EIO;
+-- 
+2.39.2
+
 
 
