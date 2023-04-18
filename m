@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D5A6E64BE
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD016E6415
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbjDRMwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S231998AbjDRMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:46:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232234AbjDRMvw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0743618392
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:51:32 -0700 (PDT)
+        with ESMTP id S232001AbjDRMqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A6F14F49
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D800963425
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AB4C433D2;
-        Tue, 18 Apr 2023 12:51:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C378863376
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5177C433EF;
+        Tue, 18 Apr 2023 12:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822291;
-        bh=tZL4DKJKoUW8BGK7cCIIWkzg1Bq4GUlrjPFIyfxKvhg=;
+        s=korg; t=1681821964;
+        bh=L2qpSYZN89yg6JT/x90oJp6boUmemheD0VU0QcLFxgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Evjx0RU8S83BB7aH8q4enEo3h7QIBW8H4PvoWtUR7i7IXFteLbhb4ueEjqQD0uoOz
-         ASo7kZLs3tjojdy/34gkRR1wZzPNcjnD+DIGxm5HqAonUHZYrnurAn+DZnWJyqLuRd
-         IQ2Ge6tSVocBzNcaoO8OQ4jvT/joWL8JeajIp4M8=
+        b=yI9CsRTZLiaoRWEf2Ev1bBZUbpzxcbKVj+6iWd1w1Gpb3yBpFk0ZHr94n2JUkfF8F
+         9KAN72FpSwoGaQNnvp+mpny9FJmfzG2Oa6xAZ4vHo7dmxLNKVdYWNdSvTsknVWMyIy
+         d/GNbdRYbq9RgxReallfFf6pQr0u0qtDzjIKBKYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Berg <benjamin.berg@intel.com>,
-        Jose Ignacio Tornos Martinez <jtornosm@redhat.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 094/139] wifi: iwlwifi: mvm: fix mvmtxq->stopped handling
-Date:   Tue, 18 Apr 2023 14:22:39 +0200
-Message-Id: <20230418120317.323895829@linuxfoundation.org>
+        patches@lists.linux.dev, Mathis Salmen <mathis.salmen@matsal.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.1 104/134] riscv: add icache flush for nommu sigreturn trampoline
+Date:   Tue, 18 Apr 2023 14:22:40 +0200
+Message-Id: <20230418120316.817971546@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,97 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mathis Salmen <mathis.salmen@matsal.de>
 
-[ Upstream commit b58e3d4311b54b6dd0e37165277965da0c9eb21d ]
+commit 8d736482749f6d350892ef83a7a11d43cd49981e upstream.
 
-This could race if the queue is redirected while full, then
-the flushing internally would start it while it's not yet
-usable again. Fix it by using two state bits instead of just
-one.
+In a NOMMU kernel, sigreturn trampolines are generated on the user
+stack by setup_rt_frame. Currently, these trampolines are not instruction
+fenced, thus their visibility to ifetch is not guaranteed.
 
-Reviewed-by: Benjamin Berg <benjamin.berg@intel.com>
-Tested-by: Jose Ignacio Tornos Martinez <jtornosm@redhat.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds a flush_icache_range in setup_rt_frame to fix this
+problem.
+
+Signed-off-by: Mathis Salmen <mathis.salmen@matsal.de>
+Fixes: 6bd33e1ece52 ("riscv: add nommu support")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230406101130.82304-1-mathis.salmen@matsal.de
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 5 ++++-
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      | 4 +++-
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c      | 5 ++++-
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c      | 4 ++--
- 4 files changed, 13 insertions(+), 5 deletions(-)
+ arch/riscv/kernel/signal.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 5273ade711176..5b4974181ff1c 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -732,7 +732,10 @@ void iwl_mvm_mac_itxq_xmit(struct ieee80211_hw *hw, struct ieee80211_txq *txq)
+--- a/arch/riscv/kernel/signal.c
++++ b/arch/riscv/kernel/signal.c
+@@ -19,6 +19,7 @@
+ #include <asm/signal32.h>
+ #include <asm/switch_to.h>
+ #include <asm/csr.h>
++#include <asm/cacheflush.h>
  
- 	rcu_read_lock();
- 	do {
--		while (likely(!mvmtxq->stopped &&
-+		while (likely(!test_bit(IWL_MVM_TXQ_STATE_STOP_FULL,
-+					&mvmtxq->state) &&
-+			      !test_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT,
-+					&mvmtxq->state) &&
- 			      !test_bit(IWL_MVM_STATUS_IN_D3, &mvm->status))) {
- 			skb = ieee80211_tx_dequeue(hw, txq);
+ extern u32 __user_rt_sigreturn[2];
  
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index ce6b701f3f4cd..3146b3d02bae8 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -729,7 +729,9 @@ struct iwl_mvm_txq {
- 	struct list_head list;
- 	u16 txq_id;
- 	atomic_t tx_request;
--	bool stopped;
-+#define IWL_MVM_TXQ_STATE_STOP_FULL	0
-+#define IWL_MVM_TXQ_STATE_STOP_REDIRECT	1
-+	unsigned long state;
- };
+@@ -181,6 +182,7 @@ static int setup_rt_frame(struct ksignal
+ {
+ 	struct rt_sigframe __user *frame;
+ 	long err = 0;
++	unsigned long __maybe_unused addr;
  
- static inline struct iwl_mvm_txq *
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index ebe6d9c4ccafb..f43e617fb451f 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1690,7 +1690,10 @@ static void iwl_mvm_queue_state_change(struct iwl_op_mode *op_mode,
+ 	frame = get_sigframe(ksig, regs, sizeof(*frame));
+ 	if (!access_ok(frame, sizeof(*frame)))
+@@ -209,7 +211,12 @@ static int setup_rt_frame(struct ksignal
+ 	if (copy_to_user(&frame->sigreturn_code, __user_rt_sigreturn,
+ 			 sizeof(frame->sigreturn_code)))
+ 		return -EFAULT;
+-	regs->ra = (unsigned long)&frame->sigreturn_code;
++
++	addr = (unsigned long)&frame->sigreturn_code;
++	/* Make sure the two instructions are pushed to icache. */
++	flush_icache_range(addr, addr + sizeof(frame->sigreturn_code));
++
++	regs->ra = addr;
+ #endif /* CONFIG_MMU */
  
- 		txq = sta->txq[tid];
- 		mvmtxq = iwl_mvm_txq_from_mac80211(txq);
--		mvmtxq->stopped = !start;
-+		if (start)
-+			clear_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
-+		else
-+			set_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
- 
- 		if (start && mvmsta->sta_state != IEEE80211_STA_NOTEXIST)
- 			iwl_mvm_mac_itxq_xmit(mvm->hw, txq);
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-index 69634fb82a9bf..21ad7b85c434c 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -693,7 +693,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
- 			    queue, iwl_mvm_ac_to_tx_fifo[ac]);
- 
- 	/* Stop the queue and wait for it to empty */
--	txq->stopped = true;
-+	set_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
- 
- 	ret = iwl_trans_wait_tx_queues_empty(mvm->trans, BIT(queue));
- 	if (ret) {
-@@ -736,7 +736,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
- 
- out:
- 	/* Continue using the queue */
--	txq->stopped = false;
-+	clear_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
- 
- 	return ret;
- }
--- 
-2.39.2
-
+ 	/*
 
 
