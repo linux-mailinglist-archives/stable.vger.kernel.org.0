@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D056E6454
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9696E6E6192
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232068AbjDRMsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
+        id S231524AbjDRMZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232052AbjDRMsN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:13 -0400
+        with ESMTP id S231454AbjDRMZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6AEC15A09
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8AED5BA5
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC77A633B8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7ADC433D2;
-        Tue, 18 Apr 2023 12:48:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4DE163121
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E691FC4339B;
+        Tue, 18 Apr 2023 12:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822085;
-        bh=4W3YW/6YXbIjFW1mncF+GkSRi3En8StVLKgiFgm1tz0=;
+        s=korg; t=1681820717;
+        bh=QDqPwJSWbe3V13zoK0txnLyYgtCXXEXPuzJmx/nUdk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tofVC1UZO701ixDxhmZM0fV63zPqhE9Ey3xHCiSBe+HydoCUl6zyjwHT6VDJtQ21k
-         k4kDZg9MyL2+P/1bycVdhEzKMLS3ZB/4b0xR4UP2Z70Us8IzsSXRvQISVDfAicRMW+
-         vJ41IdtFT2anT32taBlPup9B/1MWE5b4NIwidOdA=
+        b=MJlCsm+wst4zXuuROSRnhIcdF4Ne/wU6s0r0cblogFsB0qKhtt1o21Tyk+PHmmn4k
+         kAi7kcaSwo/yIF62mbnDYnn9j+QWAo4LYvP4Obm5rLqPSXyhdqtpNvK3ODS4qoyofN
+         IU3HGKzB83EnGkkwDfjDk3euiyoOE3Ahmy2aHkHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 6.2 017/139] Bluetooth: hci_conn: Fix possible UAF
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
+        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 12/37] nilfs2: fix sysfs interface lifetime
 Date:   Tue, 18 Apr 2023 14:21:22 +0200
-Message-Id: <20230418120314.312711588@linuxfoundation.org>
+Message-Id: <20230418120255.098243477@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,114 +57,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 5dc7d23e167e2882ef118456ceccd57873e876d8 upstream.
+commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
 
-This fixes the following trace:
+The current nilfs2 sysfs support has issues with the timing of creation
+and deletion of sysfs entries, potentially leading to null pointer
+dereferences, use-after-free, and lockdep warnings.
 
-==================================================================
-BUG: KASAN: slab-use-after-free in hci_conn_del+0xba/0x3a0
-Write of size 8 at addr ffff88800208e9c8 by task iso-tester/31
+Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
+metadata file "cpfile", "sufile", or "dat", but
+nilfs_sysfs_create_device_group that creates those attributes is executed
+before the inodes for these metadata files are loaded, and
+nilfs_sysfs_delete_device_group which deletes these sysfs entries is
+called after releasing their metadata file inodes.
 
-CPU: 0 PID: 31 Comm: iso-tester Not tainted 6.3.0-rc2-g991aa4a69a47
- #4716
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.1-2.fc36
-04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x1d/0x70
- print_report+0xce/0x610
- ? __virt_addr_valid+0xd4/0x150
- ? hci_conn_del+0xba/0x3a0
- kasan_report+0xdd/0x110
- ? hci_conn_del+0xba/0x3a0
- hci_conn_del+0xba/0x3a0
- hci_conn_hash_flush+0xf2/0x120
- hci_dev_close_sync+0x388/0x920
- hci_unregister_dev+0x122/0x260
- vhci_release+0x4f/0x90
- __fput+0x102/0x430
- task_work_run+0xf1/0x160
- ? __pfx_task_work_run+0x10/0x10
- ? mark_held_locks+0x24/0x90
- exit_to_user_mode_prepare+0x170/0x180
- syscall_exit_to_user_mode+0x19/0x50
- do_syscall_64+0x4e/0x90
- entry_SYSCALL_64_after_hwframe+0x70/0xda
+Therefore, access to some of these sysfs attributes may occur outside of
+the lifetime of these metadata files, resulting in inode NULL pointer
+dereferences or use-after-free.
 
-Fixes: 0f00cd322d22 ("Bluetooth: Free potentially unfreed SCO connection")
-Link: https://syzkaller.appspot.com/bug?extid=8bb72f86fc823817bc5d
+In addition, the call to nilfs_sysfs_create_device_group() is made during
+the locking period of the semaphore "ns_sem" of nilfs object, so the
+shrinker call caused by the memory allocation for the sysfs entries, may
+derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
+nilfs_evict_inode()".
+
+Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
+locks via its error handler __nilfs_error(), this causes lockdep to report
+circular locking.  This is a false positive and no circular locking
+actually occurs as no inodes exist yet when
+nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
+warnings can be resolved by simply moving the call to
+nilfs_sysfs_create_device_group() out of "ns_sem".
+
+This fixes these sysfs issues by revising where the device's sysfs
+interface is created/deleted and keeping its lifetime within the lifetime
+of the metadata files above.
+
+Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
+Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
+Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_conn.c |   30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ fs/nilfs2/super.c     |    2 ++
+ fs/nilfs2/the_nilfs.c |   12 +++++++-----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1049,6 +1049,17 @@ struct hci_conn *hci_conn_add(struct hci
- 	return conn;
- }
- 
-+static bool hci_conn_unlink(struct hci_conn *conn)
-+{
-+	if (!conn->link)
-+		return false;
-+
-+	conn->link->link = NULL;
-+	conn->link = NULL;
-+
-+	return true;
-+}
-+
- int hci_conn_del(struct hci_conn *conn)
- {
- 	struct hci_dev *hdev = conn->hdev;
-@@ -1060,15 +1071,16 @@ int hci_conn_del(struct hci_conn *conn)
- 	cancel_delayed_work_sync(&conn->idle_work);
- 
- 	if (conn->type == ACL_LINK) {
--		struct hci_conn *sco = conn->link;
--		if (sco) {
--			sco->link = NULL;
-+		struct hci_conn *link = conn->link;
-+
-+		if (link) {
-+			hci_conn_unlink(conn);
- 			/* Due to race, SCO connection might be not established
- 			 * yet at this point. Delete it now, otherwise it is
- 			 * possible for it to be stuck and can't be deleted.
- 			 */
--			if (sco->handle == HCI_CONN_HANDLE_UNSET)
--				hci_conn_del(sco);
-+			if (link->handle == HCI_CONN_HANDLE_UNSET)
-+				hci_conn_del(link);
- 		}
- 
- 		/* Unacked frames */
-@@ -1084,7 +1096,7 @@ int hci_conn_del(struct hci_conn *conn)
- 		struct hci_conn *acl = conn->link;
- 
- 		if (acl) {
--			acl->link = NULL;
-+			hci_conn_unlink(conn);
- 			hci_conn_drop(acl);
- 		}
- 
-@@ -2436,6 +2448,12 @@ void hci_conn_hash_flush(struct hci_dev
- 		c->state = BT_CLOSED;
- 
- 		hci_disconn_cfm(c, HCI_ERROR_LOCAL_HOST_TERM);
-+
-+		/* Unlink before deleting otherwise it is possible that
-+		 * hci_conn_del removes the link which may cause the list to
-+		 * contain items already freed.
-+		 */
-+		hci_conn_unlink(c);
- 		hci_conn_del(c);
+--- a/fs/nilfs2/super.c
++++ b/fs/nilfs2/super.c
+@@ -494,6 +494,7 @@ static void nilfs_put_super(struct super
+ 		up_write(&nilfs->ns_sem);
  	}
- }
+ 
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+@@ -1120,6 +1121,7 @@ nilfs_fill_super(struct super_block *sb,
+ 	nilfs_put_root(fsroot);
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -96,7 +96,6 @@ void destroy_nilfs(struct the_nilfs *nil
+ {
+ 	might_sleep();
+ 	if (nilfs_init(nilfs)) {
+-		nilfs_sysfs_delete_device_group(nilfs);
+ 		brelse(nilfs->ns_sbh[0]);
+ 		brelse(nilfs->ns_sbh[1]);
+ 	}
+@@ -284,6 +283,10 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 		goto failed;
+ 	}
+ 
++	err = nilfs_sysfs_create_device_group(sb);
++	if (unlikely(err))
++		goto sysfs_error;
++
+ 	if (valid_fs)
+ 		goto skip_recovery;
+ 
+@@ -345,6 +348,9 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 	goto failed;
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
++
++ sysfs_error:
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_dat);
+@@ -677,10 +683,6 @@ int init_nilfs(struct the_nilfs *nilfs,
+ 	if (err)
+ 		goto failed_sbh;
+ 
+-	err = nilfs_sysfs_create_device_group(sb);
+-	if (err)
+-		goto failed_sbh;
+-
+ 	set_nilfs_init(nilfs);
+ 	err = 0;
+  out:
 
 
