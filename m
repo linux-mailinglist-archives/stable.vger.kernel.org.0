@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E246D6E640E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFD56E64B9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231962AbjDRMpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35940 "EHLO
+        id S232214AbjDRMvy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:51:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231979AbjDRMpv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:51 -0400
+        with ESMTP id S232256AbjDRMvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CB114F42
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A4816B0F;
+        Tue, 18 Apr 2023 05:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04D0063398
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C68C433EF;
-        Tue, 18 Apr 2023 12:45:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA69763400;
+        Tue, 18 Apr 2023 12:51:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68F2C433D2;
+        Tue, 18 Apr 2023 12:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821948;
-        bh=54vFzB7Zn9o1J6Zd/SMBvMATVSUT3DykuXs/AZCyD0A=;
+        s=korg; t=1681822283;
+        bh=VCwMMj2q4qUoHuODRqKDgoLte/T7yupow6Vv8LVr/gY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kGladqdaY249vOdciAyUnL43EDhvRXpOqO6btTtLt7KaE756n1dxoUTH+PgRwOQrh
-         RVcO6DrDVeQFemHMq+aUnKM7djpk4U53wDef8MMZz1skwAvDfAxT+KEEvflbWQA+LU
-         dyufwt9Zbnsu24v0cs5hL5WnokiGrhVYbAWvqHBI=
+        b=FNR74qGrFuzNRkEcu+ajnSyOkf4kvplWEjGJ+uMU5S0YhJa+i22Rf+bgMeud6Gxcc
+         uSrcOiLFHFzWdRS6DVSyPqow5d4FRW07h3IpsLzaKIs4T7bKQCK10HNOQU3hn00xTC
+         /N9A8Ss0yg8IOxaoi6DKm9ejuPI3n+DcN/N1ZSQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ross Zwisler <zwisler@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 099/134] tracing: Add trace_array_puts() to write into instance
-Date:   Tue, 18 Apr 2023 14:22:35 +0200
-Message-Id: <20230418120316.633547449@linuxfoundation.org>
+        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 091/139] verify_pefile: relax wrapper length check
+Date:   Tue, 18 Apr 2023 14:22:36 +0200
+Message-Id: <20230418120317.209953421@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,113 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Robbie Harwood <rharwood@redhat.com>
 
-[ Upstream commit d503b8f7474fe7ac616518f7fc49773cbab49f36 ]
+[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
 
-Add a generic trace_array_puts() that can be used to "trace_puts()" into
-an allocated trace_array instance. This is just another variant of
-trace_array_printk().
+The PE Format Specification (section "The Attribute Certificate Table
+(Image Only)") states that `dwLength` is to be rounded up to 8-byte
+alignment when used for traversal.  Therefore, the field is not required
+to be an 8-byte multiple in the first place.
 
-Link: https://lkml.kernel.org/r/20230207173026.584717290@goodmis.org
+Accordingly, pesign has not performed this alignment since version
+0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
+Signature wrapper len wrong".  Update the comment and relax the check.
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Ross Zwisler <zwisler@google.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Stable-dep-of: 9d52727f8043 ("tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance")
+Signed-off-by: Robbie Harwood <rharwood@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jarkko Sakkinen <jarkko@kernel.org>
+cc: Eric Biederman <ebiederm@xmission.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: keyrings@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: kexec@lists.infradead.org
+Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
+Link: https://github.com/rhboot/pesign
+Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace.h | 12 ++++++++++++
- kernel/trace/trace.c  | 27 +++++++++++++++++----------
- 2 files changed, 29 insertions(+), 10 deletions(-)
+ crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/trace.h b/include/linux/trace.h
-index 80ffda8717491..2a70a447184c9 100644
---- a/include/linux/trace.h
-+++ b/include/linux/trace.h
-@@ -33,6 +33,18 @@ struct trace_array;
- int register_ftrace_export(struct trace_export *export);
- int unregister_ftrace_export(struct trace_export *export);
+diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
+index 7553ab18db898..fe1bb374239d7 100644
+--- a/crypto/asymmetric_keys/verify_pefile.c
++++ b/crypto/asymmetric_keys/verify_pefile.c
+@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	pr_debug("sig wrapper = { %x, %x, %x }\n",
+ 		 wrapper.length, wrapper.revision, wrapper.cert_type);
  
-+/**
-+ * trace_array_puts - write a constant string into the trace buffer.
-+ * @tr:    The trace array to write to
-+ * @str:   The constant string to write
-+ */
-+#define trace_array_puts(tr, str)					\
-+	({								\
-+		str ? __trace_array_puts(tr, _THIS_IP_, str, strlen(str)) : -1;	\
-+	})
-+int __trace_array_puts(struct trace_array *tr, unsigned long ip,
-+		       const char *str, int size);
-+
- void trace_printk_init_buffers(void);
- __printf(3, 4)
- int trace_array_printk(struct trace_array *tr, unsigned long ip,
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 78855e74e355f..5016ae826c463 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1002,13 +1002,8 @@ __buffer_unlock_commit(struct trace_buffer *buffer, struct ring_buffer_event *ev
- 		ring_buffer_unlock_commit(buffer, event);
- }
- 
--/**
-- * __trace_puts - write a constant string into the trace buffer.
-- * @ip:	   The address of the caller
-- * @str:   The constant string to write
-- * @size:  The size of the string.
-- */
--int __trace_puts(unsigned long ip, const char *str, int size)
-+int __trace_array_puts(struct trace_array *tr, unsigned long ip,
-+		       const char *str, int size)
- {
- 	struct ring_buffer_event *event;
- 	struct trace_buffer *buffer;
-@@ -1016,7 +1011,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 	unsigned int trace_ctx;
- 	int alloc;
- 
--	if (!(global_trace.trace_flags & TRACE_ITER_PRINTK))
-+	if (!(tr->trace_flags & TRACE_ITER_PRINTK))
- 		return 0;
- 
- 	if (unlikely(tracing_selftest_running || tracing_disabled))
-@@ -1025,7 +1020,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 	alloc = sizeof(*entry) + size + 2; /* possible \n added */
- 
- 	trace_ctx = tracing_gen_ctx();
--	buffer = global_trace.array_buffer.buffer;
-+	buffer = tr->array_buffer.buffer;
- 	ring_buffer_nest_start(buffer);
- 	event = __trace_buffer_lock_reserve(buffer, TRACE_PRINT, alloc,
- 					    trace_ctx);
-@@ -1047,11 +1042,23 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 		entry->buf[size] = '\0';
- 
- 	__buffer_unlock_commit(buffer, event);
--	ftrace_trace_stack(&global_trace, buffer, trace_ctx, 4, NULL);
-+	ftrace_trace_stack(tr, buffer, trace_ctx, 4, NULL);
-  out:
- 	ring_buffer_nest_end(buffer);
- 	return size;
- }
-+EXPORT_SYMBOL_GPL(__trace_array_puts);
-+
-+/**
-+ * __trace_puts - write a constant string into the trace buffer.
-+ * @ip:	   The address of the caller
-+ * @str:   The constant string to write
-+ * @size:  The size of the string.
-+ */
-+int __trace_puts(unsigned long ip, const char *str, int size)
-+{
-+	return __trace_array_puts(&global_trace, ip, str, size);
-+}
- EXPORT_SYMBOL_GPL(__trace_puts);
- 
- /**
+-	/* Both pesign and sbsign round up the length of certificate table
+-	 * (in optional header data directories) to 8 byte alignment.
++	/* sbsign rounds up the length of certificate table (in optional
++	 * header data directories) to 8 byte alignment.  However, the PE
++	 * specification states that while entries are 8-byte aligned, this is
++	 * not included in their length, and as a result, pesign has not
++	 * rounded up since 0.110.
+ 	 */
+-	if (round_up(wrapper.length, 8) != ctx->sig_len) {
+-		pr_debug("Signature wrapper len wrong\n");
++	if (wrapper.length > ctx->sig_len) {
++		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
++			 ctx->sig_len, wrapper.length);
+ 		return -ELIBBAD;
+ 	}
+ 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
 -- 
 2.39.2
 
