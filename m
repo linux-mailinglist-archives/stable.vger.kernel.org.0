@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C9C6E6314
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553E06E62A4
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231768AbjDRMhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53276 "EHLO
+        id S231626AbjDRMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231280AbjDRMhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:45 -0400
+        with ESMTP id S231310AbjDRMeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00EB04692
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B24D118C9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5D73632BD
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACFA3C433EF;
-        Tue, 18 Apr 2023 12:37:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE4446324D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2AD4C433EF;
+        Tue, 18 Apr 2023 12:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821464;
-        bh=CgPIBuvQobeCEXJ85ow/D53Br8R3NtX34PVqfwAAaz4=;
+        s=korg; t=1681821238;
+        bh=vH+5IKCFPbkXD4a0PudxpTwqg30/MXp64t7nVP0SMo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UV3BuxN85rWpimrg5d7pS38siKLBAwOdPQNgbqA/3pNidxKcTK/gcsnt8w0HZAk3b
-         wYa69/9cq3eUO7s7e3vlDOlIR0LNSFt0KkoNuFXTYpa/PSx9cEr1NY66gUuVDfwLoy
-         bDf/vlcxVwhORBBNyaVfvj7Nrygg4dXuinxqMVnU=
+        b=mcglHybCcVahQSJvruzH+2ST4ryzIQHCuhIkOahRoMOfmiKG0Exfuf+1KLDOBHoVP
+         0JrMKhV7dXOsEZT0dktnGDdV0QbTBGzNRv9rwDdf/rQH5pThoj8GfIhlJU2a6VGjmw
+         PcjKPO7zWvoXj6o+CmnT+SVrMtEnmZtwIgyVqyQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 04/91] ALSA: i2c/cs8427: fix iec958 mixer control deactivation
-Date:   Tue, 18 Apr 2023 14:21:08 +0200
-Message-Id: <20230418120305.687681456@linuxfoundation.org>
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>
+Subject: [PATCH 5.10 050/124] Revert "media: ti: cal: fix possible memory leak in cal_ctx_create()"
+Date:   Tue, 18 Apr 2023 14:21:09 +0200
+Message-Id: <20230418120311.657225377@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit e98e7a82bca2b6dce3e03719cff800ec913f9af7 upstream.
+This reverts commit c7a218cbf67fffcd99b76ae3b5e9c2e8bef17c8c.
 
-snd_cs8427_iec958_active() would always delete
-SNDRV_CTL_ELEM_ACCESS_INACTIVE, even though the function has an
-argument `active`.
+The memory of ctx is allocated by devm_kzalloc in cal_ctx_create,
+it should not be freed by kfree when cal_ctx_v4l2_init() fails,
+otherwise kfree() will cause double free, so revert this patch.
 
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201219.2197811-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The memory of ctx is allocated by kzalloc since commit
+9e67f24e4d9 ("media: ti-vpe: cal: fix ctx uninitialization"),
+so the fixes tag of patch c7a218cbf67fis not entirely accurate,
+mainline should merge this patch, but it should not be merged
+into 5.10, so we just revert this patch for this branch.
+
+Fixes: c7a218cbf67f ("media: ti: cal: fix possible memory leak in cal_ctx_create()")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/i2c/cs8427.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/platform/ti-vpe/cal.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/sound/i2c/cs8427.c
-+++ b/sound/i2c/cs8427.c
-@@ -561,10 +561,13 @@ int snd_cs8427_iec958_active(struct snd_
- 	if (snd_BUG_ON(!cs8427))
- 		return -ENXIO;
- 	chip = cs8427->private_data;
--	if (active)
-+	if (active) {
- 		memcpy(chip->playback.pcm_status,
- 		       chip->playback.def_status, 24);
--	chip->playback.pcm_ctl->vd[0].access &= ~SNDRV_CTL_ELEM_ACCESS_INACTIVE;
-+		chip->playback.pcm_ctl->vd[0].access &= ~SNDRV_CTL_ELEM_ACCESS_INACTIVE;
-+	} else {
-+		chip->playback.pcm_ctl->vd[0].access |= SNDRV_CTL_ELEM_ACCESS_INACTIVE;
-+	}
- 	snd_ctl_notify(cs8427->bus->card,
- 		       SNDRV_CTL_EVENT_MASK_VALUE | SNDRV_CTL_EVENT_MASK_INFO,
- 		       &chip->playback.pcm_ctl->id);
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -624,10 +624,8 @@ static struct cal_ctx *cal_ctx_create(st
+ 	ctx->cport = inst;
+ 
+ 	ret = cal_ctx_v4l2_init(ctx);
+-	if (ret) {
+-		kfree(ctx);
++	if (ret)
+ 		return NULL;
+-	}
+ 
+ 	return ctx;
+ }
 
 
