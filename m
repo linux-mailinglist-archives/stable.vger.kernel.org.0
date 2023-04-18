@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E626E6205
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB086E629E
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231480AbjDRM3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
+        id S230479AbjDRMeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231553AbjDRM3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:18 -0400
+        with ESMTP id S231690AbjDRMdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACBEBBA9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45ABB10273
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B33F63186
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA75C433EF;
-        Tue, 18 Apr 2023 12:28:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 922D162EF8
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC7A2C433D2;
+        Tue, 18 Apr 2023 12:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820937;
-        bh=x3fMCb9BaSePBgl0HRh0ADXMOv6oYhfANuaNwauPeOU=;
+        s=korg; t=1681821225;
+        bh=FuiqKjpWXyC67+hoP/2yhwlMpiu9wP6ougeSfop/jco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGh7v/GZzmBFkS5doXM7C6dyt8cSXy5PUZeb2FXjQ8890l0Kk56k0I1P67ffkzvbQ
-         FChjg9Uv7wtaX5WlkIMhFu5RrIe84vr2TXOIe+oWMMmvjNxBjhwDW8zazADQ6Erar3
-         jZakHZaY5gOHeV0/AT6BCNsNHnx39g4PWEUxEbH8=
+        b=DRgu1o8PoLI+QZPeOKvZo9kjBEVrXZs9QL9w26zLTq1Frqo4u9/Ns3wFhrGyw801E
+         a6DR8yHrgdVJpdRGnGrAlAXttJR1wvCtSkz3G6idXxZVI089Klsh6eHOxLe7VBwH9G
+         uQJWGYa6I6vPnVe7a2+s4BOUOQiuSLeeDYnXw6ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Sherry Sun <sherry.sun@nxp.com>
-Subject: [PATCH 5.4 29/92] tty: serial: fsl_lpuart: avoid checking for transfer complete when UARTCTRL_SBK is asserted in lpuart32_tx_empty
+        patches@lists.linux.dev, Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.10 045/124] drm/nouveau/disp: Support more modes by checking with lower bpc
 Date:   Tue, 18 Apr 2023 14:21:04 +0200
-Message-Id: <20230418120305.868845056@linuxfoundation.org>
+Message-Id: <20230418120311.465243036@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Karol Herbst <kherbst@redhat.com>
 
-commit 9425914f3de6febbd6250395f56c8279676d9c3c upstream.
+commit 7f67aa097e875c87fba024e850cf405342300059 upstream.
 
-According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
-a break character by writing 1 to CTRL[SBK], so here need to avoid
-checking for transmission complete when UARTCTRL_SBK is asserted,
-otherwise the lpuart32_tx_empty may never get TIOCSER_TEMT.
+This allows us to advertise more modes especially on HDR displays.
 
-Commit 2411fd94ceaa("tty: serial: fsl_lpuart: skip waiting for
-transmission complete when UARTCTRL_SBK is asserted") only fix it in
-lpuart32_set_termios(), here also fix it in lpuart32_tx_empty().
+Fixes using 4K@60 modes on my TV and main display both using a HDMI to DP
+adapter. Also fixes similar issues for users running into this.
 
-Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20230323054415.20363-1-sherry.sun@nxp.com
+Cc: stable@vger.kernel.org # 5.10+
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230330223938.4025569-1-kherbst@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/dispnv50/disp.c |   32 ++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/nouveau/nouveau_dp.c    |    8 +++++---
+ 2 files changed, 37 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -807,11 +807,17 @@ static unsigned int lpuart32_tx_empty(st
- 			struct lpuart_port, port);
- 	unsigned long stat = lpuart32_read(port, UARTSTAT);
- 	unsigned long sfifo = lpuart32_read(port, UARTFIFO);
-+	unsigned long ctrl = lpuart32_read(port, UARTCTRL);
- 
- 	if (sport->dma_tx_in_progress)
- 		return 0;
- 
--	if (stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT)
-+	/*
-+	 * LPUART Transmission Complete Flag may never be set while queuing a break
-+	 * character, so avoid checking for transmission complete when UARTCTRL_SBK
-+	 * is asserted.
-+	 */
-+	if ((stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT) || ctrl & UARTCTRL_SBK)
- 		return TIOCSER_TEMT;
- 
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -396,6 +396,35 @@ nv50_outp_atomic_check_view(struct drm_e
  	return 0;
+ }
+ 
++static void
++nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *crtc_state)
++{
++	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
++	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
++	struct drm_display_mode *mode = &asyh->state.adjusted_mode;
++	unsigned int max_rate, mode_rate;
++
++	switch (nv_encoder->dcb->type) {
++	case DCB_OUTPUT_DP:
++		max_rate = nv_encoder->dp.link_nr * nv_encoder->dp.link_bw;
++
++		/* we don't support more than 10 anyway */
++		asyh->or.bpc = min_t(u8, asyh->or.bpc, 10);
++
++		/* reduce the bpc until it works out */
++		while (asyh->or.bpc > 6) {
++			mode_rate = DIV_ROUND_UP(mode->clock * asyh->or.bpc * 3, 8);
++			if (mode_rate <= max_rate)
++				break;
++
++			asyh->or.bpc -= 2;
++		}
++		break;
++	default:
++		break;
++	}
++}
++
+ static int
+ nv50_outp_atomic_check(struct drm_encoder *encoder,
+ 		       struct drm_crtc_state *crtc_state,
+@@ -414,6 +443,9 @@ nv50_outp_atomic_check(struct drm_encode
+ 	if (crtc_state->mode_changed || crtc_state->connectors_changed)
+ 		asyh->or.bpc = connector->display_info.bpc;
+ 
++	/* We might have to reduce the bpc */
++	nv50_outp_atomic_fix_depth(encoder, crtc_state);
++
+ 	return 0;
+ }
+ 
+--- a/drivers/gpu/drm/nouveau/nouveau_dp.c
++++ b/drivers/gpu/drm/nouveau/nouveau_dp.c
+@@ -220,8 +220,6 @@ void nouveau_dp_irq(struct nouveau_drm *
+ }
+ 
+ /* TODO:
+- * - Use the minimum possible BPC here, once we add support for the max bpc
+- *   property.
+  * - Validate against the DP caps advertised by the GPU (we don't check these
+  *   yet)
+  */
+@@ -233,7 +231,11 @@ nv50_dp_mode_valid(struct drm_connector
+ {
+ 	const unsigned int min_clock = 25000;
+ 	unsigned int max_rate, mode_rate, ds_max_dotclock, clock = mode->clock;
+-	const u8 bpp = connector->display_info.bpc * 3;
++	/* Check with the minmum bpc always, so we can advertise better modes.
++	 * In particlar not doing this causes modes to be dropped on HDR
++	 * displays as we might check with a bpc of 16 even.
++	 */
++	const u8 bpp = 6 * 3;
+ 
+ 	if (mode->flags & DRM_MODE_FLAG_INTERLACE && !outp->caps.dp_interlace)
+ 		return MODE_NO_INTERLACE;
 
 
