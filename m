@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F416E6473
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 429936E6194
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232103AbjDRMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40888 "EHLO
+        id S229515AbjDRMZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232101AbjDRMtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:21 -0400
+        with ESMTP id S231400AbjDRMZx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C81C15458
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65EB183E1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E0DF633EF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7286AC4339B;
-        Tue, 18 Apr 2023 12:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4574363147
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59188C4339B;
+        Tue, 18 Apr 2023 12:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822145;
-        bh=T+bcKzURiSu7tT9sZV8X4D3tDFSjNO+KceGYoPkhe1o=;
+        s=korg; t=1681820725;
+        bh=qYSl8r7/TM4iH+WEQqVwTH4PG7tpqvsm8isoGbxETPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbKcFU+1jgOA8velc89C4/PN00KOWH1tPd88iqNRFd5qXCUNks/DDBNAP1S5ItnMQ
-         qVGxUH0wKtKNdQ1h5Fy22NYwLbvVueAYoFOsu19kGEEVzbFnDsi+sszTQ5qvgdMpjl
-         joTuLRxK1JnEot70nmzLvKL+Gpl4sD7sbG4Q3xNg=
+        b=dZd7k8a6z0qwXstg1KtJlHa4a+PpJM32u7QDKnTOSqg5rf6FAhsETSFuv+BIj6KZo
+         9foeS0ro8WSikVZkzGLc3jqjXPKa2lZ3zd4g7/bxi+nlbjr2uuloMDBEsah5GRCOWj
+         Jz0NiVG2qpYhc/K8SdTsWo4cXnxaBeD37wSnBBEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.2 010/139] ALSA: emu10k1: dont create old pass-through playback device on Audigy
+        patches@lists.linux.dev, Dhruva Gole <d-gole@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/37] gpio: davinci: Add irq chip flag to skip set wake
 Date:   Tue, 18 Apr 2023 14:21:15 +0200
-Message-Id: <20230418120314.090583853@linuxfoundation.org>
+Message-Id: <20230418120254.865719180@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Dhruva Gole <d-gole@ti.com>
 
-commit 8dd13214a810c695044aa168c0ddba1a9c433e4f upstream.
+[ Upstream commit 7b75c4703609a3ebaf67271813521bc0281e1ec1 ]
 
-It could have never worked, as snd_emu10k1_fx8010_playback_prepare() and
-snd_emu10k1_fx8010_playback_hw_free() assume the emu10k1 offset for the
-ETRAM, and the default DSP code includes no handler for it. It also
-wouldn't make a lot of sense to make it work, as Audigy has an own, much
-simpler, pass-through mechanism. So just skip creation of the device.
+Add the IRQCHIP_SKIP_SET_WAKE flag since there are no special IRQ Wake
+bits that can be set to enable wakeup IRQ.
 
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201220.2197938-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3d9edf09d452 ("[ARM] 4457/2: davinci: GPIO support")
+Signed-off-by: Dhruva Gole <d-gole@ti.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/emu10k1/emupcm.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-davinci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -1781,17 +1781,21 @@ int snd_emu10k1_pcm_efx(struct snd_emu10
- 	struct snd_kcontrol *kctl;
- 	int err;
+diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
+index e4b3d7db68c95..958c06ab9ade4 100644
+--- a/drivers/gpio/gpio-davinci.c
++++ b/drivers/gpio/gpio-davinci.c
+@@ -301,7 +301,7 @@ static struct irq_chip gpio_irqchip = {
+ 	.irq_enable	= gpio_irq_enable,
+ 	.irq_disable	= gpio_irq_disable,
+ 	.irq_set_type	= gpio_irq_type,
+-	.flags		= IRQCHIP_SET_TYPE_MASKED,
++	.flags		= IRQCHIP_SET_TYPE_MASKED | IRQCHIP_SKIP_SET_WAKE,
+ };
  
--	err = snd_pcm_new(emu->card, "emu10k1 efx", device, 8, 1, &pcm);
-+	err = snd_pcm_new(emu->card, "emu10k1 efx", device, emu->audigy ? 0 : 8, 1, &pcm);
- 	if (err < 0)
- 		return err;
- 
- 	pcm->private_data = emu;
- 
--	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_emu10k1_fx8010_playback_ops);
-+	if (!emu->audigy)
-+		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_emu10k1_fx8010_playback_ops);
- 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_emu10k1_capture_efx_ops);
- 
- 	pcm->info_flags = 0;
--	strcpy(pcm->name, "Multichannel Capture/PT Playback");
-+	if (emu->audigy)
-+		strcpy(pcm->name, "Multichannel Capture");
-+	else
-+		strcpy(pcm->name, "Multichannel Capture/PT Playback");
- 	emu->pcm_efx = pcm;
- 
- 	/* EFX capture - record the "FXBUS2" channels, by default we connect the EXTINs 
+ static void gpio_irq_handler(struct irq_desc *desc)
+-- 
+2.39.2
+
 
 
