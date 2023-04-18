@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AC46E6265
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8927D6E63F0
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231298AbjDRMcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
+        id S231944AbjDRMoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231466AbjDRMcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B0DBBB9;
-        Tue, 18 Apr 2023 05:31:58 -0700 (PDT)
+        with ESMTP id S231945AbjDRMon (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B18167C2
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A03F6321D;
-        Tue, 18 Apr 2023 12:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46FCCC4339C;
-        Tue, 18 Apr 2023 12:31:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C64A963374
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D83ABC433D2;
+        Tue, 18 Apr 2023 12:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821108;
-        bh=bLUCoqyy4oAJvRQcFVc1K6a1zMsgEFgCKpZ3NUVxUDo=;
+        s=korg; t=1681821881;
+        bh=mSsL7HZGPx3DaCzUaCYeDawLRizkN8o1Fw+ubaHMdhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGewCKrQklAdq+0v0KMo4EHSeYWjAk3M4nesK95InfTQV7O29NISZHeegO0HhHuNt
-         96K68D0/7EG+U3E2SNwBEvt1Lx+bBrAKzw86pSRUnGBD9fD77EihK6z7ppr1ygM6Mr
-         bwWNyCzLmL3cBlRN+/wMHg2w6gP2lckD/Jd0t16U=
+        b=D3Fqj58yHkZkZJeHFD4CzKNoYWfHDqbC7GJw3ooWcaRD7kc//usNvnwakTjm6facJ
+         m4xywCCASioQMpIC3gbyEJ/N3/GP4jAbfZOCLUFsAK8Y52EI9DIseAeP55eoDWCbtj
+         R1yKoSiQshMEX+mdwOnvS9UbnB7+T+lhnVqdfdNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 68/92] verify_pefile: relax wrapper length check
+        patches@lists.linux.dev, Fuad Tabba <tabba@google.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 047/134] KVM: arm64: Advertise ID_AA64PFR0_EL1.CSV2/3 to protected VMs
 Date:   Tue, 18 Apr 2023 14:21:43 +0200
-Message-Id: <20230418120307.194877077@linuxfoundation.org>
+Message-Id: <20230418120314.570071134@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,59 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Fuad Tabba <tabba@google.com>
 
-[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
+[ Upstream commit e81625218bf7986ba1351a98c43d346b15601d26 ]
 
-The PE Format Specification (section "The Attribute Certificate Table
-(Image Only)") states that `dwLength` is to be rounded up to 8-byte
-alignment when used for traversal.  Therefore, the field is not required
-to be an 8-byte multiple in the first place.
+The existing pKVM code attempts to advertise CSV2/3 using values
+initialized to 0, but never set. To advertise CSV2/3 to protected
+guests, pass the CSV2/3 values to hyp when initializing hyp's
+view of guests' ID_AA64PFR0_EL1.
 
-Accordingly, pesign has not performed this alignment since version
-0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
-Signature wrapper len wrong".  Update the comment and relax the check.
+Similar to non-protected KVM, these are system-wide, rather than
+per cpu, for simplicity.
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
-Link: https://github.com/rhboot/pesign
-Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
+Fixes: 6c30bfb18d0b ("KVM: arm64: Add handlers for protected VM System Registers")
+Signed-off-by: Fuad Tabba <tabba@google.com>
+Link: https://lore.kernel.org/r/20230404152321.413064-1-tabba@google.com
+Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/arm64/kvm/arm.c                          | 26 ++++++++++++++++++-
+ .../arm64/kvm/hyp/include/nvhe/fixed_config.h |  5 +++-
+ arch/arm64/kvm/hyp/nvhe/sys_regs.c            |  7 -----
+ 3 files changed, 29 insertions(+), 9 deletions(-)
 
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index cc9dbcecaacaa..c43b077ba37db 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	pr_debug("sig wrapper = { %x, %x, %x }\n",
- 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index e40606a560997..6ce6888cf73d6 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -1870,9 +1870,33 @@ static int do_pkvm_init(u32 hyp_va_bits)
+ 	return ret;
+ }
  
--	/* Both pesign and sbsign round up the length of certificate table
--	 * (in optional header data directories) to 8 byte alignment.
-+	/* sbsign rounds up the length of certificate table (in optional
-+	 * header data directories) to 8 byte alignment.  However, the PE
-+	 * specification states that while entries are 8-byte aligned, this is
-+	 * not included in their length, and as a result, pesign has not
-+	 * rounded up since 0.110.
- 	 */
--	if (round_up(wrapper.length, 8) != ctx->sig_len) {
--		pr_debug("Signature wrapper len wrong\n");
-+	if (wrapper.length > ctx->sig_len) {
-+		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
-+			 ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
++static u64 get_hyp_id_aa64pfr0_el1(void)
++{
++	/*
++	 * Track whether the system isn't affected by spectre/meltdown in the
++	 * hypervisor's view of id_aa64pfr0_el1, used for protected VMs.
++	 * Although this is per-CPU, we make it global for simplicity, e.g., not
++	 * to have to worry about vcpu migration.
++	 *
++	 * Unlike for non-protected VMs, userspace cannot override this for
++	 * protected VMs.
++	 */
++	u64 val = read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1);
++
++	val &= ~(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2) |
++		 ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3));
++
++	val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2),
++			  arm64_get_spectre_v2_state() == SPECTRE_UNAFFECTED);
++	val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3),
++			  arm64_get_meltdown_state() == SPECTRE_UNAFFECTED);
++
++	return val;
++}
++
+ static void kvm_hyp_init_symbols(void)
+ {
+-	kvm_nvhe_sym(id_aa64pfr0_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1);
++	kvm_nvhe_sym(id_aa64pfr0_el1_sys_val) = get_hyp_id_aa64pfr0_el1();
+ 	kvm_nvhe_sym(id_aa64pfr1_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64PFR1_EL1);
+ 	kvm_nvhe_sym(id_aa64isar0_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64ISAR0_EL1);
+ 	kvm_nvhe_sym(id_aa64isar1_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64ISAR1_EL1);
+diff --git a/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h b/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h
+index 07edfc7524c94..37440e1dda930 100644
+--- a/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h
++++ b/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h
+@@ -33,11 +33,14 @@
+  * Allow for protected VMs:
+  * - Floating-point and Advanced SIMD
+  * - Data Independent Timing
++ * - Spectre/Meltdown Mitigation
+  */
+ #define PVM_ID_AA64PFR0_ALLOW (\
+ 	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_FP) | \
+ 	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_AdvSIMD) | \
+-	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_DIT) \
++	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_DIT) | \
++	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2) | \
++	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3) \
+ 	)
+ 
+ /*
+diff --git a/arch/arm64/kvm/hyp/nvhe/sys_regs.c b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
+index 0f9ac25afdf40..3d5121ee39777 100644
+--- a/arch/arm64/kvm/hyp/nvhe/sys_regs.c
++++ b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
+@@ -84,19 +84,12 @@ static u64 get_restricted_features_unsigned(u64 sys_reg_val,
+ 
+ static u64 get_pvm_id_aa64pfr0(const struct kvm_vcpu *vcpu)
+ {
+-	const struct kvm *kvm = (const struct kvm *)kern_hyp_va(vcpu->kvm);
+ 	u64 set_mask = 0;
+ 	u64 allow_mask = PVM_ID_AA64PFR0_ALLOW;
+ 
+ 	set_mask |= get_restricted_features_unsigned(id_aa64pfr0_el1_sys_val,
+ 		PVM_ID_AA64PFR0_RESTRICT_UNSIGNED);
+ 
+-	/* Spectre and Meltdown mitigation in KVM */
+-	set_mask |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2),
+-			       (u64)kvm->arch.pfr0_csv2);
+-	set_mask |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3),
+-			       (u64)kvm->arch.pfr0_csv3);
+-
+ 	return (id_aa64pfr0_el1_sys_val & allow_mask) | set_mask;
+ }
+ 
 -- 
 2.39.2
 
