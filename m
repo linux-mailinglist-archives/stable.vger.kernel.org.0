@@ -2,68 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8976E6EB6
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 23:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835666E6F43
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 00:16:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232496AbjDRV5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 17:57:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S230408AbjDRWQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 18:16:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232462AbjDRV5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 17:57:14 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D793C3580
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 14:57:12 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1a6cf95d559so12435875ad.3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 14:57:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20221208.gappssmtp.com; s=20221208; t=1681855032; x=1684447032;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=hlVju5bQ1xkd5pyaFr2Vw13D9EMP9TOLqdGDuA/96yM=;
-        b=KxWgXib/b70jPm9rC3z4G259jOumxsR/MMTCRG5pcBqjV8nN7XEdktt2tP+MdZwuTJ
-         raHDMOIR5OH7N+Szat+Z88ENnGZyt/gu3QRHj+B81J2nXkYQdvp7obps6uk5p8XERtq6
-         UMZIvm8YM3aW8NuNok8d/+7s0txK9Fu2+Eyfhx19voEZ33vEPr6oV7raOKzKjYcgwviV
-         RZ8KfSTj0BqPJwvQ/eH+RaCtsHnt+K0OuhAEUtaLP/bmxXhOgNj0VtaM4cFsVQgTSehG
-         h+MGhe0E+aghBV4+0a5Z19+SDO8bv16TNOZQoD35z7XR82zA4C2uUS11ApKC/7fjY+nA
-         zsQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681855032; x=1684447032;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hlVju5bQ1xkd5pyaFr2Vw13D9EMP9TOLqdGDuA/96yM=;
-        b=K+foKzON3H/AlfYba8rzyYMfFgFEi70wEpeypCdrdlkzvPZDCGcznogJ69ADVhnaPT
-         895uDFtsDoc/wzd0gjdew0AbjOVBGsPRIt2M/IvvtNLKAFUQMSYsJCiHIEVxhm++s8A/
-         g87Tv75yQc8FpsS64q5sWDoWwOc20lDA4kp+sohVe3zrO7AWFmYhh8U2VUf5bGKIYGHA
-         JLCu8iX0bDY1/AHMBCAKAFZBGdLvhSAgueBXElbrkD1WO0t9o3mUa686QF0EBkrkwb3j
-         b1T2+ROrKyn+glMLovlJiDk43yplTgdNwPFtteCyyVJ+Q3E/aC+hXYBSe9XvHG51b+Ls
-         ZLNA==
-X-Gm-Message-State: AAQBX9cHSTcRlfi+grX9Z+UYjg/OU23fmBaIZbFhWhLbtopcvVd7ZQ6c
-        WpnGXMMYZLvKA6vou0s6kUVg1Il3hh46fwgXsSql9PBr
-X-Google-Smtp-Source: AKy350b1kZ80aihsG2b3l1gDpY/LPyxfquEa4rS8MEAEJTpr8Y/9KKSRMaeTOHvb6XNeq1NI7nokVg==
-X-Received: by 2002:a17:903:1245:b0:19f:1871:3dcd with SMTP id u5-20020a170903124500b0019f18713dcdmr3630991plh.5.1681855032092;
-        Tue, 18 Apr 2023 14:57:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e11-20020a170902b78b00b0019acd3151d0sm10086018pls.114.2023.04.18.14.57.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 14:57:11 -0700 (PDT)
-Message-ID: <643f1237.170a0220.bed4b.6eee@mx.google.com>
-Date:   Tue, 18 Apr 2023 14:57:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230491AbjDRWQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 18:16:13 -0400
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E656658E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 15:15:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=uA6P+8Hkrzo+D0+qPODF3BQfuZv/J+mQAU+Dzcl5MQc=; b=cmUMrnUeenYwfKDF4cFVPTRe/1
+        t6p9MLU/246fi5J2DzE4LPWbg9l8HOAPIGN1ON7xlUC9sa5TdiEP7Xh/U7W7tdxmgiMRl5h+gM+/y
+        zS0WFjqu/BoMzqU/N4Z/ZFAOLdd0K9YhY+Y7VGrlsSrGVocWr5VFcyWjNQE4xy/Ern0ChCQT9ClUX
+        KWFANSmSSoSqczAyu4lr+Te51N6U/7PDENDSmW69OaLXMfvT5NisC2psUppznHHrL6XGqJYdRmycz
+        ltXI/1sC893MKimUH7treA0yztdhQCSvTdt4Rdm3+PcirNOwQYu2N+0szUWhGgfDIozBHBqLlq3Q2
+        Xdsc6CuQ==;
+Received: from 201-92-79-199.dsl.telesp.net.br ([201.92.79.199] helo=localhost)
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+        id 1potbo-004Qxi-6G; Wed, 19 Apr 2023 00:15:33 +0200
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        amd-gfx@lists.freedesktop.org, alexander.deucher@amd.com,
+        James.Zhu@amd.com, leo.liu@amd.com, kernel@gpiccoli.net,
+        kernel-dev@igalia.com
+Subject: [PATCH 6.1.y] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh broken BIOSes
+Date:   Tue, 18 Apr 2023 19:15:22 -0300
+Message-Id: <20230418221522.1287942-1-gpiccoli@igalia.com>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.176-298-g19b9d9b9f62e
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.10.y baseline: 78 runs,
- 2 regressions (v5.10.176-298-g19b9d9b9f62e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -72,122 +52,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 78 runs, 2 regressions (v5.10.176-298-g19b=
-9d9b9f62e)
+commit 542a56e8eb4467ae654eefab31ff194569db39cd upstream.
 
-Regressions Summary
--------------------
+The VCN firmware loading path enables the indirect SRAM mode if it's
+advertised as supported. We might have some cases of FW issues that
+prevents this mode to working properly though, ending-up in a failed
+probe. An example below, observed in the Steam Deck:
 
-platform          | arch | lab          | compiler | defconfig          | r=
-egressions
-------------------+------+--------------+----------+--------------------+--=
-----------
-cubietruck        | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1=
-          =
+[...]
+[drm] failed to load ucode VCN0_RAM(0x3A)
+[drm] psp gfx command LOAD_IP_FW(0x6) failed and response status is (0xFFFF0000)
+amdgpu 0000:04:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vcn_dec_0 test failed (-110)
+[drm:amdgpu_device_init.cold [amdgpu]] *ERROR* hw_init of IP block <vcn_v3_0> failed -110
+amdgpu 0000:04:00.0: amdgpu: amdgpu_device_ip_init failed
+amdgpu 0000:04:00.0: amdgpu: Fatal error during GPU init
+[...]
 
-r8a7743-iwg20d-q7 | arm  | lab-cip      | gcc-10   | shmobile_defconfig | 1=
-          =
+Disabling the VCN block circumvents this, but it's a very invasive
+workaround that turns off the entire feature. So, let's add a quirk
+on VCN loading that checks for known problematic BIOSes on Vangogh,
+so we can proactively disable the indirect SRAM mode and allow the
+HW proper probe and VCN IP block to work fine.
 
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2385
+Fixes: 82132ecc5432 ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
+Fixes: 9a8cc8cabc1e ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
+Cc: stable@vger.kernel.org
+Cc: James Zhu <James.Zhu@amd.com>
+Cc: Leo Liu <leo.liu@amd.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+---
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.176-298-g19b9d9b9f62e/plan/baseline/
+Hi folks, this was build/boot tested on Deck. I've also adjusted the
+context, function was reworked on 6.2.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.176-298-g19b9d9b9f62e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      19b9d9b9f62ea8e4affa74f1901b7a0c4ab90ef4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab          | compiler | defconfig          | r=
-egressions
-------------------+------+--------------+----------+--------------------+--=
-----------
-cubietruck        | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1=
-          =
+But what a surprise was for me not see this fix already in 6.1.y, since
+I've CCed stable, and the reason for that is really peculiar:
 
 
-  Details:     https://kernelci.org/test/plan/id/643ee0b6ec2491b1392e8606
+$ git log -1 --pretty="%an <%ae>: %s" 82132ecc5432
+Leo Liu <leo.liu@amd.com>: drm/amdgpu: enable Vangogh VCN indirect sram mode
 
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-76-298-g19b9d9b9f62e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
-bietruck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-76-298-g19b9d9b9f62e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
-bietruck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230414.0/armel/rootfs.cpio.gz =
+$ git describe --contains 82132ecc5432
+v6.2-rc1~124^2~1^2~13
 
 
+$ git log -1 --pretty="%an <%ae>: %s" 9a8cc8cabc1e
+Leo Liu <leo.liu@amd.com>: drm/amdgpu: enable Vangogh VCN indirect sram mode
 
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/643ee0b6ec2491b1392e860b
-        failing since 90 days (last pass: v5.10.158-107-gd2432186ff47, firs=
-t fail: v5.10.162-852-geeaac3cf2eb3)
-
-    2023-04-18T18:25:36.869516  <8>[   11.065286] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3508868_1.5.2.4.1>
-    2023-04-18T18:25:36.976582  / # #
-    2023-04-18T18:25:37.077913  export SHELL=3D/bin/sh
-    2023-04-18T18:25:37.078278  #
-    2023-04-18T18:25:37.179417  / # export SHELL=3D/bin/sh. /lava-3508868/e=
-nvironment
-    2023-04-18T18:25:37.179734  =
-
-    2023-04-18T18:25:37.280614  / # . /lava-3508868/environment/lava-350886=
-8/bin/lava-test-runner /lava-3508868/1
-    2023-04-18T18:25:37.281115  =
-
-    2023-04-18T18:25:37.285742  / # /lava-3508868/bin/lava-test-runner /lav=
-a-3508868/1
-    2023-04-18T18:25:37.366172  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =
+$ git describe --contains 9a8cc8cabc1e
+v6.1-rc8~16^2^2
 
 
+This is quite strange for me, we have 2 commit hashes pointing to the *same*
+commit, and each one is present..in a different release !!?!
+Since I've marked this patch as fixing 82132ecc5432 originally, 6.1.y stable
+misses it, since it only contains 9a8cc8cabc1e (which is the same patch!).
 
-platform          | arch | lab          | compiler | defconfig          | r=
-egressions
-------------------+------+--------------+----------+--------------------+--=
-----------
-r8a7743-iwg20d-q7 | arm  | lab-cip      | gcc-10   | shmobile_defconfig | 1=
-          =
+Alex, do you have an idea why sometimes commits from the AMD tree appear
+duplicate in mainline? Specially in different releases, this could cause
+some confusion I guess.
 
-
-  Details:     https://kernelci.org/test/plan/id/643ee035098d650d412e8600
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: shmobile_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-76-298-g19b9d9b9f62e/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
--iwg20d-q7.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-76-298-g19b9d9b9f62e/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
--iwg20d-q7.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230414.0/armel/rootfs.cpio.gz =
+Thanks in advance,
 
 
+Guilherme
 
-  * baseline.login: https://kernelci.org/test/case/id/643ee035098d650d412e8=
-601
-        failing since 26 days (last pass: v5.10.175-100-g1686e1df6521, firs=
-t fail: v5.10.176) =
 
- =20
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
+index ce64ca1c6e66..5c1193dd7d88 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
+@@ -26,6 +26,7 @@
+ 
+ #include <linux/firmware.h>
+ #include <linux/module.h>
++#include <linux/dmi.h>
+ #include <linux/pci.h>
+ #include <linux/debugfs.h>
+ #include <drm/drm_drv.h>
+@@ -84,6 +85,7 @@ int amdgpu_vcn_sw_init(struct amdgpu_device *adev)
+ {
+ 	unsigned long bo_size;
+ 	const char *fw_name;
++	const char *bios_ver;
+ 	const struct common_firmware_header *hdr;
+ 	unsigned char fw_check;
+ 	unsigned int fw_shared_size, log_offset;
+@@ -159,6 +161,21 @@ int amdgpu_vcn_sw_init(struct amdgpu_device *adev)
+ 		if ((adev->firmware.load_type == AMDGPU_FW_LOAD_PSP) &&
+ 		    (adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG))
+ 			adev->vcn.indirect_sram = true;
++		/*
++		 * Some Steam Deck's BIOS versions are incompatible with the
++		 * indirect SRAM mode, leading to amdgpu being unable to get
++		 * properly probed (and even potentially crashing the kernel).
++		 * Hence, check for these versions here - notice this is
++		 * restricted to Vangogh (Deck's APU).
++		 */
++		bios_ver = dmi_get_system_info(DMI_BIOS_VERSION);
++
++		if (bios_ver && (!strncmp("F7A0113", bios_ver, 7) ||
++		     !strncmp("F7A0114", bios_ver, 7))) {
++			adev->vcn.indirect_sram = false;
++			dev_info(adev->dev,
++				"Steam Deck quirk: indirect SRAM disabled on BIOS %s\n", bios_ver);
++		}
+ 		break;
+ 	case IP_VERSION(3, 0, 16):
+ 		fw_name = FIRMWARE_DIMGREY_CAVEFISH;
+-- 
+2.40.0
+
