@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F33B6E62B0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C9B6E61F4
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231666AbjDRMep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48852 "EHLO
+        id S231467AbjDRM2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231661AbjDRMej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:39 -0400
+        with ESMTP id S231506AbjDRM2l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B59A118F1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66C5C145
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 410876320E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52AFCC4339B;
-        Tue, 18 Apr 2023 12:34:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D2C363160
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4393C433D2;
+        Tue, 18 Apr 2023 12:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821269;
-        bh=+RVkdLaiGXJb9II5lOGtw/KtwtzDFZTfsr88t/h29Uo=;
+        s=korg; t=1681820902;
+        bh=VAhtAC8KnKiLXG5iNC29GiUQPkEjs6BAfPeRFB1/ynI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WtTHKzlP2sBpOcl7+l8tTjSInscCQC5KW2wdh5FXutGAT3OZVUM9t/qkfg6IxTQhd
-         qkT6e1jnrTqzZj7BtFKyHFRw28qggCnHbY89X9LURVbNh7ox6C5ZIabTjlSC/+/Fx0
-         3brEUVUApNrwzODVswuTZ7Le25xM9y5+CwzeODjo=
+        b=i50IBFKrmDshIViF2M0dnHgNR9uDacYhEGR7h8+fnUFyluWuVm/QRDQulxrNHruUH
+         dh9RJoqguRY5Gofdl8Gu2OQ/cw4vxNfzZ1TUiQZCVepfbyAUjIv9S8c9gOo7Nr5IjE
+         R9pgsg/wqycPsMyyUIVgXpFlQu+iJ4xfoBz2dsYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.10 033/124] dt-bindings: serial: renesas,scif: Fix 4th IRQ for 4-IRQ SCIFs
+        patches@lists.linux.dev, Dhruva Gole <d-gole@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/92] gpio: davinci: Add irq chip flag to skip set wake
 Date:   Tue, 18 Apr 2023 14:20:52 +0200
-Message-Id: <20230418120310.986964714@linuxfoundation.org>
+Message-Id: <20230418120305.399604890@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dhruva Gole <d-gole@ti.com>
 
-commit 7b21f329ae0ab6361c0aebfc094db95821490cd1 upstream.
+[ Upstream commit 7b75c4703609a3ebaf67271813521bc0281e1ec1 ]
 
-The fourth interrupt on SCIF variants with four interrupts (RZ/A1) is
-the Break interrupt, not the Transmit End interrupt (like on SCI(g)).
-Update the description and interrupt name to fix this.
+Add the IRQCHIP_SKIP_SET_WAKE flag since there are no special IRQ Wake
+bits that can be set to enable wakeup IRQ.
 
-Fixes: 384d00fae8e51f8f ("dt-bindings: serial: sh-sci: Convert to json-schema")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/719d1582e0ebbe3d674e3a48fc26295e1475a4c3.1679046394.git.geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3d9edf09d452 ("[ARM] 4457/2: davinci: GPIO support")
+Signed-off-by: Dhruva Gole <d-gole@ti.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/serial/renesas,scif.yaml |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-davinci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/serial/renesas,scif.yaml
-+++ b/Documentation/devicetree/bindings/serial/renesas,scif.yaml
-@@ -74,7 +74,7 @@ properties:
-           - description: Error interrupt
-           - description: Receive buffer full interrupt
-           - description: Transmit buffer empty interrupt
--          - description: Transmit End interrupt
-+          - description: Break interrupt
-       - items:
-           - description: Error interrupt
-           - description: Receive buffer full interrupt
-@@ -89,7 +89,7 @@ properties:
-           - const: eri
-           - const: rxi
-           - const: txi
--          - const: tei
-+          - const: bri
-       - items:
-           - const: eri
-           - const: rxi
+diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
+index e0b0256896250..576cb2d0708f6 100644
+--- a/drivers/gpio/gpio-davinci.c
++++ b/drivers/gpio/gpio-davinci.c
+@@ -333,7 +333,7 @@ static struct irq_chip gpio_irqchip = {
+ 	.irq_enable	= gpio_irq_enable,
+ 	.irq_disable	= gpio_irq_disable,
+ 	.irq_set_type	= gpio_irq_type,
+-	.flags		= IRQCHIP_SET_TYPE_MASKED,
++	.flags		= IRQCHIP_SET_TYPE_MASKED | IRQCHIP_SKIP_SET_WAKE,
+ };
+ 
+ static void gpio_irq_handler(struct irq_desc *desc)
+-- 
+2.39.2
+
 
 
