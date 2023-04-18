@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 495386E64DB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EC1B6E64DD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbjDRMxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S232211AbjDRMxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbjDRMxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C8F13C1F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:53 -0700 (PDT)
+        with ESMTP id S232200AbjDRMxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992B41560F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B92A963437
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDEE3C433D2;
-        Tue, 18 Apr 2023 12:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A62563453
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D6BC433A0;
+        Tue, 18 Apr 2023 12:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822373;
-        bh=f2fTbvyjmUZ+F597QbBJuqwuDksjeIew8pO/V1G1zDM=;
+        s=korg; t=1681822375;
+        bh=/NR45N3PgFH8h88ZHi78X5s9YnrV7RoS4zn/luFPmHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5T7btfr3El4Tg+s1Ne29B2P5u/V4VBKavgwrtQ4DKx0Xk86xUfd0MO+Ha+DSIxOP
-         sE4SWCjq1hL0Kcc201K7YZYBhsOtqOE/wwA0ZimvhPYG4GOQCRM3nWzxiikwAYRvKq
-         OZYb/enC+4s+/QVs62MaJQfxWgoWFc1/bsAB9afU=
+        b=Aa0p9CnYkFExU8qALzEOOM1PxGS07qMgP6noakYUSmsygeeB0iwv8jZiCfqjV6j7a
+         4U/JPm48WuQ6GYQ7+pU6JfZlG7CsX6gYrWp3of6GLm2sibgSkdE7OTzSfunQrlPl7h
+         sT8gwuQspoWL8R+L3hML8Dx6BpHasyWnOtC+52yA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Paasch <cpaasch@apple.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
         Matthieu Baerts <matthieu.baerts@tessares.net>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.2 125/139] mptcp: stricter state check in mptcp_worker
-Date:   Tue, 18 Apr 2023 14:23:10 +0200
-Message-Id: <20230418120318.550235353@linuxfoundation.org>
+Subject: [PATCH 6.2 126/139] mptcp: fix NULL pointer dereference on fastopen early fallback
+Date:   Tue, 18 Apr 2023 14:23:11 +0200
+Message-Id: <20230418120318.587047985@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,78 +56,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-commit d6a0443733434408f2cbd4c53fea6910599bab9e upstream.
+commit c0ff6f6da66a7791a32c0234388b1bdc00244917 upstream.
 
-As reported by Christoph, the mptcp protocol can run the
-worker when the relevant msk socket is in an unexpected state:
+In case of early fallback to TCP, subflow_syn_recv_sock() deletes
+the subflow context before returning the newly allocated sock to
+the caller.
 
-connect()
-// incoming reset + fastclose
-// the mptcp worker is scheduled
-mptcp_disconnect()
-// msk is now CLOSED
-listen()
-mptcp_worker()
+The fastopen path does not cope with the above unconditionally
+dereferencing the subflow context.
 
-Leading to the following splat:
-
-divide error: 0000 [#1] PREEMPT SMP
-CPU: 1 PID: 21 Comm: kworker/1:0 Not tainted 6.3.0-rc1-gde5e8fd0123c #11
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
-Workqueue: events mptcp_worker
-RIP: 0010:__tcp_select_window+0x22c/0x4b0 net/ipv4/tcp_output.c:3018
-RSP: 0018:ffffc900000b3c98 EFLAGS: 00010293
-RAX: 000000000000ffd7 RBX: 000000000000ffd7 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff8214ce97 RDI: 0000000000000004
-RBP: 000000000000ffd7 R08: 0000000000000004 R09: 0000000000010000
-R10: 000000000000ffd7 R11: ffff888005afa148 R12: 000000000000ffd7
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff88803ed00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000405270 CR3: 000000003011e006 CR4: 0000000000370ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- tcp_select_window net/ipv4/tcp_output.c:262 [inline]
- __tcp_transmit_skb+0x356/0x1280 net/ipv4/tcp_output.c:1345
- tcp_transmit_skb net/ipv4/tcp_output.c:1417 [inline]
- tcp_send_active_reset+0x13e/0x320 net/ipv4/tcp_output.c:3459
- mptcp_check_fastclose net/mptcp/protocol.c:2530 [inline]
- mptcp_worker+0x6c7/0x800 net/mptcp/protocol.c:2705
- process_one_work+0x3bd/0x950 kernel/workqueue.c:2390
- worker_thread+0x5b/0x610 kernel/workqueue.c:2537
- kthread+0x138/0x170 kernel/kthread.c:376
- ret_from_fork+0x2c/0x50 arch/x86/entry/entry_64.S:308
- </TASK>
-
-This change addresses the issue explicitly checking for bad states
-before running the mptcp worker.
-
-Fixes: e16163b6e2b7 ("mptcp: refactor shutdown and close")
+Fixes: 36b122baf6a8 ("mptcp: add subflow_v(4,6)_send_synack()")
 Cc: stable@vger.kernel.org
-Reported-by: Christoph Paasch <cpaasch@apple.com>
-Link: https://github.com/multipath-tcp/mptcp_net-next/issues/374
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Tested-by: Christoph Paasch <cpaasch@apple.com>
 Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/protocol.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mptcp/fastopen.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2627,7 +2627,7 @@ static void mptcp_worker(struct work_str
+--- a/net/mptcp/fastopen.c
++++ b/net/mptcp/fastopen.c
+@@ -9,11 +9,18 @@
+ void mptcp_fastopen_subflow_synack_set_params(struct mptcp_subflow_context *subflow,
+ 					      struct request_sock *req)
+ {
+-	struct sock *ssk = subflow->tcp_sock;
+-	struct sock *sk = subflow->conn;
++	struct sock *sk, *ssk;
+ 	struct sk_buff *skb;
+ 	struct tcp_sock *tp;
  
- 	lock_sock(sk);
- 	state = sk->sk_state;
--	if (unlikely(state == TCP_CLOSE))
-+	if (unlikely((1 << state) & (TCPF_CLOSE | TCPF_LISTEN)))
- 		goto unlock;
++	/* on early fallback the subflow context is deleted by
++	 * subflow_syn_recv_sock()
++	 */
++	if (!subflow)
++		return;
++
++	ssk = subflow->tcp_sock;
++	sk = subflow->conn;
+ 	tp = tcp_sk(ssk);
  
- 	mptcp_check_data_fin_ack(sk);
+ 	subflow->is_mptfo = 1;
 
 
