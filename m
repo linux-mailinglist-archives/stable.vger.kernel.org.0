@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 614AA6E6474
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5DC6E6151
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbjDRMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40898 "EHLO
+        id S231237AbjDRMY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:24:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232102AbjDRMtW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:22 -0400
+        with ESMTP id S231182AbjDRMY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3D214F6C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4644497
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A38633F5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76ECC433EF;
-        Tue, 18 Apr 2023 12:49:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C79163129
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F297C4339C;
+        Tue, 18 Apr 2023 12:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822151;
-        bh=c1pR8cWxhFF/daZjSAkj5rolbIrm46/edDw3/QyGyRk=;
+        s=korg; t=1681820669;
+        bh=uHL7IDBKoYJ7GZQMeEUqmXWS5zCYGb3W8nXwOVPNJmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEvfKt7LbOJNDPMelioNpXCgpdNkNfiCDUAGZ27admRIGRMEo1SeWi5tq+veONYqJ
-         iV/xarjwiOCGo+vJBgwieNaD3z51EQLy/AD1MUcDm778nd7W23DB1SChtLlyDiUpfJ
-         4/tYuChlvPIWjDNUjW925/k4VLNczRD+8zuPsXy8=
+        b=Sr/7XA5FBM/EnV4vaUlKYOAWWCLFdMC+bZYd60Lu2G5wwzwdffjRY5ucJhhychs7y
+         H0/LPsOnS+Uzn0hxboS5ELImR/wUhgIFViBjRzAJrQrr1o0krp2QJGWVYbb6Drh98k
+         pvsG99qChXtmIgg3u8/G+Fyjbt6b3TCPt6ozBu7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.2 012/139] ALSA: hda/hdmi: disable KAE for Intel DG2
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 07/37] USB: serial: option: add Telit FE990 compositions
 Date:   Tue, 18 Apr 2023 14:21:17 +0200
-Message-Id: <20230418120314.162279926@linuxfoundation.org>
+Message-Id: <20230418120254.932423733@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-commit 6ab6f98fcdc9d4fbe245aa67de03542deea65322 upstream.
+commit 773e8e7d07b753474b2ccd605ff092faaa9e65b9 upstream.
 
-Use of keep-alive (KAE) has resulted in loss of audio on some A750/770
-cards as the transition from keep-alive to stream playback is not
-working as expected. As there is limited benefit of the new KAE mode
-on discrete cards, revert back to older silent-stream implementation
-on these systems.
+Add the following Telit FE990 compositions:
 
+0x1080: tty, adb, rmnet, tty, tty, tty, tty
+0x1081: tty, adb, mbim, tty, tty, tty, tty
+0x1082: rndis, tty, adb, tty, tty, tty, tty
+0x1083: tty, adb, ecm, tty, tty, tty, tty
+
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Link: https://lore.kernel.org/r/20230314090059.77876-1-enrico.sau@gmail.com
 Cc: stable@vger.kernel.org
-Fixes: 15175a4f2bbb ("ALSA: hda/hdmi: add keep-alive support for ADL-P and DG2")
-Link: https://gitlab.freedesktop.org/drm/intel/-/issues/8307
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230413191153.3692049-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -4604,7 +4604,7 @@ HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",
- HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862818, "Raptorlake HDMI",	patch_i915_tgl_hdmi),
--HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_adlp_hdmi),
-+HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x8086281b, "Elkhartlake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x8086281c, "Alderlake-P HDMI", patch_i915_adlp_hdmi),
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1303,6 +1303,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1075, 0xff),	/* Telit FN990 (PCIe) */
+ 	  .driver_info = RSVD(0) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1080, 0xff),	/* Telit FE990 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1081, 0xff),	/* Telit FE990 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1082, 0xff),	/* Telit FE990 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1083, 0xff),	/* Telit FE990 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
