@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4137B6E642D
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3B06E64CD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232018AbjDRMqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
+        id S232221AbjDRMwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231994AbjDRMqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374C31563D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:42 -0700 (PDT)
+        with ESMTP id S232093AbjDRMwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059AE13C38
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C845B633B0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD97FC433EF;
-        Tue, 18 Apr 2023 12:46:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADB8263432
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF74CC433D2;
+        Tue, 18 Apr 2023 12:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822001;
-        bh=UwyG6Gy9KDhGWvKveRFzAcaAt077RRfEM4d2FevbDdE=;
+        s=korg; t=1681822336;
+        bh=OdXT5sRbrc2E28mPDHb4YEnv6+ZmVGqouxzMZZu68ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpAwKc7FjFgzLxSctIc7LBGRWcUDacS6X6ybyqD0ttCb8yJzgwd8QMIPODb+Bpdr2
-         5RGQiIkiIlNCMTmaYeOIbrPFUGDEjFaV+YIz8LUQ+9mSnDVwuZ1VovfpOvdX+SbBYc
-         9K7bDv8m4b6xVVOx6Ft/U5LhBAsukKEQuwIc3OrE=
+        b=dobcuCflhb8RPVJ/MEM62osu20Rf9mpsBDWOFMuh7kKlKtRvkcZXG24uyL99XNdx3
+         pqXAFkNDLXKpPPujh26+OHI6J1e+aawGlB//o2tiFkXwv0uF9HGkfIdHo4ru8bIoEI
+         TVjsw+LIc9MwAqKUU+d4YfeN6s1MHm09ojeykKxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 120/134] i2c: mchp-pci1xxxx: Update Timing registers
-Date:   Tue, 18 Apr 2023 14:22:56 +0200
-Message-Id: <20230418120317.364975549@linuxfoundation.org>
+        patches@lists.linux.dev, Rui Salvaterra <rsalvaterra@gmail.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        "6 . 2+" <stable@kernel.org>
+Subject: [PATCH 6.2 112/139] thermal: intel: Avoid updating unsupported THERM_STATUS_CLEAR mask bits
+Date:   Tue, 18 Apr 2023 14:22:57 +0200
+Message-Id: <20230418120317.972014393@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,173 +55,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit aa874cdfec07d4dd9c6f0c356d65c609ba31a26f ]
+commit 117e4e5bd9d47b89777dbf6b37a709dcfe59520f upstream.
 
-Update I2C timing registers based on latest hardware design.
-This fix does not break functionality of chips with older design and
-existing users will not be affected.
+Some older processors don't allow BIT(13) and BIT(15) in the current
+mask set by "THERM_STATUS_CLEAR_CORE_MASK". This results in:
 
-Fixes: 361693697249 ("i2c: microchip: pci1xxxx: Add driver for I2C host controller in multifunction endpoint of pci1xxxx switch")
-Signed-off-by: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+unchecked MSR access error: WRMSR to 0x19c (tried to
+write 0x000000000000aaa8) at rIP: 0xffffffff816f66a6
+(throttle_active_work+0xa6/0x1d0)
+
+To avoid unchecked MSR issues, check CPUID for each relevant feature and
+use that information to set the supported feature bits only in the
+"clear" mask for cores. Do the same for the analogous package mask set
+by "THERM_STATUS_CLEAR_PKG_MASK".
+
+Introduce functions thermal_intr_init_core_clear_mask() and
+thermal_intr_init_pkg_clear_mask() to set core and package mask bits,
+respectively. These functions are called during initialization.
+
+Fixes: 6fe1e64b6026 ("thermal: intel: Prevent accidental clearing of HFI status")
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Link: https://lore.kernel.org/lkml/cdf43fb423368ee3994124a9e8c9b4f8d00712c6.camel@linux.intel.com/T/
+Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 6.2+ <stable@kernel.org> # 6.2+
+[ rjw: Renamed 2 funtions and 2 static variables, edited subject and
+  changelog ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-mchp-pci1xxxx.c | 60 +++++++++++++-------------
- 1 file changed, 30 insertions(+), 30 deletions(-)
+ drivers/thermal/intel/therm_throt.c |   73 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 66 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-index 09af759211478..b21ffd6df9276 100644
---- a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-+++ b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-@@ -48,9 +48,9 @@
-  * SR_HOLD_TIME_XK_TICKS field will indicate the number of ticks of the
-  * baud clock required to program 'Hold Time' at X KHz.
-  */
--#define SR_HOLD_TIME_100K_TICKS	133
--#define SR_HOLD_TIME_400K_TICKS	20
--#define SR_HOLD_TIME_1000K_TICKS	11
-+#define SR_HOLD_TIME_100K_TICKS		150
-+#define SR_HOLD_TIME_400K_TICKS		20
-+#define SR_HOLD_TIME_1000K_TICKS	12
+--- a/drivers/thermal/intel/therm_throt.c
++++ b/drivers/thermal/intel/therm_throt.c
+@@ -193,8 +193,67 @@ static const struct attribute_group ther
+ #define THERM_THROT_POLL_INTERVAL	HZ
+ #define THERM_STATUS_PROCHOT_LOG	BIT(1)
  
- #define SMB_CORE_COMPLETION_REG_OFF3	(SMBUS_MAST_CORE_ADDR_BASE + 0x23)
- 
-@@ -65,17 +65,17 @@
-  * the baud clock required to program 'fair idle delay' at X KHz. Fair idle
-  * delay establishes the MCTP T(IDLE_DELAY) period.
-  */
--#define FAIR_BUS_IDLE_MIN_100K_TICKS		969
--#define FAIR_BUS_IDLE_MIN_400K_TICKS		157
--#define FAIR_BUS_IDLE_MIN_1000K_TICKS		157
-+#define FAIR_BUS_IDLE_MIN_100K_TICKS		992
-+#define FAIR_BUS_IDLE_MIN_400K_TICKS		500
-+#define FAIR_BUS_IDLE_MIN_1000K_TICKS		500
- 
- /*
-  * FAIR_IDLE_DELAY_XK_TICKS field will indicate the number of ticks of the
-  * baud clock required to satisfy the fairness protocol at X KHz.
-  */
--#define FAIR_IDLE_DELAY_100K_TICKS	1000
--#define FAIR_IDLE_DELAY_400K_TICKS	500
--#define FAIR_IDLE_DELAY_1000K_TICKS	500
-+#define FAIR_IDLE_DELAY_100K_TICKS	963
-+#define FAIR_IDLE_DELAY_400K_TICKS	156
-+#define FAIR_IDLE_DELAY_1000K_TICKS	156
- 
- #define SMB_IDLE_SCALING_100K		\
- 	((FAIR_IDLE_DELAY_100K_TICKS << 16) | FAIR_BUS_IDLE_MIN_100K_TICKS)
-@@ -105,7 +105,7 @@
-  */
- #define BUS_CLK_100K_LOW_PERIOD_TICKS		156
- #define BUS_CLK_400K_LOW_PERIOD_TICKS		41
--#define BUS_CLK_1000K_LOW_PERIOD_TICKS	15
-+#define BUS_CLK_1000K_LOW_PERIOD_TICKS		15
- 
- /*
-  * BUS_CLK_XK_HIGH_PERIOD_TICKS field defines the number of I2C Baud Clock
-@@ -131,7 +131,7 @@
-  */
- #define CLK_SYNC_100K			4
- #define CLK_SYNC_400K			4
--#define CLK_SYNC_1000K		4
-+#define CLK_SYNC_1000K			4
- 
- #define SMB_CORE_DATA_TIMING_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x40)
- 
-@@ -142,25 +142,25 @@
-  * determines the SCLK hold time following SDAT driven low during the first
-  * START bit in a transfer.
-  */
--#define FIRST_START_HOLD_100K_TICKS	22
--#define FIRST_START_HOLD_400K_TICKS	16
--#define FIRST_START_HOLD_1000K_TICKS	6
-+#define FIRST_START_HOLD_100K_TICKS	23
-+#define FIRST_START_HOLD_400K_TICKS	8
-+#define FIRST_START_HOLD_1000K_TICKS	12
- 
- /*
-  * STOP_SETUP_XK_TICKS will indicate the number of ticks of the baud clock
-  * required to program 'STOP_SETUP' timer at X KHz. This timer determines the
-  * SDAT setup time from the rising edge of SCLK for a STOP condition.
-  */
--#define STOP_SETUP_100K_TICKS		157
-+#define STOP_SETUP_100K_TICKS		150
- #define STOP_SETUP_400K_TICKS		20
--#define STOP_SETUP_1000K_TICKS	12
-+#define STOP_SETUP_1000K_TICKS		12
+-#define THERM_STATUS_CLEAR_CORE_MASK (BIT(1) | BIT(3) | BIT(5) | BIT(7) | BIT(9) | BIT(11) | BIT(13) | BIT(15))
+-#define THERM_STATUS_CLEAR_PKG_MASK  (BIT(1) | BIT(3) | BIT(5) | BIT(7) | BIT(9) | BIT(11))
++static u64 therm_intr_core_clear_mask;
++static u64 therm_intr_pkg_clear_mask;
++
++static void thermal_intr_init_core_clear_mask(void)
++{
++	if (therm_intr_core_clear_mask)
++		return;
++
++	/*
++	 * Reference: Intel SDM  Volume 4
++	 * "Table 2-2. IA-32 Architectural MSRs", MSR 0x19C
++	 * IA32_THERM_STATUS.
++	 */
++
++	/*
++	 * Bit 1, 3, 5: CPUID.01H:EDX[22] = 1. This driver will not
++	 * enable interrupts, when 0 as it checks for X86_FEATURE_ACPI.
++	 */
++	therm_intr_core_clear_mask = (BIT(1) | BIT(3) | BIT(5));
++
++	/*
++	 * Bit 7 and 9: Thermal Threshold #1 and #2 log
++	 * If CPUID.01H:ECX[8] = 1
++	 */
++	if (boot_cpu_has(X86_FEATURE_TM2))
++		therm_intr_core_clear_mask |= (BIT(7) | BIT(9));
++
++	/* Bit 11: Power Limitation log (R/WC0) If CPUID.06H:EAX[4] = 1 */
++	if (boot_cpu_has(X86_FEATURE_PLN))
++		therm_intr_core_clear_mask |= BIT(11);
++
++	/*
++	 * Bit 13: Current Limit log (R/WC0) If CPUID.06H:EAX[7] = 1
++	 * Bit 15: Cross Domain Limit log (R/WC0) If CPUID.06H:EAX[7] = 1
++	 */
++	if (boot_cpu_has(X86_FEATURE_HWP))
++		therm_intr_core_clear_mask |= (BIT(13) | BIT(15));
++}
++
++static void thermal_intr_init_pkg_clear_mask(void)
++{
++	if (therm_intr_pkg_clear_mask)
++		return;
++
++	/*
++	 * Reference: Intel SDM  Volume 4
++	 * "Table 2-2. IA-32 Architectural MSRs", MSR 0x1B1
++	 * IA32_PACKAGE_THERM_STATUS.
++	 */
++
++	/* All bits except BIT 26 depend on CPUID.06H: EAX[6] = 1 */
++	if (boot_cpu_has(X86_FEATURE_PTS))
++		therm_intr_pkg_clear_mask = (BIT(1) | BIT(3) | BIT(5) | BIT(7) | BIT(9) | BIT(11));
++
++	/*
++	 * Intel SDM Volume 2A: Thermal and Power Management Leaf
++	 * Bit 26: CPUID.06H: EAX[19] = 1
++	 */
++	if (boot_cpu_has(X86_FEATURE_HFI))
++		therm_intr_pkg_clear_mask |= BIT(26);
++}
  
  /*
-  * RESTART_SETUP_XK_TICKS will indicate the number of ticks of the baud clock
-  * required to program 'RESTART_SETUP' timer at X KHz. This timer determines the
-  * SDAT setup time from the rising edge of SCLK for a repeated START condition.
-  */
--#define RESTART_SETUP_100K_TICKS	157
-+#define RESTART_SETUP_100K_TICKS	156
- #define RESTART_SETUP_400K_TICKS	20
- #define RESTART_SETUP_1000K_TICKS	12
+  * Clear the bits in package thermal status register for bit = 1
+@@ -207,13 +266,10 @@ void thermal_clear_package_intr_status(i
  
-@@ -169,7 +169,7 @@
-  * required to program 'DATA_HOLD' timer at X KHz. This timer determines the
-  * SDAT hold time following SCLK driven low.
-  */
--#define DATA_HOLD_100K_TICKS		2
-+#define DATA_HOLD_100K_TICKS		12
- #define DATA_HOLD_400K_TICKS		2
- #define DATA_HOLD_1000K_TICKS		2
+ 	if (level == CORE_LEVEL) {
+ 		msr  = MSR_IA32_THERM_STATUS;
+-		msr_val = THERM_STATUS_CLEAR_CORE_MASK;
++		msr_val = therm_intr_core_clear_mask;
+ 	} else {
+ 		msr  = MSR_IA32_PACKAGE_THERM_STATUS;
+-		msr_val = THERM_STATUS_CLEAR_PKG_MASK;
+-		if (boot_cpu_has(X86_FEATURE_HFI))
+-			msr_val |= BIT(26);
+-
++		msr_val = therm_intr_pkg_clear_mask;
+ 	}
  
-@@ -190,35 +190,35 @@
-  * Bus Idle Minimum time = BUS_IDLE_MIN[7:0] x Baud_Clock_Period x
-  * (BUS_IDLE_MIN_XK_TICKS[7] ? 4,1)
-  */
--#define BUS_IDLE_MIN_100K_TICKS		167UL
--#define BUS_IDLE_MIN_400K_TICKS		139UL
--#define BUS_IDLE_MIN_1000K_TICKS		133UL
-+#define BUS_IDLE_MIN_100K_TICKS		36UL
-+#define BUS_IDLE_MIN_400K_TICKS		10UL
-+#define BUS_IDLE_MIN_1000K_TICKS	4UL
+ 	msr_val &= ~bit_mask;
+@@ -708,6 +764,9 @@ void intel_init_thermal(struct cpuinfo_x
+ 	h = THERMAL_APIC_VECTOR | APIC_DM_FIXED | APIC_LVT_MASKED;
+ 	apic_write(APIC_LVTTHMR, h);
  
- /*
-  * CTRL_CUM_TIME_OUT_XK_TICKS defines SMBus Controller Cumulative Time-Out.
-  * SMBus Controller Cumulative Time-Out duration =
-  * CTRL_CUM_TIME_OUT_XK_TICKS[7:0] x Baud_Clock_Period x 2048
-  */
--#define CTRL_CUM_TIME_OUT_100K_TICKS		159
--#define CTRL_CUM_TIME_OUT_400K_TICKS		159
--#define CTRL_CUM_TIME_OUT_1000K_TICKS		159
-+#define CTRL_CUM_TIME_OUT_100K_TICKS		76
-+#define CTRL_CUM_TIME_OUT_400K_TICKS		76
-+#define CTRL_CUM_TIME_OUT_1000K_TICKS		76
- 
- /*
-  * TARGET_CUM_TIME_OUT_XK_TICKS defines SMBus Target Cumulative Time-Out duration.
-  * SMBus Target Cumulative Time-Out duration = TARGET_CUM_TIME_OUT_XK_TICKS[7:0] x
-  * Baud_Clock_Period x 4096
-  */
--#define TARGET_CUM_TIME_OUT_100K_TICKS	199
--#define TARGET_CUM_TIME_OUT_400K_TICKS	199
--#define TARGET_CUM_TIME_OUT_1000K_TICKS	199
-+#define TARGET_CUM_TIME_OUT_100K_TICKS	95
-+#define TARGET_CUM_TIME_OUT_400K_TICKS	95
-+#define TARGET_CUM_TIME_OUT_1000K_TICKS	95
- 
- /*
-  * CLOCK_HIGH_TIME_OUT_XK defines Clock High time out period.
-  * Clock High time out period = CLOCK_HIGH_TIME_OUT_XK[7:0] x Baud_Clock_Period x 8
-  */
--#define CLOCK_HIGH_TIME_OUT_100K_TICKS	204
--#define CLOCK_HIGH_TIME_OUT_400K_TICKS	204
--#define CLOCK_HIGH_TIME_OUT_1000K_TICKS	204
-+#define CLOCK_HIGH_TIME_OUT_100K_TICKS	97
-+#define CLOCK_HIGH_TIME_OUT_400K_TICKS	97
-+#define CLOCK_HIGH_TIME_OUT_1000K_TICKS	97
- 
- #define TO_SCALING_100K		\
- 	((BUS_IDLE_MIN_100K_TICKS << 24) | (CTRL_CUM_TIME_OUT_100K_TICKS << 16) | \
--- 
-2.39.2
-
++	thermal_intr_init_core_clear_mask();
++	thermal_intr_init_pkg_clear_mask();
++
+ 	rdmsr(MSR_IA32_THERM_INTERRUPT, l, h);
+ 	if (cpu_has(c, X86_FEATURE_PLN) && !int_pln_enable)
+ 		wrmsr(MSR_IA32_THERM_INTERRUPT,
 
 
