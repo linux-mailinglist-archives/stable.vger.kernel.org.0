@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6DC6E6435
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B36A6E64CB
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232025AbjDRMrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
+        id S232235AbjDRMwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232027AbjDRMrB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:01 -0400
+        with ESMTP id S232245AbjDRMw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6A415637
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DFA183B3
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CD83633AE
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FFEEC4339B;
-        Tue, 18 Apr 2023 12:46:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04D526340D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A0C2C433EF;
+        Tue, 18 Apr 2023 12:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822019;
-        bh=1PTmcP2+6LuJsrULf4ZIc+pv2aA7YcGzRwoLHFAWLGU=;
+        s=korg; t=1681822325;
+        bh=oI9XVPZM4FM/hX+LowSasvuW2cpQ0pBbEc9Yy5lIQD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGb7Q57WsqG2L7uj07ZmJmGvBbz9DzUtsuGMN+3mXiqIcQ3AzdvKFAXCKbnuBkAgn
-         b0jvee84YwacXMqMGAzgs1x/t2Gwov8eDz26I3ofZVp5v8Q3c9tTOpVb5++ohuMqCq
-         mSVCNMYbcOrCLW7InnGMdIjh+o8MgBM8MYuCVae0=
+        b=gJQiEX5nNTc/xl4CMtke705YiQ/4yXh1BrefRhqXs7dVnBEBwkRSbzLkT0HJqtDpW
+         UvIilB6xREB8Z4RVZ/KrUIrjvJdxAeigOZnsneMXQ2ey/rSgeZgXJGQFkuBnN14hbK
+         fieEUa+tTT11ki/H1oWOKie1uLD1LB07xZMYWUvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Kolar <mich.k@seznam.cz>,
-        Jiri Kosina <jkosina@suse.cz>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Ding Hui <dinghui@sangfor.com.cn>
-Subject: [PATCH 6.1 109/134] scsi: ses: Handle enclosure with just a primary component gracefully
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ross Zwisler <zwisler@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 100/139] tracing: Add trace_array_puts() to write into instance
 Date:   Tue, 18 Apr 2023 14:22:45 +0200
-Message-Id: <20230418120317.001689727@linuxfoundation.org>
+Message-Id: <20230418120317.539555076@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit c8e22b7a1694bb8d025ea636816472739d859145 upstream.
+[ Upstream commit d503b8f7474fe7ac616518f7fc49773cbab49f36 ]
 
-This reverts commit 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure
-has no components") and introduces proper handling of case where there are
-no detected secondary components, but primary component (enumerated in
-num_enclosures) does exist. That fix was originally proposed by Ding Hui
-<dinghui@sangfor.com.cn>.
+Add a generic trace_array_puts() that can be used to "trace_puts()" into
+an allocated trace_array instance. This is just another variant of
+trace_array_printk().
 
-Completely ignoring devices that have one primary enclosure and no
-secondary one results in ses_intf_add() bailing completely
+Link: https://lkml.kernel.org/r/20230207173026.584717290@goodmis.org
 
-	scsi 2:0:0:254: enclosure has no enumerated components
-        scsi 2:0:0:254: Failed to bind enclosure -12ven in valid configurations such
-
-even on valid configurations with 1 primary and 0 secondary enclosures as
-below:
-
-	# sg_ses /dev/sg0
-	  3PARdata  SES               3321
-	Supported diagnostic pages:
-	  Supported Diagnostic Pages [sdp] [0x0]
-	  Configuration (SES) [cf] [0x1]
-	  Short Enclosure Status (SES) [ses] [0x8]
-	# sg_ses -p cf /dev/sg0
-	  3PARdata  SES               3321
-	Configuration diagnostic page:
-	  number of secondary subenclosures: 0
-	  generation code: 0x0
-	  enclosure descriptor list
-	    Subenclosure identifier: 0 [primary]
-	      relative ES process id: 0, number of ES processes: 1
-	      number of type descriptor headers: 1
-	      enclosure logical identifier (hex): 20000002ac02068d
-	      enclosure vendor: 3PARdata  product: VV                rev: 3321
-	  type descriptor header and text list
-	    Element type: Unspecified, subenclosure id: 0
-	      number of possible elements: 1
-
-The changelog for the original fix follows
-
-=====
-We can get a crash when disconnecting the iSCSI session,
-the call trace like this:
-
-  [ffff00002a00fb70] kfree at ffff00000830e224
-  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
-  [ffff00002a00fbd0] device_del at ffff0000086b6a98
-  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
-  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
-  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
-  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
-  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
-  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
-  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
-  [ffff00002a00fe00] worker_thread at ffff00000810f648
-  [ffff00002a00fe70] kthread at ffff000008116e98
-
-In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
-but not saved in edev->component[i].scratch
-
-In this situation, edev->component[0].scratch is an invalid pointer,
-when kfree it in ses_intf_remove_enclosure, a crash like above would happen
-The call trace also could be other random cases when kfree cannot catch
-the invalid pointer
-
-We should not use edev->component[] array when the components count is 0
-We also need check index when use edev->component[] array in
-ses_enclosure_data_process
-=====
-
-Reported-by: Michal Kolar <mich.k@seznam.cz>
-Originally-by: Ding Hui <dinghui@sangfor.com.cn>
-Cc: stable@vger.kernel.org
-Fixes: 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2304042122270.29760@cbobk.fhfr.pm
-Tested-by: Michal Kolar <mich.k@seznam.cz>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Stable-dep-of: 9d52727f8043 ("tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ include/linux/trace.h | 12 ++++++++++++
+ kernel/trace/trace.c  | 27 +++++++++++++++++----------
+ 2 files changed, 29 insertions(+), 10 deletions(-)
 
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -503,9 +503,6 @@ static int ses_enclosure_find_by_addr(st
- 	int i;
- 	struct ses_component *scomp;
+diff --git a/include/linux/trace.h b/include/linux/trace.h
+index 80ffda8717491..2a70a447184c9 100644
+--- a/include/linux/trace.h
++++ b/include/linux/trace.h
+@@ -33,6 +33,18 @@ struct trace_array;
+ int register_ftrace_export(struct trace_export *export);
+ int unregister_ftrace_export(struct trace_export *export);
  
--	if (!edev->component[0].scratch)
--		return 0;
--
- 	for (i = 0; i < edev->components; i++) {
- 		scomp = edev->component[i].scratch;
- 		if (scomp->addr != efd->addr)
-@@ -596,8 +593,10 @@ static void ses_enclosure_data_process(s
- 						components++,
- 						type_ptr[0],
- 						name);
--				else
-+				else if (components < edev->components)
- 					ecomp = &edev->component[components++];
-+				else
-+					ecomp = ERR_PTR(-EINVAL);
++/**
++ * trace_array_puts - write a constant string into the trace buffer.
++ * @tr:    The trace array to write to
++ * @str:   The constant string to write
++ */
++#define trace_array_puts(tr, str)					\
++	({								\
++		str ? __trace_array_puts(tr, _THIS_IP_, str, strlen(str)) : -1;	\
++	})
++int __trace_array_puts(struct trace_array *tr, unsigned long ip,
++		       const char *str, int size);
++
+ void trace_printk_init_buffers(void);
+ __printf(3, 4)
+ int trace_array_printk(struct trace_array *tr, unsigned long ip,
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 1a931896ba042..13c46787ba5fa 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1001,13 +1001,8 @@ __buffer_unlock_commit(struct trace_buffer *buffer, struct ring_buffer_event *ev
+ 		ring_buffer_unlock_commit(buffer);
+ }
  
- 				if (!IS_ERR(ecomp)) {
- 					if (addl_desc_ptr) {
-@@ -728,11 +727,6 @@ static int ses_intf_add(struct device *c
- 			components += type_ptr[1];
- 	}
+-/**
+- * __trace_puts - write a constant string into the trace buffer.
+- * @ip:	   The address of the caller
+- * @str:   The constant string to write
+- * @size:  The size of the string.
+- */
+-int __trace_puts(unsigned long ip, const char *str, int size)
++int __trace_array_puts(struct trace_array *tr, unsigned long ip,
++		       const char *str, int size)
+ {
+ 	struct ring_buffer_event *event;
+ 	struct trace_buffer *buffer;
+@@ -1015,7 +1010,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
+ 	unsigned int trace_ctx;
+ 	int alloc;
  
--	if (components == 0) {
--		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
--		goto err_free;
--	}
--
- 	ses_dev->page1 = buf;
- 	ses_dev->page1_len = len;
- 	buf = NULL;
-@@ -774,9 +768,11 @@ static int ses_intf_add(struct device *c
- 		buf = NULL;
- 	}
- page2_not_supported:
--	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
--	if (!scomp)
--		goto err_free;
-+	if (components > 0) {
-+		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
-+		if (!scomp)
-+			goto err_free;
-+	}
+-	if (!(global_trace.trace_flags & TRACE_ITER_PRINTK))
++	if (!(tr->trace_flags & TRACE_ITER_PRINTK))
+ 		return 0;
  
- 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
- 				  components, &ses_enclosure_callbacks);
+ 	if (unlikely(tracing_selftest_running || tracing_disabled))
+@@ -1024,7 +1019,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
+ 	alloc = sizeof(*entry) + size + 2; /* possible \n added */
+ 
+ 	trace_ctx = tracing_gen_ctx();
+-	buffer = global_trace.array_buffer.buffer;
++	buffer = tr->array_buffer.buffer;
+ 	ring_buffer_nest_start(buffer);
+ 	event = __trace_buffer_lock_reserve(buffer, TRACE_PRINT, alloc,
+ 					    trace_ctx);
+@@ -1046,11 +1041,23 @@ int __trace_puts(unsigned long ip, const char *str, int size)
+ 		entry->buf[size] = '\0';
+ 
+ 	__buffer_unlock_commit(buffer, event);
+-	ftrace_trace_stack(&global_trace, buffer, trace_ctx, 4, NULL);
++	ftrace_trace_stack(tr, buffer, trace_ctx, 4, NULL);
+  out:
+ 	ring_buffer_nest_end(buffer);
+ 	return size;
+ }
++EXPORT_SYMBOL_GPL(__trace_array_puts);
++
++/**
++ * __trace_puts - write a constant string into the trace buffer.
++ * @ip:	   The address of the caller
++ * @str:   The constant string to write
++ * @size:  The size of the string.
++ */
++int __trace_puts(unsigned long ip, const char *str, int size)
++{
++	return __trace_array_puts(&global_trace, ip, str, size);
++}
+ EXPORT_SYMBOL_GPL(__trace_puts);
+ 
+ /**
+-- 
+2.39.2
+
 
 
