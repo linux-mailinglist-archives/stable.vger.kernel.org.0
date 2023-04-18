@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644196E626F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3E36E63E8
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbjDRMce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45196 "EHLO
+        id S231934AbjDRMoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbjDRMcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:32 -0400
+        with ESMTP id S231927AbjDRMoW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 343A29747
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40407118CB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59F6A631ED
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C440C433EF;
-        Tue, 18 Apr 2023 12:31:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D31A362DF1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA85BC4339B;
+        Tue, 18 Apr 2023 12:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821095;
-        bh=dPdHkVAiarSeIk5b18CdbCAPSB++eKPQoDba17Za3RM=;
+        s=korg; t=1681821860;
+        bh=5l2slLF3qmFmmZKY6w6pmgMXbWt6XEVmxN8tjHoa7Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIklpMgq561NyXH7gDfVoUi/fOQfj+S8rMPCiUQ2sua0pHDYBAvmg/O35sKg4WCsr
-         J9LYsBqx/XhC4EGEluOcEAfB0zkOD40UkisD6ykTy5iHU25yeJXvIYFRByo+R1KDR+
-         SYJURWxIsX0YtYPjAKx9AKlPxVCuFn3opm31WoLc=
+        b=g8ULCp6VVWQDUrSUZXtCKKYq4WNXhkjeY1GvhzbQ/ItVAQy+h5eq7Ntr+OwnViSdg
+         28le6xlM/UbeaFTSByfu1iN534Owz6hZHVD4Nwr0TQBV5sR4lBMtZkKpRjbcW5EcU2
+         fMGcr3EvztIh4DjOT+iYEd0hZDqFMi19qQnfXJYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 89/92] xfs: shut down the filesystem if we screw up quota reservation
+        patches@lists.linux.dev, Liang Chen <liangchen.linux@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 068/134] skbuff: Fix a race between coalescing and releasing SKBs
 Date:   Tue, 18 Apr 2023 14:22:04 +0200
-Message-Id: <20230418120307.901727472@linuxfoundation.org>
+Message-Id: <20230418120315.347657602@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-commit 2a4bdfa8558ca2904dc17b83497dc82aa7fc05e9 upstream.
+[ Upstream commit 0646dc31ca886693274df5749cd0c8c1eaaeb5ca ]
 
-If we ever screw up the quota reservations enough to trip the
-assertions, something's wrong with the quota code.  Shut down the
-filesystem when this happens, because this is corruption.
+Commit 1effe8ca4e34 ("skbuff: fix coalescing for page_pool fragment
+recycling") allowed coalescing to proceed with non page pool page and page
+pool page when @from is cloned, i.e.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+to->pp_recycle    --> false
+from->pp_recycle  --> true
+skb_cloned(from)  --> true
+
+However, it actually requires skb_cloned(@from) to hold true until
+coalescing finishes in this situation. If the other cloned SKB is
+released while the merging is in process, from_shinfo->nr_frags will be
+set to 0 toward the end of the function, causing the increment of frag
+page _refcount to be unexpectedly skipped resulting in inconsistent
+reference counts. Later when SKB(@to) is released, it frees the page
+directly even though the page pool page is still in use, leading to
+use-after-free or double-free errors. So it should be prohibited.
+
+The double-free error message below prompted us to investigate:
+BUG: Bad page state in process swapper/1  pfn:0e0d1
+page:00000000c6548b28 refcount:-1 mapcount:0 mapping:0000000000000000
+index:0x2 pfn:0xe0d1
+flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc0000000 0000000000000000 ffffffff00000101 0000000000000000
+raw: 0000000000000002 0000000000000000 ffffffffffffffff 0000000000000000
+page dumped because: nonzero _refcount
+
+CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E      6.2.0+
+Call Trace:
+ <IRQ>
+dump_stack_lvl+0x32/0x50
+bad_page+0x69/0xf0
+free_pcp_prepare+0x260/0x2f0
+free_unref_page+0x20/0x1c0
+skb_release_data+0x10b/0x1a0
+napi_consume_skb+0x56/0x150
+net_rx_action+0xf0/0x350
+? __napi_schedule+0x79/0x90
+__do_softirq+0xc8/0x2b1
+__irq_exit_rcu+0xb9/0xf0
+common_interrupt+0x82/0xa0
+</IRQ>
+<TASK>
+asm_common_interrupt+0x22/0x40
+RIP: 0010:default_idle+0xb/0x20
+
+Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230413090353.14448-1-liangchen.linux@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_trans_dquot.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/core/skbuff.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/fs/xfs/xfs_trans_dquot.c
-+++ b/fs/xfs/xfs_trans_dquot.c
-@@ -15,6 +15,7 @@
- #include "xfs_trans_priv.h"
- #include "xfs_quota.h"
- #include "xfs_qm.h"
-+#include "xfs_error.h"
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 51db260f471f4..cd4b3a610961f 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -5409,18 +5409,18 @@ bool skb_try_coalesce(struct sk_buff *to, struct sk_buff *from,
+ 	if (skb_cloned(to))
+ 		return false;
  
- STATIC void	xfs_trans_alloc_dqinfo(xfs_trans_t *);
+-	/* In general, avoid mixing slab allocated and page_pool allocated
+-	 * pages within the same SKB. However when @to is not pp_recycle and
+-	 * @from is cloned, we can transition frag pages from page_pool to
+-	 * reference counted.
+-	 *
+-	 * On the other hand, don't allow coalescing two pp_recycle SKBs if
+-	 * @from is cloned, in case the SKB is using page_pool fragment
++	/* In general, avoid mixing page_pool and non-page_pool allocated
++	 * pages within the same SKB. Additionally avoid dealing with clones
++	 * with page_pool pages, in case the SKB is using page_pool fragment
+ 	 * references (PP_FLAG_PAGE_FRAG). Since we only take full page
+ 	 * references for cloned SKBs at the moment that would result in
+ 	 * inconsistent reference counts.
++	 * In theory we could take full references if @from is cloned and
++	 * !@to->pp_recycle but its tricky (due to potential race with
++	 * the clone disappearing) and rare, so not worth dealing with.
+ 	 */
+-	if (to->pp_recycle != (from->pp_recycle && !skb_cloned(from)))
++	if (to->pp_recycle != from->pp_recycle ||
++	    (from->pp_recycle && skb_cloned(from)))
+ 		return false;
  
-@@ -700,9 +701,14 @@ xfs_trans_dqresv(
- 					    XFS_TRANS_DQ_RES_INOS,
- 					    ninos);
- 	}
--	ASSERT(dqp->q_res_bcount >= be64_to_cpu(dqp->q_core.d_bcount));
--	ASSERT(dqp->q_res_rtbcount >= be64_to_cpu(dqp->q_core.d_rtbcount));
--	ASSERT(dqp->q_res_icount >= be64_to_cpu(dqp->q_core.d_icount));
-+
-+	if (XFS_IS_CORRUPT(mp,
-+		dqp->q_res_bcount < be64_to_cpu(dqp->q_core.d_bcount)) ||
-+	    XFS_IS_CORRUPT(mp,
-+		dqp->q_res_rtbcount < be64_to_cpu(dqp->q_core.d_rtbcount)) ||
-+	    XFS_IS_CORRUPT(mp,
-+		dqp->q_res_icount < be64_to_cpu(dqp->q_core.d_icount)))
-+		goto error_corrupt;
- 
- 	xfs_dqunlock(dqp);
- 	return 0;
-@@ -712,6 +718,10 @@ error_return:
- 	if (flags & XFS_QMOPT_ENOSPC)
- 		return -ENOSPC;
- 	return -EDQUOT;
-+error_corrupt:
-+	xfs_dqunlock(dqp);
-+	xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
-+	return -EFSCORRUPTED;
- }
- 
- 
+ 	if (len <= skb_tailroom(to)) {
+-- 
+2.39.2
+
 
 
