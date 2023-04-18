@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 595066E5EB0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 12:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 113AE6E5EB1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 12:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231302AbjDRK0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 06:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50572 "EHLO
+        id S231304AbjDRK0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 06:26:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231307AbjDRKZh (ORCPT
+        with ESMTP id S231324AbjDRKZh (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 06:25:37 -0400
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0BDB9ECC;
-        Tue, 18 Apr 2023 03:25:22 -0700 (PDT)
-Received: by mail-lj1-x22f.google.com with SMTP id 38308e7fff4ca-2a8b766322bso19580371fa.1;
-        Tue, 18 Apr 2023 03:25:22 -0700 (PDT)
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853BE9758;
+        Tue, 18 Apr 2023 03:25:23 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id 38308e7fff4ca-2a8ba5f1d6bso18088411fa.2;
+        Tue, 18 Apr 2023 03:25:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20221208; t=1681813521; x=1684405521;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=3eqsG3JIOUnwL2J/03j4BZMVHjdVi/38PpyBzyrx03A=;
-        b=ARgOuIPer0pk3cxOb5BQ4uGOAAbcVDYDIRYrjsPt1m5UlkhK4gDxW6s19LbF8HymUy
-         Bh10q7D7nFm45HZF5K1xeXsmTB5URRB7TyLdkVXNB6rBls9jYBSVhMlYOJ48SNSigMQa
-         JfBgq3BHQAzMrDL+1X9COxZFhN8OGnwASKciSnfFEL+Y+jirLmjXfnQpcYDWAIRMuW50
-         ygjRcn49jM84HlJr+8Jfihlmp+8dHYp/Y1zl6Vhtq3BMrDXiU2xNDwiD32zurJC8aN70
-         qj68O3Ti2wAthG4eOXsRUdDul9V5OkRyCygo6j+Gh6z1cFpcKgFSVhBXbtPluHrhdunh
-         qyqw==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=f8EDCVWrrYjmdhE+3VIsyJI2fCbptGUdt113PnBa7as=;
+        b=imJsla87cGI4sfCU7nvsUDxE60K8yguI5a6RXOkU3X9pu0SEiy7BOzh5gXZy0WKyFB
+         eJAnT0SYMmCz3gveVIO4idMBrBTdYYXyYpK5rM4qP/DU+o/N5s2/p2UR52NAvHP3wecO
+         1HbfCh6JxapW5D41LHyG107xz3hYHEwd3Ug6lr2ZIe4Gn9B3MPKgRXgKKyYSMGP82ZsG
+         xdzxgSd+mbgxvXuykIjs7oKjIeD+i3ew09iaYeMClvVty6y02f2ZRKlPKvTw/h+Fbp+5
+         1q0YM/xLYNtXx8eARpASjcZByV5OLiR2MOoxDgGkEXYYIjalOOhxNreC/zxT/KOp+rSS
+         uz2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20221208; t=1681813521; x=1684405521;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3eqsG3JIOUnwL2J/03j4BZMVHjdVi/38PpyBzyrx03A=;
-        b=kkp+RA4pkzwlnjwupu5OADku8XO1rnSpKxK2563Kywr24LN52P2vzKzPLv5K6pn4kj
-         suYuNJEaICEfM2TSwUO558i7RcSesGJnWAiuej18gA/MmhwKrTkESbYb5VhYSt90/p7h
-         +SR/UeW+kZyTSwYjTG+isfOeLIiluvL6XJVg34fdbd5O5w35Frg/bCjVz/QVPY/OEH7q
-         k5rx/0dm4tG+77PDmvIIlfLezZKEIopkMU3HodTE2gBYq9QMqTcObfO6c98WYhgGLPuJ
-         kjpHyLOBhF3m+09XetMRlKOpoi/uGqBGNuhkK17aWRd+Mu4FtxsUmMoei4lo+Ak0wUBS
-         3G5Q==
-X-Gm-Message-State: AAQBX9fex37WxrOgbNvjX8lTrqpUbsq7NBlrSb/U9q5As07N6V6Jjkz/
-        eS/zocEQ0zL7jO4mbHLsQdFCdKiism8=
-X-Google-Smtp-Source: AKy350bOHqAjngubK0JB/JofcgRK9SEksGCAlT0jRSnwEuS0C4vG0vm9mcG8QtatZO5UyGy8OYRzGg==
-X-Received: by 2002:ac2:54b3:0:b0:4eb:341c:ecc1 with SMTP id w19-20020ac254b3000000b004eb341cecc1mr2729280lfk.5.1681813520884;
-        Tue, 18 Apr 2023 03:25:20 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f8EDCVWrrYjmdhE+3VIsyJI2fCbptGUdt113PnBa7as=;
+        b=KRwfNzMvAVa1aDGje6CRvenM1zsYnY4Yl6/4qaw45fG3RxB9hMaq6SHO4ASKrYHClh
+         Ki6nhUCoRK5+BIf9csnKjXLEcKw4EicWymGoCAmpcV3yVmephJMeCycupp04NrC2wQ+C
+         I+e827JAHwjtlu77cvgXzd1j8zHqYCBqmWLtY6Q/0ZWbd3tWboM3YzuZCtyCuZeFTVJo
+         ZioJq+lljUHVWzXDw79a6kfiba5wjRo3EpIb7NanruzpEOZx+/m0+VPLHF4lcdhS8LoO
+         a7XmdVvX6s2q+jrD1+l0B04n2eSuaknl26uuVcigAUTrLoYXwFL70i1KOww1brBgD0WF
+         UF2A==
+X-Gm-Message-State: AAQBX9eY4ACfVe5wV/DUl6YSeWi61wcaV4Xl7T6Rx+NdNYDov1n5ia0p
+        In83+5E9oMbob2QDajVkIgTMXSP0rp8=
+X-Google-Smtp-Source: AKy350b6AXBnTOK7aSrfdilfwa8+ZRQvuBN3Ns2GYHU+al99cR6iDo+ckM+4wCFKcsXmUOOGlstfcg==
+X-Received: by 2002:a19:ac05:0:b0:4ec:8c1e:c816 with SMTP id g5-20020a19ac05000000b004ec8c1ec816mr2594631lfc.34.1681813521503;
+        Tue, 18 Apr 2023 03:25:21 -0700 (PDT)
 Received: from pc638.lan ([155.137.26.201])
         by smtp.gmail.com with ESMTPSA id z13-20020ac25ded000000b004ec8de8ab43sm2332421lfq.139.2023.04.18.03.25.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 03:25:20 -0700 (PDT)
+        Tue, 18 Apr 2023 03:25:21 -0700 (PDT)
 From:   "Uladzislau Rezki (Sony)" <urezki@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     RCU <rcu@vger.kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
@@ -55,10 +56,12 @@ Cc:     RCU <rcu@vger.kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
         Ziwei Dai <ziwei.dai@unisoc.com>,
         Mukesh Ojha <quic_mojha@quicinc.com>,
         "Paul E . McKenney" <paulmck@kernel.org>
-Subject: [PATCH 1/1] linux-5.10/rcu/kvfree: Avoid freeing new kfree_rcu() memory after old grace period
-Date:   Tue, 18 Apr 2023 12:25:16 +0200
-Message-Id: <20230418102518.5911-1-urezki@gmail.com>
+Subject: [PATCH 1/1] linux-5.15/rcu/kvfree: Avoid freeing new kfree_rcu() memory after old grace period
+Date:   Tue, 18 Apr 2023 12:25:17 +0200
+Message-Id: <20230418102518.5911-2-urezki@gmail.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230418102518.5911-1-urezki@gmail.com>
+References: <20230418102518.5911-1-urezki@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -163,7 +166,7 @@ grace period has completed for all three categories.
 
 v2: Use helper function instead of inserted code block at kfree_rcu_monitor().
 
-[UR: backport to 5.10-stable]
+[UR: backport to 5.15-stable]
 [UR: Added missing need_offload_krc() function]
 Fixes: 34c881745549 ("rcu: Support kfree_bulk() interface in kfree_rcu()")
 Fixes: 5f3c8d620447 ("rcu/tree: Maintain separate array for vmalloc ptrs")
@@ -174,14 +177,14 @@ Tested-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 ---
- kernel/rcu/tree.c | 49 +++++++++++++++++++++++++++++++++--------------
- 1 file changed, 35 insertions(+), 14 deletions(-)
+ kernel/rcu/tree.c | 39 +++++++++++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 8 deletions(-)
 
 diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 9cce4e13af41..ab045cad105f 100644
+index cf101da389b0..6d638f282967 100644
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
-@@ -3280,6 +3280,30 @@ static void kfree_rcu_work(struct work_struct *work)
+@@ -3327,6 +3327,30 @@ static void kfree_rcu_work(struct work_struct *work)
  	}
  }
  
@@ -210,19 +213,17 @@ index 9cce4e13af41..ab045cad105f 100644
 +}
 +
  /*
-  * Schedule the kfree batch RCU work to run in workqueue context after a GP.
-  *
-@@ -3297,16 +3321,13 @@ static inline bool queue_kfree_rcu_work(struct kfree_rcu_cpu *krcp)
+  * This function is invoked after the KFREE_DRAIN_JIFFIES timeout.
+  */
+@@ -3343,14 +3367,13 @@ static void kfree_rcu_monitor(struct work_struct *work)
  	for (i = 0; i < KFREE_N_BATCHES; i++) {
- 		krwp = &(krcp->krw_arr[i]);
+ 		struct kfree_rcu_cpu_work *krwp = &(krcp->krw_arr[i]);
  
--		/*
--		 * Try to detach bkvhead or head and attach it over any
--		 * available corresponding free channel. It can be that
--		 * a previous RCU batch is in progress, it means that
--		 * immediately to queue another one is not possible so
--		 * return false to tell caller to retry.
--		 */
+-		// Try to detach bkvhead or head and attach it over any
+-		// available corresponding free channel. It can be that
+-		// a previous RCU batch is in progress, it means that
+-		// immediately to queue another one is not possible so
+-		// in that case the monitor work is rearmed.
 -		if ((krcp->bkvhead[0] && !krwp->bkvhead_free[0]) ||
 -			(krcp->bkvhead[1] && !krwp->bkvhead_free[1]) ||
 -				(krcp->head && !krwp->head_free)) {
@@ -233,26 +234,9 @@ index 9cce4e13af41..ab045cad105f 100644
 +			continue;
 +
 +		if (need_offload_krc(krcp)) {
- 			// Channel 1 corresponds to SLAB ptrs.
- 			// Channel 2 corresponds to vmalloc ptrs.
+ 			// Channel 1 corresponds to the SLAB-pointer bulk path.
+ 			// Channel 2 corresponds to vmalloc-pointer bulk path.
  			for (j = 0; j < FREE_N_CHANNELS; j++) {
-@@ -3333,12 +3354,12 @@ static inline bool queue_kfree_rcu_work(struct kfree_rcu_cpu *krcp)
- 			 */
- 			queue_rcu_work(system_wq, &krwp->rcu_work);
- 		}
--
--		// Repeat if any "free" corresponding channel is still busy.
--		if (krcp->bkvhead[0] || krcp->bkvhead[1] || krcp->head)
--			repeat = true;
- 	}
- 
-+	// Repeat if any "free" corresponding channel is still busy.
-+	if (need_offload_krc(krcp))
-+		repeat = true;
-+
- 	return !repeat;
- }
- 
 -- 
 2.30.2
 
