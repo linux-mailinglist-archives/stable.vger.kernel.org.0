@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBFD6E6208
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C429C6E6449
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbjDRM33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:29:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40434 "EHLO
+        id S232045AbjDRMrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231438AbjDRM32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:28 -0400
+        with ESMTP id S232068AbjDRMrs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F361C65F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE75B757
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CC61628B4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF98C4339B;
-        Tue, 18 Apr 2023 12:29:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0F2762D1D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA847C4339C;
+        Tue, 18 Apr 2023 12:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820945;
-        bh=gqJicJtcT82xki/diuI83cpATTBe/d4ZT1A/6jqLHgI=;
+        s=korg; t=1681822064;
+        bh=tGN7Nof0RRG5/ebQ/BvD21XinrFNMlJo2LqnY65TsfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMntdfGSBC6d5B2rOL9P9hvaynlQbba34Wpbi2T3tGvrkkNySvirXpdOyj/Ee/KYY
-         Dt5kC+nBlcevj0ZhEQXQaIPe8AraGM8/vNqAersyxnSX6AHDqR8CKX8z75PG1Iik9G
-         G4ILNvlr1B9duFumgk+MKGlekSBkeyC2jvUZqm84=
+        b=jKHffSl/E4EjBB10DtQHYU4SKpUcNFMHS8l8GlIm5b7s5UEONMqnyWEI5y7VCv/nY
+         IT2j/aZ6Kd2ChlpjAsjYtw+wyJyot+8jxKRvYZGDyaNue1dFg8cScWjnea561Ie7I0
+         iqH91CKRovMRjbmRfoxFszAu3zY4czy4tDVOrfIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
-        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 31/92] nilfs2: fix sysfs interface lifetime
+        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 6.2 001/139] Revert "pinctrl: amd: Disable and mask interrupts on resume"
 Date:   Tue, 18 Apr 2023 14:21:06 +0200
-Message-Id: <20230418120305.931783047@linuxfoundation.org>
+Message-Id: <20230418120313.783249201@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,118 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Kornel Dulęba <korneld@chromium.org>
 
-commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
+commit 534e465845ebfb4a97eb5459d3931a0b35e3b9a5 upstream.
 
-The current nilfs2 sysfs support has issues with the timing of creation
-and deletion of sysfs entries, potentially leading to null pointer
-dereferences, use-after-free, and lockdep warnings.
+This reverts commit b26cd9325be4c1fcd331b77f10acb627c560d4d7.
 
-Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
-metadata file "cpfile", "sufile", or "dat", but
-nilfs_sysfs_create_device_group that creates those attributes is executed
-before the inodes for these metadata files are loaded, and
-nilfs_sysfs_delete_device_group which deletes these sysfs entries is
-called after releasing their metadata file inodes.
+This patch introduces a regression on Lenovo Z13, which can't wake
+from the lid with it applied; and some unspecified AMD based Dell
+platforms are unable to wake from hitting the power button
 
-Therefore, access to some of these sysfs attributes may occur outside of
-the lifetime of these metadata files, resulting in inode NULL pointer
-dereferences or use-after-free.
-
-In addition, the call to nilfs_sysfs_create_device_group() is made during
-the locking period of the semaphore "ns_sem" of nilfs object, so the
-shrinker call caused by the memory allocation for the sysfs entries, may
-derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
-nilfs_evict_inode()".
-
-Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
-locks via its error handler __nilfs_error(), this causes lockdep to report
-circular locking.  This is a false positive and no circular locking
-actually occurs as no inodes exist yet when
-nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
-warnings can be resolved by simply moving the call to
-nilfs_sysfs_create_device_group() out of "ns_sem".
-
-This fixes these sysfs issues by revising where the device's sysfs
-interface is created/deleted and keeping its lifetime within the lifetime
-of the metadata files above.
-
-Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
-Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
-Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Kornel Dulęba <korneld@chromium.org>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20230411134932.292287-1-korneld@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/super.c     |    2 ++
- fs/nilfs2/the_nilfs.c |   12 +++++++-----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++--------------------
+ 1 file changed, 16 insertions(+), 20 deletions(-)
 
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -477,6 +477,7 @@ static void nilfs_put_super(struct super
- 		up_write(&nilfs->ns_sem);
- 	}
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -865,34 +865,32 @@ static const struct pinconf_ops amd_pinc
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
  
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
-@@ -1103,6 +1104,7 @@ nilfs_fill_super(struct super_block *sb,
- 	nilfs_put_root(fsroot);
- 
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
+-static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
  {
- 	might_sleep();
- 	if (nilfs_init(nilfs)) {
--		nilfs_sysfs_delete_device_group(nilfs);
- 		brelse(nilfs->ns_sbh[0]);
- 		brelse(nilfs->ns_sbh[1]);
- 	}
-@@ -275,6 +274,10 @@ int load_nilfs(struct the_nilfs *nilfs,
- 		goto failed;
- 	}
+-	const struct pin_desc *pd;
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+ 	unsigned long flags;
+ 	u32 pin_reg, mask;
++	int i;
  
-+	err = nilfs_sysfs_create_device_group(sb);
-+	if (unlikely(err))
-+		goto sysfs_error;
+ 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+ 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+ 		BIT(WAKE_CNTRL_OFF_S4);
+ 
+-	pd = pin_desc_get(gpio_dev->pctrl, pin);
+-	if (!pd)
+-		return;
++	for (i = 0; i < desc->npins; i++) {
++		int pin = desc->pins[i].number;
++		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+ 
+-	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+-	pin_reg = readl(gpio_dev->base + pin * 4);
+-	pin_reg &= ~mask;
+-	writel(pin_reg, gpio_dev->base + pin * 4);
+-	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+-}
++		if (!pd)
++			continue;
+ 
+-static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+-{
+-	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+-	int i;
++		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 
+-	for (i = 0; i < desc->npins; i++)
+-		amd_gpio_irq_init_pin(gpio_dev, i);
++		pin_reg = readl(gpio_dev->base + i * 4);
++		pin_reg &= ~mask;
++		writel(pin_reg, gpio_dev->base + i * 4);
 +
- 	if (valid_fs)
- 		goto skip_recovery;
++		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++	}
+ }
  
-@@ -336,6 +339,9 @@ int load_nilfs(struct the_nilfs *nilfs,
- 	goto failed;
+ #ifdef CONFIG_PM_SLEEP
+@@ -945,10 +943,8 @@ static int amd_gpio_resume(struct device
+ 	for (i = 0; i < desc->npins; i++) {
+ 		int pin = desc->pins[i].number;
  
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
-+
-+ sysfs_error:
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_dat);
-@@ -668,10 +674,6 @@ int init_nilfs(struct the_nilfs *nilfs,
- 	if (err)
- 		goto failed_sbh;
+-		if (!amd_gpio_should_save(gpio_dev, pin)) {
+-			amd_gpio_irq_init_pin(gpio_dev, pin);
++		if (!amd_gpio_should_save(gpio_dev, pin))
+ 			continue;
+-		}
  
--	err = nilfs_sysfs_create_device_group(sb);
--	if (err)
--		goto failed_sbh;
--
- 	set_nilfs_init(nilfs);
- 	err = 0;
-  out:
+ 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
 
 
