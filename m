@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E07F36E649A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E404D6E6268
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232159AbjDRMui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
+        id S229769AbjDRMc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:32:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232152AbjDRMuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:37 -0400
+        with ESMTP id S230280AbjDRMc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F8916B14
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF4ECC2C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EB0A6341E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BB8C433EF;
-        Tue, 18 Apr 2023 12:50:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F499631F4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85033C4339C;
+        Tue, 18 Apr 2023 12:32:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822232;
-        bh=wn4iI1GBaDSagx2FnwtlVAJZGs1bE4PSVxvDd8xHZAM=;
+        s=korg; t=1681821121;
+        bh=g1JdaTqc+GJwXQHupKB9cJr+LsSeKB6hTeeliZTCv5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHlEJzY57lRlgcsIproCLh6rNqE8a3ai/dFzADZWzEUdS9GbwBnVH23h6og7EVlMg
-         bMPNWqgvxHr89IpPuJjRGUIl1bYcAKKsEjUs0/5d5cnocovL/AbvPJ2Nx2mHf4Ykau
-         YeOOCVa20yFCy+Cwg1lWBroHDpz1wg+k+4qZzz7E=
+        b=VYu+/sxmRH8rab+uMucgOA8z6V3yujokpF61mvATO9Tut2/Bn7j7IDxn69F2tdS4b
+         btCh7N9DOrqH1wctOuib1Ii/tsXAEB3OUIXKgaDGt/qLEznyIMGxpm0JPFOvBbfkEp
+         bPcLbEePIED7Y1fAvVAdFz/o5is4PlKpN1Y7nI3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, George Guo <guodongtai@kylinos.cn>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        WANG Xuerui <git@xen0n.name>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 043/139] LoongArch, bpf: Fix jit to skip speculation barrier opcode
+        patches@lists.linux.dev,
+        Gregor Herburger <gregor.herburger@tq-group.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Federico Vaga <federico.vaga@cern.ch>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 73/92] i2c: ocores: generate stop condition after timeout in polling mode
 Date:   Tue, 18 Apr 2023 14:21:48 +0200
-Message-Id: <20230418120315.265927870@linuxfoundation.org>
+Message-Id: <20230418120307.347576921@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +58,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Guo <guodongtai@kylinos.cn>
+From: Gregor Herburger <gregor.herburger@tq-group.com>
 
-[ Upstream commit a6f6a95f25803500079513780d11a911ce551d76 ]
+[ Upstream commit f8160d3b35fc94491bb0cb974dbda310ef96c0e2 ]
 
-Just skip the opcode(BPF_ST | BPF_NOSPEC) in the BPF JIT instead of
-failing to JIT the entire program, given LoongArch currently has no
-couterpart of a speculation barrier instruction. To verify the issue,
-use the ltp testcase as shown below.
+In polling mode, no stop condition is generated after a timeout. This
+causes SCL to remain low and thereby block the bus. If this happens
+during a transfer it can cause slaves to misinterpret the subsequent
+transfer and return wrong values.
 
-Also, Wang says:
+To solve this, pass the ETIMEDOUT error up from ocores_process_polling()
+instead of setting STATE_ERROR directly. The caller is adjusted to call
+ocores_process_timeout() on error both in polling and in IRQ mode, which
+will set STATE_ERROR and generate a stop condition.
 
-  I can confirm there's currently no speculation barrier equivalent
-  on LonogArch. (Loongson says there are builtin mitigations for
-  Spectre-V1 and V2 on their chips, and AFAIK efforts to port the
-  exploits to mips/LoongArch have all failed a few years ago.)
-
-Without this patch:
-
-  $ ./bpf_prog02
-  [...]
-  bpf_common.c:123: TBROK: Failed verification: ??? (524)
-  [...]
-  Summary:
-  passed   0
-  failed   0
-  broken   1
-  skipped  0
-  warnings 0
-
-With this patch:
-
-  $ ./bpf_prog02
-  [...]
-  Summary:
-  passed   0
-  failed   0
-  broken   0
-  skipped  0
-  warnings 0
-
-Fixes: 5dc615520c4d ("LoongArch: Add BPF JIT support")
-Signed-off-by: George Guo <guodongtai@kylinos.cn>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: WANG Xuerui <git@xen0n.name>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Link: https://lore.kernel.org/bpf/20230328071335.2664966-1-guodongtai@kylinos.cn
+Fixes: 69c8c0c0efa8 ("i2c: ocores: add polling interface")
+Signed-off-by: Gregor Herburger <gregor.herburger@tq-group.com>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Acked-by: Peter Korsgaard <peter@korsgaard.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Federico Vaga <federico.vaga@cern.ch>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/loongarch/net/bpf_jit.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-ocores.c | 35 ++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 16 deletions(-)
 
-diff --git a/arch/loongarch/net/bpf_jit.c b/arch/loongarch/net/bpf_jit.c
-index 288003a9f0cae..d586df48ecc64 100644
---- a/arch/loongarch/net/bpf_jit.c
-+++ b/arch/loongarch/net/bpf_jit.c
-@@ -1022,6 +1022,10 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx, bool ext
- 		emit_atomic(insn, ctx);
- 		break;
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index ca8b3ecfa93d1..1c3595c8a761a 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -343,18 +343,18 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
+  * ocores_isr(), we just add our polling code around it.
+  *
+  * It can run in atomic context
++ *
++ * Return: 0 on success, -ETIMEDOUT on timeout
+  */
+-static void ocores_process_polling(struct ocores_i2c *i2c)
++static int ocores_process_polling(struct ocores_i2c *i2c)
+ {
+-	while (1) {
+-		irqreturn_t ret;
+-		int err;
++	irqreturn_t ret;
++	int err = 0;
  
-+	/* Speculation barrier */
-+	case BPF_ST | BPF_NOSPEC:
-+		break;
++	while (1) {
+ 		err = ocores_poll_wait(i2c);
+-		if (err) {
+-			i2c->state = STATE_ERROR;
++		if (err)
+ 			break; /* timeout */
+-		}
+ 
+ 		ret = ocores_isr(-1, i2c);
+ 		if (ret == IRQ_NONE)
+@@ -365,13 +365,15 @@ static void ocores_process_polling(struct ocores_i2c *i2c)
+ 					break;
+ 		}
+ 	}
 +
- 	default:
- 		pr_err("bpf_jit: unknown opcode %02x\n", code);
- 		return -EINVAL;
++	return err;
+ }
+ 
+ static int ocores_xfer_core(struct ocores_i2c *i2c,
+ 			    struct i2c_msg *msgs, int num,
+ 			    bool polling)
+ {
+-	int ret;
++	int ret = 0;
+ 	u8 ctrl;
+ 
+ 	ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+@@ -389,15 +391,16 @@ static int ocores_xfer_core(struct ocores_i2c *i2c,
+ 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+ 
+ 	if (polling) {
+-		ocores_process_polling(i2c);
++		ret = ocores_process_polling(i2c);
+ 	} else {
+-		ret = wait_event_timeout(i2c->wait,
+-					 (i2c->state == STATE_ERROR) ||
+-					 (i2c->state == STATE_DONE), HZ);
+-		if (ret == 0) {
+-			ocores_process_timeout(i2c);
+-			return -ETIMEDOUT;
+-		}
++		if (wait_event_timeout(i2c->wait,
++				       (i2c->state == STATE_ERROR) ||
++				       (i2c->state == STATE_DONE), HZ) == 0)
++			ret = -ETIMEDOUT;
++	}
++	if (ret) {
++		ocores_process_timeout(i2c);
++		return ret;
+ 	}
+ 
+ 	return (i2c->state == STATE_DONE) ? num : -EIO;
 -- 
 2.39.2
 
