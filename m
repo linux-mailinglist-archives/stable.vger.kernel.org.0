@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 946236E6293
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A100E6E61FB
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231703AbjDRMdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:33:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47504 "EHLO
+        id S231515AbjDRM3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231666AbjDRMdp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:45 -0400
+        with ESMTP id S231481AbjDRM2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 336E512586
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E9A8684
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED7C96323A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CD7DC433D2;
-        Tue, 18 Apr 2023 12:33:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AB73631BC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DD8EC433D2;
+        Tue, 18 Apr 2023 12:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821198;
-        bh=Ld2R06EyD3db4l9Qo1PkejYPI3Iuyg+TgTFKKu7MAo8=;
+        s=korg; t=1681820913;
+        bh=AcPItg8NvLaplLX1JB3P8phC12zXZ2Dd2KRzeOTis4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k93FLA31B7wzoch+rtUTq7Lilv/7QUP7LqiYdw54miBq5UezHWVPLSV0eIXghh98n
-         skCn497juF2p8bUxDF4zlo061uTmQIXFU5j46QMZVD+HfyrzB88wITGeQAwJ0DSclf
-         EBMKSi6Taz//b0/qTRoxU9i/+cIHucV/25LMcyMw=
+        b=wu4mHW42jUP2vbIsdy5XQuJUVVRbosIXgyYPgHbYzeNtYAeuG7x30PDN6VtJslAmP
+         kaUeNzc0qsbxjZ1a5nWurW6u/zfNbiZEWgHxaqARzOIcWDZco0An6QQBvUZRR3BSSf
+         vMdv26XHF153eikndggg/AqB8XKYPhbBdpezPXR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhong Jinghua <zhongjinghua@huawei.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/124] scsi: iscsi_tcp: Check that sock is valid before iscsi_set_param()
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        D Scott Phillips <scott@os.amperecomputing.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 20/92] xhci: also avoid the XHCI_ZERO_64B_REGS quirk with a passthrough iommu
 Date:   Tue, 18 Apr 2023 14:20:55 +0200
-Message-Id: <20230418120311.116088456@linuxfoundation.org>
+Message-Id: <20230418120305.506177958@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhong Jinghua <zhongjinghua@huawei.com>
+From: D Scott Phillips <scott@os.amperecomputing.com>
 
-[ Upstream commit 48b19b79cfa37b1e50da3b5a8af529f994c08901 ]
+commit ecaa4902439298f6b0e29f47424a86b310a9ff4f upstream.
 
-The validity of sock should be checked before assignment to avoid incorrect
-values. Commit 57569c37f0ad ("scsi: iscsi: iscsi_tcp: Fix null-ptr-deref
-while calling getpeername()") introduced this change which may lead to
-inconsistent values of tcp_sw_conn->sendpage and conn->datadgst_en.
+Previously the quirk was skipped when no iommu was present. The same
+rationale for skipping the quirk also applies in the iommu.passthrough=1
+case.
 
-Fix the issue by moving the position of the assignment.
+Skip applying the XHCI_ZERO_64B_REGS quirk if the device's iommu domain is
+passthrough.
 
-Fixes: 57569c37f0ad ("scsi: iscsi: iscsi_tcp: Fix null-ptr-deref while calling getpeername()")
-Signed-off-by: Zhong Jinghua <zhongjinghua@huawei.com>
-Link: https://lore.kernel.org/r/20230329071739.2175268-1-zhongjinghua@huaweicloud.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 12de0a35c996 ("xhci: Add quirk to zero 64bit registers on Renesas PCIe controllers")
+Cc: stable <stable@kernel.org>
+Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230330143056.1390020-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/iscsi_tcp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index 252d7881f99c2..def9fac7aa4f4 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -721,13 +721,12 @@ static int iscsi_sw_tcp_conn_set_param(struct iscsi_cls_conn *cls_conn,
- 		iscsi_set_param(cls_conn, param, buf, buflen);
- 		break;
- 	case ISCSI_PARAM_DATADGST_EN:
--		iscsi_set_param(cls_conn, param, buf, buflen);
--
- 		mutex_lock(&tcp_sw_conn->sock_lock);
- 		if (!tcp_sw_conn->sock) {
- 			mutex_unlock(&tcp_sw_conn->sock_lock);
- 			return -ENOTCONN;
- 		}
-+		iscsi_set_param(cls_conn, param, buf, buflen);
- 		tcp_sw_conn->sendpage = conn->datadgst_en ?
- 			sock_no_sendpage : tcp_sw_conn->sock->ops->sendpage;
- 		mutex_unlock(&tcp_sw_conn->sock_lock);
--- 
-2.39.2
-
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -9,6 +9,7 @@
+  */
+ 
+ #include <linux/pci.h>
++#include <linux/iommu.h>
+ #include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/log2.h>
+@@ -226,6 +227,7 @@ int xhci_reset(struct xhci_hcd *xhci, u6
+ static void xhci_zero_64b_regs(struct xhci_hcd *xhci)
+ {
+ 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
++	struct iommu_domain *domain;
+ 	int err, i;
+ 	u64 val;
+ 	u32 intrs;
+@@ -244,7 +246,9 @@ static void xhci_zero_64b_regs(struct xh
+ 	 * an iommu. Doing anything when there is no iommu is definitely
+ 	 * unsafe...
+ 	 */
+-	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !device_iommu_mapped(dev))
++	domain = iommu_get_domain_for_dev(dev);
++	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !domain ||
++	    domain->type == IOMMU_DOMAIN_IDENTITY)
+ 		return;
+ 
+ 	xhci_info(xhci, "Zeroing 64bit base registers, expecting fault\n");
 
 
