@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B2E46E6305
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6346E62DA
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231324AbjDRMhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52422 "EHLO
+        id S231720AbjDRMf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbjDRMhR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4808113862
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:16 -0700 (PDT)
+        with ESMTP id S231715AbjDRMf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC6C1CF92
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D67DC632A0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93E0C433EF;
-        Tue, 18 Apr 2023 12:37:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A1FA63228
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 317A4C433EF;
+        Tue, 18 Apr 2023 12:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821435;
-        bh=cJsINUV4O0+bfXc26jmWZ2cSVuNdMVSmedNNpH0y7mI=;
+        s=korg; t=1681821356;
+        bh=U5HtpG+d0dVGhYPv5g+6ZximuYd5Po6rEhcReZqduq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7bD8qG40OEMYtbpCw0lItZKxHiS+jhqN+k/MBluEbDHisC/Jbm4kddS61H5yRhQv
-         vdlS3KCuXPVPvn+5tGRCTNBGb+EUv0VdCCaxUSJojghYt2wvEkpSFuNhrnzsbsKNOp
-         Hra6SYfmt8OU6fsA/lGPu7e37ISyLQI5boIzvUeo=
+        b=nCnlkIekjOi4y2rMibLCqtqeIVw4c58e6JB8PXs8IqCqaXLzmOg+UdBM/E9OCobI5
+         CKRwPsK+T6kF7hmwmrh0kyM2LDUa+so/n51cx4hwayVDS/iWe454mer93XUlHe/afg
+         Dlb81yEuA/GeV8q1+aKHjJ9ZtDJNxKQ2oZhl6fIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Simon Horman <simon.horman@corigine.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/124] wifi: mwifiex: mark OF related data as maybe unused
-Date:   Tue, 18 Apr 2023 14:21:46 +0200
-Message-Id: <20230418120313.032302424@linuxfoundation.org>
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 088/124] i2c: imx-lpi2c: clean rx/tx buffers upon new message
+Date:   Tue, 18 Apr 2023 14:21:47 +0200
+Message-Id: <20230418120313.061500545@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
 References: <20230418120309.539243408@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,52 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 139f6973bf140c65d4d1d4bde5485badb4454d7a ]
+[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
 
-The driver can be compile tested with !CONFIG_OF making certain data
-unused:
+When start sending a new message clear the Rx & Tx buffer pointers in
+order to avoid using stale pointers.
 
-  drivers/net/wireless/marvell/mwifiex/sdio.c:498:34: error: ‘mwifiex_sdio_of_match_table’ defined but not used [-Werror=unused-const-variable=]
-  drivers/net/wireless/marvell/mwifiex/pcie.c:175:34: error: ‘mwifiex_pcie_of_match_table’ defined but not used [-Werror=unused-const-variable=]
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230312132523.352182-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c | 2 +-
- drivers/net/wireless/marvell/mwifiex/sdio.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index b0024893a1cba..50c34630ca302 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -183,7 +183,7 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
- 	.can_ext_scan = true,
- };
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 2018dbcf241e9..d45ec26d51cb9 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -462,6 +462,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ 		if (num == 1 && msgs[0].len == 0)
+ 			goto stop;
  
--static const struct of_device_id mwifiex_pcie_of_match_table[] = {
-+static const struct of_device_id mwifiex_pcie_of_match_table[] __maybe_unused = {
- 	{ .compatible = "pci11ab,2b42" },
- 	{ .compatible = "pci1b4b,2b42" },
- 	{ }
-diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
-index 7fb6eef409285..b09e60fedeb16 100644
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -484,7 +484,7 @@ static struct memory_type_mapping mem_type_mapping_tbl[] = {
- 	{"EXTLAST", NULL, 0, 0xFE},
- };
- 
--static const struct of_device_id mwifiex_sdio_of_match_table[] = {
-+static const struct of_device_id mwifiex_sdio_of_match_table[] __maybe_unused = {
- 	{ .compatible = "marvell,sd8787" },
- 	{ .compatible = "marvell,sd8897" },
- 	{ .compatible = "marvell,sd8997" },
++		lpi2c_imx->rx_buf = NULL;
++		lpi2c_imx->tx_buf = NULL;
+ 		lpi2c_imx->delivered = 0;
+ 		lpi2c_imx->msglen = msgs[i].len;
+ 		init_completion(&lpi2c_imx->complete);
 -- 
 2.39.2
 
