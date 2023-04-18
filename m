@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D156E63A9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614AA6E6474
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231878AbjDRMm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59782 "EHLO
+        id S232124AbjDRMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231892AbjDRMmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:25 -0400
+        with ESMTP id S232102AbjDRMtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D786D3C12
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3D214F6C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E60563329
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B29BAC433D2;
-        Tue, 18 Apr 2023 12:42:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A38633F5
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76ECC433EF;
+        Tue, 18 Apr 2023 12:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821733;
-        bh=zkQ5AhsawpZj7Xix93umrARHMynvPlxsFMYwEHx6efU=;
+        s=korg; t=1681822151;
+        bh=c1pR8cWxhFF/daZjSAkj5rolbIrm46/edDw3/QyGyRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAOXt9dItn1H2gI1PlBmprkUiwClCTsME9N+yQfGVLwA4U/9dE+0lFhi41h5lhK1Q
-         Vp20jbBRhqpIaba7aVMWjEjb1kunIBF5itoOa2aZh8iSwBzamEjQ7Q8sNpCdzyYUL4
-         zkEOkUn0ko1Qt6OIUCnIih0BoooaxywflftHrHaY=
+        b=XEvfKt7LbOJNDPMelioNpXCgpdNkNfiCDUAGZ27admRIGRMEo1SeWi5tq+veONYqJ
+         iV/xarjwiOCGo+vJBgwieNaD3z51EQLy/AD1MUcDm778nd7W23DB1SChtLlyDiUpfJ
+         4/tYuChlvPIWjDNUjW925/k4VLNczRD+8zuPsXy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stable@vger.kernel.org,
-        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.1 021/134] mtd: rawnand: meson: fix bitmask for length in command word
+        patches@lists.linux.dev,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.2 012/139] ALSA: hda/hdmi: disable KAE for Intel DG2
 Date:   Tue, 18 Apr 2023 14:21:17 +0200
-Message-Id: <20230418120313.730250702@linuxfoundation.org>
+Message-Id: <20230418120314.162279926@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit 93942b70461574ca7fc3d91494ca89b16a4c64c7 upstream.
+commit 6ab6f98fcdc9d4fbe245aa67de03542deea65322 upstream.
 
-Valid mask is 0x3FFF, without this patch the following problems were
-found:
+Use of keep-alive (KAE) has resulted in loss of audio on some A750/770
+cards as the transition from keep-alive to stream playback is not
+working as expected. As there is limited benefit of the new KAE mode
+on discrete cards, revert back to older silent-stream implementation
+on these systems.
 
-1) [    0.938914] Could not find a valid ONFI parameter page, trying
-                  bit-wise majority to recover it
-   [    0.947384] ONFI parameter recovery failed, aborting
-
-2) Read with disabled ECC mode was broken.
-
-Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/3794ffbf-dfea-e96f-1f97-fe235b005e19@sberdevices.ru
+Cc: stable@vger.kernel.org
+Fixes: 15175a4f2bbb ("ALSA: hda/hdmi: add keep-alive support for ADL-P and DG2")
+Link: https://gitlab.freedesktop.org/drm/intel/-/issues/8307
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20230413191153.3692049-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/meson_nand.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/meson_nand.c
-+++ b/drivers/mtd/nand/raw/meson_nand.c
-@@ -280,7 +280,7 @@ static void meson_nfc_cmd_access(struct
- 
- 	if (raw) {
- 		len = mtd->writesize + mtd->oobsize;
--		cmd = (len & GENMASK(5, 0)) | scrambler | DMA_DIR(dir);
-+		cmd = (len & GENMASK(13, 0)) | scrambler | DMA_DIR(dir);
- 		writel(cmd, nfc->reg_base + NFC_REG_CMD);
- 		return;
- 	}
-@@ -544,7 +544,7 @@ static int meson_nfc_read_buf(struct nan
- 	if (ret)
- 		goto out;
- 
--	cmd = NFC_CMD_N2M | (len & GENMASK(5, 0));
-+	cmd = NFC_CMD_N2M | (len & GENMASK(13, 0));
- 	writel(cmd, nfc->reg_base + NFC_REG_CMD);
- 
- 	meson_nfc_drain_cmd(nfc);
-@@ -568,7 +568,7 @@ static int meson_nfc_write_buf(struct na
- 	if (ret)
- 		return ret;
- 
--	cmd = NFC_CMD_M2N | (len & GENMASK(5, 0));
-+	cmd = NFC_CMD_M2N | (len & GENMASK(13, 0));
- 	writel(cmd, nfc->reg_base + NFC_REG_CMD);
- 
- 	meson_nfc_drain_cmd(nfc);
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -4604,7 +4604,7 @@ HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",
+ HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862818, "Raptorlake HDMI",	patch_i915_tgl_hdmi),
+-HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_adlp_hdmi),
++HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281b, "Elkhartlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281c, "Alderlake-P HDMI", patch_i915_adlp_hdmi),
 
 
