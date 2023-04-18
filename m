@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C916E63F1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84EB6E617A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231945AbjDRMoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:44:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34502 "EHLO
+        id S231241AbjDRMZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231466AbjDRMop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD53118C9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:44 -0700 (PDT)
+        with ESMTP id S231195AbjDRMZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5524346B9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BC746337E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D364C4339B;
-        Tue, 18 Apr 2023 12:44:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33134630FE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49880C433EF;
+        Tue, 18 Apr 2023 12:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821883;
-        bh=aR4tzvaq6aFDgiKzOJuCoJ5m5puKPmDIg7ag4LBXosE=;
+        s=korg; t=1681820701;
+        bh=zbDScTyk1l1lcz3KWstCsDj0ChBrXA4kdLDEpt009JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bE+I4Zf6gYfKSL+RZRlSWH71wBAemoYFnYSoSTsMg/CizcGKYrIzz+TOsSDEeT8rM
-         RJQjXyC5+Xsfy6HeQp6NPt6zkCFKkz+Cdxoaxohi07AHc2usb96ueFp5kYMjn4eLkE
-         eYGQsovxT+VIZuxfTF1Opl603ekvKMLDWCHkq7B4=
+        b=rA8Df3SWyGaOwN8czi7DX9F2RB6Lg09XW3UPnTEk60ocsre0AIR9auqA81mymsZ6S
+         +yxt0ZP6HCVl1oKo1W0ZkLCgqzlvyzVAUUrYrp0GV6SnCrIrJ9TkjRgGWYJQkOvzwg
+         pn5noA/QUz//0fUKEhk+8kDbv0EJt3cL+G2HcF0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 048/134] niu: Fix missing unwind goto in niu_alloc_channels()
-Date:   Tue, 18 Apr 2023 14:21:44 +0200
-Message-Id: <20230418120314.608572928@linuxfoundation.org>
+        patches@lists.linux.dev, Dave Martin <Dave.Martin@arm.com>,
+        Julien Thierry <julien.thierry@arm.com>,
+        "zhang.lei" <zhang.lei@jp.fujitsu.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Takahiro Itazuri <itazur@amazon.com>
+Subject: [PATCH 4.14 35/37] KVM: arm64: Factor out core register ID enumeration
+Date:   Tue, 18 Apr 2023 14:21:45 +0200
+Message-Id: <20230418120255.949657379@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,42 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Dave Martin <Dave.Martin@arm.com>
 
-[ Upstream commit 8ce07be703456acb00e83d99f3b8036252c33b02 ]
+commit be25bbb392fad3a721d6d21b78639b60612b5439 upstream.
 
-Smatch reports: drivers/net/ethernet/sun/niu.c:4525
-	niu_alloc_channels() warn: missing unwind goto?
+In preparation for adding logic to filter out some KVM_REG_ARM_CORE
+registers from the KVM_GET_REG_LIST output, this patch factors out
+the core register enumeration into a separate function and rebuilds
+num_core_regs() on top of it.
 
-If niu_rbr_fill() fails, then we are directly returning 'err' without
-freeing the channels.
+This may be a little more expensive (depending on how good a job
+the compiler does of specialising the code), but KVM_GET_REG_LIST
+is not a hot path.
 
-Fix this by changing direct return to a goto 'out_err'.
+This will make it easier to consolidate ID filtering code in one
+place.
 
-Fixes: a3138df9f20e ("[NIU]: Add Sun Neptune ethernet driver.")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+No functional change.
+
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Reviewed-by: Julien Thierry <julien.thierry@arm.com>
+Tested-by: zhang.lei <zhang.lei@jp.fujitsu.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Takahiro Itazuri <itazur@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kvm/guest.c |   32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/sun/niu.c b/drivers/net/ethernet/sun/niu.c
-index e6144d963eaaa..4bbf011d53e69 100644
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -4522,7 +4522,7 @@ static int niu_alloc_channels(struct niu *np)
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -193,9 +193,28 @@ int kvm_arch_vcpu_ioctl_set_regs(struct
+ 	return -EINVAL;
+ }
  
- 		err = niu_rbr_fill(np, rp, GFP_KERNEL);
- 		if (err)
--			return err;
-+			goto out_err;
- 	}
++static int kvm_arm_copy_core_reg_indices(u64 __user *uindices)
++{
++	unsigned int i;
++	int n = 0;
++	const u64 core_reg = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE;
++
++	for (i = 0; i < sizeof(struct kvm_regs) / sizeof(__u32); i++) {
++		if (uindices) {
++			if (put_user(core_reg | i, uindices))
++				return -EFAULT;
++			uindices++;
++		}
++
++		n++;
++	}
++
++	return n;
++}
++
+ static unsigned long num_core_regs(void)
+ {
+-	return sizeof(struct kvm_regs) / sizeof(__u32);
++	return kvm_arm_copy_core_reg_indices(NULL);
+ }
  
- 	tx_rings = kcalloc(num_tx_rings, sizeof(struct tx_ring_info),
--- 
-2.39.2
-
+ /**
+@@ -269,15 +288,12 @@ unsigned long kvm_arm_num_regs(struct kv
+  */
+ int kvm_arm_copy_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+ {
+-	unsigned int i;
+-	const u64 core_reg = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE;
+ 	int ret;
+ 
+-	for (i = 0; i < sizeof(struct kvm_regs) / sizeof(__u32); i++) {
+-		if (put_user(core_reg | i, uindices))
+-			return -EFAULT;
+-		uindices++;
+-	}
++	ret = kvm_arm_copy_core_reg_indices(uindices);
++	if (ret)
++		return ret;
++	uindices += ret;
+ 
+ 	ret = kvm_arm_copy_fw_reg_indices(vcpu, uindices);
+ 	if (ret)
 
 
