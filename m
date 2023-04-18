@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F39FB6E6245
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1461A6E62F9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbjDRMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:31:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43440 "EHLO
+        id S231741AbjDRMhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:37:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231661AbjDRMbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:18 -0400
+        with ESMTP id S231738AbjDRMhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5FCB10266
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B46312CB0;
+        Tue, 18 Apr 2023 05:37:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF7996313B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C309AC4339E;
-        Tue, 18 Apr 2023 12:30:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 132C863293;
+        Tue, 18 Apr 2023 12:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0167EC433D2;
+        Tue, 18 Apr 2023 12:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821056;
-        bh=UwAHvUIjp3nYOSwv4c7kg7PDjSa/URXdq1MvhJC35CA=;
+        s=korg; t=1681821419;
+        bh=VCwMMj2q4qUoHuODRqKDgoLte/T7yupow6Vv8LVr/gY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqm0MXFf1WBrEwqw0C7iNB4xdjyCgGntKrAQBaAkMMzcL1pQHnYrFVc8H+SMpBNtV
-         8Lv9pCZhcyXbd1V06OL3G3uUk4ZpdYXG1BE3LUhRzRj3XD9tTrM4uxyCa0lT6/fbgW
-         ymhIE2JDpQsh3Ofry3v64YT+LEOu8fVqDZUrlsuY=
+        b=FytK8itgNs8sWjbg3UmWLfjnoZcpF1fUjFGX/0c4bLU7u1tU3kIyK9gnocRVOBDWo
+         Q7n2TNqOLEQe4VQgPIOm/Rh2+yYG0eUwksb5i7Pwku/QieFbWC1bQt13FE4O/kiF5k
+         u5/XwYiwhclY6eYcbWYfD2PJw40aLMzWXYd826q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Steve Clevenger <scclevenger@os.amperecomputing.com>,
-        James Clark <james.clark@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.4 75/92] coresight-etm4: Fix for() loop drvdata->nr_addr_cmp range bug
+        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 091/124] verify_pefile: relax wrapper length check
 Date:   Tue, 18 Apr 2023 14:21:50 +0200
-Message-Id: <20230418120307.416582349@linuxfoundation.org>
+Message-Id: <20230418120313.157770104@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Clevenger <scclevenger@os.amperecomputing.com>
+From: Robbie Harwood <rharwood@redhat.com>
 
-commit bf84937e882009075f57fd213836256fc65d96bc upstream.
+[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
 
-In etm4_enable_hw, fix for() loop range to represent address comparator pairs.
+The PE Format Specification (section "The Attribute Certificate Table
+(Image Only)") states that `dwLength` is to be rounded up to 8-byte
+alignment when used for traversal.  Therefore, the field is not required
+to be an 8-byte multiple in the first place.
 
-Fixes: 2e1cdfe184b5 ("coresight-etm4x: Adding CoreSight ETM4x driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve Clevenger <scclevenger@os.amperecomputing.com>
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/4a4ee61ce8ef402615a4528b21a051de3444fb7b.1677540079.git.scclevenger@os.amperecomputing.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Accordingly, pesign has not performed this alignment since version
+0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
+Signature wrapper len wrong".  Update the comment and relax the check.
+
+Signed-off-by: Robbie Harwood <rharwood@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jarkko Sakkinen <jarkko@kernel.org>
+cc: Eric Biederman <ebiederm@xmission.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: keyrings@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: kexec@lists.infradead.org
+Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
+Link: https://github.com/rhboot/pesign
+Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -156,7 +156,7 @@ static int etm4_enable_hw(struct etmv4_d
- 		writel_relaxed(config->ss_pe_cmp[i],
- 			       drvdata->base + TRCSSPCICRn(i));
+diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
+index 7553ab18db898..fe1bb374239d7 100644
+--- a/crypto/asymmetric_keys/verify_pefile.c
++++ b/crypto/asymmetric_keys/verify_pefile.c
+@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	pr_debug("sig wrapper = { %x, %x, %x }\n",
+ 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+ 
+-	/* Both pesign and sbsign round up the length of certificate table
+-	 * (in optional header data directories) to 8 byte alignment.
++	/* sbsign rounds up the length of certificate table (in optional
++	 * header data directories) to 8 byte alignment.  However, the PE
++	 * specification states that while entries are 8-byte aligned, this is
++	 * not included in their length, and as a result, pesign has not
++	 * rounded up since 0.110.
+ 	 */
+-	if (round_up(wrapper.length, 8) != ctx->sig_len) {
+-		pr_debug("Signature wrapper len wrong\n");
++	if (wrapper.length > ctx->sig_len) {
++		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
++			 ctx->sig_len, wrapper.length);
+ 		return -ELIBBAD;
  	}
--	for (i = 0; i < drvdata->nr_addr_cmp; i++) {
-+	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
- 		writeq_relaxed(config->addr_val[i],
- 			       drvdata->base + TRCACVRn(i));
- 		writeq_relaxed(config->addr_acc[i],
+ 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
+-- 
+2.39.2
+
 
 
