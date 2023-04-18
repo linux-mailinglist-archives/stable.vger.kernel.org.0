@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B9C86E632C
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B15686E63BE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231808AbjDRMi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:38:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54074 "EHLO
+        id S231932AbjDRMnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231793AbjDRMiY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:24 -0400
+        with ESMTP id S231935AbjDRMmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B277B13F8C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0061E146CD
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 751B9632CB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8720AC43443;
-        Tue, 18 Apr 2023 12:38:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9259063329
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B00AC433EF;
+        Tue, 18 Apr 2023 12:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821498;
-        bh=ItBaELA7SXm7GJmys26pLlZ8PP0ijwMmajQoHyQy614=;
+        s=korg; t=1681821765;
+        bh=AjWffBPKR/X3PhDBE7mkUrwI8rycdobLW1wMHtd12ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cSfMvScJqt+zjh0coVo3h8FBHr+/WAyaBHQ3WzlcQTYu+cPrBD7xgI9E3xP7AY4Yr
-         wg4PF5pM/f+mnOacGRq5t4I5/Ay102JN0yNL57ymJQaLiEiIyi8aGhzALkGWPuGRfK
-         YqrIWVLxqfmcs6PKUJdKBvjK/x4LQwSzfFK3E3GA=
+        b=B7SxlFJtZBL/qt8pi9XoAix/VFpiBYH0rf2Z1Jn7VjmYEZL/XgFRkYz3JWCmGDlBl
+         FNBiEGgIWZLy3oH0SwHekVhIfF/RnuAW1t/hKr0YWSown3bzkqNhReA9NxoYWKrQro
+         4o5JEeXJcfNeyRUVXdq5zN37DUeUYvMJm/F1whhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+8fcbb77276d43cc8b693@syzkaller.appspotmail.com,
-        Mark Zhang <markzhang@nvidia.com>,
+        Tatyana Nikolova <tatyana.e.nikolova@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 24/91] RDMA/cma: Allow UD qp_type to join multicast only
+Subject: [PATCH 6.1 032/134] RDMA/irdma: Add ipv4 check to irdma_find_listener()
 Date:   Tue, 18 Apr 2023 14:21:28 +0200
-Message-Id: <20230418120306.427319469@linuxfoundation.org>
+Message-Id: <20230418120314.098205224@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,206 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
 
-[ Upstream commit 58e84f6b3e84e46524b7e5a916b53c1ad798bc8f ]
+[ Upstream commit e4522c097ec10f23ea0933e9e69d4fa9d8ae9441 ]
 
-As for multicast:
-- The SIDR is the only mode that makes sense;
-- Besides PS_UDP, other port spaces like PS_IB is also allowed, as it is
-  UD compatible. In this case qkey also needs to be set [1].
+Add ipv4 check to irdma_find_listener(). Otherwise the function
+incorrectly finds and returns a listener with a different addr family for
+the zero IP addr, if a listener with a zero IP addr and the same port as
+the one searched for has already been created.
 
-This patch allows only UD qp_type to join multicast, and set qkey to
-default if it's not set, to fix an uninit-value error: the ib->rec.qkey
-field is accessed without being initialized.
-
-=====================================================
-BUG: KMSAN: uninit-value in cma_set_qkey drivers/infiniband/core/cma.c:510 [inline]
-BUG: KMSAN: uninit-value in cma_make_mc_event+0xb73/0xe00 drivers/infiniband/core/cma.c:4570
- cma_set_qkey drivers/infiniband/core/cma.c:510 [inline]
- cma_make_mc_event+0xb73/0xe00 drivers/infiniband/core/cma.c:4570
- cma_iboe_join_multicast drivers/infiniband/core/cma.c:4782 [inline]
- rdma_join_multicast+0x2b83/0x30a0 drivers/infiniband/core/cma.c:4814
- ucma_process_join+0xa76/0xf60 drivers/infiniband/core/ucma.c:1479
- ucma_join_multicast+0x1e3/0x250 drivers/infiniband/core/ucma.c:1546
- ucma_write+0x639/0x6d0 drivers/infiniband/core/ucma.c:1732
- vfs_write+0x8ce/0x2030 fs/read_write.c:588
- ksys_write+0x28c/0x520 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __ia32_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_32_irqs_on arch/x86/entry/common.c:114 [inline]
- __do_fast_syscall_32+0x96/0xf0 arch/x86/entry/common.c:180
- do_fast_syscall_32+0x34/0x70 arch/x86/entry/common.c:205
- do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:248
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
-
-Local variable ib.i created at:
-cma_iboe_join_multicast drivers/infiniband/core/cma.c:4737 [inline]
-rdma_join_multicast+0x586/0x30a0 drivers/infiniband/core/cma.c:4814
-ucma_process_join+0xa76/0xf60 drivers/infiniband/core/ucma.c:1479
-
-CPU: 0 PID: 29874 Comm: syz-executor.3 Not tainted 5.16.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-=====================================================
-
-[1] https://lore.kernel.org/linux-rdma/20220117183832.GD84788@nvidia.com/
-
-Fixes: b5de0c60cc30 ("RDMA/cma: Fix use after free race in roce multicast join")
-Reported-by: syzbot+8fcbb77276d43cc8b693@syzkaller.appspotmail.com
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Link: https://lore.kernel.org/r/58a4a98323b5e6b1282e83f6b76960d06e43b9fa.1679309909.git.leon@kernel.org
+Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
+Signed-off-by: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20230315145231.931-5-shiraz.saleem@intel.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 60 ++++++++++++++++++++---------------
- 1 file changed, 34 insertions(+), 26 deletions(-)
+ drivers/infiniband/hw/irdma/cm.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index fd192104fd8d3..c66d8bf405854 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -496,22 +496,11 @@ static inline unsigned short cma_family(struct rdma_id_private *id_priv)
- 	return id_priv->id.route.addr.src_addr.ss_family;
- }
- 
--static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
-+static int cma_set_default_qkey(struct rdma_id_private *id_priv)
+diff --git a/drivers/infiniband/hw/irdma/cm.c b/drivers/infiniband/hw/irdma/cm.c
+index 195aa9ea18b6c..8817864154af1 100644
+--- a/drivers/infiniband/hw/irdma/cm.c
++++ b/drivers/infiniband/hw/irdma/cm.c
+@@ -1458,13 +1458,15 @@ static int irdma_send_fin(struct irdma_cm_node *cm_node)
+  * irdma_find_listener - find a cm node listening on this addr-port pair
+  * @cm_core: cm's core
+  * @dst_addr: listener ip addr
++ * @ipv4: flag indicating IPv4 when true
+  * @dst_port: listener tcp port num
+  * @vlan_id: virtual LAN ID
+  * @listener_state: state to match with listen node's
+  */
+ static struct irdma_cm_listener *
+-irdma_find_listener(struct irdma_cm_core *cm_core, u32 *dst_addr, u16 dst_port,
+-		    u16 vlan_id, enum irdma_cm_listener_state listener_state)
++irdma_find_listener(struct irdma_cm_core *cm_core, u32 *dst_addr, bool ipv4,
++		    u16 dst_port, u16 vlan_id,
++		    enum irdma_cm_listener_state listener_state)
  {
- 	struct ib_sa_mcmember_rec rec;
- 	int ret = 0;
+ 	struct irdma_cm_listener *listen_node;
+ 	static const u32 ip_zero[4] = { 0, 0, 0, 0 };
+@@ -1477,7 +1479,7 @@ irdma_find_listener(struct irdma_cm_core *cm_core, u32 *dst_addr, u16 dst_port,
+ 	list_for_each_entry (listen_node, &cm_core->listen_list, list) {
+ 		memcpy(listen_addr, listen_node->loc_addr, sizeof(listen_addr));
+ 		listen_port = listen_node->loc_port;
+-		if (listen_port != dst_port ||
++		if (listen_node->ipv4 != ipv4 || listen_port != dst_port ||
+ 		    !(listener_state & listen_node->listener_state))
+ 			continue;
+ 		/* compare node pair, return node handle if a match */
+@@ -2902,9 +2904,10 @@ irdma_make_listen_node(struct irdma_cm_core *cm_core,
+ 	unsigned long flags;
  
--	if (id_priv->qkey) {
--		if (qkey && id_priv->qkey != qkey)
--			return -EINVAL;
--		return 0;
--	}
--
--	if (qkey) {
--		id_priv->qkey = qkey;
--		return 0;
--	}
--
- 	switch (id_priv->id.ps) {
- 	case RDMA_PS_UDP:
- 	case RDMA_PS_IB:
-@@ -531,6 +520,16 @@ static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
- 	return ret;
- }
+ 	/* cannot have multiple matching listeners */
+-	listener = irdma_find_listener(cm_core, cm_info->loc_addr,
+-				       cm_info->loc_port, cm_info->vlan_id,
+-				       IRDMA_CM_LISTENER_EITHER_STATE);
++	listener =
++		irdma_find_listener(cm_core, cm_info->loc_addr, cm_info->ipv4,
++				    cm_info->loc_port, cm_info->vlan_id,
++				    IRDMA_CM_LISTENER_EITHER_STATE);
+ 	if (listener &&
+ 	    listener->listener_state == IRDMA_CM_LISTENER_ACTIVE_STATE) {
+ 		refcount_dec(&listener->refcnt);
+@@ -3153,6 +3156,7 @@ void irdma_receive_ilq(struct irdma_sc_vsi *vsi, struct irdma_puda_buf *rbuf)
  
-+static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
-+{
-+	if (!qkey ||
-+	    (id_priv->qkey && (id_priv->qkey != qkey)))
-+		return -EINVAL;
-+
-+	id_priv->qkey = qkey;
-+	return 0;
-+}
-+
- static void cma_translate_ib(struct sockaddr_ib *sib, struct rdma_dev_addr *dev_addr)
- {
- 	dev_addr->dev_type = ARPHRD_INFINIBAND;
-@@ -1099,7 +1098,7 @@ static int cma_ib_init_qp_attr(struct rdma_id_private *id_priv,
- 	*qp_attr_mask = IB_QP_STATE | IB_QP_PKEY_INDEX | IB_QP_PORT;
- 
- 	if (id_priv->id.qp_type == IB_QPT_UD) {
--		ret = cma_set_qkey(id_priv, 0);
-+		ret = cma_set_default_qkey(id_priv);
- 		if (ret)
- 			return ret;
- 
-@@ -4373,7 +4372,10 @@ static int cma_send_sidr_rep(struct rdma_id_private *id_priv,
- 	memset(&rep, 0, sizeof rep);
- 	rep.status = status;
- 	if (status == IB_SIDR_SUCCESS) {
--		ret = cma_set_qkey(id_priv, qkey);
-+		if (qkey)
-+			ret = cma_set_qkey(id_priv, qkey);
-+		else
-+			ret = cma_set_default_qkey(id_priv);
- 		if (ret)
- 			return ret;
- 		rep.qp_num = id_priv->qp_num;
-@@ -4578,9 +4580,7 @@ static void cma_make_mc_event(int status, struct rdma_id_private *id_priv,
- 	enum ib_gid_type gid_type;
- 	struct net_device *ndev;
- 
--	if (!status)
--		status = cma_set_qkey(id_priv, be32_to_cpu(multicast->rec.qkey));
--	else
-+	if (status)
- 		pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to join multicast. status %d\n",
- 				     status);
- 
-@@ -4608,7 +4608,7 @@ static void cma_make_mc_event(int status, struct rdma_id_private *id_priv,
- 	}
- 
- 	event->param.ud.qp_num = 0xFFFFFF;
--	event->param.ud.qkey = be32_to_cpu(multicast->rec.qkey);
-+	event->param.ud.qkey = id_priv->qkey;
- 
- out:
- 	if (ndev)
-@@ -4627,8 +4627,11 @@ static int cma_ib_mc_handler(int status, struct ib_sa_multicast *multicast)
- 	    READ_ONCE(id_priv->state) == RDMA_CM_DESTROYING)
- 		goto out;
- 
--	cma_make_mc_event(status, id_priv, multicast, &event, mc);
--	ret = cma_cm_event_handler(id_priv, &event);
-+	ret = cma_set_qkey(id_priv, be32_to_cpu(multicast->rec.qkey));
-+	if (!ret) {
-+		cma_make_mc_event(status, id_priv, multicast, &event, mc);
-+		ret = cma_cm_event_handler(id_priv, &event);
-+	}
- 	rdma_destroy_ah_attr(&event.param.ud.ah_attr);
- 	WARN_ON(ret);
- 
-@@ -4681,9 +4684,11 @@ static int cma_join_ib_multicast(struct rdma_id_private *id_priv,
- 	if (ret)
- 		return ret;
- 
--	ret = cma_set_qkey(id_priv, 0);
--	if (ret)
--		return ret;
-+	if (!id_priv->qkey) {
-+		ret = cma_set_default_qkey(id_priv);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	cma_set_mgid(id_priv, (struct sockaddr *) &mc->addr, &rec.mgid);
- 	rec.qkey = cpu_to_be32(id_priv->qkey);
-@@ -4760,9 +4765,6 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 	cma_iboe_set_mgid(addr, &ib.rec.mgid, gid_type);
- 
- 	ib.rec.pkey = cpu_to_be16(0xffff);
--	if (id_priv->id.ps == RDMA_PS_UDP)
--		ib.rec.qkey = cpu_to_be32(RDMA_UDP_QKEY);
--
- 	if (dev_addr->bound_dev_if)
- 		ndev = dev_get_by_index(dev_addr->net, dev_addr->bound_dev_if);
- 	if (!ndev)
-@@ -4788,6 +4790,9 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 	if (err || !ib.rec.mtu)
- 		return err ?: -EINVAL;
- 
-+	if (!id_priv->qkey)
-+		cma_set_default_qkey(id_priv);
-+
- 	rdma_ip2gid((struct sockaddr *)&id_priv->id.route.addr.src_addr,
- 		    &ib.rec.port_gid);
- 	INIT_WORK(&mc->iboe_join.work, cma_iboe_join_work_handler);
-@@ -4813,6 +4818,9 @@ int rdma_join_multicast(struct rdma_cm_id *id, struct sockaddr *addr,
- 			    READ_ONCE(id_priv->state) != RDMA_CM_ADDR_RESOLVED))
- 		return -EINVAL;
- 
-+	if (id_priv->id.qp_type != IB_QPT_UD)
-+		return -EINVAL;
-+
- 	mc = kzalloc(sizeof(*mc), GFP_KERNEL);
- 	if (!mc)
- 		return -ENOMEM;
+ 		listener = irdma_find_listener(cm_core,
+ 					       cm_info.loc_addr,
++					       cm_info.ipv4,
+ 					       cm_info.loc_port,
+ 					       cm_info.vlan_id,
+ 					       IRDMA_CM_LISTENER_ACTIVE_STATE);
 -- 
 2.39.2
 
