@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1846E6133
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5846E6329
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230445AbjDRMYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:24:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60738 "EHLO
+        id S231799AbjDRMiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230312AbjDRMYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:30 -0400
+        with ESMTP id S231789AbjDRMiV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EAE09747
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21F613873
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAD8863109
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF4C6C433EF;
-        Tue, 18 Apr 2023 12:24:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EEB1632CA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915A7C4339C;
+        Tue, 18 Apr 2023 12:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820646;
-        bh=zE1oqVlhCPYkB6tKY4+tM+wmT8XDFn41YHBxJvM6oMA=;
+        s=korg; t=1681821490;
+        bh=9xrZezkYN7ydKsfoRJeGhUlkNvA7pmv13b08FYg4RBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGLnPsvgOxtBoNNGL4MJgGqVbuMFO4oWT1sAq3vzbY8aenm8UDAi3tqta5txe8o23
-         3GJsx0qqHMS9bfwYk4LOe4c7DDzS6xu7VYuRWa8uQL3jS78kT/Knbl+Zh3nB2pYefz
-         PBOF4mwJ/UsgNgU4ksu/JLNEQHs2e3LD/dSrWe30=
+        b=CkzGf5OdbimngTjNEWpWnVyrNqEWuUADRfaAEOmGdAT7uFUNeYScSW2Ga0r1Yd2z3
+         SBiM5hn4vmnyT4Mm70/1JmC7/PhXdoDcDunuBYruxHU991B4hR7XhmUphf9q78sA9t
+         1ru4NxoVu19moSYvsZs7GFUyKcLpA2Pdv7m5LhWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Yongchen Yin <wb-yyc939293@alibaba-inc.com>,
-        Rongwei Wang <rongwei.wang@linux.alibaba.com>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Aaron Lu <aaron.lu@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 16/37] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+        Tatyana Nikolova <tatyana.e.nikolova@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 22/91] RDMA/irdma: Add ipv4 check to irdma_find_listener()
 Date:   Tue, 18 Apr 2023 14:21:26 +0200
-Message-Id: <20230418120255.237057726@linuxfoundation.org>
+Message-Id: <20230418120306.353307245@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,119 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+From: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
 
-commit 6fe7d6b992113719e96744d974212df3fcddc76c upstream.
+[ Upstream commit e4522c097ec10f23ea0933e9e69d4fa9d8ae9441 ]
 
-The si->lock must be held when deleting the si from the available list.
-Otherwise, another thread can re-add the si to the available list, which
-can lead to memory corruption.  The only place we have found where this
-happens is in the swapoff path.  This case can be described as below:
+Add ipv4 check to irdma_find_listener(). Otherwise the function
+incorrectly finds and returns a listener with a different addr family for
+the zero IP addr, if a listener with a zero IP addr and the same port as
+the one searched for has already been created.
 
-core 0                       core 1
-swapoff
-
-del_from_avail_list(si)      waiting
-
-try lock si->lock            acquire swap_avail_lock
-                             and re-add si into
-                             swap_avail_head
-
-acquire si->lock but missing si already being added again, and continuing
-to clear SWP_WRITEOK, etc.
-
-It can be easily found that a massive warning messages can be triggered
-inside get_swap_pages() by some special cases, for example, we call
-madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
-run much swapon-swapoff operations (e.g.  stress-ng-swap).
-
-However, in the worst case, panic can be caused by the above scene.  In
-swapoff(), the memory used by si could be kept in swap_info[] after
-turning off a swap.  This means memory corruption will not be caused
-immediately until allocated and reset for a new swap in the swapon path.
-A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
-
-------------[ cut here ]------------
-top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
-prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
-next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
-WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
-Modules linked in: rfkill(E) crct10dif_ce(E)...
-CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
-Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-pc : plist_check_prev_next_node+0x50/0x70
-lr : plist_check_prev_next_node+0x50/0x70
-sp : ffff0018009d3c30
-x29: ffff0018009d3c40 x28: ffff800011b32a98
-x27: 0000000000000000 x26: ffff001803908000
-x25: ffff8000128ea088 x24: ffff800011b32a48
-x23: 0000000000000028 x22: ffff001800875c00
-x21: ffff800010f9e520 x20: ffff001800875c00
-x19: ffff001800fdc6e0 x18: 0000000000000030
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0736076307640766 x14: 0730073007380731
-x13: 0736076307640766 x12: 0730073007380731
-x11: 000000000004058d x10: 0000000085a85b76
-x9 : ffff8000101436e4 x8 : ffff800011c8ce08
-x7 : 0000000000000000 x6 : 0000000000000001
-x5 : ffff0017df9ed338 x4 : 0000000000000001
-x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- plist_check_prev_next_node+0x50/0x70
- plist_check_head+0x80/0xf0
- plist_add+0x28/0x140
- add_to_avail_list+0x9c/0xf0
- _enable_swap_info+0x78/0xb4
- __do_sys_swapon+0x918/0xa10
- __arm64_sys_swapon+0x20/0x30
- el0_svc_common+0x8c/0x220
- do_el0_svc+0x2c/0x90
- el0_svc+0x1c/0x30
- el0_sync_handler+0xa8/0xb0
- el0_sync+0x148/0x180
-irq event stamp: 2082270
-
-Now, si->lock locked before calling 'del_from_avail_list()' to make sure
-other thread see the si had been deleted and SWP_WRITEOK cleared together,
-will not reinsert again.
-
-This problem exists in versions after stable 5.10.y.
-
-Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
-Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node")
-Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Cc: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aaron Lu <aaron.lu@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
+Signed-off-by: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20230315145231.931-5-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/swapfile.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/irdma/cm.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -596,6 +596,7 @@ static void __del_from_avail_list(struct
+diff --git a/drivers/infiniband/hw/irdma/cm.c b/drivers/infiniband/hw/irdma/cm.c
+index a8ec3d8f6e465..64d4bb0e9a12f 100644
+--- a/drivers/infiniband/hw/irdma/cm.c
++++ b/drivers/infiniband/hw/irdma/cm.c
+@@ -1458,13 +1458,15 @@ static int irdma_send_fin(struct irdma_cm_node *cm_node)
+  * irdma_find_listener - find a cm node listening on this addr-port pair
+  * @cm_core: cm's core
+  * @dst_addr: listener ip addr
++ * @ipv4: flag indicating IPv4 when true
+  * @dst_port: listener tcp port num
+  * @vlan_id: virtual LAN ID
+  * @listener_state: state to match with listen node's
+  */
+ static struct irdma_cm_listener *
+-irdma_find_listener(struct irdma_cm_core *cm_core, u32 *dst_addr, u16 dst_port,
+-		    u16 vlan_id, enum irdma_cm_listener_state listener_state)
++irdma_find_listener(struct irdma_cm_core *cm_core, u32 *dst_addr, bool ipv4,
++		    u16 dst_port, u16 vlan_id,
++		    enum irdma_cm_listener_state listener_state)
  {
- 	int nid;
+ 	struct irdma_cm_listener *listen_node;
+ 	static const u32 ip_zero[4] = { 0, 0, 0, 0 };
+@@ -1477,7 +1479,7 @@ irdma_find_listener(struct irdma_cm_core *cm_core, u32 *dst_addr, u16 dst_port,
+ 	list_for_each_entry (listen_node, &cm_core->listen_list, list) {
+ 		memcpy(listen_addr, listen_node->loc_addr, sizeof(listen_addr));
+ 		listen_port = listen_node->loc_port;
+-		if (listen_port != dst_port ||
++		if (listen_node->ipv4 != ipv4 || listen_port != dst_port ||
+ 		    !(listener_state & listen_node->listener_state))
+ 			continue;
+ 		/* compare node pair, return node handle if a match */
+@@ -2899,9 +2901,10 @@ irdma_make_listen_node(struct irdma_cm_core *cm_core,
+ 	unsigned long flags;
  
-+	assert_spin_locked(&p->lock);
- 	for_each_node(nid)
- 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
- }
-@@ -2574,8 +2575,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
- 		spin_unlock(&swap_lock);
- 		goto out_dput;
- 	}
--	del_from_avail_list(p);
- 	spin_lock(&p->lock);
-+	del_from_avail_list(p);
- 	if (p->prio < 0) {
- 		struct swap_info_struct *si = p;
- 		int nid;
+ 	/* cannot have multiple matching listeners */
+-	listener = irdma_find_listener(cm_core, cm_info->loc_addr,
+-				       cm_info->loc_port, cm_info->vlan_id,
+-				       IRDMA_CM_LISTENER_EITHER_STATE);
++	listener =
++		irdma_find_listener(cm_core, cm_info->loc_addr, cm_info->ipv4,
++				    cm_info->loc_port, cm_info->vlan_id,
++				    IRDMA_CM_LISTENER_EITHER_STATE);
+ 	if (listener &&
+ 	    listener->listener_state == IRDMA_CM_LISTENER_ACTIVE_STATE) {
+ 		refcount_dec(&listener->refcnt);
+@@ -3150,6 +3153,7 @@ void irdma_receive_ilq(struct irdma_sc_vsi *vsi, struct irdma_puda_buf *rbuf)
+ 
+ 		listener = irdma_find_listener(cm_core,
+ 					       cm_info.loc_addr,
++					       cm_info.ipv4,
+ 					       cm_info.loc_port,
+ 					       cm_info.vlan_id,
+ 					       IRDMA_CM_LISTENER_ACTIVE_STATE);
+-- 
+2.39.2
+
 
 
