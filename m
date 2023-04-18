@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5106E638D
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9166C6E64B6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231860AbjDRMl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58240 "EHLO
+        id S232237AbjDRMvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:51:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231854AbjDRMl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E52413C3D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:18 -0700 (PDT)
+        with ESMTP id S232255AbjDRMvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9150F16FAB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C43B863325
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D719AC433EF;
-        Tue, 18 Apr 2023 12:41:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23DE763441
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3094BC433D2;
+        Tue, 18 Apr 2023 12:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821677;
-        bh=kbj36jtAV4D1b7Tsu97XVvIrmabLu59Ylra6ZXQ8xqc=;
+        s=korg; t=1681822280;
+        bh=S8EdIpybQ3dbjkW3l22hV52frnPpXw+QCFHLqqD7EJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sliq+mnF/vKd5bjBJqtKVHKDDr7MT+lhSLoJe3kE2aM6UMaiEgiAq1oiFGrUxL5Tc
-         AjhdMd8BKH7mwGFS2VHJTz72eSGQFtcdF6YJAIA9ddu/kGhhFRyCbFC08TtTgUnph/
-         znw3Ud8S9R2ajQ69vkbzFS0VvbMa9a5vNTbXnbA4=
+        b=jBn39K5GVFUd1RQAogIqznJ70brx6vNM+kafNtEeWsGHrj0TmV56DsI3G7+Zs41zN
+         UrRi5clDaqudeYv1ycXsMe2IUVYDfuqsvliV81VpblwV9FYQTwpwhCO17I1pNvsXqw
+         vaUtg51ZKQh286BabU781jpx2N8XGIcL3ieto52E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xi Ruoyao <xry111@xry111.site>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Chang Feng <flukehn@gmail.com>
-Subject: [PATCH 5.15 91/91] nvme-pci: avoid the deepest sleep state on ZHITAI TiPro5000 SSDs
+        patches@lists.linux.dev, Tianyi Jing <jingfelix@hust.edu.cn>,
+        Dongliang Mu <dzm91@hust.edu.cn>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 090/139] hwmon: (xgene) Fix ioremap and memremap leak
 Date:   Tue, 18 Apr 2023 14:22:35 +0200
-Message-Id: <20230418120308.722868604@linuxfoundation.org>
+Message-Id: <20230418120317.174777132@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,53 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xi Ruoyao <xry111@xry111.site>
+From: Tianyi Jing <jingfelix@hust.edu.cn>
 
-commit d5d3c100ac40dcb03959a6f1d2f0f13204c4f145 upstream.
+[ Upstream commit 813cc94c7847ae4a17e9f744fb4dbdf7df6bd732 ]
 
-ZHITAI TiPro5000 SSDs has the same APST sleep problem as its cousin,
-TiPro7000.  The quirk for TiPro7000 has been added in
-commit 6b961bce50e4 ("nvme-pci: avoid the deepest sleep state on
-ZHITAI TiPro7000 SSDs"), use the same quirk for TiPro5000.
+Smatch reports:
 
-The ASPT data from "nvme id-ctrl /dev/nvme1":
+drivers/hwmon/xgene-hwmon.c:757 xgene_hwmon_probe() warn:
+'ctx->pcc_comm_addr' from ioremap() not released on line: 757.
 
-vid       : 0x1e49
-ssvid     : 0x1e49
-sn        : ZTA21T0KA2227304LM
-mn        : ZHITAI TiPlus5000 1TB
-fr        : ZTA09139
-[...]
-ps    0 : mp:6.50W operational enlat:0 exlat:0 rrt:0 rrl:0
-         rwt:0 rwl:0 idle_power:- active_power:-
-ps    1 : mp:5.80W operational enlat:0 exlat:0 rrt:1 rrl:1
-         rwt:1 rwl:1 idle_power:- active_power:-
-ps    2 : mp:3.60W operational enlat:0 exlat:0 rrt:2 rrl:2
-         rwt:2 rwl:2 idle_power:- active_power:-
-ps    3 : mp:0.0500W non-operational enlat:5000 exlat:10000 rrt:3 rrl:3
-         rwt:3 rwl:3 idle_power:- active_power:-
-ps    4 : mp:0.0025W non-operational enlat:8000 exlat:45000 rrt:4 rrl:4
-         rwt:4 rwl:4 idle_power:- active_power:-
+This is because in drivers/hwmon/xgene-hwmon.c:701 xgene_hwmon_probe(),
+ioremap and memremap is not released, which may cause a leak.
 
-Reported-and-tested-by: Chang Feng <flukehn@gmail.com>
-Signed-off-by: Xi Ruoyao <xry111@xry111.site>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this, ioremap and memremap is modified to devm_ioremap and
+devm_memremap.
+
+Signed-off-by: Tianyi Jing <jingfelix@hust.edu.cn>
+Reviewed-by: Dongliang Mu <dzm91@hust.edu.cn>
+Link: https://lore.kernel.org/r/20230318143851.2191625-1-jingfelix@hust.edu.cn
+[groeck: Fixed formatting and subject]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/xgene-hwmon.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3390,6 +3390,8 @@ static const struct pci_device_id nvme_i
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1cc1, 0x5350),   /* ADATA XPG GAMMIX S50 */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
-+	{ PCI_DEVICE(0x1e49, 0x0021),   /* ZHITAI TiPro5000 NVMe SSD */
-+		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(0x1e49, 0x0041),   /* ZHITAI TiPro7000 NVMe SSD */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(0xc0a9, 0x540a),   /* Crucial P2 */
+diff --git a/drivers/hwmon/xgene-hwmon.c b/drivers/hwmon/xgene-hwmon.c
+index d1abea49f01be..78d9f52e2a719 100644
+--- a/drivers/hwmon/xgene-hwmon.c
++++ b/drivers/hwmon/xgene-hwmon.c
+@@ -698,14 +698,14 @@ static int xgene_hwmon_probe(struct platform_device *pdev)
+ 		ctx->comm_base_addr = pcc_chan->shmem_base_addr;
+ 		if (ctx->comm_base_addr) {
+ 			if (version == XGENE_HWMON_V2)
+-				ctx->pcc_comm_addr = (void __force *)ioremap(
+-							ctx->comm_base_addr,
+-							pcc_chan->shmem_size);
++				ctx->pcc_comm_addr = (void __force *)devm_ioremap(&pdev->dev,
++								  ctx->comm_base_addr,
++								  pcc_chan->shmem_size);
+ 			else
+-				ctx->pcc_comm_addr = memremap(
+-							ctx->comm_base_addr,
+-							pcc_chan->shmem_size,
+-							MEMREMAP_WB);
++				ctx->pcc_comm_addr = devm_memremap(&pdev->dev,
++								   ctx->comm_base_addr,
++								   pcc_chan->shmem_size,
++								   MEMREMAP_WB);
+ 		} else {
+ 			dev_err(&pdev->dev, "Failed to get PCC comm region\n");
+ 			rc = -ENODEV;
+-- 
+2.39.2
+
 
 
