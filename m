@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D7F6E61F1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F33B6E62B0
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbjDRM2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38420 "EHLO
+        id S231666AbjDRMep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231562AbjDRM2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:39 -0400
+        with ESMTP id S231661AbjDRMej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208638A45
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B59A118F1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00D1F628B4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18120C433EF;
-        Tue, 18 Apr 2023 12:28:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 410876320E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52AFCC4339B;
+        Tue, 18 Apr 2023 12:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820899;
-        bh=x5uIg4wmpC/2g5jSH3GSvR0YH0BAYbbutORnhPmYnJ8=;
+        s=korg; t=1681821269;
+        bh=+RVkdLaiGXJb9II5lOGtw/KtwtzDFZTfsr88t/h29Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmNcEWKWviKDsVTs4dorUiXsi7tfxtCHxllZ4I9O0m9hkMu44PIyYxF9CLjzX/5sh
-         7sNqZKVYPrerj5fzd4MjevjyUzyA+tVwLhxTwJ/RmqT5KXTLwWDiVa11h1gbdukIbY
-         BkHbhytnC9h+AIdGMseLf99op/vyOmtH8jmKfHZQ=
+        b=WtTHKzlP2sBpOcl7+l8tTjSInscCQC5KW2wdh5FXutGAT3OZVUM9t/qkfg6IxTQhd
+         qkT6e1jnrTqzZj7BtFKyHFRw28qggCnHbY89X9LURVbNh7ox6C5ZIabTjlSC/+/Fx0
+         3brEUVUApNrwzODVswuTZ7Le25xM9y5+CwzeODjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/92] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
-Date:   Tue, 18 Apr 2023 14:20:51 +0200
-Message-Id: <20230418120305.370372349@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 5.10 033/124] dt-bindings: serial: renesas,scif: Fix 4th IRQ for 4-IRQ SCIFs
+Date:   Tue, 18 Apr 2023 14:20:52 +0200
+Message-Id: <20230418120310.986964714@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,101 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
+commit 7b21f329ae0ab6361c0aebfc094db95821490cd1 upstream.
 
-Syzbot reported a bug as following:
+The fourth interrupt on SCIF variants with four interrupts (RZ/A1) is
+the Break interrupt, not the Transmit End interrupt (like on SCI(g)).
+Update the description and interrupt name to fix this.
 
-=====================================================
-BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
-BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
-BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
-BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
- arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
- arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
- atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
- __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
- ip6_finish_skb include/net/ipv6.h:1122 [inline]
- ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
- rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
- rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
- inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
- ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
- __sys_sendmsg net/socket.c:2559 [inline]
- __do_sys_sendmsg net/socket.c:2568 [inline]
- __se_sys_sendmsg net/socket.c:2566 [inline]
- __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
- kmalloc_reserve net/core/skbuff.c:492 [inline]
- __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
- alloc_skb include/linux/skbuff.h:1270 [inline]
- __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
- ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
- rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
- inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
- ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
- __sys_sendmsg net/socket.c:2559 [inline]
- __do_sys_sendmsg net/socket.c:2568 [inline]
- __se_sys_sendmsg net/socket.c:2566 [inline]
- __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-It is because icmp6hdr does not in skb linear region under the scenario
-of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
-trigger the uninit variable access bug.
-
-Use a local variable icmp6_type to carry the correct value in different
-scenarios.
-
-Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
-Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 384d00fae8e51f8f ("dt-bindings: serial: sh-sci: Convert to json-schema")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/719d1582e0ebbe3d674e3a48fc26295e1475a4c3.1679046394.git.geert+renesas@glider.be
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/serial/renesas,scif.yaml |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 457eb07be4828..8231a7a3dd035 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1855,8 +1855,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
- 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
- 	if (proto == IPPROTO_ICMPV6) {
- 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
-+		u8 icmp6_type;
- 
--		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
-+		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
-+			icmp6_type = fl6->fl6_icmp_type;
-+		else
-+			icmp6_type = icmp6_hdr(skb)->icmp6_type;
-+		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
- 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
- 	}
- 
--- 
-2.39.2
-
+--- a/Documentation/devicetree/bindings/serial/renesas,scif.yaml
++++ b/Documentation/devicetree/bindings/serial/renesas,scif.yaml
+@@ -74,7 +74,7 @@ properties:
+           - description: Error interrupt
+           - description: Receive buffer full interrupt
+           - description: Transmit buffer empty interrupt
+-          - description: Transmit End interrupt
++          - description: Break interrupt
+       - items:
+           - description: Error interrupt
+           - description: Receive buffer full interrupt
+@@ -89,7 +89,7 @@ properties:
+           - const: eri
+           - const: rxi
+           - const: txi
+-          - const: tei
++          - const: bri
+       - items:
+           - const: eri
+           - const: rxi
 
 
