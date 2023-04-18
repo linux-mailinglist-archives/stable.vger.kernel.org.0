@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E0FE6E61EC
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 565336E62AB
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231519AbjDRM2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38926 "EHLO
+        id S231549AbjDRMef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231518AbjDRM22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:28 -0400
+        with ESMTP id S231622AbjDRMee (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FE8B758
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A53118C2
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 142896319F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ABD9C433EF;
-        Tue, 18 Apr 2023 12:28:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 285CF6324F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C91EC433D2;
+        Tue, 18 Apr 2023 12:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820886;
-        bh=mHDeLuATb0Edfl2VAZmaSajd0/sEp9bfXCq8VOWtcOM=;
+        s=korg; t=1681821256;
+        bh=H2HtnFPutSbT1AV3LWQ61DLo5X4z/uqzAVFuZdHElBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayBrXLDfN1t5y2FxPsP71dE2WojHsLjwrY7p0JNGJg6t3/mWQ1cqME++ReUqJOsf9
-         5JL/eXDQ53YSwokj4zebSQ24qFfBR9oXw+KdOPTadUPsrhHmj9gHOre8M9R6nvLUt6
-         iSxfuCikP5vJVesXzy6+NP5O9sTZ//4OIprG9WEk=
+        b=EXRdrKiGJhJeDLMbI5tXu04YVlSRba1lk1RughCxO5DK7ZCq7aQjLcZZx3pmV71Mc
+         eIYcn6Apmjht+vRu+Yw5U0dJ5KE1oXCm+PD4YcRqewuROK+ji2NpA+WxFZdGoUcAbH
+         /yADlnvYAU03nXmIeqt6prEt2VINJ5RuOe2cOL7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/92] pwm: sprd: Explicitly set .polarity in .get_state()
-Date:   Tue, 18 Apr 2023 14:20:46 +0200
-Message-Id: <20230418120305.157467859@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 5.10 028/124] tty: serial: sh-sci: Fix transmit end interrupt handler
+Date:   Tue, 18 Apr 2023 14:20:47 +0200
+Message-Id: <20230418120310.762711076@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 2be4dcf6627e1bcbbef8e6ba1811f5127d39202c ]
+commit b43a18647f03c87e77d50d6fe74904b61b96323e upstream.
 
-The driver only supports normal polarity. Complete the implementation of
-.get_state() by setting .polarity accordingly.
+The fourth interrupt on SCI port is transmit end interrupt compared to
+the break interrupt on other port types. So, shuffle the interrupts to fix
+the transmit end interrupt handler.
 
-Fixes: 8aae4b02e8a6 ("pwm: sprd: Add Spreadtrum PWM support")
-Link: https://lore.kernel.org/r/20230228135508.1798428-5-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Cc: stable <stable@kernel.org>
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20230317150403.154094-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-sprd.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/sh-sci.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/pwm/pwm-sprd.c b/drivers/pwm/pwm-sprd.c
-index 892d853d48a1a..b30d664bf7d57 100644
---- a/drivers/pwm/pwm-sprd.c
-+++ b/drivers/pwm/pwm-sprd.c
-@@ -109,6 +109,7 @@ static void sprd_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	duty = val & SPRD_PWM_DUTY_MSK;
- 	tmp = (prescale + 1) * NSEC_PER_SEC * duty;
- 	state->duty_cycle = DIV_ROUND_CLOSEST_ULL(tmp, chn->clk_rate);
-+	state->polarity = PWM_POLARITY_NORMAL;
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -31,6 +31,7 @@
+ #include <linux/ioport.h>
+ #include <linux/ktime.h>
+ #include <linux/major.h>
++#include <linux/minmax.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/of.h>
+@@ -2923,6 +2924,13 @@ static int sci_init_single(struct platfo
+ 			sci_port->irqs[i] = platform_get_irq(dev, i);
+ 	}
  
- 	/* Disable PWM clocks if the PWM channel is not in enable state. */
- 	if (!state->enabled)
--- 
-2.39.2
-
++	/*
++	 * The fourth interrupt on SCI port is transmit end interrupt, so
++	 * shuffle the interrupts.
++	 */
++	if (p->type == PORT_SCI)
++		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
++
+ 	/* The SCI generates several interrupts. They can be muxed together or
+ 	 * connected to different interrupt lines. In the muxed case only one
+ 	 * interrupt resource is specified as there is only one interrupt ID.
 
 
