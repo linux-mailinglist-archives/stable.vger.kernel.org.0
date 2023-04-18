@@ -2,96 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB4A6E666B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 15:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDC66E6687
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232437AbjDRNzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 09:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
+        id S231229AbjDROBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 10:01:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232427AbjDRNzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 09:55:01 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98362698
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 06:54:59 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id q5so15559594wmo.4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 06:54:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20221208.gappssmtp.com; s=20221208; t=1681826098; x=1684418098;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=W5SNUCcjykIdKKCiZFRF+vb2BpV3UFJNjVjypP4Hx4U=;
-        b=lHrGbHBcqvJbq2sZEVQ14sAcgNmV6LbfIMvwDodaAo48mr6FBDSGsIUeRQu0OaGjc9
-         ZHLPKBuNbXZKf+kX+rK5mBnL2Jk7rF0VI/6Ye2XEjCzX9wrSCyR0uvZ6nACwNC26gfsg
-         yc1RfnO26ZHPGPP1BEa+sHL+DgFJgBwIq3LfTB505khBGOWbv7tkH+UZ0+FAPB558Qg1
-         iEHB59kTPN/HwUs/hFx7D8zPe4vvCFjtglF3F8EkM+INLxWJwPLQNWzRi0ecnWtq5D8W
-         kq77s5SqioGWi3zG81bMVLHR85K6ipQRVTHyiZx2321HDlOFmoB58al7ncsYjAaOcjiQ
-         S3vQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681826098; x=1684418098;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W5SNUCcjykIdKKCiZFRF+vb2BpV3UFJNjVjypP4Hx4U=;
-        b=EEyAQLQ5fjgqjlf6z11LJiNtRyhfVEorhTgQ5c0bD41juLCZUC7z0sIlqWCn8sBZTu
-         RHPebOWSRgCP1J0lTU2aFa5Ep4M3IPmjqtfJlWui0r5xCq6Yp0H69dved0otfpGayCZ+
-         Xxym++xVm19P1SH7698++Pi9nZASuiwjgCT4hVK6sJiGUIo4eWo1FRXdlD86EFiwx6e/
-         lSj+puVnOc2eWHlLV/ktRzw5GkL1MoJDFjP2G6LJGeUtRk93l3T3m+gN2QzQxH8g7ooM
-         MsCWF5iaJ7M6Gyw8K4fcp+RLhO1+hDIlbAS5cGGex79cOhBVwy0iFHF00ahABSYetQub
-         zABg==
-X-Gm-Message-State: AAQBX9fgX9IvWKgSMQozjvMdRL8mxFQns8h3ih7XLbmW43TyQbg5txG1
-        vZVXulPMVViuF2/1wn2FnU3T/Q==
-X-Google-Smtp-Source: AKy350b2Sxc1pVMGSJQM89vMl+h2c3JEy6nzn9kIxzspmqJ0ZMig/cKsmipYEIVA5HpJyVUl4+iDrw==
-X-Received: by 2002:a7b:ce8c:0:b0:3f1:72ec:4015 with SMTP id q12-20020a7bce8c000000b003f172ec4015mr5448605wmj.13.1681826098444;
-        Tue, 18 Apr 2023 06:54:58 -0700 (PDT)
-Received: from airbuntu ([104.132.45.106])
-        by smtp.gmail.com with ESMTPSA id r8-20020adfda48000000b002efacde3fc7sm13187764wrl.35.2023.04.18.06.54.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 06:54:57 -0700 (PDT)
-Date:   Tue, 18 Apr 2023 14:54:56 +0100
-From:   Qais Yousef <qyousef@layalina.io>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>
-Subject: Re: [PATCH RESEND 7/7] sched/fair: Fixes for capacity inversion
- detection
-Message-ID: <20230418135456.mh43szfyqclagztj@airbuntu>
-References: <20230318193302.3194615-1-qyousef@layalina.io>
- <20230318193302.3194615-8-qyousef@layalina.io>
- <2023041842-treachery-esophagus-7727@gregkh>
+        with ESMTP id S231296AbjDROB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:01:28 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF5012C9E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:01:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681826487; x=1713362487;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=vjURlTqd//wThjsMTZnycpn3U2wKR1KrkFMZjbzMmf8=;
+  b=D0ntUJdi2iBgzbTmKKEi8HPWCWNkso9RSjrZgCJOoad2h25c0Tbdx416
+   hfwee1aY8xmMS1z4C0FGCCYjupIaqcG3XauG8oYoe3PpZS/I1MKEmop6A
+   6QNARO0NPqJ7/SKB1j75LgD7ojN4FeB6N9OU6lq4/LWCTcUNaWiJM4sAJ
+   eJH+nbkmNd9sFconGi20V6hOEtaOn72TbdmT+pOFQ6+7+cDF76YgxZpTB
+   CF1AoXOrwCXWbmMpUZBgy2raBI1IvS7r0D1PAFOcYynkvCGlszjOTJ9QE
+   glf26L35rO+POFZOV4/IX0BHDD/3uVGkt6aPXGI10YkurDdRcmKJaTvQg
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10684"; a="410397486"
+X-IronPort-AV: E=Sophos;i="5.99,207,1677571200"; 
+   d="scan'208";a="410397486"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Apr 2023 07:01:26 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10684"; a="834888392"
+X-IronPort-AV: E=Sophos;i="5.99,207,1677571200"; 
+   d="scan'208";a="834888392"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
+  by fmsmga001.fm.intel.com with SMTP; 18 Apr 2023 07:01:22 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Tue, 18 Apr 2023 17:01:22 +0300
+Date:   Tue, 18 Apr 2023 17:01:22 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Wayne Lin <Wayne.Lin@amd.com>
+Cc:     dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+        lyude@redhat.com, imre.deak@intel.com, jani.nikula@intel.com,
+        harry.wentland@amd.com, jerry.zuo@amd.com, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/dp_mst: Clear MSG_RDY flag before sending new message
+Message-ID: <ZD6isq36T+RQ7uNK@intel.com>
+References: <20230418060905.4078976-1-Wayne.Lin@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <2023041842-treachery-esophagus-7727@gregkh>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230418060905.4078976-1-Wayne.Lin@amd.com>
+X-Patchwork-Hint: comment
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/18/23 12:30, Greg Kroah-Hartman wrote:
-> On Sat, Mar 18, 2023 at 07:33:02PM +0000, Qais Yousef wrote:
-> > commit da07d2f9c153e457e845d4dcfdd13568d71d18a4 upstream.
+On Tue, Apr 18, 2023 at 02:09:05PM +0800, Wayne Lin wrote:
+> [Why & How]
+> The sequence for collecting down_reply/up_request from source
+> perspective should be:
 > 
-> As this is in 6.2, what about 6.1.y for this series?  We can't have
-> people upgrading to a new kernel tree and have regressions, right?
+> Request_n->repeat (get partial reply of Request_n->clear message ready
+> flag to ack DPRX that the message is received) till all partial
+> replies for Request_n are received->new Request_n+1.
+> 
+> While assembling partial reply packets, reading out DPCD DOWN_REP
+> Sideband MSG buffer + clearing DOWN_REP_MSG_RDY flag should be
+> wrapped up as a complete operation for reading out a reply packet.
+> Kicking off a new request before clearing DOWN_REP_MSG_RDY flag might
+> be risky. e.g. If the reply of the new request has overwritten the
+> DPRX DOWN_REP Sideband MSG buffer before source writing ack to clear
+> DOWN_REP_MSG_RDY flag, source then unintentionally flushes the reply
+> for the new request. Should handle the up request in the same way.
+> 
+> In drm_dp_mst_hpd_irq(), we don't clear MSG_RDY flag before caliing
+> drm_dp_mst_kick_tx(). Fix that.
+> 
+> Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  2 ++
+>  drivers/gpu/drm/display/drm_dp_mst_topology.c | 22 +++++++++++++++++++
+>  drivers/gpu/drm/i915/display/intel_dp.c       |  3 +++
+>  drivers/gpu/drm/nouveau/dispnv50/disp.c       |  2 ++
+>  4 files changed, 29 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> index 77277d90b6e2..5313a5656598 100644
+> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> @@ -3166,6 +3166,8 @@ static void dm_handle_mst_sideband_msg(struct amdgpu_dm_connector *aconnector)
+>  			for (retry = 0; retry < 3; retry++) {
+>  				uint8_t wret;
+>  
+> +				/* MSG_RDY ack is done in drm*/
+> +				esi[1] &= ~(DP_DOWN_REP_MSG_RDY | DP_UP_REQ_MSG_RDY);
+>  				wret = drm_dp_dpcd_write(
+>  					&aconnector->dm_dp_aux.aux,
+>  					dpcd_addr + 1,
+> diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> index 51a46689cda7..02aad713c67c 100644
+> --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> @@ -4054,6 +4054,9 @@ int drm_dp_mst_hpd_irq(struct drm_dp_mst_topology_mgr *mgr, u8 *esi, bool *handl
+>  {
+>  	int ret = 0;
+>  	int sc;
+> +	const int tosend = 1;
+> +	int retries = 0;
+> +	u8 buf = 0;
+>  	*handled = false;
+>  	sc = DP_GET_SINK_COUNT(esi[0]);
+>  
+> @@ -4072,6 +4075,25 @@ int drm_dp_mst_hpd_irq(struct drm_dp_mst_topology_mgr *mgr, u8 *esi, bool *handl
+>  		*handled = true;
+>  	}
+>  
+> +	if (*handled) {
+> +		buf = esi[1] & (DP_DOWN_REP_MSG_RDY | DP_UP_REQ_MSG_RDY);
+> +		do {
+> +			ret = drm_dp_dpcd_write(mgr->aux,
+> +						DP_DEVICE_SERVICE_IRQ_VECTOR_ESI0,
+> +						&buf,
+> +						tosend);
+> +
+> +			if (ret == tosend)
+> +				break;
+> +
+> +			retries++;
+> +		} while (retries < 5);
 
-Yes, my bad. I did check 6.1.y but missed that 3 patches didn't actually make
-it there. I have cherry-picked them now and have a series ready to send.
+What's with this magic retry loop?
 
-> So can you please also make up a 6.1.y series of patches and then resend
-> all of these (5.10.y, 5.15.y, and 6.1.y), and then we can properly queue
-> them all up at the same time.
+Not sure I like the whole thing though. Splitting the irq ack
+semi-randomly between driver vs. multiple helpers doesn't feel
+great to me.
 
-Okay will do this later today or tomorrow.
+As a whole the HPD_IRQ handling is a total mess atm. At some point
+I was trying to sketch something a bit better for it. The approach
+I was thinking was something along the lines of:
 
-(Sorry I missed this response earlier).
+ u8 vector[...];
+ drm_dp_read_irq_vector(vector);
+ ... handle all irqs/etc., calling suitable helpers as needed
+ drm_dp_clear_irq_vector(vector);
 
-Thanks
+And I was also thinking that this drm_dp_*_irq_vector() stuff
+would always use the ESI layout, converting as needed from/to
+the old layout for pre-1.2 (or whatever the cutoff was) devices.
+That way drivers would just need the one codepath.
 
---
-Qais Yousef
+> +
+> +		if (ret != tosend)
+> +			drm_dbg_kms(mgr->dev, "failed to write dpcd 0x%x\n",
+> +				    DP_DEVICE_SERVICE_IRQ_VECTOR_ESI0);
+> +	}
+> +
+>  	drm_dp_mst_kick_tx(mgr);
+>  	return ret;
+>  }
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> index bf80f296a8fd..abec3de38b66 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> @@ -3939,6 +3939,9 @@ intel_dp_check_mst_status(struct intel_dp *intel_dp)
+>  		if (!memchr_inv(ack, 0, sizeof(ack)))
+>  			break;
+>  
+> +		/* MSG_RDY ack is done in drm*/
+> +		ack[1] &= ~(DP_DOWN_REP_MSG_RDY | DP_UP_REQ_MSG_RDY);
+> +
+>  		if (!intel_dp_ack_sink_irq_esi(intel_dp, ack))
+>  			drm_dbg_kms(&i915->drm, "Failed to ack ESI\n");
+>  	}
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> index edcb2529b402..e905987104ed 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> @@ -1336,6 +1336,8 @@ nv50_mstm_service(struct nouveau_drm *drm,
+>  		if (!handled)
+>  			break;
+>  
+> +		/* MSG_RDY ack is done in drm*/
+> +		esi[1] &= ~(DP_DOWN_REP_MSG_RDY | DP_UP_REQ_MSG_RDY);
+>  		rc = drm_dp_dpcd_write(aux, DP_SINK_COUNT_ESI + 1, &esi[1],
+>  				       3);
+>  		if (rc != 3) {
+> -- 
+> 2.37.3
+
+-- 
+Ville Syrjälä
+Intel
