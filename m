@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B3B6E62B5
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDAE66E61A6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231686AbjDRMer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
+        id S231395AbjDRM0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:26:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231664AbjDRMen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:43 -0400
+        with ESMTP id S231163AbjDRMZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5862C16C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E4EB476
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86AB563243
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0EDC433EF;
-        Tue, 18 Apr 2023 12:34:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71E3D63111
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85243C433EF;
+        Tue, 18 Apr 2023 12:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821275;
-        bh=82ymGgi/XRf4oKO2pBGyU9x/WaPULgbyCe9Jc1nUUhk=;
+        s=korg; t=1681820746;
+        bh=kURrNZFOCRixyhpGhOj84iCQKJo1uVLAaTX/SGnFgTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbGvzCM4o6bsyihKocqUh0WrNOwIxrgSfdeyup3J7UJJ+zTRkomXPbnp/61PEtdhu
-         Xl2XUSYWud/e6Ugx2rhB7psCFdRH6+N5etHEy3xFsrFnOIDwb7ZdxAjqQVuDwFWUzZ
-         ITv3DLqzlFo3TZtfL61yR+GBdQKUd8NfJx/TIt+k=
+        b=G5+dcnrlqoI0JlUh3yR1Bt8EQ1hJkzU9ZkeKcVVDRj9lKO5aTbXM1ZmYKcG0001O2
+         0njpGlZRH1afU7QXk0wJ5zfdtm1rdlFRdMTsdECa6o9nYRG64M9gApOIddcQwmaucL
+         v2SqrBk894/u0nOxeytaUp7sz7BZNYPnaBhwtSTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xu Biang <xubiang@hust.edu.cn>,
-        Dan Carpenter <error27@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 057/124] ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 16/57] USB: serial: option: add Telit FE990 compositions
 Date:   Tue, 18 Apr 2023 14:21:16 +0200
-Message-Id: <20230418120311.901068374@linuxfoundation.org>
+Message-Id: <20230418120259.289275447@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Biang <xubiang@hust.edu.cn>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-commit fb4a624f88f658c7b7ae124452bd42eaa8ac7168 upstream.
+commit 773e8e7d07b753474b2ccd605ff092faaa9e65b9 upstream.
 
-Smatch Warns:
-sound/firewire/tascam/tascam-stream.c:493 snd_tscm_stream_start_duplex()
-warn: missing unwind goto?
+Add the following Telit FE990 compositions:
 
-The direct return will cause the stream list of "&tscm->domain" unemptied
-and the session in "tscm" unfinished if amdtp_domain_start() returns with
-an error.
+0x1080: tty, adb, rmnet, tty, tty, tty, tty
+0x1081: tty, adb, mbim, tty, tty, tty, tty
+0x1082: rndis, tty, adb, tty, tty, tty, tty
+0x1083: tty, adb, ecm, tty, tty, tty, tty
 
-Fix this by changing the direct return to a goto which will empty the
-stream list of "&tscm->domain" and finish the session in "tscm".
-
-The snd_tscm_stream_start_duplex() function is called in the prepare
-callback of PCM. According to "ALSA Kernel API Documentation", the prepare
-callback of PCM will be called many times at each setup. So, if the
-"&d->streams" list is not emptied, when the prepare callback is called
-next time, snd_tscm_stream_start_duplex() will receive -EBUSY from
-amdtp_domain_add_stream() that tries to add an existing stream to the
-domain. The error handling code after the "error" label will be executed
-in this case, and the "&d->streams" list will be emptied. So not emptying
-the "&d->streams" list will not cause an issue. But it is more efficient
-and readable to empty it on the first error by changing the direct return
-to a goto statement.
-
-The session in "tscm" has been begun before amdtp_domain_start(), so it
-needs to be finished when amdtp_domain_start() fails.
-
-Fixes: c281d46a51e3 ("ALSA: firewire-tascam: support AMDTP domain")
-Signed-off-by: Xu Biang <xubiang@hust.edu.cn>
-Reviewed-by: Dan Carpenter <error27@gmail.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230406132801.105108-1-xubiang@hust.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Link: https://lore.kernel.org/r/20230314090059.77876-1-enrico.sau@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/tascam/tascam-stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/sound/firewire/tascam/tascam-stream.c
-+++ b/sound/firewire/tascam/tascam-stream.c
-@@ -475,7 +475,7 @@ int snd_tscm_stream_start_duplex(struct
- 
- 		err = amdtp_domain_start(&tscm->domain, 0);
- 		if (err < 0)
--			return err;
-+			goto error;
- 
- 		if (!amdtp_stream_wait_callback(&tscm->rx_stream,
- 						CALLBACK_TIMEOUT) ||
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1300,6 +1300,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1075, 0xff),	/* Telit FN990 (PCIe) */
+ 	  .driver_info = RSVD(0) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1080, 0xff),	/* Telit FE990 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1081, 0xff),	/* Telit FE990 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1082, 0xff),	/* Telit FE990 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1083, 0xff),	/* Telit FE990 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
