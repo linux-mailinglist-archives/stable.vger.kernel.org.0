@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C61BE6E6436
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735E16E64E0
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232030AbjDRMrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:47:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37444 "EHLO
+        id S232201AbjDRMxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbjDRMrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:05 -0400
+        with ESMTP id S232210AbjDRMxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B75167E5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFF814F7F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C96AE633BD
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF515C433D2;
-        Tue, 18 Apr 2023 12:47:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9FAE6340D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70CEC433EF;
+        Tue, 18 Apr 2023 12:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822022;
-        bh=BnpTI779WI1w2wGOpeYuzWT85rD9L5WlTF20khLKvs0=;
+        s=korg; t=1681822352;
+        bh=Ccltu1PcoEKzkESOapk0mk3Wx6xSUETR124XIwTptA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFTU0DuAE0T54VrHGH0c9zzOLSQ9Sju4XSjTQZVJ+gOrjy8CR+FOg9GgndoZfWCDU
-         Tzvwb0yzm8PupLAx8VDgXyltG924Egk1x/SVENiy9TzG6rI2uB/LnJNFzvrNrGXmcY
-         AuR9TCT8cmy6Hnjwua/j4EtS+S9/6Ko6zfGwp7co=
+        b=rJnqWscVAAYF1LOgeiTrgNl6Mn30BGkhSaJKZxOAWo5N8ky9ZLGu3l9YKJmBsWOYw
+         b8MXSvWTwW9yINHDx/GvcNpXfFKRTp2oCb4OaX8+dsNXgBLqHmwxh67mX+8RrqInGC
+         O03BI/9lNfyqV/rS1bgk4ZTMDNEvMOBqbX1WK5tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 127/134] purgatory: fix disabling debug info
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 6.2 118/139] cgroup/cpuset: Fix partition roots cpuset.cpus update bug
 Date:   Tue, 18 Apr 2023 14:23:03 +0200
-Message-Id: <20230418120317.600787422@linuxfoundation.org>
+Message-Id: <20230418120318.238615119@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 ]
+commit 292fd843de26c551856e66faf134512c52dd78b4 upstream.
 
-Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
--Wa versions of both of those if building with Clang and GNU as.  As a
-result, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+It was found that commit 7a2127e66a00 ("cpuset: Call
+set_cpus_allowed_ptr() with appropriate mask for task") introduced a bug
+that corrupted "cpuset.cpus" of a partition root when it was updated.
 
-Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is because the tmp->new_cpus field of the passed tmp parameter
+of update_parent_subparts_cpumask() should not be used at all as
+it contains important cpumask data that should not be overwritten.
+Fix it by using tmp->addmask instead.
+
+Also update update_cpumask() to make sure that trialcs->cpu_allowed
+will not be corrupted until it is no longer needed.
+
+Fixes: 7a2127e66a00 ("cpuset: Call set_cpus_allowed_ptr() with appropriate mask for task")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Cc: stable@vger.kernel.org # v6.2+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/purgatory/Makefile | 7 +------
- arch/x86/purgatory/Makefile   | 3 +--
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ kernel/cgroup/cpuset.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
-index d16bf715a586b..5730797a6b402 100644
---- a/arch/riscv/purgatory/Makefile
-+++ b/arch/riscv/purgatory/Makefile
-@@ -84,12 +84,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1513,7 +1513,7 @@ static int update_parent_subparts_cpumas
+ 	spin_unlock_irq(&callback_lock);
  
--AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strcmp.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strlen.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strncmp.o		+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
+ 	if (adding || deleting)
+-		update_tasks_cpumask(parent, tmp->new_cpus);
++		update_tasks_cpumask(parent, tmp->addmask);
  
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 17f09dc263811..82fec66d46d29 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ 	/*
+ 	 * Set or clear CS_SCHED_LOAD_BALANCE when partcmd_update, if necessary.
+@@ -1770,10 +1770,13 @@ static int update_cpumask(struct cpuset
+ 	/*
+ 	 * Use the cpumasks in trialcs for tmpmasks when they are pointers
+ 	 * to allocated cpumasks.
++	 *
++	 * Note that update_parent_subparts_cpumask() uses only addmask &
++	 * delmask, but not new_cpus.
+ 	 */
+ 	tmp.addmask  = trialcs->subparts_cpus;
+ 	tmp.delmask  = trialcs->effective_cpus;
+-	tmp.new_cpus = trialcs->cpus_allowed;
++	tmp.new_cpus = NULL;
+ #endif
  
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
+ 	retval = validate_change(cs, trialcs);
+@@ -1838,6 +1841,11 @@ static int update_cpumask(struct cpuset
+ 	}
+ 	spin_unlock_irq(&callback_lock);
  
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
--- 
-2.39.2
-
++#ifdef CONFIG_CPUMASK_OFFSTACK
++	/* Now trialcs->cpus_allowed is available */
++	tmp.new_cpus = trialcs->cpus_allowed;
++#endif
++
+ 	/* effective_cpus will be updated here */
+ 	update_cpumasks_hier(cs, &tmp, false);
+ 
 
 
