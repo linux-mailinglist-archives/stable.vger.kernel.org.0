@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86E666E61BC
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E10836E63C6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231336AbjDRM1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:27:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35980 "EHLO
+        id S231916AbjDRMnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231495AbjDRM1J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 540E9B746
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:48 -0700 (PDT)
+        with ESMTP id S231917AbjDRMnQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5381445E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E33F96315A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 048E8C433D2;
-        Tue, 18 Apr 2023 12:26:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D8B96334C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD49C433EF;
+        Tue, 18 Apr 2023 12:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820807;
-        bh=gk88B8TVZq2GyERUwdbxwqku2V7lx7C84xjBklNMy5k=;
+        s=korg; t=1681821786;
+        bh=2wA44kDtgI9IRu4YzCwgCu50ewXF20yfzD+KbsOE260=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ew2ja3g5KPNh7IPnfYoZXPZJHP0yRKQYlwusXd/3TXGJgNEK0D1hl5txj0IfA5IsH
-         3MmAstbZy7ydZSCLV2rIllEtdCWTyUxLIhdQwm5nWpQuUeKt4hIL0/PoRuc09X0dwP
-         8bqQXe6WVVUvBxiMM/I12Gw/hb1yQsCW2bUl21tI=
+        b=V2NtOwFz5Qb0Y3R92LgJxRI+MWDRR3OlrRW9LXmw0xzJWw/FDPMzFPrHgngNKY3cl
+         VtLOqr91IBKHgjL8+vAd1iNj5fo7djLkcHKXfNXz0aos4hThECmAnWI4MSgRdYWAuO
+         FTRZjullPQeXP8iJ40eHST4bKazusGWN5kFAjNHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Coverstone <brian@mainsequence.net>,
-        Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/57] wifi: mac80211: fix invalid drv_sta_pre_rcu_remove calls for non-uploaded sta
+        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 6.1 013/134] Bluetooth: Fix race condition in hidp_session_thread
 Date:   Tue, 18 Apr 2023 14:21:09 +0200
-Message-Id: <20230418120259.042953033@linuxfoundation.org>
+Message-Id: <20230418120313.457969852@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,39 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Min Li <lm0963hack@gmail.com>
 
-[ Upstream commit 12b220a6171faf10638ab683a975cadcf1a352d6 ]
+commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
 
-Avoid potential data corruption issues caused by uninitialized driver
-private data structures.
+There is a potential race condition in hidp_session_thread that may
+lead to use-after-free. For instance, the timer is active while
+hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
+then 'session' will be freed, causing kernel panic when hidp_idle_timeout
+is running.
 
-Reported-by: Brian Coverstone <brian@mainsequence.net>
-Fixes: 6a9d1b91f34d ("mac80211: add pre-RCU-sync sta removal driver operation")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20230324120924.38412-3-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The solution is to use del_timer_sync instead of del_timer.
+
+Here is the call trace:
+
+? hidp_session_probe+0x780/0x780
+call_timer_fn+0x2d/0x1e0
+__run_timers.part.0+0x569/0x940
+hidp_session_probe+0x780/0x780
+call_timer_fn+0x1e0/0x1e0
+ktime_get+0x5c/0xf0
+lapic_next_deadline+0x2c/0x40
+clockevents_program_event+0x205/0x320
+run_timer_softirq+0xa9/0x1b0
+__do_softirq+0x1b9/0x641
+__irq_exit_rcu+0xdc/0x190
+irq_exit_rcu+0xe/0x20
+sysvec_apic_timer_interrupt+0xa1/0xc0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Min Li <lm0963hack@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/sta_info.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/hidp/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 5e28be07cad88..5c209f72de701 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -969,7 +969,8 @@ static int __must_check __sta_info_destroy_part1(struct sta_info *sta)
- 	list_del_rcu(&sta->list);
- 	sta->removed = true;
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -433,7 +433,7 @@ static void hidp_set_timer(struct hidp_s
+ static void hidp_del_timer(struct hidp_session *session)
+ {
+ 	if (session->idle_to > 0)
+-		del_timer(&session->timer);
++		del_timer_sync(&session->timer);
+ }
  
--	drv_sta_pre_rcu_remove(local, sta->sdata, sta);
-+	if (sta->uploaded)
-+		drv_sta_pre_rcu_remove(local, sta->sdata, sta);
- 
- 	if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
- 	    rcu_access_pointer(sdata->u.vlan.sta) == sta)
--- 
-2.39.2
-
+ static void hidp_process_report(struct hidp_session *session, int type,
 
 
