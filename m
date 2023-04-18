@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFD56E64B9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23106E640F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232214AbjDRMvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44276 "EHLO
+        id S231979AbjDRMpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232256AbjDRMvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:41 -0400
+        with ESMTP id S231669AbjDRMpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A4816B0F;
-        Tue, 18 Apr 2023 05:51:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1241714F42
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA69763400;
-        Tue, 18 Apr 2023 12:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68F2C433D2;
-        Tue, 18 Apr 2023 12:51:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DA6C6339C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7ECC433D2;
+        Tue, 18 Apr 2023 12:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822283;
-        bh=VCwMMj2q4qUoHuODRqKDgoLte/T7yupow6Vv8LVr/gY=;
+        s=korg; t=1681821951;
+        bh=bcYVhoYp/D4cAl1jTSByOoX3KEWGe8RwCwRFx8A3v7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNR74qGrFuzNRkEcu+ajnSyOkf4kvplWEjGJ+uMU5S0YhJa+i22Rf+bgMeud6Gxcc
-         uSrcOiLFHFzWdRS6DVSyPqow5d4FRW07h3IpsLzaKIs4T7bKQCK10HNOQU3hn00xTC
-         /N9A8Ss0yg8IOxaoi6DKm9ejuPI3n+DcN/N1ZSQA=
+        b=2oAFbfxKGp09Vd24EIFMMpCEeljPk+l1MJeKDQqroMq91Q9SxhDCRPd8P2zzGei4i
+         h1c3qCMFGR1hDfII1yctm84Haf1arH2B+cfkbBq58I+DBGGjFFSsKZEGqwGceATxPn
+         15V4aeqVifkZpXSDJxHY6a4WFItIHj1Ye7zXIthw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 091/139] verify_pefile: relax wrapper length check
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ross Zwisler <zwisler@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 100/134] tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance
 Date:   Tue, 18 Apr 2023 14:22:36 +0200
-Message-Id: <20230418120317.209953421@linuxfoundation.org>
+Message-Id: <20230418120316.664533551@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,59 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
+[ Upstream commit 9d52727f8043cfda241ae96896628d92fa9c50bb ]
 
-The PE Format Specification (section "The Attribute Certificate Table
-(Image Only)") states that `dwLength` is to be rounded up to 8-byte
-alignment when used for traversal.  Therefore, the field is not required
-to be an 8-byte multiple in the first place.
+If a trace instance has a failure with its snapshot code, the error
+message is to be written to that instance's buffer. But currently, the
+message is written to the top level buffer. Worse yet, it may also disable
+the top level buffer and not the instance that had the issue.
 
-Accordingly, pesign has not performed this alignment since version
-0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
-Signature wrapper len wrong".  Update the comment and relax the check.
+Link: https://lkml.kernel.org/r/20230405022341.688730321@goodmis.org
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
-Link: https://github.com/rhboot/pesign
-Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ross Zwisler <zwisler@google.com>
+Fixes: 2824f50332486 ("tracing: Make the snapshot trigger work with instances")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ kernel/trace/trace.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index 7553ab18db898..fe1bb374239d7 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	pr_debug("sig wrapper = { %x, %x, %x }\n",
- 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 5016ae826c463..3360d638071a1 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1112,22 +1112,22 @@ static void tracing_snapshot_instance_cond(struct trace_array *tr,
+ 	unsigned long flags;
  
--	/* Both pesign and sbsign round up the length of certificate table
--	 * (in optional header data directories) to 8 byte alignment.
-+	/* sbsign rounds up the length of certificate table (in optional
-+	 * header data directories) to 8 byte alignment.  However, the PE
-+	 * specification states that while entries are 8-byte aligned, this is
-+	 * not included in their length, and as a result, pesign has not
-+	 * rounded up since 0.110.
- 	 */
--	if (round_up(wrapper.length, 8) != ctx->sig_len) {
--		pr_debug("Signature wrapper len wrong\n");
-+	if (wrapper.length > ctx->sig_len) {
-+		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
-+			 ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
+ 	if (in_nmi()) {
+-		internal_trace_puts("*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
+-		internal_trace_puts("*** snapshot is being ignored        ***\n");
++		trace_array_puts(tr, "*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
++		trace_array_puts(tr, "*** snapshot is being ignored        ***\n");
+ 		return;
  	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
+ 
+ 	if (!tr->allocated_snapshot) {
+-		internal_trace_puts("*** SNAPSHOT NOT ALLOCATED ***\n");
+-		internal_trace_puts("*** stopping trace here!   ***\n");
+-		tracing_off();
++		trace_array_puts(tr, "*** SNAPSHOT NOT ALLOCATED ***\n");
++		trace_array_puts(tr, "*** stopping trace here!   ***\n");
++		tracer_tracing_off(tr);
+ 		return;
+ 	}
+ 
+ 	/* Note, snapshot can not be used when the tracer uses it */
+ 	if (tracer->use_max_tr) {
+-		internal_trace_puts("*** LATENCY TRACER ACTIVE ***\n");
+-		internal_trace_puts("*** Can not use snapshot (sorry) ***\n");
++		trace_array_puts(tr, "*** LATENCY TRACER ACTIVE ***\n");
++		trace_array_puts(tr, "*** Can not use snapshot (sorry) ***\n");
+ 		return;
+ 	}
+ 
 -- 
 2.39.2
 
