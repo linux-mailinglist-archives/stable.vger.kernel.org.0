@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99106E6416
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F9D6E64D7
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbjDRMqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:46:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36164 "EHLO
+        id S232196AbjDRMxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231996AbjDRMqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E643514F42
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:07 -0700 (PDT)
+        with ESMTP id S232128AbjDRMxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E7415606
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E79A6339C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 810C5C4339B;
-        Tue, 18 Apr 2023 12:46:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C2B66135B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D81C433D2;
+        Tue, 18 Apr 2023 12:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821966;
-        bh=K+j/i8K8kMMSszfNupuLxaXZnj31ATwCSwYFwNpMhPQ=;
+        s=korg; t=1681822301;
+        bh=ln6XzTMYNR/OxX7UOrfi6W+HYBL2AaaT9QbQO/DSoqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drSHlpXeg18jbr+D3pKT7p/BkcqRN9Tciz50b0o7f532H3HDfhPuj8SZnS1Rp1ECZ
-         jn6om98/wOp/VhhU4iZDmxOuPLURezfjR0QDYfX6NCkQj4sdJ6Sztet1hABwayZoen
-         znQz+uN5ig+wjrVM61cYpf5sm/rM0nWQCWhAtxZQ=
+        b=I0ySYozERmSi74lXGijaoH4I3rbX6Y5LZyVEePM5rtsJurd8fFuXVwzlg0fX/vuY0
+         vmGUQGiUk0vA5knOM6rIYYYRIRgudBgAnKomNIcp/Lu1+Z0ZW75Bn+OOfEgLdS3+1D
+         OeerSpJpyzAdfNEZEiHMkhuGF9sdyznUnyTYDmQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tanu Malhotra <tanu.malhotra@intel.com>,
-        Shaunak Saha <shaunak.saha@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 6.1 105/134] HID: intel-ish-hid: Fix kernel panic during warm reset
-Date:   Tue, 18 Apr 2023 14:22:41 +0200
-Message-Id: <20230418120316.858959277@linuxfoundation.org>
+        patches@lists.linux.dev, YuBiao Wang <YuBiao.Wang@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 097/139] drm/amdgpu: Force signal hw_fences that are embedded in non-sched jobs
+Date:   Tue, 18 Apr 2023 14:22:42 +0200
+Message-Id: <20230418120317.430779142@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,59 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tanu Malhotra <tanu.malhotra@intel.com>
+From: YuBiao Wang <YuBiao.Wang@amd.com>
 
-commit 38518593ec55e897abda4b4be77b2ec8ec4447d1 upstream.
+[ Upstream commit 033c56474acf567a450f8bafca50e0b610f2b716 ]
 
-During warm reset device->fw_client is set to NULL. If a bus driver is
-registered after this NULL setting and before new firmware clients are
-enumerated by ISHTP, kernel panic will result in the function
-ishtp_cl_bus_match(). This is because of reference to
-device->fw_client->props.protocol_name.
+[Why]
+For engines not supporting soft reset, i.e. VCN, there will be a failed
+ib test before mode 1 reset during asic reset. The fences in this case
+are never signaled and next time when we try to free the sa_bo, kernel
+will hang.
 
-ISH firmware after getting successfully loaded, sends a warm reset
-notification to remove all clients from the bus and sets
-device->fw_client to NULL. Until kernel v5.15, all enabled ISHTP kernel
-module drivers were loaded right after any of the first ISHTP device was
-registered, regardless of whether it was a matched or an unmatched
-device. This resulted in all drivers getting registered much before the
-warm reset notification from ISH.
+[How]
+During pre_asic_reset, driver will clear job fences and afterwards the
+fences' refcount will be reduced to 1. For drm_sched_jobs it will be
+released in job_free_cb, and for non-sched jobs like ib_test, it's meant
+to be released in sa_bo_free but only when the fences are signaled. So
+we have to force signal the non_sched bad job's fence during
+pre_asic_reset or the clear is not complete.
 
-Starting kernel v5.16, this issue got exposed after the change was
-introduced to load only bus drivers for the respective matching devices.
-In this scenario, cros_ec_ishtp device and cros_ec_ishtp driver are
-registered after the warm reset device fw_client NULL setting.
-cros_ec_ishtp driver_register() triggers the callback to
-ishtp_cl_bus_match() to match ISHTP driver to the device and causes kernel
-panic in guid_equal() when dereferencing fw_client NULL pointer to get
-protocol_name.
-
-Fixes: f155dfeaa4ee ("platform/x86: isthp_eclite: only load for matching devices")
-Fixes: facfe0a4fdce ("platform/chrome: chros_ec_ishtp: only load for matching devices")
-Fixes: 0d0cccc0fd83 ("HID: intel-ish-hid: hid-client: only load for matching devices")
-Fixes: 44e2a58cb880 ("HID: intel-ish-hid: fw-loader: only load for matching devices")
-Cc: <stable@vger.kernel.org> # 5.16+
-Signed-off-by: Tanu Malhotra <tanu.malhotra@intel.com>
-Tested-by: Shaunak Saha <shaunak.saha@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
+Acked-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp/bus.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -241,8 +241,8 @@ static int ishtp_cl_bus_match(struct dev
- 	struct ishtp_cl_device *device = to_ishtp_cl_device(dev);
- 	struct ishtp_cl_driver *driver = to_ishtp_cl_driver(drv);
- 
--	return guid_equal(&driver->id[0].guid,
--			  &device->fw_client->props.protocol_name);
-+	return(device->fw_client ? guid_equal(&driver->id[0].guid,
-+	       &device->fw_client->props.protocol_name) : 0);
- }
- 
- /**
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index faff4a3f96e6e..f52d0ba91a770 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -678,6 +678,15 @@ void amdgpu_fence_driver_clear_job_fences(struct amdgpu_ring *ring)
+ 		ptr = &ring->fence_drv.fences[i];
+ 		old = rcu_dereference_protected(*ptr, 1);
+ 		if (old && old->ops == &amdgpu_job_fence_ops) {
++			struct amdgpu_job *job;
++
++			/* For non-scheduler bad job, i.e. failed ib test, we need to signal
++			 * it right here or we won't be able to track them in fence_drv
++			 * and they will remain unsignaled during sa_bo free.
++			 */
++			job = container_of(old, struct amdgpu_job, hw_fence);
++			if (!job->base.s_fence && !dma_fence_is_signaled(old))
++				dma_fence_signal(old);
+ 			RCU_INIT_POINTER(*ptr, NULL);
+ 			dma_fence_put(old);
+ 		}
+-- 
+2.39.2
+
 
 
