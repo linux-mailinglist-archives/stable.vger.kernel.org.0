@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6972D6E6442
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C2E6E64EB
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbjDRMrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:47:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38452 "EHLO
+        id S232215AbjDRMxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232004AbjDRMri (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:38 -0400
+        with ESMTP id S232210AbjDRMxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4ED14F72
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB8347A87
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20D82633C7
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3158CC433EF;
-        Tue, 18 Apr 2023 12:47:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BEA363437
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE13C4339B;
+        Tue, 18 Apr 2023 12:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822048;
-        bh=zr5LTGDtV+oczzGvn6qOkrO6MGsv74CWL+RACJzmASk=;
+        s=korg; t=1681822397;
+        bh=CM6XRlSLbRIFu9ZYWx2s0PTk7kALrNAe/TEpeKMf95c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHcFqOCFXMTPOc36axcjqyqXc7RiYHNVlbwu7WpR2l3W/aQdLBrlawIOa08K5Lkz0
-         5hWqFi23jHsMunkLVzORbr7MZWMSzVRj5ch2XL1whyD/uS2ZfjPxaO8qUCzzXYq4NS
-         iEOwhLkqzDiFoLcinmy9Auimr70GJ/uHnMPrVSfU=
+        b=Nue+hqvHqEgLlc9JRp3cFW3j7/NzxH1L7kDbSYSA9tRlGuLQIBVR+fdOOXSYJ3vMt
+         x2ulx2Jv9l6UnTzjXswb+SVYG92O2S7u2r+o2kgO+139b+FGdfjrCBx9ohTh+wZ3U8
+         cVLZjUjciJgRfhTKPlM2RhhzzvSnPOmIDRrhhKqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 6.1 112/134] cgroup/cpuset: Fix partition roots cpuset.cpus update bug
-Date:   Tue, 18 Apr 2023 14:22:48 +0200
-Message-Id: <20230418120317.089478368@linuxfoundation.org>
+        patches@lists.linux.dev, Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.2 104/139] riscv: Do not set initial_boot_params to the linear address of the dtb
+Date:   Tue, 18 Apr 2023 14:22:49 +0200
+Message-Id: <20230418120317.712080553@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Alexandre Ghiti <alexghiti@rivosinc.com>
 
-commit 292fd843de26c551856e66faf134512c52dd78b4 upstream.
+commit f1581626071c8e37c58c5e8f0b4126b17172a211 upstream.
 
-It was found that commit 7a2127e66a00 ("cpuset: Call
-set_cpus_allowed_ptr() with appropriate mask for task") introduced a bug
-that corrupted "cpuset.cpus" of a partition root when it was updated.
+early_init_dt_verify() is already called in parse_dtb() and since the dtb
+address does not change anymore (it is now in the fixmap region), no need
+to reset initial_boot_params by calling early_init_dt_verify() again.
 
-It is because the tmp->new_cpus field of the passed tmp parameter
-of update_parent_subparts_cpumask() should not be used at all as
-it contains important cpumask data that should not be overwritten.
-Fix it by using tmp->addmask instead.
-
-Also update update_cpumask() to make sure that trialcs->cpu_allowed
-will not be corrupted until it is no longer needed.
-
-Fixes: 7a2127e66a00 ("cpuset: Call set_cpus_allowed_ptr() with appropriate mask for task")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Cc: stable@vger.kernel.org # v6.2+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Link: https://lore.kernel.org/r/20230329081932.79831-3-alexghiti@rivosinc.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/setup.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -1509,7 +1509,7 @@ static int update_parent_subparts_cpumas
- 	spin_unlock_irq(&callback_lock);
- 
- 	if (adding || deleting)
--		update_tasks_cpumask(parent, tmp->new_cpus);
-+		update_tasks_cpumask(parent, tmp->addmask);
- 
- 	/*
- 	 * Set or clear CS_SCHED_LOAD_BALANCE when partcmd_update, if necessary.
-@@ -1766,10 +1766,13 @@ static int update_cpumask(struct cpuset
- 	/*
- 	 * Use the cpumasks in trialcs for tmpmasks when they are pointers
- 	 * to allocated cpumasks.
-+	 *
-+	 * Note that update_parent_subparts_cpumask() uses only addmask &
-+	 * delmask, but not new_cpus.
- 	 */
- 	tmp.addmask  = trialcs->subparts_cpus;
- 	tmp.delmask  = trialcs->effective_cpus;
--	tmp.new_cpus = trialcs->cpus_allowed;
-+	tmp.new_cpus = NULL;
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -278,10 +278,7 @@ void __init setup_arch(char **cmdline_p)
+ #if IS_ENABLED(CONFIG_BUILTIN_DTB)
+ 	unflatten_and_copy_device_tree();
+ #else
+-	if (early_init_dt_verify(__va(XIP_FIXUP(dtb_early_pa))))
+-		unflatten_device_tree();
+-	else
+-		pr_err("No DTB found in kernel mappings\n");
++	unflatten_device_tree();
  #endif
- 
- 	retval = validate_change(cs, trialcs);
-@@ -1834,6 +1837,11 @@ static int update_cpumask(struct cpuset
- 	}
- 	spin_unlock_irq(&callback_lock);
- 
-+#ifdef CONFIG_CPUMASK_OFFSTACK
-+	/* Now trialcs->cpus_allowed is available */
-+	tmp.new_cpus = trialcs->cpus_allowed;
-+#endif
-+
- 	/* effective_cpus will be updated here */
- 	update_cpumasks_hier(cs, &tmp, false);
- 
+ 	early_init_fdt_scan_reserved_mem();
+ 	misc_mem_init();
 
 
