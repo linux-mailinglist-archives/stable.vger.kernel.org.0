@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C4B6E634B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D323F6E6479
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbjDRMjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55728 "EHLO
+        id S232102AbjDRMta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbjDRMjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:19 -0400
+        with ESMTP id S232126AbjDRMt0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420051385F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D8B13859
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF34C632E9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A28C433EF;
-        Tue, 18 Apr 2023 12:39:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09675633EF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1CFC433EF;
+        Tue, 18 Apr 2023 12:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821557;
-        bh=kQy34DEL3CbeSrP9sGPT9ua3j4jiQy/DOa34hpftVfc=;
+        s=korg; t=1681822164;
+        bh=iu9wBuZ02aHx7fzvtDYgfYaQ2ZPGAD+kpBBVvDsJRyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgHERbeP5O2ST2p5yzoIEgxlhtlA1TO8fsCMYkL8Y08+TzaZ6K4XxWQ7gaXblQIv1
-         oQ6JTtpQtk5Xk+zOGR8XYQTyUa1IcFdfS6ixJ975Go3ma+ci7Z5Rzj7JJD1XI8Dpdx
-         mxlYA2J/RSqA7kxEFTuQMkYwSx5CmOlxq/tbRvtc=
+        b=BWY895KP6wmyQVgQj5HgSb9HvInTnWJhsRMGd8dPEbxLqU/OzFBB5vZht5+E4xWlP
+         qEEEw/aeou94efG6zyEGzhtp35LqGGlckzPJ38RN7HHKd4VGfONx9STqWo9IST0sif
+         kfj1B0awI6cwlRFa+24B/JwRN2TWmjJLEIQCsqhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Berg <benjamin.berg@intel.com>,
-        Jose Ignacio Tornos Martinez <jtornosm@redhat.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 47/91] wifi: iwlwifi: mvm: fix mvmtxq->stopped handling
-Date:   Tue, 18 Apr 2023 14:21:51 +0200
-Message-Id: <20230418120307.205856001@linuxfoundation.org>
+Subject: [PATCH 6.2 047/139] 9p/xen : Fix use after free bug in xen_9pfs_front_remove due to race condition
+Date:   Tue, 18 Apr 2023 14:21:52 +0200
+Message-Id: <20230418120315.442278518@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,95 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit b58e3d4311b54b6dd0e37165277965da0c9eb21d ]
+[ Upstream commit ea4f1009408efb4989a0f139b70fb338e7f687d0 ]
 
-This could race if the queue is redirected while full, then
-the flushing internally would start it while it's not yet
-usable again. Fix it by using two state bits instead of just
-one.
+In xen_9pfs_front_probe, it calls xen_9pfs_front_alloc_dataring
+to init priv->rings and bound &ring->work with p9_xen_response.
 
-Reviewed-by: Benjamin Berg <benjamin.berg@intel.com>
-Tested-by: Jose Ignacio Tornos Martinez <jtornosm@redhat.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+When it calls xen_9pfs_front_event_handler to handle IRQ requests,
+it will finally call schedule_work to start the work.
+
+When we call xen_9pfs_front_remove to remove the driver, there
+may be a sequence as follows:
+
+Fix it by finishing the work before cleanup in xen_9pfs_front_free.
+
+Note that, this bug is found by static analysis, which might be
+false positive.
+
+CPU0                  CPU1
+
+                     |p9_xen_response
+xen_9pfs_front_remove|
+  xen_9pfs_front_free|
+kfree(priv)          |
+//free priv          |
+                     |p9_tag_lookup
+                     |//use priv->client
+
+Fixes: 71ebd71921e4 ("xen/9pfs: connect to the backend")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 5 ++++-
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      | 4 +++-
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c      | 5 ++++-
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c      | 4 ++--
- 4 files changed, 13 insertions(+), 5 deletions(-)
+ net/9p/trans_xen.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 56c7a68a6491c..fa7de3e47b8cc 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -820,7 +820,10 @@ void iwl_mvm_mac_itxq_xmit(struct ieee80211_hw *hw, struct ieee80211_txq *txq)
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index c64050e839ac6..1fffe2bed5b02 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -280,6 +280,10 @@ static void xen_9pfs_front_free(struct xen_9pfs_front_priv *priv)
+ 	write_unlock(&xen_9pfs_lock);
  
- 	rcu_read_lock();
- 	do {
--		while (likely(!mvmtxq->stopped &&
-+		while (likely(!test_bit(IWL_MVM_TXQ_STATE_STOP_FULL,
-+					&mvmtxq->state) &&
-+			      !test_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT,
-+					&mvmtxq->state) &&
- 			      !test_bit(IWL_MVM_STATUS_IN_D3, &mvm->status))) {
- 			skb = ieee80211_tx_dequeue(hw, txq);
- 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index 46af8dd2dc930..6b59425dbdb19 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -727,7 +727,9 @@ struct iwl_mvm_txq {
- 	struct list_head list;
- 	u16 txq_id;
- 	atomic_t tx_request;
--	bool stopped;
-+#define IWL_MVM_TXQ_STATE_STOP_FULL	0
-+#define IWL_MVM_TXQ_STATE_STOP_REDIRECT	1
-+	unsigned long state;
- };
- 
- static inline struct iwl_mvm_txq *
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index eeb81808db088..3ee4b3ecd0c82 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1304,7 +1304,10 @@ static void iwl_mvm_queue_state_change(struct iwl_op_mode *op_mode,
- 
- 		txq = sta->txq[tid];
- 		mvmtxq = iwl_mvm_txq_from_mac80211(txq);
--		mvmtxq->stopped = !start;
-+		if (start)
-+			clear_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
-+		else
-+			set_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
- 
- 		if (start && mvmsta->sta_state != IEEE80211_STA_NOTEXIST)
- 			iwl_mvm_mac_itxq_xmit(mvm->hw, txq);
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-index 1bb456daff9e9..45dfee3ad8c60 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -640,7 +640,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
- 			    queue, iwl_mvm_ac_to_tx_fifo[ac]);
- 
- 	/* Stop the queue and wait for it to empty */
--	txq->stopped = true;
-+	set_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
- 
- 	ret = iwl_trans_wait_tx_queues_empty(mvm->trans, BIT(queue));
- 	if (ret) {
-@@ -683,7 +683,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
- 
- out:
- 	/* Continue using the queue */
--	txq->stopped = false;
-+	clear_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
- 
- 	return ret;
- }
+ 	for (i = 0; i < priv->num_rings; i++) {
++		struct xen_9pfs_dataring *ring = &priv->rings[i];
++
++		cancel_work_sync(&ring->work);
++
+ 		if (!priv->rings[i].intf)
+ 			break;
+ 		if (priv->rings[i].irq > 0)
 -- 
 2.39.2
 
