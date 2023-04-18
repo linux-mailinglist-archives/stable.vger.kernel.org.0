@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 400386E64D4
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 855066E6408
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232039AbjDRMw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46216 "EHLO
+        id S231984AbjDRMpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:45:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232184AbjDRMw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:57 -0400
+        with ESMTP id S231989AbjDRMpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E5416DF9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9023814F43
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 653EF63433
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AAF7C433EF;
-        Tue, 18 Apr 2023 12:52:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2311163387
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 382E4C433EF;
+        Tue, 18 Apr 2023 12:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822322;
-        bh=gSl3TiatGp+t0OH5DFM93BUuo6xHWfhROJItxIlBKRU=;
+        s=korg; t=1681821929;
+        bh=DNHA9w31gGi6slqGhnDugKrUxRmBTEkUVrJjeSv3J8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdObjGtYo9Sz6rKivkXYUpOr7Xhsl6/sLEpR5oFj/yyc3xc+8OCPAEjfNtPukdMhW
-         LKtzu0v/ElBxuJK7bB+5ROIJPFrm5d48+bRACfiRcU4qMoX3seZPHtILO3Fv9RLGqm
-         p6uI9hdGn3kTFqAbOaKhomw7Mkq1hs7vDUuULAKA=
+        b=x5OVaKyD6fGckW4kKwLlO2J82FaJuQvyW1SaTzv9P5+gueh3smohXE7rZiGgZMJtI
+         rJA8t/Hi2JkOGcuQ01wDeOb25IEixnrgtkwqFjBTu+2dSW7/SF+0gMhW+ELkzGKRfm
+         sMSg+DWDEuDU4RweWW8lXHniT/z4SF+CjeBVIws4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Simon Horman <simon.horman@corigine.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 067/139] net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 076/134] wifi: mwifiex: mark OF related data as maybe unused
 Date:   Tue, 18 Apr 2023 14:22:12 +0200
-Message-Id: <20230418120316.328800838@linuxfoundation.org>
+Message-Id: <20230418120315.698617628@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,96 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 6417070918de3bcdbe0646e7256dae58fd8083ba ]
+[ Upstream commit 139f6973bf140c65d4d1d4bde5485badb4454d7a ]
 
-Syzbot reported a bug as following:
+The driver can be compile tested with !CONFIG_OF making certain data
+unused:
 
-=====================================================
-BUG: KMSAN: uninit-value in qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
- qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
- qrtr_endpoint_post+0xf85/0x11b0 net/qrtr/af_qrtr.c:519
- qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  drivers/net/wireless/marvell/mwifiex/sdio.c:498:34: error: ‘mwifiex_sdio_of_match_table’ defined but not used [-Werror=unused-const-variable=]
+  drivers/net/wireless/marvell/mwifiex/pcie.c:175:34: error: ‘mwifiex_pcie_of_match_table’ defined but not used [-Werror=unused-const-variable=]
 
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
- kmalloc_reserve net/core/skbuff.c:492 [inline]
- __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
- __netdev_alloc_skb+0x120/0x7d0 net/core/skbuff.c:630
- qrtr_endpoint_post+0xbd/0x11b0 net/qrtr/af_qrtr.c:446
- qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-It is because that skb->len requires at least sizeof(struct qrtr_ctrl_pkt)
-in qrtr_tx_resume(). And skb->len equals to size in qrtr_endpoint_post().
-But size is less than sizeof(struct qrtr_ctrl_pkt) when qrtr_cb->type
-equals to QRTR_TYPE_RESUME_TX in qrtr_endpoint_post() under the syzbot
-scenario. This triggers the uninit variable access bug.
-
-Add size check when qrtr_cb->type equals to QRTR_TYPE_RESUME_TX in
-qrtr_endpoint_post() to fix the bug.
-
-Fixes: 5fdeb0d372ab ("net: qrtr: Implement outgoing flow control")
-Reported-by: syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=c14607f0963d27d5a3d5f4c8639b500909e43540
-Suggested-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230410012352.3997823-1-william.xuanziyang@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230312132523.352182-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/af_qrtr.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 2 +-
+ drivers/net/wireless/marvell/mwifiex/sdio.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
-index 3a70255c8d02f..76f0434d3d06a 100644
---- a/net/qrtr/af_qrtr.c
-+++ b/net/qrtr/af_qrtr.c
-@@ -498,6 +498,11 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 	if (!size || len != ALIGN(size, 4) + hdrlen)
- 		goto err;
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index 5dcf61761a165..9a698a16a8f38 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -172,7 +172,7 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
+ 	.can_ext_scan = true,
+ };
  
-+	if ((cb->type == QRTR_TYPE_NEW_SERVER ||
-+	     cb->type == QRTR_TYPE_RESUME_TX) &&
-+	    size < sizeof(struct qrtr_ctrl_pkt))
-+		goto err;
-+
- 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
- 	    cb->type != QRTR_TYPE_RESUME_TX)
- 		goto err;
-@@ -510,9 +515,6 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 		/* Remote node endpoint can bridge other distant nodes */
- 		const struct qrtr_ctrl_pkt *pkt;
+-static const struct of_device_id mwifiex_pcie_of_match_table[] = {
++static const struct of_device_id mwifiex_pcie_of_match_table[] __maybe_unused = {
+ 	{ .compatible = "pci11ab,2b42" },
+ 	{ .compatible = "pci1b4b,2b42" },
+ 	{ }
+diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
+index 9f506efa53705..ea1c1c2412e72 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sdio.c
++++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
+@@ -479,7 +479,7 @@ static struct memory_type_mapping mem_type_mapping_tbl[] = {
+ 	{"EXTLAST", NULL, 0, 0xFE},
+ };
  
--		if (size < sizeof(*pkt))
--			goto err;
--
- 		pkt = data + hdrlen;
- 		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
- 	}
+-static const struct of_device_id mwifiex_sdio_of_match_table[] = {
++static const struct of_device_id mwifiex_sdio_of_match_table[] __maybe_unused = {
+ 	{ .compatible = "marvell,sd8787" },
+ 	{ .compatible = "marvell,sd8897" },
+ 	{ .compatible = "marvell,sd8997" },
 -- 
 2.39.2
 
