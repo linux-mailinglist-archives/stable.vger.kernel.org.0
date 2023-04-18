@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E316E63D4
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524F76E61DE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229833AbjDRMnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
+        id S231440AbjDRM2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231337AbjDRMnf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:35 -0400
+        with ESMTP id S230256AbjDRM2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED789146EF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3784F9EEE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 532386335F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630D0C4339B;
-        Tue, 18 Apr 2023 12:43:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ACEC63190
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB14C433D2;
+        Tue, 18 Apr 2023 12:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821812;
-        bh=jaQaabwiGAugIc2jTfWH15Ai29yX7+57k6YWU76NwQQ=;
+        s=korg; t=1681820862;
+        bh=gNijpVa9stuBi3k1FX5R8nNVbXTK4Nx9I3v+eEZ0G4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erZCq2AAmnxQ54FklfsdRNerPlN7ymQrneMueFMf92ghqZ+Zv8k88ng80A600kOlI
-         LdT7skywtT0gdrKJ1GjTv38laaJ1G9kJemmFOlbFmnMguwtb5nRjB+2lrIzAnl2QZg
-         5Ap4KUnntyY0a2CB6PjCh4ajTNAFat0Pc65vygQ4=
+        b=Ra7y4Wuxvji5kLLgVr+UCHINtomq4BsB0Ch9/NMm2I3+2Y2Z3ZDvSDVeCA5yutrDW
+         Xrtu0EofkxIwzqzfn/RQ8q2JpvbCRsf3D6vznFDGTJwxDMlkQtcsaicpul3JxqdDB2
+         8GVz2C8wsao2ZXivJKhOCKe11BT+WT+4Co0r2qyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 043/134] dmaengine: apple-admac: Fix current_tx not getting freed
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 39/57] sctp: fix a potential overflow in sctp_ifwdtsn_skip
 Date:   Tue, 18 Apr 2023 14:21:39 +0200
-Message-Id: <20230418120314.432041259@linuxfoundation.org>
+Message-Id: <20230418120300.096512102@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit d9503be5a100c553731c0e8a82c7b4201e8a970c ]
+[ Upstream commit 32832a2caf82663870126c5186cf8f86c8b2a649 ]
 
-In terminate_all we should queue up all submitted descriptors to be
-freed. We do that for the content of the 'issued' and 'submitted' lists,
-but the 'current_tx' descriptor falls through the cracks as it's
-removed from the 'issued' list once it gets assigned to be the current
-descriptor. Explicitly queue up freeing of the 'current_tx' descriptor
-to address a memory leak that is otherwise present.
+Currently, when traversing ifwdtsn skips with _sctp_walk_ifwdtsn, it only
+checks the pos against the end of the chunk. However, the data left for
+the last pos may be < sizeof(struct sctp_ifwdtsn_skip), and dereference
+it as struct sctp_ifwdtsn_skip may cause coverflow.
 
-Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20230224152222.26732-2-povik+lin@cutebit.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This patch fixes it by checking the pos against "the end of the chunk -
+sizeof(struct sctp_ifwdtsn_skip)" in sctp_ifwdtsn_skip, similar to
+sctp_fwdtsn_skip.
+
+Fixes: 0fc2ea922c8a ("sctp: implement validate_ftsn for sctp_stream_interleave")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/2a71bffcd80b4f2c61fac6d344bb2f11c8fd74f7.1681155810.git.lucien.xin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/apple-admac.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sctp/stream_interleave.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
-index b9132b495d181..4cf8da77bdd91 100644
---- a/drivers/dma/apple-admac.c
-+++ b/drivers/dma/apple-admac.c
-@@ -512,7 +512,10 @@ static int admac_terminate_all(struct dma_chan *chan)
- 	admac_stop_chan(adchan);
- 	admac_reset_rings(adchan);
+diff --git a/net/sctp/stream_interleave.c b/net/sctp/stream_interleave.c
+index 0a78cdf864633..3290e6f5b6c6c 100644
+--- a/net/sctp/stream_interleave.c
++++ b/net/sctp/stream_interleave.c
+@@ -1151,7 +1151,8 @@ static void sctp_generate_iftsn(struct sctp_outq *q, __u32 ctsn)
  
--	adchan->current_tx = NULL;
-+	if (adchan->current_tx) {
-+		list_add_tail(&adchan->current_tx->node, &adchan->to_free);
-+		adchan->current_tx = NULL;
-+	}
- 	/*
- 	 * Descriptors can only be freed after the tasklet
- 	 * has been killed (in admac_synchronize).
+ #define _sctp_walk_ifwdtsn(pos, chunk, end) \
+ 	for (pos = chunk->subh.ifwdtsn_hdr->skip; \
+-	     (void *)pos < (void *)chunk->subh.ifwdtsn_hdr->skip + (end); pos++)
++	     (void *)pos <= (void *)chunk->subh.ifwdtsn_hdr->skip + (end) - \
++			    sizeof(struct sctp_ifwdtsn_skip); pos++)
+ 
+ #define sctp_walk_ifwdtsn(pos, ch) \
+ 	_sctp_walk_ifwdtsn((pos), (ch), ntohs((ch)->chunk_hdr->length) - \
 -- 
 2.39.2
 
