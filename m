@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9226E64C2
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B566E641A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbjDRMwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43916 "EHLO
+        id S231982AbjDRMqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:46:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbjDRMwD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:03 -0400
+        with ESMTP id S231980AbjDRMqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E015516F86
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:51:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7B614F41
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD86863433
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB80C4339C;
-        Tue, 18 Apr 2023 12:51:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 864BB633A7
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9720FC4339B;
+        Tue, 18 Apr 2023 12:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822299;
-        bh=iSKRnCMXnp7Af6WCSWCtH/isYlOhKmZjT8VkxonZ5eg=;
+        s=korg; t=1681821975;
+        bh=x5wyPMzvshtOqGQQDm3KVUPh6zsQSerG4WW+h3kXnMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRVimu+JMVqp0q1MtBfop7V7YvS591Cx9VEbiXF1X4lnh8XrlkM4E9BE378LRMOCz
-         48ojaVI2xw6tHkR6IAvjBsICVMwH3JZAtulg1oGcLLbB0eh5bTmzcfs/XX+HsjHfxC
-         RSOII8AAre4vnvQ9S7w2bOPlv6RgyIT58JLNhsQo=
+        b=v3MChBvi4ryGZ5tmFzWI1VK5yRclv6vibH0nRYByX60hlPThc5oi1Y4GK1TEnkVI3
+         RFcMFdCj5BVR2zR7HAXN3x7AqcCQgf7mT+7ogxthzBme98eT9Tpy5GyhYYaYChlqZS
+         HHWXC8TSlvinmFHv3j7qYxghQ86BfylwNWqd8dPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aaron Conole <aconole@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 070/139] selftests: openvswitch: adjust datapath NL message declaration
+Subject: [PATCH 6.1 079/134] efi: sysfb_efi: Add quirk for Lenovo Yoga Book X91F/L
 Date:   Tue, 18 Apr 2023 14:22:15 +0200
-Message-Id: <20230418120316.440408027@linuxfoundation.org>
+Message-Id: <20230418120315.810737475@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Conole <aconole@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 306dc21361993f4fe50a15d4db6b1a4de5d0adb0 ]
+[ Upstream commit 5ed213dd64681f84a01ceaa82fb336cf7d59ddcf ]
 
-The netlink message for creating a new datapath takes an array
-of ports for the PID creation.  This shouldn't cause much issue
-but correct it for future cases where we need to do decode of
-datapath information that could include the per-cpu PID map.
+Another Lenovo convertable which reports a landscape resolution of
+1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
+has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
 
-Fixes: 25f16c873fb1 ("selftests: add openvswitch selftest suite")
-Signed-off-by: Aaron Conole <aconole@redhat.com>
-Link: https://lore.kernel.org/r/20230412115828.3991806-1-aconole@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/openvswitch/ovs-dpctl.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/sysfb_efi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/testing/selftests/net/openvswitch/ovs-dpctl.py b/tools/testing/selftests/net/openvswitch/ovs-dpctl.py
-index 3243c90d449e6..5d467d1993cb1 100644
---- a/tools/testing/selftests/net/openvswitch/ovs-dpctl.py
-+++ b/tools/testing/selftests/net/openvswitch/ovs-dpctl.py
-@@ -62,7 +62,7 @@ class OvsDatapath(GenericNetlinkSocket):
-         nla_map = (
-             ("OVS_DP_ATTR_UNSPEC", "none"),
-             ("OVS_DP_ATTR_NAME", "asciiz"),
--            ("OVS_DP_ATTR_UPCALL_PID", "uint32"),
-+            ("OVS_DP_ATTR_UPCALL_PID", "array(uint32)"),
-             ("OVS_DP_ATTR_STATS", "dpstats"),
-             ("OVS_DP_ATTR_MEGAFLOW_STATS", "megaflowstats"),
-             ("OVS_DP_ATTR_USER_FEATURES", "uint32"),
+diff --git a/drivers/firmware/efi/sysfb_efi.c b/drivers/firmware/efi/sysfb_efi.c
+index e76d6803bdd08..456d0e5eaf78b 100644
+--- a/drivers/firmware/efi/sysfb_efi.c
++++ b/drivers/firmware/efi/sysfb_efi.c
+@@ -272,6 +272,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
+ 					"IdeaPad Duet 3 10IGL5"),
+ 		},
+ 	},
++	{
++		/* Lenovo Yoga Book X91F / X91L */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			/* Non exact match to match F + L versions */
++			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
++		},
++	},
+ 	{},
+ };
+ 
 -- 
 2.39.2
 
