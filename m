@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5076E63DE
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7050B6E62DC
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231678AbjDRMn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33876 "EHLO
+        id S231708AbjDRMgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbjDRMn6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E0115608
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:57 -0700 (PDT)
+        with ESMTP id S231724AbjDRMgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29E7C1CF90
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07F8063366
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1CEC433EF;
-        Tue, 18 Apr 2023 12:43:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEBE463289
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2168C433D2;
+        Tue, 18 Apr 2023 12:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821836;
-        bh=GC1ElIfd4d4yV76Nsn9CGAOKiO3k+cjxG6lcQ4FQguI=;
+        s=korg; t=1681821359;
+        bh=NFE4syDNGc2PVNgR+aIQqodqtd8VZv0IRwpEtsiitpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkD9xddRkOIy16JYTcQ7ZgNYw3Lu3H6Mr5Rn/XVuFZ7iBUytf3r1vKLwKbvTUO92l
-         sNLpQ7G7062OCdqTiof7jMP+GNs4DgQYGDx9OAFwFyBMJiZ0KWOqakLrcjL+NBo4xI
-         7vld8YHBoVkduIRaLwva1Rqkjcjmjwa7rJ0SbXcs=
+        b=iDYt5Ji8uTcN35fasXcep10q9P0HrXHZyg7dKMN3c7CBWdH/xHZftdrPLz8xYzn4c
+         rs/p5KsphkYV7YntO36zOJuTnA1ntmlcgOrppgqRyAMYVFqSuyZ22wy/e5JvImjpfS
+         B2v0lkSd0Uq5+57HGqzRClLJnn5YBpCHt7IP6y7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simon Horman <simon.horman@corigine.com>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 060/134] net: wwan: iosm: Fix error handling path in ipc_pcie_probe()
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.10 097/124] cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
 Date:   Tue, 18 Apr 2023 14:21:56 +0200
-Message-Id: <20230418120315.065180636@linuxfoundation.org>
+Message-Id: <20230418120313.363587483@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,56 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit a56ef25619e079bd7d744636cf18d054d1e91982 ]
+commit ba9182a89626d5f83c2ee4594f55cb9c1e60f0e2 upstream.
 
-Smatch reports:
-	drivers/net/wwan/iosm/iosm_ipc_pcie.c:298 ipc_pcie_probe()
-	warn: missing unwind goto?
+After a successful cpuset_can_attach() call which increments the
+attach_in_progress flag, either cpuset_cancel_attach() or cpuset_attach()
+will be called later. In cpuset_attach(), tasks in cpuset_attach_wq,
+if present, will be woken up at the end. That is not the case in
+cpuset_cancel_attach(). So missed wakeup is possible if the attach
+operation is somehow cancelled. Fix that by doing the wakeup in
+cpuset_cancel_attach() as well.
 
-When dma_set_mask fails it directly returns without disabling pci
-device and freeing ipc_pcie. Fix this my calling a correct goto label
-
-As dma_set_mask returns either 0 or -EIO, we can use a goto label, as
-it finally returns -EIO.
-
-Add a set_mask_fail goto label which stands consistent with other goto
-labels in this function..
-
-Fixes: 035e3befc191 ("net: wwan: iosm: fix driver not working with INTEL_IOMMU disabled")
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e44193d39e8d ("cpuset: let hotplug propagation work wait for task attaching")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: stable@vger.kernel.org # v3.11+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wwan/iosm/iosm_ipc_pcie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/cgroup/cpuset.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wwan/iosm/iosm_ipc_pcie.c b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
-index 5bf5a93937c9c..04517bd3325a2 100644
---- a/drivers/net/wwan/iosm/iosm_ipc_pcie.c
-+++ b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
-@@ -295,7 +295,7 @@ static int ipc_pcie_probe(struct pci_dev *pci,
- 	ret = dma_set_mask(ipc_pcie->dev, DMA_BIT_MASK(64));
- 	if (ret) {
- 		dev_err(ipc_pcie->dev, "Could not set PCI DMA mask: %d", ret);
--		return ret;
-+		goto set_mask_fail;
- 	}
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2188,11 +2188,15 @@ out_unlock:
+ static void cpuset_cancel_attach(struct cgroup_taskset *tset)
+ {
+ 	struct cgroup_subsys_state *css;
++	struct cpuset *cs;
  
- 	ipc_pcie_config_aspm(ipc_pcie);
-@@ -323,6 +323,7 @@ static int ipc_pcie_probe(struct pci_dev *pci,
- imem_init_fail:
- 	ipc_pcie_resources_release(ipc_pcie);
- resources_req_fail:
-+set_mask_fail:
- 	pci_disable_device(pci);
- pci_enable_fail:
- 	kfree(ipc_pcie);
--- 
-2.39.2
-
+ 	cgroup_taskset_first(tset, &css);
++	cs = css_cs(css);
+ 
+ 	percpu_down_write(&cpuset_rwsem);
+-	css_cs(css)->attach_in_progress--;
++	cs->attach_in_progress--;
++	if (!cs->attach_in_progress)
++		wake_up(&cpuset_attach_wq);
+ 	percpu_up_write(&cpuset_rwsem);
+ }
+ 
 
 
