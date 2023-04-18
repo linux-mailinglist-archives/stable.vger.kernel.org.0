@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C034D6E6478
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C686E6247
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbjDRMt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40898 "EHLO
+        id S231611AbjDRMb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232105AbjDRMtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E8415470
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:22 -0700 (PDT)
+        with ESMTP id S231673AbjDRMbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D28C659
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 706B0630D9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5A7C4339B;
-        Tue, 18 Apr 2023 12:49:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A742631D9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72626C433EF;
+        Tue, 18 Apr 2023 12:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822161;
-        bh=jaQaabwiGAugIc2jTfWH15Ai29yX7+57k6YWU76NwQQ=;
+        s=korg; t=1681821059;
+        bh=2yD6g0GjlfZ5zYDxB1J5TNk7cIDvmCHw1HaE3em+6+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IhGmVK+uftztBd6E+JmM7Jy9Mx30nGQiHKT1S7YblpBEFIBpa+gCQBoIeCJHLvYJt
-         q6r/C6WvccuF/x0ryNk2uP5aQgUkL0IBooMk0FKP+Mr3jkK5IM23T+nF1ZHdNwzSU1
-         2WXupmIsBwQ2ORAAgYe+JRr19oK/z29LVEs6wXaU=
+        b=G3dky92PvFReRicAAPanmPvyKsHefVrjLbkhj+pnyDV7iprdFPr/mCKiZe/Kc81cD
+         AASpCIbgYlhpI/jTrFK8/wFHeV/X7ldAFuyBS3znKtpYDuHiCnSEGywlsg0ksuaT9n
+         bH9IDGOmyskXL3BmVSr9ycirnQ2WDmDYmjhOpzIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 046/139] dmaengine: apple-admac: Fix current_tx not getting freed
+        patches@lists.linux.dev, Kaixu Xia <kaixuxia@tencent.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Subject: [PATCH 5.4 76/92] xfs: show the proper user quota options
 Date:   Tue, 18 Apr 2023 14:21:51 +0200
-Message-Id: <20230418120315.402175893@linuxfoundation.org>
+Message-Id: <20230418120307.445829821@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,44 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Kaixu Xia <kaixuxia@tencent.com>
 
-[ Upstream commit d9503be5a100c553731c0e8a82c7b4201e8a970c ]
+commit 237d7887ae723af7d978e8b9a385fdff416f357b upstream.
 
-In terminate_all we should queue up all submitted descriptors to be
-freed. We do that for the content of the 'issued' and 'submitted' lists,
-but the 'current_tx' descriptor falls through the cracks as it's
-removed from the 'issued' list once it gets assigned to be the current
-descriptor. Explicitly queue up freeing of the 'current_tx' descriptor
-to address a memory leak that is otherwise present.
+The quota option 'usrquota' should be shown if both the XFS_UQUOTA_ACCT
+and XFS_UQUOTA_ENFD flags are set. The option 'uqnoenforce' should be
+shown when only the XFS_UQUOTA_ACCT flag is set. The current code logic
+seems wrong, Fix it and show proper options.
 
-Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20230224152222.26732-2-povik+lin@cutebit.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/apple-admac.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_super.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
-index b9132b495d181..4cf8da77bdd91 100644
---- a/drivers/dma/apple-admac.c
-+++ b/drivers/dma/apple-admac.c
-@@ -512,7 +512,10 @@ static int admac_terminate_all(struct dma_chan *chan)
- 	admac_stop_chan(adchan);
- 	admac_reset_rings(adchan);
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -490,10 +490,12 @@ xfs_showargs(
+ 		seq_printf(m, ",swidth=%d",
+ 				(int)XFS_FSB_TO_BB(mp, mp->m_swidth));
  
--	adchan->current_tx = NULL;
-+	if (adchan->current_tx) {
-+		list_add_tail(&adchan->current_tx->node, &adchan->to_free);
-+		adchan->current_tx = NULL;
+-	if (mp->m_qflags & (XFS_UQUOTA_ACCT|XFS_UQUOTA_ENFD))
+-		seq_puts(m, ",usrquota");
+-	else if (mp->m_qflags & XFS_UQUOTA_ACCT)
+-		seq_puts(m, ",uqnoenforce");
++	if (mp->m_qflags & XFS_UQUOTA_ACCT) {
++		if (mp->m_qflags & XFS_UQUOTA_ENFD)
++			seq_puts(m, ",usrquota");
++		else
++			seq_puts(m, ",uqnoenforce");
 +	}
- 	/*
- 	 * Descriptors can only be freed after the tasklet
- 	 * has been killed (in admac_synchronize).
--- 
-2.39.2
-
+ 
+ 	if (mp->m_qflags & XFS_PQUOTA_ACCT) {
+ 		if (mp->m_qflags & XFS_PQUOTA_ENFD)
 
 
