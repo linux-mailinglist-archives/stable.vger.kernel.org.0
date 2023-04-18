@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41C26E6410
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC1506E64BA
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231989AbjDRMp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36038 "EHLO
+        id S232183AbjDRMvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:51:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231980AbjDRMp4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:56 -0400
+        with ESMTP id S232221AbjDRMvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF58014F61
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9853516FAF;
+        Tue, 18 Apr 2023 05:51:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4004963376
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C13DC4339B;
-        Tue, 18 Apr 2023 12:45:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C38363437;
+        Tue, 18 Apr 2023 12:51:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A09C433EF;
+        Tue, 18 Apr 2023 12:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821953;
-        bh=BaUXOOXroxl8QjYeJojfbRGqPg6LOFVZncl2S1g3djg=;
+        s=korg; t=1681822285;
+        bh=awSbJMtl69icfKm+n181Xun+4k6pIOSZgtNyGGaUfOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sS0++63lJZ42WE82rFc5K0TGI4LcG6b3GTdtjQW+iC2XASkU6z8jbIiOR8VX+9RQ+
-         ZQmaOMA3x4GJCn7wLa5ThCCHzGs6K8LGoCOB0U+Vf1OzjtZmUOLccIZ3ZoW2vAarLc
-         H0WkV+zwHnj3kwbjEN8UPLjIlg8x1ffSKxKpXV48=
+        b=JiS29D3Yq23WhJXQun2UH14NPv1QRz8JaNngyqeEgudR0zFRwtZyaSeqmz51rYsrq
+         /KKraU1dTtu1qCdIWahOW/zFpOYU3rGdRfQnCdwHxUr9G1uen4hMLpnWzgD/jSN6Nj
+         hMIWdaS1r/nit0qVxqRwei740J9r6Bfz2pTCPGiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 101/134] maple_tree: fix write memory barrier of nodes once dead for RCU mode
+        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 092/139] asymmetric_keys: log on fatal failures in PE/pkcs7
 Date:   Tue, 18 Apr 2023 14:22:37 +0200
-Message-Id: <20230418120316.702383368@linuxfoundation.org>
+Message-Id: <20230418120317.240100647@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,192 +58,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam R. Howlett <Liam.Howlett@oracle.com>
+From: Robbie Harwood <rharwood@redhat.com>
 
-[ Upstream commit c13af03de46ba27674dd9fb31a17c0d480081139 ]
+[ Upstream commit 3584c1dbfffdabf8e3dc1dd25748bb38dd01cd43 ]
 
-During the development of the maple tree, the strategy of freeing multiple
-nodes changed and, in the process, the pivots were reused to store
-pointers to dead nodes.  To ensure the readers see accurate pivots, the
-writers need to mark the nodes as dead and call smp_wmb() to ensure any
-readers can identify the node as dead before using the pivot values.
+These particular errors can be encountered while trying to kexec when
+secureboot lockdown is in place.  Without this change, even with a
+signed debug build, one still needs to reboot the machine to add the
+appropriate dyndbg parameters (since lockdown blocks debugfs).
 
-There were two places where the old method of marking the node as dead
-without smp_wmb() were being used, which resulted in RCU readers seeing
-the wrong pivot value before seeing the node was dead.  Fix this race
-condition by using mte_set_node_dead() which has the smp_wmb() call to
-ensure the race is closed.
+Accordingly, upgrade all pr_debug() before fatal error into pr_warn().
 
-Add a WARN_ON() to the ma_free_rcu() call to ensure all nodes being freed
-are marked as dead to ensure there are no other call paths besides the two
-updated paths.
-
-This is necessary for the RCU mode of the maple tree.
-
-Link: https://lkml.kernel.org/r/20230227173632.3292573-6-surenb@google.com
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Robbie Harwood <rharwood@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jarkko Sakkinen <jarkko@kernel.org>
+cc: Eric Biederman <ebiederm@xmission.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: keyrings@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: kexec@lists.infradead.org
+Link: https://lore.kernel.org/r/20230220171254.592347-3-rharwood@redhat.com/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/maple_tree.c                 |  7 +++++--
- tools/testing/radix-tree/maple.c | 16 ++++++++++++++++
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ crypto/asymmetric_keys/pkcs7_verify.c  | 10 +++++-----
+ crypto/asymmetric_keys/verify_pefile.c | 24 ++++++++++++------------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/lib/maple_tree.c b/lib/maple_tree.c
-index 84530fb73bd9e..39f34ea7a9be5 100644
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -178,7 +178,7 @@ static void mt_free_rcu(struct rcu_head *head)
-  */
- static void ma_free_rcu(struct maple_node *node)
+diff --git a/crypto/asymmetric_keys/pkcs7_verify.c b/crypto/asymmetric_keys/pkcs7_verify.c
+index f6321c785714c..3da32813e4412 100644
+--- a/crypto/asymmetric_keys/pkcs7_verify.c
++++ b/crypto/asymmetric_keys/pkcs7_verify.c
+@@ -79,16 +79,16 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
+ 		}
+ 
+ 		if (sinfo->msgdigest_len != sig->digest_size) {
+-			pr_debug("Sig %u: Invalid digest size (%u)\n",
+-				 sinfo->index, sinfo->msgdigest_len);
++			pr_warn("Sig %u: Invalid digest size (%u)\n",
++				sinfo->index, sinfo->msgdigest_len);
+ 			ret = -EBADMSG;
+ 			goto error;
+ 		}
+ 
+ 		if (memcmp(sig->digest, sinfo->msgdigest,
+ 			   sinfo->msgdigest_len) != 0) {
+-			pr_debug("Sig %u: Message digest doesn't match\n",
+-				 sinfo->index);
++			pr_warn("Sig %u: Message digest doesn't match\n",
++				sinfo->index);
+ 			ret = -EKEYREJECTED;
+ 			goto error;
+ 		}
+@@ -478,7 +478,7 @@ int pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
+ 			       const void *data, size_t datalen)
  {
--	node->parent = ma_parent_ptr(node);
-+	WARN_ON(node->parent != ma_parent_ptr(node));
- 	call_rcu(&node->rcu, mt_free_rcu);
- }
+ 	if (pkcs7->data) {
+-		pr_debug("Data already supplied\n");
++		pr_warn("Data already supplied\n");
+ 		return -EINVAL;
+ 	}
+ 	pkcs7->data = data;
+diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
+index fe1bb374239d7..22beaf2213a22 100644
+--- a/crypto/asymmetric_keys/verify_pefile.c
++++ b/crypto/asymmetric_keys/verify_pefile.c
+@@ -74,7 +74,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
+ 		break;
  
-@@ -1780,8 +1780,10 @@ static inline void mas_replace(struct ma_state *mas, bool advanced)
- 		rcu_assign_pointer(slots[offset], mas->node);
+ 	default:
+-		pr_debug("Unknown PEOPT magic = %04hx\n", pe32->magic);
++		pr_warn("Unknown PEOPT magic = %04hx\n", pe32->magic);
+ 		return -ELIBBAD;
  	}
  
--	if (!advanced)
-+	if (!advanced) {
-+		mte_set_node_dead(old_enode);
- 		mas_free(mas, old_enode);
-+	}
+@@ -95,7 +95,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
+ 	ctx->certs_size = ddir->certs.size;
+ 
+ 	if (!ddir->certs.virtual_address || !ddir->certs.size) {
+-		pr_debug("Unsigned PE binary\n");
++		pr_warn("Unsigned PE binary\n");
+ 		return -ENODATA;
+ 	}
+ 
+@@ -127,7 +127,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	unsigned len;
+ 
+ 	if (ctx->sig_len < sizeof(wrapper)) {
+-		pr_debug("Signature wrapper too short\n");
++		pr_warn("Signature wrapper too short\n");
+ 		return -ELIBBAD;
+ 	}
+ 
+@@ -142,16 +142,16 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	 * rounded up since 0.110.
+ 	 */
+ 	if (wrapper.length > ctx->sig_len) {
+-		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
+-			 ctx->sig_len, wrapper.length);
++		pr_warn("Signature wrapper bigger than sig len (%x > %x)\n",
++			ctx->sig_len, wrapper.length);
+ 		return -ELIBBAD;
+ 	}
+ 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
+-		pr_debug("Signature is not revision 2.0\n");
++		pr_warn("Signature is not revision 2.0\n");
+ 		return -ENOTSUPP;
+ 	}
+ 	if (wrapper.cert_type != WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
+-		pr_debug("Signature certificate type is not PKCS\n");
++		pr_warn("Signature certificate type is not PKCS\n");
+ 		return -ENOTSUPP;
+ 	}
+ 
+@@ -164,7 +164,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	ctx->sig_offset += sizeof(wrapper);
+ 	ctx->sig_len -= sizeof(wrapper);
+ 	if (ctx->sig_len < 4) {
+-		pr_debug("Signature data missing\n");
++		pr_warn("Signature data missing\n");
+ 		return -EKEYREJECTED;
+ 	}
+ 
+@@ -198,7 +198,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 		return 0;
+ 	}
+ not_pkcs7:
+-	pr_debug("Signature data not PKCS#7\n");
++	pr_warn("Signature data not PKCS#7\n");
+ 	return -ELIBBAD;
  }
  
- /*
-@@ -4216,6 +4218,7 @@ static inline bool mas_wr_node_store(struct ma_wr_state *wr_mas)
- done:
- 	mas_leaf_set_meta(mas, newnode, dst_pivots, maple_leaf_64, new_end);
- 	if (in_rcu) {
-+		mte_set_node_dead(mas->node);
- 		mas->node = mt_mk_node(newnode, wr_mas->type);
- 		mas_replace(mas, false);
+@@ -341,8 +341,8 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
+ 	digest_size = crypto_shash_digestsize(tfm);
+ 
+ 	if (digest_size != ctx->digest_len) {
+-		pr_debug("Digest size mismatch (%zx != %x)\n",
+-			 digest_size, ctx->digest_len);
++		pr_warn("Digest size mismatch (%zx != %x)\n",
++			digest_size, ctx->digest_len);
+ 		ret = -EBADMSG;
+ 		goto error_no_desc;
+ 	}
+@@ -373,7 +373,7 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
+ 	 * PKCS#7 certificate.
+ 	 */
+ 	if (memcmp(digest, ctx->digest, ctx->digest_len) != 0) {
+-		pr_debug("Digest mismatch\n");
++		pr_warn("Digest mismatch\n");
+ 		ret = -EKEYREJECTED;
  	} else {
-diff --git a/tools/testing/radix-tree/maple.c b/tools/testing/radix-tree/maple.c
-index aceb6011315c2..18e319e6ce335 100644
---- a/tools/testing/radix-tree/maple.c
-+++ b/tools/testing/radix-tree/maple.c
-@@ -107,6 +107,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 	MT_BUG_ON(mt, mn->slot[1] != NULL);
- 	MT_BUG_ON(mt, mas_allocated(&mas) != 0);
- 
-+	mn->parent = ma_parent_ptr(mn);
- 	ma_free_rcu(mn);
- 	mas.node = MAS_START;
- 	mas_nomem(&mas, GFP_KERNEL);
-@@ -159,6 +160,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 		MT_BUG_ON(mt, mas_allocated(&mas) != i);
- 		MT_BUG_ON(mt, !mn);
- 		MT_BUG_ON(mt, not_empty(mn));
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 	}
- 
-@@ -191,6 +193,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 		MT_BUG_ON(mt, not_empty(mn));
- 		MT_BUG_ON(mt, mas_allocated(&mas) != i - 1);
- 		MT_BUG_ON(mt, !mn);
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 	}
- 
-@@ -209,6 +212,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 			mn = mas_pop_node(&mas);
- 			MT_BUG_ON(mt, not_empty(mn));
- 			MT_BUG_ON(mt, mas_allocated(&mas) != j - 1);
-+			mn->parent = ma_parent_ptr(mn);
- 			ma_free_rcu(mn);
- 		}
- 		MT_BUG_ON(mt, mas_allocated(&mas) != 0);
-@@ -232,6 +236,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 			MT_BUG_ON(mt, mas_allocated(&mas) != i - j);
- 			mn = mas_pop_node(&mas);
- 			MT_BUG_ON(mt, not_empty(mn));
-+			mn->parent = ma_parent_ptr(mn);
- 			ma_free_rcu(mn);
- 			MT_BUG_ON(mt, mas_allocated(&mas) != i - j - 1);
- 		}
-@@ -268,6 +273,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 			mn = mas_pop_node(&mas); /* get the next node. */
- 			MT_BUG_ON(mt, mn == NULL);
- 			MT_BUG_ON(mt, not_empty(mn));
-+			mn->parent = ma_parent_ptr(mn);
- 			ma_free_rcu(mn);
- 		}
- 		MT_BUG_ON(mt, mas_allocated(&mas) != 0);
-@@ -293,6 +299,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 			mn = mas_pop_node(&mas2); /* get the next node. */
- 			MT_BUG_ON(mt, mn == NULL);
- 			MT_BUG_ON(mt, not_empty(mn));
-+			mn->parent = ma_parent_ptr(mn);
- 			ma_free_rcu(mn);
- 		}
- 		MT_BUG_ON(mt, mas_allocated(&mas2) != 0);
-@@ -333,10 +340,12 @@ static noinline void check_new_node(struct maple_tree *mt)
- 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 2);
- 	mn = mas_pop_node(&mas);
- 	MT_BUG_ON(mt, not_empty(mn));
-+	mn->parent = ma_parent_ptr(mn);
- 	ma_free_rcu(mn);
- 	for (i = 1; i <= MAPLE_ALLOC_SLOTS + 1; i++) {
- 		mn = mas_pop_node(&mas);
- 		MT_BUG_ON(mt, not_empty(mn));
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 	}
- 	MT_BUG_ON(mt, mas_allocated(&mas) != 0);
-@@ -374,6 +383,7 @@ static noinline void check_new_node(struct maple_tree *mt)
- 		mas_node_count(&mas, i); /* Request */
- 		mas_nomem(&mas, GFP_KERNEL); /* Fill request */
- 		mn = mas_pop_node(&mas); /* get the next node. */
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 		mas_destroy(&mas);
- 
-@@ -381,10 +391,13 @@ static noinline void check_new_node(struct maple_tree *mt)
- 		mas_node_count(&mas, i); /* Request */
- 		mas_nomem(&mas, GFP_KERNEL); /* Fill request */
- 		mn = mas_pop_node(&mas); /* get the next node. */
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 		mn = mas_pop_node(&mas); /* get the next node. */
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 		mn = mas_pop_node(&mas); /* get the next node. */
-+		mn->parent = ma_parent_ptr(mn);
- 		ma_free_rcu(mn);
- 		mas_destroy(&mas);
- 	}
-@@ -35368,6 +35381,7 @@ static noinline void check_prealloc(struct maple_tree *mt)
- 	MT_BUG_ON(mt, allocated != 1 + height * 3);
- 	mn = mas_pop_node(&mas);
- 	MT_BUG_ON(mt, mas_allocated(&mas) != allocated - 1);
-+	mn->parent = ma_parent_ptr(mn);
- 	ma_free_rcu(mn);
- 	MT_BUG_ON(mt, mas_preallocate(&mas, ptr, GFP_KERNEL) != 0);
- 	mas_destroy(&mas);
-@@ -35385,6 +35399,7 @@ static noinline void check_prealloc(struct maple_tree *mt)
- 	mas_destroy(&mas);
- 	allocated = mas_allocated(&mas);
- 	MT_BUG_ON(mt, allocated != 0);
-+	mn->parent = ma_parent_ptr(mn);
- 	ma_free_rcu(mn);
- 
- 	MT_BUG_ON(mt, mas_preallocate(&mas, ptr, GFP_KERNEL) != 0);
-@@ -35755,6 +35770,7 @@ void farmer_tests(void)
- 	tree.ma_root = mt_mk_node(node, maple_leaf_64);
- 	mt_dump(&tree);
- 
-+	node->parent = ma_parent_ptr(node);
- 	ma_free_rcu(node);
- 
- 	/* Check things that will make lockdep angry */
+ 		pr_debug("The digests match!\n");
 -- 
 2.39.2
 
