@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69EBD6E6190
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDEB46E6269
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231391AbjDRMZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:25:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
+        id S229933AbjDRMcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231438AbjDRMZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D607A7A81
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:20 -0700 (PDT)
+        with ESMTP id S231233AbjDRMc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3783B1024B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA27D630FD
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE240C433EF;
-        Tue, 18 Apr 2023 12:25:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C5DF6313B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53940C433D2;
+        Tue, 18 Apr 2023 12:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820704;
-        bh=or279UaVJlxRhmNkTvxmP4fSlP14U6E0jZSMHeocAyk=;
+        s=korg; t=1681821116;
+        bh=xxPPVyH6s9wCTCL3GZDsVhvVc90miaXiyq9H9Iu7jeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqhvcjrsAdL8Nn1QWpqWcx0qm9+eU42hRwsDjEtQ45jwxqN3LCLR/plIFe1kW1tG1
-         LMetyxDtnzOLlK0letjxQvOqJJW82EmcMxz9uQo10tHinQkJXhBCZ2oXwMeDLlLEa4
-         A8BNezvY522IhCkYtGrB5vBVBdXcgvwg+ONr9/QI=
+        b=iO3lcqF+CxFK5eqh/bvK7qyqkG7ZoxQd7q/H5bUP8hSYnQG8QaZoZPr+7Xa0iuGDH
+         p6jnCivCtUa1KW4+1yBKvekwMoOhVAWSce/cL50jSHXdQighb6pjwf262m57VwGi/2
+         9ITLazuZ4jJu5esEsSj64OEa4As0C4nPFlwh2lGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Martin <Dave.Martin@arm.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Takahiro Itazuri <itazur@amazon.com>
-Subject: [PATCH 4.14 36/37] KVM: arm64: Filter out invalid core register IDs in KVM_GET_REG_LIST
+        patches@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org, Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 71/92] mtd: ubi: wl: Fix a couple of kernel-doc issues
 Date:   Tue, 18 Apr 2023 14:21:46 +0200
-Message-Id: <20230418120255.999706385@linuxfoundation.org>
+Message-Id: <20230418120307.289191497@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,125 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Martin <Dave.Martin@arm.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit df205b5c63281e4f32caac22adda18fd68795e80 upstream.
+[ Upstream commit ab4e4de9fd8b469823a645f05f2c142e9270b012 ]
 
-Since commit d26c25a9d19b ("arm64: KVM: Tighten guest core register
-access from userspace"), KVM_{GET,SET}_ONE_REG rejects register IDs
-that do not correspond to a single underlying architectural register.
+Fixes the following W=1 kernel build warning(s):
 
-KVM_GET_REG_LIST was not changed to match however: instead, it
-simply yields a list of 32-bit register IDs that together cover the
-whole kvm_regs struct.  This means that if userspace tries to use
-the resulting list of IDs directly to drive calls to KVM_*_ONE_REG,
-some of those calls will now fail.
+ drivers/mtd/ubi/wl.c:584: warning: Function parameter or member 'nested' not described in 'schedule_erase'
+ drivers/mtd/ubi/wl.c:1075: warning: Excess function parameter 'shutdown' description in '__erase_worker'
 
-This was not the intention.  Instead, iterating KVM_*_ONE_REG over
-the list of IDs returned by KVM_GET_REG_LIST should be guaranteed
-to work.
-
-This patch fixes the problem by splitting validate_core_offset()
-into a backend core_reg_size_from_offset() which does all of the
-work except for checking that the size field in the register ID
-matches, and kvm_arm_copy_reg_indices() and num_core_regs() are
-converted to use this to enumerate the valid offsets.
-
-kvm_arm_copy_reg_indices() now also sets the register ID size field
-appropriately based on the value returned, so the register ID
-supplied to userspace is fully qualified for use with the register
-access ioctls.
-
-Cc: stable@vger.kernel.org
-Fixes: d26c25a9d19b ("arm64: KVM: Tighten guest core register access from userspace")
-Signed-off-by: Dave Martin <Dave.Martin@arm.com>
-Reviewed-by: Andrew Jones <drjones@redhat.com>
-Tested-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Takahiro Itazuri <itazur@amazon.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: linux-mtd@lists.infradead.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20201109182206.3037326-13-lee.jones@linaro.org
+Stable-dep-of: f773f0a331d6 ("ubi: Fix deadlock caused by recursively holding work_sem")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/guest.c |   51 +++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 43 insertions(+), 8 deletions(-)
+ drivers/mtd/ubi/wl.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -57,9 +57,8 @@ static u64 core_reg_offset_from_id(u64 i
- 	return id & ~(KVM_REG_ARCH_MASK | KVM_REG_SIZE_MASK | KVM_REG_ARM_CORE);
- }
- 
--static int validate_core_offset(const struct kvm_one_reg *reg)
-+static int core_reg_size_from_offset(u64 off)
- {
--	u64 off = core_reg_offset_from_id(reg->id);
- 	int size;
- 
- 	switch (off) {
-@@ -89,11 +88,24 @@ static int validate_core_offset(const st
- 		return -EINVAL;
- 	}
- 
--	if (KVM_REG_SIZE(reg->id) == size &&
--	    IS_ALIGNED(off, size / sizeof(__u32)))
--		return 0;
-+	if (!IS_ALIGNED(off, size / sizeof(__u32)))
-+		return -EINVAL;
- 
--	return -EINVAL;
-+	return size;
-+}
-+
-+static int validate_core_offset(const struct kvm_one_reg *reg)
-+{
-+	u64 off = core_reg_offset_from_id(reg->id);
-+	int size = core_reg_size_from_offset(off);
-+
-+	if (size < 0)
-+		return -EINVAL;
-+
-+	if (KVM_REG_SIZE(reg->id) != size)
-+		return -EINVAL;
-+
-+	return 0;
- }
- 
- static int get_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
-@@ -197,11 +209,34 @@ static int kvm_arm_copy_core_reg_indices
- {
- 	unsigned int i;
- 	int n = 0;
--	const u64 core_reg = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE;
- 
- 	for (i = 0; i < sizeof(struct kvm_regs) / sizeof(__u32); i++) {
-+		u64 reg = KVM_REG_ARM64 | KVM_REG_ARM_CORE | i;
-+		int size = core_reg_size_from_offset(i);
-+
-+		if (size < 0)
-+			continue;
-+
-+		switch (size) {
-+		case sizeof(__u32):
-+			reg |= KVM_REG_SIZE_U32;
-+			break;
-+
-+		case sizeof(__u64):
-+			reg |= KVM_REG_SIZE_U64;
-+			break;
-+
-+		case sizeof(__uint128_t):
-+			reg |= KVM_REG_SIZE_U128;
-+			break;
-+
-+		default:
-+			WARN_ON(1);
-+			continue;
-+		}
-+
- 		if (uindices) {
--			if (put_user(core_reg | i, uindices))
-+			if (put_user(reg, uindices))
- 				return -EFAULT;
- 			uindices++;
- 		}
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 4f88433d4adc7..28110cd4400b5 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -576,6 +576,7 @@ static int erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk,
+  * @vol_id: the volume ID that last used this PEB
+  * @lnum: the last used logical eraseblock number for the PEB
+  * @torture: if the physical eraseblock has to be tortured
++ * @nested: denotes whether the work_sem is already held in read mode
+  *
+  * This function returns zero in case of success and a %-ENOMEM in case of
+  * failure.
+@@ -1060,8 +1061,6 @@ static int ensure_wear_leveling(struct ubi_device *ubi, int nested)
+  * __erase_worker - physical eraseblock erase worker function.
+  * @ubi: UBI device description object
+  * @wl_wrk: the work object
+- * @shutdown: non-zero if the worker has to free memory and exit
+- * because the WL sub-system is shutting down
+  *
+  * This function erases a physical eraseblock and perform torture testing if
+  * needed. It also takes care about marking the physical eraseblock bad if
+-- 
+2.39.2
+
 
 
