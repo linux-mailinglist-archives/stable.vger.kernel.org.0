@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E48F16E64E4
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B9F6E64E6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232217AbjDRMx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
+        id S232227AbjDRMx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbjDRMxZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:25 -0400
+        with ESMTP id S232230AbjDRMx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97B1C16FAF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD32916F84
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F278F6135B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF15C433D2;
-        Tue, 18 Apr 2023 12:53:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F29363459
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6DDBC433D2;
+        Tue, 18 Apr 2023 12:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822386;
-        bh=fr6YlN6fzrhqVkz8M+pyvwLkHR5JnN7/wVxrh7KEPNc=;
+        s=korg; t=1681822389;
+        bh=UwyG6Gy9KDhGWvKveRFzAcaAt077RRfEM4d2FevbDdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxtBnxunFY9ApXqblVIoFV/psjlN0GKcGjFfxb/irQOZ2n8+136Gp7Dk637sLZe/s
-         yvxnyWhL3o+Op4uuW0jxmDC4SzpOT3F9lASXAnJo1KDlKhULiud/v3vuYfphSG213x
-         PYHP3BXCicSaypeT5Q3PsB8BQhUBr0hSbeT59O5I=
+        b=nwWP6G1hyCnFGjkmrTwyUh+gK+nHVwjV5mYdvTvrVP3hbY0LyNHUudKOGKCmnMSpQ
+         RLdPep5jlcPl5wHA9BDholfh/I6pLJhMrOp23rg/Z8U84SvwZ5zCeY4Xk7bsI1aR6K
+         zzBWDMGbHCWG6buL7TfSM6g6sdPtfrw7v1DK5Gyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhaoLong Wang <wangzhaolong1@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 129/139] ubi: Fix deadlock caused by recursively holding work_sem
-Date:   Tue, 18 Apr 2023 14:23:14 +0200
-Message-Id: <20230418120318.720770481@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 130/139] i2c: mchp-pci1xxxx: Update Timing registers
+Date:   Tue, 18 Apr 2023 14:23:15 +0200
+Message-Id: <20230418120318.759398953@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -55,64 +55,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhaoLong Wang <wangzhaolong1@huawei.com>
+From: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
 
-[ Upstream commit f773f0a331d6c41733b17bebbc1b6cae12e016f5 ]
+[ Upstream commit aa874cdfec07d4dd9c6f0c356d65c609ba31a26f ]
 
-During the processing of the bgt, if the sync_erase() return -EBUSY
-or some other error code in __erase_worker(),schedule_erase() called
-again lead to the down_read(ubi->work_sem) hold twice and may get
-block by down_write(ubi->work_sem) in ubi_update_fastmap(),
-which cause deadlock.
+Update I2C timing registers based on latest hardware design.
+This fix does not break functionality of chips with older design and
+existing users will not be affected.
 
-          ubi bgt                        other task
- do_work
-  down_read(&ubi->work_sem)          ubi_update_fastmap
-  erase_worker                         # Blocked by down_read
-   __erase_worker                      down_write(&ubi->work_sem)
-    schedule_erase
-     schedule_ubi_work
-      down_read(&ubi->work_sem)
-
-Fix this by changing input parameter @nested of the schedule_erase() to
-'true' to avoid recursively acquiring the down_read(&ubi->work_sem).
-
-Also, fix the incorrect comment about @nested parameter of the
-schedule_erase() because when down_write(ubi->work_sem) is held, the
-@nested is also need be true.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217093
-Fixes: 2e8f08deabbc ("ubi: Fix races around ubi_refill_pools()")
-Signed-off-by: ZhaoLong Wang <wangzhaolong1@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 361693697249 ("i2c: microchip: pci1xxxx: Add driver for I2C host controller in multifunction endpoint of pci1xxxx switch")
+Signed-off-by: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/wl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mchp-pci1xxxx.c | 60 +++++++++++++-------------
+ 1 file changed, 30 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
-index 9e14319225c97..6049ab9e46479 100644
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -575,7 +575,7 @@ static int erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk,
-  * @vol_id: the volume ID that last used this PEB
-  * @lnum: the last used logical eraseblock number for the PEB
-  * @torture: if the physical eraseblock has to be tortured
-- * @nested: denotes whether the work_sem is already held in read mode
-+ * @nested: denotes whether the work_sem is already held
-  *
-  * This function returns zero in case of success and a %-ENOMEM in case of
-  * failure.
-@@ -1131,7 +1131,7 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
- 		int err1;
+diff --git a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
+index 09af759211478..b21ffd6df9276 100644
+--- a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
++++ b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
+@@ -48,9 +48,9 @@
+  * SR_HOLD_TIME_XK_TICKS field will indicate the number of ticks of the
+  * baud clock required to program 'Hold Time' at X KHz.
+  */
+-#define SR_HOLD_TIME_100K_TICKS	133
+-#define SR_HOLD_TIME_400K_TICKS	20
+-#define SR_HOLD_TIME_1000K_TICKS	11
++#define SR_HOLD_TIME_100K_TICKS		150
++#define SR_HOLD_TIME_400K_TICKS		20
++#define SR_HOLD_TIME_1000K_TICKS	12
  
- 		/* Re-schedule the LEB for erasure */
--		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
-+		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, true);
- 		if (err1) {
- 			spin_lock(&ubi->wl_lock);
- 			wl_entry_destroy(ubi, e);
+ #define SMB_CORE_COMPLETION_REG_OFF3	(SMBUS_MAST_CORE_ADDR_BASE + 0x23)
+ 
+@@ -65,17 +65,17 @@
+  * the baud clock required to program 'fair idle delay' at X KHz. Fair idle
+  * delay establishes the MCTP T(IDLE_DELAY) period.
+  */
+-#define FAIR_BUS_IDLE_MIN_100K_TICKS		969
+-#define FAIR_BUS_IDLE_MIN_400K_TICKS		157
+-#define FAIR_BUS_IDLE_MIN_1000K_TICKS		157
++#define FAIR_BUS_IDLE_MIN_100K_TICKS		992
++#define FAIR_BUS_IDLE_MIN_400K_TICKS		500
++#define FAIR_BUS_IDLE_MIN_1000K_TICKS		500
+ 
+ /*
+  * FAIR_IDLE_DELAY_XK_TICKS field will indicate the number of ticks of the
+  * baud clock required to satisfy the fairness protocol at X KHz.
+  */
+-#define FAIR_IDLE_DELAY_100K_TICKS	1000
+-#define FAIR_IDLE_DELAY_400K_TICKS	500
+-#define FAIR_IDLE_DELAY_1000K_TICKS	500
++#define FAIR_IDLE_DELAY_100K_TICKS	963
++#define FAIR_IDLE_DELAY_400K_TICKS	156
++#define FAIR_IDLE_DELAY_1000K_TICKS	156
+ 
+ #define SMB_IDLE_SCALING_100K		\
+ 	((FAIR_IDLE_DELAY_100K_TICKS << 16) | FAIR_BUS_IDLE_MIN_100K_TICKS)
+@@ -105,7 +105,7 @@
+  */
+ #define BUS_CLK_100K_LOW_PERIOD_TICKS		156
+ #define BUS_CLK_400K_LOW_PERIOD_TICKS		41
+-#define BUS_CLK_1000K_LOW_PERIOD_TICKS	15
++#define BUS_CLK_1000K_LOW_PERIOD_TICKS		15
+ 
+ /*
+  * BUS_CLK_XK_HIGH_PERIOD_TICKS field defines the number of I2C Baud Clock
+@@ -131,7 +131,7 @@
+  */
+ #define CLK_SYNC_100K			4
+ #define CLK_SYNC_400K			4
+-#define CLK_SYNC_1000K		4
++#define CLK_SYNC_1000K			4
+ 
+ #define SMB_CORE_DATA_TIMING_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x40)
+ 
+@@ -142,25 +142,25 @@
+  * determines the SCLK hold time following SDAT driven low during the first
+  * START bit in a transfer.
+  */
+-#define FIRST_START_HOLD_100K_TICKS	22
+-#define FIRST_START_HOLD_400K_TICKS	16
+-#define FIRST_START_HOLD_1000K_TICKS	6
++#define FIRST_START_HOLD_100K_TICKS	23
++#define FIRST_START_HOLD_400K_TICKS	8
++#define FIRST_START_HOLD_1000K_TICKS	12
+ 
+ /*
+  * STOP_SETUP_XK_TICKS will indicate the number of ticks of the baud clock
+  * required to program 'STOP_SETUP' timer at X KHz. This timer determines the
+  * SDAT setup time from the rising edge of SCLK for a STOP condition.
+  */
+-#define STOP_SETUP_100K_TICKS		157
++#define STOP_SETUP_100K_TICKS		150
+ #define STOP_SETUP_400K_TICKS		20
+-#define STOP_SETUP_1000K_TICKS	12
++#define STOP_SETUP_1000K_TICKS		12
+ 
+ /*
+  * RESTART_SETUP_XK_TICKS will indicate the number of ticks of the baud clock
+  * required to program 'RESTART_SETUP' timer at X KHz. This timer determines the
+  * SDAT setup time from the rising edge of SCLK for a repeated START condition.
+  */
+-#define RESTART_SETUP_100K_TICKS	157
++#define RESTART_SETUP_100K_TICKS	156
+ #define RESTART_SETUP_400K_TICKS	20
+ #define RESTART_SETUP_1000K_TICKS	12
+ 
+@@ -169,7 +169,7 @@
+  * required to program 'DATA_HOLD' timer at X KHz. This timer determines the
+  * SDAT hold time following SCLK driven low.
+  */
+-#define DATA_HOLD_100K_TICKS		2
++#define DATA_HOLD_100K_TICKS		12
+ #define DATA_HOLD_400K_TICKS		2
+ #define DATA_HOLD_1000K_TICKS		2
+ 
+@@ -190,35 +190,35 @@
+  * Bus Idle Minimum time = BUS_IDLE_MIN[7:0] x Baud_Clock_Period x
+  * (BUS_IDLE_MIN_XK_TICKS[7] ? 4,1)
+  */
+-#define BUS_IDLE_MIN_100K_TICKS		167UL
+-#define BUS_IDLE_MIN_400K_TICKS		139UL
+-#define BUS_IDLE_MIN_1000K_TICKS		133UL
++#define BUS_IDLE_MIN_100K_TICKS		36UL
++#define BUS_IDLE_MIN_400K_TICKS		10UL
++#define BUS_IDLE_MIN_1000K_TICKS	4UL
+ 
+ /*
+  * CTRL_CUM_TIME_OUT_XK_TICKS defines SMBus Controller Cumulative Time-Out.
+  * SMBus Controller Cumulative Time-Out duration =
+  * CTRL_CUM_TIME_OUT_XK_TICKS[7:0] x Baud_Clock_Period x 2048
+  */
+-#define CTRL_CUM_TIME_OUT_100K_TICKS		159
+-#define CTRL_CUM_TIME_OUT_400K_TICKS		159
+-#define CTRL_CUM_TIME_OUT_1000K_TICKS		159
++#define CTRL_CUM_TIME_OUT_100K_TICKS		76
++#define CTRL_CUM_TIME_OUT_400K_TICKS		76
++#define CTRL_CUM_TIME_OUT_1000K_TICKS		76
+ 
+ /*
+  * TARGET_CUM_TIME_OUT_XK_TICKS defines SMBus Target Cumulative Time-Out duration.
+  * SMBus Target Cumulative Time-Out duration = TARGET_CUM_TIME_OUT_XK_TICKS[7:0] x
+  * Baud_Clock_Period x 4096
+  */
+-#define TARGET_CUM_TIME_OUT_100K_TICKS	199
+-#define TARGET_CUM_TIME_OUT_400K_TICKS	199
+-#define TARGET_CUM_TIME_OUT_1000K_TICKS	199
++#define TARGET_CUM_TIME_OUT_100K_TICKS	95
++#define TARGET_CUM_TIME_OUT_400K_TICKS	95
++#define TARGET_CUM_TIME_OUT_1000K_TICKS	95
+ 
+ /*
+  * CLOCK_HIGH_TIME_OUT_XK defines Clock High time out period.
+  * Clock High time out period = CLOCK_HIGH_TIME_OUT_XK[7:0] x Baud_Clock_Period x 8
+  */
+-#define CLOCK_HIGH_TIME_OUT_100K_TICKS	204
+-#define CLOCK_HIGH_TIME_OUT_400K_TICKS	204
+-#define CLOCK_HIGH_TIME_OUT_1000K_TICKS	204
++#define CLOCK_HIGH_TIME_OUT_100K_TICKS	97
++#define CLOCK_HIGH_TIME_OUT_400K_TICKS	97
++#define CLOCK_HIGH_TIME_OUT_1000K_TICKS	97
+ 
+ #define TO_SCALING_100K		\
+ 	((BUS_IDLE_MIN_100K_TICKS << 24) | (CTRL_CUM_TIME_OUT_100K_TICKS << 16) | \
 -- 
 2.39.2
 
