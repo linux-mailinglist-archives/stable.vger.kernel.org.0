@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D116E612B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D8D6E623D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230526AbjDRMYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:24:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59908 "EHLO
+        id S230385AbjDRMbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231247AbjDRMX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:23:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 090FB449E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:23:53 -0700 (PDT)
+        with ESMTP id S231669AbjDRMa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BE2D330
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45F2A630F9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:23:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FD04C433EF;
-        Tue, 18 Apr 2023 12:23:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 959B46314A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EF8C433EF;
+        Tue, 18 Apr 2023 12:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820632;
-        bh=m6HOR5AHLxL/pd8PRtBQlcmmOA5iG9LFtuuLMoBgB5M=;
+        s=korg; t=1681820739;
+        bh=PHia39ATPKU6R9yN559n7pxoCwXx1QBc5VyHDmj/1iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLPrIAhWzuexyDkyl9qdCrQ+Ub/mECKqi2GjC2Brd+LBiDdS4um6tJuxB+k9p7Iur
-         Bj6qKaBywdRpOUj7BMA5+yxrEFhsqtC8jaGpAQ+MTsa3A0Np/0829NhhKF/NlpDpAH
-         +WwfHA36W8urwBgSXG9cmYoyzeb+jARyRsNArc/0=
+        b=y2fj9erxchWeSu+0z2efCBNiyFaD0IFdpBJh8mFznottFKnqVg0+ZrCuQb9s++dAt
+         aoe5wVKlpr0NkI/PfYAftyu45DHswaFmfXaZse6WXp6X5iBgoj7oMAAQAi+F6sQ+2X
+         HP+HlujB8qSibMvEJ/PAn7HzoMfDMWrAthWMdmb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/37] icmp: guard against too small mtu
+Subject: [PATCH 4.19 13/57] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
 Date:   Tue, 18 Apr 2023 14:21:13 +0200
-Message-Id: <20230418120254.797509384@linuxfoundation.org>
+Message-Id: <20230418120259.184081609@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,84 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 7d63b67125382ff0ffdfca434acbc94a38bd092b ]
+[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
 
-syzbot was able to trigger a panic [1] in icmp_glue_bits(), or
-more exactly in skb_copy_and_csum_bits()
+Syzbot reported a bug as following:
 
-There is no repro yet, but I think the issue is that syzbot
-manages to lower device mtu to a small value, fooling __icmp_send()
+=====================================================
+BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+ arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+ atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+ __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ ip6_finish_skb include/net/ipv6.h:1122 [inline]
+ ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
+ rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
+ rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-__icmp_send() must make sure there is enough room for the
-packet to include at least the headers.
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ alloc_skb include/linux/skbuff.h:1270 [inline]
+ __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
+ ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
+ rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-We might in the future refactor skb_copy_and_csum_bits() and its
-callers to no longer crash when something bad happens.
+It is because icmp6hdr does not in skb linear region under the scenario
+of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
+trigger the uninit variable access bug.
 
-[1]
-kernel BUG at net/core/skbuff.c:3343 !
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 15766 Comm: syz-executor.0 Not tainted 6.3.0-rc4-syzkaller-00039-gffe78bbd5121 #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-RIP: 0010:skb_copy_and_csum_bits+0x798/0x860 net/core/skbuff.c:3343
-Code: f0 c1 c8 08 41 89 c6 e9 73 ff ff ff e8 61 48 d4 f9 e9 41 fd ff ff 48 8b 7c 24 48 e8 52 48 d4 f9 e9 c3 fc ff ff e8 c8 27 84 f9 <0f> 0b 48 89 44 24 28 e8 3c 48 d4 f9 48 8b 44 24 28 e9 9d fb ff ff
-RSP: 0018:ffffc90000007620 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 00000000000001e8 RCX: 0000000000000100
-RDX: ffff8880276f6280 RSI: ffffffff87fdd138 RDI: 0000000000000005
-RBP: 0000000000000000 R08: 0000000000000005 R09: 0000000000000000
-R10: 00000000000001e8 R11: 0000000000000001 R12: 000000000000003c
-R13: 0000000000000000 R14: ffff888028244868 R15: 0000000000000b0e
-FS: 00007fbc81f1c700(0000) GS:ffff88802ca00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2df43000 CR3: 00000000744db000 CR4: 0000000000150ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<IRQ>
-icmp_glue_bits+0x7b/0x210 net/ipv4/icmp.c:353
-__ip_append_data+0x1d1b/0x39f0 net/ipv4/ip_output.c:1161
-ip_append_data net/ipv4/ip_output.c:1343 [inline]
-ip_append_data+0x115/0x1a0 net/ipv4/ip_output.c:1322
-icmp_push_reply+0xa8/0x440 net/ipv4/icmp.c:370
-__icmp_send+0xb80/0x1430 net/ipv4/icmp.c:765
-ipv4_send_dest_unreach net/ipv4/route.c:1239 [inline]
-ipv4_link_failure+0x5a9/0x9e0 net/ipv4/route.c:1246
-dst_link_failure include/net/dst.h:423 [inline]
-arp_error_report+0xcb/0x1c0 net/ipv4/arp.c:296
-neigh_invalidate+0x20d/0x560 net/core/neighbour.c:1079
-neigh_timer_handler+0xc77/0xff0 net/core/neighbour.c:1166
-call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
-expire_timers+0x29b/0x4b0 kernel/time/timer.c:1751
-__run_timers kernel/time/timer.c:2022 [inline]
+Use a local variable icmp6_type to carry the correct value in different
+scenarios.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230330174502.1915328-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
+Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/icmp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv6/ip6_output.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index 1748dfb1dc0a3..005bc38bcdde2 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -758,6 +758,11 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
- 		room = 576;
- 	room -= sizeof(struct iphdr) + icmp_param.replyopts.opt.opt.optlen;
- 	room -= sizeof(struct icmphdr);
-+	/* Guard against tiny mtu. We need to include at least one
-+	 * IP network header for this message to make any sense.
-+	 */
-+	if (room <= (int)sizeof(struct iphdr))
-+		goto ende;
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 70820d049b92a..4f31a781ab370 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1730,8 +1730,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
+ 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
+ 	if (proto == IPPROTO_ICMPV6) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
++		u8 icmp6_type;
  
- 	icmp_param.data_len = skb_in->len - icmp_param.offset;
- 	if (icmp_param.data_len > room)
+-		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
++		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
++			icmp6_type = fl6->fl6_icmp_type;
++		else
++			icmp6_type = icmp6_hdr(skb)->icmp6_type;
++		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
+ 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
+ 	}
+ 
 -- 
 2.39.2
 
