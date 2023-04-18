@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD706E633D
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 010796E633E
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231792AbjDRMi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:38:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
+        id S231803AbjDRMjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:39:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbjDRMi6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9C11386B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:57 -0700 (PDT)
+        with ESMTP id S231797AbjDRMjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F581386F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C947E632DE
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FB6C4339C;
-        Tue, 18 Apr 2023 12:38:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 711C5632DA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83351C4339B;
+        Tue, 18 Apr 2023 12:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821536;
-        bh=0mt26iVTqwPUcTu9GZ1KJp1Pi0NpaixLhjWQmQt46oA=;
+        s=korg; t=1681821538;
+        bh=2wA44kDtgI9IRu4YzCwgCu50ewXF20yfzD+KbsOE260=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NCnbdepZby+HmoY2XNWoFSBr7y8H9ChbptvaJjMuE+s+Ud35HY1HwrfoeqUc+ak99
-         Z/UpWSsG7CfiD6Oj9bsuees7e0cvSFnGDhTaKeJ5U7h3dnpzC6ma6/Q3XLsBmOXaDl
-         scK94wpH9kgUB4VHWCC+wwl4/29tOy5HpAxDEW8M=
+        b=A6nSxGq60JaQxDcSRERb3v/yvezCL50Gjy2XF1+VbkkzYShSRS7JIox9Y8WQ7mwL+
+         RMB+bH16Tsm8N9Z6NNTZbqTvkekhJT9E0o3FTWb5xoXO5QoiAgyZT2xdC7PWCNBGfR
+         Y5xbjvmhx4AX2SMZAhXKWJlRH9qysz/YKhaUNV7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Min Li <lm0963hack@gmail.com>
-Subject: [PATCH 5.15 08/91] Bluetooth: L2CAP: Fix use-after-free in l2cap_disconnect_{req,rsp}
-Date:   Tue, 18 Apr 2023 14:21:12 +0200
-Message-Id: <20230418120305.824878860@linuxfoundation.org>
+        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.15 09/91] Bluetooth: Fix race condition in hidp_session_thread
+Date:   Tue, 18 Apr 2023 14:21:13 +0200
+Message-Id: <20230418120305.869894331@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
 References: <20230418120305.520719816@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,97 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Min Li <lm0963hack@gmail.com>
 
-commit a2a9339e1c9deb7e1e079e12e27a0265aea8421a upstream.
+commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
 
-Similar to commit d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free
-caused by l2cap_chan_put"), just use l2cap_chan_hold_unless_zero to
-prevent referencing a channel that is about to be destroyed.
+There is a potential race condition in hidp_session_thread that may
+lead to use-after-free. For instance, the timer is active while
+hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
+then 'session' will be freed, causing kernel panic when hidp_idle_timeout
+is running.
 
-Cc: stable@kernel.org
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The solution is to use del_timer_sync instead of del_timer.
+
+Here is the call trace:
+
+? hidp_session_probe+0x780/0x780
+call_timer_fn+0x2d/0x1e0
+__run_timers.part.0+0x569/0x940
+hidp_session_probe+0x780/0x780
+call_timer_fn+0x1e0/0x1e0
+ktime_get+0x5c/0xf0
+lapic_next_deadline+0x2c/0x40
+clockevents_program_event+0x205/0x320
+run_timer_softirq+0xa9/0x1b0
+__do_softirq+0x1b9/0x641
+__irq_exit_rcu+0xdc/0x190
+irq_exit_rcu+0xe/0x20
+sysvec_apic_timer_interrupt+0xa1/0xc0
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Min Li <lm0963hack@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ net/bluetooth/hidp/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4652,33 +4652,27 @@ static inline int l2cap_disconnect_req(s
- 
- 	BT_DBG("scid 0x%4.4x dcid 0x%4.4x", scid, dcid);
- 
--	mutex_lock(&conn->chan_lock);
--
--	chan = __l2cap_get_chan_by_scid(conn, dcid);
-+	chan = l2cap_get_chan_by_scid(conn, dcid);
- 	if (!chan) {
--		mutex_unlock(&conn->chan_lock);
- 		cmd_reject_invalid_cid(conn, cmd->ident, dcid, scid);
- 		return 0;
- 	}
- 
--	l2cap_chan_hold(chan);
--	l2cap_chan_lock(chan);
--
- 	rsp.dcid = cpu_to_le16(chan->scid);
- 	rsp.scid = cpu_to_le16(chan->dcid);
- 	l2cap_send_cmd(conn, cmd->ident, L2CAP_DISCONN_RSP, sizeof(rsp), &rsp);
- 
- 	chan->ops->set_shutdown(chan);
- 
-+	mutex_lock(&conn->chan_lock);
- 	l2cap_chan_del(chan, ECONNRESET);
-+	mutex_unlock(&conn->chan_lock);
- 
- 	chan->ops->close(chan);
- 
- 	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
--	mutex_unlock(&conn->chan_lock);
--
- 	return 0;
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -433,7 +433,7 @@ static void hidp_set_timer(struct hidp_s
+ static void hidp_del_timer(struct hidp_session *session)
+ {
+ 	if (session->idle_to > 0)
+-		del_timer(&session->timer);
++		del_timer_sync(&session->timer);
  }
  
-@@ -4698,33 +4692,27 @@ static inline int l2cap_disconnect_rsp(s
- 
- 	BT_DBG("dcid 0x%4.4x scid 0x%4.4x", dcid, scid);
- 
--	mutex_lock(&conn->chan_lock);
--
--	chan = __l2cap_get_chan_by_scid(conn, scid);
-+	chan = l2cap_get_chan_by_scid(conn, scid);
- 	if (!chan) {
- 		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
--	l2cap_chan_hold(chan);
--	l2cap_chan_lock(chan);
--
- 	if (chan->state != BT_DISCONN) {
- 		l2cap_chan_unlock(chan);
- 		l2cap_chan_put(chan);
--		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
-+	mutex_lock(&conn->chan_lock);
- 	l2cap_chan_del(chan, 0);
-+	mutex_unlock(&conn->chan_lock);
- 
- 	chan->ops->close(chan);
- 
- 	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
--	mutex_unlock(&conn->chan_lock);
--
- 	return 0;
- }
- 
+ static void hidp_process_report(struct hidp_session *session, int type,
 
 
