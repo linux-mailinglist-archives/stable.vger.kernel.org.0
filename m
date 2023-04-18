@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4BA6E62DE
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E6C6E6352
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbjDRMgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:36:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50890 "EHLO
+        id S231814AbjDRMjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:39:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231731AbjDRMgF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56581CFA3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:02 -0700 (PDT)
+        with ESMTP id S229677AbjDRMjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF7813F8B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5757563291
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C003C433EF;
-        Tue, 18 Apr 2023 12:36:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24B93632E9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A989C433EF;
+        Tue, 18 Apr 2023 12:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821361;
-        bh=X87ecc4Vc708XTpJHQ5oCTjCn2rX778OdsSVHrDDEhA=;
+        s=korg; t=1681821573;
+        bh=0AqMinjpxCfHF+VACYeH+m/S2gDQCAg9TP4Euq8u2Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8UPPnjih23BduUl/yuEBaXb3hZRRJsDyDzFVYNcHTfRHoQUVj0zPcrQmZvzWjXIX
-         VcF+nVzuuckGy4j6gcLacbMFCTVI+oVAXjqVb5xTrntEx6WkDOOUUO1GwN9c1GNxml
-         CHVUC/a32AgjZJTA9f4faUqaRw/6o22rBRK4IEwE=
+        b=SlCqMtrRUH0iRm/1BKpJJs4uvNB7cr4TtnUnHKxnYIrUb9rGSlhH02sdFFs8IokTc
+         QqwbpVc8RVl3cUNh1UwrvVbIhB0Ivrk8vsLbBuDRkjmzyoNCUWhz8ZyZbX8Onk37CM
+         M9TpL+S4ft4kLm0t6HocfcKks1762NXgV1VOndQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Nicolas Schichan <nschichan@freebox.fr>,
-        Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 098/124] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ross Zwisler <zwisler@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 53/91] tracing: Add trace_array_puts() to write into instance
 Date:   Tue, 18 Apr 2023 14:21:57 +0200
-Message-Id: <20230418120313.402423586@linuxfoundation.org>
+Message-Id: <20230418120307.434272969@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
+[ Upstream commit d503b8f7474fe7ac616518f7fc49773cbab49f36 ]
 
-Following process will make ubi attaching failed since commit
-1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
+Add a generic trace_array_puts() that can be used to "trace_puts()" into
+an allocated trace_array instance. This is just another variant of
+trace_array_printk().
 
-ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
-modprobe nandsim id_bytes=$ID
-flash_eraseall /dev/mtd0
-modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
-(dmesg):
-  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
-  UBI error: cannot attach mtd0
-  UBI error: cannot initialize UBI, error -22
+Link: https://lkml.kernel.org/r/20230207173026.584717290@goodmis.org
 
-Rework original solution, the key point is making sure
-'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
-so we should check vid_hdr_shift rather not vid_hdr_offset.
-Then, ubi still support (sub)page aligined VID header offset.
-
-Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Tested-by: Nicolas Schichan <nschichan@freebox.fr>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Stable-dep-of: 9d52727f8043 ("tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ include/linux/trace.h | 12 ++++++++++++
+ kernel/trace/trace.c  | 27 +++++++++++++++++----------
+ 2 files changed, 29 insertions(+), 10 deletions(-)
 
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -665,12 +665,6 @@ static int io_init(struct ubi_device *ub
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
+diff --git a/include/linux/trace.h b/include/linux/trace.h
+index 80ffda8717491..2a70a447184c9 100644
+--- a/include/linux/trace.h
++++ b/include/linux/trace.h
+@@ -33,6 +33,18 @@ struct trace_array;
+ int register_ftrace_export(struct trace_export *export);
+ int unregister_ftrace_export(struct trace_export *export);
  
--	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
--	    ubi->vid_hdr_alsize)) {
--		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
--		return -EINVAL;
--	}
--
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
-@@ -688,6 +682,21 @@ static int io_init(struct ubi_device *ub
- 						ubi->vid_hdr_aloffset;
- 	}
- 
-+	/*
-+	 * Memory allocation for VID header is ubi->vid_hdr_alsize
-+	 * which is described in comments in io.c.
-+	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
-+	 * ubi->vid_hdr_alsize, so that all vid header operations
-+	 * won't access memory out of bounds.
-+	 */
-+	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
-+		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
-+			" + VID header size(%zu) > VID header aligned size(%d).",
-+			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
-+			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
-+		return -EINVAL;
-+	}
++/**
++ * trace_array_puts - write a constant string into the trace buffer.
++ * @tr:    The trace array to write to
++ * @str:   The constant string to write
++ */
++#define trace_array_puts(tr, str)					\
++	({								\
++		str ? __trace_array_puts(tr, _THIS_IP_, str, strlen(str)) : -1;	\
++	})
++int __trace_array_puts(struct trace_array *tr, unsigned long ip,
++		       const char *str, int size);
 +
- 	/* Similar for the data offset */
- 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
- 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
+ void trace_printk_init_buffers(void);
+ __printf(3, 4)
+ int trace_array_printk(struct trace_array *tr, unsigned long ip,
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index dc097bd23dc3e..3d7bd251302fb 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -990,13 +990,8 @@ __buffer_unlock_commit(struct trace_buffer *buffer, struct ring_buffer_event *ev
+ 		ring_buffer_unlock_commit(buffer, event);
+ }
+ 
+-/**
+- * __trace_puts - write a constant string into the trace buffer.
+- * @ip:	   The address of the caller
+- * @str:   The constant string to write
+- * @size:  The size of the string.
+- */
+-int __trace_puts(unsigned long ip, const char *str, int size)
++int __trace_array_puts(struct trace_array *tr, unsigned long ip,
++		       const char *str, int size)
+ {
+ 	struct ring_buffer_event *event;
+ 	struct trace_buffer *buffer;
+@@ -1004,7 +999,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
+ 	unsigned int trace_ctx;
+ 	int alloc;
+ 
+-	if (!(global_trace.trace_flags & TRACE_ITER_PRINTK))
++	if (!(tr->trace_flags & TRACE_ITER_PRINTK))
+ 		return 0;
+ 
+ 	if (unlikely(tracing_selftest_running || tracing_disabled))
+@@ -1013,7 +1008,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
+ 	alloc = sizeof(*entry) + size + 2; /* possible \n added */
+ 
+ 	trace_ctx = tracing_gen_ctx();
+-	buffer = global_trace.array_buffer.buffer;
++	buffer = tr->array_buffer.buffer;
+ 	ring_buffer_nest_start(buffer);
+ 	event = __trace_buffer_lock_reserve(buffer, TRACE_PRINT, alloc,
+ 					    trace_ctx);
+@@ -1035,11 +1030,23 @@ int __trace_puts(unsigned long ip, const char *str, int size)
+ 		entry->buf[size] = '\0';
+ 
+ 	__buffer_unlock_commit(buffer, event);
+-	ftrace_trace_stack(&global_trace, buffer, trace_ctx, 4, NULL);
++	ftrace_trace_stack(tr, buffer, trace_ctx, 4, NULL);
+  out:
+ 	ring_buffer_nest_end(buffer);
+ 	return size;
+ }
++EXPORT_SYMBOL_GPL(__trace_array_puts);
++
++/**
++ * __trace_puts - write a constant string into the trace buffer.
++ * @ip:	   The address of the caller
++ * @str:   The constant string to write
++ * @size:  The size of the string.
++ */
++int __trace_puts(unsigned long ip, const char *str, int size)
++{
++	return __trace_array_puts(&global_trace, ip, str, size);
++}
+ EXPORT_SYMBOL_GPL(__trace_puts);
+ 
+ /**
+-- 
+2.39.2
+
 
 
