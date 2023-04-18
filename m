@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EECF6E64E7
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AFBF6E643A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbjDRMx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46890 "EHLO
+        id S231969AbjDRMrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbjDRMx2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:28 -0400
+        with ESMTP id S232024AbjDRMrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977087A80
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B07A5E0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FA262B02
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 034DFC433EF;
-        Tue, 18 Apr 2023 12:52:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50808633BF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66101C433D2;
+        Tue, 18 Apr 2023 12:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822365;
-        bh=UcWlxnkfaTaHqhQh+AsaOONkbCEZ+BBA1EBTLwG5NIU=;
+        s=korg; t=1681822032;
+        bh=93P0O0orCe73YPooWBbhtibJ7knQtY26gdEVlNqqPyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vj+fJEtheb0BcFh0SH1bGU6PyIa02pRyktdHkX7Zc1+sAboF6bJEbmII9MyhOvnAh
-         xZt243CWj6Wby1/Xxhe4KRycgfdwwuObgZkFlIwMKQfq2zXcjZfVJ9TZKOI/ig86XG
-         reZsDRiJCgdVVEtuNd0tE1woMGHCyKZFG+GjbDLA=
+        b=AYF6x4T21KLi8a/fpzjc5HkT5lonuJFSeGfQo2WH+6BeHyigNW7Rf6hrAu9VxcNbM
+         9BAXEudk6Y4ylJAFFo0Tl+jzVJw/QnRyqUI3Eg1Gu0DU7+8mUA2qvege2JLEeuCr+x
+         eBoKF4WxLnGiC/20x7CWA0+JsphNxiz5xXXdipE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.2 122/139] drm/amd/pm: correct SMU13.0.7 pstate profiling clock settings
+        patches@lists.linux.dev, Duy Truong <dory@dory.moe>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 131/134] nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD
 Date:   Tue, 18 Apr 2023 14:23:07 +0200
-Message-Id: <20230418120318.409162466@linuxfoundation.org>
+Message-Id: <20230418120317.737581682@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatio Zhang <Hongkun.Zhang@amd.com>
+From: Duy Truong <dory@dory.moe>
 
-commit f06b8887e3ef4f50098d3a949aef392c529c831a upstream.
+[ Upstream commit 74391b3e69855e7dd65a9cef36baf5fc1345affd ]
 
-Correct the pstate standard/peak profiling mode clock
-settings for SMU13.0.7.
+Added a quirk to fix the TeamGroup T-Force Cardea Zero Z330 SSDs reporting
+duplicate NGUIDs.
 
-Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Duy Truong <dory@dory.moe>
+Cc: stable@vger.kernel.org
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |   22 ++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -1329,9 +1329,17 @@ static int smu_v13_0_7_populate_umd_stat
- 				&dpm_context->dpm_tables.fclk_table;
- 	struct smu_umd_pstate_table *pstate_table =
- 				&smu->pstate_table;
-+	struct smu_table_context *table_context = &smu->smu_table;
-+	PPTable_t *pptable = table_context->driver_pptable;
-+	DriverReportedClocks_t driver_clocks =
-+		pptable->SkuTable.DriverReportedClocks;
- 
- 	pstate_table->gfxclk_pstate.min = gfx_table->min;
--	pstate_table->gfxclk_pstate.peak = gfx_table->max;
-+	if (driver_clocks.GameClockAc &&
-+		(driver_clocks.GameClockAc < gfx_table->max))
-+		pstate_table->gfxclk_pstate.peak = driver_clocks.GameClockAc;
-+	else
-+		pstate_table->gfxclk_pstate.peak = gfx_table->max;
- 
- 	pstate_table->uclk_pstate.min = mem_table->min;
- 	pstate_table->uclk_pstate.peak = mem_table->max;
-@@ -1348,12 +1356,12 @@ static int smu_v13_0_7_populate_umd_stat
- 	pstate_table->fclk_pstate.min = fclk_table->min;
- 	pstate_table->fclk_pstate.peak = fclk_table->max;
- 
--	/*
--	 * For now, just use the mininum clock frequency.
--	 * TODO: update them when the real pstate settings available
--	 */
--	pstate_table->gfxclk_pstate.standard = gfx_table->min;
--	pstate_table->uclk_pstate.standard = mem_table->min;
-+	if (driver_clocks.BaseClockAc &&
-+		driver_clocks.BaseClockAc < gfx_table->max)
-+		pstate_table->gfxclk_pstate.standard = driver_clocks.BaseClockAc;
-+	else
-+		pstate_table->gfxclk_pstate.standard = gfx_table->max;
-+	pstate_table->uclk_pstate.standard = mem_table->max;
- 	pstate_table->socclk_pstate.standard = soc_table->min;
- 	pstate_table->vclk_pstate.standard = vclk_table->min;
- 	pstate_table->dclk_pstate.standard = dclk_table->min;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 1bef32cd10252..581bf94416e6d 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3552,6 +3552,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 	{ PCI_DEVICE(0x1d97, 0x2269), /* Lexar NM760 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++	{ PCI_DEVICE(0x10ec, 0x5763), /* TEAMGROUP T-FORCE CARDEA ZERO Z330 SSD */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
+-- 
+2.39.2
+
 
 
