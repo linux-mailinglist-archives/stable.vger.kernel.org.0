@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B116E6251
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F596E63E2
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231592AbjDRMbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:31:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43806 "EHLO
+        id S231919AbjDRMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231618AbjDRMbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:44 -0400
+        with ESMTP id S231907AbjDRMoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E5AD31E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7158F19A6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AB6D631BF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DCAAC4339B;
-        Tue, 18 Apr 2023 12:31:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E910763371
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0606FC433D2;
+        Tue, 18 Apr 2023 12:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821074;
-        bh=Pl9WqIak3kcbPx9luMTU802INQ76BBjywadVkN27+hA=;
+        s=korg; t=1681821844;
+        bh=gSl3TiatGp+t0OH5DFM93BUuo6xHWfhROJItxIlBKRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQFduvn1/yjbB6ypgsKM+IdSTXbZkUkpL/kQOgwLkgcmvZ2sNqfoWPWQwaLazwvfh
-         RhA4T/+tCTFe2+Q/jNEtjUh6LmGBYC/CceG722NGDEQBr2XBTHU/d83tFA2ienMZsF
-         g8tLpFBfGhSF6uQWs8A34RcxQeGJSrKj0QfNUBN0=
+        b=nNRmSiAg3FFGpOBjb7Qjk6jn7nGlmLRyvcYgK+LnqAXoC5IKEcpm9mBC+jisMtKSZ
+         KPcSnAyc0AzkQM581X39PsXx2NprEHw02Xequm1Q2kV5v9cmZ/CTbUNebWIKQf1e4R
+         pQlvjqMxdha1F8KPIvZC6cUqjsxWckh0R+BUZgl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Chandan Rajendra <chandanrlinux@gmail.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>
-Subject: [PATCH 5.4 82/92] xfs: only check the superblock version for dinode size calculation
-Date:   Tue, 18 Apr 2023 14:21:57 +0200
-Message-Id: <20230418120307.647615045@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 062/134] net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
+Date:   Tue, 18 Apr 2023 14:21:58 +0200
+Message-Id: <20230418120315.124698772@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,224 +58,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit e9e2eae89ddb658ea332295153fdca78c12c1e0d upstream.
+[ Upstream commit 6417070918de3bcdbe0646e7256dae58fd8083ba ]
 
-The size of the dinode structure is only dependent on the file system
-version, so instead of checking the individual inode version just use
-the newly added xfs_sb_version_has_large_dinode helper, and simplify
-various calling conventions.
+Syzbot reported a bug as following:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+=====================================================
+BUG: KMSAN: uninit-value in qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
+ qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
+ qrtr_endpoint_post+0xf85/0x11b0 net/qrtr/af_qrtr.c:519
+ qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ __netdev_alloc_skb+0x120/0x7d0 net/core/skbuff.c:630
+ qrtr_endpoint_post+0xbd/0x11b0 net/qrtr/af_qrtr.c:446
+ qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+It is because that skb->len requires at least sizeof(struct qrtr_ctrl_pkt)
+in qrtr_tx_resume(). And skb->len equals to size in qrtr_endpoint_post().
+But size is less than sizeof(struct qrtr_ctrl_pkt) when qrtr_cb->type
+equals to QRTR_TYPE_RESUME_TX in qrtr_endpoint_post() under the syzbot
+scenario. This triggers the uninit variable access bug.
+
+Add size check when qrtr_cb->type equals to QRTR_TYPE_RESUME_TX in
+qrtr_endpoint_post() to fix the bug.
+
+Fixes: 5fdeb0d372ab ("net: qrtr: Implement outgoing flow control")
+Reported-by: syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=c14607f0963d27d5a3d5f4c8639b500909e43540
+Suggested-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230410012352.3997823-1-william.xuanziyang@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c  |    5 ++---
- fs/xfs/libxfs/xfs_bmap.c       |   10 ++++------
- fs/xfs/libxfs/xfs_format.h     |   16 ++++++++--------
- fs/xfs/libxfs/xfs_ialloc.c     |    2 +-
- fs/xfs/libxfs/xfs_inode_buf.c  |    2 +-
- fs/xfs/libxfs/xfs_inode_fork.c |    2 +-
- fs/xfs/libxfs/xfs_inode_fork.h |    9 ++-------
- fs/xfs/libxfs/xfs_log_format.h |   10 ++++------
- fs/xfs/xfs_inode_item.c        |    4 ++--
- fs/xfs/xfs_log_recover.c       |    2 +-
- fs/xfs/xfs_symlink.c           |    2 +-
- 11 files changed, 27 insertions(+), 37 deletions(-)
+ net/qrtr/af_qrtr.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -456,7 +456,7 @@ xfs_attr_shortform_bytesfit(
- 	int			offset;
+diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
+index 3a70255c8d02f..76f0434d3d06a 100644
+--- a/net/qrtr/af_qrtr.c
++++ b/net/qrtr/af_qrtr.c
+@@ -498,6 +498,11 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 	if (!size || len != ALIGN(size, 4) + hdrlen)
+ 		goto err;
  
- 	/* rounded down */
--	offset = (XFS_LITINO(mp, dp->i_d.di_version) - bytes) >> 3;
-+	offset = (XFS_LITINO(mp) - bytes) >> 3;
++	if ((cb->type == QRTR_TYPE_NEW_SERVER ||
++	     cb->type == QRTR_TYPE_RESUME_TX) &&
++	    size < sizeof(struct qrtr_ctrl_pkt))
++		goto err;
++
+ 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
+ 	    cb->type != QRTR_TYPE_RESUME_TX)
+ 		goto err;
+@@ -510,9 +515,6 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 		/* Remote node endpoint can bridge other distant nodes */
+ 		const struct qrtr_ctrl_pkt *pkt;
  
- 	if (dp->i_d.di_format == XFS_DINODE_FMT_DEV) {
- 		minforkoff = roundup(sizeof(xfs_dev_t), 8) >> 3;
-@@ -523,8 +523,7 @@ xfs_attr_shortform_bytesfit(
- 	minforkoff = roundup(minforkoff, 8) >> 3;
- 
- 	/* attr fork btree root can have at least this many key/ptr pairs */
--	maxforkoff = XFS_LITINO(mp, dp->i_d.di_version) -
--			XFS_BMDR_SPACE_CALC(MINABTPTRS);
-+	maxforkoff = XFS_LITINO(mp) - XFS_BMDR_SPACE_CALC(MINABTPTRS);
- 	maxforkoff = maxforkoff >> 3;	/* rounded down */
- 
- 	if (offset >= maxforkoff)
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -192,14 +192,12 @@ xfs_default_attroffset(
- 	struct xfs_mount	*mp = ip->i_mount;
- 	uint			offset;
- 
--	if (mp->m_sb.sb_inodesize == 256) {
--		offset = XFS_LITINO(mp, ip->i_d.di_version) -
--				XFS_BMDR_SPACE_CALC(MINABTPTRS);
--	} else {
-+	if (mp->m_sb.sb_inodesize == 256)
-+		offset = XFS_LITINO(mp) - XFS_BMDR_SPACE_CALC(MINABTPTRS);
-+	else
- 		offset = XFS_BMDR_SPACE_CALC(6 * MINABTPTRS);
--	}
- 
--	ASSERT(offset < XFS_LITINO(mp, ip->i_d.di_version));
-+	ASSERT(offset < XFS_LITINO(mp));
- 	return offset;
- }
- 
---- a/fs/xfs/libxfs/xfs_format.h
-+++ b/fs/xfs/libxfs/xfs_format.h
-@@ -963,8 +963,12 @@ typedef enum xfs_dinode_fmt {
- /*
-  * Inode size for given fs.
-  */
--#define XFS_LITINO(mp, version) \
--	((int)(((mp)->m_sb.sb_inodesize) - xfs_dinode_size(version)))
-+#define XFS_DINODE_SIZE(sbp) \
-+	(xfs_sb_version_has_v3inode(sbp) ? \
-+		sizeof(struct xfs_dinode) : \
-+		offsetof(struct xfs_dinode, di_crc))
-+#define XFS_LITINO(mp) \
-+	((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb))
- 
- /*
-  * Inode data & attribute fork sizes, per inode.
-@@ -973,13 +977,9 @@ typedef enum xfs_dinode_fmt {
- #define XFS_DFORK_BOFF(dip)		((int)((dip)->di_forkoff << 3))
- 
- #define XFS_DFORK_DSIZE(dip,mp) \
--	(XFS_DFORK_Q(dip) ? \
--		XFS_DFORK_BOFF(dip) : \
--		XFS_LITINO(mp, (dip)->di_version))
-+	(XFS_DFORK_Q(dip) ? XFS_DFORK_BOFF(dip) : XFS_LITINO(mp))
- #define XFS_DFORK_ASIZE(dip,mp) \
--	(XFS_DFORK_Q(dip) ? \
--		XFS_LITINO(mp, (dip)->di_version) - XFS_DFORK_BOFF(dip) : \
--		0)
-+	(XFS_DFORK_Q(dip) ? XFS_LITINO(mp) - XFS_DFORK_BOFF(dip) : 0)
- #define XFS_DFORK_SIZE(dip,mp,w) \
- 	((w) == XFS_DATA_FORK ? \
- 		XFS_DFORK_DSIZE(dip, mp) : \
---- a/fs/xfs/libxfs/xfs_ialloc.c
-+++ b/fs/xfs/libxfs/xfs_ialloc.c
-@@ -339,7 +339,7 @@ xfs_ialloc_inode_init(
- 		xfs_buf_zero(fbuf, 0, BBTOB(fbuf->b_length));
- 		for (i = 0; i < M_IGEO(mp)->inodes_per_cluster; i++) {
- 			int	ioffset = i << mp->m_sb.sb_inodelog;
--			uint	isize = xfs_dinode_size(version);
-+			uint	isize = XFS_DINODE_SIZE(&mp->m_sb);
- 
- 			free = xfs_make_iptr(mp, fbuf, i);
- 			free->di_magic = cpu_to_be16(XFS_DINODE_MAGIC);
---- a/fs/xfs/libxfs/xfs_inode_buf.c
-+++ b/fs/xfs/libxfs/xfs_inode_buf.c
-@@ -417,7 +417,7 @@ xfs_dinode_verify_forkoff(
- 	case XFS_DINODE_FMT_LOCAL:	/* fall through ... */
- 	case XFS_DINODE_FMT_EXTENTS:    /* fall through ... */
- 	case XFS_DINODE_FMT_BTREE:
--		if (dip->di_forkoff >= (XFS_LITINO(mp, dip->di_version) >> 3))
-+		if (dip->di_forkoff >= (XFS_LITINO(mp) >> 3))
- 			return __this_address;
- 		break;
- 	default:
---- a/fs/xfs/libxfs/xfs_inode_fork.c
-+++ b/fs/xfs/libxfs/xfs_inode_fork.c
-@@ -183,7 +183,7 @@ xfs_iformat_local(
- 	 */
- 	if (unlikely(size > XFS_DFORK_SIZE(dip, ip->i_mount, whichfork))) {
- 		xfs_warn(ip->i_mount,
--	"corrupt inode %Lu (bad size %d for local fork, size = %d).",
-+	"corrupt inode %Lu (bad size %d for local fork, size = %zd).",
- 			(unsigned long long) ip->i_ino, size,
- 			XFS_DFORK_SIZE(dip, ip->i_mount, whichfork));
- 		xfs_inode_verifier_error(ip, -EFSCORRUPTED,
---- a/fs/xfs/libxfs/xfs_inode_fork.h
-+++ b/fs/xfs/libxfs/xfs_inode_fork.h
-@@ -46,14 +46,9 @@ struct xfs_ifork {
- 			(ip)->i_afp : \
- 			(ip)->i_cowfp))
- #define XFS_IFORK_DSIZE(ip) \
--	(XFS_IFORK_Q(ip) ? \
--		XFS_IFORK_BOFF(ip) : \
--		XFS_LITINO((ip)->i_mount, (ip)->i_d.di_version))
-+	(XFS_IFORK_Q(ip) ? XFS_IFORK_BOFF(ip) : XFS_LITINO((ip)->i_mount))
- #define XFS_IFORK_ASIZE(ip) \
--	(XFS_IFORK_Q(ip) ? \
--		XFS_LITINO((ip)->i_mount, (ip)->i_d.di_version) - \
--			XFS_IFORK_BOFF(ip) : \
--		0)
-+	(XFS_IFORK_Q(ip) ? XFS_LITINO((ip)->i_mount) - XFS_IFORK_BOFF(ip) : 0)
- #define XFS_IFORK_SIZE(ip,w) \
- 	((w) == XFS_DATA_FORK ? \
- 		XFS_IFORK_DSIZE(ip) : \
---- a/fs/xfs/libxfs/xfs_log_format.h
-+++ b/fs/xfs/libxfs/xfs_log_format.h
-@@ -424,12 +424,10 @@ struct xfs_log_dinode {
- 	/* structure must be padded to 64 bit alignment */
- };
- 
--static inline uint xfs_log_dinode_size(int version)
--{
--	if (version == 3)
--		return sizeof(struct xfs_log_dinode);
--	return offsetof(struct xfs_log_dinode, di_next_unlinked);
--}
-+#define xfs_log_dinode_size(mp)						\
-+	(xfs_sb_version_has_v3inode(&(mp)->m_sb) ?			\
-+		sizeof(struct xfs_log_dinode) :				\
-+		offsetof(struct xfs_log_dinode, di_next_unlinked))
- 
- /*
-  * Buffer Log Format defintions
---- a/fs/xfs/xfs_inode_item.c
-+++ b/fs/xfs/xfs_inode_item.c
-@@ -125,7 +125,7 @@ xfs_inode_item_size(
- 
- 	*nvecs += 2;
- 	*nbytes += sizeof(struct xfs_inode_log_format) +
--		   xfs_log_dinode_size(ip->i_d.di_version);
-+		   xfs_log_dinode_size(ip->i_mount);
- 
- 	xfs_inode_item_data_fork_size(iip, nvecs, nbytes);
- 	if (XFS_IFORK_Q(ip))
-@@ -370,7 +370,7 @@ xfs_inode_item_format_core(
- 
- 	dic = xlog_prepare_iovec(lv, vecp, XLOG_REG_TYPE_ICORE);
- 	xfs_inode_to_log_dinode(ip, dic, ip->i_itemp->ili_item.li_lsn);
--	xlog_finish_iovec(lv, *vecp, xfs_log_dinode_size(ip->i_d.di_version));
-+	xlog_finish_iovec(lv, *vecp, xfs_log_dinode_size(ip->i_mount));
- }
- 
- /*
---- a/fs/xfs/xfs_log_recover.c
-+++ b/fs/xfs/xfs_log_recover.c
-@@ -3089,7 +3089,7 @@ xlog_recover_inode_pass2(
- 		error = -EFSCORRUPTED;
- 		goto out_release;
+-		if (size < sizeof(*pkt))
+-			goto err;
+-
+ 		pkt = data + hdrlen;
+ 		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
  	}
--	isize = xfs_log_dinode_size(ldip->di_version);
-+	isize = xfs_log_dinode_size(mp);
- 	if (unlikely(item->ri_buf[1].i_len > isize)) {
- 		XFS_CORRUPTION_ERROR("xlog_recover_inode_pass2(7)",
- 				     XFS_ERRLEVEL_LOW, mp, ldip,
---- a/fs/xfs/xfs_symlink.c
-+++ b/fs/xfs/xfs_symlink.c
-@@ -201,7 +201,7 @@ xfs_symlink(
- 	 * The symlink will fit into the inode data fork?
- 	 * There can't be any attributes so we get the whole variable part.
- 	 */
--	if (pathlen <= XFS_LITINO(mp, dp->i_d.di_version))
-+	if (pathlen <= XFS_LITINO(mp))
- 		fs_blocks = 0;
- 	else
- 		fs_blocks = xfs_symlink_blocks(mp, pathlen);
+-- 
+2.39.2
+
 
 
