@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D56586E61C1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181BD6E62A5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231396AbjDRM1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:27:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37286 "EHLO
+        id S231633AbjDRMeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231408AbjDRM1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:30 -0400
+        with ESMTP id S231622AbjDRMeV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364B959F6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD5612590
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B87363189
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DD9BC4339C;
-        Tue, 18 Apr 2023 12:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FCD96320E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E273C433EF;
+        Tue, 18 Apr 2023 12:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820810;
-        bh=xsB/HPINQqlXQJ/xerlXWajiwBq+3RSzz4ZFWcV0EzI=;
+        s=korg; t=1681821240;
+        bh=VUvGvQNX5a6RKrHa73IYYrDOiY0bhqeFvM5KwadAYKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bu14m5Dr2dYF7VeqN3zI4i9Amq/K2N29M3geEku+CrBOEGSkF2HZDYYblmOSdfPYJ
-         A7b8m0pmE5f+EKWk9NhwmSsQSmFlmDrEff6tEHA3UQW7CKEsKVn6RjC9+ld8nHNSUL
-         wMNIjP0NZcibkgAO40nGFCYjaxsiR5H8x6nno7hY=
+        b=Omfj5Xwr23+O7H3iBaUUYvabTWfWKrSYq5alpNpBRdwV6Cdd18ul7WjCo5ZPzcxsy
+         hI6tgL0hppfV+p0sqEEGvfHIcjgReodNVe2al4wF/M8SCcCjk9GZjcjZPCFjRa0P0g
+         LWTIWTM5bwq/v413IOUU0T+tt1QwnR+/NS1zg/UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/57] icmp: guard against too small mtu
+        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 051/124] ocfs2: fix freeing uninitialized resource on ocfs2_dlm_shutdown
 Date:   Tue, 18 Apr 2023 14:21:10 +0200
-Message-Id: <20230418120259.084090655@linuxfoundation.org>
+Message-Id: <20230418120311.687183784@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Heming Zhao <ocfs2-devel@oss.oracle.com>
 
-[ Upstream commit 7d63b67125382ff0ffdfca434acbc94a38bd092b ]
+commit 550842cc60987b269e31b222283ade3e1b6c7fc8 upstream.
 
-syzbot was able to trigger a panic [1] in icmp_glue_bits(), or
-more exactly in skb_copy_and_csum_bits()
+After commit 0737e01de9c4 ("ocfs2: ocfs2_mount_volume does cleanup job
+before return error"), any procedure after ocfs2_dlm_init() fails will
+trigger crash when calling ocfs2_dlm_shutdown().
 
-There is no repro yet, but I think the issue is that syzbot
-manages to lower device mtu to a small value, fooling __icmp_send()
+ie: On local mount mode, no dlm resource is initialized.  If
+ocfs2_mount_volume() fails in ocfs2_find_slot(), error handling will call
+ocfs2_dlm_shutdown(), then does dlm resource cleanup job, which will
+trigger kernel crash.
 
-__icmp_send() must make sure there is enough room for the
-packet to include at least the headers.
+This solution should bypass uninitialized resources in
+ocfs2_dlm_shutdown().
 
-We might in the future refactor skb_copy_and_csum_bits() and its
-callers to no longer crash when something bad happens.
-
-[1]
-kernel BUG at net/core/skbuff.c:3343 !
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 15766 Comm: syz-executor.0 Not tainted 6.3.0-rc4-syzkaller-00039-gffe78bbd5121 #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-RIP: 0010:skb_copy_and_csum_bits+0x798/0x860 net/core/skbuff.c:3343
-Code: f0 c1 c8 08 41 89 c6 e9 73 ff ff ff e8 61 48 d4 f9 e9 41 fd ff ff 48 8b 7c 24 48 e8 52 48 d4 f9 e9 c3 fc ff ff e8 c8 27 84 f9 <0f> 0b 48 89 44 24 28 e8 3c 48 d4 f9 48 8b 44 24 28 e9 9d fb ff ff
-RSP: 0018:ffffc90000007620 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 00000000000001e8 RCX: 0000000000000100
-RDX: ffff8880276f6280 RSI: ffffffff87fdd138 RDI: 0000000000000005
-RBP: 0000000000000000 R08: 0000000000000005 R09: 0000000000000000
-R10: 00000000000001e8 R11: 0000000000000001 R12: 000000000000003c
-R13: 0000000000000000 R14: ffff888028244868 R15: 0000000000000b0e
-FS: 00007fbc81f1c700(0000) GS:ffff88802ca00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2df43000 CR3: 00000000744db000 CR4: 0000000000150ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<IRQ>
-icmp_glue_bits+0x7b/0x210 net/ipv4/icmp.c:353
-__ip_append_data+0x1d1b/0x39f0 net/ipv4/ip_output.c:1161
-ip_append_data net/ipv4/ip_output.c:1343 [inline]
-ip_append_data+0x115/0x1a0 net/ipv4/ip_output.c:1322
-icmp_push_reply+0xa8/0x440 net/ipv4/icmp.c:370
-__icmp_send+0xb80/0x1430 net/ipv4/icmp.c:765
-ipv4_send_dest_unreach net/ipv4/route.c:1239 [inline]
-ipv4_link_failure+0x5a9/0x9e0 net/ipv4/route.c:1246
-dst_link_failure include/net/dst.h:423 [inline]
-arp_error_report+0xcb/0x1c0 net/ipv4/arp.c:296
-neigh_invalidate+0x20d/0x560 net/core/neighbour.c:1079
-neigh_timer_handler+0xc77/0xff0 net/core/neighbour.c:1166
-call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
-expire_timers+0x29b/0x4b0 kernel/time/timer.c:1751
-__run_timers kernel/time/timer.c:2022 [inline]
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230330174502.1915328-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220815085754.20417-1-heming.zhao@suse.com
+Fixes: 0737e01de9c4 ("ocfs2: ocfs2_mount_volume does cleanup job before return error")
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/icmp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ocfs2/dlmglue.c |    8 +++++---
+ fs/ocfs2/super.c   |    3 +--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index aa179e6461e17..af0ddaa55e431 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -759,6 +759,11 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
- 		room = 576;
- 	room -= sizeof(struct iphdr) + icmp_param.replyopts.opt.opt.optlen;
- 	room -= sizeof(struct icmphdr);
-+	/* Guard against tiny mtu. We need to include at least one
-+	 * IP network header for this message to make any sense.
-+	 */
-+	if (room <= (int)sizeof(struct iphdr))
-+		goto ende;
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3396,10 +3396,12 @@ void ocfs2_dlm_shutdown(struct ocfs2_sup
+ 	ocfs2_lock_res_free(&osb->osb_nfs_sync_lockres);
+ 	ocfs2_lock_res_free(&osb->osb_orphan_scan.os_lockres);
  
- 	icmp_param.data_len = skb_in->len - icmp_param.offset;
- 	if (icmp_param.data_len > room)
--- 
-2.39.2
-
+-	ocfs2_cluster_disconnect(osb->cconn, hangup_pending);
+-	osb->cconn = NULL;
++	if (osb->cconn) {
++		ocfs2_cluster_disconnect(osb->cconn, hangup_pending);
++		osb->cconn = NULL;
+ 
+-	ocfs2_dlm_shutdown_debug(osb);
++		ocfs2_dlm_shutdown_debug(osb);
++	}
+ }
+ 
+ static int ocfs2_drop_lock(struct ocfs2_super *osb,
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1922,8 +1922,7 @@ static void ocfs2_dismount_volume(struct
+ 	    !ocfs2_is_hard_readonly(osb))
+ 		hangup_needed = 1;
+ 
+-	if (osb->cconn)
+-		ocfs2_dlm_shutdown(osb, hangup_needed);
++	ocfs2_dlm_shutdown(osb, hangup_needed);
+ 
+ 	ocfs2_blockcheck_stats_debugfs_remove(&osb->osb_ecc_stats);
+ 	debugfs_remove_recursive(osb->osb_debug_root);
 
 
