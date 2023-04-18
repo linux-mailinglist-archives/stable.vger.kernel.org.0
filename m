@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D876E61B8
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA556E6463
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231463AbjDRM1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36298 "EHLO
+        id S232108AbjDRMst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:48:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231478AbjDRM05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:57 -0400
+        with ESMTP id S232003AbjDRMsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67069468D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF6215452
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46F7563160
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B5EC433D2;
-        Tue, 18 Apr 2023 12:26:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A8A5632C7
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F72FC433EF;
+        Tue, 18 Apr 2023 12:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820796;
-        bh=doowgFivflW0L+cXwPIZz4lx1IisSdGBiFOXO3tkNgo=;
+        s=korg; t=1681822116;
+        bh=q7rPS2itDY61B52ajRHYzcxXeT+7U+tZdyaE91ohcSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHmchWuQBad/fxifM+LpUcmjX+3uVeAcfGTX0A2GSVJwuETJncOXeLUXGjKbUsSDX
-         4WxUezHV4zG3jtslzQ5UcDUN8UaUqBlFJGuL4gphox4wF4zQ21+KzK9rBsBjVY5udH
-         AnnkoKJNoBaKEhMwnzO9EvK+eaG+ccZvxwruUCOw=
+        b=S1xG+MsGkh6GARRbYlcSeORiBysK28AJjjMUCjGGVm+hXdUtdFi4XWvVcko+6JSMz
+         qkjB9hAoH42AWh+pno9gjIuMI08jLwRTYLDic0PBwcxlotHDq3edgPEK9OQvL6Rnk4
+         /5iP1Uj6P/KYvZ8aCCFD1R4Xu9NuI0uJrqbk0jtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Min Li <lm0963hack@gmail.com>
-Subject: [PATCH 4.19 33/57] Bluetooth: L2CAP: Fix use-after-free in l2cap_disconnect_{req,rsp}
+        patches@lists.linux.dev,
+        Ville Syrjala <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.2 028/139] drm/i915/dsi: fix DSS CTL register offsets for TGL+
 Date:   Tue, 18 Apr 2023 14:21:33 +0200
-Message-Id: <20230418120259.902666043@linuxfoundation.org>
+Message-Id: <20230418120314.702206509@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit a2a9339e1c9deb7e1e079e12e27a0265aea8421a upstream.
+commit 6b8446859c971a5783a2cdc90adf32e64de3bd23 upstream.
 
-Similar to commit d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free
-caused by l2cap_chan_put"), just use l2cap_chan_hold_unless_zero to
-prevent referencing a channel that is about to be destroyed.
+On TGL+ the DSS control registers are at different offsets, and there's
+one per pipe. Fix the offsets to fix dual link DSI for TGL+.
 
-Cc: stable@kernel.org
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Min Li <lm0963hack@gmail.com>
+There would be helpers for this in the DSC code, but just do the quick
+fix now for DSI. Long term, we should probably move all the DSS handling
+into intel_vdsc.c, so exporting the helpers seems counter-productive.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8232
+Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230301151409.1581574-1-jani.nikula@intel.com
+(cherry picked from commit 1a62dd9895dca78bee28bba3a36f08836fdd143d)
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/i915/display/icl_dsi.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4350,33 +4350,27 @@ static inline int l2cap_disconnect_req(s
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -300,9 +300,21 @@ static void configure_dual_link_mode(str
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+ 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
++	i915_reg_t dss_ctl1_reg, dss_ctl2_reg;
+ 	u32 dss_ctl1;
  
- 	BT_DBG("scid 0x%4.4x dcid 0x%4.4x", scid, dcid);
+-	dss_ctl1 = intel_de_read(dev_priv, DSS_CTL1);
++	/* FIXME: Move all DSS handling to intel_vdsc.c */
++	if (DISPLAY_VER(dev_priv) >= 12) {
++		struct intel_crtc *crtc = to_intel_crtc(pipe_config->uapi.crtc);
++
++		dss_ctl1_reg = ICL_PIPE_DSS_CTL1(crtc->pipe);
++		dss_ctl2_reg = ICL_PIPE_DSS_CTL2(crtc->pipe);
++	} else {
++		dss_ctl1_reg = DSS_CTL1;
++		dss_ctl2_reg = DSS_CTL2;
++	}
++
++	dss_ctl1 = intel_de_read(dev_priv, dss_ctl1_reg);
+ 	dss_ctl1 |= SPLITTER_ENABLE;
+ 	dss_ctl1 &= ~OVERLAP_PIXELS_MASK;
+ 	dss_ctl1 |= OVERLAP_PIXELS(intel_dsi->pixel_overlap);
+@@ -323,16 +335,16 @@ static void configure_dual_link_mode(str
  
--	mutex_lock(&conn->chan_lock);
--
--	chan = __l2cap_get_chan_by_scid(conn, dcid);
-+	chan = l2cap_get_chan_by_scid(conn, dcid);
- 	if (!chan) {
--		mutex_unlock(&conn->chan_lock);
- 		cmd_reject_invalid_cid(conn, cmd->ident, dcid, scid);
- 		return 0;
+ 		dss_ctl1 &= ~LEFT_DL_BUF_TARGET_DEPTH_MASK;
+ 		dss_ctl1 |= LEFT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
+-		dss_ctl2 = intel_de_read(dev_priv, DSS_CTL2);
++		dss_ctl2 = intel_de_read(dev_priv, dss_ctl2_reg);
+ 		dss_ctl2 &= ~RIGHT_DL_BUF_TARGET_DEPTH_MASK;
+ 		dss_ctl2 |= RIGHT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
+-		intel_de_write(dev_priv, DSS_CTL2, dss_ctl2);
++		intel_de_write(dev_priv, dss_ctl2_reg, dss_ctl2);
+ 	} else {
+ 		/* Interleave */
+ 		dss_ctl1 |= DUAL_LINK_MODE_INTERLEAVE;
  	}
  
--	l2cap_chan_hold(chan);
--	l2cap_chan_lock(chan);
--
- 	rsp.dcid = cpu_to_le16(chan->scid);
- 	rsp.scid = cpu_to_le16(chan->dcid);
- 	l2cap_send_cmd(conn, cmd->ident, L2CAP_DISCONN_RSP, sizeof(rsp), &rsp);
- 
- 	chan->ops->set_shutdown(chan);
- 
-+	mutex_lock(&conn->chan_lock);
- 	l2cap_chan_del(chan, ECONNRESET);
-+	mutex_unlock(&conn->chan_lock);
- 
- 	chan->ops->close(chan);
- 
- 	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
--	mutex_unlock(&conn->chan_lock);
--
- 	return 0;
+-	intel_de_write(dev_priv, DSS_CTL1, dss_ctl1);
++	intel_de_write(dev_priv, dss_ctl1_reg, dss_ctl1);
  }
  
-@@ -4396,33 +4390,27 @@ static inline int l2cap_disconnect_rsp(s
- 
- 	BT_DBG("dcid 0x%4.4x scid 0x%4.4x", dcid, scid);
- 
--	mutex_lock(&conn->chan_lock);
--
--	chan = __l2cap_get_chan_by_scid(conn, scid);
-+	chan = l2cap_get_chan_by_scid(conn, scid);
- 	if (!chan) {
- 		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
--	l2cap_chan_hold(chan);
--	l2cap_chan_lock(chan);
--
- 	if (chan->state != BT_DISCONN) {
- 		l2cap_chan_unlock(chan);
- 		l2cap_chan_put(chan);
--		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
-+	mutex_lock(&conn->chan_lock);
- 	l2cap_chan_del(chan, 0);
-+	mutex_unlock(&conn->chan_lock);
- 
- 	chan->ops->close(chan);
- 
- 	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
--	mutex_unlock(&conn->chan_lock);
--
- 	return 0;
- }
- 
+ /* aka DSI 8X clock */
 
 
