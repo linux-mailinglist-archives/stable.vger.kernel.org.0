@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A966E6497
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6E66E63F3
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbjDRMub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42354 "EHLO
+        id S231935AbjDRMow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232143AbjDRMu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:27 -0400
+        with ESMTP id S231949AbjDRMot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1541545A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7156C15637
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B8B663413
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA32C433EF;
-        Tue, 18 Apr 2023 12:50:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D77863374
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2338AC433D2;
+        Tue, 18 Apr 2023 12:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822225;
-        bh=UfVJAro4hS0sb7wS/UaCLZeYCdQCigB984hcleKeoXQ=;
+        s=korg; t=1681821886;
+        bh=ZlO6oyoBVDjCG5jtQnEfb6K3J648VHTb+OoCehevMjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhIeEyof+dXw/DmzJTiKovbkTeyMzSx3nHXUi7PDiCyyfFSPjHXwHQv/7gRfazZZB
-         8azjK4pO6IhITxWc05gLInOQsivcsfGrrn2eo9pmY0Aqdjax6pCNLFCGR95VKwTeHH
-         nspI1mV078Er7DoM1JtxpGxdeNMpeYfhrzj4X4+Y=
+        b=U1800eukZkd7aAJD/y8bji6sgw0Rn4s5scbJ8ciBLLw7p2+FurO+vjx0EhiQMupN0
+         6OODFIfH2MOWroEhU0BsL/beoqaiDnfX8Dt2dUY1Kxkvi0uhlc1fzkPHtVQkXck5fU
+         F0rFinIJzaFpG56Z+bvsd16mU1rcsJznYaNIEWSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 040/139] clk: rs9: Fix suspend/resume
+Subject: [PATCH 6.1 049/134] tcp: restrict net.ipv4.tcp_app_win
 Date:   Tue, 18 Apr 2023 14:21:45 +0200
-Message-Id: <20230418120315.160367179@linuxfoundation.org>
+Message-Id: <20230418120314.647489018@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 632e04739c8f45c2d9ca4d4c5bd18d80c2ac9296 ]
+[ Upstream commit dc5110c2d959c1707e12df5f792f41d90614adaa ]
 
-Disabling the cache in commit 2ff4ba9e3702 ("clk: rs9: Fix I2C accessors")
-without removing cache synchronization in resume path results in a
-kernel panic as map->cache_ops is unset, due to REGCACHE_NONE.
-Enable flat cache again to support resume again. num_reg_defaults_raw
-is necessary to read the cache defaults from hardware. Some registers
-are strapped in hardware and cannot be provided in software.
+UBSAN: shift-out-of-bounds in net/ipv4/tcp_input.c:555:23
+shift exponent 255 is too large for 32-bit type 'int'
+CPU: 1 PID: 7907 Comm: ssh Not tainted 6.3.0-rc4-00161-g62bad54b26db-dirty #206
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x136/0x150
+ __ubsan_handle_shift_out_of_bounds+0x21f/0x5a0
+ tcp_init_transfer.cold+0x3a/0xb9
+ tcp_finish_connect+0x1d0/0x620
+ tcp_rcv_state_process+0xd78/0x4d60
+ tcp_v4_do_rcv+0x33d/0x9d0
+ __release_sock+0x133/0x3b0
+ release_sock+0x58/0x1b0
 
-Fixes: 2ff4ba9e3702 ("clk: rs9: Fix I2C accessors")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20230310074940.3475703-1-alexander.stein@ew.tq-group.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+'maxwin' is int, shifting int for 32 or more bits is undefined behaviour.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-renesas-pcie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/networking/ip-sysctl.rst | 2 ++
+ net/ipv4/sysctl_net_ipv4.c             | 3 +++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/clk/clk-renesas-pcie.c b/drivers/clk/clk-renesas-pcie.c
-index e6247141d0c05..3e98a16eba6bb 100644
---- a/drivers/clk/clk-renesas-pcie.c
-+++ b/drivers/clk/clk-renesas-pcie.c
-@@ -144,8 +144,9 @@ static int rs9_regmap_i2c_read(void *context,
- static const struct regmap_config rs9_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
--	.cache_type = REGCACHE_NONE,
-+	.cache_type = REGCACHE_FLAT,
- 	.max_register = RS9_REG_BCP,
-+	.num_reg_defaults_raw = 0x8,
- 	.rd_table = &rs9_readable_table,
- 	.wr_table = &rs9_writeable_table,
- 	.reg_write = rs9_regmap_i2c_write,
+diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
+index e7b3fa7bb3f73..4ecb549fd052e 100644
+--- a/Documentation/networking/ip-sysctl.rst
++++ b/Documentation/networking/ip-sysctl.rst
+@@ -337,6 +337,8 @@ tcp_app_win - INTEGER
+ 	Reserve max(window/2^tcp_app_win, mss) of window for application
+ 	buffer. Value 0 is special, it means that nothing is reserved.
+ 
++	Possible values are [0, 31], inclusive.
++
+ 	Default: 31
+ 
+ tcp_autocorking - BOOLEAN
+diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+index 9b8a6db7a66b3..39dbeb6071965 100644
+--- a/net/ipv4/sysctl_net_ipv4.c
++++ b/net/ipv4/sysctl_net_ipv4.c
+@@ -25,6 +25,7 @@ static int ip_local_port_range_min[] = { 1, 1 };
+ static int ip_local_port_range_max[] = { 65535, 65535 };
+ static int tcp_adv_win_scale_min = -31;
+ static int tcp_adv_win_scale_max = 31;
++static int tcp_app_win_max = 31;
+ static int tcp_min_snd_mss_min = TCP_MIN_SND_MSS;
+ static int tcp_min_snd_mss_max = 65535;
+ static int ip_privileged_port_min;
+@@ -1171,6 +1172,8 @@ static struct ctl_table ipv4_net_table[] = {
+ 		.maxlen		= sizeof(u8),
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dou8vec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= &tcp_app_win_max,
+ 	},
+ 	{
+ 		.procname	= "tcp_adv_win_scale",
 -- 
 2.39.2
 
