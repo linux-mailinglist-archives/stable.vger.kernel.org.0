@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 213916E648D
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 452526E6492
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbjDRMuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
+        id S232135AbjDRMuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232129AbjDRMuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:13 -0400
+        with ESMTP id S232125AbjDRMuT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD4E16DC3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7901545A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49D616340B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B62AC433D2;
-        Tue, 18 Apr 2023 12:50:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B606D6340D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7488C433EF;
+        Tue, 18 Apr 2023 12:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822211;
-        bh=GC1ElIfd4d4yV76Nsn9CGAOKiO3k+cjxG6lcQ4FQguI=;
+        s=korg; t=1681822217;
+        bh=I6ga2qarMUTw/LBMWwkY72jb0CH+PxiO9wPzxj2uLZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOxS/moznO9e9ySpXFz2oiT9hTquty6m9S0w/gtVJiY3uKJz2JqrQ9x5SPcs7uUre
-         y0nPfBapQrfYorKNdP4ocaImd7SBuZJo3RxLFHR4aKsDk52ubnVIGFepnfd4KA/E6d
-         c67/XwTVvLKjqxQISDKwUV10wp/GFrrsO8cgVVJY=
+        b=dRajVXZDuem35WXcMZYpqcW4Sh1Rh5V6fr8TwlOYk4K7Ks1ybu72XFrjkhZINPi68
+         eRNDI6gilKge5Twxicw/HhpnRpKKkwNvo30sZVmU/q6qYDbDlSRSyeCQyc3gPqLX6q
+         83OAbTyoyI7c6tHqP2uArPAngdFgBP7A9NXiyl7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simon Horman <simon.horman@corigine.com>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 064/139] net: wwan: iosm: Fix error handling path in ipc_pcie_probe()
-Date:   Tue, 18 Apr 2023 14:22:09 +0200
-Message-Id: <20230418120316.209353878@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 065/139] cgroup,freezer: hold cpu_hotplug_lock before freezer_mutex
+Date:   Tue, 18 Apr 2023 14:22:10 +0200
+Message-Id: <20230418120316.259134474@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -55,54 +58,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit a56ef25619e079bd7d744636cf18d054d1e91982 ]
+[ Upstream commit 57dcd64c7e036299ef526b400a8d12b8a2352f26 ]
 
-Smatch reports:
-	drivers/net/wwan/iosm/iosm_ipc_pcie.c:298 ipc_pcie_probe()
-	warn: missing unwind goto?
+syzbot is reporting circular locking dependency between cpu_hotplug_lock
+and freezer_mutex, for commit f5d39b020809 ("freezer,sched: Rewrite core
+freezer logic") replaced atomic_inc() in freezer_apply_state() with
+static_branch_inc() which holds cpu_hotplug_lock.
 
-When dma_set_mask fails it directly returns without disabling pci
-device and freeing ipc_pcie. Fix this my calling a correct goto label
+cpu_hotplug_lock => cgroup_threadgroup_rwsem => freezer_mutex
 
-As dma_set_mask returns either 0 or -EIO, we can use a goto label, as
-it finally returns -EIO.
+  cgroup_file_write() {
+    cgroup_procs_write() {
+      __cgroup_procs_write() {
+        cgroup_procs_write_start() {
+          cgroup_attach_lock() {
+            cpus_read_lock() {
+              percpu_down_read(&cpu_hotplug_lock);
+            }
+            percpu_down_write(&cgroup_threadgroup_rwsem);
+          }
+        }
+        cgroup_attach_task() {
+          cgroup_migrate() {
+            cgroup_migrate_execute() {
+              freezer_attach() {
+                mutex_lock(&freezer_mutex);
+                (...snipped...)
+              }
+            }
+          }
+        }
+        (...snipped...)
+      }
+    }
+  }
 
-Add a set_mask_fail goto label which stands consistent with other goto
-labels in this function..
+freezer_mutex => cpu_hotplug_lock
 
-Fixes: 035e3befc191 ("net: wwan: iosm: fix driver not working with INTEL_IOMMU disabled")
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  cgroup_file_write() {
+    freezer_write() {
+      freezer_change_state() {
+        mutex_lock(&freezer_mutex);
+        freezer_apply_state() {
+          static_branch_inc(&freezer_active) {
+            static_key_slow_inc() {
+              cpus_read_lock();
+              static_key_slow_inc_cpuslocked();
+              cpus_read_unlock();
+            }
+          }
+        }
+        mutex_unlock(&freezer_mutex);
+      }
+    }
+  }
+
+Swap locking order by moving cpus_read_lock() in freezer_apply_state()
+to before mutex_lock(&freezer_mutex) in freezer_change_state().
+
+Reported-by: syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>
+Link: https://syzkaller.appspot.com/bug?extid=c39682e86c9d84152f93
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Fixes: f5d39b020809 ("freezer,sched: Rewrite core freezer logic")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wwan/iosm/iosm_ipc_pcie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/cgroup/legacy_freezer.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wwan/iosm/iosm_ipc_pcie.c b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
-index 5bf5a93937c9c..04517bd3325a2 100644
---- a/drivers/net/wwan/iosm/iosm_ipc_pcie.c
-+++ b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
-@@ -295,7 +295,7 @@ static int ipc_pcie_probe(struct pci_dev *pci,
- 	ret = dma_set_mask(ipc_pcie->dev, DMA_BIT_MASK(64));
- 	if (ret) {
- 		dev_err(ipc_pcie->dev, "Could not set PCI DMA mask: %d", ret);
--		return ret;
-+		goto set_mask_fail;
- 	}
+diff --git a/kernel/cgroup/legacy_freezer.c b/kernel/cgroup/legacy_freezer.c
+index 1b6b21851e9d4..936473203a6b5 100644
+--- a/kernel/cgroup/legacy_freezer.c
++++ b/kernel/cgroup/legacy_freezer.c
+@@ -22,6 +22,7 @@
+ #include <linux/freezer.h>
+ #include <linux/seq_file.h>
+ #include <linux/mutex.h>
++#include <linux/cpu.h>
  
- 	ipc_pcie_config_aspm(ipc_pcie);
-@@ -323,6 +323,7 @@ static int ipc_pcie_probe(struct pci_dev *pci,
- imem_init_fail:
- 	ipc_pcie_resources_release(ipc_pcie);
- resources_req_fail:
-+set_mask_fail:
- 	pci_disable_device(pci);
- pci_enable_fail:
- 	kfree(ipc_pcie);
+ /*
+  * A cgroup is freezing if any FREEZING flags are set.  FREEZING_SELF is
+@@ -350,7 +351,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
+ 
+ 	if (freeze) {
+ 		if (!(freezer->state & CGROUP_FREEZING))
+-			static_branch_inc(&freezer_active);
++			static_branch_inc_cpuslocked(&freezer_active);
+ 		freezer->state |= state;
+ 		freeze_cgroup(freezer);
+ 	} else {
+@@ -361,7 +362,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
+ 		if (!(freezer->state & CGROUP_FREEZING)) {
+ 			freezer->state &= ~CGROUP_FROZEN;
+ 			if (was_freezing)
+-				static_branch_dec(&freezer_active);
++				static_branch_dec_cpuslocked(&freezer_active);
+ 			unfreeze_cgroup(freezer);
+ 		}
+ 	}
+@@ -379,6 +380,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
+ {
+ 	struct cgroup_subsys_state *pos;
+ 
++	cpus_read_lock();
+ 	/*
+ 	 * Update all its descendants in pre-order traversal.  Each
+ 	 * descendant will try to inherit its parent's FREEZING state as
+@@ -407,6 +409,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
+ 	}
+ 	rcu_read_unlock();
+ 	mutex_unlock(&freezer_mutex);
++	cpus_read_unlock();
+ }
+ 
+ static ssize_t freezer_write(struct kernfs_open_file *of,
 -- 
 2.39.2
 
