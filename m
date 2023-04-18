@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED47E6E6E08
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 23:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04D786E6E05
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 23:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbjDRVXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 17:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40034 "EHLO
+        id S232837AbjDRVXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 17:23:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232926AbjDRVXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 17:23:02 -0400
+        with ESMTP id S232925AbjDRVW5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 17:22:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF62B746;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD2993D9;
         Tue, 18 Apr 2023 14:22:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D07763936;
-        Tue, 18 Apr 2023 21:22:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D98C433EF;
-        Tue, 18 Apr 2023 21:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF00160C83;
+        Tue, 18 Apr 2023 21:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A2AC433D2;
+        Tue, 18 Apr 2023 21:22:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681852964;
-        bh=LgGov1mZ6h4bMOoBcLaGT2c4CmCVDigRFYWBoYVKQ0k=;
+        s=korg; t=1681852965;
+        bh=sYI9UsazVjKjOWKIveWz3xOGXDtYBaYr8EkQP9p+ssg=;
         h=Date:To:From:Subject:From;
-        b=ubjVPj0BzBNE9qJEkBf+aP0tgCZS0mctt0XDU0YORXTePsfFD4JZ2z3yRm7+ah6E0
-         +xyaqsnj/J3aleOjU3hiPy4pwWPezsZL8c+nPLg5nM7j86HHBDfP1ELD13PhK9gN0s
-         eGNce1wuxsU8sQ5c8rzm0O23JgVaoXI7LNigzOg4=
-Date:   Tue, 18 Apr 2023 14:22:43 -0700
-To:     mm-commits@vger.kernel.org, urezki@gmail.com,
-        stable@vger.kernel.org, mail.dipanjan.das@gmail.com,
-        hch@infradead.org, elver@google.com, dvyukov@google.com,
-        glider@google.com, akpm@linux-foundation.org
+        b=RM4UPjzkRQJtQCGkqaZBVF8rY3jf0wCW5lLVV7cI9Y6f2CTXVoP5Jptce8sSSxhA1
+         HoprECgGXAGoUc3AoKc8V2zspjNcz2ksMLKNvc6Czp+AlFFx5KZQ7MNU6U3V1WrGvK
+         LQrQUO+xuDwZxKKkqSSQktTGLNnntnh6J/U2lyVw=
+Date:   Tue, 18 Apr 2023 14:22:44 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        rick.p.edgecombe@intel.com, Liam.Howlett@oracle.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-kmsan-handle-alloc-failures-in-kmsan_ioremap_page_range.patch removed from -mm tree
-Message-Id: <20230418212243.E4D98C433EF@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] maple_tree-make-maple-state-reusable-after-mas_empty_area_rev.patch removed from -mm tree
+Message-Id: <20230418212245.11A2AC433D2@smtp.kernel.org>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
@@ -48,183 +47,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm: kmsan: handle alloc failures in kmsan_ioremap_page_range()
+     Subject: maple_tree: make maple state reusable after mas_empty_area_rev()
 has been removed from the -mm tree.  Its filename was
-     mm-kmsan-handle-alloc-failures-in-kmsan_ioremap_page_range.patch
+     maple_tree-make-maple-state-reusable-after-mas_empty_area_rev.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Alexander Potapenko <glider@google.com>
-Subject: mm: kmsan: handle alloc failures in kmsan_ioremap_page_range()
-Date: Thu, 13 Apr 2023 15:12:21 +0200
+From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Subject: maple_tree: make maple state reusable after mas_empty_area_rev()
+Date: Fri, 14 Apr 2023 10:57:26 -0400
 
-Similarly to kmsan_vmap_pages_range_noflush(), kmsan_ioremap_page_range()
-must also properly handle allocation/mapping failures.  In the case of
-such, it must clean up the already created metadata mappings and return an
-error code, so that the error can be propagated to ioremap_page_range(). 
-Without doing so, KMSAN may silently fail to bring the metadata for the
-page range into a consistent state, which will result in user-visible
-crashes when trying to access them.
+Stop using maple state min/max for the range by passing through pointers
+for those values.  This will allow the maple state to be reused without
+resetting.
 
-Link: https://lkml.kernel.org/r/20230413131223.4135168-2-glider@google.com
-Fixes: b073d7f8aee4 ("mm: kmsan: maintain KMSAN metadata for page operations")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reported-by: Dipanjan Das <mail.dipanjan.das@gmail.com>
-  Link: https://lore.kernel.org/linux-mm/CANX2M5ZRrRA64k0hOif02TjmY9kbbO2aCBPyq79es34RXZ=cAw@mail.gmail.com/
-Reviewed-by: Marco Elver <elver@google.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Also add some logic to fail out early on searching with invalid
+arguments.
+
+Link: https://lkml.kernel.org/r/20230414145728.4067069-1-Liam.Howlett@oracle.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/kmsan.h |   19 +++++++------
- mm/kmsan/hooks.c      |   55 ++++++++++++++++++++++++++++++++++------
- mm/vmalloc.c          |    4 +-
- 3 files changed, 59 insertions(+), 19 deletions(-)
+ lib/maple_tree.c |   27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
---- a/include/linux/kmsan.h~mm-kmsan-handle-alloc-failures-in-kmsan_ioremap_page_range
-+++ a/include/linux/kmsan.h
-@@ -160,11 +160,12 @@ void kmsan_vunmap_range_noflush(unsigned
-  * @page_shift:	page_shift argument passed to vmap_range_noflush().
+--- a/lib/maple_tree.c~maple_tree-make-maple-state-reusable-after-mas_empty_area_rev
++++ a/lib/maple_tree.c
+@@ -4965,7 +4965,8 @@ not_found:
+  * Return: True if found in a leaf, false otherwise.
   *
-  * KMSAN creates new metadata pages for the physical pages mapped into the
-- * virtual memory.
-+ * virtual memory. Returns 0 on success, callers must check for non-zero return
-+ * value.
   */
--void kmsan_ioremap_page_range(unsigned long addr, unsigned long end,
--			      phys_addr_t phys_addr, pgprot_t prot,
--			      unsigned int page_shift);
-+int kmsan_ioremap_page_range(unsigned long addr, unsigned long end,
-+			     phys_addr_t phys_addr, pgprot_t prot,
-+			     unsigned int page_shift);
- 
- /**
-  * kmsan_iounmap_page_range() - Notify KMSAN about a iounmap_page_range() call.
-@@ -296,12 +297,12 @@ static inline void kmsan_vunmap_range_no
+-static bool mas_rev_awalk(struct ma_state *mas, unsigned long size)
++static bool mas_rev_awalk(struct ma_state *mas, unsigned long size,
++		unsigned long *gap_min, unsigned long *gap_max)
  {
- }
+ 	enum maple_type type = mte_node_type(mas->node);
+ 	struct maple_node *node = mas_mn(mas);
+@@ -5030,8 +5031,8 @@ static bool mas_rev_awalk(struct ma_stat
  
--static inline void kmsan_ioremap_page_range(unsigned long start,
--					    unsigned long end,
--					    phys_addr_t phys_addr,
--					    pgprot_t prot,
--					    unsigned int page_shift)
-+static inline int kmsan_ioremap_page_range(unsigned long start,
-+					   unsigned long end,
-+					   phys_addr_t phys_addr, pgprot_t prot,
-+					   unsigned int page_shift)
- {
-+	return 0;
- }
- 
- static inline void kmsan_iounmap_page_range(unsigned long start,
---- a/mm/kmsan/hooks.c~mm-kmsan-handle-alloc-failures-in-kmsan_ioremap_page_range
-+++ a/mm/kmsan/hooks.c
-@@ -148,35 +148,74 @@ void kmsan_vunmap_range_noflush(unsigned
-  * into the virtual memory. If those physical pages already had shadow/origin,
-  * those are ignored.
-  */
--void kmsan_ioremap_page_range(unsigned long start, unsigned long end,
--			      phys_addr_t phys_addr, pgprot_t prot,
--			      unsigned int page_shift)
-+int kmsan_ioremap_page_range(unsigned long start, unsigned long end,
-+			     phys_addr_t phys_addr, pgprot_t prot,
-+			     unsigned int page_shift)
- {
- 	gfp_t gfp_mask = GFP_KERNEL | __GFP_ZERO;
- 	struct page *shadow, *origin;
- 	unsigned long off = 0;
--	int nr;
-+	int nr, err = 0, clean = 0, mapped;
- 
- 	if (!kmsan_enabled || kmsan_in_runtime())
--		return;
-+		return 0;
- 
- 	nr = (end - start) / PAGE_SIZE;
- 	kmsan_enter_runtime();
--	for (int i = 0; i < nr; i++, off += PAGE_SIZE) {
-+	for (int i = 0; i < nr; i++, off += PAGE_SIZE, clean = i) {
- 		shadow = alloc_pages(gfp_mask, 1);
- 		origin = alloc_pages(gfp_mask, 1);
--		__vmap_pages_range_noflush(
-+		if (!shadow || !origin) {
-+			err = -ENOMEM;
-+			goto ret;
-+		}
-+		mapped = __vmap_pages_range_noflush(
- 			vmalloc_shadow(start + off),
- 			vmalloc_shadow(start + off + PAGE_SIZE), prot, &shadow,
- 			PAGE_SHIFT);
--		__vmap_pages_range_noflush(
-+		if (mapped) {
-+			err = mapped;
-+			goto ret;
-+		}
-+		shadow = NULL;
-+		mapped = __vmap_pages_range_noflush(
- 			vmalloc_origin(start + off),
- 			vmalloc_origin(start + off + PAGE_SIZE), prot, &origin,
- 			PAGE_SHIFT);
-+		if (mapped) {
-+			__vunmap_range_noflush(
-+				vmalloc_shadow(start + off),
-+				vmalloc_shadow(start + off + PAGE_SIZE));
-+			err = mapped;
-+			goto ret;
-+		}
-+		origin = NULL;
-+	}
-+	/* Page mapping loop finished normally, nothing to clean up. */
-+	clean = 0;
-+
-+ret:
-+	if (clean > 0) {
-+		/*
-+		 * Something went wrong. Clean up shadow/origin pages allocated
-+		 * on the last loop iteration, then delete mappings created
-+		 * during the previous iterations.
-+		 */
-+		if (shadow)
-+			__free_pages(shadow, 1);
-+		if (origin)
-+			__free_pages(origin, 1);
-+		__vunmap_range_noflush(
-+			vmalloc_shadow(start),
-+			vmalloc_shadow(start + clean * PAGE_SIZE));
-+		__vunmap_range_noflush(
-+			vmalloc_origin(start),
-+			vmalloc_origin(start + clean * PAGE_SIZE));
+ 	if (unlikely(ma_is_leaf(type))) {
+ 		mas->offset = offset;
+-		mas->min = min;
+-		mas->max = min + gap - 1;
++		*gap_min = min;
++		*gap_max = min + gap - 1;
+ 		return true;
  	}
- 	flush_cache_vmap(vmalloc_shadow(start), vmalloc_shadow(end));
- 	flush_cache_vmap(vmalloc_origin(start), vmalloc_origin(end));
- 	kmsan_leave_runtime();
-+	return err;
- }
  
- void kmsan_iounmap_page_range(unsigned long start, unsigned long end)
---- a/mm/vmalloc.c~mm-kmsan-handle-alloc-failures-in-kmsan_ioremap_page_range
-+++ a/mm/vmalloc.c
-@@ -313,8 +313,8 @@ int ioremap_page_range(unsigned long add
- 				 ioremap_max_page_shift);
- 	flush_cache_vmap(addr, end);
- 	if (!err)
--		kmsan_ioremap_page_range(addr, end, phys_addr, prot,
--					 ioremap_max_page_shift);
-+		err = kmsan_ioremap_page_range(addr, end, phys_addr, prot,
-+					       ioremap_max_page_shift);
- 	return err;
- }
+@@ -5307,6 +5308,9 @@ int mas_empty_area(struct ma_state *mas,
+ 	unsigned long *pivots;
+ 	enum maple_type mt;
  
++	if (min >= max)
++		return -EINVAL;
++
+ 	if (mas_is_start(mas))
+ 		mas_start(mas);
+ 	else if (mas->offset >= 2)
+@@ -5361,6 +5365,9 @@ int mas_empty_area_rev(struct ma_state *
+ {
+ 	struct maple_enode *last = mas->node;
+ 
++	if (min >= max)
++		return -EINVAL;
++
+ 	if (mas_is_start(mas)) {
+ 		mas_start(mas);
+ 		mas->offset = mas_data_end(mas);
+@@ -5380,7 +5387,7 @@ int mas_empty_area_rev(struct ma_state *
+ 	mas->index = min;
+ 	mas->last = max;
+ 
+-	while (!mas_rev_awalk(mas, size)) {
++	while (!mas_rev_awalk(mas, size, &min, &max)) {
+ 		if (last == mas->node) {
+ 			if (!mas_rewind_node(mas))
+ 				return -EBUSY;
+@@ -5395,17 +5402,9 @@ int mas_empty_area_rev(struct ma_state *
+ 	if (unlikely(mas->offset == MAPLE_NODE_SLOTS))
+ 		return -EBUSY;
+ 
+-	/*
+-	 * mas_rev_awalk() has set mas->min and mas->max to the gap values.  If
+-	 * the maximum is outside the window we are searching, then use the last
+-	 * location in the search.
+-	 * mas->max and mas->min is the range of the gap.
+-	 * mas->index and mas->last are currently set to the search range.
+-	 */
+-
+ 	/* Trim the upper limit to the max. */
+-	if (mas->max <= mas->last)
+-		mas->last = mas->max;
++	if (max <= mas->last)
++		mas->last = max;
+ 
+ 	mas->index = mas->last - size + 1;
+ 	return 0;
 _
 
-Patches currently in -mm which might be from glider@google.com are
+Patches currently in -mm which might be from Liam.Howlett@oracle.com are
 
-mm-kmsan-apply-__must_check-to-non-void-functions.patch
-mm-apply-__must_check-to-vmap_pages_range_noflush.patch
 
