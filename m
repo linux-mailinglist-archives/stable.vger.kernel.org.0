@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 578E16E6211
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96F4A6E61EA
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230416AbjDRM3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
+        id S231552AbjDRM2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231528AbjDRM3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:46 -0400
+        with ESMTP id S231520AbjDRM22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 860E48A74
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515A7B474
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A83A631D0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517B4C433D2;
-        Tue, 18 Apr 2023 12:29:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E016286D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 773B0C433D2;
+        Tue, 18 Apr 2023 12:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820961;
-        bh=izWBjCfd33gCZzN4ZCzawYnE9E/YyCVN/NaFG8OgrgQ=;
+        s=korg; t=1681820883;
+        bh=jvPtX05g2Q2bmP5hOMlJm09PnPT8KZlGsG0wEJHZawo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=heDJhBRrnBHj91Z2j/qSoruWB07vy5DoodXtc9qWWC+/9tgktpGn7CQDtvC+3xI0K
-         XzuIqzQbSS4edXo6JgIIT4UcC9FzxgQAz1CsnzqbM6jdGVkUIIGvVHdlib6lwXIwEQ
-         DJeXz/wPQu7E4Xphe8n2/xmUlUoXh/nW1HTdJJMU=
+        b=WBNt0chNfcNOZR2LoF7mcS+H74jQUDRpW6ACKIWhejss9DuHH8EwkeKjeZ4HXu9RQ
+         4Do5QUtZJJDO3irtDA3GQyq1mGr8O4JVsk1SxbDC2r4SpuQ1JJ0v5L8R9PVAXVSDVk
+         tPWI/IZepCVrOWb2ul1r6UK7c99KCaj2YGPFjCDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Guenter Roeck <groeck@chromium.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/92] pinctrl: amd: Disable and mask interrupts on resume
-Date:   Tue, 18 Apr 2023 14:20:44 +0200
-Message-Id: <20230418120305.090917488@linuxfoundation.org>
+Subject: [PATCH 5.4 10/92] pwm: cros-ec: Explicitly set .polarity in .get_state()
+Date:   Tue, 18 Apr 2023 14:20:45 +0200
+Message-Id: <20230418120305.119692731@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
 References: <20230418120304.658273364@linuxfoundation.org>
@@ -55,97 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kornel Dulęba <korneld@chromium.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 ]
+[ Upstream commit 30006b77c7e130e01d1ab2148cc8abf73dfcc4bf ]
 
-This fixes a similar problem to the one observed in:
-commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
+The driver only supports normal polarity. Complete the implementation of
+.get_state() by setting .polarity accordingly.
 
-On some systems, during suspend/resume cycle firmware leaves
-an interrupt enabled on a pin that is not used by the kernel.
-This confuses the AMD pinctrl driver and causes spurious interrupts.
-
-The driver already has logic to detect if a pin is used by the kernel.
-Leverage it to re-initialize interrupt fields of a pin only if it's not
-used by us.
-
-Cc: stable@vger.kernel.org
-Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Fixes: 1f0d3bb02785 ("pwm: Add ChromeOS EC PWM driver")
+Link: https://lore.kernel.org/r/20230228135508.1798428-3-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 36 +++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ drivers/pwm/pwm-cros-ec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 887dc57704402..347ec9adbdc29 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -770,32 +770,34 @@ static const struct pinconf_ops amd_pinconf_ops = {
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
+diff --git a/drivers/pwm/pwm-cros-ec.c b/drivers/pwm/pwm-cros-ec.c
+index 89497448d2177..ad4321f2b6f87 100644
+--- a/drivers/pwm/pwm-cros-ec.c
++++ b/drivers/pwm/pwm-cros-ec.c
+@@ -125,6 +125,7 @@ static void cros_ec_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
  
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
- {
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	const struct pin_desc *pd;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
--	int i;
+ 	state->enabled = (ret > 0);
+ 	state->period = EC_PWM_MAX_DUTY;
++	state->polarity = PWM_POLARITY_NORMAL;
  
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
- 
--	for (i = 0; i < desc->npins; i++) {
--		int pin = desc->pins[i].number;
--		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
--
--		if (!pd)
--			continue;
-+	pd = pin_desc_get(gpio_dev->pctrl, pin);
-+	if (!pd)
-+		return;
- 
--		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	pin_reg = readl(gpio_dev->base + pin * 4);
-+	pin_reg &= ~mask;
-+	writel(pin_reg, gpio_dev->base + pin * 4);
-+	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+}
- 
--		pin_reg = readl(gpio_dev->base + i * 4);
--		pin_reg &= ~mask;
--		writel(pin_reg, gpio_dev->base + i * 4);
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+{
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	int i;
- 
--		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--	}
-+	for (i = 0; i < desc->npins; i++)
-+		amd_gpio_irq_init_pin(gpio_dev, i);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -848,8 +850,10 @@ static int amd_gpio_resume(struct device *dev)
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin))
-+		if (!amd_gpio_should_save(gpio_dev, pin)) {
-+			amd_gpio_irq_init_pin(gpio_dev, pin);
- 			continue;
-+		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
+ 	/* Note that "disabled" and "duty cycle == 0" are treated the same */
+ 	state->duty_cycle = ret;
 -- 
 2.39.2
 
