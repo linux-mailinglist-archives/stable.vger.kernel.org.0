@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 577096E63DB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27B86E61CF
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbjDRMnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
+        id S231366AbjDRM2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231913AbjDRMnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FB0C146ED
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:49 -0700 (PDT)
+        with ESMTP id S231196AbjDRM17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BA2AF3E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 205BA63369
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E2FC433EF;
-        Tue, 18 Apr 2023 12:43:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C3A763198
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E514C433EF;
+        Tue, 18 Apr 2023 12:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821828;
-        bh=6wchamMSYFZzj3IOxrv4ZyWxAlgKuxNuNT/ag0HJQrc=;
+        s=korg; t=1681820844;
+        bh=qP5kDtwoCbzHpj1hRBSXIVihcYNDfVr1jNV4lHfVHz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGhnNSZFUTJkewgZlMTCUK3Q1cDVW/shdaMl9JcmSOcQcS57pKajThN4LlUkbu8d5
-         ppNbX9GuYXb8/7YUHXyN8HNeo57IGNzy2bvIpc3m5eXdmc1Oj2O1b+sUFrHSKx85d9
-         1dc+eEorNDdMW7OF+W2JyLb19RR4PXac2KL8mUb8=
+        b=LthX/MaWIkFaYRHZJnreXHDvdcX+REysBgPgumPUtXD2Q0cma9h+PmR2rypcVf/N5
+         RzazVxqViPbMqctA+fVLy79GZk8wypHg5duCrRTrDAJnLYEBSztQPTAog8zr8E6flM
+         AeZjTHYIak7S2dWYOeBPrZQ3t8cXYS4sx0KCi+ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Claudia Draghicescu <claudia.rosu@nxp.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 057/134] Bluetooth: Set ISO Data Path on broadcast sink
+        Steve Clevenger <scclevenger@os.amperecomputing.com>,
+        James Clark <james.clark@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 4.19 53/57] coresight-etm4: Fix for() loop drvdata->nr_addr_cmp range bug
 Date:   Tue, 18 Apr 2023 14:21:53 +0200
-Message-Id: <20230418120314.933174240@linuxfoundation.org>
+Message-Id: <20230418120300.591418325@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,35 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudia Draghicescu <claudia.rosu@nxp.com>
+From: Steve Clevenger <scclevenger@os.amperecomputing.com>
 
-[ Upstream commit d2e4f1b1cba8742db66aaf77374cab7c0c7c8656 ]
+commit bf84937e882009075f57fd213836256fc65d96bc upstream.
 
-This patch enables ISO data rx on broadcast sink.
+In etm4_enable_hw, fix for() loop range to represent address comparator pairs.
 
-Fixes: eca0ae4aea66 ("Bluetooth: Add initial implementation of BIS connections")
-Signed-off-by: Claudia Draghicescu <claudia.rosu@nxp.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2e1cdfe184b5 ("coresight-etm4x: Adding CoreSight ETM4x driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve Clevenger <scclevenger@os.amperecomputing.com>
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/4a4ee61ce8ef402615a4528b21a051de3444fb7b.1677540079.git.scclevenger@os.amperecomputing.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c | 2 +-
+ drivers/hwtracing/coresight/coresight-etm4x.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 78c505f528a47..42a3a19b111e3 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -6981,7 +6981,7 @@ static void hci_le_big_sync_established_evt(struct hci_dev *hdev, void *data,
- 		bis->iso_qos.in.latency = le16_to_cpu(ev->interval) * 125 / 100;
- 		bis->iso_qos.in.sdu = le16_to_cpu(ev->max_pdu);
- 
--		hci_connect_cfm(bis, ev->status);
-+		hci_iso_setup_path(bis);
+--- a/drivers/hwtracing/coresight/coresight-etm4x.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x.c
+@@ -143,7 +143,7 @@ static void etm4_enable_hw(void *info)
+ 		writel_relaxed(config->ss_pe_cmp[i],
+ 			       drvdata->base + TRCSSPCICRn(i));
  	}
- 
- 	hci_dev_unlock(hdev);
--- 
-2.39.2
-
+-	for (i = 0; i < drvdata->nr_addr_cmp; i++) {
++	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
+ 		writeq_relaxed(config->addr_val[i],
+ 			       drvdata->base + TRCACVRn(i));
+ 		writeq_relaxed(config->addr_acc[i],
 
 
