@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBCB6E6155
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0236E6464
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231318AbjDRMZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:25:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
+        id S232085AbjDRMsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:48:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbjDRMY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:59 -0400
+        with ESMTP id S232112AbjDRMss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B05065BF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C7215453
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9648630FD
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF2AC433EF;
-        Tue, 18 Apr 2023 12:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82BD5633CF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 985C4C433D2;
+        Tue, 18 Apr 2023 12:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820672;
-        bh=imV8i/zCboZoDMuSamyBCvXl0jVvq4qvjGP8Fz9tUU8=;
+        s=korg; t=1681822122;
+        bh=QIjYVfhD4/s7Kmz/eMUMK44QfMHT9KQvNLUIggOotl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evNOmj+2M3DMzJoKsrrbQJIOYr49ObQ+iBNTeNRscrg366FlWEiMmRQzQQOP43cO1
-         m/0P+9PMVcizszmdCAKhbg+Qsxgy6fi/MTKQG2Lx5Od3xh2o1EDk2rWcw1vvTttdpj
-         ZwHSzmb7Y8UyW17r8PmSmWCE8tJXNWA22X2H2N1k=
+        b=ur7U+mVk/WURwvoHTazbanHYStrPLoRgr7WotzYvXtnlk/44Ll6liw3kdDLf9XUgB
+         7REouGzrOS3WVacv0hHzNmXQihQf+bGsKa2bmlwQG3IMvKdmhpjhps5Ddvf/q+lnGx
+         WjepgjkGtbE3hwIPNgGnMTnDgqY4tqJ6VYtnGrU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/37] niu: Fix missing unwind goto in niu_alloc_channels()
+Subject: [PATCH 6.2 030/139] clk: sprd: set max_register according to mapping range
 Date:   Tue, 18 Apr 2023 14:21:35 +0200
-Message-Id: <20230418120255.558708922@linuxfoundation.org>
+Message-Id: <20230418120314.769052338@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-[ Upstream commit 8ce07be703456acb00e83d99f3b8036252c33b02 ]
+[ Upstream commit 47d43086531f10539470a63e8ad92803e686a3dd ]
 
-Smatch reports: drivers/net/ethernet/sun/niu.c:4525
-	niu_alloc_channels() warn: missing unwind goto?
+In sprd clock driver, regmap_config.max_register was set to a fixed value
+which is likely larger than the address range configured in device tree,
+when reading registers through debugfs it would cause access violation.
 
-If niu_rbr_fill() fails, then we are directly returning 'err' without
-freeing the channels.
-
-Fix this by changing direct return to a goto 'out_err'.
-
-Fixes: a3138df9f20e ("[NIU]: Add Sun Neptune ethernet driver.")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d41f59fd92f2 ("clk: sprd: Add common infrastructure")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Link: https://lore.kernel.org/r/20230316023624.758204-1-chunyan.zhang@unisoc.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/niu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/sprd/common.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/sun/niu.c b/drivers/net/ethernet/sun/niu.c
-index 7ba9cad183414..08ac19884133b 100644
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -4520,7 +4520,7 @@ static int niu_alloc_channels(struct niu *np)
+diff --git a/drivers/clk/sprd/common.c b/drivers/clk/sprd/common.c
+index ce81e4087a8fc..2bfbab8db94bf 100644
+--- a/drivers/clk/sprd/common.c
++++ b/drivers/clk/sprd/common.c
+@@ -17,7 +17,6 @@ static const struct regmap_config sprdclk_regmap_config = {
+ 	.reg_bits	= 32,
+ 	.reg_stride	= 4,
+ 	.val_bits	= 32,
+-	.max_register	= 0xffff,
+ 	.fast_io	= true,
+ };
  
- 		err = niu_rbr_fill(np, rp, GFP_KERNEL);
- 		if (err)
--			return err;
-+			goto out_err;
- 	}
+@@ -43,6 +42,8 @@ int sprd_clk_regmap_init(struct platform_device *pdev,
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *node = dev->of_node, *np;
+ 	struct regmap *regmap;
++	struct resource *res;
++	struct regmap_config reg_config = sprdclk_regmap_config;
  
- 	tx_rings = kcalloc(num_tx_rings, sizeof(struct tx_ring_info),
+ 	if (of_find_property(node, "sprd,syscon", NULL)) {
+ 		regmap = syscon_regmap_lookup_by_phandle(node, "sprd,syscon");
+@@ -59,12 +60,14 @@ int sprd_clk_regmap_init(struct platform_device *pdev,
+ 			return PTR_ERR(regmap);
+ 		}
+ 	} else {
+-		base = devm_platform_ioremap_resource(pdev, 0);
++		base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 		if (IS_ERR(base))
+ 			return PTR_ERR(base);
+ 
++		reg_config.max_register = resource_size(res) - reg_config.reg_stride;
++
+ 		regmap = devm_regmap_init_mmio(&pdev->dev, base,
+-					       &sprdclk_regmap_config);
++					       &reg_config);
+ 		if (IS_ERR(regmap)) {
+ 			pr_err("failed to init regmap\n");
+ 			return PTR_ERR(regmap);
 -- 
 2.39.2
 
