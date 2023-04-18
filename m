@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 507606E63B9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE82C6E645C
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231912AbjDRMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60394 "EHLO
+        id S232071AbjDRMs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:48:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231898AbjDRMmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:47 -0400
+        with ESMTP id S232058AbjDRMsY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67F41447B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879D83C24
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6A9063329
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7550C433D2;
-        Tue, 18 Apr 2023 12:42:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67F506326B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D7FC433D2;
+        Tue, 18 Apr 2023 12:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821754;
-        bh=xtGEDVJm4OrHZzuvlFRTJ3y2iBEqnWKHjzoKnOyk48o=;
+        s=korg; t=1681822095;
+        bh=4e8JJtLHcDekISQnK6SwhspKcONFIcst1loA1gR9nec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MazAw80YGbBcMUpL/qKeTH9lBAuLX6gTxr8vKOoQkwrgQNriJv3JU+T5gL4bvh8aI
-         PH/QhDRnRauqdKjt1jvZDpohwMvxqW9zb8i4yNlB41O7lhoCWV5DYw9o7VSVz5gYVJ
-         lPUGMD7LXWCP144wnl5Hb/C8Cf/DIREFWKJzNJbA=
+        b=12Y7PxZQtLm7tSPhd/LU3hRSPO/9v3JKX30VI+cN7GbZDCMUlEydPVXkuzX1C58FS
+         xXinITzvQPvgACUUuX/hdRzn/jlzDsUkr2T318YxC08sxmhd1lVsW3NCEIt5WwMdaY
+         WbRd9JHqJZGkUEVk98R5oVdEXQn9u6hlSKpV9D/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 029/134] RDMA/irdma: Do not generate SW completions for NOPs
-Date:   Tue, 18 Apr 2023 14:21:25 +0200
-Message-Id: <20230418120314.011040388@linuxfoundation.org>
+        patches@lists.linux.dev, Bang Li <libang.linuxer@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 6.2 021/139] mtdblock: tolerate corrected bit-flips
+Date:   Tue, 18 Apr 2023 14:21:26 +0200
+Message-Id: <20230418120314.444607265@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Bang Li <libang.linuxer@gmail.com>
 
-[ Upstream commit 30ed9ee9a10a90ae719dcfcacead1d0506fa45ed ]
+commit 0c3089601f064d80b3838eceb711fcac04bceaad upstream.
 
-Currently, artificial SW completions are generated for NOP wqes which can
-generate unexpected completions with wr_id = 0. Skip the generation of
-artificial completions for NOPs.
+mtd_read() may return -EUCLEAN in case of corrected bit-flips.This
+particular condition should not be treated like an error.
 
-Fixes: 81091d7696ae ("RDMA/irdma: Add SW mechanism to generate completions on error")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20230315145231.931-2-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Bang Li <libang.linuxer@gmail.com>
+Fixes: e47f68587b82 ("mtd: check for max_bitflips in mtd_read_oob()")
+Cc: <stable@vger.kernel.org> # v3.7
+Acked-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20230328163012.4264-1-libang.linuxer@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/irdma/utils.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mtd/mtdblock.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/utils.c b/drivers/infiniband/hw/irdma/utils.c
-index 445e69e864097..7887230c867b1 100644
---- a/drivers/infiniband/hw/irdma/utils.c
-+++ b/drivers/infiniband/hw/irdma/utils.c
-@@ -2595,7 +2595,10 @@ void irdma_generate_flush_completions(struct irdma_qp *iwqp)
- 			/* remove the SQ WR by moving SQ tail*/
- 			IRDMA_RING_SET_TAIL(*sq_ring,
- 				sq_ring->tail + qp->sq_wrtrk_array[sq_ring->tail].quanta);
--
-+			if (cmpl->cpi.op_type == IRDMAQP_OP_NOP) {
-+				kfree(cmpl);
-+				continue;
-+			}
- 			ibdev_dbg(iwqp->iwscq->ibcq.device,
- 				  "DEV: %s: adding wr_id = 0x%llx SQ Completion to list qp_id=%d\n",
- 				  __func__, cmpl->cpi.wr_id, qp->qp_id);
--- 
-2.39.2
-
+--- a/drivers/mtd/mtdblock.c
++++ b/drivers/mtd/mtdblock.c
+@@ -153,7 +153,7 @@ static int do_cached_write (struct mtdbl
+ 				mtdblk->cache_state = STATE_EMPTY;
+ 				ret = mtd_read(mtd, sect_start, sect_size,
+ 					       &retlen, mtdblk->cache_data);
+-				if (ret)
++				if (ret && !mtd_is_bitflip(ret))
+ 					return ret;
+ 				if (retlen != sect_size)
+ 					return -EIO;
+@@ -188,8 +188,12 @@ static int do_cached_read (struct mtdblk
+ 	pr_debug("mtdblock: read on \"%s\" at 0x%lx, size 0x%x\n",
+ 			mtd->name, pos, len);
+ 
+-	if (!sect_size)
+-		return mtd_read(mtd, pos, len, &retlen, buf);
++	if (!sect_size) {
++		ret = mtd_read(mtd, pos, len, &retlen, buf);
++		if (ret && !mtd_is_bitflip(ret))
++			return ret;
++		return 0;
++	}
+ 
+ 	while (len > 0) {
+ 		unsigned long sect_start = (pos/sect_size)*sect_size;
+@@ -209,7 +213,7 @@ static int do_cached_read (struct mtdblk
+ 			memcpy (buf, mtdblk->cache_data + offset, size);
+ 		} else {
+ 			ret = mtd_read(mtd, pos, size, &retlen, buf);
+-			if (ret)
++			if (ret && !mtd_is_bitflip(ret))
+ 				return ret;
+ 			if (retlen != size)
+ 				return -EIO;
 
 
