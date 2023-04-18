@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C176E61F7
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9038C6E6206
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231583AbjDRM3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:29:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39782 "EHLO
+        id S231529AbjDRM3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231593AbjDRM2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7155693C3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:32 -0700 (PDT)
+        with ESMTP id S231575AbjDRM3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DBE2AD2F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C93F631A9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BDD2C433EF;
-        Tue, 18 Apr 2023 12:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B69762709
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D593C433EF;
+        Tue, 18 Apr 2023 12:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820910;
-        bh=N+4i+yZYMRbWxZzRVTcYVu7G1SPVlXOuYNmOjLBduZE=;
+        s=korg; t=1681820939;
+        bh=5JXf1puGAOyrl+VZGSEHoiMyiGjva/OyHYhZo7RWGdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VrSz910is6Jco9S1ujfM1KxGrbf6m6z9CX2cUyS4PHFS8Aw9GXzf1bISsZ6aglGxw
-         HcgrUKQ16a0U99gnCnA27kn784nLscWD2FlHEOXatNDhe3D/QFOlBMGqBoz0Aw9uxS
-         Y1uZDOaGbI13ONBzCrcBvz9YcvQYJHVJuvvEIR84=
+        b=zIEsf9aymTA4tZT0ft0B2C8UOQWquiLwFCzIkKoqyr2IBOhAM2PaBHMpq1XtIXbnL
+         aYvmX3TfnSvpa5wA+fe5evwFWxorq0y2fWBusNW58MivRqt6Pw2r5CmvsWVIYz1gnj
+         UloiCrVeYJ+2cqMhbTQqc9kvtZCNn3eof9mCH7m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Glanzmann <thomas@glanzmann.de>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.4 02/92] x86/PCI: Add quirk for AMD XHCI controller that loses MSI-X state in D3hot
-Date:   Tue, 18 Apr 2023 14:20:37 +0200
-Message-Id: <20230418120304.777195991@linuxfoundation.org>
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 03/92] cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
+Date:   Tue, 18 Apr 2023 14:20:38 +0200
+Message-Id: <20230418120304.817812245@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
 References: <20230418120304.658273364@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,65 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Waiman Long <longman@redhat.com>
 
-commit f195fc1e9715ba826c3b62d58038f760f66a4fe9 upstream.
+commit ba9182a89626d5f83c2ee4594f55cb9c1e60f0e2 upstream.
 
-The AMD [1022:15b8] USB controller loses some internal functional MSI-X
-context when transitioning from D0 to D3hot. BIOS normally traps D0->D3hot
-and D3hot->D0 transitions so it can save and restore that internal context,
-but some firmware in the field can't do this because it fails to clear the
-AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit.
+After a successful cpuset_can_attach() call which increments the
+attach_in_progress flag, either cpuset_cancel_attach() or cpuset_attach()
+will be called later. In cpuset_attach(), tasks in cpuset_attach_wq,
+if present, will be woken up at the end. That is not the case in
+cpuset_cancel_attach(). So missed wakeup is possible if the attach
+operation is somehow cancelled. Fix that by doing the wakeup in
+cpuset_cancel_attach() as well.
 
-Clear AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit before USB controller
-initialization during boot.
-
-Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
-Link: https://lore.kernel.org/r/20230329172859.699743-1-Basavaraj.Natikar@amd.com
-Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
-Tested-by: Thomas Glanzmann <thomas@glanzmann.de>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: e44193d39e8d ("cpuset: let hotplug propagation work wait for task attaching")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: stable@vger.kernel.org # v3.11+
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/pci/fixup.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ kernel/cgroup/cpuset.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/pci/fixup.c
-+++ b/arch/x86/pci/fixup.c
-@@ -7,6 +7,7 @@
- #include <linux/dmi.h>
- #include <linux/pci.h>
- #include <linux/vgaarb.h>
-+#include <asm/amd_nb.h>
- #include <asm/hpet.h>
- #include <asm/pci_x86.h>
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2180,11 +2180,15 @@ out_unlock:
+ static void cpuset_cancel_attach(struct cgroup_taskset *tset)
+ {
+ 	struct cgroup_subsys_state *css;
++	struct cpuset *cs;
  
-@@ -824,3 +825,23 @@ static void rs690_fix_64bit_dma(struct p
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7910, rs690_fix_64bit_dma);
+ 	cgroup_taskset_first(tset, &css);
++	cs = css_cs(css);
  
- #endif
-+
-+#ifdef CONFIG_AMD_NB
-+
-+#define AMD_15B8_RCC_DEV2_EPF0_STRAP2                                  0x10136008
-+#define AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK       0x00000080L
-+
-+static void quirk_clear_strap_no_soft_reset_dev2_f0(struct pci_dev *dev)
-+{
-+	u32 data;
-+
-+	if (!amd_smn_read(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, &data)) {
-+		data &= ~AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK;
-+		if (amd_smn_write(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, data))
-+			pci_err(dev, "Failed to write data 0x%x\n", data);
-+	} else {
-+		pci_err(dev, "Failed to read data\n");
-+	}
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15b8, quirk_clear_strap_no_soft_reset_dev2_f0);
-+#endif
+ 	percpu_down_write(&cpuset_rwsem);
+-	css_cs(css)->attach_in_progress--;
++	cs->attach_in_progress--;
++	if (!cs->attach_in_progress)
++		wake_up(&cpuset_attach_wq);
+ 	percpu_up_write(&cpuset_rwsem);
+ }
+ 
 
 
