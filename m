@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF54D6E6132
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D1116E6328
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229849AbjDRMY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60672 "EHLO
+        id S231824AbjDRMiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:38:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231156AbjDRMYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9772A7ED1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:04 -0700 (PDT)
+        with ESMTP id S231797AbjDRMiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301801385B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 300786132C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1D0C4339B;
-        Tue, 18 Apr 2023 12:24:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B494C6251D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D3AC433D2;
+        Tue, 18 Apr 2023 12:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820643;
-        bh=pwFW+xnmMwyVJckVu8txLEFv6hQPU7wdAXAyhcGQNdU=;
+        s=korg; t=1681821488;
+        bh=o8HYq4fdM01Buf8QCIvK12/YoGV5iCfKux2t6+BK+Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXZCfibFTmjQR3FH4GgcsFkqkGmnV85cyNE/pNL0taQSo+5p5ncRn4IrGUnZLgZ0o
-         95ptBJ6nsdx52Diw3mOPLcPUP9GLR+96cuZkjqw/DoeI2/TjNZV5RjGo+x2wxUctT0
-         fV1SqKkBOzIh9KSOKnh8tt4cAV4+OHO2uC0k6QuQ=
+        b=gjAIxNMW2CM1M1701R5+Hx/4JIXyuC7DH7SBG1U4+JmT5CMNFwDHseVSKklCV0B3v
+         w8u4nrrWpkdzfJyCxlinsv9IfDAympnEh7YbFkYduB7UUgZireFDvoEcZjHi4kOw31
+         pmjwT7mBPma35wjCNgj4ZFPhkMJ6vS1SsEwzbE9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 4.14 15/37] ring-buffer: Fix race while reader and writer are on the same page
+        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 21/91] RDMA/irdma: Increase iWARP CM default rexmit count
 Date:   Tue, 18 Apr 2023 14:21:25 +0200
-Message-Id: <20230418120255.201919084@linuxfoundation.org>
+Message-Id: <20230418120306.323520636@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,103 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-commit 6455b6163d8c680366663cdb8c679514d55fc30c upstream.
+[ Upstream commit 8385a875c9eecc429b2f72970efcbb0e5cb5b547 ]
 
-When user reads file 'trace_pipe', kernel keeps printing following logs
-that warn at "cpu_buffer->reader_page->read > rb_page_size(reader)" in
-rb_get_reader_page(). It just looks like there's an infinite loop in
-tracing_read_pipe(). This problem occurs several times on arm64 platform
-when testing v5.10 and below.
+When running perftest with large number of connections in iWARP mode, the
+passive side could be slow to respond. Increase the rexmit counter default
+to allow scaling connections.
 
-  Call trace:
-   rb_get_reader_page+0x248/0x1300
-   rb_buffer_peek+0x34/0x160
-   ring_buffer_peek+0xbc/0x224
-   peek_next_entry+0x98/0xbc
-   __find_next_entry+0xc4/0x1c0
-   trace_find_next_entry_inc+0x30/0x94
-   tracing_read_pipe+0x198/0x304
-   vfs_read+0xb4/0x1e0
-   ksys_read+0x74/0x100
-   __arm64_sys_read+0x24/0x30
-   el0_svc_common.constprop.0+0x7c/0x1bc
-   do_el0_svc+0x2c/0x94
-   el0_svc+0x20/0x30
-   el0_sync_handler+0xb0/0xb4
-   el0_sync+0x160/0x180
-
-Then I dump the vmcore and look into the problematic per_cpu ring_buffer,
-I found that tail_page/commit_page/reader_page are on the same page while
-reader_page->read is obviously abnormal:
-  tail_page == commit_page == reader_page == {
-    .write = 0x100d20,
-    .read = 0x8f9f4805,  // Far greater than 0xd20, obviously abnormal!!!
-    .entries = 0x10004c,
-    .real_end = 0x0,
-    .page = {
-      .time_stamp = 0x857257416af0,
-      .commit = 0xd20,  // This page hasn't been full filled.
-      // .data[0...0xd20] seems normal.
-    }
- }
-
-The root cause is most likely the race that reader and writer are on the
-same page while reader saw an event that not fully committed by writer.
-
-To fix this, add memory barriers to make sure the reader can see the
-content of what is committed. Since commit a0fcaaed0c46 ("ring-buffer: Fix
-race between reset page and reading page") has added the read barrier in
-rb_get_reader_page(), here we just need to add the write barrier.
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230325021247.2923907-1-zhengyejian1@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 77ae365eca89 ("ring-buffer: make lockless")
-Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20230315145231.931-4-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ring_buffer.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/irdma/cm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -2397,6 +2397,10 @@ rb_set_commit_to_write(struct ring_buffe
- 		if (RB_WARN_ON(cpu_buffer,
- 			       rb_is_reader_page(cpu_buffer->tail_page)))
- 			return;
-+		/*
-+		 * No need for a memory barrier here, as the update
-+		 * of the tail_page did it for this page.
-+		 */
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		rb_inc_page(cpu_buffer, &cpu_buffer->commit_page);
-@@ -2410,6 +2414,8 @@ rb_set_commit_to_write(struct ring_buffe
- 	while (rb_commit_index(cpu_buffer) !=
- 	       rb_page_write(cpu_buffer->commit_page)) {
+diff --git a/drivers/infiniband/hw/irdma/cm.h b/drivers/infiniband/hw/irdma/cm.h
+index d03cd29333eab..2b0fb5a6b3001 100644
+--- a/drivers/infiniband/hw/irdma/cm.h
++++ b/drivers/infiniband/hw/irdma/cm.h
+@@ -41,7 +41,7 @@
+ #define TCP_OPTIONS_PADDING	3
  
-+		/* Make sure the readers see the content of what is committed. */
-+		smp_wmb();
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		RB_WARN_ON(cpu_buffer,
-@@ -3725,7 +3731,12 @@ rb_get_reader_page(struct ring_buffer_pe
- 
- 	/*
- 	 * Make sure we see any padding after the write update
--	 * (see rb_reset_tail())
-+	 * (see rb_reset_tail()).
-+	 *
-+	 * In addition, a writer may be writing on the reader page
-+	 * if the page has not been fully filled, so the read barrier
-+	 * is also needed to make sure we see the content of what is
-+	 * committed by the writer (see rb_set_commit_to_write()).
- 	 */
- 	smp_rmb();
- 
+ #define IRDMA_DEFAULT_RETRYS	64
+-#define IRDMA_DEFAULT_RETRANS	8
++#define IRDMA_DEFAULT_RETRANS	32
+ #define IRDMA_DEFAULT_TTL		0x40
+ #define IRDMA_DEFAULT_RTT_VAR		6
+ #define IRDMA_DEFAULT_SS_THRESH		0x3fffffff
+-- 
+2.39.2
+
 
 
