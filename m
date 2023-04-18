@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E716E635C
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 546CC6E63E7
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbjDRMjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56390 "EHLO
+        id S231933AbjDRMoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231860AbjDRMjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 284301385B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:53 -0700 (PDT)
+        with ESMTP id S231927AbjDRMoT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D32118CB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7BB8632EC
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0510C433EF;
-        Tue, 18 Apr 2023 12:39:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4531263374
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59F37C433EF;
+        Tue, 18 Apr 2023 12:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821592;
-        bh=Gjxw23/bxl4QrZu5bs2XXM/h6VOpd2KPImr62nAJBQQ=;
+        s=korg; t=1681821857;
+        bh=QrqbOtkXAxJ75ZGtkyBg8HkvHFCBVjImaCxui3Vrhac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhOWBZ0WCxB1wx7ap6R6md5rNaJgwI8VqtEW/NsFuz4pKof95HqG8Yq9jhqNNsyCy
-         daGmLXuvcXDgmnoWwGuyGslildOollVxFQidBjAWBJLBUlfUbKzIXkphlgJESfV54X
-         dlWZJL6cmAGrDuZnnT/0nv7X8flCXdzsX0Xo8WGA=
+        b=Tc5DW9l4UGLhST5jroZzLesBNNg6ToqI6U6ZT7DD7BYxQ4S+R9X+ymqc65j2mtoBv
+         E91TWay6mjNdZeEG0gxg9HyvQpfpFUGYdZNACA0181PPMPi83fcYzIcGXPcBVizFGV
+         BbiWoiMthAKsasnSjeMDHiuqqngsbSCAW3fCHOOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ivan Bornyakov <i.bornyakov@metrotek.ru>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 59/91] net: sfp: initialize sfp->i2c_block_size at sfp allocation
+        patches@lists.linux.dev, Roman Gushchin <roman.gushchin@linux.dev>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 067/134] net: macb: fix a memory corruption in extended buffer descriptor mode
 Date:   Tue, 18 Apr 2023 14:22:03 +0200
-Message-Id: <20230418120307.640817459@linuxfoundation.org>
+Message-Id: <20230418120315.307089820@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,78 +57,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Bornyakov <i.bornyakov@metrotek.ru>
+From: Roman Gushchin <roman.gushchin@linux.dev>
 
-commit 813c2dd78618f108fdcf9cd726ea90f081ee2881 upstream.
+[ Upstream commit e8b74453555872851bdd7ea43a7c0ec39659834f ]
 
-sfp->i2c_block_size is initialized at SFP module insertion in
-sfp_sm_mod_probe(). Because of that, if SFP module was never inserted
-since boot, sfp_read() call will lead to zero-length I2C read attempt,
-and not all I2C controllers are happy with zero-length reads.
+For quite some time we were chasing a bug which looked like a sudden
+permanent failure of networking and mmc on some of our devices.
+The bug was very sensitive to any software changes and even more to
+any kernel debug options.
 
-One way to issue sfp_read() on empty SFP cage is to execute ethtool -m.
-If SFP module was never plugged since boot, there will be a zero-length
-I2C read attempt.
+Finally we got a setup where the problem was reproducible with
+CONFIG_DMA_API_DEBUG=y and it revealed the issue with the rx dma:
 
-  # ethtool -m xge0
-  i2c i2c-3: adapter quirk: no zero length (addr 0x0050, size 0, read)
-  Cannot get Module EEPROM data: Operation not supported
+[   16.992082] ------------[ cut here ]------------
+[   16.996779] DMA-API: macb ff0b0000.ethernet: device driver tries to free DMA memory it has not allocated [device address=0x0000000875e3e244] [size=1536 bytes]
+[   17.011049] WARNING: CPU: 0 PID: 85 at kernel/dma/debug.c:1011 check_unmap+0x6a0/0x900
+[   17.018977] Modules linked in: xxxxx
+[   17.038823] CPU: 0 PID: 85 Comm: irq/55-8000f000 Not tainted 5.4.0 #28
+[   17.045345] Hardware name: xxxxx
+[   17.049528] pstate: 60000005 (nZCv daif -PAN -UAO)
+[   17.054322] pc : check_unmap+0x6a0/0x900
+[   17.058243] lr : check_unmap+0x6a0/0x900
+[   17.062163] sp : ffffffc010003c40
+[   17.065470] x29: ffffffc010003c40 x28: 000000004000c03c
+[   17.070783] x27: ffffffc010da7048 x26: ffffff8878e38800
+[   17.076095] x25: ffffff8879d22810 x24: ffffffc010003cc8
+[   17.081407] x23: 0000000000000000 x22: ffffffc010a08750
+[   17.086719] x21: ffffff8878e3c7c0 x20: ffffffc010acb000
+[   17.092032] x19: 0000000875e3e244 x18: 0000000000000010
+[   17.097343] x17: 0000000000000000 x16: 0000000000000000
+[   17.102647] x15: ffffff8879e4a988 x14: 0720072007200720
+[   17.107959] x13: 0720072007200720 x12: 0720072007200720
+[   17.113261] x11: 0720072007200720 x10: 0720072007200720
+[   17.118565] x9 : 0720072007200720 x8 : 000000000000022d
+[   17.123869] x7 : 0000000000000015 x6 : 0000000000000098
+[   17.129173] x5 : 0000000000000000 x4 : 0000000000000000
+[   17.134475] x3 : 00000000ffffffff x2 : ffffffc010a1d370
+[   17.139778] x1 : b420c9d75d27bb00 x0 : 0000000000000000
+[   17.145082] Call trace:
+[   17.147524]  check_unmap+0x6a0/0x900
+[   17.151091]  debug_dma_unmap_page+0x88/0x90
+[   17.155266]  gem_rx+0x114/0x2f0
+[   17.158396]  macb_poll+0x58/0x100
+[   17.161705]  net_rx_action+0x118/0x400
+[   17.165445]  __do_softirq+0x138/0x36c
+[   17.169100]  irq_exit+0x98/0xc0
+[   17.172234]  __handle_domain_irq+0x64/0xc0
+[   17.176320]  gic_handle_irq+0x5c/0xc0
+[   17.179974]  el1_irq+0xb8/0x140
+[   17.183109]  xiic_process+0x5c/0xe30
+[   17.186677]  irq_thread_fn+0x28/0x90
+[   17.190244]  irq_thread+0x208/0x2a0
+[   17.193724]  kthread+0x130/0x140
+[   17.196945]  ret_from_fork+0x10/0x20
+[   17.200510] ---[ end trace 7240980785f81d6f ]---
 
-If SFP module was plugged then removed at least once,
-sfp->i2c_block_size will be initialized and ethtool -m will fail with
-different exit code and without I2C error
+[  237.021490] ------------[ cut here ]------------
+[  237.026129] DMA-API: exceeded 7 overlapping mappings of cacheline 0x0000000021d79e7b
+[  237.033886] WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:499 add_dma_entry+0x214/0x240
+[  237.041802] Modules linked in: xxxxx
+[  237.061637] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W         5.4.0 #28
+[  237.068941] Hardware name: xxxxx
+[  237.073116] pstate: 80000085 (Nzcv daIf -PAN -UAO)
+[  237.077900] pc : add_dma_entry+0x214/0x240
+[  237.081986] lr : add_dma_entry+0x214/0x240
+[  237.086072] sp : ffffffc010003c30
+[  237.089379] x29: ffffffc010003c30 x28: ffffff8878a0be00
+[  237.094683] x27: 0000000000000180 x26: ffffff8878e387c0
+[  237.099987] x25: 0000000000000002 x24: 0000000000000000
+[  237.105290] x23: 000000000000003b x22: ffffffc010a0fa00
+[  237.110594] x21: 0000000021d79e7b x20: ffffffc010abe600
+[  237.115897] x19: 00000000ffffffef x18: 0000000000000010
+[  237.121201] x17: 0000000000000000 x16: 0000000000000000
+[  237.126504] x15: ffffffc010a0fdc8 x14: 0720072007200720
+[  237.131807] x13: 0720072007200720 x12: 0720072007200720
+[  237.137111] x11: 0720072007200720 x10: 0720072007200720
+[  237.142415] x9 : 0720072007200720 x8 : 0000000000000259
+[  237.147718] x7 : 0000000000000001 x6 : 0000000000000000
+[  237.153022] x5 : ffffffc010003a20 x4 : 0000000000000001
+[  237.158325] x3 : 0000000000000006 x2 : 0000000000000007
+[  237.163628] x1 : 8ac721b3a7dc1c00 x0 : 0000000000000000
+[  237.168932] Call trace:
+[  237.171373]  add_dma_entry+0x214/0x240
+[  237.175115]  debug_dma_map_page+0xf8/0x120
+[  237.179203]  gem_rx_refill+0x190/0x280
+[  237.182942]  gem_rx+0x224/0x2f0
+[  237.186075]  macb_poll+0x58/0x100
+[  237.189384]  net_rx_action+0x118/0x400
+[  237.193125]  __do_softirq+0x138/0x36c
+[  237.196780]  irq_exit+0x98/0xc0
+[  237.199914]  __handle_domain_irq+0x64/0xc0
+[  237.204000]  gic_handle_irq+0x5c/0xc0
+[  237.207654]  el1_irq+0xb8/0x140
+[  237.210789]  arch_cpu_idle+0x40/0x200
+[  237.214444]  default_idle_call+0x18/0x30
+[  237.218359]  do_idle+0x200/0x280
+[  237.221578]  cpu_startup_entry+0x20/0x30
+[  237.225493]  rest_init+0xe4/0xf0
+[  237.228713]  arch_call_rest_init+0xc/0x14
+[  237.232714]  start_kernel+0x47c/0x4a8
+[  237.236367] ---[ end trace 7240980785f81d70 ]---
 
-  # ethtool -m xge0
-  Cannot get Module EEPROM data: Remote I/O error
+Lars was fast to find an explanation: according to the datasheet
+bit 2 of the rx buffer descriptor entry has a different meaning in the
+extended mode:
+  Address [2] of beginning of buffer, or
+  in extended buffer descriptor mode (DMA configuration register [28] = 1),
+  indicates a valid timestamp in the buffer descriptor entry.
 
-Fix this by initializing sfp->i2_block_size at struct sfp allocation
-stage so no wild sfp_read() could issue zero-length I2C read.
+The macb driver didn't mask this bit while getting an address and it
+eventually caused a memory corruption and a dma failure.
 
-Signed-off-by: Ivan Bornyakov <i.bornyakov@metrotek.ru>
-Fixes: 0d035bed2a4a ("net: sfp: VSOL V2801F / CarlitoxxPro CPGOS03-0490 v2.0 workaround")
-Cc: stable@vger.kernel.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The problem is resolved by explicitly clearing the problematic bit
+if hw timestamping is used.
+
+Fixes: 7b4296148066 ("net: macb: Add support for PTP timestamps in DMA descriptors")
+Signed-off-by: Roman Gushchin <roman.gushchin@linux.dev>
+Co-developed-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Link: https://lore.kernel.org/r/20230412232144.770336-1-roman.gushchin@linux.dev
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -208,6 +208,12 @@ static const enum gpiod_flags gpio_flags
-  */
- #define SFP_PHY_ADDR	22
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index e255780f3867c..abd6cc0cd641f 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -1010,6 +1010,10 @@ static dma_addr_t macb_get_addr(struct macb *bp, struct macb_dma_desc *desc)
+ 	}
+ #endif
+ 	addr |= MACB_BF(RX_WADDR, MACB_BFEXT(RX_WADDR, desc->addr));
++#ifdef CONFIG_MACB_USE_HWSTAMP
++	if (bp->hw_dma_cap & HW_DMA_CAP_PTP)
++		addr &= ~GEM_BIT(DMA_RXVALID);
++#endif
+ 	return addr;
+ }
  
-+/* SFP_EEPROM_BLOCK_SIZE is the size of data chunk to read the EEPROM
-+ * at a time. Some SFP modules and also some Linux I2C drivers do not like
-+ * reads longer than 16 bytes.
-+ */
-+#define SFP_EEPROM_BLOCK_SIZE	16
-+
- struct sff_data {
- 	unsigned int gpios;
- 	bool (*module_supported)(const struct sfp_eeprom_id *id);
-@@ -1806,11 +1812,7 @@ static int sfp_sm_mod_probe(struct sfp *
- 	u8 check;
- 	int ret;
- 
--	/* Some SFP modules and also some Linux I2C drivers do not like reads
--	 * longer than 16 bytes, so read the EEPROM in chunks of 16 bytes at
--	 * a time.
--	 */
--	sfp->i2c_block_size = 16;
-+	sfp->i2c_block_size = SFP_EEPROM_BLOCK_SIZE;
- 
- 	ret = sfp_read(sfp, false, 0, &id.base, sizeof(id.base));
- 	if (ret < 0) {
-@@ -2462,6 +2464,7 @@ static struct sfp *sfp_alloc(struct devi
- 		return ERR_PTR(-ENOMEM);
- 
- 	sfp->dev = dev;
-+	sfp->i2c_block_size = SFP_EEPROM_BLOCK_SIZE;
- 
- 	mutex_init(&sfp->sm_mutex);
- 	mutex_init(&sfp->st_mutex);
+-- 
+2.39.2
+
 
 
