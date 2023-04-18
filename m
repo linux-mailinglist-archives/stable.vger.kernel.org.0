@@ -2,111 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DCDF6E5D51
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 11:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C314A6E5D69
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 11:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbjDRJ2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 05:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34286 "EHLO
+        id S229688AbjDRJba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 05:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230208AbjDRJ2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 05:28:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1683E170E;
-        Tue, 18 Apr 2023 02:28:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4B98623D5;
-        Tue, 18 Apr 2023 09:28:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B476EC433EF;
-        Tue, 18 Apr 2023 09:28:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681810090;
-        bh=LplBaAfiQN63yKSqWMsQVi8bs1BiaFM52dC7sMKWPZ8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SHbE3VNR/WwjzDYQNg2o/1AmILBYDwf4FE0A0zBuEzDtaU/vG43snOtOnptRO7hKv
-         3jKr4VxEDAaltjV1qkHWmgtva3kkxtGsofA14eMM9OolRbtm6saofpjHuHx02NvbKy
-         aSV29vf9iGR2aS8bJ/Wyje+U1N0RAuOjdcP2AD5c=
-Date:   Tue, 18 Apr 2023 11:28:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     cuigaosheng <cuigaosheng1@huawei.com>
-Cc:     stable@vger.kernel.org, herbert@gondor.apana.org.au,
-        davem@davemloft.net, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH 5.10 1/4] crypto: api - Fix built-in testing dependency
- failures
-Message-ID: <2023041809-silicon-backspace-327d@gregkh>
-References: <20230415101158.1648486-1-cuigaosheng1@huawei.com>
- <20230415101158.1648486-2-cuigaosheng1@huawei.com>
- <2023041513-sloppily-external-4c18@gregkh>
- <3f6315cc-4684-2121-3556-0ace47c29b35@huawei.com>
+        with ESMTP id S229901AbjDRJb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 05:31:27 -0400
+Received: from mta-65-227.siemens.flowmailer.net (mta-65-227.siemens.flowmailer.net [185.136.65.227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3615D4216
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 02:31:23 -0700 (PDT)
+Received: by mta-65-227.siemens.flowmailer.net with ESMTPSA id 202304180931195b1dba4003d74e3777
+        for <stable@vger.kernel.org>;
+        Tue, 18 Apr 2023 11:31:20 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
+ d=siemens.com; i=florian.bezdeka@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=CqK3hsqP4ZsT3ZUY+isIcg9eKHACr0lAiNG1+JRla6g=;
+ b=qgSvw768XrHXL9zjoF5Fi+WBoNdMdWHl324bLBiS9wq1u4tQkr2ulODt4ZPNSvEiHuxy2w
+ RKE2yu8Sb8Bi5ojr66/Z5zlRmyQQ9lRmWdbz4qoWuBo9sjNznGinj7y4/74qtLGJqMnle6KC
+ e1VTaI9CzcGE4fniV7kl20klcOhV8=;
+Message-ID: <98a4831de6c2ae4a3eb8d29dcd114a6e96c34f94.camel@siemens.com>
+Subject: Re: [PATCH net v3 1/1] igc: read before write to SRRCTL register
+From:   Florian Bezdeka <florian.bezdeka@siemens.com>
+To:     Jesper Dangaard Brouer <jbrouer@redhat.com>,
+        Song Yoong Siang <yoong.siang.song@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Vedang Patel <vedang.patel@intel.com>,
+        Jithu Joseph <jithu.joseph@intel.com>,
+        Andre Guedes <andre.guedes@intel.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        David Laight <David.Laight@ACULAB.COM>
+Cc:     brouer@redhat.com, intel-wired-lan@lists.osuosl.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, xdp-hints@xdp-project.net,
+        stable@vger.kernel.org
+Date:   Tue, 18 Apr 2023 11:31:16 +0200
+In-Reply-To: <e7b9cb2c-1c18-7354-8d33-a924b5ae1d5b@redhat.com>
+References: <20230414154902.2950535-1-yoong.siang.song@intel.com>
+         <934a4204-1920-f5e1-bcde-89429554d0d6@redhat.com>
+         <e7b9cb2c-1c18-7354-8d33-a924b5ae1d5b@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3f6315cc-4684-2121-3556-0ace47c29b35@huawei.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-68982:519-21489:flowmailer
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 16, 2023 at 03:22:18PM +0800, cuigaosheng wrote:
-> On 2023/4/15 23:07, Greg KH wrote:
-> > On Sat, Apr 15, 2023 at 06:11:55PM +0800, Gaosheng Cui wrote:
-> > > From: Herbert Xu <herbert@gondor.apana.org.au>
-> > > 
-> > > When complex algorithms that depend on other algorithms are built
-> > > into the kernel, the order of registration must be done such that
-> > > the underlying algorithms are ready before the ones on top are
-> > > registered.  As otherwise they would fail during the self-test
-> > > which is required during registration.
-> > > 
-> > > In the past we have used subsystem initialisation ordering to
-> > > guarantee this.  The number of such precedence levels are limited
-> > > and they may cause ripple effects in other subsystems.
-> > > 
-> > > This patch solves this problem by delaying all self-tests during
-> > > boot-up for built-in algorithms.  They will be tested either when
-> > > something else in the kernel requests for them, or when we have
-> > > finished registering all built-in algorithms, whichever comes
-> > > earlier.
-> > > 
-> > > Reported-by: Vladis Dronov <vdronov@redhat.com>
-> > > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> > > Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+On Mon, 2023-04-17 at 16:24 +0200, Jesper Dangaard Brouer wrote:
+> On 14/04/2023 22.05, Jesper Dangaard Brouer wrote:
+> > =20
+> > On 14/04/2023 17.49, Song Yoong Siang wrote:
+> > > igc_configure_rx_ring() function will be called as part of XDP progra=
+m
+> > > setup. If Rx hardware timestamp is enabled prio to XDP program setup,
+> > > this timestamp enablement will be overwritten when buffer size is
+> > > written into SRRCTL register.
+> > >=20
+> > > Thus, this commit read the register value before write to SRRCTL
+> > > register. This commit is tested by using xdp_hw_metadata bpf selftest
+> > > tool. The tool enables Rx hardware timestamp and then attach XDP prog=
+ram
+> > > to igc driver. It will display hardware timestamp of UDP packet with
+> > > port number 9092. Below are detail of test steps and results.
+> > >=20
+> [...]
+> > >=20
+> > > Fixes: fc9df2a0b520 ("igc: Enable RX via AF_XDP zero-copy")
+> > > Cc: <stable@vger.kernel.org> # 5.14+
+> > > Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
+> > > Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+> > > Reviewed-by: Jesper Dangaard Brouer <brouer@redhat.com>
 > > > ---
-> > >   crypto/algapi.c   | 73 +++++++++++++++++++++++++++++++++--------------
-> > >   crypto/api.c      | 52 +++++++++++++++++++++++++++++----
-> > >   crypto/internal.h | 10 +++++++
-> > >   3 files changed, 108 insertions(+), 27 deletions(-)
-> > What is the git commit id of this, and the other 3 patches, in Linus's
-> > tree?  That is required to have here, as you know.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > .
-> 
-> Thanks for taking time to review these patch.
-> 
-> These patches are in Linus's tree, reference as follows:
->   Reference 1: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=adad556efcdd42a1d9e060cbe5f6161cccf1fa28
->   Reference 2: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cad439fc040efe5f4381e3a7d583c5c200dbc186
->   Reference 3: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e42dff467ee688fe6b5a083f1837d06e3b27d8c0
->   Reference 4: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=beaaaa37c664e9afdf2913aee19185d8e3793b50
+> >=20
+> > LGTM, thank for the adjustments :-)
+> >=20
+> > Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+> >=20
+>=20
+> Tested-by: Jesper Dangaard Brouer <brouer@redhat.com>
+>=20
+> I can confirm that this patch fix the issue I experienced with igc.
+>=20
+> This patch clearly fixes a bug in igc when writing the SRRCTL register.
+> (as bit 30 in register is "Timestamp Received Packet" which got cleared=
+=20
+> before).
+>=20
+> Florian might have found another bug around RX timestamps, but this
+> patch should be safe and sane to apply as is.
 
-Please resend the patches with the git commit id in the changelog
-somewhere, as is normally done (there are thousands of examples on the
-mailing list.)
+After a closer look I'm quite sure now that this patch should fix my
+issue as well. The register will be overwritten when setting up a
+XSK_POOL as well:
 
-Also be sure that you are also backporting the patches to newer kernel
-releases so that someone does not upgrade and have a regression (i.e. if
-a patch is also needed in 5.15.y send a backport for that too.)
+igc_bpf
+  igc_xdp_setup_pool
+    igc_enable_rx_ring
+      igc_configure_rx_ring
+        wr32(IGC_SRRCTL)
 
-Thanks,
+I already removed the BPF loading (which is the use case that the patch
+description mentions) from my setup to limit the search scope. If you
+like you could extend the patch description, but I'm fine with it.
 
-greg k-h
+Thanks a lot for all the support / ideas! Highly appreciated!
+
+Florian
+
+>=20
+> > > v2 -> v3: Refactor SRRCTL definitions to more human readable definiti=
+ons
+> > > v1 -> v2: Fix indention
+> > > ---
+> > > =C2=A0 drivers/net/ethernet/intel/igc/igc_base.h | 11 ++++++++---
+> > > =C2=A0 drivers/net/ethernet/intel/igc/igc_main.c |=C2=A0 7 +++++--
+> > > =C2=A0 2 files changed, 13 insertions(+), 5 deletions(-)
+>=20
+
