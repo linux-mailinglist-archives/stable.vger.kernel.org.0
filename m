@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE60B6E63C5
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E1A6E6157
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231938AbjDRMnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60276 "EHLO
+        id S230428AbjDRMZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231949AbjDRMnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884B015614
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:04 -0700 (PDT)
+        with ESMTP id S231302AbjDRMZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A14A9023
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 568476334A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C74C433EF;
-        Tue, 18 Apr 2023 12:43:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3CB163109
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA39FC433D2;
+        Tue, 18 Apr 2023 12:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821783;
-        bh=BnQzf9oBC1YcYPPj24x13lpuShp9d7eCXwvIkSOo51c=;
+        s=korg; t=1681820675;
+        bh=vP1CQ7n3A8UAdIcv9Up82ehRod7FV+KfCTpUhDT3sPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7EzzQcGvG3N3NRydEAG1EC6EtZjZmZr3NA/bxNnSiU3axHRTzbGsdfIiXR3SW8Qp
-         rbM+K+8ucqcRXNQz9AjsbGy4KzOVQ+7kyxFfgnCGDUj7bicEjzqzatULanFxYCatH1
-         WUAnLaT7INzqKjdxu416FvlvBm1rkAs4eHUlbMYw=
+        b=USPf9EOxpdn+KmA81epEMloKnw4qWMyEL2OYotSag52xm2kcFDwfc0H6IM0ncNnpS
+         tWyI9rS+1QYxy0ZJrn6Yuyel6medXz4ch+roBmQxAW2vavCqrrstM4y93MJnyEV/7s
+         +2NkMmiHcx38udyDOUHHJ3BXhHrJWeyIaADvqFtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin KaFai Lau <martin.lau@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev,
+        Denis Plotnikov <den-plotnikov@yandex-team.ru>,
+        Simon Horman <simon.horman@corigine.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 039/134] bpf: tcp: Use sock_gen_put instead of sock_put in bpf_iter_tcp
-Date:   Tue, 18 Apr 2023 14:21:35 +0200
-Message-Id: <20230418120314.307320696@linuxfoundation.org>
+Subject: [PATCH 4.14 26/37] qlcnic: check pci_reset_function result
+Date:   Tue, 18 Apr 2023 14:21:36 +0200
+Message-Id: <20230418120255.606190752@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,47 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <martin.lau@kernel.org>
+From: Denis Plotnikov <den-plotnikov@yandex-team.ru>
 
-[ Upstream commit 580031ff9952b7dbf48dedba6b56a100ae002bef ]
+[ Upstream commit 7573099e10ca69c3be33995c1fcd0d241226816d ]
 
-While reviewing the udp-iter batching patches, noticed the bpf_iter_tcp
-calling sock_put() is incorrect. It should call sock_gen_put instead
-because bpf_iter_tcp is iterating the ehash table which has the req sk
-and tw sk. This patch replaces all sock_put with sock_gen_put in the
-bpf_iter_tcp codepath.
+Static code analyzer complains to unchecked return value.
+The result of pci_reset_function() is unchecked.
+Despite, the issue is on the FLR supported code path and in that
+case reset can be done with pcie_flr(), the patch uses less invasive
+approach by adding the result check of pci_reset_function().
 
-Fixes: 04c7820b776f ("bpf: tcp: Bpf iter batching and lock_sock")
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230328004232.2134233-1-martin.lau@linux.dev
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 7e2cf4feba05 ("qlcnic: change driver hardware interface mechanism")
+Signed-off-by: Denis Plotnikov <den-plotnikov@yandex-team.ru>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index da46357f501b3..ad0a5f185a694 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2728,7 +2728,7 @@ static int tcp_prog_seq_show(struct bpf_prog *prog, struct bpf_iter_meta *meta,
- static void bpf_iter_tcp_put_batch(struct bpf_tcp_iter_state *iter)
- {
- 	while (iter->cur_sk < iter->end_sk)
--		sock_put(iter->batch[iter->cur_sk++]);
-+		sock_gen_put(iter->batch[iter->cur_sk++]);
- }
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
+index d344e9d438321..d3030bd967d5a 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
+@@ -629,7 +629,13 @@ int qlcnic_fw_create_ctx(struct qlcnic_adapter *dev)
+ 	int i, err, ring;
  
- static int bpf_iter_tcp_realloc_batch(struct bpf_tcp_iter_state *iter,
-@@ -2889,7 +2889,7 @@ static void *bpf_iter_tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- 		 * st->bucket.  See tcp_seek_last_pos().
- 		 */
- 		st->offset++;
--		sock_put(iter->batch[iter->cur_sk++]);
-+		sock_gen_put(iter->batch[iter->cur_sk++]);
+ 	if (dev->flags & QLCNIC_NEED_FLR) {
+-		pci_reset_function(dev->pdev);
++		err = pci_reset_function(dev->pdev);
++		if (err) {
++			dev_err(&dev->pdev->dev,
++				"Adapter reset failed (%d). Please reboot\n",
++				err);
++			return err;
++		}
+ 		dev->flags &= ~QLCNIC_NEED_FLR;
  	}
  
- 	if (iter->cur_sk < iter->end_sk)
 -- 
 2.39.2
 
