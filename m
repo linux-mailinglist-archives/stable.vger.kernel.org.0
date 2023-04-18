@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 189B16E63C3
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C9B6E6150
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbjDRMnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60838 "EHLO
+        id S230434AbjDRMY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:24:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231935AbjDRMnH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:07 -0400
+        with ESMTP id S231278AbjDRMY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E3C0146E0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8F28A61
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C6D762D27
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C50C433D2;
-        Tue, 18 Apr 2023 12:42:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EDAF630FA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF0EC433A7;
+        Tue, 18 Apr 2023 12:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821778;
-        bh=UfVJAro4hS0sb7wS/UaCLZeYCdQCigB984hcleKeoXQ=;
+        s=korg; t=1681820664;
+        bh=JjN62ENM/WND6R5STgbrOgIKfmKR7fppjlWaoigcs4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyvKepTKlSfkUXoIq4Sl0/b/h0jRTTwgHvT86FzNqH2VBEJXzFjmTvS4P2OCPDdnN
-         NjYwC0+tOQ1571PJ79V6iVnf4Q2YG7Z6g5yCVDnYZL3nvFSgrltznCHejwhu26mYuq
-         B7qXxNmdKchrGC44NOZtzGkqOMkjLmFISy+V8XJc=
+        b=I0axecy4tGiEGbBQgw/wLcPdQBg/nhZ0M/UcjOqRvv/84HktHosbmCu3mJvXsYFh3
+         gxRG46Pjbgbyo2oCaCgjHR6LJnhLfRUgnLQ/k/XSlQHBPeiNhVWocWopNVqOMq5Ls8
+         l/u7ID0bmEQrG/ZVKwAE09MIf4WceU5kPtXRlhQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 037/134] clk: rs9: Fix suspend/resume
+        patches@lists.linux.dev, Bang Li <libang.linuxer@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 23/37] mtdblock: tolerate corrected bit-flips
 Date:   Tue, 18 Apr 2023 14:21:33 +0200
-Message-Id: <20230418120314.250845994@linuxfoundation.org>
+Message-Id: <20230418120255.476715866@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Bang Li <libang.linuxer@gmail.com>
 
-[ Upstream commit 632e04739c8f45c2d9ca4d4c5bd18d80c2ac9296 ]
+commit 0c3089601f064d80b3838eceb711fcac04bceaad upstream.
 
-Disabling the cache in commit 2ff4ba9e3702 ("clk: rs9: Fix I2C accessors")
-without removing cache synchronization in resume path results in a
-kernel panic as map->cache_ops is unset, due to REGCACHE_NONE.
-Enable flat cache again to support resume again. num_reg_defaults_raw
-is necessary to read the cache defaults from hardware. Some registers
-are strapped in hardware and cannot be provided in software.
+mtd_read() may return -EUCLEAN in case of corrected bit-flips.This
+particular condition should not be treated like an error.
 
-Fixes: 2ff4ba9e3702 ("clk: rs9: Fix I2C accessors")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20230310074940.3475703-1-alexander.stein@ew.tq-group.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Bang Li <libang.linuxer@gmail.com>
+Fixes: e47f68587b82 ("mtd: check for max_bitflips in mtd_read_oob()")
+Cc: <stable@vger.kernel.org> # v3.7
+Acked-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20230328163012.4264-1-libang.linuxer@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk-renesas-pcie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/mtdblock.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/clk-renesas-pcie.c b/drivers/clk/clk-renesas-pcie.c
-index e6247141d0c05..3e98a16eba6bb 100644
---- a/drivers/clk/clk-renesas-pcie.c
-+++ b/drivers/clk/clk-renesas-pcie.c
-@@ -144,8 +144,9 @@ static int rs9_regmap_i2c_read(void *context,
- static const struct regmap_config rs9_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
--	.cache_type = REGCACHE_NONE,
-+	.cache_type = REGCACHE_FLAT,
- 	.max_register = RS9_REG_BCP,
-+	.num_reg_defaults_raw = 0x8,
- 	.rd_table = &rs9_readable_table,
- 	.wr_table = &rs9_writeable_table,
- 	.reg_write = rs9_regmap_i2c_write,
--- 
-2.39.2
-
+--- a/drivers/mtd/mtdblock.c
++++ b/drivers/mtd/mtdblock.c
+@@ -185,7 +185,7 @@ static int do_cached_write (struct mtdbl
+ 				mtdblk->cache_state = STATE_EMPTY;
+ 				ret = mtd_read(mtd, sect_start, sect_size,
+ 					       &retlen, mtdblk->cache_data);
+-				if (ret)
++				if (ret && !mtd_is_bitflip(ret))
+ 					return ret;
+ 				if (retlen != sect_size)
+ 					return -EIO;
+@@ -220,8 +220,12 @@ static int do_cached_read (struct mtdblk
+ 	pr_debug("mtdblock: read on \"%s\" at 0x%lx, size 0x%x\n",
+ 			mtd->name, pos, len);
+ 
+-	if (!sect_size)
+-		return mtd_read(mtd, pos, len, &retlen, buf);
++	if (!sect_size) {
++		ret = mtd_read(mtd, pos, len, &retlen, buf);
++		if (ret && !mtd_is_bitflip(ret))
++			return ret;
++		return 0;
++	}
+ 
+ 	while (len > 0) {
+ 		unsigned long sect_start = (pos/sect_size)*sect_size;
+@@ -241,7 +245,7 @@ static int do_cached_read (struct mtdblk
+ 			memcpy (buf, mtdblk->cache_data + offset, size);
+ 		} else {
+ 			ret = mtd_read(mtd, pos, size, &retlen, buf);
+-			if (ret)
++			if (ret && !mtd_is_bitflip(ret))
+ 				return ret;
+ 			if (retlen != size)
+ 				return -EIO;
 
 
