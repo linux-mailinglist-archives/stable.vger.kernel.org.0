@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E800E6E63D5
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1361D6E62F6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229962AbjDRMni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33544 "EHLO
+        id S231311AbjDRMg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231337AbjDRMni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7D9E30C8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:36 -0700 (PDT)
+        with ESMTP id S231598AbjDRMg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420E612CA8
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7C7C6334C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0810BC433D2;
-        Tue, 18 Apr 2023 12:43:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D23EA63289
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B95C433D2;
+        Tue, 18 Apr 2023 12:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821815;
-        bh=Uj98wVnSSFnzrcHZJVdxk3j00ymRjdBUVhBfZ/HlGeU=;
+        s=korg; t=1681821414;
+        bh=Aq8vcejyKWuvLtlAKkoLOGG9pzuV4Z9p3791cnIrGFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12VkZWvBUOhlKKg7WBasNojQ8/1ueX5L39QD5QaQk0Ass6Btwo/iUHaH1IPTwqKzy
-         GCr7g/plyaXDkxdk7pUgiZu0PjFKGFqb7Ua0+rGGkgKsmg0s4VEbYdK0r5/MWxwiMB
-         PWn5qC90bBvFHJVPd8trKaelT63cxcHpSAUE93q0=
+        b=lsLAEtR9TO7ay03JSHs1LE36WBTOgRHNiK9+B5W9/zTwYUOZrOuQxYYTVszW+qI8M
+         HLIiRJp01BaGa9NrIsgxFktRABdsZlY5wM/zwLjQEw+FukEJfNj2YXnAWBbZn5ikIu
+         PqDiAri5slyvhqsAR/to1qoQVFIj91dL0cr6fVyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ahmed Zaki <ahmed.zaki@intel.com>,
-        Rafal Romanowski <rafal.romanowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 052/134] iavf: remove active_cvlans and active_svlans bitmaps
-Date:   Tue, 18 Apr 2023 14:21:48 +0200
-Message-Id: <20230418120314.763880194@linuxfoundation.org>
+Subject: [PATCH 5.10 090/124] drm: panel-orientation-quirks: Add quirk for Lenovo Yoga Book X90F
+Date:   Tue, 18 Apr 2023 14:21:49 +0200
+Message-Id: <20230418120313.128567903@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,273 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed Zaki <ahmed.zaki@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9c85b7fa12ef2e4fc11a4e31ac595fb5f9d0ddf9 ]
+[ Upstream commit 03aecb1acbcd7a660f97d645ca6c09d9de27ff9d ]
 
-The VLAN filters info is currently being held in a list and 2 bitmaps
-(active_cvlans and active_svlans). We are experiencing some racing where
-data is not in sync in the list and bitmaps. For example, the VLAN is
-initially added to the list but only when the PF replies, it is added to
-the bitmap. If a user adds many V2 VLANS before the PF responds:
+Like the Windows Lenovo Yoga Book X91F/L the Android Lenovo Yoga Book
+X90F/L has a portrait 1200x1920 screen used in landscape mode,
+add a quirk for this.
 
-    while [ $((i++)) ]
-        ip l add l eth0 name eth0.$i type vlan id $i
+When the quirk for the X91F/L was initially added it was written to
+also apply to the X90F/L but this does not work because the Android
+version of the Yoga Book uses completely different DMI strings.
+Also adjust the X91F/L quirk to reflect that it only applies to
+the X91F/L models.
 
-we might end up with more VLAN list entries than the designated limit.
-Also, The "ip link show" will show more links added than the PF limit.
-
-On the other and, the bitmaps are only used to check the number of VLAN
-filters and to re-enable the filters when the interface goes from DOWN to
-UP.
-
-This patch gets rid of the bitmaps and uses the list only. To do that,
-the states of the VLAN filter are modified:
-1 - IAVF_VLAN_REMOVE: the entry needs to be totally removed after informing
-  the PF. This is the "ip link del eth0.$i" path.
-2 - IAVF_VLAN_DISABLE: (new) the netdev went down. The filter needs to be
-  removed from the PF and then marked INACTIVE.
-3 - IAVF_VLAN_INACTIVE: (new) no PF filter exists, but the user did not
-  delete the VLAN.
-
-Fixes: 48ccc43ecf10 ("iavf: Add support VIRTCHNL_VF_OFFLOAD_VLAN_V2 during netdev config")
-Signed-off-by: Ahmed Zaki <ahmed.zaki@intel.com>
-Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230301095218.28457-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h        |  7 +--
- drivers/net/ethernet/intel/iavf/iavf_main.c   | 40 +++++++----------
- .../net/ethernet/intel/iavf/iavf_virtchnl.c   | 45 ++++++++++---------
- 3 files changed, 45 insertions(+), 47 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index fdbb5d9a554cf..93a998f169de7 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -58,8 +58,6 @@ enum iavf_vsi_state_t {
- struct iavf_vsi {
- 	struct iavf_adapter *back;
- 	struct net_device *netdev;
--	unsigned long active_cvlans[BITS_TO_LONGS(VLAN_N_VID)];
--	unsigned long active_svlans[BITS_TO_LONGS(VLAN_N_VID)];
- 	u16 seid;
- 	u16 id;
- 	DECLARE_BITMAP(state, __IAVF_VSI_STATE_SIZE__);
-@@ -162,7 +160,9 @@ enum iavf_vlan_state_t {
- 	IAVF_VLAN_ADD,		/* filter needs to be added */
- 	IAVF_VLAN_IS_NEW,	/* filter is new, wait for PF answer */
- 	IAVF_VLAN_ACTIVE,	/* filter is accepted by PF */
--	IAVF_VLAN_REMOVE,	/* filter needs to be removed */
-+	IAVF_VLAN_DISABLE,	/* filter needs to be deleted by PF, then marked INACTIVE */
-+	IAVF_VLAN_INACTIVE,	/* filter is inactive, we are in IFF_DOWN */
-+	IAVF_VLAN_REMOVE,	/* filter needs to be removed from list */
- };
- 
- struct iavf_vlan_filter {
-@@ -260,6 +260,7 @@ struct iavf_adapter {
- 	wait_queue_head_t vc_waitqueue;
- 	struct iavf_q_vector *q_vectors;
- 	struct list_head vlan_filter_list;
-+	int num_vlan_filters;
- 	struct list_head mac_filter_list;
- 	struct mutex crit_lock;
- 	struct mutex client_lock;
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 8e4d0b0644e4a..34711a88dbaa0 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -792,6 +792,7 @@ iavf_vlan_filter *iavf_add_vlan(struct iavf_adapter *adapter,
- 
- 		list_add_tail(&f->list, &adapter->vlan_filter_list);
- 		f->state = IAVF_VLAN_ADD;
-+		adapter->num_vlan_filters++;
- 		adapter->aq_required |= IAVF_FLAG_AQ_ADD_VLAN_FILTER;
- 	}
- 
-@@ -828,14 +829,18 @@ static void iavf_del_vlan(struct iavf_adapter *adapter, struct iavf_vlan vlan)
-  **/
- static void iavf_restore_filters(struct iavf_adapter *adapter)
- {
--	u16 vid;
-+	struct iavf_vlan_filter *f;
- 
- 	/* re-add all VLAN filters */
--	for_each_set_bit(vid, adapter->vsi.active_cvlans, VLAN_N_VID)
--		iavf_add_vlan(adapter, IAVF_VLAN(vid, ETH_P_8021Q));
-+	spin_lock_bh(&adapter->mac_vlan_list_lock);
- 
--	for_each_set_bit(vid, adapter->vsi.active_svlans, VLAN_N_VID)
--		iavf_add_vlan(adapter, IAVF_VLAN(vid, ETH_P_8021AD));
-+	list_for_each_entry(f, &adapter->vlan_filter_list, list) {
-+		if (f->state == IAVF_VLAN_INACTIVE)
-+			f->state = IAVF_VLAN_ADD;
-+	}
-+
-+	spin_unlock_bh(&adapter->mac_vlan_list_lock);
-+	adapter->aq_required |= IAVF_FLAG_AQ_ADD_VLAN_FILTER;
- }
- 
- /**
-@@ -844,8 +849,7 @@ static void iavf_restore_filters(struct iavf_adapter *adapter)
-  */
- u16 iavf_get_num_vlans_added(struct iavf_adapter *adapter)
- {
--	return bitmap_weight(adapter->vsi.active_cvlans, VLAN_N_VID) +
--		bitmap_weight(adapter->vsi.active_svlans, VLAN_N_VID);
-+	return adapter->num_vlan_filters;
- }
- 
- /**
-@@ -928,11 +932,6 @@ static int iavf_vlan_rx_kill_vid(struct net_device *netdev,
- 		return 0;
- 
- 	iavf_del_vlan(adapter, IAVF_VLAN(vid, be16_to_cpu(proto)));
--	if (proto == cpu_to_be16(ETH_P_8021Q))
--		clear_bit(vid, adapter->vsi.active_cvlans);
--	else
--		clear_bit(vid, adapter->vsi.active_svlans);
--
- 	return 0;
- }
- 
-@@ -1293,16 +1292,11 @@ static void iavf_clear_mac_vlan_filters(struct iavf_adapter *adapter)
- 		}
- 	}
- 
--	/* remove all VLAN filters */
-+	/* disable all VLAN filters */
- 	list_for_each_entry_safe(vlf, vlftmp, &adapter->vlan_filter_list,
--				 list) {
--		if (vlf->state == IAVF_VLAN_ADD) {
--			list_del(&vlf->list);
--			kfree(vlf);
--		} else {
--			vlf->state = IAVF_VLAN_REMOVE;
--		}
--	}
-+				 list)
-+		vlf->state = IAVF_VLAN_DISABLE;
-+
- 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
- }
- 
-@@ -2905,6 +2899,7 @@ static void iavf_disable_vf(struct iavf_adapter *adapter)
- 		list_del(&fv->list);
- 		kfree(fv);
- 	}
-+	adapter->num_vlan_filters = 0;
- 
- 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
- 
-@@ -3122,9 +3117,6 @@ static void iavf_reset_task(struct work_struct *work)
- 	adapter->aq_required |= IAVF_FLAG_AQ_ADD_CLOUD_FILTER;
- 	iavf_misc_irq_enable(adapter);
- 
--	bitmap_clear(adapter->vsi.active_cvlans, 0, VLAN_N_VID);
--	bitmap_clear(adapter->vsi.active_svlans, 0, VLAN_N_VID);
--
- 	mod_delayed_work(adapter->wq, &adapter->watchdog_task, 2);
- 
- 	/* We were running when the reset started, so we need to restore some
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-index 68d6e7c1e52b1..00dccdd290dce 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-@@ -643,15 +643,9 @@ static void iavf_vlan_add_reject(struct iavf_adapter *adapter)
- 	spin_lock_bh(&adapter->mac_vlan_list_lock);
- 	list_for_each_entry_safe(f, ftmp, &adapter->vlan_filter_list, list) {
- 		if (f->state == IAVF_VLAN_IS_NEW) {
--			if (f->vlan.tpid == ETH_P_8021Q)
--				clear_bit(f->vlan.vid,
--					  adapter->vsi.active_cvlans);
--			else
--				clear_bit(f->vlan.vid,
--					  adapter->vsi.active_svlans);
--
- 			list_del(&f->list);
- 			kfree(f);
-+			adapter->num_vlan_filters--;
- 		}
- 	}
- 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
-@@ -824,7 +818,12 @@ void iavf_del_vlans(struct iavf_adapter *adapter)
- 		    !VLAN_FILTERING_ALLOWED(adapter)) {
- 			list_del(&f->list);
- 			kfree(f);
--		} else if (f->state == IAVF_VLAN_REMOVE) {
-+			adapter->num_vlan_filters--;
-+		} else if (f->state == IAVF_VLAN_DISABLE &&
-+		    !VLAN_FILTERING_ALLOWED(adapter)) {
-+			f->state = IAVF_VLAN_INACTIVE;
-+		} else if (f->state == IAVF_VLAN_REMOVE ||
-+			   f->state == IAVF_VLAN_DISABLE) {
- 			count++;
- 		}
- 	}
-@@ -856,11 +855,18 @@ void iavf_del_vlans(struct iavf_adapter *adapter)
- 		vvfl->vsi_id = adapter->vsi_res->vsi_id;
- 		vvfl->num_elements = count;
- 		list_for_each_entry_safe(f, ftmp, &adapter->vlan_filter_list, list) {
--			if (f->state == IAVF_VLAN_REMOVE) {
-+			if (f->state == IAVF_VLAN_DISABLE) {
- 				vvfl->vlan_id[i] = f->vlan.vid;
-+				f->state = IAVF_VLAN_INACTIVE;
- 				i++;
-+				if (i == count)
-+					break;
-+			} else if (f->state == IAVF_VLAN_REMOVE) {
-+				vvfl->vlan_id[i] = f->vlan.vid;
- 				list_del(&f->list);
- 				kfree(f);
-+				adapter->num_vlan_filters--;
-+				i++;
- 				if (i == count)
- 					break;
- 			}
-@@ -900,7 +906,8 @@ void iavf_del_vlans(struct iavf_adapter *adapter)
- 		vvfl_v2->vport_id = adapter->vsi_res->vsi_id;
- 		vvfl_v2->num_elements = count;
- 		list_for_each_entry_safe(f, ftmp, &adapter->vlan_filter_list, list) {
--			if (f->state == IAVF_VLAN_REMOVE) {
-+			if (f->state == IAVF_VLAN_DISABLE ||
-+			    f->state == IAVF_VLAN_REMOVE) {
- 				struct virtchnl_vlan_supported_caps *filtering_support =
- 					&adapter->vlan_v2_caps.filtering.filtering_support;
- 				struct virtchnl_vlan *vlan;
-@@ -914,8 +921,13 @@ void iavf_del_vlans(struct iavf_adapter *adapter)
- 				vlan->tci = f->vlan.vid;
- 				vlan->tpid = f->vlan.tpid;
- 
--				list_del(&f->list);
--				kfree(f);
-+				if (f->state == IAVF_VLAN_DISABLE) {
-+					f->state = IAVF_VLAN_INACTIVE;
-+				} else {
-+					list_del(&f->list);
-+					kfree(f);
-+					adapter->num_vlan_filters--;
-+				}
- 				i++;
- 				if (i == count)
- 					break;
-@@ -2435,15 +2447,8 @@ void iavf_virtchnl_completion(struct iavf_adapter *adapter,
- 
- 		spin_lock_bh(&adapter->mac_vlan_list_lock);
- 		list_for_each_entry(f, &adapter->vlan_filter_list, list) {
--			if (f->state == IAVF_VLAN_IS_NEW) {
-+			if (f->state == IAVF_VLAN_IS_NEW)
- 				f->state = IAVF_VLAN_ACTIVE;
--				if (f->vlan.tpid == ETH_P_8021Q)
--					set_bit(f->vlan.vid,
--						adapter->vsi.active_cvlans);
--				else
--					set_bit(f->vlan.vid,
--						adapter->vsi.active_svlans);
--			}
- 		}
- 		spin_unlock_bh(&adapter->mac_vlan_list_lock);
- 		}
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 8768073794fbf..6106fa7c43028 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -284,10 +284,17 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "IdeaPad Duet 3 10IGL5"),
+ 		},
+ 		.driver_data = (void *)&lcd1200x1920_rightside_up,
+-	}, {	/* Lenovo Yoga Book X90F / X91F / X91L */
++	}, {	/* Lenovo Yoga Book X90F / X90L */
+ 		.matches = {
+-		  /* Non exact match to match all versions */
+-		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9"),
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
++		},
++		.driver_data = (void *)&lcd1200x1920_rightside_up,
++	}, {	/* Lenovo Yoga Book X91F / X91L */
++		.matches = {
++		  /* Non exact match to match F + L versions */
++		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
+ 		},
+ 		.driver_data = (void *)&lcd1200x1920_rightside_up,
+ 	}, {	/* OneGX1 Pro */
 -- 
 2.39.2
 
