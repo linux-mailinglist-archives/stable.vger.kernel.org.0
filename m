@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6836E63A6
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EADDD6E62C1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231879AbjDRMmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59664 "EHLO
+        id S231707AbjDRMfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbjDRMmY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:24 -0400
+        with ESMTP id S231700AbjDRMfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3A119A6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB48125A9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE58B6331B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2543C4339B;
-        Tue, 18 Apr 2023 12:42:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88C26629EA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB62C433EF;
+        Tue, 18 Apr 2023 12:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821730;
-        bh=4e8JJtLHcDekISQnK6SwhspKcONFIcst1loA1gR9nec=;
+        s=korg; t=1681821304;
+        bh=LJqsLK/fF+B3r7y04bZh1zbvBgs0fFmmwPmGP+1WkfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1MqtL/IZZwqB9aND2w7pzmogmbpjGzrtMgMUycaXwRkm6YRv2CjaJlQYUOdOitu/
-         Ctg6O58Ni3SLB0r6u0x3382jArQHXGk6hAPPn2PLEygUeb3h8h6U8+OXL7kr9TbCzm
-         uN7c7QFe2iDFwqJZkG1RZ1ROqdfjB1sENNE21GGo=
+        b=q9uqQ/NDiiGRe35OvFfym/ika7qGdqlTK8/tPJenfProcwR1z6Ec8qFAH+a96KwFJ
+         tcOn1dqx2uMuRHXdp+JNNv+g6ihO0YpWzZY9oQwYMkyGksuispIVDUdge4uPDX/uMW
+         UzYEpC6Sw6t5B1pSxQJFm+PJmtgZUSMZPYiwr8d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bang Li <libang.linuxer@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.1 020/134] mtdblock: tolerate corrected bit-flips
-Date:   Tue, 18 Apr 2023 14:21:16 +0200
-Message-Id: <20230418120313.699566419@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 058/124] ALSA: hda/sigmatel: fix S/PDIF out on Intel D*45* motherboards
+Date:   Tue, 18 Apr 2023 14:21:17 +0200
+Message-Id: <20230418120311.944765622@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bang Li <libang.linuxer@gmail.com>
+From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 
-commit 0c3089601f064d80b3838eceb711fcac04bceaad upstream.
+commit f342ac00da1064eb4f94b1f4bcacbdfea955797a upstream.
 
-mtd_read() may return -EUCLEAN in case of corrected bit-flips.This
-particular condition should not be treated like an error.
+The BIOS botches this one completely - it says the 2nd S/PDIF output is
+used, while in fact it's the 1st one. This is tested on DP45SG, but I'm
+assuming it's valid for the other boards in the series as well.
 
-Signed-off-by: Bang Li <libang.linuxer@gmail.com>
-Fixes: e47f68587b82 ("mtd: check for max_bitflips in mtd_read_oob()")
-Cc: <stable@vger.kernel.org> # v3.7
-Acked-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20230328163012.4264-1-libang.linuxer@gmail.com
+Also add some comments regarding the pins.
+FWIW, the codec is apparently still sold by Tempo Semiconductor, Inc.,
+where one can download the documentation.
+
+Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230405201220.2197826-2-oswald.buddenhagen@gmx.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/mtdblock.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_sigmatel.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/mtd/mtdblock.c
-+++ b/drivers/mtd/mtdblock.c
-@@ -153,7 +153,7 @@ static int do_cached_write (struct mtdbl
- 				mtdblk->cache_state = STATE_EMPTY;
- 				ret = mtd_read(mtd, sect_start, sect_size,
- 					       &retlen, mtdblk->cache_data);
--				if (ret)
-+				if (ret && !mtd_is_bitflip(ret))
- 					return ret;
- 				if (retlen != sect_size)
- 					return -EIO;
-@@ -188,8 +188,12 @@ static int do_cached_read (struct mtdblk
- 	pr_debug("mtdblock: read on \"%s\" at 0x%lx, size 0x%x\n",
- 			mtd->name, pos, len);
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -1707,6 +1707,7 @@ static const struct snd_pci_quirk stac92
+ };
  
--	if (!sect_size)
--		return mtd_read(mtd, pos, len, &retlen, buf);
-+	if (!sect_size) {
-+		ret = mtd_read(mtd, pos, len, &retlen, buf);
-+		if (ret && !mtd_is_bitflip(ret))
-+			return ret;
-+		return 0;
-+	}
+ static const struct hda_pintbl ref92hd73xx_pin_configs[] = {
++	// Port A-H
+ 	{ 0x0a, 0x02214030 },
+ 	{ 0x0b, 0x02a19040 },
+ 	{ 0x0c, 0x01a19020 },
+@@ -1715,9 +1716,12 @@ static const struct hda_pintbl ref92hd73
+ 	{ 0x0f, 0x01014010 },
+ 	{ 0x10, 0x01014020 },
+ 	{ 0x11, 0x01014030 },
++	// CD in
+ 	{ 0x12, 0x02319040 },
++	// Digial Mic ins
+ 	{ 0x13, 0x90a000f0 },
+ 	{ 0x14, 0x90a000f0 },
++	// Digital outs
+ 	{ 0x22, 0x01452050 },
+ 	{ 0x23, 0x01452050 },
+ 	{}
+@@ -1758,6 +1762,7 @@ static const struct hda_pintbl alienware
+ };
  
- 	while (len > 0) {
- 		unsigned long sect_start = (pos/sect_size)*sect_size;
-@@ -209,7 +213,7 @@ static int do_cached_read (struct mtdblk
- 			memcpy (buf, mtdblk->cache_data + offset, size);
- 		} else {
- 			ret = mtd_read(mtd, pos, size, &retlen, buf);
--			if (ret)
-+			if (ret && !mtd_is_bitflip(ret))
- 				return ret;
- 			if (retlen != size)
- 				return -EIO;
+ static const struct hda_pintbl intel_dg45id_pin_configs[] = {
++	// Analog outputs
+ 	{ 0x0a, 0x02214230 },
+ 	{ 0x0b, 0x02A19240 },
+ 	{ 0x0c, 0x01013214 },
+@@ -1765,6 +1770,9 @@ static const struct hda_pintbl intel_dg4
+ 	{ 0x0e, 0x01A19250 },
+ 	{ 0x0f, 0x01011212 },
+ 	{ 0x10, 0x01016211 },
++	// Digital output
++	{ 0x22, 0x01451380 },
++	{ 0x23, 0x40f000f0 },
+ 	{}
+ };
+ 
 
 
