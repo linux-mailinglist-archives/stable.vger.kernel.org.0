@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9923A6E64E8
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ACB16E643B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232222AbjDRMxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
+        id S232027AbjDRMr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbjDRMx2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:28 -0400
+        with ESMTP id S232004AbjDRMr1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1600C18394
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7CC167E0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8342F63438
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 963FBC433EF;
-        Tue, 18 Apr 2023 12:52:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04882633C1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17B39C433EF;
+        Tue, 18 Apr 2023 12:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822367;
-        bh=Ge72OqRcixKM2Jf9l7Pfex98g4TYNlsYZcE52zNsAMA=;
+        s=korg; t=1681822035;
+        bh=0zMHn+vl8tZXqRQgDBJyi4OlnrsKBNpVUbt5VeKehX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpggrmf2bGETc3rCPdv2Wy4fVqe+/cYmOzgL4vl0paFKaRx0JxDCpFCdJrxhF73Fi
-         gBMitgdV/RwJhv7sOH4gqD9Q9SbRvAaVSeS1AqBUjdLHeLKhNjnHGTvujw+rCtmWX0
-         WRXC1MWSD+00XlLWkt3klOigOu9XLGV0WkYzpH8Q=
+        b=fllECoqnEPM/Ix4jzCt7RLkNJzdw0NiYRcsaTRbmkYAtOLNANSOmqoLVs9FiCP+FZ
+         igRH0hYf5ETsBqkxD7sa7+PkkRFTGqxKalaMthqPPxe2w1oTgTf1Jq1IvmU48YLvz2
+         zcdTZdeNzzRnGgUf4YCYY7w3VCyFa8VhPkqi5gDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.2 123/139] drm/amd/pm: correct SMU13.0.7 max shader clock reporting
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 132/134] cgroup/cpuset: Skip spread flags update on v2
 Date:   Tue, 18 Apr 2023 14:23:08 +0200
-Message-Id: <20230418120318.459231979@linuxfoundation.org>
+Message-Id: <20230418120317.768995962@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatio Zhang <Hongkun.Zhang@amd.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 85e0689eb6b10cd3b2fb455d1b3f4d4d0b13ff78 upstream.
+[ Upstream commit 18f9a4d47527772515ad6cbdac796422566e6440 ]
 
-Correct the max shader clock reporting on SMU
-13.0.7.
+Cpuset v2 has no spread flags to set. So we can skip spread
+flags update if cpuset v2 is being used. Also change the name to
+cpuset_update_task_spread_flags() to indicate that there are multiple
+spread flags.
 
-Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Stable-dep-of: 42a11bf5c543 ("cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP properly")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |   61 ++++++++++++++++++-
- 1 file changed, 60 insertions(+), 1 deletion(-)
+ kernel/cgroup/cpuset.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -575,6 +575,14 @@ static int smu_v13_0_7_set_default_dpm_t
- 						     dpm_table);
- 		if (ret)
- 			return ret;
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 4c0c317083d05..1c549452c4abb 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -550,11 +550,15 @@ static void guarantee_online_mems(struct cpuset *cs, nodemask_t *pmask)
+ /*
+  * update task's spread flag if cpuset's page/slab spread flag is set
+  *
+- * Call with callback_lock or cpuset_rwsem held.
++ * Call with callback_lock or cpuset_rwsem held. The check can be skipped
++ * if on default hierarchy.
+  */
+-static void cpuset_update_task_spread_flag(struct cpuset *cs,
++static void cpuset_update_task_spread_flags(struct cpuset *cs,
+ 					struct task_struct *tsk)
+ {
++	if (cgroup_subsys_on_dfl(cpuset_cgrp_subsys))
++		return;
 +
-+		if (skutable->DriverReportedClocks.GameClockAc &&
-+			(dpm_table->dpm_levels[dpm_table->count - 1].value >
-+			skutable->DriverReportedClocks.GameClockAc)) {
-+			dpm_table->dpm_levels[dpm_table->count - 1].value =
-+				skutable->DriverReportedClocks.GameClockAc;
-+			dpm_table->max = skutable->DriverReportedClocks.GameClockAc;
-+		}
- 	} else {
- 		dpm_table->count = 1;
- 		dpm_table->dpm_levels[0].value = smu->smu_table.boot_values.gfxclk / 100;
-@@ -828,6 +836,57 @@ static int smu_v13_0_7_get_smu_metrics_d
- 	return ret;
+ 	if (is_spread_page(cs))
+ 		task_set_spread_page(tsk);
+ 	else
+@@ -2165,7 +2169,7 @@ static void update_tasks_flags(struct cpuset *cs)
+ 
+ 	css_task_iter_start(&cs->css, 0, &it);
+ 	while ((task = css_task_iter_next(&it)))
+-		cpuset_update_task_spread_flag(cs, task);
++		cpuset_update_task_spread_flags(cs, task);
+ 	css_task_iter_end(&it);
  }
  
-+static int smu_v13_0_7_get_dpm_ultimate_freq(struct smu_context *smu,
-+					     enum smu_clk_type clk_type,
-+					     uint32_t *min,
-+					     uint32_t *max)
-+{
-+	struct smu_13_0_dpm_context *dpm_context =
-+		smu->smu_dpm.dpm_context;
-+	struct smu_13_0_dpm_table *dpm_table;
-+
-+	switch (clk_type) {
-+	case SMU_MCLK:
-+	case SMU_UCLK:
-+		/* uclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.uclk_table;
-+		break;
-+	case SMU_GFXCLK:
-+	case SMU_SCLK:
-+		/* gfxclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.gfx_table;
-+		break;
-+	case SMU_SOCCLK:
-+		/* socclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.soc_table;
-+		break;
-+	case SMU_FCLK:
-+		/* fclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.fclk_table;
-+		break;
-+	case SMU_VCLK:
-+	case SMU_VCLK1:
-+		/* vclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.vclk_table;
-+		break;
-+	case SMU_DCLK:
-+	case SMU_DCLK1:
-+		/* dclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.dclk_table;
-+		break;
-+	default:
-+		dev_err(smu->adev->dev, "Unsupported clock type!\n");
-+		return -EINVAL;
-+	}
-+
-+	if (min)
-+		*min = dpm_table->min;
-+	if (max)
-+		*max = dpm_table->max;
-+
-+	return 0;
-+}
-+
- static int smu_v13_0_7_read_sensor(struct smu_context *smu,
- 				   enum amd_pp_sensors sensor,
- 				   void *data,
-@@ -1684,7 +1743,7 @@ static const struct pptable_funcs smu_v1
- 	.dpm_set_jpeg_enable = smu_v13_0_set_jpeg_enable,
- 	.init_pptable_microcode = smu_v13_0_init_pptable_microcode,
- 	.populate_umd_state_clk = smu_v13_0_7_populate_umd_state_clk,
--	.get_dpm_ultimate_freq = smu_v13_0_get_dpm_ultimate_freq,
-+	.get_dpm_ultimate_freq = smu_v13_0_7_get_dpm_ultimate_freq,
- 	.get_vbios_bootup_values = smu_v13_0_get_vbios_bootup_values,
- 	.read_sensor = smu_v13_0_7_read_sensor,
- 	.feature_is_enabled = smu_cmn_feature_is_enabled,
+@@ -2547,7 +2551,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 		WARN_ON_ONCE(set_cpus_allowed_ptr(task, cpus_attach));
+ 
+ 		cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
+-		cpuset_update_task_spread_flag(cs, task);
++		cpuset_update_task_spread_flags(cs, task);
+ 	}
+ 
+ 	/*
+-- 
+2.39.2
+
 
 
