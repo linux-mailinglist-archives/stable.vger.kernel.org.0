@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A23106E640F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D41C26E6410
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231979AbjDRMpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
+        id S231989AbjDRMp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:45:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231669AbjDRMpx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:53 -0400
+        with ESMTP id S231980AbjDRMp4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1241714F42
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF58014F61
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DA6C6339C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7ECC433D2;
-        Tue, 18 Apr 2023 12:45:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4004963376
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C13DC4339B;
+        Tue, 18 Apr 2023 12:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821951;
-        bh=bcYVhoYp/D4cAl1jTSByOoX3KEWGe8RwCwRFx8A3v7M=;
+        s=korg; t=1681821953;
+        bh=BaUXOOXroxl8QjYeJojfbRGqPg6LOFVZncl2S1g3djg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oAFbfxKGp09Vd24EIFMMpCEeljPk+l1MJeKDQqroMq91Q9SxhDCRPd8P2zzGei4i
-         h1c3qCMFGR1hDfII1yctm84Haf1arH2B+cfkbBq58I+DBGGjFFSsKZEGqwGceATxPn
-         15V4aeqVifkZpXSDJxHY6a4WFItIHj1Ye7zXIthw=
+        b=sS0++63lJZ42WE82rFc5K0TGI4LcG6b3GTdtjQW+iC2XASkU6z8jbIiOR8VX+9RQ+
+         ZQmaOMA3x4GJCn7wLa5ThCCHzGs6K8LGoCOB0U+Vf1OzjtZmUOLccIZ3ZoW2vAarLc
+         H0WkV+zwHnj3kwbjEN8UPLjIlg8x1ffSKxKpXV48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+        patches@lists.linux.dev,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Suren Baghdasaryan <surenb@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Ross Zwisler <zwisler@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 100/134] tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance
-Date:   Tue, 18 Apr 2023 14:22:36 +0200
-Message-Id: <20230418120316.664533551@linuxfoundation.org>
+Subject: [PATCH 6.1 101/134] maple_tree: fix write memory barrier of nodes once dead for RCU mode
+Date:   Tue, 18 Apr 2023 14:22:37 +0200
+Message-Id: <20230418120316.702383368@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
 References: <20230418120313.001025904@linuxfoundation.org>
@@ -57,63 +56,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Liam R. Howlett <Liam.Howlett@oracle.com>
 
-[ Upstream commit 9d52727f8043cfda241ae96896628d92fa9c50bb ]
+[ Upstream commit c13af03de46ba27674dd9fb31a17c0d480081139 ]
 
-If a trace instance has a failure with its snapshot code, the error
-message is to be written to that instance's buffer. But currently, the
-message is written to the top level buffer. Worse yet, it may also disable
-the top level buffer and not the instance that had the issue.
+During the development of the maple tree, the strategy of freeing multiple
+nodes changed and, in the process, the pivots were reused to store
+pointers to dead nodes.  To ensure the readers see accurate pivots, the
+writers need to mark the nodes as dead and call smp_wmb() to ensure any
+readers can identify the node as dead before using the pivot values.
 
-Link: https://lkml.kernel.org/r/20230405022341.688730321@goodmis.org
+There were two places where the old method of marking the node as dead
+without smp_wmb() were being used, which resulted in RCU readers seeing
+the wrong pivot value before seeing the node was dead.  Fix this race
+condition by using mte_set_node_dead() which has the smp_wmb() call to
+ensure the race is closed.
 
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Ross Zwisler <zwisler@google.com>
-Fixes: 2824f50332486 ("tracing: Make the snapshot trigger work with instances")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Add a WARN_ON() to the ma_free_rcu() call to ensure all nodes being freed
+are marked as dead to ensure there are no other call paths besides the two
+updated paths.
+
+This is necessary for the RCU mode of the maple tree.
+
+Link: https://lkml.kernel.org/r/20230227173632.3292573-6-surenb@google.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ lib/maple_tree.c                 |  7 +++++--
+ tools/testing/radix-tree/maple.c | 16 ++++++++++++++++
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 5016ae826c463..3360d638071a1 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1112,22 +1112,22 @@ static void tracing_snapshot_instance_cond(struct trace_array *tr,
- 	unsigned long flags;
+diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+index 84530fb73bd9e..39f34ea7a9be5 100644
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -178,7 +178,7 @@ static void mt_free_rcu(struct rcu_head *head)
+  */
+ static void ma_free_rcu(struct maple_node *node)
+ {
+-	node->parent = ma_parent_ptr(node);
++	WARN_ON(node->parent != ma_parent_ptr(node));
+ 	call_rcu(&node->rcu, mt_free_rcu);
+ }
  
- 	if (in_nmi()) {
--		internal_trace_puts("*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
--		internal_trace_puts("*** snapshot is being ignored        ***\n");
-+		trace_array_puts(tr, "*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
-+		trace_array_puts(tr, "*** snapshot is being ignored        ***\n");
- 		return;
+@@ -1780,8 +1780,10 @@ static inline void mas_replace(struct ma_state *mas, bool advanced)
+ 		rcu_assign_pointer(slots[offset], mas->node);
  	}
  
- 	if (!tr->allocated_snapshot) {
--		internal_trace_puts("*** SNAPSHOT NOT ALLOCATED ***\n");
--		internal_trace_puts("*** stopping trace here!   ***\n");
--		tracing_off();
-+		trace_array_puts(tr, "*** SNAPSHOT NOT ALLOCATED ***\n");
-+		trace_array_puts(tr, "*** stopping trace here!   ***\n");
-+		tracer_tracing_off(tr);
- 		return;
+-	if (!advanced)
++	if (!advanced) {
++		mte_set_node_dead(old_enode);
+ 		mas_free(mas, old_enode);
++	}
+ }
+ 
+ /*
+@@ -4216,6 +4218,7 @@ static inline bool mas_wr_node_store(struct ma_wr_state *wr_mas)
+ done:
+ 	mas_leaf_set_meta(mas, newnode, dst_pivots, maple_leaf_64, new_end);
+ 	if (in_rcu) {
++		mte_set_node_dead(mas->node);
+ 		mas->node = mt_mk_node(newnode, wr_mas->type);
+ 		mas_replace(mas, false);
+ 	} else {
+diff --git a/tools/testing/radix-tree/maple.c b/tools/testing/radix-tree/maple.c
+index aceb6011315c2..18e319e6ce335 100644
+--- a/tools/testing/radix-tree/maple.c
++++ b/tools/testing/radix-tree/maple.c
+@@ -107,6 +107,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 	MT_BUG_ON(mt, mn->slot[1] != NULL);
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+ 
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 	mas.node = MAS_START;
+ 	mas_nomem(&mas, GFP_KERNEL);
+@@ -159,6 +160,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != i);
+ 		MT_BUG_ON(mt, !mn);
+ 		MT_BUG_ON(mt, not_empty(mn));
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
  	}
  
- 	/* Note, snapshot can not be used when the tracer uses it */
- 	if (tracer->use_max_tr) {
--		internal_trace_puts("*** LATENCY TRACER ACTIVE ***\n");
--		internal_trace_puts("*** Can not use snapshot (sorry) ***\n");
-+		trace_array_puts(tr, "*** LATENCY TRACER ACTIVE ***\n");
-+		trace_array_puts(tr, "*** Can not use snapshot (sorry) ***\n");
- 		return;
+@@ -191,6 +193,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		MT_BUG_ON(mt, not_empty(mn));
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != i - 1);
+ 		MT_BUG_ON(mt, !mn);
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
  	}
  
+@@ -209,6 +212,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			mn = mas_pop_node(&mas);
+ 			MT_BUG_ON(mt, not_empty(mn));
+ 			MT_BUG_ON(mt, mas_allocated(&mas) != j - 1);
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 		}
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+@@ -232,6 +236,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			MT_BUG_ON(mt, mas_allocated(&mas) != i - j);
+ 			mn = mas_pop_node(&mas);
+ 			MT_BUG_ON(mt, not_empty(mn));
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 			MT_BUG_ON(mt, mas_allocated(&mas) != i - j - 1);
+ 		}
+@@ -268,6 +273,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			mn = mas_pop_node(&mas); /* get the next node. */
+ 			MT_BUG_ON(mt, mn == NULL);
+ 			MT_BUG_ON(mt, not_empty(mn));
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 		}
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+@@ -293,6 +299,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			mn = mas_pop_node(&mas2); /* get the next node. */
+ 			MT_BUG_ON(mt, mn == NULL);
+ 			MT_BUG_ON(mt, not_empty(mn));
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 		}
+ 		MT_BUG_ON(mt, mas_allocated(&mas2) != 0);
+@@ -333,10 +340,12 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 2);
+ 	mn = mas_pop_node(&mas);
+ 	MT_BUG_ON(mt, not_empty(mn));
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 	for (i = 1; i <= MAPLE_ALLOC_SLOTS + 1; i++) {
+ 		mn = mas_pop_node(&mas);
+ 		MT_BUG_ON(mt, not_empty(mn));
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 	}
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+@@ -374,6 +383,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		mas_node_count(&mas, i); /* Request */
+ 		mas_nomem(&mas, GFP_KERNEL); /* Fill request */
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mas_destroy(&mas);
+ 
+@@ -381,10 +391,13 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		mas_node_count(&mas, i); /* Request */
+ 		mas_nomem(&mas, GFP_KERNEL); /* Fill request */
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mas_destroy(&mas);
+ 	}
+@@ -35368,6 +35381,7 @@ static noinline void check_prealloc(struct maple_tree *mt)
+ 	MT_BUG_ON(mt, allocated != 1 + height * 3);
+ 	mn = mas_pop_node(&mas);
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != allocated - 1);
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 	MT_BUG_ON(mt, mas_preallocate(&mas, ptr, GFP_KERNEL) != 0);
+ 	mas_destroy(&mas);
+@@ -35385,6 +35399,7 @@ static noinline void check_prealloc(struct maple_tree *mt)
+ 	mas_destroy(&mas);
+ 	allocated = mas_allocated(&mas);
+ 	MT_BUG_ON(mt, allocated != 0);
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 
+ 	MT_BUG_ON(mt, mas_preallocate(&mas, ptr, GFP_KERNEL) != 0);
+@@ -35755,6 +35770,7 @@ void farmer_tests(void)
+ 	tree.ma_root = mt_mk_node(node, maple_leaf_64);
+ 	mt_dump(&tree);
+ 
++	node->parent = ma_parent_ptr(node);
+ 	ma_free_rcu(node);
+ 
+ 	/* Check things that will make lockdep angry */
 -- 
 2.39.2
 
