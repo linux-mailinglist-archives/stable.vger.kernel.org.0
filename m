@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B69A6E6370
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A562D6E6244
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231831AbjDRMkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57122 "EHLO
+        id S230089AbjDRMbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbjDRMkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E0713C15;
-        Tue, 18 Apr 2023 05:40:35 -0700 (PDT)
+        with ESMTP id S231243AbjDRMbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341445596
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F65963307;
-        Tue, 18 Apr 2023 12:40:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F811C433EF;
-        Tue, 18 Apr 2023 12:40:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1478A631FA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27BB9C433EF;
+        Tue, 18 Apr 2023 12:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821634;
-        bh=VCwMMj2q4qUoHuODRqKDgoLte/T7yupow6Vv8LVr/gY=;
+        s=korg; t=1681821053;
+        bh=/jVknyqDoBXKUCtuDs+bg2w7QcWTLJv20qYAW+HF7aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4xh4h+eCEXXX9Ut5/f/cU8rxt/OtwjyHQ3nlpmLoC9P8b6BZ3lBDHL5QWU+gGJQX
-         Mbo54vDNHCjUkL7y819xbfFN3VyQcKbqgSaBTTiou+f4x97NCz608EZTbcAoh0l5qU
-         mQNzZPT3VsW8HcYnR1kxQgKaxT1OSQ74TE7F6tuM=
+        b=y0saa8sFhuVpRWDlqs5odkfWhlO1ymBQ9SiD/Z8+nqxdtaCvhSwUKkIaBEw0f1ovN
+         bQJcN/CI5qmhluH40hWnXw+BPm7SXLgUSPwryKjaM4PYEpG8Lk2RJ9CAowq+mJMNvo
+         bZVk++WsVInVaI6Q57yUlkFVSFMsWXT1o4wPHByM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 45/91] verify_pefile: relax wrapper length check
+        patches@lists.linux.dev,
+        George Cherian <george.cherian@marvell.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
+Subject: [PATCH 5.4 74/92] watchdog: sbsa_wdog: Make sure the timeout programming is within the limits
 Date:   Tue, 18 Apr 2023 14:21:49 +0200
-Message-Id: <20230418120307.142778932@linuxfoundation.org>
+Message-Id: <20230418120307.376820411@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,61 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: George Cherian <george.cherian@marvell.com>
 
-[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
+commit 000987a38b53c172f435142a4026dd71378ca464 upstream.
 
-The PE Format Specification (section "The Attribute Certificate Table
-(Image Only)") states that `dwLength` is to be rounded up to 8-byte
-alignment when used for traversal.  Therefore, the field is not required
-to be an 8-byte multiple in the first place.
+Make sure to honour the max_hw_heartbeat_ms while programming the timeout
+value to WOR. Clamp the timeout passed to sbsa_gwdt_set_timeout() to
+make sure the programmed value is within the permissible range.
 
-Accordingly, pesign has not performed this alignment since version
-0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
-Signature wrapper len wrong".  Update the comment and relax the check.
+Fixes: abd3ac7902fb ("watchdog: sbsa: Support architecture version 1")
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
-Link: https://github.com/rhboot/pesign
-Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20230209021117.1512097-1-george.cherian@marvell.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/watchdog/sbsa_gwdt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index 7553ab18db898..fe1bb374239d7 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	pr_debug("sig wrapper = { %x, %x, %x }\n",
- 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -121,6 +121,7 @@ static int sbsa_gwdt_set_timeout(struct
+ 	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
  
--	/* Both pesign and sbsign round up the length of certificate table
--	 * (in optional header data directories) to 8 byte alignment.
-+	/* sbsign rounds up the length of certificate table (in optional
-+	 * header data directories) to 8 byte alignment.  However, the PE
-+	 * specification states that while entries are 8-byte aligned, this is
-+	 * not included in their length, and as a result, pesign has not
-+	 * rounded up since 0.110.
- 	 */
--	if (round_up(wrapper.length, 8) != ctx->sig_len) {
--		pr_debug("Signature wrapper len wrong\n");
-+	if (wrapper.length > ctx->sig_len) {
-+		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
-+			 ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
--- 
-2.39.2
-
+ 	wdd->timeout = timeout;
++	timeout = clamp_t(unsigned int, timeout, 1, wdd->max_hw_heartbeat_ms / 1000);
+ 
+ 	if (action)
+ 		writel(gwdt->clk * timeout,
 
 
