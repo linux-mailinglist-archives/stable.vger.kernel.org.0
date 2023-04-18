@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5076E64D2
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CFE56E6433
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232190AbjDRMwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
+        id S232031AbjDRMrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbjDRMww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:52 -0400
+        with ESMTP id S232027AbjDRMrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0F5167D2
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD4514F62
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F04D663437
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B21C4339B;
-        Tue, 18 Apr 2023 12:52:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8759A633BC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CCEBC433EF;
+        Tue, 18 Apr 2023 12:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822349;
-        bh=6gHbb0RiuyF1F5LJ+nQF96wdhbZbI/T01SAqsWRrluM=;
+        s=korg; t=1681822017;
+        bh=2Zfz/45ui6SGNUHMsEl4ommOIT4sYmyBiR8zMME8p+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LK1MfyPgdDsJcGKQT34z37vZSURnc0CYdL2J9yYowD7Wa1dhS3RkAU+9dO4g/OM73
-         gfIcWky24llbXCLkhLEwsPHqapJ7XT0gMNpc7d955uOQMKEAZhrMdZVt+6OlWh6oum
-         VgmzetwwFBPTZXiJTbkyo/EGGtfr2WXIuV7LkKtE=
+        b=OAAcH7qExLL+lNRnY17uzVllRqM09lZ0SCSRmEJnHJ1bkp423LMHMX+VLaVeRv/al
+         Z4uPTVytNTIhUA+yqA94SHHJn3KLzi52TW4WXvydatrqzHbQXCP/UaJ5FKXya7nf+O
+         C77ccNcF19jgyzY550LskaMklv9hyHRk/ISgNTEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Josh Don <joshdon@google.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 6.2 117/139] cgroup: fix display of forceidle time at root
+        patches@lists.linux.dev, Andrew Jones <ajones@ventanamicro.com>,
+        Heiko Stuebner <heiko.stuebner@vrull.eu>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 126/134] RISC-V: add infrastructure to allow different str* implementations
 Date:   Tue, 18 Apr 2023 14:23:02 +0200
-Message-Id: <20230418120318.190976952@linuxfoundation.org>
+Message-Id: <20230418120317.572094889@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +56,262 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Don <joshdon@google.com>
+From: Heiko Stuebner <heiko.stuebner@vrull.eu>
 
-commit fcdb1eda5302599045bb366e679cccb4216f3873 upstream.
+[ Upstream commit 56e0790c7f9e59ba6a0f4b59981d1d6fbf43efb0 ]
 
-We need to reset forceidle_sum to 0 when reading from root, since the
-bstat we accumulate into is stack allocated.
+Depending on supported extensions on specific RISC-V cores,
+optimized str* functions might make sense.
 
-To make this more robust, just replace the existing cputime reset with a
-memset of the overall bstat.
+This adds basic infrastructure to allow patching the function calls
+via alternatives later on.
 
-Signed-off-by: Josh Don <joshdon@google.com>
-Fixes: 1fcf54deb767 ("sched/core: add forced idle accounting for cgroups")
-Cc: stable@vger.kernel.org # v6.0+
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The Linux kernel provides standard implementations for string functions
+but when architectures want to extend them, they need to provide their
+own.
+
+The added generic string functions are done in assembler (taken from
+disassembling the main-kernel functions for now) to allow us to control
+the used registers and extend them with optimized variants.
+
+This doesn't override the compiler's use of builtin replacements. So still
+first of all the compiler will select if a builtin will be better suitable
+i.e. for known strings. For all regular cases we will want to later
+select possible optimized variants and in the worst case fall back to the
+generic implemention added with this change.
+
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@vrull.eu>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230113212301.3534711-2-heiko@sntech.de
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Stable-dep-of: d83806c4c0cc ("purgatory: fix disabling debug info")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/rstat.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/riscv/include/asm/string.h | 10 ++++++++
+ arch/riscv/kernel/riscv_ksyms.c |  3 +++
+ arch/riscv/lib/Makefile         |  3 +++
+ arch/riscv/lib/strcmp.S         | 36 +++++++++++++++++++++++++++++
+ arch/riscv/lib/strlen.S         | 28 ++++++++++++++++++++++
+ arch/riscv/lib/strncmp.S        | 41 +++++++++++++++++++++++++++++++++
+ arch/riscv/purgatory/Makefile   | 13 +++++++++++
+ 7 files changed, 134 insertions(+)
+ create mode 100644 arch/riscv/lib/strcmp.S
+ create mode 100644 arch/riscv/lib/strlen.S
+ create mode 100644 arch/riscv/lib/strncmp.S
 
---- a/kernel/cgroup/rstat.c
-+++ b/kernel/cgroup/rstat.c
-@@ -457,9 +457,7 @@ static void root_cgroup_cputime(struct c
- 	struct task_cputime *cputime = &bstat->cputime;
- 	int i;
+diff --git a/arch/riscv/include/asm/string.h b/arch/riscv/include/asm/string.h
+index 9090493665555..a96b1fea24fe4 100644
+--- a/arch/riscv/include/asm/string.h
++++ b/arch/riscv/include/asm/string.h
+@@ -18,6 +18,16 @@ extern asmlinkage void *__memcpy(void *, const void *, size_t);
+ #define __HAVE_ARCH_MEMMOVE
+ extern asmlinkage void *memmove(void *, const void *, size_t);
+ extern asmlinkage void *__memmove(void *, const void *, size_t);
++
++#define __HAVE_ARCH_STRCMP
++extern asmlinkage int strcmp(const char *cs, const char *ct);
++
++#define __HAVE_ARCH_STRLEN
++extern asmlinkage __kernel_size_t strlen(const char *);
++
++#define __HAVE_ARCH_STRNCMP
++extern asmlinkage int strncmp(const char *cs, const char *ct, size_t count);
++
+ /* For those files which don't want to check by kasan. */
+ #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+diff --git a/arch/riscv/kernel/riscv_ksyms.c b/arch/riscv/kernel/riscv_ksyms.c
+index 5ab1c7e1a6ed5..a72879b4249a5 100644
+--- a/arch/riscv/kernel/riscv_ksyms.c
++++ b/arch/riscv/kernel/riscv_ksyms.c
+@@ -12,6 +12,9 @@
+ EXPORT_SYMBOL(memset);
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(memmove);
++EXPORT_SYMBOL(strcmp);
++EXPORT_SYMBOL(strlen);
++EXPORT_SYMBOL(strncmp);
+ EXPORT_SYMBOL(__memset);
+ EXPORT_SYMBOL(__memcpy);
+ EXPORT_SYMBOL(__memmove);
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 25d5c9664e57e..6c74b0bedd60d 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -3,6 +3,9 @@ lib-y			+= delay.o
+ lib-y			+= memcpy.o
+ lib-y			+= memset.o
+ lib-y			+= memmove.o
++lib-y			+= strcmp.o
++lib-y			+= strlen.o
++lib-y			+= strncmp.o
+ lib-$(CONFIG_MMU)	+= uaccess.o
+ lib-$(CONFIG_64BIT)	+= tishift.o
  
--	cputime->stime = 0;
--	cputime->utime = 0;
--	cputime->sum_exec_runtime = 0;
-+	memset(bstat, 0, sizeof(*bstat));
- 	for_each_possible_cpu(i) {
- 		struct kernel_cpustat kcpustat;
- 		u64 *cpustat = kcpustat.cpustat;
+diff --git a/arch/riscv/lib/strcmp.S b/arch/riscv/lib/strcmp.S
+new file mode 100644
+index 0000000000000..8babd712b9587
+--- /dev/null
++++ b/arch/riscv/lib/strcmp.S
+@@ -0,0 +1,36 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <linux/linkage.h>
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++
++/* int strcmp(const char *cs, const char *ct) */
++SYM_FUNC_START(strcmp)
++	/*
++	 * Returns
++	 *   a0 - comparison result, value like strcmp
++	 *
++	 * Parameters
++	 *   a0 - string1
++	 *   a1 - string2
++	 *
++	 * Clobbers
++	 *   t0, t1
++	 */
++1:
++	lbu	t0, 0(a0)
++	lbu	t1, 0(a1)
++	addi	a0, a0, 1
++	addi	a1, a1, 1
++	bne	t0, t1, 2f
++	bnez	t0, 1b
++	li	a0, 0
++	ret
++2:
++	/*
++	 * strcmp only needs to return (< 0, 0, > 0) values
++	 * not necessarily -1, 0, +1
++	 */
++	sub	a0, t0, t1
++	ret
++SYM_FUNC_END(strcmp)
+diff --git a/arch/riscv/lib/strlen.S b/arch/riscv/lib/strlen.S
+new file mode 100644
+index 0000000000000..0a3b11853efdb
+--- /dev/null
++++ b/arch/riscv/lib/strlen.S
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <linux/linkage.h>
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++
++/* int strlen(const char *s) */
++SYM_FUNC_START(strlen)
++	/*
++	 * Returns
++	 *   a0 - string length
++	 *
++	 * Parameters
++	 *   a0 - String to measure
++	 *
++	 * Clobbers:
++	 *   t0, t1
++	 */
++	mv	t1, a0
++1:
++	lbu	t0, 0(t1)
++	beqz	t0, 2f
++	addi	t1, t1, 1
++	j	1b
++2:
++	sub	a0, t1, a0
++	ret
++SYM_FUNC_END(strlen)
+diff --git a/arch/riscv/lib/strncmp.S b/arch/riscv/lib/strncmp.S
+new file mode 100644
+index 0000000000000..1f644d0a93f68
+--- /dev/null
++++ b/arch/riscv/lib/strncmp.S
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <linux/linkage.h>
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++
++/* int strncmp(const char *cs, const char *ct, size_t count) */
++SYM_FUNC_START(strncmp)
++	/*
++	 * Returns
++	 *   a0 - comparison result, value like strncmp
++	 *
++	 * Parameters
++	 *   a0 - string1
++	 *   a1 - string2
++	 *   a2 - number of characters to compare
++	 *
++	 * Clobbers
++	 *   t0, t1, t2
++	 */
++	li	t2, 0
++1:
++	beq	a2, t2, 2f
++	lbu	t0, 0(a0)
++	lbu	t1, 0(a1)
++	addi	a0, a0, 1
++	addi	a1, a1, 1
++	bne	t0, t1, 3f
++	addi	t2, t2, 1
++	bnez	t0, 1b
++2:
++	li	a0, 0
++	ret
++3:
++	/*
++	 * strncmp only needs to return (< 0, 0, > 0) values
++	 * not necessarily -1, 0, +1
++	 */
++	sub	a0, t0, t1
++	ret
++SYM_FUNC_END(strncmp)
+diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
+index dd58e1d993972..d16bf715a586b 100644
+--- a/arch/riscv/purgatory/Makefile
++++ b/arch/riscv/purgatory/Makefile
+@@ -2,6 +2,7 @@
+ OBJECT_FILES_NON_STANDARD := y
+ 
+ purgatory-y := purgatory.o sha256.o entry.o string.o ctype.o memcpy.o memset.o
++purgatory-y += strcmp.o strlen.o strncmp.o
+ 
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+@@ -18,6 +19,15 @@ $(obj)/memcpy.o: $(srctree)/arch/riscv/lib/memcpy.S FORCE
+ $(obj)/memset.o: $(srctree)/arch/riscv/lib/memset.S FORCE
+ 	$(call if_changed_rule,as_o_S)
+ 
++$(obj)/strcmp.o: $(srctree)/arch/riscv/lib/strcmp.S FORCE
++	$(call if_changed_rule,as_o_S)
++
++$(obj)/strlen.o: $(srctree)/arch/riscv/lib/strlen.S FORCE
++	$(call if_changed_rule,as_o_S)
++
++$(obj)/strncmp.o: $(srctree)/arch/riscv/lib/strncmp.S FORCE
++	$(call if_changed_rule,as_o_S)
++
+ $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
+ 
+@@ -77,6 +87,9 @@ CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+ AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
+ AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
+ AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_strcmp.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_strlen.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_strncmp.o		+= -Wa,-gdwarf-2
+ 
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
+-- 
+2.39.2
+
 
 
