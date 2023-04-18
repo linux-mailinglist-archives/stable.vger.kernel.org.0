@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A28706E632A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E666E61BC
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbjDRMi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:38:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54320 "EHLO
+        id S231336AbjDRM1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:27:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231820AbjDRMiW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA24513FAB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:14 -0700 (PDT)
+        with ESMTP id S231495AbjDRM1J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 540E9B746
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 300A7632CC
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41E6EC433D2;
-        Tue, 18 Apr 2023 12:38:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E33F96315A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 048E8C433D2;
+        Tue, 18 Apr 2023 12:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821493;
-        bh=+u1662A/TS/jEK57TZTkhaiBLkAVM7lwAXCYbZamQng=;
+        s=korg; t=1681820807;
+        bh=gk88B8TVZq2GyERUwdbxwqku2V7lx7C84xjBklNMy5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3FUWiEBTdvkaryUrCA2MfHep6od7qYYgnmN9GZZRmChQ6nrsH3DtDNoWgQC6D11v
-         LDklEd973Ij1EMZpwAggxNEJ4TDLG2VdXytxrK7Q3j3rzMzWto/usF7E71+VcRZw/4
-         pY3RMm3rqbJNwxRpV5yoiBGX3xErMGXrRN6tAnXQ=
+        b=ew2ja3g5KPNh7IPnfYoZXPZJHP0yRKQYlwusXd/3TXGJgNEK0D1hl5txj0IfA5IsH
+         3MmAstbZy7ydZSCLV2rIllEtdCWTyUxLIhdQwm5nWpQuUeKt4hIL0/PoRuc09X0dwP
+         8bqQXe6WVVUvBxiMM/I12Gw/hb1yQsCW2bUl21tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xu Biang <xubiang@hust.edu.cn>,
-        Dan Carpenter <error27@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 05/91] ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
+        patches@lists.linux.dev, Brian Coverstone <brian@mainsequence.net>,
+        Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 09/57] wifi: mac80211: fix invalid drv_sta_pre_rcu_remove calls for non-uploaded sta
 Date:   Tue, 18 Apr 2023 14:21:09 +0200
-Message-Id: <20230418120305.729954642@linuxfoundation.org>
+Message-Id: <20230418120259.042953033@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,58 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Biang <xubiang@hust.edu.cn>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit fb4a624f88f658c7b7ae124452bd42eaa8ac7168 upstream.
+[ Upstream commit 12b220a6171faf10638ab683a975cadcf1a352d6 ]
 
-Smatch Warns:
-sound/firewire/tascam/tascam-stream.c:493 snd_tscm_stream_start_duplex()
-warn: missing unwind goto?
+Avoid potential data corruption issues caused by uninitialized driver
+private data structures.
 
-The direct return will cause the stream list of "&tscm->domain" unemptied
-and the session in "tscm" unfinished if amdtp_domain_start() returns with
-an error.
-
-Fix this by changing the direct return to a goto which will empty the
-stream list of "&tscm->domain" and finish the session in "tscm".
-
-The snd_tscm_stream_start_duplex() function is called in the prepare
-callback of PCM. According to "ALSA Kernel API Documentation", the prepare
-callback of PCM will be called many times at each setup. So, if the
-"&d->streams" list is not emptied, when the prepare callback is called
-next time, snd_tscm_stream_start_duplex() will receive -EBUSY from
-amdtp_domain_add_stream() that tries to add an existing stream to the
-domain. The error handling code after the "error" label will be executed
-in this case, and the "&d->streams" list will be emptied. So not emptying
-the "&d->streams" list will not cause an issue. But it is more efficient
-and readable to empty it on the first error by changing the direct return
-to a goto statement.
-
-The session in "tscm" has been begun before amdtp_domain_start(), so it
-needs to be finished when amdtp_domain_start() fails.
-
-Fixes: c281d46a51e3 ("ALSA: firewire-tascam: support AMDTP domain")
-Signed-off-by: Xu Biang <xubiang@hust.edu.cn>
-Reviewed-by: Dan Carpenter <error27@gmail.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230406132801.105108-1-xubiang@hust.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Brian Coverstone <brian@mainsequence.net>
+Fixes: 6a9d1b91f34d ("mac80211: add pre-RCU-sync sta removal driver operation")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20230324120924.38412-3-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/tascam/tascam-stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/sta_info.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/tascam/tascam-stream.c
-+++ b/sound/firewire/tascam/tascam-stream.c
-@@ -490,7 +490,7 @@ int snd_tscm_stream_start_duplex(struct
- 		// packet is important for media clock recovery.
- 		err = amdtp_domain_start(&tscm->domain, tx_init_skip_cycles, true, true);
- 		if (err < 0)
--			return err;
-+			goto error;
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 5e28be07cad88..5c209f72de701 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -969,7 +969,8 @@ static int __must_check __sta_info_destroy_part1(struct sta_info *sta)
+ 	list_del_rcu(&sta->list);
+ 	sta->removed = true;
  
- 		if (!amdtp_domain_wait_ready(&tscm->domain, READY_TIMEOUT_MS)) {
- 			err = -ETIMEDOUT;
+-	drv_sta_pre_rcu_remove(local, sta->sdata, sta);
++	if (sta->uploaded)
++		drv_sta_pre_rcu_remove(local, sta->sdata, sta);
+ 
+ 	if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
+ 	    rcu_access_pointer(sdata->u.vlan.sta) == sta)
+-- 
+2.39.2
+
 
 
