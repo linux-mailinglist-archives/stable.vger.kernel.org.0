@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 452526E6492
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33B46E6425
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbjDRMuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42188 "EHLO
+        id S232014AbjDRMqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:46:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232125AbjDRMuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:19 -0400
+        with ESMTP id S232012AbjDRMqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7901545A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B23B14F71
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B606D6340D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7488C433EF;
-        Tue, 18 Apr 2023 12:50:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A76C8633AF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5FD4C4339B;
+        Tue, 18 Apr 2023 12:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822217;
-        bh=I6ga2qarMUTw/LBMWwkY72jb0CH+PxiO9wPzxj2uLZg=;
+        s=korg; t=1681821988;
+        bh=yERQUqiGn9anUkbxhnMbdjm1L9VY9JBDcH1uL2RINgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRajVXZDuem35WXcMZYpqcW4Sh1Rh5V6fr8TwlOYk4K7Ks1ybu72XFrjkhZINPi68
-         eRNDI6gilKge5Twxicw/HhpnRpKKkwNvo30sZVmU/q6qYDbDlSRSyeCQyc3gPqLX6q
-         83OAbTyoyI7c6tHqP2uArPAngdFgBP7A9NXiyl7g=
+        b=qQ3wQKJ+Luu2Gkx6f8dNCsNjbtBVQfuhEbdP+6xXXfWZqvnSQA24YxojkzyvQEbrZ
+         gwrESEVocnrWYyMvU1iXSk9b3Qwp479Vozj3bjZlRnNEsMYd2l1hGUbeFi/W3JB/Xv
+         okw3gemXcpfQSI7f8YtOGnjMSBvTrtGLSTKZJtHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 065/139] cgroup,freezer: hold cpu_hotplug_lock before freezer_mutex
+        patches@lists.linux.dev, Denis Arefev <arefev@swemel.ru>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 074/134] power: supply: axp288_fuel_gauge: Added check for negative values
 Date:   Tue, 18 Apr 2023 14:22:10 +0200
-Message-Id: <20230418120316.259134474@linuxfoundation.org>
+Message-Id: <20230418120315.612198170@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,125 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Denis Arefev <arefev@swemel.ru>
 
-[ Upstream commit 57dcd64c7e036299ef526b400a8d12b8a2352f26 ]
+[ Upstream commit bf6c880d5d1448489ebf92e2d13d5713ff644930 ]
 
-syzbot is reporting circular locking dependency between cpu_hotplug_lock
-and freezer_mutex, for commit f5d39b020809 ("freezer,sched: Rewrite core
-freezer logic") replaced atomic_inc() in freezer_apply_state() with
-static_branch_inc() which holds cpu_hotplug_lock.
+Variable 'pirq', which may receive negative value
+in platform_get_irq().
+Used as an index in a function regmap_irq_get_virq().
 
-cpu_hotplug_lock => cgroup_threadgroup_rwsem => freezer_mutex
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-  cgroup_file_write() {
-    cgroup_procs_write() {
-      __cgroup_procs_write() {
-        cgroup_procs_write_start() {
-          cgroup_attach_lock() {
-            cpus_read_lock() {
-              percpu_down_read(&cpu_hotplug_lock);
-            }
-            percpu_down_write(&cgroup_threadgroup_rwsem);
-          }
-        }
-        cgroup_attach_task() {
-          cgroup_migrate() {
-            cgroup_migrate_execute() {
-              freezer_attach() {
-                mutex_lock(&freezer_mutex);
-                (...snipped...)
-              }
-            }
-          }
-        }
-        (...snipped...)
-      }
-    }
-  }
-
-freezer_mutex => cpu_hotplug_lock
-
-  cgroup_file_write() {
-    freezer_write() {
-      freezer_change_state() {
-        mutex_lock(&freezer_mutex);
-        freezer_apply_state() {
-          static_branch_inc(&freezer_active) {
-            static_key_slow_inc() {
-              cpus_read_lock();
-              static_key_slow_inc_cpuslocked();
-              cpus_read_unlock();
-            }
-          }
-        }
-        mutex_unlock(&freezer_mutex);
-      }
-    }
-  }
-
-Swap locking order by moving cpus_read_lock() in freezer_apply_state()
-to before mutex_lock(&freezer_mutex) in freezer_change_state().
-
-Reported-by: syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>
-Link: https://syzkaller.appspot.com/bug?extid=c39682e86c9d84152f93
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Fixes: f5d39b020809 ("freezer,sched: Rewrite core freezer logic")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Denis Arefev <arefev@swemel.ru>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/legacy_freezer.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/power/supply/axp288_fuel_gauge.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/cgroup/legacy_freezer.c b/kernel/cgroup/legacy_freezer.c
-index 1b6b21851e9d4..936473203a6b5 100644
---- a/kernel/cgroup/legacy_freezer.c
-+++ b/kernel/cgroup/legacy_freezer.c
-@@ -22,6 +22,7 @@
- #include <linux/freezer.h>
- #include <linux/seq_file.h>
- #include <linux/mutex.h>
-+#include <linux/cpu.h>
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index 8e6f8a6550790..05f4131784629 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -724,6 +724,8 @@ static int axp288_fuel_gauge_probe(struct platform_device *pdev)
  
- /*
-  * A cgroup is freezing if any FREEZING flags are set.  FREEZING_SELF is
-@@ -350,7 +351,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
- 
- 	if (freeze) {
- 		if (!(freezer->state & CGROUP_FREEZING))
--			static_branch_inc(&freezer_active);
-+			static_branch_inc_cpuslocked(&freezer_active);
- 		freezer->state |= state;
- 		freeze_cgroup(freezer);
- 	} else {
-@@ -361,7 +362,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
- 		if (!(freezer->state & CGROUP_FREEZING)) {
- 			freezer->state &= ~CGROUP_FROZEN;
- 			if (was_freezing)
--				static_branch_dec(&freezer_active);
-+				static_branch_dec_cpuslocked(&freezer_active);
- 			unfreeze_cgroup(freezer);
- 		}
- 	}
-@@ -379,6 +380,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
- {
- 	struct cgroup_subsys_state *pos;
- 
-+	cpus_read_lock();
- 	/*
- 	 * Update all its descendants in pre-order traversal.  Each
- 	 * descendant will try to inherit its parent's FREEZING state as
-@@ -407,6 +409,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
- 	}
- 	rcu_read_unlock();
- 	mutex_unlock(&freezer_mutex);
-+	cpus_read_unlock();
- }
- 
- static ssize_t freezer_write(struct kernfs_open_file *of,
+ 	for (i = 0; i < AXP288_FG_INTR_NUM; i++) {
+ 		pirq = platform_get_irq(pdev, i);
++		if (pirq < 0)
++			continue;
+ 		ret = regmap_irq_get_virq(axp20x->regmap_irqc, pirq);
+ 		if (ret < 0)
+ 			return dev_err_probe(dev, ret, "getting vIRQ %d\n", pirq);
 -- 
 2.39.2
 
