@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDBEA6E649B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 925016E63D6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232072AbjDRMuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
+        id S231896AbjDRMnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjDRMuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:37 -0400
+        with ESMTP id S230476AbjDRMnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCCF16B0C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0903413C1B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1512363426
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2209FC433D2;
-        Tue, 18 Apr 2023 12:50:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D6C663359
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C78AC433EF;
+        Tue, 18 Apr 2023 12:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822235;
-        bh=8YUJalr43YpmpfEaz8yWBdBI4sfRtGFKgUpH/UCuEDM=;
+        s=korg; t=1681821818;
+        bh=Jd2BkqQCgKKv5mm5zVYZkQ3a+PeEMhu+4n95OFhAPmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2Jpy4jZPhNYqahE20yqpQiG/RdbN9g6s7WziT+a2vG9hwoqRShj7xLVYPqF/UklD
-         ChJ11/wh6xD8g2ZLX/YxUbYIFze3MXDADC+6hQfuYj9nvQwP0OG161T4LyyArLGtKT
-         uQOJHDFtYEmAeIl2bBU6jyFI6+n0p2jcFu0KVWUo=
+        b=ikbqMS2x5JMeSuSsG2Eussh8fiZ60/4SHoymX5AnH8B4oYhcuMXyLyVJluBzDRK+p
+         qSvBhyXrZaVzfDRK9tyUgtRH20kyEsfHyG5x5HkkqX6cS3GXHjOR9ZqVileMwJoxow
+         nULJHY7iln8VcZBC3lpb2UlvPkofjnbWbmEj8CA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 044/139] dmaengine: apple-admac: Handle global interrupt flags
+        patches@lists.linux.dev, Luca Czesla <luca.czesla@mail.schwarz>,
+        Felix Huettner <felix.huettner@mail.schwarz>,
+        Eric Dumazet <edumazet@google.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 053/134] net: openvswitch: fix race on port output
 Date:   Tue, 18 Apr 2023 14:21:49 +0200
-Message-Id: <20230418120315.305084540@linuxfoundation.org>
+Message-Id: <20230418120314.795559722@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +57,237 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Felix Huettner <felix.huettner@mail.schwarz>
 
-[ Upstream commit a288fd158fbf85c06a9ac01cecabf97ac5d962e7 ]
+[ Upstream commit 066b86787fa3d97b7aefb5ac0a99a22dad2d15f8 ]
 
-In addition to TX channel and RX channel interrupt flags there's
-another class of 'global' interrupt flags with unknown semantics. Those
-weren't being handled up to now, and they are the suspected cause of
-stuck IRQ states that have been sporadically occurring. Check the global
-flags and clear them if raised.
+assume the following setup on a single machine:
+1. An openvswitch instance with one bridge and default flows
+2. two network namespaces "server" and "client"
+3. two ovs interfaces "server" and "client" on the bridge
+4. for each ovs interface a veth pair with a matching name and 32 rx and
+   tx queues
+5. move the ends of the veth pairs to the respective network namespaces
+6. assign ip addresses to each of the veth ends in the namespaces (needs
+   to be the same subnet)
+7. start some http server on the server network namespace
+8. test if a client in the client namespace can reach the http server
 
-Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20230224152222.26732-1-povik+lin@cutebit.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+when following the actions below the host has a chance of getting a cpu
+stuck in a infinite loop:
+1. send a large amount of parallel requests to the http server (around
+   3000 curls should work)
+2. in parallel delete the network namespace (do not delete interfaces or
+   stop the server, just kill the namespace)
+
+there is a low chance that this will cause the below kernel cpu stuck
+message. If this does not happen just retry.
+Below there is also the output of bpftrace for the functions mentioned
+in the output.
+
+The series of events happening here is:
+1. the network namespace is deleted calling
+   `unregister_netdevice_many_notify` somewhere in the process
+2. this sets first `NETREG_UNREGISTERING` on both ends of the veth and
+   then runs `synchronize_net`
+3. it then calls `call_netdevice_notifiers` with `NETDEV_UNREGISTER`
+4. this is then handled by `dp_device_event` which calls
+   `ovs_netdev_detach_dev` (if a vport is found, which is the case for
+   the veth interface attached to ovs)
+5. this removes the rx_handlers of the device but does not prevent
+   packages to be sent to the device
+6. `dp_device_event` then queues the vport deletion to work in
+   background as a ovs_lock is needed that we do not hold in the
+   unregistration path
+7. `unregister_netdevice_many_notify` continues to call
+   `netdev_unregister_kobject` which sets `real_num_tx_queues` to 0
+8. port deletion continues (but details are not relevant for this issue)
+9. at some future point the background task deletes the vport
+
+If after 7. but before 9. a packet is send to the ovs vport (which is
+not deleted at this point in time) which forwards it to the
+`dev_queue_xmit` flow even though the device is unregistering.
+In `skb_tx_hash` (which is called in the `dev_queue_xmit`) path there is
+a while loop (if the packet has a rx_queue recorded) that is infinite if
+`dev->real_num_tx_queues` is zero.
+
+To prevent this from happening we update `do_output` to handle devices
+without carrier the same as if the device is not found (which would
+be the code path after 9. is done).
+
+Additionally we now produce a warning in `skb_tx_hash` if we will hit
+the infinite loop.
+
+bpftrace (first word is function name):
+
+__dev_queue_xmit server: real_num_tx_queues: 1, cpu: 2, pid: 28024, tid: 28024, skb_addr: 0xffff9edb6f207000, reg_state: 1
+netdev_core_pick_tx server: addr: 0xffff9f0a46d4a000 real_num_tx_queues: 1, cpu: 2, pid: 28024, tid: 28024, skb_addr: 0xffff9edb6f207000, reg_state: 1
+dp_device_event server: real_num_tx_queues: 1 cpu 9, pid: 21024, tid: 21024, event 2, reg_state: 1
+synchronize_rcu_expedited: cpu 9, pid: 21024, tid: 21024
+synchronize_rcu_expedited: cpu 9, pid: 21024, tid: 21024
+synchronize_rcu_expedited: cpu 9, pid: 21024, tid: 21024
+synchronize_rcu_expedited: cpu 9, pid: 21024, tid: 21024
+dp_device_event server: real_num_tx_queues: 1 cpu 9, pid: 21024, tid: 21024, event 6, reg_state: 2
+ovs_netdev_detach_dev server: real_num_tx_queues: 1 cpu 9, pid: 21024, tid: 21024, reg_state: 2
+netdev_rx_handler_unregister server: real_num_tx_queues: 1, cpu: 9, pid: 21024, tid: 21024, reg_state: 2
+synchronize_rcu_expedited: cpu 9, pid: 21024, tid: 21024
+netdev_rx_handler_unregister ret server: real_num_tx_queues: 1, cpu: 9, pid: 21024, tid: 21024, reg_state: 2
+dp_device_event server: real_num_tx_queues: 1 cpu 9, pid: 21024, tid: 21024, event 27, reg_state: 2
+dp_device_event server: real_num_tx_queues: 1 cpu 9, pid: 21024, tid: 21024, event 22, reg_state: 2
+dp_device_event server: real_num_tx_queues: 1 cpu 9, pid: 21024, tid: 21024, event 18, reg_state: 2
+netdev_unregister_kobject: real_num_tx_queues: 1, cpu: 9, pid: 21024, tid: 21024
+synchronize_rcu_expedited: cpu 9, pid: 21024, tid: 21024
+ovs_vport_send server: real_num_tx_queues: 0, cpu: 2, pid: 28024, tid: 28024, skb_addr: 0xffff9edb6f207000, reg_state: 2
+__dev_queue_xmit server: real_num_tx_queues: 0, cpu: 2, pid: 28024, tid: 28024, skb_addr: 0xffff9edb6f207000, reg_state: 2
+netdev_core_pick_tx server: addr: 0xffff9f0a46d4a000 real_num_tx_queues: 0, cpu: 2, pid: 28024, tid: 28024, skb_addr: 0xffff9edb6f207000, reg_state: 2
+broken device server: real_num_tx_queues: 0, cpu: 2, pid: 28024, tid: 28024
+ovs_dp_detach_port server: real_num_tx_queues: 0 cpu 9, pid: 9124, tid: 9124, reg_state: 2
+synchronize_rcu_expedited: cpu 9, pid: 33604, tid: 33604
+
+stuck message:
+
+watchdog: BUG: soft lockup - CPU#5 stuck for 26s! [curl:1929279]
+Modules linked in: veth pktgen bridge stp llc ip_set_hash_net nft_counter xt_set nft_compat nf_tables ip_set_hash_ip ip_set nfnetlink_cttimeout nfnetlink openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 tls binfmt_misc nls_iso8859_1 input_leds joydev serio_raw dm_multipath scsi_dh_rdac scsi_dh_emc scsi_dh_alua sch_fq_codel drm efi_pstore virtio_rng ip_tables x_tables autofs4 btrfs blake2b_generic zstd_compress raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear hid_generic usbhid hid crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel virtio_net ahci net_failover crypto_simd cryptd psmouse libahci virtio_blk failover
+CPU: 5 PID: 1929279 Comm: curl Not tainted 5.15.0-67-generic #74-Ubuntu
+Hardware name: OpenStack Foundation OpenStack Nova, BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+RIP: 0010:netdev_pick_tx+0xf1/0x320
+Code: 00 00 8d 48 ff 0f b7 c1 66 39 ca 0f 86 e9 01 00 00 45 0f b7 ff 41 39 c7 0f 87 5b 01 00 00 44 29 f8 41 39 c7 0f 87 4f 01 00 00 <eb> f2 0f 1f 44 00 00 49 8b 94 24 28 04 00 00 48 85 d2 0f 84 53 01
+RSP: 0018:ffffb78b40298820 EFLAGS: 00000246
+RAX: 0000000000000000 RBX: ffff9c8773adc2e0 RCX: 000000000000083f
+RDX: 0000000000000000 RSI: ffff9c8773adc2e0 RDI: ffff9c870a25e000
+RBP: ffffb78b40298858 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff9c870a25e000
+R13: ffff9c870a25e000 R14: ffff9c87fe043480 R15: 0000000000000000
+FS:  00007f7b80008f00(0000) GS:ffff9c8e5f740000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7b80f6a0b0 CR3: 0000000329d66000 CR4: 0000000000350ee0
+Call Trace:
+ <IRQ>
+ netdev_core_pick_tx+0xa4/0xb0
+ __dev_queue_xmit+0xf8/0x510
+ ? __bpf_prog_exit+0x1e/0x30
+ dev_queue_xmit+0x10/0x20
+ ovs_vport_send+0xad/0x170 [openvswitch]
+ do_output+0x59/0x180 [openvswitch]
+ do_execute_actions+0xa80/0xaa0 [openvswitch]
+ ? kfree+0x1/0x250
+ ? kfree+0x1/0x250
+ ? kprobe_perf_func+0x4f/0x2b0
+ ? flow_lookup.constprop.0+0x5c/0x110 [openvswitch]
+ ovs_execute_actions+0x4c/0x120 [openvswitch]
+ ovs_dp_process_packet+0xa1/0x200 [openvswitch]
+ ? ovs_ct_update_key.isra.0+0xa8/0x120 [openvswitch]
+ ? ovs_ct_fill_key+0x1d/0x30 [openvswitch]
+ ? ovs_flow_key_extract+0x2db/0x350 [openvswitch]
+ ovs_vport_receive+0x77/0xd0 [openvswitch]
+ ? __htab_map_lookup_elem+0x4e/0x60
+ ? bpf_prog_680e8aff8547aec1_kfree+0x3b/0x714
+ ? trace_call_bpf+0xc8/0x150
+ ? kfree+0x1/0x250
+ ? kfree+0x1/0x250
+ ? kprobe_perf_func+0x4f/0x2b0
+ ? kprobe_perf_func+0x4f/0x2b0
+ ? __mod_memcg_lruvec_state+0x63/0xe0
+ netdev_port_receive+0xc4/0x180 [openvswitch]
+ ? netdev_port_receive+0x180/0x180 [openvswitch]
+ netdev_frame_hook+0x1f/0x40 [openvswitch]
+ __netif_receive_skb_core.constprop.0+0x23d/0xf00
+ __netif_receive_skb_one_core+0x3f/0xa0
+ __netif_receive_skb+0x15/0x60
+ process_backlog+0x9e/0x170
+ __napi_poll+0x33/0x180
+ net_rx_action+0x126/0x280
+ ? ttwu_do_activate+0x72/0xf0
+ __do_softirq+0xd9/0x2e7
+ ? rcu_report_exp_cpu_mult+0x1b0/0x1b0
+ do_softirq+0x7d/0xb0
+ </IRQ>
+ <TASK>
+ __local_bh_enable_ip+0x54/0x60
+ ip_finish_output2+0x191/0x460
+ __ip_finish_output+0xb7/0x180
+ ip_finish_output+0x2e/0xc0
+ ip_output+0x78/0x100
+ ? __ip_finish_output+0x180/0x180
+ ip_local_out+0x5e/0x70
+ __ip_queue_xmit+0x184/0x440
+ ? tcp_syn_options+0x1f9/0x300
+ ip_queue_xmit+0x15/0x20
+ __tcp_transmit_skb+0x910/0x9c0
+ ? __mod_memcg_state+0x44/0xa0
+ tcp_connect+0x437/0x4e0
+ ? ktime_get_with_offset+0x60/0xf0
+ tcp_v4_connect+0x436/0x530
+ __inet_stream_connect+0xd4/0x3a0
+ ? kprobe_perf_func+0x4f/0x2b0
+ ? aa_sk_perm+0x43/0x1c0
+ inet_stream_connect+0x3b/0x60
+ __sys_connect_file+0x63/0x70
+ __sys_connect+0xa6/0xd0
+ ? setfl+0x108/0x170
+ ? do_fcntl+0xe8/0x5a0
+ __x64_sys_connect+0x18/0x20
+ do_syscall_64+0x5c/0xc0
+ ? __x64_sys_fcntl+0xa9/0xd0
+ ? exit_to_user_mode_prepare+0x37/0xb0
+ ? syscall_exit_to_user_mode+0x27/0x50
+ ? do_syscall_64+0x69/0xc0
+ ? __sys_setsockopt+0xea/0x1e0
+ ? exit_to_user_mode_prepare+0x37/0xb0
+ ? syscall_exit_to_user_mode+0x27/0x50
+ ? __x64_sys_setsockopt+0x1f/0x30
+ ? do_syscall_64+0x69/0xc0
+ ? irqentry_exit+0x1d/0x30
+ ? exc_page_fault+0x89/0x170
+ entry_SYSCALL_64_after_hwframe+0x61/0xcb
+RIP: 0033:0x7f7b8101c6a7
+Code: 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2a 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 18 89 54 24 0c 48 89 34 24 89
+RSP: 002b:00007ffffd6b2198 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7b8101c6a7
+RDX: 0000000000000010 RSI: 00007ffffd6b2360 RDI: 0000000000000005
+RBP: 0000561f1370d560 R08: 00002795ad21d1ac R09: 0030312e302e302e
+R10: 00007ffffd73f080 R11: 0000000000000246 R12: 0000561f1370c410
+R13: 0000000000000000 R14: 0000000000000005 R15: 0000000000000000
+ </TASK>
+
+Fixes: 7f8a436eaa2c ("openvswitch: Add conntrack action")
+Co-developed-by: Luca Czesla <luca.czesla@mail.schwarz>
+Signed-off-by: Luca Czesla <luca.czesla@mail.schwarz>
+Signed-off-by: Felix Huettner <felix.huettner@mail.schwarz>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/ZC0pBXBAgh7c76CA@kernel-bug-kernel-bug
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/apple-admac.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/core/dev.c            | 1 +
+ net/openvswitch/actions.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
-index 90f28bda29c8b..00cbfafe0ed9d 100644
---- a/drivers/dma/apple-admac.c
-+++ b/drivers/dma/apple-admac.c
-@@ -75,6 +75,7 @@
- 
- #define REG_TX_INTSTATE(idx)		(0x0030 + (idx) * 4)
- #define REG_RX_INTSTATE(idx)		(0x0040 + (idx) * 4)
-+#define REG_GLOBAL_INTSTATE(idx)	(0x0050 + (idx) * 4)
- #define REG_CHAN_INTSTATUS(ch, idx)	(0x8010 + (ch) * 0x200 + (idx) * 4)
- #define REG_CHAN_INTMASK(ch, idx)	(0x8020 + (ch) * 0x200 + (idx) * 4)
- 
-@@ -672,13 +673,14 @@ static void admac_handle_chan_int(struct admac_data *ad, int no)
- static irqreturn_t admac_interrupt(int irq, void *devid)
- {
- 	struct admac_data *ad = devid;
--	u32 rx_intstate, tx_intstate;
-+	u32 rx_intstate, tx_intstate, global_intstate;
- 	int i;
- 
- 	rx_intstate = readl_relaxed(ad->base + REG_RX_INTSTATE(ad->irq_index));
- 	tx_intstate = readl_relaxed(ad->base + REG_TX_INTSTATE(ad->irq_index));
-+	global_intstate = readl_relaxed(ad->base + REG_GLOBAL_INTSTATE(ad->irq_index));
- 
--	if (!tx_intstate && !rx_intstate)
-+	if (!tx_intstate && !rx_intstate && !global_intstate)
- 		return IRQ_NONE;
- 
- 	for (i = 0; i < ad->nchannels; i += 2) {
-@@ -693,6 +695,12 @@ static irqreturn_t admac_interrupt(int irq, void *devid)
- 		rx_intstate >>= 1;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 24eae99dfe05a..a25b8741b1599 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3211,6 +3211,7 @@ static u16 skb_tx_hash(const struct net_device *dev,
  	}
  
-+	if (global_intstate) {
-+		dev_warn(ad->dev, "clearing unknown global interrupt flag: %x\n",
-+			 global_intstate);
-+		writel_relaxed(~(u32) 0, ad->base + REG_GLOBAL_INTSTATE(ad->irq_index));
-+	}
-+
- 	return IRQ_HANDLED;
- }
+ 	if (skb_rx_queue_recorded(skb)) {
++		DEBUG_NET_WARN_ON_ONCE(qcount == 0);
+ 		hash = skb_get_rx_queue(skb);
+ 		if (hash >= qoffset)
+ 			hash -= qoffset;
+diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
+index ca3ebfdb30231..a8cf9a88758ef 100644
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -913,7 +913,7 @@ static void do_output(struct datapath *dp, struct sk_buff *skb, int out_port,
+ {
+ 	struct vport *vport = ovs_vport_rcu(dp, out_port);
+ 
+-	if (likely(vport)) {
++	if (likely(vport && netif_carrier_ok(vport->dev))) {
+ 		u16 mru = OVS_CB(skb)->mru;
+ 		u32 cutlen = OVS_CB(skb)->cutlen;
  
 -- 
 2.39.2
