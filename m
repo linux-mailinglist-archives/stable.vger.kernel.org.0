@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0F596E63E2
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7356E62DF
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231919AbjDRMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:44:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34026 "EHLO
+        id S231740AbjDRMgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:36:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbjDRMoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:06 -0400
+        with ESMTP id S231745AbjDRMgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7158F19A6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613391CFBE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E910763371
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0606FC433D2;
-        Tue, 18 Apr 2023 12:44:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E98AD6328B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A327C433EF;
+        Tue, 18 Apr 2023 12:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821844;
-        bh=gSl3TiatGp+t0OH5DFM93BUuo6xHWfhROJItxIlBKRU=;
+        s=korg; t=1681821364;
+        bh=FMmB7MmZbSW8TXgY3FZj65vfN5POKgJRWCKDX7L2754=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nNRmSiAg3FFGpOBjb7Qjk6jn7nGlmLRyvcYgK+LnqAXoC5IKEcpm9mBC+jisMtKSZ
-         KPcSnAyc0AzkQM581X39PsXx2NprEHw02Xequm1Q2kV5v9cmZ/CTbUNebWIKQf1e4R
-         pQlvjqMxdha1F8KPIvZC6cUqjsxWckh0R+BUZgl8=
+        b=P41gyBlu3lFNOm0/8weIhT/fq3HRIFnS+Zxvn4JzbEFNxMOf+3rH28wicfoLDNMHn
+         A1XjeFMVh/CdPHCCPVxZI9s97fUlqLDaaHX9qagEUXas/G5ERZjLmscaaGE5Es4BUN
+         qvhVB6keTt6YzRkQfqeUyFvGkcraYPlLMs4tATfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org, Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 062/134] net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
+Subject: [PATCH 5.10 099/124] mtd: ubi: wl: Fix a couple of kernel-doc issues
 Date:   Tue, 18 Apr 2023 14:21:58 +0200
-Message-Id: <20230418120315.124698772@linuxfoundation.org>
+Message-Id: <20230418120313.436673540@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,96 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 6417070918de3bcdbe0646e7256dae58fd8083ba ]
+[ Upstream commit ab4e4de9fd8b469823a645f05f2c142e9270b012 ]
 
-Syzbot reported a bug as following:
+Fixes the following W=1 kernel build warning(s):
 
-=====================================================
-BUG: KMSAN: uninit-value in qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
- qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
- qrtr_endpoint_post+0xf85/0x11b0 net/qrtr/af_qrtr.c:519
- qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ drivers/mtd/ubi/wl.c:584: warning: Function parameter or member 'nested' not described in 'schedule_erase'
+ drivers/mtd/ubi/wl.c:1075: warning: Excess function parameter 'shutdown' description in '__erase_worker'
 
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
- kmalloc_reserve net/core/skbuff.c:492 [inline]
- __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
- __netdev_alloc_skb+0x120/0x7d0 net/core/skbuff.c:630
- qrtr_endpoint_post+0xbd/0x11b0 net/qrtr/af_qrtr.c:446
- qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-It is because that skb->len requires at least sizeof(struct qrtr_ctrl_pkt)
-in qrtr_tx_resume(). And skb->len equals to size in qrtr_endpoint_post().
-But size is less than sizeof(struct qrtr_ctrl_pkt) when qrtr_cb->type
-equals to QRTR_TYPE_RESUME_TX in qrtr_endpoint_post() under the syzbot
-scenario. This triggers the uninit variable access bug.
-
-Add size check when qrtr_cb->type equals to QRTR_TYPE_RESUME_TX in
-qrtr_endpoint_post() to fix the bug.
-
-Fixes: 5fdeb0d372ab ("net: qrtr: Implement outgoing flow control")
-Reported-by: syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=c14607f0963d27d5a3d5f4c8639b500909e43540
-Suggested-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230410012352.3997823-1-william.xuanziyang@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: linux-mtd@lists.infradead.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20201109182206.3037326-13-lee.jones@linaro.org
+Stable-dep-of: f773f0a331d6 ("ubi: Fix deadlock caused by recursively holding work_sem")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/af_qrtr.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mtd/ubi/wl.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
-index 3a70255c8d02f..76f0434d3d06a 100644
---- a/net/qrtr/af_qrtr.c
-+++ b/net/qrtr/af_qrtr.c
-@@ -498,6 +498,11 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 	if (!size || len != ALIGN(size, 4) + hdrlen)
- 		goto err;
- 
-+	if ((cb->type == QRTR_TYPE_NEW_SERVER ||
-+	     cb->type == QRTR_TYPE_RESUME_TX) &&
-+	    size < sizeof(struct qrtr_ctrl_pkt))
-+		goto err;
-+
- 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
- 	    cb->type != QRTR_TYPE_RESUME_TX)
- 		goto err;
-@@ -510,9 +515,6 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 		/* Remote node endpoint can bridge other distant nodes */
- 		const struct qrtr_ctrl_pkt *pkt;
- 
--		if (size < sizeof(*pkt))
--			goto err;
--
- 		pkt = data + hdrlen;
- 		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
- 	}
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 6da09263e0b9f..2ee0e60c43c2e 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -575,6 +575,7 @@ static int erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk,
+  * @vol_id: the volume ID that last used this PEB
+  * @lnum: the last used logical eraseblock number for the PEB
+  * @torture: if the physical eraseblock has to be tortured
++ * @nested: denotes whether the work_sem is already held in read mode
+  *
+  * This function returns zero in case of success and a %-ENOMEM in case of
+  * failure.
+@@ -1066,8 +1067,6 @@ static int ensure_wear_leveling(struct ubi_device *ubi, int nested)
+  * __erase_worker - physical eraseblock erase worker function.
+  * @ubi: UBI device description object
+  * @wl_wrk: the work object
+- * @shutdown: non-zero if the worker has to free memory and exit
+- * because the WL sub-system is shutting down
+  *
+  * This function erases a physical eraseblock and perform torture testing if
+  * needed. It also takes care about marking the physical eraseblock bad if
 -- 
 2.39.2
 
