@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EDD6E62AD
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20FC06E61F0
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231691AbjDRMem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
+        id S231538AbjDRM2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231672AbjDRMei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:38 -0400
+        with ESMTP id S231556AbjDRM2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B640C118E4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B33EBBBB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CDA262EF8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 833ACC433EF;
-        Tue, 18 Apr 2023 12:34:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67F3F63161
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE0FC4339B;
+        Tue, 18 Apr 2023 12:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821261;
-        bh=eFPo3WGaTFUW+xRD0p37LAJxymtiGn9AHPBpN9sUYh8=;
+        s=korg; t=1681820896;
+        bh=LbWV7x9QxqICGKv73ALTbp8HVshpRo3cjojuRLMbRJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4YjW6TNQxvcOPfdka9xHi2fIDJGKV/pjtbc1pA6vUfHu+NejAEzpeyrFcFWkAwMy
-         iMaIMrzkWBHTWHxBG6OCUaGqvNKGA17lI9ZuURWWjaaWJJMep59kBEtwShiRdcu5ZD
-         wiCA3kArrQHVWAmdTo/IUorp0vX+mpJzhMYyeUNU=
+        b=FUoEDU8nWS0qM/Z9pAF8T8+72VYA1UFVQgveZvXKF0VZLUSmq80x5rj25Ird/CSwC
+         m9361Z4vFD0avcRkz97y1aT43/9uOPYhgIqR+XSkLSLe/HW8qxCrPxCyvqVTTvlk/n
+         dqYWdzZ0kBgQ6kEH4ckm2biLUgiUustSMIhT4xwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Sherry Sun <sherry.sun@nxp.com>
-Subject: [PATCH 5.10 030/124] tty: serial: fsl_lpuart: avoid checking for transfer complete when UARTCTRL_SBK is asserted in lpuart32_tx_empty
-Date:   Tue, 18 Apr 2023 14:20:49 +0200
-Message-Id: <20230418120310.854389320@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+47c24ca20a2fa01f082e@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/92] sctp: check send stream number after wait_for_sndbuf
+Date:   Tue, 18 Apr 2023 14:20:50 +0200
+Message-Id: <20230418120305.320515501@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 9425914f3de6febbd6250395f56c8279676d9c3c upstream.
+[ Upstream commit 2584024b23552c00d95b50255e47bd18d306d31a ]
 
-According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
-a break character by writing 1 to CTRL[SBK], so here need to avoid
-checking for transmission complete when UARTCTRL_SBK is asserted,
-otherwise the lpuart32_tx_empty may never get TIOCSER_TEMT.
+This patch fixes a corner case where the asoc out stream count may change
+after wait_for_sndbuf.
 
-Commit 2411fd94ceaa("tty: serial: fsl_lpuart: skip waiting for
-transmission complete when UARTCTRL_SBK is asserted") only fix it in
-lpuart32_set_termios(), here also fix it in lpuart32_tx_empty().
+When the main thread in the client starts a connection, if its out stream
+count is set to N while the in stream count in the server is set to N - 2,
+another thread in the client keeps sending the msgs with stream number
+N - 1, and waits for sndbuf before processing INIT_ACK.
 
-Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20230323054415.20363-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, after processing INIT_ACK, the out stream count in the client is
+shrunk to N - 2, the same to the in stream count in the server. The crash
+occurs when the thread waiting for sndbuf is awake and sends the msg in a
+non-existing stream(N - 1), the call trace is as below:
+
+  KASAN: null-ptr-deref in range [0x0000000000000038-0x000000000000003f]
+  Call Trace:
+   <TASK>
+   sctp_cmd_send_msg net/sctp/sm_sideeffect.c:1114 [inline]
+   sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1777 [inline]
+   sctp_side_effects net/sctp/sm_sideeffect.c:1199 [inline]
+   sctp_do_sm+0x197d/0x5310 net/sctp/sm_sideeffect.c:1170
+   sctp_primitive_SEND+0x9f/0xc0 net/sctp/primitive.c:163
+   sctp_sendmsg_to_asoc+0x10eb/0x1a30 net/sctp/socket.c:1868
+   sctp_sendmsg+0x8d4/0x1d90 net/sctp/socket.c:2026
+   inet_sendmsg+0x9d/0xe0 net/ipv4/af_inet.c:825
+   sock_sendmsg_nosec net/socket.c:722 [inline]
+   sock_sendmsg+0xde/0x190 net/socket.c:745
+
+The fix is to add an unlikely check for the send stream number after the
+thread wakes up from the wait_for_sndbuf.
+
+Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
+Reported-by: syzbot+47c24ca20a2fa01f082e@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/sctp/socket.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -809,11 +809,17 @@ static unsigned int lpuart32_tx_empty(st
- 			struct lpuart_port, port);
- 	unsigned long stat = lpuart32_read(port, UARTSTAT);
- 	unsigned long sfifo = lpuart32_read(port, UARTFIFO);
-+	unsigned long ctrl = lpuart32_read(port, UARTCTRL);
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index c76b40322ac7d..36db659a0f7f4 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -1850,6 +1850,10 @@ static int sctp_sendmsg_to_asoc(struct sctp_association *asoc,
+ 		err = sctp_wait_for_sndbuf(asoc, &timeo, msg_len);
+ 		if (err)
+ 			goto err;
++		if (unlikely(sinfo->sinfo_stream >= asoc->stream.outcnt)) {
++			err = -EINVAL;
++			goto err;
++		}
+ 	}
  
- 	if (sport->dma_tx_in_progress)
- 		return 0;
- 
--	if (stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT)
-+	/*
-+	 * LPUART Transmission Complete Flag may never be set while queuing a break
-+	 * character, so avoid checking for transmission complete when UARTCTRL_SBK
-+	 * is asserted.
-+	 */
-+	if ((stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT) || ctrl & UARTCTRL_SBK)
- 		return TIOCSER_TEMT;
- 
- 	return 0;
+ 	if (sctp_state(asoc, CLOSED)) {
+-- 
+2.39.2
+
 
 
