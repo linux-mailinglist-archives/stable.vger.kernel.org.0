@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A2E6E61A4
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D65B6E633F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231406AbjDRM0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:26:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34244 "EHLO
+        id S231379AbjDRMjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:39:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230364AbjDRMZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A789EC3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:42 -0700 (PDT)
+        with ESMTP id S231797AbjDRMjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACBE119A4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36CD363109
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49FCEC433EF;
-        Tue, 18 Apr 2023 12:25:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26020632C2
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38632C433D2;
+        Tue, 18 Apr 2023 12:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820741;
-        bh=+QyzP0qOaEBIyLyEy+SyyrOV94mUM8AlxtGFbcpr5+4=;
+        s=korg; t=1681821541;
+        bh=gJleLW6bg7ntG8ihwYxRUcJ0eA9AqXpPFHotb/8krJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07g69O14is7pDrdOD8Bqm9Z35ptNIqYnmjEYpsLDnYIX0siT6aY8IipbQpMu+aa6m
-         yB3JiXYlHirl8+2wN5b6nf5+tCNvKN1+TIE1ktuEyPbA19j02kDfbClKL5sSGtCMgd
-         9za5Ktr3qFaAaIHX02eCqI69s5mSG5OYWbmNS3k8=
+        b=bIUSlWpJCMcUtA//XIzi44njz2tM8LEgW4lApFT0rXVsacBnpdHxHCLmD5OBSZ+8X
+         a1TyMmJb6G41IdXiYzzOUxZEvvkw2sG80ro47McyDexOURJSQGFv9KyB2bA3LenH4X
+         imsXIpcyDaUBy/+0ioJ2D/6JpERNqjVeN5KjmSIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dhruva Gole <d-gole@ti.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/57] gpio: davinci: Add irq chip flag to skip set wake
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 10/91] btrfs: print checksum type and implementation at mount time
 Date:   Tue, 18 Apr 2023 14:21:14 +0200
-Message-Id: <20230418120259.213655209@linuxfoundation.org>
+Message-Id: <20230418120305.904694785@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dhruva Gole <d-gole@ti.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit 7b75c4703609a3ebaf67271813521bc0281e1ec1 ]
+commit c8a5f8ca9a9c7d5c5bc31d54f47ea9d86f93ed69 upstream.
 
-Add the IRQCHIP_SKIP_SET_WAKE flag since there are no special IRQ Wake
-bits that can be set to enable wakeup IRQ.
+Per user request, print the checksum type and implementation at mount
+time among the messages. The checksum is user configurable and the
+actual crypto implementation is useful to see for performance reasons.
+The same information is also available after mount in
+/sys/fs/FSID/checksum file.
 
-Fixes: 3d9edf09d452 ("[ARM] 4457/2: davinci: GPIO support")
-Signed-off-by: Dhruva Gole <d-gole@ti.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Example:
+
+  [25.323662] BTRFS info (device vdb): using sha256 (sha256-generic) checksum algorithm
+
+Link: https://github.com/kdave/btrfs-progs/issues/483
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-davinci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
-index abb332d15a131..ead75c1062fbc 100644
---- a/drivers/gpio/gpio-davinci.c
-+++ b/drivers/gpio/gpio-davinci.c
-@@ -327,7 +327,7 @@ static struct irq_chip gpio_irqchip = {
- 	.irq_enable	= gpio_irq_enable,
- 	.irq_disable	= gpio_irq_disable,
- 	.irq_set_type	= gpio_irq_type,
--	.flags		= IRQCHIP_SET_TYPE_MASKED,
-+	.flags		= IRQCHIP_SET_TYPE_MASKED | IRQCHIP_SKIP_SET_WAKE,
- };
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2318,6 +2318,9 @@ static int btrfs_init_csum_hash(struct b
  
- static void gpio_irq_handler(struct irq_desc *desc)
--- 
-2.39.2
-
+ 	fs_info->csum_shash = csum_shash;
+ 
++	btrfs_info(fs_info, "using %s (%s) checksum algorithm",
++			btrfs_super_csum_name(csum_type),
++			crypto_shash_driver_name(csum_shash));
+ 	return 0;
+ }
+ 
 
 
