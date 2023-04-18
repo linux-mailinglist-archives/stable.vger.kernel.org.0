@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A246E6405
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BB46E637D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231976AbjDRMpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
+        id S231852AbjDRMk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231978AbjDRMp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:27 -0400
+        with ESMTP id S231848AbjDRMkz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD6514F44
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A8613C3B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD7BD6338E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28B8C433EF;
-        Tue, 18 Apr 2023 12:45:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E99996331A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACF4C433EF;
+        Tue, 18 Apr 2023 12:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821918;
-        bh=7H5totHyxq4yVx5iYXOEPlYPqoU+uIYlMPC64nUrdwM=;
+        s=korg; t=1681821653;
+        bh=LQSsPFWcfI9+lKOI0FmyNxjNyg5abFg8Xgv/Opy3b3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uaj+a2C9QEtBkq6mUnCL3rpCM96dClULtu+4wqVcIgH0NQr0f9RL/0yeLnn5Vp8jC
-         +2c2B44+xqqIblLAiI6GkvHmurfnQW7tJjTuFyYiuZoyksWsYNvUyOfaS5wJqiGCb+
-         VzUJPS7wNDmv+MpHdmgi9/aSh6+1jJe+bwSuBKqQ=
+        b=ZZVYgxp7FDSvYz6i0OtSpXtgwQw0g/48qlV5g3+a7/k01kS2xDSuYVw2esz8zF1Q5
+         TEj/rBP/fa0pm/IcIP1JaPFWtSZ8yhe9lb7jnQbDTfYKOz5pZo2Z4G92oPH2zyXt4K
+         F8BWaDI1wsJmmnuP1Zz+Sp8NHg0/+ftWB5Nr672U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YuBiao Wang <YuBiao.Wang@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 091/134] drm/amdgpu: Force signal hw_fences that are embedded in non-sched jobs
+        patches@lists.linux.dev, Duy Truong <dory@dory.moe>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 83/91] nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD
 Date:   Tue, 18 Apr 2023 14:22:27 +0200
-Message-Id: <20230418120316.343689921@linuxfoundation.org>
+Message-Id: <20230418120308.446030203@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YuBiao Wang <YuBiao.Wang@amd.com>
+From: Duy Truong <dory@dory.moe>
 
-[ Upstream commit 033c56474acf567a450f8bafca50e0b610f2b716 ]
+[ Upstream commit 74391b3e69855e7dd65a9cef36baf5fc1345affd ]
 
-[Why]
-For engines not supporting soft reset, i.e. VCN, there will be a failed
-ib test before mode 1 reset during asic reset. The fences in this case
-are never signaled and next time when we try to free the sa_bo, kernel
-will hang.
+Added a quirk to fix the TeamGroup T-Force Cardea Zero Z330 SSDs reporting
+duplicate NGUIDs.
 
-[How]
-During pre_asic_reset, driver will clear job fences and afterwards the
-fences' refcount will be reduced to 1. For drm_sched_jobs it will be
-released in job_free_cb, and for non-sched jobs like ib_test, it's meant
-to be released in sa_bo_free but only when the fences are signaled. So
-we have to force signal the non_sched bad job's fence during
-pre_asic_reset or the clear is not complete.
-
-Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
-Acked-by: Luben Tuikov <luben.tuikov@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Duy Truong <dory@dory.moe>
+Cc: stable@vger.kernel.org
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index 6fdb679321d0d..3cc1929285fc0 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -624,6 +624,15 @@ void amdgpu_fence_driver_clear_job_fences(struct amdgpu_ring *ring)
- 		ptr = &ring->fence_drv.fences[i];
- 		old = rcu_dereference_protected(*ptr, 1);
- 		if (old && old->ops == &amdgpu_job_fence_ops) {
-+			struct amdgpu_job *job;
-+
-+			/* For non-scheduler bad job, i.e. failed ib test, we need to signal
-+			 * it right here or we won't be able to track them in fence_drv
-+			 * and they will remain unsignaled during sa_bo free.
-+			 */
-+			job = container_of(old, struct amdgpu_job, hw_fence);
-+			if (!job->base.s_fence && !dma_fence_is_signaled(old))
-+				dma_fence_signal(old);
- 			RCU_INIT_POINTER(*ptr, NULL);
- 			dma_fence_put(old);
- 		}
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index bd8dbaaa3715c..30c730a9f5188 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3399,6 +3399,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 	{ PCI_DEVICE(0x1d97, 0x2269), /* Lexar NM760 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++	{ PCI_DEVICE(0x10ec, 0x5763), /* TEAMGROUP T-FORCE CARDEA ZERO Z330 SSD */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
 -- 
 2.39.2
 
