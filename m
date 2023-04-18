@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1461A6E62F9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4266E63D7
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231741AbjDRMhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51992 "EHLO
+        id S231337AbjDRMnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231738AbjDRMhB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B46312CB0;
-        Tue, 18 Apr 2023 05:37:00 -0700 (PDT)
+        with ESMTP id S230476AbjDRMnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D671118D1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 132C863293;
-        Tue, 18 Apr 2023 12:37:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0167EC433D2;
-        Tue, 18 Apr 2023 12:36:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3758663363
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45413C433D2;
+        Tue, 18 Apr 2023 12:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821419;
-        bh=VCwMMj2q4qUoHuODRqKDgoLte/T7yupow6Vv8LVr/gY=;
+        s=korg; t=1681821820;
+        bh=lpMZDMt2ao635UMlLATj4ifpFqIiLAuCX/em97Ah2z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FytK8itgNs8sWjbg3UmWLfjnoZcpF1fUjFGX/0c4bLU7u1tU3kIyK9gnocRVOBDWo
-         Q7n2TNqOLEQe4VQgPIOm/Rh2+yYG0eUwksb5i7Pwku/QieFbWC1bQt13FE4O/kiF5k
-         u5/XwYiwhclY6eYcbWYfD2PJw40aLMzWXYd826q8=
+        b=MBWRSgYljAP+Te72alckdLQnok1DErX8asOLV32zOaNl13oiM4+HHw6GFEVZqgGN0
+         4R9mMW/1WSEv5gkwn3z+euO3mxxBrPKBA5JsvbK+ApP/ulIUitN0Tm4fYUkBGMqH1H
+         hvBpZwC541LYd5CQNSwrDLpM7xB/TFG79dJw+d+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/124] verify_pefile: relax wrapper length check
+        patches@lists.linux.dev,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 054/134] Bluetooth: hci_conn: Fix not cleaning up on LE Connection failure
 Date:   Tue, 18 Apr 2023 14:21:50 +0200
-Message-Id: <20230418120313.157770104@linuxfoundation.org>
+Message-Id: <20230418120314.825408460@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,59 +54,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
+[ Upstream commit 19cf60bf63cbaf5262eac400c707966e19999b83 ]
 
-The PE Format Specification (section "The Attribute Certificate Table
-(Image Only)") states that `dwLength` is to be rounded up to 8-byte
-alignment when used for traversal.  Therefore, the field is not required
-to be an 8-byte multiple in the first place.
+hci_connect_le_scan_cleanup shall always be invoked to cleanup the
+states and re-enable passive scanning if necessary, otherwise it may
+cause the pending action to stay active causing multiple attempts to
+connect.
 
-Accordingly, pesign has not performed this alignment since version
-0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
-Signature wrapper len wrong".  Update the comment and relax the check.
-
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
-Link: https://github.com/rhboot/pesign
-Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
+Fixes: 9b3628d79b46 ("Bluetooth: hci_sync: Cleanup hci_conn if it cannot be aborted")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/bluetooth/hci_conn.c | 52 +++++++++++++++++++---------------------
+ 1 file changed, 24 insertions(+), 28 deletions(-)
 
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index 7553ab18db898..fe1bb374239d7 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	pr_debug("sig wrapper = { %x, %x, %x }\n",
- 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index 6265614c748f8..1b80d94d639cc 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -68,7 +68,7 @@ static const struct sco_param esco_param_msbc[] = {
+ };
  
--	/* Both pesign and sbsign round up the length of certificate table
--	 * (in optional header data directories) to 8 byte alignment.
-+	/* sbsign rounds up the length of certificate table (in optional
-+	 * header data directories) to 8 byte alignment.  However, the PE
-+	 * specification states that while entries are 8-byte aligned, this is
-+	 * not included in their length, and as a result, pesign has not
-+	 * rounded up since 0.110.
- 	 */
--	if (round_up(wrapper.length, 8) != ctx->sig_len) {
--		pr_debug("Signature wrapper len wrong\n");
-+	if (wrapper.length > ctx->sig_len) {
-+		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
-+			 ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
+ /* This function requires the caller holds hdev->lock */
+-static void hci_connect_le_scan_cleanup(struct hci_conn *conn)
++static void hci_connect_le_scan_cleanup(struct hci_conn *conn, u8 status)
+ {
+ 	struct hci_conn_params *params;
+ 	struct hci_dev *hdev = conn->hdev;
+@@ -88,9 +88,28 @@ static void hci_connect_le_scan_cleanup(struct hci_conn *conn)
+ 
+ 	params = hci_pend_le_action_lookup(&hdev->pend_le_conns, bdaddr,
+ 					   bdaddr_type);
+-	if (!params || !params->explicit_connect)
++	if (!params)
+ 		return;
+ 
++	if (params->conn) {
++		hci_conn_drop(params->conn);
++		hci_conn_put(params->conn);
++		params->conn = NULL;
++	}
++
++	if (!params->explicit_connect)
++		return;
++
++	/* If the status indicates successful cancellation of
++	 * the attempt (i.e. Unknown Connection Id) there's no point of
++	 * notifying failure since we'll go back to keep trying to
++	 * connect. The only exception is explicit connect requests
++	 * where a timeout + cancel does indicate an actual failure.
++	 */
++	if (status && status != HCI_ERROR_UNKNOWN_CONN_ID)
++		mgmt_connect_failed(hdev, &conn->dst, conn->type,
++				    conn->dst_type, status);
++
+ 	/* The connection attempt was doing scan for new RPA, and is
+ 	 * in scan phase. If params are not associated with any other
+ 	 * autoconnect action, remove them completely. If they are, just unmark
+@@ -178,7 +197,7 @@ static void le_scan_cleanup(struct work_struct *work)
+ 	rcu_read_unlock();
+ 
+ 	if (c == conn) {
+-		hci_connect_le_scan_cleanup(conn);
++		hci_connect_le_scan_cleanup(conn, 0x00);
+ 		hci_conn_cleanup(conn);
  	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
+ 
+@@ -1193,31 +1212,8 @@ EXPORT_SYMBOL(hci_get_route);
+ static void hci_le_conn_failed(struct hci_conn *conn, u8 status)
+ {
+ 	struct hci_dev *hdev = conn->hdev;
+-	struct hci_conn_params *params;
+ 
+-	params = hci_pend_le_action_lookup(&hdev->pend_le_conns, &conn->dst,
+-					   conn->dst_type);
+-	if (params && params->conn) {
+-		hci_conn_drop(params->conn);
+-		hci_conn_put(params->conn);
+-		params->conn = NULL;
+-	}
+-
+-	/* If the status indicates successful cancellation of
+-	 * the attempt (i.e. Unknown Connection Id) there's no point of
+-	 * notifying failure since we'll go back to keep trying to
+-	 * connect. The only exception is explicit connect requests
+-	 * where a timeout + cancel does indicate an actual failure.
+-	 */
+-	if (status != HCI_ERROR_UNKNOWN_CONN_ID ||
+-	    (params && params->explicit_connect))
+-		mgmt_connect_failed(hdev, &conn->dst, conn->type,
+-				    conn->dst_type, status);
+-
+-	/* Since we may have temporarily stopped the background scanning in
+-	 * favor of connection establishment, we should restart it.
+-	 */
+-	hci_update_passive_scan(hdev);
++	hci_connect_le_scan_cleanup(conn, status);
+ 
+ 	/* Enable advertising in case this was a failed connection
+ 	 * attempt as a peripheral.
+@@ -1254,7 +1250,7 @@ static void create_le_conn_complete(struct hci_dev *hdev, void *data, int err)
+ 	hci_dev_lock(hdev);
+ 
+ 	if (!err) {
+-		hci_connect_le_scan_cleanup(conn);
++		hci_connect_le_scan_cleanup(conn, 0x00);
+ 		goto done;
+ 	}
+ 
 -- 
 2.39.2
 
