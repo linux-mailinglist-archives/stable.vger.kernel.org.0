@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1276E622E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B13C76E6335
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231642AbjDRMav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:30:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42222 "EHLO
+        id S231796AbjDRMiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:38:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231618AbjDRMaj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:39 -0400
+        with ESMTP id S231792AbjDRMiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342A7C17F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9D013879
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14934631ED
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01ED4C433D2;
-        Tue, 18 Apr 2023 12:30:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76FE5632D8
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AEFFC433D2;
+        Tue, 18 Apr 2023 12:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821019;
-        bh=hZVhb86jGo1AZu4oB3sinUg6I/tNZJ3ERqQnk8DCeIU=;
+        s=korg; t=1681821517;
+        bh=+tK4Lj1/Td4V4omdNS2drKpX1HGvutLLT/ZXPFiyg2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKPx3uoKEruwhSZ8DCvFp+InWD8qpJgrlTpuTNeu/5QOSHpdHyzKD0rsHfhpZ4Tfb
-         x96S24M3TDp07UqYQd6nrBTmgo5Qyn4GMMzmbZFvj2H640t7jdiTjiWQ5Lr4DsoS6q
-         LdiSI2G5BMZf463ELy6vbLzWDQl0tWFh7GF+dFdg=
+        b=M2SgEXeHNAdB4UP6awoM63RpPbOMsnE5hbknlEpnzzwN62rPK0dI7aa57COrN8lYD
+         ipvuCHnjo5RSPDNAWybk9OjXN+32dFShqTJDcCx5mwiaCR5LZnjgrzVJVxkyHF7MKW
+         ahYmpuqslPcmruM627qhEmihKTdsAs0yKyd3LKuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        patches@lists.linux.dev,
+        syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Simon Horman <simon.horman@corigine.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 60/92] sctp: fix a potential overflow in sctp_ifwdtsn_skip
+Subject: [PATCH 5.15 31/91] net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
 Date:   Tue, 18 Apr 2023 14:21:35 +0200
-Message-Id: <20230418120306.942658030@linuxfoundation.org>
+Message-Id: <20230418120306.667627758@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +58,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 32832a2caf82663870126c5186cf8f86c8b2a649 ]
+[ Upstream commit 6417070918de3bcdbe0646e7256dae58fd8083ba ]
 
-Currently, when traversing ifwdtsn skips with _sctp_walk_ifwdtsn, it only
-checks the pos against the end of the chunk. However, the data left for
-the last pos may be < sizeof(struct sctp_ifwdtsn_skip), and dereference
-it as struct sctp_ifwdtsn_skip may cause coverflow.
+Syzbot reported a bug as following:
 
-This patch fixes it by checking the pos against "the end of the chunk -
-sizeof(struct sctp_ifwdtsn_skip)" in sctp_ifwdtsn_skip, similar to
-sctp_fwdtsn_skip.
+=====================================================
+BUG: KMSAN: uninit-value in qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
+ qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
+ qrtr_endpoint_post+0xf85/0x11b0 net/qrtr/af_qrtr.c:519
+ qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Fixes: 0fc2ea922c8a ("sctp: implement validate_ftsn for sctp_stream_interleave")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/2a71bffcd80b4f2c61fac6d344bb2f11c8fd74f7.1681155810.git.lucien.xin@gmail.com
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ __netdev_alloc_skb+0x120/0x7d0 net/core/skbuff.c:630
+ qrtr_endpoint_post+0xbd/0x11b0 net/qrtr/af_qrtr.c:446
+ qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+It is because that skb->len requires at least sizeof(struct qrtr_ctrl_pkt)
+in qrtr_tx_resume(). And skb->len equals to size in qrtr_endpoint_post().
+But size is less than sizeof(struct qrtr_ctrl_pkt) when qrtr_cb->type
+equals to QRTR_TYPE_RESUME_TX in qrtr_endpoint_post() under the syzbot
+scenario. This triggers the uninit variable access bug.
+
+Add size check when qrtr_cb->type equals to QRTR_TYPE_RESUME_TX in
+qrtr_endpoint_post() to fix the bug.
+
+Fixes: 5fdeb0d372ab ("net: qrtr: Implement outgoing flow control")
+Reported-by: syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=c14607f0963d27d5a3d5f4c8639b500909e43540
+Suggested-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230410012352.3997823-1-william.xuanziyang@huawei.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/stream_interleave.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/qrtr/af_qrtr.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/sctp/stream_interleave.c b/net/sctp/stream_interleave.c
-index 40c40be23fcb7..c982f99099dec 100644
---- a/net/sctp/stream_interleave.c
-+++ b/net/sctp/stream_interleave.c
-@@ -1165,7 +1165,8 @@ static void sctp_generate_iftsn(struct sctp_outq *q, __u32 ctsn)
+diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
+index 6e88ba812d2a2..e0a27a404404f 100644
+--- a/net/qrtr/af_qrtr.c
++++ b/net/qrtr/af_qrtr.c
+@@ -498,6 +498,11 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 	if (!size || len != ALIGN(size, 4) + hdrlen)
+ 		goto err;
  
- #define _sctp_walk_ifwdtsn(pos, chunk, end) \
- 	for (pos = chunk->subh.ifwdtsn_hdr->skip; \
--	     (void *)pos < (void *)chunk->subh.ifwdtsn_hdr->skip + (end); pos++)
-+	     (void *)pos <= (void *)chunk->subh.ifwdtsn_hdr->skip + (end) - \
-+			    sizeof(struct sctp_ifwdtsn_skip); pos++)
++	if ((cb->type == QRTR_TYPE_NEW_SERVER ||
++	     cb->type == QRTR_TYPE_RESUME_TX) &&
++	    size < sizeof(struct qrtr_ctrl_pkt))
++		goto err;
++
+ 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
+ 	    cb->type != QRTR_TYPE_RESUME_TX)
+ 		goto err;
+@@ -510,9 +515,6 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 		/* Remote node endpoint can bridge other distant nodes */
+ 		const struct qrtr_ctrl_pkt *pkt;
  
- #define sctp_walk_ifwdtsn(pos, ch) \
- 	_sctp_walk_ifwdtsn((pos), (ch), ntohs((ch)->chunk_hdr->length) - \
+-		if (size < sizeof(*pkt))
+-			goto err;
+-
+ 		pkt = data + hdrlen;
+ 		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
+ 	}
 -- 
 2.39.2
 
