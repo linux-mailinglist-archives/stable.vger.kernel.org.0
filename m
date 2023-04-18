@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE06C6E614E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B78AD6E61C9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbjDRMYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33176 "EHLO
+        id S230315AbjDRM1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:27:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230428AbjDRMYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:52 -0400
+        with ESMTP id S231319AbjDRM1q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7574B7ED1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DB89EE8
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ABE463121
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8134DC4339E;
-        Tue, 18 Apr 2023 12:24:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF19B6315B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F440C433D2;
+        Tue, 18 Apr 2023 12:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820661;
-        bh=sNNywKqsvfwkYYENnh9EVh9j/8u6Qie2S8/fLBu2cGc=;
+        s=korg; t=1681820791;
+        bh=4yn/4vJvWkzPbiAlesO176qkUcQbh+QNG6ozSoppfAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYJZfXGwoIpWRWx5nEgS/3SgWVu82MpnOAYr9QGVWGG3WuaJXnY+dvWBoHip/K85y
-         Q0sclxfAMD09v3MS0LpSPnBjdzMHBQHfa0tjUQLhevUpmB/zOBwOpzadpgTjTwGTLD
-         kT7ReCNcvHv4hPCI6pgUAlRDS7KVwzu17ooodclA=
+        b=rMrhLNo4Hy48eC7tQrB5D6Qtd9+Gjcvk5NapUbleYQNYZ8r3lMUNaU6f0+ShJfusZ
+         C1xX70sull0HWrEhAjKyhsmWjadWqKHBwNlDj+suY92iirvD0meSLPgeFZ5inmJh0b
+         AMQM263DHckO2LEtEy9+uw8p3geCJBpc9b+aFJAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 4.14 22/37] Bluetooth: Fix race condition in hidp_session_thread
+        patches@lists.linux.dev,
+        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 32/57] ALSA: hda/sigmatel: fix S/PDIF out on Intel D*45* motherboards
 Date:   Tue, 18 Apr 2023 14:21:32 +0200
-Message-Id: <20230418120255.440381399@linuxfoundation.org>
+Message-Id: <20230418120259.872923133@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Min Li <lm0963hack@gmail.com>
+From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 
-commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
+commit f342ac00da1064eb4f94b1f4bcacbdfea955797a upstream.
 
-There is a potential race condition in hidp_session_thread that may
-lead to use-after-free. For instance, the timer is active while
-hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
-then 'session' will be freed, causing kernel panic when hidp_idle_timeout
-is running.
+The BIOS botches this one completely - it says the 2nd S/PDIF output is
+used, while in fact it's the 1st one. This is tested on DP45SG, but I'm
+assuming it's valid for the other boards in the series as well.
 
-The solution is to use del_timer_sync instead of del_timer.
+Also add some comments regarding the pins.
+FWIW, the codec is apparently still sold by Tempo Semiconductor, Inc.,
+where one can download the documentation.
 
-Here is the call trace:
-
-? hidp_session_probe+0x780/0x780
-call_timer_fn+0x2d/0x1e0
-__run_timers.part.0+0x569/0x940
-hidp_session_probe+0x780/0x780
-call_timer_fn+0x1e0/0x1e0
-ktime_get+0x5c/0xf0
-lapic_next_deadline+0x2c/0x40
-clockevents_program_event+0x205/0x320
-run_timer_softirq+0xa9/0x1b0
-__do_softirq+0x1b9/0x641
-__irq_exit_rcu+0xdc/0x190
-irq_exit_rcu+0xe/0x20
-sysvec_apic_timer_interrupt+0xa1/0xc0
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Min Li <lm0963hack@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230405201220.2197826-2-oswald.buddenhagen@gmx.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hidp/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_sigmatel.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -428,7 +428,7 @@ static void hidp_set_timer(struct hidp_s
- static void hidp_del_timer(struct hidp_session *session)
- {
- 	if (session->idle_to > 0)
--		del_timer(&session->timer);
-+		del_timer_sync(&session->timer);
- }
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -1723,6 +1723,7 @@ static const struct snd_pci_quirk stac92
+ };
  
- static void hidp_process_report(struct hidp_session *session, int type,
+ static const struct hda_pintbl ref92hd73xx_pin_configs[] = {
++	// Port A-H
+ 	{ 0x0a, 0x02214030 },
+ 	{ 0x0b, 0x02a19040 },
+ 	{ 0x0c, 0x01a19020 },
+@@ -1731,9 +1732,12 @@ static const struct hda_pintbl ref92hd73
+ 	{ 0x0f, 0x01014010 },
+ 	{ 0x10, 0x01014020 },
+ 	{ 0x11, 0x01014030 },
++	// CD in
+ 	{ 0x12, 0x02319040 },
++	// Digial Mic ins
+ 	{ 0x13, 0x90a000f0 },
+ 	{ 0x14, 0x90a000f0 },
++	// Digital outs
+ 	{ 0x22, 0x01452050 },
+ 	{ 0x23, 0x01452050 },
+ 	{}
+@@ -1774,6 +1778,7 @@ static const struct hda_pintbl alienware
+ };
+ 
+ static const struct hda_pintbl intel_dg45id_pin_configs[] = {
++	// Analog outputs
+ 	{ 0x0a, 0x02214230 },
+ 	{ 0x0b, 0x02A19240 },
+ 	{ 0x0c, 0x01013214 },
+@@ -1781,6 +1786,9 @@ static const struct hda_pintbl intel_dg4
+ 	{ 0x0e, 0x01A19250 },
+ 	{ 0x0f, 0x01011212 },
+ 	{ 0x10, 0x01016211 },
++	// Digital output
++	{ 0x22, 0x01451380 },
++	{ 0x23, 0x40f000f0 },
+ 	{}
+ };
+ 
 
 
