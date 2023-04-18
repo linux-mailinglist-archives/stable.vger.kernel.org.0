@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C67F26E630D
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9476E6374
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbjDRMhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52982 "EHLO
+        id S231794AbjDRMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231756AbjDRMhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:32 -0400
+        with ESMTP id S231841AbjDRMko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E32A3E63
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E2113C14
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E255632B3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9175AC433D2;
-        Tue, 18 Apr 2023 12:37:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63CD563310
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB4DC433D2;
+        Tue, 18 Apr 2023 12:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821450;
-        bh=1y4PA2klK5CJIppKYN0NfdsAoMVOfzFHA8PPCfP8ovY=;
+        s=korg; t=1681821642;
+        bh=tA4Tw6Ea+ZlkCbD/ldWcpM2m3bNZNkGF79eHyq/KUBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k36PcwAGlPyI4CMnvlEngXVJGLiOHSBer4jC1Cz61xh29MHTdcn00I9ts4Yyo2XGL
-         RNqzKoUWaDJsI/FOtOgNbvPQDNyydWEYqrHyrVEyIULD7cXYicnNsaO2c9D4hzzLg7
-         sIM5nCWFxBoo9lSZiQo00Zh2KE2l8sn/JeIsTyoQ=
+        b=NT7i8eSk4q1VSKkDhqpGDr/83qmHel6p9fk4gENw8cV1NxkyXTo3ZccpgPNIjwbIa
+         hB9jwa2U9+OFOT3iRL+QWFbcsP4izRZc78gYYAptVG+HTZrKPQvUbgw9uf45RxdJIW
+         rg+YDv7daaOIJkPhMsBE4N00AhGYZEJ+O2Z0P98E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 124/124] sysctl: Fix data-races in proc_dou8vec_minmax().
+        patches@lists.linux.dev, Tobias Gruetzmacher <tobias-git@23.gs>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 79/91] nvme-pci: Crucial P2 has bogus namespace ids
 Date:   Tue, 18 Apr 2023 14:22:23 +0200
-Message-Id: <20230418120314.256095418@linuxfoundation.org>
+Message-Id: <20230418120308.294219156@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Tobias Gruetzmacher <tobias-git@23.gs>
 
-commit 7dee5d7747a69aa2be41f04c6a7ecfe3ac8cdf18 upstream.
+[ Upstream commit d6c52fa3e955b97f8eb3ac824d2a3e0af147b3ce ]
 
-A sysctl variable is accessed concurrently, and there is always a chance
-of data-race.  So, all readers and writers need some basic protection to
-avoid load/store-tearing.
+This adds a quirk for the Crucial P2.
 
-This patch changes proc_dou8vec_minmax() to use READ_ONCE() and
-WRITE_ONCE() internally to fix data-races on the sysctl side.  For now,
-proc_dou8vec_minmax() itself is tolerant to a data-race, but we still
-need to add annotations on the other subsystem's side.
-
-Fixes: cb9444130662 ("sysctl: add proc_dou8vec_minmax()")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tobias Gruetzmacher <tobias-git@23.gs>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Stable-dep-of: 74391b3e6985 ("nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1109,13 +1109,13 @@ int proc_dou8vec_minmax(struct ctl_table
- 
- 	tmp.maxlen = sizeof(val);
- 	tmp.data = &val;
--	val = *data;
-+	val = READ_ONCE(*data);
- 	res = do_proc_douintvec(&tmp, write, buffer, lenp, ppos,
- 				do_proc_douintvec_minmax_conv, &param);
- 	if (res)
- 		return res;
- 	if (write)
--		*data = val;
-+		WRITE_ONCE(*data, val);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(proc_dou8vec_minmax);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 7b0331848664d..4e75d329562fa 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3392,6 +3392,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1e49, 0x0041),   /* ZHITAI TiPro7000 NVMe SSD */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
++	{ PCI_DEVICE(0xc0a9, 0x540a),   /* Crucial P2 */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
+-- 
+2.39.2
+
 
 
