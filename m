@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CB86E63BD
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35E506E62B9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbjDRMnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
+        id S231655AbjDRMez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231972AbjDRMmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:51 -0400
+        with ESMTP id S231268AbjDRMep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3222415629
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFED125B3
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2B2F629B0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6EF8C433EF;
-        Tue, 18 Apr 2023 12:42:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B45D6320E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82019C433EF;
+        Tue, 18 Apr 2023 12:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821762;
-        bh=88B838DTdlpDW2SpNu5skgxEB44SPoNUziSs1+nBFws=;
+        s=korg; t=1681821282;
+        bh=QIjYVfhD4/s7Kmz/eMUMK44QfMHT9KQvNLUIggOotl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIz5jiJbySC2iemwOQpOXrLL+LH/jWG1hQF1YcUJG/pHyH/gUZW4jB764r0y+mnBx
-         piJ1PJgoCaBJPZlW1PgnazVxn6MJKnTnkvz/PEr5BVboQ4s9LHaW0mSlda2Wm1mAaR
-         7ISPYRKGFlOsH+XyWcja2I9ryA1zbhdjIo5r73xQ=
+        b=dMGi4IwAGQDlsx/eI0qZMxfwYLVovtmQ05FGIp6aEpNPoEss9reKtoVuf0iG9W+jZ
+         XzvygkbTUXS7fqkN8Ms9wHTHhWBB+YK/z8hWo/RR943Xskw189qLlhJ5jyxZL3ldKf
+         tWTS3WUL1M/oelEd9gZhiRS55pn/uAJl/VhwxY+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 031/134] RDMA/irdma: Increase iWARP CM default rexmit count
+Subject: [PATCH 5.10 068/124] clk: sprd: set max_register according to mapping range
 Date:   Tue, 18 Apr 2023 14:21:27 +0200
-Message-Id: <20230418120314.068823814@linuxfoundation.org>
+Message-Id: <20230418120312.316655035@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-[ Upstream commit 8385a875c9eecc429b2f72970efcbb0e5cb5b547 ]
+[ Upstream commit 47d43086531f10539470a63e8ad92803e686a3dd ]
 
-When running perftest with large number of connections in iWARP mode, the
-passive side could be slow to respond. Increase the rexmit counter default
-to allow scaling connections.
+In sprd clock driver, regmap_config.max_register was set to a fixed value
+which is likely larger than the address range configured in device tree,
+when reading registers through debugfs it would cause access violation.
 
-Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20230315145231.931-4-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: d41f59fd92f2 ("clk: sprd: Add common infrastructure")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Link: https://lore.kernel.org/r/20230316023624.758204-1-chunyan.zhang@unisoc.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/cm.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/sprd/common.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/cm.h b/drivers/infiniband/hw/irdma/cm.h
-index 19c284975fc7c..7feadb3e1eda3 100644
---- a/drivers/infiniband/hw/irdma/cm.h
-+++ b/drivers/infiniband/hw/irdma/cm.h
-@@ -41,7 +41,7 @@
- #define TCP_OPTIONS_PADDING	3
+diff --git a/drivers/clk/sprd/common.c b/drivers/clk/sprd/common.c
+index ce81e4087a8fc..2bfbab8db94bf 100644
+--- a/drivers/clk/sprd/common.c
++++ b/drivers/clk/sprd/common.c
+@@ -17,7 +17,6 @@ static const struct regmap_config sprdclk_regmap_config = {
+ 	.reg_bits	= 32,
+ 	.reg_stride	= 4,
+ 	.val_bits	= 32,
+-	.max_register	= 0xffff,
+ 	.fast_io	= true,
+ };
  
- #define IRDMA_DEFAULT_RETRYS	64
--#define IRDMA_DEFAULT_RETRANS	8
-+#define IRDMA_DEFAULT_RETRANS	32
- #define IRDMA_DEFAULT_TTL		0x40
- #define IRDMA_DEFAULT_RTT_VAR		6
- #define IRDMA_DEFAULT_SS_THRESH		0x3fffffff
+@@ -43,6 +42,8 @@ int sprd_clk_regmap_init(struct platform_device *pdev,
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *node = dev->of_node, *np;
+ 	struct regmap *regmap;
++	struct resource *res;
++	struct regmap_config reg_config = sprdclk_regmap_config;
+ 
+ 	if (of_find_property(node, "sprd,syscon", NULL)) {
+ 		regmap = syscon_regmap_lookup_by_phandle(node, "sprd,syscon");
+@@ -59,12 +60,14 @@ int sprd_clk_regmap_init(struct platform_device *pdev,
+ 			return PTR_ERR(regmap);
+ 		}
+ 	} else {
+-		base = devm_platform_ioremap_resource(pdev, 0);
++		base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 		if (IS_ERR(base))
+ 			return PTR_ERR(base);
+ 
++		reg_config.max_register = resource_size(res) - reg_config.reg_stride;
++
+ 		regmap = devm_regmap_init_mmio(&pdev->dev, base,
+-					       &sprdclk_regmap_config);
++					       &reg_config);
+ 		if (IS_ERR(regmap)) {
+ 			pr_err("failed to init regmap\n");
+ 			return PTR_ERR(regmap);
 -- 
 2.39.2
 
