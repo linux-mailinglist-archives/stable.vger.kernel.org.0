@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2456E649C
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 398AD6E6242
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232167AbjDRMus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42800 "EHLO
+        id S231517AbjDRMbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjDRMul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:41 -0400
+        with ESMTP id S231643AbjDRMbJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571E816B00
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985E310262
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B58F363425
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94E6C4339B;
-        Tue, 18 Apr 2023 12:50:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 692DA631DB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C8A5C433D2;
+        Tue, 18 Apr 2023 12:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822238;
-        bh=k/HB4zxvp8gyenny9Zjs2yixtVMg9eZfyBxRQrGyrk8=;
+        s=korg; t=1681821050;
+        bh=UARv0zW1xUXNLD/z5xqu0p+oRoDRCvX+Obz/DZzjhqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdT5rgZ0dXBmIJ+CTpnpxjrySeIX16IfBiummWMKGFhFof/sjzAm6W/vGhaLcuHyZ
-         qI1VB6/ei3aJADBMVq/A8+i+LH6slBBi/NqYiyNUC5gKFswZE7NyzLSnssP8LxVxLM
-         +Ou9esMY7hs7w8hemFsfTyAJdfTB3kqfMzZEcEDs=
+        b=FXIH5931XUw2Ra7Bgf4hkzmn7wSFZhV6lDxMDHJvzHtDTeZ1jrYriDgcIY73NJu2y
+         w+d8Cg3nmLUpp6xJ+lnwk9oUSoZ7lmtIEt9hLUXfI4gXCoByrbYoT12HeEIxJkpjsZ
+         BK6rpW/lYrg7pmj7b2vYANPMuXrBtl9V+WfP+YEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
-        Aya Levin <ayal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 035/139] IB/mlx5: Add support for 400G_8X lane speed
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 65/92] i2c: imx-lpi2c: clean rx/tx buffers upon new message
 Date:   Tue, 18 Apr 2023 14:21:40 +0200
-Message-Id: <20230418120314.974703458@linuxfoundation.org>
+Message-Id: <20230418120307.103507542@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maher Sanalla <msanalla@nvidia.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 88c9483faf15ada14eca82714114656893063458 ]
+[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
 
-Currently, when driver queries PTYS to report which link speed is being
-used on its RoCE ports, it does not check the case of having 400Gbps
-transmitted over 8 lanes. Thus it fails to report the said speed and
-instead it defaults to report 10G over 4 lanes.
+When start sending a new message clear the Rx & Tx buffer pointers in
+order to avoid using stale pointers.
 
-Add a check for the said speed when querying PTYS and report it back
-correctly when needed.
-
-Fixes: 08e8676f1607 ("IB/mlx5: Add support for 50Gbps per lane link modes")
-Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/ec9040548d119d22557d6a4b4070d6f421701fd4.1678973994.git.leon@kernel.org
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index c669ef6e47e73..eaa35e1df2a85 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -442,6 +442,10 @@ static int translate_eth_ext_proto_oper(u32 eth_proto_oper, u16 *active_speed,
- 		*active_width = IB_WIDTH_2X;
- 		*active_speed = IB_SPEED_NDR;
- 		break;
-+	case MLX5E_PROT_MASK(MLX5E_400GAUI_8):
-+		*active_width = IB_WIDTH_8X;
-+		*active_speed = IB_SPEED_HDR;
-+		break;
- 	case MLX5E_PROT_MASK(MLX5E_400GAUI_4_400GBASE_CR4_KR4):
- 		*active_width = IB_WIDTH_4X;
- 		*active_speed = IB_SPEED_NDR;
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 13c17afe7102e..4fac2591b6618 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -468,6 +468,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ 		if (num == 1 && msgs[0].len == 0)
+ 			goto stop;
+ 
++		lpi2c_imx->rx_buf = NULL;
++		lpi2c_imx->tx_buf = NULL;
+ 		lpi2c_imx->delivered = 0;
+ 		lpi2c_imx->msglen = msgs[i].len;
+ 		init_completion(&lpi2c_imx->complete);
 -- 
 2.39.2
 
