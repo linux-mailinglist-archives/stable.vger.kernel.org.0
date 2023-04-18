@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 100A26E6404
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD096E64AD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbjDRMp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35040 "EHLO
+        id S232206AbjDRMve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232012AbjDRMpW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE8F14F40
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:16 -0700 (PDT)
+        with ESMTP id S232182AbjDRMvV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9691E16B0E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 104DE63386
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 257D5C433EF;
-        Tue, 18 Apr 2023 12:45:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C116342C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C59C4339E;
+        Tue, 18 Apr 2023 12:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821915;
-        bh=2pP/7F7VNBSB7j7XD5swCP3wrTQaO62LKbd0DZpgzp0=;
+        s=korg; t=1681822256;
+        bh=DNHA9w31gGi6slqGhnDugKrUxRmBTEkUVrJjeSv3J8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7zKBGfVLN0HSGNHXJy5az/o5Pfreak0N3O5siQ1LWCsJUQSdFqEtD/mm5J6RVs3E
-         MlRJPGH9EN2GoK61LO+HVAREgmrXAuMfUeOosoD/S3oumalKhQP5RRjzVbnQ7aCk6J
-         MmmsM3/WudbFHOQZ4TLGKWOY4jPT8u/asubVlkSY=
+        b=kid/WU51ROyD/mApx2QL718HGjUQkPLDecbgRflMeJ79XF7HXNixzk59NkPxR/cJ5
+         wID1PsgIF0qM+c6MzyHnzFH3BKDWXAqRkw34ITusPvg5jgG5dXp3dIR0zH7ZOpAF72
+         uHeyb+9htJZC2sVroeCmWu3lRrn2BDxjbMgNXYkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tong Liu01 <Tong.Liu01@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 090/134] drm/amdgpu: add mes resume when do gfx post soft reset
-Date:   Tue, 18 Apr 2023 14:22:26 +0200
-Message-Id: <20230418120316.305164708@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 082/139] wifi: mwifiex: mark OF related data as maybe unused
+Date:   Tue, 18 Apr 2023 14:22:27 +0200
+Message-Id: <20230418120316.912197574@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,53 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Liu01 <Tong.Liu01@amd.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 4eb0b49a0ad3e004a6a65b84efe37bc7e66d560f ]
+[ Upstream commit 139f6973bf140c65d4d1d4bde5485badb4454d7a ]
 
-[why]
-when gfx do soft reset, mes will also do reset, if mes is not
-resumed when do recover from soft reset, mes is unable to respond
-in later sequence
+The driver can be compile tested with !CONFIG_OF making certain data
+unused:
 
-[how]
-resume mes when do gfx post soft reset
+  drivers/net/wireless/marvell/mwifiex/sdio.c:498:34: error: ‘mwifiex_sdio_of_match_table’ defined but not used [-Werror=unused-const-variable=]
+  drivers/net/wireless/marvell/mwifiex/pcie.c:175:34: error: ‘mwifiex_pcie_of_match_table’ defined but not used [-Werror=unused-const-variable=]
 
-Signed-off-by: Tong Liu01 <Tong.Liu01@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230312132523.352182-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 2 +-
+ drivers/net/wireless/marvell/mwifiex/sdio.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-index 90e739d9aeee7..7a13129842602 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-@@ -4625,6 +4625,14 @@ static bool gfx_v11_0_check_soft_reset(void *handle)
- 	return false;
- }
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index 5dcf61761a165..9a698a16a8f38 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -172,7 +172,7 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
+ 	.can_ext_scan = true,
+ };
  
-+static int gfx_v11_0_post_soft_reset(void *handle)
-+{
-+	/**
-+	 * GFX soft reset will impact MES, need resume MES when do GFX soft reset
-+	 */
-+	return amdgpu_mes_resume((struct amdgpu_device *)handle);
-+}
-+
- static uint64_t gfx_v11_0_get_gpu_clock_counter(struct amdgpu_device *adev)
- {
- 	uint64_t clock;
-@@ -6068,6 +6076,7 @@ static const struct amd_ip_funcs gfx_v11_0_ip_funcs = {
- 	.wait_for_idle = gfx_v11_0_wait_for_idle,
- 	.soft_reset = gfx_v11_0_soft_reset,
- 	.check_soft_reset = gfx_v11_0_check_soft_reset,
-+	.post_soft_reset = gfx_v11_0_post_soft_reset,
- 	.set_clockgating_state = gfx_v11_0_set_clockgating_state,
- 	.set_powergating_state = gfx_v11_0_set_powergating_state,
- 	.get_clockgating_state = gfx_v11_0_get_clockgating_state,
+-static const struct of_device_id mwifiex_pcie_of_match_table[] = {
++static const struct of_device_id mwifiex_pcie_of_match_table[] __maybe_unused = {
+ 	{ .compatible = "pci11ab,2b42" },
+ 	{ .compatible = "pci1b4b,2b42" },
+ 	{ }
+diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
+index 9f506efa53705..ea1c1c2412e72 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sdio.c
++++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
+@@ -479,7 +479,7 @@ static struct memory_type_mapping mem_type_mapping_tbl[] = {
+ 	{"EXTLAST", NULL, 0, 0xFE},
+ };
+ 
+-static const struct of_device_id mwifiex_sdio_of_match_table[] = {
++static const struct of_device_id mwifiex_sdio_of_match_table[] __maybe_unused = {
+ 	{ .compatible = "marvell,sd8787" },
+ 	{ .compatible = "marvell,sd8897" },
+ 	{ .compatible = "marvell,sd8997" },
 -- 
 2.39.2
 
