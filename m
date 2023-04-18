@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 373196E62D1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15AB76E63B2
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230455AbjDRMfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
+        id S231931AbjDRMmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:42:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230208AbjDRMfj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB8FD338
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:39 -0700 (PDT)
+        with ESMTP id S231912AbjDRMmo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F461445E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9886326B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B305BC433EF;
-        Tue, 18 Apr 2023 12:35:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C8AE6333E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EEE7C433EF;
+        Tue, 18 Apr 2023 12:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821338;
-        bh=2wA44kDtgI9IRu4YzCwgCu50ewXF20yfzD+KbsOE260=;
+        s=korg; t=1681821741;
+        bh=9FsBkvJfoNedzOC7iOtx1D71LcT7btf9yxzU2rZZ2So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLmQ54nDf/U5HVxoV3p76z8yZJtNHpqsZXonR93W4kPOTzaF2/UkCerOQkaO8HBa0
-         Ib4rnvZ3r7BliLbZPeXxcrHWB4BhR8blvypcH8AIa/2nja2uLo13Un/1LDs3AxKlHA
-         LFTHYvxNK5A38txbwBPiXYEsEH3eWcmgKvXtWUcw=
+        b=eFbBVs25fPj7R0htOcam0FeNb+cogRnRMdCNUDmPYjG5+tWclZ3oPWQHojV7bEEPJ
+         xBaOO2JgBrJj7qxGn14lUHUEnjNC5IYOkz1TSlVjxYl+Q6yLgyKbpgZYAc4VycPxMp
+         hGwS9LhfBGTQbL0xmdgnSUEN8VU4hvHdtPq2JAC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.10 060/124] Bluetooth: Fix race condition in hidp_session_thread
-Date:   Tue, 18 Apr 2023 14:21:19 +0200
-Message-Id: <20230418120312.040976910@linuxfoundation.org>
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Reiji Watanabe <reijiw@google.com>,
+        Oliver Upton <oliver.upton@linux.dev>
+Subject: [PATCH 6.1 024/134] KVM: arm64: PMU: Restore the guests EL0 event counting after migration
+Date:   Tue, 18 Apr 2023 14:21:20 +0200
+Message-Id: <20230418120313.846741117@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,52 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Min Li <lm0963hack@gmail.com>
+From: Reiji Watanabe <reijiw@google.com>
 
-commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
+commit f9ea835e99bc8d049bf2a3ec8fa5a7cb4fcade23 upstream.
 
-There is a potential race condition in hidp_session_thread that may
-lead to use-after-free. For instance, the timer is active while
-hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
-then 'session' will be freed, causing kernel panic when hidp_idle_timeout
-is running.
+Currently, with VHE, KVM enables the EL0 event counting for the
+guest on vcpu_load() or KVM enables it as a part of the PMU
+register emulation process, when needed.  However, in the migration
+case (with VHE), the same handling is lacking, as vPMU register
+values that were restored by userspace haven't been propagated yet
+(the PMU events haven't been created) at the vcpu load-time on the
+first KVM_RUN (kvm_vcpu_pmu_restore_guest() called from vcpu_load()
+on the first KVM_RUN won't do anything as events_{guest,host} of
+kvm_pmu_events are still zero).
 
-The solution is to use del_timer_sync instead of del_timer.
+So, with VHE, enable the guest's EL0 event counting on the first
+KVM_RUN (after the migration) when needed.  More specifically,
+have kvm_pmu_handle_pmcr() call kvm_vcpu_pmu_restore_guest()
+so that kvm_pmu_handle_pmcr() on the first KVM_RUN can take
+care of it.
 
-Here is the call trace:
-
-? hidp_session_probe+0x780/0x780
-call_timer_fn+0x2d/0x1e0
-__run_timers.part.0+0x569/0x940
-hidp_session_probe+0x780/0x780
-call_timer_fn+0x1e0/0x1e0
-ktime_get+0x5c/0xf0
-lapic_next_deadline+0x2c/0x40
-clockevents_program_event+0x205/0x320
-run_timer_softirq+0xa9/0x1b0
-__do_softirq+0x1b9/0x641
-__irq_exit_rcu+0xdc/0x190
-irq_exit_rcu+0xe/0x20
-sysvec_apic_timer_interrupt+0xa1/0xc0
-
+Fixes: d0c94c49792c ("KVM: arm64: Restore PMU configuration on first run")
 Cc: stable@vger.kernel.org
-Signed-off-by: Min Li <lm0963hack@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Reiji Watanabe <reijiw@google.com>
+Link: https://lore.kernel.org/r/20230329023944.2488484-1-reijiw@google.com
+Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hidp/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kvm/pmu-emul.c |    1 +
+ arch/arm64/kvm/sys_regs.c |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -433,7 +433,7 @@ static void hidp_set_timer(struct hidp_s
- static void hidp_del_timer(struct hidp_session *session)
- {
- 	if (session->idle_to > 0)
--		del_timer(&session->timer);
-+		del_timer_sync(&session->timer);
+--- a/arch/arm64/kvm/pmu-emul.c
++++ b/arch/arm64/kvm/pmu-emul.c
+@@ -531,6 +531,7 @@ void kvm_pmu_handle_pmcr(struct kvm_vcpu
+ 		for_each_set_bit(i, &mask, 32)
+ 			kvm_pmu_set_counter_value(vcpu, i, 0);
+ 	}
++	kvm_vcpu_pmu_restore_guest(vcpu);
  }
  
- static void hidp_process_report(struct hidp_session *session, int type,
+ static bool kvm_pmu_counter_is_enabled(struct kvm_vcpu *vcpu, u64 select_idx)
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -707,7 +707,6 @@ static bool access_pmcr(struct kvm_vcpu
+ 		if (!kvm_supports_32bit_el0())
+ 			val |= ARMV8_PMU_PMCR_LC;
+ 		kvm_pmu_handle_pmcr(vcpu, val);
+-		kvm_vcpu_pmu_restore_guest(vcpu);
+ 	} else {
+ 		/* PMCR.P & PMCR.C are RAZ */
+ 		val = __vcpu_sys_reg(vcpu, PMCR_EL0)
 
 
