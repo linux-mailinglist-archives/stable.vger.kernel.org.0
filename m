@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B896E622F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 792FD6E61B5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbjDRMav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:30:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42366 "EHLO
+        id S231345AbjDRM0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:26:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231651AbjDRMak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:40 -0400
+        with ESMTP id S231469AbjDRM0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7E81BEB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FD4977B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3B66631D5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6753C433EF;
-        Tue, 18 Apr 2023 12:29:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08266624C0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A740C433EF;
+        Tue, 18 Apr 2023 12:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820985;
-        bh=yl4ZRg6fUPQbkX5eOmCR7ZNSfCgeceTI+6ky0FgmFWE=;
+        s=korg; t=1681820770;
+        bh=sY350rwXdA0QhANuDelDQSa/2rjg2ZfGVj8/opnG3aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WugGJ0/HJVSWtwx88xMIr5Io+92ygNG1sfGDVYI9OhOHQE17it/2GG729w89PcLJJ
-         ZDDqtb2agsgY4OTHZJdSWmvoTXIHd4WpX7e8/uxQzXaKhELhIYnZroBKcqALuCoEIC
-         qIKzMvv/hD1cNn5PkqRYDdPo7tj4Fnyx350p9eS8=
+        b=Wq2mrKxCJLbogEYefmNJD3v5Ng+/4txBi4/1y7Tv3QWcEwMtLGL8d6elX8hzs3Spo
+         lV+wJUHX2WZohsn7U+zeVC3GGJGC2HDHmU+j+iaOkfbJ1UeccKUYGIbpeGLndEYhHV
+         tpeIv2NQQEU8Hpth6ja4hqcRqicsZ2gTSe4RVWJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xu Biang <xubiang@hust.edu.cn>,
-        Dan Carpenter <error27@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 48/92] ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
-Date:   Tue, 18 Apr 2023 14:21:23 +0200
-Message-Id: <20230418120306.534849182@linuxfoundation.org>
+        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/57] perf/core: Fix the same task check in perf_event_set_output
+Date:   Tue, 18 Apr 2023 14:21:24 +0200
+Message-Id: <20230418120259.582043546@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Biang <xubiang@hust.edu.cn>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit fb4a624f88f658c7b7ae124452bd42eaa8ac7168 upstream.
+[ Upstream commit 24d3ae2f37d8bc3c14b31d353c5d27baf582b6a6 ]
 
-Smatch Warns:
-sound/firewire/tascam/tascam-stream.c:493 snd_tscm_stream_start_duplex()
-warn: missing unwind goto?
+The same task check in perf_event_set_output has some potential issues
+for some usages.
 
-The direct return will cause the stream list of "&tscm->domain" unemptied
-and the session in "tscm" unfinished if amdtp_domain_start() returns with
-an error.
+For the current perf code, there is a problem if using of
+perf_event_open() to have multiple samples getting into the same mmap’d
+memory when they are both attached to the same process.
+https://lore.kernel.org/all/92645262-D319-4068-9C44-2409EF44888E@gmail.com/
+Because the event->ctx is not ready when the perf_event_set_output() is
+invoked in the perf_event_open().
 
-Fix this by changing the direct return to a goto which will empty the
-stream list of "&tscm->domain" and finish the session in "tscm".
+Besides the above issue, before the commit bd2756811766 ("perf: Rewrite
+core context handling"), perf record can errors out when sampling with
+a hardware event and a software event as below.
+ $ perf record -e cycles,dummy --per-thread ls
+ failed to mmap with 22 (Invalid argument)
+That's because that prior to the commit a hardware event and a software
+event are from different task context.
 
-The snd_tscm_stream_start_duplex() function is called in the prepare
-callback of PCM. According to "ALSA Kernel API Documentation", the prepare
-callback of PCM will be called many times at each setup. So, if the
-"&d->streams" list is not emptied, when the prepare callback is called
-next time, snd_tscm_stream_start_duplex() will receive -EBUSY from
-amdtp_domain_add_stream() that tries to add an existing stream to the
-domain. The error handling code after the "error" label will be executed
-in this case, and the "&d->streams" list will be emptied. So not emptying
-the "&d->streams" list will not cause an issue. But it is more efficient
-and readable to empty it on the first error by changing the direct return
-to a goto statement.
+The problem should be a long time issue since commit c3f00c70276d
+("perk: Separate find_get_context() from event initialization").
 
-The session in "tscm" has been begun before amdtp_domain_start(), so it
-needs to be finished when amdtp_domain_start() fails.
+The task struct is stored in the event->hw.target for each per-thread
+event. It is a more reliable way to determine whether two events are
+attached to the same task.
 
-Fixes: c281d46a51e3 ("ALSA: firewire-tascam: support AMDTP domain")
-Signed-off-by: Xu Biang <xubiang@hust.edu.cn>
-Reviewed-by: Dan Carpenter <error27@gmail.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230406132801.105108-1-xubiang@hust.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The event->hw.target was also introduced several years ago by the
+commit 50f16a8bf9d7 ("perf: Remove type specific target pointers"). It
+can not only be used to fix the issue with the current code, but also
+back port to fix the issues with an older kernel.
+
+Note: The event->hw.target was introduced later than commit
+c3f00c70276d. The patch may cannot be applied between the commit
+c3f00c70276d and commit 50f16a8bf9d7. Anybody that wants to back-port
+this at that period may have to find other solutions.
+
+Fixes: c3f00c70276d ("perf: Separate find_get_context() from event initialization")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Link: https://lkml.kernel.org/r/20230322202449.512091-1-kan.liang@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/tascam/tascam-stream.c |    2 +-
+ kernel/events/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/firewire/tascam/tascam-stream.c
-+++ b/sound/firewire/tascam/tascam-stream.c
-@@ -465,7 +465,7 @@ int snd_tscm_stream_start_duplex(struct
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 668e5492e4c4d..72ed3f3d078fc 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10431,7 +10431,7 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 	/*
+ 	 * If its not a per-cpu rb, it must be the same task.
+ 	 */
+-	if (output_event->cpu == -1 && output_event->ctx != event->ctx)
++	if (output_event->cpu == -1 && output_event->hw.target != event->hw.target)
+ 		goto out;
  
- 		err = amdtp_domain_start(&tscm->domain);
- 		if (err < 0)
--			return err;
-+			goto error;
- 
- 		if (!amdtp_stream_wait_callback(&tscm->rx_stream,
- 						CALLBACK_TIMEOUT) ||
+ 	/*
+-- 
+2.39.2
+
 
 
