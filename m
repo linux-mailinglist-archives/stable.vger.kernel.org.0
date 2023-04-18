@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 113AE6E5EB1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 12:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C43266E5EBD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 12:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231304AbjDRK0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 06:26:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50580 "EHLO
+        id S229734AbjDRK2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 06:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231324AbjDRKZh (ORCPT
+        with ESMTP id S230036AbjDRKZh (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 06:25:37 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853BE9758;
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9DF7686;
         Tue, 18 Apr 2023 03:25:23 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id 38308e7fff4ca-2a8ba5f1d6bso18088411fa.2;
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-4ec8ce03818so2095138e87.3;
         Tue, 18 Apr 2023 03:25:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681813521; x=1684405521;
+        d=gmail.com; s=20221208; t=1681813522; x=1684405522;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=f8EDCVWrrYjmdhE+3VIsyJI2fCbptGUdt113PnBa7as=;
-        b=imJsla87cGI4sfCU7nvsUDxE60K8yguI5a6RXOkU3X9pu0SEiy7BOzh5gXZy0WKyFB
-         eJAnT0SYMmCz3gveVIO4idMBrBTdYYXyYpK5rM4qP/DU+o/N5s2/p2UR52NAvHP3wecO
-         1HbfCh6JxapW5D41LHyG107xz3hYHEwd3Ug6lr2ZIe4Gn9B3MPKgRXgKKyYSMGP82ZsG
-         xdzxgSd+mbgxvXuykIjs7oKjIeD+i3ew09iaYeMClvVty6y02f2ZRKlPKvTw/h+Fbp+5
-         1q0YM/xLYNtXx8eARpASjcZByV5OLiR2MOoxDgGkEXYYIjalOOhxNreC/zxT/KOp+rSS
-         uz2Q==
+        bh=F1lGd5qD3qjwVfeqpjvYnn9ysFtDqQ34vf3vEZcpgEo=;
+        b=Z6EEg4kz5T0vv5STeMJTU5SjWnRUvrdHxZLKPj93iqFXMpbsh7Uc5c6heIktgSJfOL
+         GQDB7kiMOdP7lVZb64Ge2Z0ugWPpm+ipxJTW0o/UDA6iDBSxpHar/IxhpzP2GMdLgP0U
+         a9ncbbN3vJHi+Rz7F9JPbeKk5tgv0nCYM6VLdN3vgz3CvaSyr8UE8W3ASn6rDoxiOaaS
+         eMvujIk8dfSx+dHljQZrAP7d48gSRei2ju1i9tCCJ2xm4hQzhVsxoeN66Sgci5tEh42j
+         VYlI4Jon3ywFWWwYixR4GtyHDGUsPwFKo2EWWnMeo9LPFJ9IfXSzjOG+I6VG2k72ZOT+
+         Dtdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681813521; x=1684405521;
+        d=1e100.net; s=20221208; t=1681813522; x=1684405522;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=f8EDCVWrrYjmdhE+3VIsyJI2fCbptGUdt113PnBa7as=;
-        b=KRwfNzMvAVa1aDGje6CRvenM1zsYnY4Yl6/4qaw45fG3RxB9hMaq6SHO4ASKrYHClh
-         Ki6nhUCoRK5+BIf9csnKjXLEcKw4EicWymGoCAmpcV3yVmephJMeCycupp04NrC2wQ+C
-         I+e827JAHwjtlu77cvgXzd1j8zHqYCBqmWLtY6Q/0ZWbd3tWboM3YzuZCtyCuZeFTVJo
-         ZioJq+lljUHVWzXDw79a6kfiba5wjRo3EpIb7NanruzpEOZx+/m0+VPLHF4lcdhS8LoO
-         a7XmdVvX6s2q+jrD1+l0B04n2eSuaknl26uuVcigAUTrLoYXwFL70i1KOww1brBgD0WF
-         UF2A==
-X-Gm-Message-State: AAQBX9eY4ACfVe5wV/DUl6YSeWi61wcaV4Xl7T6Rx+NdNYDov1n5ia0p
-        In83+5E9oMbob2QDajVkIgTMXSP0rp8=
-X-Google-Smtp-Source: AKy350b6AXBnTOK7aSrfdilfwa8+ZRQvuBN3Ns2GYHU+al99cR6iDo+ckM+4wCFKcsXmUOOGlstfcg==
-X-Received: by 2002:a19:ac05:0:b0:4ec:8c1e:c816 with SMTP id g5-20020a19ac05000000b004ec8c1ec816mr2594631lfc.34.1681813521503;
-        Tue, 18 Apr 2023 03:25:21 -0700 (PDT)
+        bh=F1lGd5qD3qjwVfeqpjvYnn9ysFtDqQ34vf3vEZcpgEo=;
+        b=F+NAsfD/kQllLmWp/+QAcFtB+WK8VBkejgde/RKoJOHm66vjDYEAy0PHdemez4Cr1p
+         FDyKLAJiEmFxwT1ALl7zXx0YoGVlwLfevQ5mn58qsnp1/3CNZYpbUWekGPRkN2zDqVQL
+         NRJ/1EihQi9RAUsZghPN/FP4kHqaGYxAZRrgVKXcym7/Sp3lBQU/hehpcVF03Ai4uGqB
+         5ptE9sgPsqK8QgdEn6W7xFoBjMdf5X6sI9+unAxGUAawd94/01q3Wf3TgJsVjjRhVcRB
+         j+0vEv+gt8Ps1+IATG7sd4LvRAbdlrZbm+1WWeccpoF1zTtFUojBYwA/xMYfk76bXdNB
+         DnDg==
+X-Gm-Message-State: AAQBX9dCNWH/Istboqngrfn5Zu0QupogOF3I57XQaqGCdGm4GjO1NBSR
+        upRntWK3+HGduIhtjuJLwD0FD4JaEAU=
+X-Google-Smtp-Source: AKy350bFHlFePcAMDCEk5rhFiG+kdU6tdQMEXwIikFi71Vrxvsi+MhSTC12OebFgQpTaj7Cy2ckv3g==
+X-Received: by 2002:ac2:4472:0:b0:4ec:9c2e:7ee3 with SMTP id y18-20020ac24472000000b004ec9c2e7ee3mr2490224lfl.42.1681813522151;
+        Tue, 18 Apr 2023 03:25:22 -0700 (PDT)
 Received: from pc638.lan ([155.137.26.201])
-        by smtp.gmail.com with ESMTPSA id z13-20020ac25ded000000b004ec8de8ab43sm2332421lfq.139.2023.04.18.03.25.20
+        by smtp.gmail.com with ESMTPSA id z13-20020ac25ded000000b004ec8de8ab43sm2332421lfq.139.2023.04.18.03.25.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 18 Apr 2023 03:25:21 -0700 (PDT)
 From:   "Uladzislau Rezki (Sony)" <urezki@gmail.com>
@@ -56,9 +56,9 @@ Cc:     RCU <rcu@vger.kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
         Ziwei Dai <ziwei.dai@unisoc.com>,
         Mukesh Ojha <quic_mojha@quicinc.com>,
         "Paul E . McKenney" <paulmck@kernel.org>
-Subject: [PATCH 1/1] linux-5.15/rcu/kvfree: Avoid freeing new kfree_rcu() memory after old grace period
-Date:   Tue, 18 Apr 2023 12:25:17 +0200
-Message-Id: <20230418102518.5911-2-urezki@gmail.com>
+Subject: [PATCH 1/1] linux-6.1/rcu/kvfree: Avoid freeing new kfree_rcu() memory after old grace period
+Date:   Tue, 18 Apr 2023 12:25:18 +0200
+Message-Id: <20230418102518.5911-3-urezki@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20230418102518.5911-1-urezki@gmail.com>
 References: <20230418102518.5911-1-urezki@gmail.com>
@@ -166,8 +166,7 @@ grace period has completed for all three categories.
 
 v2: Use helper function instead of inserted code block at kfree_rcu_monitor().
 
-[UR: backport to 5.15-stable]
-[UR: Added missing need_offload_krc() function]
+[UR: backport to 6.1-stable]
 Fixes: 34c881745549 ("rcu: Support kfree_bulk() interface in kfree_rcu()")
 Fixes: 5f3c8d620447 ("rcu/tree: Maintain separate array for vmalloc ptrs")
 Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
@@ -177,29 +176,17 @@ Tested-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 ---
- kernel/rcu/tree.c | 39 +++++++++++++++++++++++++++++++--------
- 1 file changed, 31 insertions(+), 8 deletions(-)
+ kernel/rcu/tree.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
 diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index cf101da389b0..6d638f282967 100644
+index 14d9384fba05..2342ffdf3c30 100644
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
-@@ -3327,6 +3327,30 @@ static void kfree_rcu_work(struct work_struct *work)
- 	}
+@@ -3098,6 +3098,18 @@ need_offload_krc(struct kfree_rcu_cpu *krcp)
+ 	return !!krcp->head;
  }
  
-+static bool
-+need_offload_krc(struct kfree_rcu_cpu *krcp)
-+{
-+	int i;
-+
-+	for (i = 0; i < FREE_N_CHANNELS; i++)
-+		if (krcp->bkvhead[i])
-+			return true;
-+
-+	return !!krcp->head;
-+}
-+
 +static bool
 +need_wait_for_krwp_work(struct kfree_rcu_cpu_work *krwp)
 +{
@@ -212,10 +199,10 @@ index cf101da389b0..6d638f282967 100644
 +	return !!krwp->head_free;
 +}
 +
- /*
-  * This function is invoked after the KFREE_DRAIN_JIFFIES timeout.
-  */
-@@ -3343,14 +3367,13 @@ static void kfree_rcu_monitor(struct work_struct *work)
+ static void
+ schedule_delayed_monitor_work(struct kfree_rcu_cpu *krcp)
+ {
+@@ -3129,14 +3141,13 @@ static void kfree_rcu_monitor(struct work_struct *work)
  	for (i = 0; i < KFREE_N_BATCHES; i++) {
  		struct kfree_rcu_cpu_work *krwp = &(krcp->krw_arr[i]);
  
