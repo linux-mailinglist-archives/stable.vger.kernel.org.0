@@ -2,351 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 846F46E6700
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 729DA6E6768
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232096AbjDROVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 10:21:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57724 "EHLO
+        id S230249AbjDROr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 10:47:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232095AbjDROVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:21:02 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941659C;
-        Tue, 18 Apr 2023 07:21:00 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 3F5461F8D4;
-        Tue, 18 Apr 2023 14:20:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1681827659; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=msQfS+TSBvcJPSLbCbcdaZBhz2r4XoDvKXFYtrjO0cg=;
-        b=c5BhSCuHQ1OZB69jROiqYxnukOlvdbG7MJMlcpWaXpaxPNoUatL7ZmQ/jlNsXlUl7VgmGp
-        V4gY9iTwA+gJRe1dVkvCr7OxhuLK8EvAlH54m2p8lQBzd7xAi/Sv2CtUIZcSbA+msbuZqu
-        kOzbpaJvd00BFWYj2FZcWwRe+f3x76k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1681827659;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=msQfS+TSBvcJPSLbCbcdaZBhz2r4XoDvKXFYtrjO0cg=;
-        b=TRAhHlQ1Eh+L1yFTxFOJzeT/fhsC+xIiNvUn700L2oNubeQyOOsrZ0R+Ap9voD+sHBy93Q
-        iCAvNYi/HdyXd3DA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B7A3A13581;
-        Tue, 18 Apr 2023 14:20:58 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id yKffKUqnPmQYWAAAMHmgww
-        (envelope-from <lhenriques@suse.de>); Tue, 18 Apr 2023 14:20:58 +0000
-Received: from localhost (brahms.olymp [local])
-        by brahms.olymp (OpenSMTPD) with ESMTPA id f9a92aa2;
-        Tue, 18 Apr 2023 14:20:57 +0000 (UTC)
-From:   =?utf-8?Q?Lu=C3=ADs_Henriques?= <lhenriques@suse.de>
-To:     xiubli@redhat.com
-Cc:     idryomov@gmail.com, ceph-devel@vger.kernel.org, jlayton@kernel.org,
-        vshankar@redhat.com, mchangir@redhat.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3] ceph: fix potential use-after-free bug when trimming
- caps
-References: <20230418014506.95428-1-xiubli@redhat.com>
-Date:   Tue, 18 Apr 2023 15:20:57 +0100
-In-Reply-To: <20230418014506.95428-1-xiubli@redhat.com> (xiubli@redhat.com's
-        message of "Tue, 18 Apr 2023 09:45:06 +0800")
-Message-ID: <877cu9w9ti.fsf@brahms.olymp>
+        with ESMTP id S230202AbjDROr0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:47:26 -0400
+Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB62B448E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:47:24 -0700 (PDT)
+Received: by mail-ua1-x932.google.com with SMTP id l17so7735666uak.0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:47:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681829244; x=1684421244;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=zxv/j8d+r2oA0vxESoxPSJz8TZknxHfxebul1vANndQ=;
+        b=GqkPdIJexPqah1YPwxeOHrQQde2yvFeRgaTIYQl4NjC2zoCUuNI4wWEsRusCXz9si+
+         Nk8TLeLHlq9i28pmzScHr8PdX8YQm9WqGkPfTt4agyY33LqjEhdaeCfw43+7/BlXYiew
+         /eVv3ir+iNIJjPWaGTnuORJMVBRWy/6araulrSFExtpkCJizAUMa0Z4uIBHJQSg+b80Z
+         gZHDJ9lfe3dlwFWs2xv2hXznOKRm2q0ZrJVH90LRJl7PenW/O6TB2XhTtv56jFq0/jUt
+         Z1Sd/QmZkklJAs4ccVeFfK0a+PC3eiNSBKJ+WQvusKKF0ctk2bRxsbvPCFC9jZrJxSae
+         qt0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681829244; x=1684421244;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zxv/j8d+r2oA0vxESoxPSJz8TZknxHfxebul1vANndQ=;
+        b=WL0eaSD5gaHKsuGWn6MuMWbfB2p24hPM/MCehjrkx/TnJA5jqFXPCtn9JhEFwYyZBm
+         KEDTyoimrInaRMmcRumfzze1f14uaMHigkTLXEi3o6jpZ45KA5oQnqZxM8fKldlGUq+e
+         xyK/eEA4cM05CYGnwyEcsFGXJLKwMav0YbX7bp1zHN6YwRBVm6HZWqmgCrjNjDGV08iB
+         J7yzo6SzvDdnsDXgOifuazpAhtukRB2kQz9KK0apwWuGr2l1sS9ZzLS2f+Grq1IxGE+Z
+         5cF6HtoyVjs/odHJkeG9mRn/hh4BwIsPGjOi4V540scjL5KU+2M+KNpb2v8IwMzNVezb
+         trNA==
+X-Gm-Message-State: AAQBX9eF7NTRQa0TXSqNQ8T81ktkoZB0KsL5cLCdfXAbbWx2igZ9r62D
+        HoefhV6RF0T0MhaKPj9mBJgWy+2c5nvwLfe4/ZmHVw==
+X-Google-Smtp-Source: AKy350aZ7U01zpkAeVgv1+aiKvjqICBYTsuqUdfkjZ0vlK/PTEx4E93SIhJFpk0Rer7y8Q3NOlUm/xmMd7alr76PngE=
+X-Received: by 2002:a1f:410b:0:b0:43c:2acc:4814 with SMTP id
+ o11-20020a1f410b000000b0043c2acc4814mr6492587vka.2.1681829243795; Tue, 18 Apr
+ 2023 07:47:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 18 Apr 2023 20:17:12 +0530
+Message-ID: <CA+G9fYs9sHnfhn4hSFP=AmOfgj-zvoK9vmBejRvzKPj4uXx+VA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/91] 5.15.108-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Waiman Long <longman@redhat.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Tejun Heo <tj@kernel.org>,
+        =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>,
+        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xiubli@redhat.com writes:
-
-> From: Xiubo Li <xiubli@redhat.com>
+On Tue, 18 Apr 2023 at 18:07, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> When trimming the caps and just after the 'session->s_cap_lock' is
-> released in ceph_iterate_session_caps() the cap maybe removed by
-> another thread, and when using the stale cap memory in the callbacks
-> it will trigger use-after-free crash.
+> This is the start of the stable review cycle for the 5.15.108 release.
+> There are 91 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> We need to check the existence of the cap just after the 'ci->i_ceph_lock'
-> being acquired. And do nothing if it's already removed.
-
-Your patch seems to be OK, but I'll be honest: the locking is *so* complex
-that I can say for sure it really solves any problem :-(
-
-ceph_put_cap() uses mdsc->caps_list_lock to protect the list, but I can't
-be sure that holding ci->i_ceph_lock will protect a race in the case
-you're trying to solve.
-
-Is the issue in that bugzilla reproducible, or was that a one-time thing?
-
-Cheers,
---=20
-Lu=C3=ADs
+> Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.108-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 
-> Cc: stable@vger.kernel.org
-> URL: https://bugzilla.redhat.com/show_bug.cgi?id=3D2186264
-> URL: https://tracker.ceph.com/issues/43272
-> Signed-off-by: Xiubo Li <xiubli@redhat.com>
-> ---
->
-> V3:
-> - Fixed 3 issues, which reported by Luis and kernel test robot <lkp@intel=
-.com>
->
->  fs/ceph/debugfs.c    |  7 ++++-
->  fs/ceph/mds_client.c | 68 +++++++++++++++++++++++++++++---------------
->  fs/ceph/mds_client.h |  2 +-
->  3 files changed, 52 insertions(+), 25 deletions(-)
->
-> diff --git a/fs/ceph/debugfs.c b/fs/ceph/debugfs.c
-> index bec3c4549c07..5c0f07df5b02 100644
-> --- a/fs/ceph/debugfs.c
-> +++ b/fs/ceph/debugfs.c
-> @@ -248,14 +248,19 @@ static int metrics_caps_show(struct seq_file *s, vo=
-id *p)
->  	return 0;
->  }
->=20=20
-> -static int caps_show_cb(struct inode *inode, struct ceph_cap *cap, void =
-*p)
-> +static int caps_show_cb(struct inode *inode, struct rb_node *ci_node, vo=
-id *p)
->  {
-> +	struct ceph_inode_info *ci =3D ceph_inode(inode);
->  	struct seq_file *s =3D p;
-> +	struct ceph_cap *cap;
->=20=20
-> +	spin_lock(&ci->i_ceph_lock);
-> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
->  	seq_printf(s, "0x%-17llx%-3d%-17s%-17s\n", ceph_ino(inode),
->  		   cap->session->s_mds,
->  		   ceph_cap_string(cap->issued),
->  		   ceph_cap_string(cap->implemented));
-> +	spin_unlock(&ci->i_ceph_lock);
->  	return 0;
->  }
->=20=20
-> diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-> index 294af79c25c9..fb777add2257 100644
-> --- a/fs/ceph/mds_client.c
-> +++ b/fs/ceph/mds_client.c
-> @@ -1786,7 +1786,7 @@ static void cleanup_session_requests(struct ceph_md=
-s_client *mdsc,
->   * Caller must hold session s_mutex.
->   */
->  int ceph_iterate_session_caps(struct ceph_mds_session *session,
-> -			      int (*cb)(struct inode *, struct ceph_cap *,
-> +			      int (*cb)(struct inode *, struct rb_node *ci_node,
->  					void *), void *arg)
->  {
->  	struct list_head *p;
-> @@ -1799,6 +1799,8 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
-on *session,
->  	spin_lock(&session->s_cap_lock);
->  	p =3D session->s_caps.next;
->  	while (p !=3D &session->s_caps) {
-> +		struct rb_node *ci_node;
-> +
->  		cap =3D list_entry(p, struct ceph_cap, session_caps);
->  		inode =3D igrab(&cap->ci->netfs.inode);
->  		if (!inode) {
-> @@ -1806,6 +1808,7 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
-on *session,
->  			continue;
->  		}
->  		session->s_cap_iterator =3D cap;
-> +		ci_node =3D &cap->ci_node;
->  		spin_unlock(&session->s_cap_lock);
->=20=20
->  		if (last_inode) {
-> @@ -1817,7 +1820,7 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
-on *session,
->  			old_cap =3D NULL;
->  		}
->=20=20
-> -		ret =3D cb(inode, cap, arg);
-> +		ret =3D cb(inode, ci_node, arg);
->  		last_inode =3D inode;
->=20=20
->  		spin_lock(&session->s_cap_lock);
-> @@ -1850,20 +1853,26 @@ int ceph_iterate_session_caps(struct ceph_mds_ses=
-sion *session,
->  	return ret;
->  }
->=20=20
-> -static int remove_session_caps_cb(struct inode *inode, struct ceph_cap *=
-cap,
-> +static int remove_session_caps_cb(struct inode *inode, struct rb_node *c=
-i_node,
->  				  void *arg)
->  {
->  	struct ceph_inode_info *ci =3D ceph_inode(inode);
->  	bool invalidate =3D false;
-> -	int iputs;
-> +	struct ceph_cap *cap;
-> +	int iputs =3D 0;
->=20=20
-> -	dout("removing cap %p, ci is %p, inode is %p\n",
-> -	     cap, ci, &ci->netfs.inode);
->  	spin_lock(&ci->i_ceph_lock);
-> -	iputs =3D ceph_purge_inode_cap(inode, cap, &invalidate);
-> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
-> +	if (cap) {
-> +		dout(" removing cap %p, ci is %p, inode is %p\n",
-> +		     cap, ci, &ci->netfs.inode);
-> +
-> +		iputs =3D ceph_purge_inode_cap(inode, cap, &invalidate);
-> +	}
->  	spin_unlock(&ci->i_ceph_lock);
->=20=20
-> -	wake_up_all(&ci->i_cap_wq);
-> +	if (cap)
-> +		wake_up_all(&ci->i_cap_wq);
->  	if (invalidate)
->  		ceph_queue_invalidate(inode);
->  	while (iputs--)
-> @@ -1934,8 +1943,7 @@ enum {
->   *
->   * caller must hold s_mutex.
->   */
-> -static int wake_up_session_cb(struct inode *inode, struct ceph_cap *cap,
-> -			      void *arg)
-> +static int wake_up_session_cb(struct inode *inode, struct rb_node *ci_no=
-de, void *arg)
->  {
->  	struct ceph_inode_info *ci =3D ceph_inode(inode);
->  	unsigned long ev =3D (unsigned long)arg;
-> @@ -1946,12 +1954,14 @@ static int wake_up_session_cb(struct inode *inode=
-, struct ceph_cap *cap,
->  		ci->i_requested_max_size =3D 0;
->  		spin_unlock(&ci->i_ceph_lock);
->  	} else if (ev =3D=3D RENEWCAPS) {
-> -		if (cap->cap_gen < atomic_read(&cap->session->s_cap_gen)) {
-> -			/* mds did not re-issue stale cap */
-> -			spin_lock(&ci->i_ceph_lock);
-> +		struct ceph_cap *cap;
-> +
-> +		spin_lock(&ci->i_ceph_lock);
-> +		cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
-> +		/* mds did not re-issue stale cap */
-> +		if (cap && cap->cap_gen < atomic_read(&cap->session->s_cap_gen))
->  			cap->issued =3D cap->implemented =3D CEPH_CAP_PIN;
-> -			spin_unlock(&ci->i_ceph_lock);
-> -		}
-> +		spin_unlock(&ci->i_ceph_lock);
->  	} else if (ev =3D=3D FORCE_RO) {
->  	}
->  	wake_up_all(&ci->i_cap_wq);
-> @@ -2113,16 +2123,22 @@ static bool drop_negative_children(struct dentry =
-*dentry)
->   * Yes, this is a bit sloppy.  Our only real goal here is to respond to
->   * memory pressure from the MDS, though, so it needn't be perfect.
->   */
-> -static int trim_caps_cb(struct inode *inode, struct ceph_cap *cap, void =
-*arg)
-> +static int trim_caps_cb(struct inode *inode, struct rb_node *ci_node, vo=
-id *arg)
->  {
->  	int *remaining =3D arg;
->  	struct ceph_inode_info *ci =3D ceph_inode(inode);
->  	int used, wanted, oissued, mine;
-> +	struct ceph_cap *cap;
->=20=20
->  	if (*remaining <=3D 0)
->  		return -1;
->=20=20
->  	spin_lock(&ci->i_ceph_lock);
-> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
-> +	if (!cap) {
-> +		spin_unlock(&ci->i_ceph_lock);
-> +		return 0;
-> +	}
->  	mine =3D cap->issued | cap->implemented;
->  	used =3D __ceph_caps_used(ci);
->  	wanted =3D __ceph_caps_file_wanted(ci);
-> @@ -4265,26 +4281,23 @@ static struct dentry* d_find_primary(struct inode=
- *inode)
->  /*
->   * Encode information about a cap for a reconnect with the MDS.
->   */
-> -static int reconnect_caps_cb(struct inode *inode, struct ceph_cap *cap,
-> +static int reconnect_caps_cb(struct inode *inode, struct rb_node *ci_nod=
-e,
->  			  void *arg)
->  {
->  	union {
->  		struct ceph_mds_cap_reconnect v2;
->  		struct ceph_mds_cap_reconnect_v1 v1;
->  	} rec;
-> -	struct ceph_inode_info *ci =3D cap->ci;
-> +	struct ceph_inode_info *ci =3D ceph_inode(inode);
->  	struct ceph_reconnect_state *recon_state =3D arg;
->  	struct ceph_pagelist *pagelist =3D recon_state->pagelist;
->  	struct dentry *dentry;
-> +	struct ceph_cap *cap;
->  	char *path;
-> -	int pathlen =3D 0, err;
-> +	int pathlen =3D 0, err =3D 0;
->  	u64 pathbase;
->  	u64 snap_follows;
->=20=20
-> -	dout(" adding %p ino %llx.%llx cap %p %lld %s\n",
-> -	     inode, ceph_vinop(inode), cap, cap->cap_id,
-> -	     ceph_cap_string(cap->issued));
-> -
->  	dentry =3D d_find_primary(inode);
->  	if (dentry) {
->  		/* set pathbase to parent dir when msg_version >=3D 2 */
-> @@ -4301,6 +4314,15 @@ static int reconnect_caps_cb(struct inode *inode, =
-struct ceph_cap *cap,
->  	}
->=20=20
->  	spin_lock(&ci->i_ceph_lock);
-> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
-> +	if (!cap) {
-> +		spin_unlock(&ci->i_ceph_lock);
-> +		goto out_err;
-> +	}
-> +	dout(" adding %p ino %llx.%llx cap %p %lld %s\n",
-> +	     inode, ceph_vinop(inode), cap, cap->cap_id,
-> +	     ceph_cap_string(cap->issued));
-> +
->  	cap->seq =3D 0;        /* reset cap seq */
->  	cap->issue_seq =3D 0;  /* and issue_seq */
->  	cap->mseq =3D 0;       /* and migrate_seq */
-> diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
-> index 0f70ca3cdb21..001b69d04307 100644
-> --- a/fs/ceph/mds_client.h
-> +++ b/fs/ceph/mds_client.h
-> @@ -569,7 +569,7 @@ extern void ceph_queue_cap_reclaim_work(struct ceph_m=
-ds_client *mdsc);
->  extern void ceph_reclaim_caps_nr(struct ceph_mds_client *mdsc, int nr);
->  extern int ceph_iterate_session_caps(struct ceph_mds_session *session,
->  				     int (*cb)(struct inode *,
-> -					       struct ceph_cap *, void *),
-> +					       struct rb_node *ci_node, void *),
->  				     void *arg);
->  extern void ceph_mdsc_pre_umount(struct ceph_mds_client *mdsc);
->=20=20
-> --=20
->
-> 2.39.2
->
+Following patch causing build break on stable-rc 5.15
+
+
+> Waiman Long <longman@redhat.com>
+>     cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
+
+cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
+commit eee87853794187f6adbe19533ed79c8b44b36a91 upstream.
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Build error:
+kernel/cgroup/cpuset.c: In function 'cpuset_can_fork':
+kernel/cgroup/cpuset.c:2979:30: error: 'cgroup_mutex' undeclared
+(first use in this function); did you mean 'cgroup_put'?
+ 2979 |         lockdep_assert_held(&cgroup_mutex);
+      |                              ^~~~~~~~~~~~
+include/linux/lockdep.h:415:61: note: in definition of macro
+'lockdep_assert_held'
+  415 | #define lockdep_assert_held(l)                  do {
+(void)(l); } while (0)
+      |                                                             ^
+kernel/cgroup/cpuset.c:2979:30: note: each undeclared identifier is
+reported only once for each function it appears in
+ 2979 |         lockdep_assert_held(&cgroup_mutex);
+      |                              ^~~~~~~~~~~~
+include/linux/lockdep.h:415:61: note: in definition of macro
+'lockdep_assert_held'
+  415 | #define lockdep_assert_held(l)                  do {
+(void)(l); } while (0)
+      |                                                             ^
+make[3]: *** [scripts/Makefile.build:289: kernel/cgroup/cpuset.o] Error 1
+
+
+build log:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.105-280-g0b6a5617247c/testrun/16291026/suite/build/test/gcc-11-lkftconfig-kunit/log
+
+--
+Linaro LKFT
+https://lkft.linaro.org
