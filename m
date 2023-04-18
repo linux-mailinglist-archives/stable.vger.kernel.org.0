@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CF26E6219
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 212136E6319
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231586AbjDRMaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:30:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41404 "EHLO
+        id S231770AbjDRMh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:37:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231587AbjDRMaL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:11 -0400
+        with ESMTP id S231779AbjDRMhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF246CC1D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AD241CFBC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C342E631DC
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3631C433EF;
-        Tue, 18 Apr 2023 12:29:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D411A632C6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBD83C43442;
+        Tue, 18 Apr 2023 12:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820972;
-        bh=4VSxku4HGNsumPLcOexHMXmSiRhQSFyUAUGzxHoNr1E=;
+        s=korg; t=1681821469;
+        bh=B604FszNC+RxHkGb9PSTNcGBJIcOkzituZf/IDB0U/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sD6IvxxNL/RLeYy0Ho1qsjiihSclfJMusFdZNFJQl5cTTcTRVcadnCCtrqzGQ2lmo
-         W42ondnFYu+J4bgs1nV4RnbUxS76eVsFT+D5H22Svs3IR4yrCql1hQnaXItRTD1HMF
-         lf5gXHgSCUo3L154M7FHRBFP4lzy/oBJGuIMV/Bo=
+        b=XHw2lOSOAJQLKAUzuxDIPzu2re8djJ8UihKuSKtVNcjzPurddmm4LiNp/HTacpjWp
+         cdqvUYU8DHMSSWN0x/93DBo2mkGUtmU1awho1uABSifhd/aIEg36iDDOu+TjSPO+pa
+         HtESA7KEfGaWA41tphppbwGFxH9cVq/giJ8a7JKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitry Torokhov <dtor@chromium.org>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 43/92] irqdomain: Fix mapping-creation race
+        patches@lists.linux.dev, Stable@vger.kernel.org,
+        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 14/91] mtd: rawnand: meson: fix bitmask for length in command word
 Date:   Tue, 18 Apr 2023 14:21:18 +0200
-Message-Id: <20230418120306.343680983@linuxfoundation.org>
+Message-Id: <20230418120306.051182360@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,180 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Arseniy Krasnov <avkrasnov@sberdevices.ru>
 
-[ Upstream commit 601363cc08da25747feb87c55573dd54de91d66a ]
+commit 93942b70461574ca7fc3d91494ca89b16a4c64c7 upstream.
 
-Parallel probing of devices that share interrupts (e.g. when a driver
-uses asynchronous probing) can currently result in two mappings for the
-same hardware interrupt to be created due to missing serialisation.
+Valid mask is 0x3FFF, without this patch the following problems were
+found:
 
-Make sure to hold the irq_domain_mutex when creating mappings so that
-looking for an existing mapping before creating a new one is done
-atomically.
+1) [    0.938914] Could not find a valid ONFI parameter page, trying
+                  bit-wise majority to recover it
+   [    0.947384] ONFI parameter recovery failed, aborting
 
-Fixes: 765230b5f084 ("driver-core: add asynchronous probing support for drivers")
-Fixes: b62b2cf5759b ("irqdomain: Fix handling of type settings for existing mappings")
-Link: https://lore.kernel.org/r/YuJXMHoT4ijUxnRb@hovoldconsulting.com
-Cc: stable@vger.kernel.org      # 4.8
-Cc: Dmitry Torokhov <dtor@chromium.org>
-Cc: Jon Hunter <jonathanh@nvidia.com>
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-7-johan+linaro@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+2) Read with disabled ECC mode was broken.
+
+Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/3794ffbf-dfea-e96f-1f97-fe235b005e19@sberdevices.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |   64 +++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 46 insertions(+), 18 deletions(-)
+ drivers/mtd/nand/raw/meson_nand.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -25,6 +25,9 @@ static DEFINE_MUTEX(irq_domain_mutex);
+--- a/drivers/mtd/nand/raw/meson_nand.c
++++ b/drivers/mtd/nand/raw/meson_nand.c
+@@ -276,7 +276,7 @@ static void meson_nfc_cmd_access(struct
  
- static struct irq_domain *irq_default_domain;
- 
-+static int irq_domain_alloc_irqs_locked(struct irq_domain *domain, int irq_base,
-+					unsigned int nr_irqs, int node, void *arg,
-+					bool realloc, const struct irq_affinity_desc *affinity);
- static void irq_domain_check_hierarchy(struct irq_domain *domain);
- 
- struct irqchip_fwid {
-@@ -672,9 +675,9 @@ unsigned int irq_create_direct_mapping(s
- }
- EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
- 
--static unsigned int __irq_create_mapping_affinity(struct irq_domain *domain,
--						  irq_hw_number_t hwirq,
--						  const struct irq_affinity_desc *affinity)
-+static unsigned int irq_create_mapping_affinity_locked(struct irq_domain *domain,
-+						       irq_hw_number_t hwirq,
-+						       const struct irq_affinity_desc *affinity)
- {
- 	struct device_node *of_node = irq_domain_get_of_node(domain);
- 	int virq;
-@@ -689,7 +692,7 @@ static unsigned int __irq_create_mapping
- 		return 0;
+ 	if (raw) {
+ 		len = mtd->writesize + mtd->oobsize;
+-		cmd = (len & GENMASK(5, 0)) | scrambler | DMA_DIR(dir);
++		cmd = (len & GENMASK(13, 0)) | scrambler | DMA_DIR(dir);
+ 		writel(cmd, nfc->reg_base + NFC_REG_CMD);
+ 		return;
  	}
+@@ -540,7 +540,7 @@ static int meson_nfc_read_buf(struct nan
+ 	if (ret)
+ 		goto out;
  
--	if (irq_domain_associate(domain, virq, hwirq)) {
-+	if (irq_domain_associate_locked(domain, virq, hwirq)) {
- 		irq_free_desc(virq);
- 		return 0;
- 	}
-@@ -725,14 +728,20 @@ unsigned int irq_create_mapping_affinity
- 		return 0;
- 	}
+-	cmd = NFC_CMD_N2M | (len & GENMASK(5, 0));
++	cmd = NFC_CMD_N2M | (len & GENMASK(13, 0));
+ 	writel(cmd, nfc->reg_base + NFC_REG_CMD);
  
-+	mutex_lock(&irq_domain_mutex);
-+
- 	/* Check if mapping already exists */
- 	virq = irq_find_mapping(domain, hwirq);
- 	if (virq) {
- 		pr_debug("existing mapping on virq %d\n", virq);
--		return virq;
-+		goto out;
- 	}
+ 	meson_nfc_drain_cmd(nfc);
+@@ -564,7 +564,7 @@ static int meson_nfc_write_buf(struct na
+ 	if (ret)
+ 		return ret;
  
--	return __irq_create_mapping_affinity(domain, hwirq, affinity);
-+	virq = irq_create_mapping_affinity_locked(domain, hwirq, affinity);
-+out:
-+	mutex_unlock(&irq_domain_mutex);
-+
-+	return virq;
- }
- EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
+-	cmd = NFC_CMD_M2N | (len & GENMASK(5, 0));
++	cmd = NFC_CMD_M2N | (len & GENMASK(13, 0));
+ 	writel(cmd, nfc->reg_base + NFC_REG_CMD);
  
-@@ -834,6 +843,8 @@ unsigned int irq_create_fwspec_mapping(s
- 	if (WARN_ON(type & ~IRQ_TYPE_SENSE_MASK))
- 		type &= IRQ_TYPE_SENSE_MASK;
- 
-+	mutex_lock(&irq_domain_mutex);
-+
- 	/*
- 	 * If we've already configured this interrupt,
- 	 * don't do it again, or hell will break loose.
-@@ -846,7 +857,7 @@ unsigned int irq_create_fwspec_mapping(s
- 		 * interrupt number.
- 		 */
- 		if (type == IRQ_TYPE_NONE || type == irq_get_trigger_type(virq))
--			return virq;
-+			goto out;
- 
- 		/*
- 		 * If the trigger type has not been set yet, then set
-@@ -854,35 +865,45 @@ unsigned int irq_create_fwspec_mapping(s
- 		 */
- 		if (irq_get_trigger_type(virq) == IRQ_TYPE_NONE) {
- 			irq_data = irq_get_irq_data(virq);
--			if (!irq_data)
--				return 0;
-+			if (!irq_data) {
-+				virq = 0;
-+				goto out;
-+			}
- 
- 			irqd_set_trigger_type(irq_data, type);
--			return virq;
-+			goto out;
- 		}
- 
- 		pr_warn("type mismatch, failed to map hwirq-%lu for %s!\n",
- 			hwirq, of_node_full_name(to_of_node(fwspec->fwnode)));
--		return 0;
-+		virq = 0;
-+		goto out;
- 	}
- 
- 	if (irq_domain_is_hierarchy(domain)) {
--		virq = irq_domain_alloc_irqs(domain, 1, NUMA_NO_NODE, fwspec);
--		if (virq <= 0)
--			return 0;
-+		virq = irq_domain_alloc_irqs_locked(domain, -1, 1, NUMA_NO_NODE,
-+						    fwspec, false, NULL);
-+		if (virq <= 0) {
-+			virq = 0;
-+			goto out;
-+		}
- 	} else {
- 		/* Create mapping */
--		virq = __irq_create_mapping_affinity(domain, hwirq, NULL);
-+		virq = irq_create_mapping_affinity_locked(domain, hwirq, NULL);
- 		if (!virq)
--			return virq;
-+			goto out;
- 	}
- 
- 	irq_data = irq_get_irq_data(virq);
--	if (WARN_ON(!irq_data))
--		return 0;
-+	if (WARN_ON(!irq_data)) {
-+		virq = 0;
-+		goto out;
-+	}
- 
- 	/* Store trigger type */
- 	irqd_set_trigger_type(irq_data, type);
-+out:
-+	mutex_unlock(&irq_domain_mutex);
- 
- 	return virq;
- }
-@@ -1788,6 +1809,13 @@ void irq_domain_set_info(struct irq_doma
- 	irq_set_handler_data(virq, handler_data);
- }
- 
-+static int irq_domain_alloc_irqs_locked(struct irq_domain *domain, int irq_base,
-+					unsigned int nr_irqs, int node, void *arg,
-+					bool realloc, const struct irq_affinity_desc *affinity)
-+{
-+	return -EINVAL;
-+}
-+
- static void irq_domain_check_hierarchy(struct irq_domain *domain)
- {
- }
+ 	meson_nfc_drain_cmd(nfc);
 
 
