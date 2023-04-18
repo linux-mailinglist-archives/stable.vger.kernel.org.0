@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C2F6E6216
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373196E62D1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231563AbjDRMaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:30:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41322 "EHLO
+        id S230455AbjDRMfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231584AbjDRMaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:09 -0400
+        with ESMTP id S230208AbjDRMfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78242C148
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB8FD338
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 595E76313B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71B77C433EF;
-        Tue, 18 Apr 2023 12:29:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9886326B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B305BC433EF;
+        Tue, 18 Apr 2023 12:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820974;
-        bh=2F4CZAnNnQKfp2Y4krkHQZqyH0jNoJO4PjinYFAMRLk=;
+        s=korg; t=1681821338;
+        bh=2wA44kDtgI9IRu4YzCwgCu50ewXF20yfzD+KbsOE260=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZcO2+EOYmuGpOMLcISXYiwa9RpUeNASWJMnaugOFRMsJA3pVeX/0ahXIZDwmdnTp
-         Sc3rBkEbXnvg4DJH8Dcvscr/9qqULO+FcUJP9godPl5X3Pzxoe/GTvAyjsHm/sRwL0
-         K/9qImpTTxpA4xnfzqCdFemZRlaS5+/5IzKS7dk4=
+        b=DLmQ54nDf/U5HVxoV3p76z8yZJtNHpqsZXonR93W4kPOTzaF2/UkCerOQkaO8HBa0
+         Ib4rnvZ3r7BliLbZPeXxcrHWB4BhR8blvypcH8AIa/2nja2uLo13Un/1LDs3AxKlHA
+         LFTHYvxNK5A38txbwBPiXYEsEH3eWcmgKvXtWUcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 44/92] Revert "pinctrl: amd: Disable and mask interrupts on resume"
+        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.10 060/124] Bluetooth: Fix race condition in hidp_session_thread
 Date:   Tue, 18 Apr 2023 14:21:19 +0200
-Message-Id: <20230418120306.374496677@linuxfoundation.org>
+Message-Id: <20230418120312.040976910@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kornel Dulęba <korneld@chromium.org>
+From: Min Li <lm0963hack@gmail.com>
 
-commit 534e465845ebfb4a97eb5459d3931a0b35e3b9a5 upstream.
+commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
 
-This reverts commit b26cd9325be4c1fcd331b77f10acb627c560d4d7.
+There is a potential race condition in hidp_session_thread that may
+lead to use-after-free. For instance, the timer is active while
+hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
+then 'session' will be freed, causing kernel panic when hidp_idle_timeout
+is running.
 
-This patch introduces a regression on Lenovo Z13, which can't wake
-from the lid with it applied; and some unspecified AMD based Dell
-platforms are unable to wake from hitting the power button
+The solution is to use del_timer_sync instead of del_timer.
 
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20230411134932.292287-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Here is the call trace:
+
+? hidp_session_probe+0x780/0x780
+call_timer_fn+0x2d/0x1e0
+__run_timers.part.0+0x569/0x940
+hidp_session_probe+0x780/0x780
+call_timer_fn+0x1e0/0x1e0
+ktime_get+0x5c/0xf0
+lapic_next_deadline+0x2c/0x40
+clockevents_program_event+0x205/0x320
+run_timer_softirq+0xa9/0x1b0
+__do_softirq+0x1b9/0x641
+__irq_exit_rcu+0xdc/0x190
+irq_exit_rcu+0xe/0x20
+sysvec_apic_timer_interrupt+0xa1/0xc0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Min Li <lm0963hack@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
+ net/bluetooth/hidp/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -770,34 +770,32 @@ static const struct pinconf_ops amd_pinc
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
- 
--static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -433,7 +433,7 @@ static void hidp_set_timer(struct hidp_s
+ static void hidp_del_timer(struct hidp_session *session)
  {
--	const struct pin_desc *pd;
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
-+	int i;
- 
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
- 
--	pd = pin_desc_get(gpio_dev->pctrl, pin);
--	if (!pd)
--		return;
-+	for (i = 0; i < desc->npins; i++) {
-+		int pin = desc->pins[i].number;
-+		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
- 
--	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
--	pin_reg = readl(gpio_dev->base + pin * 4);
--	pin_reg &= ~mask;
--	writel(pin_reg, gpio_dev->base + pin * 4);
--	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--}
-+		if (!pd)
-+			continue;
- 
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
--{
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
--	int i;
-+		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 
--	for (i = 0; i < desc->npins; i++)
--		amd_gpio_irq_init_pin(gpio_dev, i);
-+		pin_reg = readl(gpio_dev->base + i * 4);
-+		pin_reg &= ~mask;
-+		writel(pin_reg, gpio_dev->base + i * 4);
-+
-+		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+	}
+ 	if (session->idle_to > 0)
+-		del_timer(&session->timer);
++		del_timer_sync(&session->timer);
  }
  
- #ifdef CONFIG_PM_SLEEP
-@@ -850,10 +848,8 @@ static int amd_gpio_resume(struct device
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin)) {
--			amd_gpio_irq_init_pin(gpio_dev, pin);
-+		if (!amd_gpio_should_save(gpio_dev, pin))
- 			continue;
--		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
+ static void hidp_process_report(struct hidp_session *session, int type,
 
 
