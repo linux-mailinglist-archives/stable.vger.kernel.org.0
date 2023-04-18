@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E86466E62FE
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C4B6E634B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbjDRMhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
+        id S230045AbjDRMjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:39:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231761AbjDRMhJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C521CFAF;
-        Tue, 18 Apr 2023 05:37:03 -0700 (PDT)
+        with ESMTP id S231754AbjDRMjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420051385F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABFB4632A0;
-        Tue, 18 Apr 2023 12:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99843C433EF;
-        Tue, 18 Apr 2023 12:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF34C632E9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A28C433EF;
+        Tue, 18 Apr 2023 12:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821422;
-        bh=xIRVmdSoxQHHV+WQF3InEHiP6aN6H/TEQ+/N5ju+cTU=;
+        s=korg; t=1681821557;
+        bh=kQy34DEL3CbeSrP9sGPT9ua3j4jiQy/DOa34hpftVfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTZ/rCE9rS+zZ70jK73lxw6I4Xg0n+YBNjH4ga3+PGzj2SRXm9+bEZqjfGN/kqppw
-         7TtwUqvVnrX64Swicg6p9IPRq/w+/45mNRsgYQ+oLdnVAwF6P4CfhNYTI7VgswFn1V
-         NRd6T+zQu3cP84EW0T1WxRzjMH0FrLFQjS5gT6E4=
+        b=hgHERbeP5O2ST2p5yzoIEgxlhtlA1TO8fsCMYkL8Y08+TzaZ6K4XxWQ7gaXblQIv1
+         oQ6JTtpQtk5Xk+zOGR8XYQTyUa1IcFdfS6ixJ975Go3ma+ci7Z5Rzj7JJD1XI8Dpdx
+         mxlYA2J/RSqA7kxEFTuQMkYwSx5CmOlxq/tbRvtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/124] asymmetric_keys: log on fatal failures in PE/pkcs7
+        patches@lists.linux.dev, Benjamin Berg <benjamin.berg@intel.com>,
+        Jose Ignacio Tornos Martinez <jtornosm@redhat.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 47/91] wifi: iwlwifi: mvm: fix mvmtxq->stopped handling
 Date:   Tue, 18 Apr 2023 14:21:51 +0200
-Message-Id: <20230418120313.191130834@linuxfoundation.org>
+Message-Id: <20230418120307.205856001@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,156 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 3584c1dbfffdabf8e3dc1dd25748bb38dd01cd43 ]
+[ Upstream commit b58e3d4311b54b6dd0e37165277965da0c9eb21d ]
 
-These particular errors can be encountered while trying to kexec when
-secureboot lockdown is in place.  Without this change, even with a
-signed debug build, one still needs to reboot the machine to add the
-appropriate dyndbg parameters (since lockdown blocks debugfs).
+This could race if the queue is redirected while full, then
+the flushing internally would start it while it's not yet
+usable again. Fix it by using two state bits instead of just
+one.
 
-Accordingly, upgrade all pr_debug() before fatal error into pr_warn().
-
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://lore.kernel.org/r/20230220171254.592347-3-rharwood@redhat.com/ # v2
+Reviewed-by: Benjamin Berg <benjamin.berg@intel.com>
+Tested-by: Jose Ignacio Tornos Martinez <jtornosm@redhat.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/asymmetric_keys/pkcs7_verify.c  | 10 +++++-----
- crypto/asymmetric_keys/verify_pefile.c | 24 ++++++++++++------------
- 2 files changed, 17 insertions(+), 17 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 5 ++++-
+ drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      | 4 +++-
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c      | 5 ++++-
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c      | 4 ++--
+ 4 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/crypto/asymmetric_keys/pkcs7_verify.c b/crypto/asymmetric_keys/pkcs7_verify.c
-index ce49820caa97f..01e54450c846f 100644
---- a/crypto/asymmetric_keys/pkcs7_verify.c
-+++ b/crypto/asymmetric_keys/pkcs7_verify.c
-@@ -79,16 +79,16 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
- 		}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 56c7a68a6491c..fa7de3e47b8cc 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -820,7 +820,10 @@ void iwl_mvm_mac_itxq_xmit(struct ieee80211_hw *hw, struct ieee80211_txq *txq)
  
- 		if (sinfo->msgdigest_len != sig->digest_size) {
--			pr_debug("Sig %u: Invalid digest size (%u)\n",
--				 sinfo->index, sinfo->msgdigest_len);
-+			pr_warn("Sig %u: Invalid digest size (%u)\n",
-+				sinfo->index, sinfo->msgdigest_len);
- 			ret = -EBADMSG;
- 			goto error;
- 		}
+ 	rcu_read_lock();
+ 	do {
+-		while (likely(!mvmtxq->stopped &&
++		while (likely(!test_bit(IWL_MVM_TXQ_STATE_STOP_FULL,
++					&mvmtxq->state) &&
++			      !test_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT,
++					&mvmtxq->state) &&
+ 			      !test_bit(IWL_MVM_STATUS_IN_D3, &mvm->status))) {
+ 			skb = ieee80211_tx_dequeue(hw, txq);
  
- 		if (memcmp(sig->digest, sinfo->msgdigest,
- 			   sinfo->msgdigest_len) != 0) {
--			pr_debug("Sig %u: Message digest doesn't match\n",
--				 sinfo->index);
-+			pr_warn("Sig %u: Message digest doesn't match\n",
-+				sinfo->index);
- 			ret = -EKEYREJECTED;
- 			goto error;
- 		}
-@@ -488,7 +488,7 @@ int pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
- 			       const void *data, size_t datalen)
- {
- 	if (pkcs7->data) {
--		pr_debug("Data already supplied\n");
-+		pr_warn("Data already supplied\n");
- 		return -EINVAL;
- 	}
- 	pkcs7->data = data;
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index fe1bb374239d7..22beaf2213a22 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -74,7 +74,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
- 		break;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+index 46af8dd2dc930..6b59425dbdb19 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+@@ -727,7 +727,9 @@ struct iwl_mvm_txq {
+ 	struct list_head list;
+ 	u16 txq_id;
+ 	atomic_t tx_request;
+-	bool stopped;
++#define IWL_MVM_TXQ_STATE_STOP_FULL	0
++#define IWL_MVM_TXQ_STATE_STOP_REDIRECT	1
++	unsigned long state;
+ };
  
- 	default:
--		pr_debug("Unknown PEOPT magic = %04hx\n", pe32->magic);
-+		pr_warn("Unknown PEOPT magic = %04hx\n", pe32->magic);
- 		return -ELIBBAD;
- 	}
+ static inline struct iwl_mvm_txq *
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+index eeb81808db088..3ee4b3ecd0c82 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -1304,7 +1304,10 @@ static void iwl_mvm_queue_state_change(struct iwl_op_mode *op_mode,
  
-@@ -95,7 +95,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
- 	ctx->certs_size = ddir->certs.size;
+ 		txq = sta->txq[tid];
+ 		mvmtxq = iwl_mvm_txq_from_mac80211(txq);
+-		mvmtxq->stopped = !start;
++		if (start)
++			clear_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
++		else
++			set_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
  
- 	if (!ddir->certs.virtual_address || !ddir->certs.size) {
--		pr_debug("Unsigned PE binary\n");
-+		pr_warn("Unsigned PE binary\n");
- 		return -ENODATA;
- 	}
+ 		if (start && mvmsta->sta_state != IEEE80211_STA_NOTEXIST)
+ 			iwl_mvm_mac_itxq_xmit(mvm->hw, txq);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+index 1bb456daff9e9..45dfee3ad8c60 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -640,7 +640,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
+ 			    queue, iwl_mvm_ac_to_tx_fifo[ac]);
  
-@@ -127,7 +127,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	unsigned len;
+ 	/* Stop the queue and wait for it to empty */
+-	txq->stopped = true;
++	set_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
  
- 	if (ctx->sig_len < sizeof(wrapper)) {
--		pr_debug("Signature wrapper too short\n");
-+		pr_warn("Signature wrapper too short\n");
- 		return -ELIBBAD;
- 	}
+ 	ret = iwl_trans_wait_tx_queues_empty(mvm->trans, BIT(queue));
+ 	if (ret) {
+@@ -683,7 +683,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
  
-@@ -142,16 +142,16 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	 * rounded up since 0.110.
- 	 */
- 	if (wrapper.length > ctx->sig_len) {
--		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
--			 ctx->sig_len, wrapper.length);
-+		pr_warn("Signature wrapper bigger than sig len (%x > %x)\n",
-+			ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
--		pr_debug("Signature is not revision 2.0\n");
-+		pr_warn("Signature is not revision 2.0\n");
- 		return -ENOTSUPP;
- 	}
- 	if (wrapper.cert_type != WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
--		pr_debug("Signature certificate type is not PKCS\n");
-+		pr_warn("Signature certificate type is not PKCS\n");
- 		return -ENOTSUPP;
- 	}
+ out:
+ 	/* Continue using the queue */
+-	txq->stopped = false;
++	clear_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
  
-@@ -164,7 +164,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	ctx->sig_offset += sizeof(wrapper);
- 	ctx->sig_len -= sizeof(wrapper);
- 	if (ctx->sig_len < 4) {
--		pr_debug("Signature data missing\n");
-+		pr_warn("Signature data missing\n");
- 		return -EKEYREJECTED;
- 	}
- 
-@@ -198,7 +198,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 		return 0;
- 	}
- not_pkcs7:
--	pr_debug("Signature data not PKCS#7\n");
-+	pr_warn("Signature data not PKCS#7\n");
- 	return -ELIBBAD;
+ 	return ret;
  }
- 
-@@ -341,8 +341,8 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
- 	digest_size = crypto_shash_digestsize(tfm);
- 
- 	if (digest_size != ctx->digest_len) {
--		pr_debug("Digest size mismatch (%zx != %x)\n",
--			 digest_size, ctx->digest_len);
-+		pr_warn("Digest size mismatch (%zx != %x)\n",
-+			digest_size, ctx->digest_len);
- 		ret = -EBADMSG;
- 		goto error_no_desc;
- 	}
-@@ -373,7 +373,7 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
- 	 * PKCS#7 certificate.
- 	 */
- 	if (memcmp(digest, ctx->digest, ctx->digest_len) != 0) {
--		pr_debug("Digest mismatch\n");
-+		pr_warn("Digest mismatch\n");
- 		ret = -EKEYREJECTED;
- 	} else {
- 		pr_debug("The digests match!\n");
 -- 
 2.39.2
 
