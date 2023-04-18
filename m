@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A07686E62AF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D7F6E61F1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbjDRMeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48844 "EHLO
+        id S231532AbjDRM2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231676AbjDRMej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8B48684
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:27 -0700 (PDT)
+        with ESMTP id S231562AbjDRM2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208638A45
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACBF66325C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFF2BC433D2;
-        Tue, 18 Apr 2023 12:34:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00D1F628B4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18120C433EF;
+        Tue, 18 Apr 2023 12:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821267;
-        bh=Wgc+uXACuvOJerjVPlegHD8mMmjz8y+qUt0YA9WlrwI=;
+        s=korg; t=1681820899;
+        bh=x5uIg4wmpC/2g5jSH3GSvR0YH0BAYbbutORnhPmYnJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F53k8TqXImNCuQq4B3GXFjof70826l72R5nZWDU7kKfGGUUZ0im47ksjdxpr1TucT
-         i8z8uns1CQOOL6YO5EqJu9fclxFFlKjcEXJT5tgCIKDOtRwWr0tKA6BzLcAzPpkay7
-         fEVN0PwJXhl3R2lL4/JGe/nQMyqVVqNNhzUd1deQ=
+        b=nmNcEWKWviKDsVTs4dorUiXsi7tfxtCHxllZ4I9O0m9hkMu44PIyYxF9CLjzX/5sh
+         7sNqZKVYPrerj5fzd4MjevjyUzyA+tVwLhxTwJ/RmqT5KXTLwWDiVa11h1gbdukIbY
+         BkHbhytnC9h+AIdGMseLf99op/vyOmtH8jmKfHZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
-        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 032/124] nilfs2: fix sysfs interface lifetime
+        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/92] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
 Date:   Tue, 18 Apr 2023 14:20:51 +0200
-Message-Id: <20230418120310.945461285@linuxfoundation.org>
+Message-Id: <20230418120305.370372349@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,118 +56,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
+[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
 
-The current nilfs2 sysfs support has issues with the timing of creation
-and deletion of sysfs entries, potentially leading to null pointer
-dereferences, use-after-free, and lockdep warnings.
+Syzbot reported a bug as following:
 
-Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
-metadata file "cpfile", "sufile", or "dat", but
-nilfs_sysfs_create_device_group that creates those attributes is executed
-before the inodes for these metadata files are loaded, and
-nilfs_sysfs_delete_device_group which deletes these sysfs entries is
-called after releasing their metadata file inodes.
+=====================================================
+BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+ arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+ atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+ __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ ip6_finish_skb include/net/ipv6.h:1122 [inline]
+ ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
+ rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
+ rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Therefore, access to some of these sysfs attributes may occur outside of
-the lifetime of these metadata files, resulting in inode NULL pointer
-dereferences or use-after-free.
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ alloc_skb include/linux/skbuff.h:1270 [inline]
+ __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
+ ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
+ rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-In addition, the call to nilfs_sysfs_create_device_group() is made during
-the locking period of the semaphore "ns_sem" of nilfs object, so the
-shrinker call caused by the memory allocation for the sysfs entries, may
-derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
-nilfs_evict_inode()".
+It is because icmp6hdr does not in skb linear region under the scenario
+of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
+trigger the uninit variable access bug.
 
-Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
-locks via its error handler __nilfs_error(), this causes lockdep to report
-circular locking.  This is a false positive and no circular locking
-actually occurs as no inodes exist yet when
-nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
-warnings can be resolved by simply moving the call to
-nilfs_sysfs_create_device_group() out of "ns_sem".
+Use a local variable icmp6_type to carry the correct value in different
+scenarios.
 
-This fixes these sysfs issues by revising where the device's sysfs
-interface is created/deleted and keeping its lifetime within the lifetime
-of the metadata files above.
-
-Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
-Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
-Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
+Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/super.c     |    2 ++
- fs/nilfs2/the_nilfs.c |   12 +++++++-----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ net/ipv6/ip6_output.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -482,6 +482,7 @@ static void nilfs_put_super(struct super
- 		up_write(&nilfs->ns_sem);
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 457eb07be4828..8231a7a3dd035 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1855,8 +1855,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
+ 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
+ 	if (proto == IPPROTO_ICMPV6) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
++		u8 icmp6_type;
+ 
+-		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
++		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
++			icmp6_type = fl6->fl6_icmp_type;
++		else
++			icmp6_type = icmp6_hdr(skb)->icmp6_type;
++		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
+ 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
  	}
  
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
-@@ -1105,6 +1106,7 @@ nilfs_fill_super(struct super_block *sb,
- 	nilfs_put_root(fsroot);
- 
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_dat);
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
- {
- 	might_sleep();
- 	if (nilfs_init(nilfs)) {
--		nilfs_sysfs_delete_device_group(nilfs);
- 		brelse(nilfs->ns_sbh[0]);
- 		brelse(nilfs->ns_sbh[1]);
- 	}
-@@ -305,6 +304,10 @@ int load_nilfs(struct the_nilfs *nilfs,
- 		goto failed;
- 	}
- 
-+	err = nilfs_sysfs_create_device_group(sb);
-+	if (unlikely(err))
-+		goto sysfs_error;
-+
- 	if (valid_fs)
- 		goto skip_recovery;
- 
-@@ -366,6 +369,9 @@ int load_nilfs(struct the_nilfs *nilfs,
- 	goto failed;
- 
-  failed_unload:
-+	nilfs_sysfs_delete_device_group(nilfs);
-+
-+ sysfs_error:
- 	iput(nilfs->ns_cpfile);
- 	iput(nilfs->ns_sufile);
- 	iput(nilfs->ns_dat);
-@@ -697,10 +703,6 @@ int init_nilfs(struct the_nilfs *nilfs,
- 	if (err)
- 		goto failed_sbh;
- 
--	err = nilfs_sysfs_create_device_group(sb);
--	if (err)
--		goto failed_sbh;
--
- 	set_nilfs_init(nilfs);
- 	err = 0;
-  out:
+-- 
+2.39.2
+
 
 
