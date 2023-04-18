@@ -2,142 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C314A6E5D69
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 11:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBEDB6E5DAF
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 11:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229688AbjDRJba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 05:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S231417AbjDRJmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 05:42:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229901AbjDRJb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 05:31:27 -0400
-Received: from mta-65-227.siemens.flowmailer.net (mta-65-227.siemens.flowmailer.net [185.136.65.227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3615D4216
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 02:31:23 -0700 (PDT)
-Received: by mta-65-227.siemens.flowmailer.net with ESMTPSA id 202304180931195b1dba4003d74e3777
-        for <stable@vger.kernel.org>;
-        Tue, 18 Apr 2023 11:31:20 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
- d=siemens.com; i=florian.bezdeka@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
- bh=CqK3hsqP4ZsT3ZUY+isIcg9eKHACr0lAiNG1+JRla6g=;
- b=qgSvw768XrHXL9zjoF5Fi+WBoNdMdWHl324bLBiS9wq1u4tQkr2ulODt4ZPNSvEiHuxy2w
- RKE2yu8Sb8Bi5ojr66/Z5zlRmyQQ9lRmWdbz4qoWuBo9sjNznGinj7y4/74qtLGJqMnle6KC
- e1VTaI9CzcGE4fniV7kl20klcOhV8=;
-Message-ID: <98a4831de6c2ae4a3eb8d29dcd114a6e96c34f94.camel@siemens.com>
-Subject: Re: [PATCH net v3 1/1] igc: read before write to SRRCTL register
-From:   Florian Bezdeka <florian.bezdeka@siemens.com>
-To:     Jesper Dangaard Brouer <jbrouer@redhat.com>,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Vedang Patel <vedang.patel@intel.com>,
-        Jithu Joseph <jithu.joseph@intel.com>,
-        Andre Guedes <andre.guedes@intel.com>,
-        Stanislav Fomichev <sdf@google.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        David Laight <David.Laight@ACULAB.COM>
-Cc:     brouer@redhat.com, intel-wired-lan@lists.osuosl.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bpf@vger.kernel.org, xdp-hints@xdp-project.net,
-        stable@vger.kernel.org
-Date:   Tue, 18 Apr 2023 11:31:16 +0200
-In-Reply-To: <e7b9cb2c-1c18-7354-8d33-a924b5ae1d5b@redhat.com>
-References: <20230414154902.2950535-1-yoong.siang.song@intel.com>
-         <934a4204-1920-f5e1-bcde-89429554d0d6@redhat.com>
-         <e7b9cb2c-1c18-7354-8d33-a924b5ae1d5b@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S231407AbjDRJlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 05:41:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07D9A76A2;
+        Tue, 18 Apr 2023 02:41:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7582662CFB;
+        Tue, 18 Apr 2023 09:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5D4C433EF;
+        Tue, 18 Apr 2023 09:41:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681810891;
+        bh=T7+yT2pUreBDqbXZDE2c2Eq03kSJu9kHFQ2uyasQtNo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=InrJp0SHl8sfq+QUs8insdG7q7IbfNCEmtZJKl7pc3+S+sZjQ1BBgoA9AyS498MHe
+         l2xzrQwYkI/kxslAewBsLUY42ICSvTvD5+hRwlbNxlp+wGRTuLb3dt8PeDd/Pzo1Zs
+         ich6Z15IXvvY3G5TBtFL4uSeRC5m4yhKqydY/GQM=
+Date:   Tue, 18 Apr 2023 11:41:29 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     William Breathitt Gray <william.gray@linaro.org>
+Cc:     linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jonathan Cameron <jic23@kernel.org>, stable@vger.kernel.org
+Subject: Re: [RESEND PATCH 5.15 v3 5/5] counter: 104-quad-8: Fix race
+ condition between FLAG and CNTR reads
+Message-ID: <2023041849-nursing-cling-8729@gregkh>
+References: <20230411155220.9754-1-william.gray@linaro.org>
+ <20230411155220.9754-5-william.gray@linaro.org>
+ <ZD1MZO3KpRmuzy42@fedora>
 MIME-Version: 1.0
-X-Flowmailer-Platform: Siemens
-Feedback-ID: 519:519-68982:519-21489:flowmailer
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZD1MZO3KpRmuzy42@fedora>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2023-04-17 at 16:24 +0200, Jesper Dangaard Brouer wrote:
-> On 14/04/2023 22.05, Jesper Dangaard Brouer wrote:
-> > =20
-> > On 14/04/2023 17.49, Song Yoong Siang wrote:
-> > > igc_configure_rx_ring() function will be called as part of XDP progra=
-m
-> > > setup. If Rx hardware timestamp is enabled prio to XDP program setup,
-> > > this timestamp enablement will be overwritten when buffer size is
-> > > written into SRRCTL register.
-> > >=20
-> > > Thus, this commit read the register value before write to SRRCTL
-> > > register. This commit is tested by using xdp_hw_metadata bpf selftest
-> > > tool. The tool enables Rx hardware timestamp and then attach XDP prog=
-ram
-> > > to igc driver. It will display hardware timestamp of UDP packet with
-> > > port number 9092. Below are detail of test steps and results.
-> > >=20
-> [...]
-> > >=20
-> > > Fixes: fc9df2a0b520 ("igc: Enable RX via AF_XDP zero-copy")
-> > > Cc: <stable@vger.kernel.org> # 5.14+
-> > > Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
-> > > Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-> > > Reviewed-by: Jesper Dangaard Brouer <brouer@redhat.com>
-> > > ---
-> >=20
-> > LGTM, thank for the adjustments :-)
-> >=20
-> > Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-> >=20
->=20
-> Tested-by: Jesper Dangaard Brouer <brouer@redhat.com>
->=20
-> I can confirm that this patch fix the issue I experienced with igc.
->=20
-> This patch clearly fixes a bug in igc when writing the SRRCTL register.
-> (as bit 30 in register is "Timestamp Received Packet" which got cleared=
-=20
-> before).
->=20
-> Florian might have found another bug around RX timestamps, but this
-> patch should be safe and sane to apply as is.
+On Mon, Apr 17, 2023 at 09:40:52AM -0400, William Breathitt Gray wrote:
+> On Tue, Apr 11, 2023 at 11:52:20AM -0400, William Breathitt Gray wrote:
+> > commit 4aa3b75c74603c3374877d5fd18ad9cc3a9a62ed upstream.
+> > 
+> > The Counter (CNTR) register is 24 bits wide, but we can have an
+> > effective 25-bit count value by setting bit 24 to the XOR of the Borrow
+> > flag and Carry flag. The flags can be read from the FLAG register, but a
+> > race condition exists: the Borrow flag and Carry flag are instantaneous
+> > and could change by the time the count value is read from the CNTR
+> > register.
+> > 
+> > Since the race condition could result in an incorrect 25-bit count
+> > value, remove support for 25-bit count values from this driver.
+> > 
+> > Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
+> > Cc: <stable@vger.kernel.org> # 5.15.x
+> > Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+> > ---
+> >  drivers/counter/104-quad-8.c | 18 +++---------------
+> >  1 file changed, 3 insertions(+), 15 deletions(-)
+> > 
+> > diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
+> > index 0caa60537b..643aae0c9f 100644
+> > --- a/drivers/counter/104-quad-8.c
+> > +++ b/drivers/counter/104-quad-8.c
+> > @@ -61,10 +61,6 @@ struct quad8 {
+> >  #define QUAD8_REG_CHAN_OP 0x11
+> >  #define QUAD8_REG_INDEX_INPUT_LEVELS 0x16
+> >  #define QUAD8_DIFF_ENCODER_CABLE_STATUS 0x17
+> > -/* Borrow Toggle flip-flop */
+> > -#define QUAD8_FLAG_BT BIT(0)
+> > -/* Carry Toggle flip-flop */
+> > -#define QUAD8_FLAG_CT BIT(1)
+> >  /* Error flag */
+> >  #define QUAD8_FLAG_E BIT(4)
+> >  /* Up/Down flag */
+> > @@ -121,17 +117,9 @@ static int quad8_count_read(struct counter_device *counter,
+> >  {
+> >  	struct quad8 *const priv = counter->priv;
+> >  	const int base_offset = priv->base + 2 * count->id;
+> > -	unsigned int flags;
+> > -	unsigned int borrow;
+> > -	unsigned int carry;
+> >  	int i;
+> >  
+> > -	flags = inb(base_offset + 1);
+> > -	borrow = flags & QUAD8_FLAG_BT;
+> > -	carry = !!(flags & QUAD8_FLAG_CT);
+> > -
+> > -	/* Borrow XOR Carry effectively doubles count range */
+> > -	*val = (unsigned long)(borrow ^ carry) << 24;
+> > +	*val = 0;
+> >  
+> >  	mutex_lock(&priv->lock);
+> >  
+> > @@ -699,8 +687,8 @@ static ssize_t quad8_count_ceiling_read(struct counter_device *counter,
+> >  
+> >  	mutex_unlock(&priv->lock);
+> >  
+> > -	/* By default 0x1FFFFFF (25 bits unsigned) is maximum count */
+> > -	return sprintf(buf, "33554431\n");
+> > +	/* By default 0xFFFFFF (24 bits unsigned) is maximum count */
+> > +	return sprintf(buf, "16777215\n");
+> >  }
+> >  
+> >  static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
+> > 
+> > base-commit: d86dfc4d95cd218246b10ca7adf22c8626547599
+> > -- 
+> > 2.39.2
+> 
+> Greg,
+> 
+> This patch will no longer apply to 5.15.x when the "counter: Internalize
+> sysfs interface code" patch in the stable-queue tree is merged [0].
+> However, I believe the 6.1 backport [1] will apply instead at that
+> point. What is the best way to handle this situation? Should I resend
+> the 6.1 backport with the stable list Cc tag adjusted for 5.15.x, or are
+> you able to apply the 6.1 backport patch directly to the 5.15.x tree?
 
-After a closer look I'm quite sure now that this patch should fix my
-issue as well. The register will be overwritten when setting up a
-XSK_POOL as well:
+The 6.1.y backport didn't apply either :(
 
-igc_bpf
-  igc_xdp_setup_pool
-    igc_enable_rx_ring
-      igc_configure_rx_ring
-        wr32(IGC_SRRCTL)
+Can you resend all of these rebased against the next round of stable
+releases when they are released later this week?
 
-I already removed the BPF loading (which is the use case that the patch
-description mentions) from my setup to limit the search scope. If you
-like you could extend the patch description, but I'm fine with it.
+thanks,
 
-Thanks a lot for all the support / ideas! Highly appreciated!
-
-Florian
-
->=20
-> > > v2 -> v3: Refactor SRRCTL definitions to more human readable definiti=
-ons
-> > > v1 -> v2: Fix indention
-> > > ---
-> > > =C2=A0 drivers/net/ethernet/intel/igc/igc_base.h | 11 ++++++++---
-> > > =C2=A0 drivers/net/ethernet/intel/igc/igc_main.c |=C2=A0 7 +++++--
-> > > =C2=A0 2 files changed, 13 insertions(+), 5 deletions(-)
->=20
-
+greg k-h
