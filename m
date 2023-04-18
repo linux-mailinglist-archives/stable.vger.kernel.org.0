@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF7B6E6444
+	by mail.lfdr.de (Postfix) with ESMTP id 94EDF6E6443
 	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbjDRMrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
+        id S232034AbjDRMrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbjDRMri (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2103514F78
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:32 -0700 (PDT)
+        with ESMTP id S232039AbjDRMrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7018E9EDB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1584633BE
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F59C433D2;
-        Tue, 18 Apr 2023 12:47:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50F1F633C0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 685F6C4339B;
+        Tue, 18 Apr 2023 12:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822051;
-        bh=fF/dcsiIzn8wZeI2ZrY1tS/II0KNFvwcxXRNDNTsB/A=;
+        s=korg; t=1681822053;
+        bh=mfsf9TRt3ntpdFjhdDxOz1o86aduJHi9ZX6MoCJRe6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQD1MHddFnZlPQzydBcs0pvF1BnjVa2a9F5tZ8AedVL9xbqTwDJ3hz3G8ZK88q023
-         YAYryi/GfoyRmbIHUlzorTuQNG9uxT2+xZUw/Cuu3GqVnxnRAHkOuOIUEvz8c9F0/v
-         8B3s5NlWUUStHvEapCWJ6DBgQtwYGkQ/HMrwa0vI=
+        b=c+5ck37mX6RMWLifO2sp82RXyuI9rZ+7MmnsmVeRDm+EmvOt6hQBjj4mz29h1301p
+         eia3UBWWngMxkSqFjnNH0Jfwj85xPqWIKm9rf0Snzn1iFGMw4Qme/10H5UyJOhh7g0
+         j+oR75IlImFyQeCrnXoxZswWdDghZgV7z9y9Ok4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 6.1 113/134] cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
-Date:   Tue, 18 Apr 2023 14:22:49 +0200
-Message-Id: <20230418120317.123168016@linuxfoundation.org>
+        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
+        Kenneth Feng <kenneth.feng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 114/134] drm/amd/pm: correct SMU13.0.7 pstate profiling clock settings
+Date:   Tue, 18 Apr 2023 14:22:50 +0200
+Message-Id: <20230418120317.172653432@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
 References: <20230418120313.001025904@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,46 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Horatio Zhang <Hongkun.Zhang@amd.com>
 
-commit ba9182a89626d5f83c2ee4594f55cb9c1e60f0e2 upstream.
+commit f06b8887e3ef4f50098d3a949aef392c529c831a upstream.
 
-After a successful cpuset_can_attach() call which increments the
-attach_in_progress flag, either cpuset_cancel_attach() or cpuset_attach()
-will be called later. In cpuset_attach(), tasks in cpuset_attach_wq,
-if present, will be woken up at the end. That is not the case in
-cpuset_cancel_attach(). So missed wakeup is possible if the attach
-operation is somehow cancelled. Fix that by doing the wakeup in
-cpuset_cancel_attach() as well.
+Correct the pstate standard/peak profiling mode clock
+settings for SMU13.0.7.
 
-Fixes: e44193d39e8d ("cpuset: let hotplug propagation work wait for task attaching")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Cc: stable@vger.kernel.org # v3.11+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
+Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |   22 ++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2498,11 +2498,15 @@ out_unlock:
- static void cpuset_cancel_attach(struct cgroup_taskset *tset)
- {
- 	struct cgroup_subsys_state *css;
-+	struct cpuset *cs;
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -1328,9 +1328,17 @@ static int smu_v13_0_7_populate_umd_stat
+ 				&dpm_context->dpm_tables.fclk_table;
+ 	struct smu_umd_pstate_table *pstate_table =
+ 				&smu->pstate_table;
++	struct smu_table_context *table_context = &smu->smu_table;
++	PPTable_t *pptable = table_context->driver_pptable;
++	DriverReportedClocks_t driver_clocks =
++		pptable->SkuTable.DriverReportedClocks;
  
- 	cgroup_taskset_first(tset, &css);
-+	cs = css_cs(css);
+ 	pstate_table->gfxclk_pstate.min = gfx_table->min;
+-	pstate_table->gfxclk_pstate.peak = gfx_table->max;
++	if (driver_clocks.GameClockAc &&
++		(driver_clocks.GameClockAc < gfx_table->max))
++		pstate_table->gfxclk_pstate.peak = driver_clocks.GameClockAc;
++	else
++		pstate_table->gfxclk_pstate.peak = gfx_table->max;
  
- 	percpu_down_write(&cpuset_rwsem);
--	css_cs(css)->attach_in_progress--;
-+	cs->attach_in_progress--;
-+	if (!cs->attach_in_progress)
-+		wake_up(&cpuset_attach_wq);
- 	percpu_up_write(&cpuset_rwsem);
- }
+ 	pstate_table->uclk_pstate.min = mem_table->min;
+ 	pstate_table->uclk_pstate.peak = mem_table->max;
+@@ -1347,12 +1355,12 @@ static int smu_v13_0_7_populate_umd_stat
+ 	pstate_table->fclk_pstate.min = fclk_table->min;
+ 	pstate_table->fclk_pstate.peak = fclk_table->max;
  
+-	/*
+-	 * For now, just use the mininum clock frequency.
+-	 * TODO: update them when the real pstate settings available
+-	 */
+-	pstate_table->gfxclk_pstate.standard = gfx_table->min;
+-	pstate_table->uclk_pstate.standard = mem_table->min;
++	if (driver_clocks.BaseClockAc &&
++		driver_clocks.BaseClockAc < gfx_table->max)
++		pstate_table->gfxclk_pstate.standard = driver_clocks.BaseClockAc;
++	else
++		pstate_table->gfxclk_pstate.standard = gfx_table->max;
++	pstate_table->uclk_pstate.standard = mem_table->max;
+ 	pstate_table->socclk_pstate.standard = soc_table->min;
+ 	pstate_table->vclk_pstate.standard = vclk_table->min;
+ 	pstate_table->dclk_pstate.standard = dclk_table->min;
 
 
