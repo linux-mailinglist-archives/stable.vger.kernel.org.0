@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A73756E6276
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF66B6E6360
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230467AbjDRMcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
+        id S231830AbjDRMkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231574AbjDRMco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:44 -0400
+        with ESMTP id S231837AbjDRMkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9C010274
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8AE13869
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95C7E6320E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB4F8C433EF;
-        Tue, 18 Apr 2023 12:31:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD4B3632C6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D37B1C433EF;
+        Tue, 18 Apr 2023 12:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821101;
-        bh=lUOKoSiU2AnyAbqMkPrIkLbfmcUBzi1TYYYiEYQhdiM=;
+        s=korg; t=1681821600;
+        bh=1PTmcP2+6LuJsrULf4ZIc+pv2aA7YcGzRwoLHFAWLGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUj93TJvcMZnk7XE73QtvXWmTgNqdcQ9+cOgMa0w29gJ50O7X4U+PdwbE9YLO3fyG
-         SM1TAqBto4XDhlmQGs0xDQrg9QSl85dCrpXE/LagzuJHEsPi2TZdtbln5Via/09kFZ
-         V9rh93IQDy5v5dKnnXgoGxZcwUXwoONrCGjzI4MU=
+        b=RTv1KV+K089jjErmpHybGbYMph72KpTUgYc/0lAbPwhm0LdYFYmIseVz+ojjI4tmB
+         1SP627Dp1bFCyB1jsJZdJXYPFQHhn6fQwyETZpEwzh6cH283VbjRfM3nsSjJ+STiNL
+         crJLPU/TkejjV/UvOQEgmGa0458R/Po0FrOhuoUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 91/92] xfs: dont reuse busy extents on extent trim
+        patches@lists.linux.dev, Michal Kolar <mich.k@seznam.cz>,
+        Jiri Kosina <jkosina@suse.cz>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Ding Hui <dinghui@sangfor.com.cn>
+Subject: [PATCH 5.15 62/91] scsi: ses: Handle enclosure with just a primary component gracefully
 Date:   Tue, 18 Apr 2023 14:22:06 +0200
-Message-Id: <20230418120307.970868821@linuxfoundation.org>
+Message-Id: <20230418120307.742398613@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,95 +55,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-commit 06058bc40534530e617e5623775c53bb24f032cb upstream.
+commit c8e22b7a1694bb8d025ea636816472739d859145 upstream.
 
-Freed extents are marked busy from the point the freeing transaction
-commits until the associated CIL context is checkpointed to the log.
-This prevents reuse and overwrite of recently freed blocks before
-the changes are committed to disk, which can lead to corruption
-after a crash. The exception to this rule is that metadata
-allocation is allowed to reuse busy extents because metadata changes
-are also logged.
+This reverts commit 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure
+has no components") and introduces proper handling of case where there are
+no detected secondary components, but primary component (enumerated in
+num_enclosures) does exist. That fix was originally proposed by Ding Hui
+<dinghui@sangfor.com.cn>.
 
-As of commit 97d3ac75e5e0 ("xfs: exact busy extent tracking"), XFS
-has allowed modification or complete invalidation of outstanding
-busy extents for metadata allocations. This implementation assumes
-that use of the associated extent is imminent, which is not always
-the case. For example, the trimmed extent might not satisfy the
-minimum length of the allocation request, or the allocation
-algorithm might be involved in a search for the optimal result based
-on locality.
+Completely ignoring devices that have one primary enclosure and no
+secondary one results in ses_intf_add() bailing completely
 
-generic/019 reproduces a corruption caused by this scenario. First,
-a metadata block (usually a bmbt or symlink block) is freed from an
-inode. A subsequent bmbt split on an unrelated inode attempts a near
-mode allocation request that invalidates the busy block during the
-search, but does not ultimately allocate it. Due to the busy state
-invalidation, the block is no longer considered busy to subsequent
-allocation. A direct I/O write request immediately allocates the
-block and writes to it. Finally, the filesystem crashes while in a
-state where the initial metadata block free had not committed to the
-on-disk log. After recovery, the original metadata block is in its
-original location as expected, but has been corrupted by the
-aforementioned dio.
+	scsi 2:0:0:254: enclosure has no enumerated components
+        scsi 2:0:0:254: Failed to bind enclosure -12ven in valid configurations such
 
-This demonstrates that it is fundamentally unsafe to modify busy
-extent state for extents that are not guaranteed to be allocated.
-This applies to pretty much all of the code paths that currently
-trim busy extents for one reason or another. Therefore to address
-this problem, drop the reuse mechanism from the busy extent trim
-path. This code already knows how to return partial non-busy ranges
-of the targeted free extent and higher level code tracks the busy
-state of the allocation attempt. If a block allocation fails where
-one or more candidate extents is busy, we force the log and retry
-the allocation.
+even on valid configurations with 1 primary and 0 secondary enclosures as
+below:
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+	# sg_ses /dev/sg0
+	  3PARdata  SES               3321
+	Supported diagnostic pages:
+	  Supported Diagnostic Pages [sdp] [0x0]
+	  Configuration (SES) [cf] [0x1]
+	  Short Enclosure Status (SES) [ses] [0x8]
+	# sg_ses -p cf /dev/sg0
+	  3PARdata  SES               3321
+	Configuration diagnostic page:
+	  number of secondary subenclosures: 0
+	  generation code: 0x0
+	  enclosure descriptor list
+	    Subenclosure identifier: 0 [primary]
+	      relative ES process id: 0, number of ES processes: 1
+	      number of type descriptor headers: 1
+	      enclosure logical identifier (hex): 20000002ac02068d
+	      enclosure vendor: 3PARdata  product: VV                rev: 3321
+	  type descriptor header and text list
+	    Element type: Unspecified, subenclosure id: 0
+	      number of possible elements: 1
+
+The changelog for the original fix follows
+
+=====
+We can get a crash when disconnecting the iSCSI session,
+the call trace like this:
+
+  [ffff00002a00fb70] kfree at ffff00000830e224
+  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
+  [ffff00002a00fbd0] device_del at ffff0000086b6a98
+  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
+  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
+  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
+  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
+  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
+  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
+  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
+  [ffff00002a00fe00] worker_thread at ffff00000810f648
+  [ffff00002a00fe70] kthread at ffff000008116e98
+
+In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
+but not saved in edev->component[i].scratch
+
+In this situation, edev->component[0].scratch is an invalid pointer,
+when kfree it in ses_intf_remove_enclosure, a crash like above would happen
+The call trace also could be other random cases when kfree cannot catch
+the invalid pointer
+
+We should not use edev->component[] array when the components count is 0
+We also need check index when use edev->component[] array in
+ses_enclosure_data_process
+=====
+
+Reported-by: Michal Kolar <mich.k@seznam.cz>
+Originally-by: Ding Hui <dinghui@sangfor.com.cn>
+Cc: stable@vger.kernel.org
+Fixes: 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2304042122270.29760@cbobk.fhfr.pm
+Tested-by: Michal Kolar <mich.k@seznam.cz>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_extent_busy.c |   14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/scsi/ses.c |   20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
---- a/fs/xfs/xfs_extent_busy.c
-+++ b/fs/xfs/xfs_extent_busy.c
-@@ -344,7 +344,6 @@ xfs_extent_busy_trim(
- 	ASSERT(*len > 0);
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -503,9 +503,6 @@ static int ses_enclosure_find_by_addr(st
+ 	int i;
+ 	struct ses_component *scomp;
  
- 	spin_lock(&args->pag->pagb_lock);
--restart:
- 	fbno = *bno;
- 	flen = *len;
- 	rbp = args->pag->pagb_tree.rb_node;
-@@ -363,19 +362,6 @@ restart:
- 			continue;
- 		}
- 
--		/*
--		 * If this is a metadata allocation, try to reuse the busy
--		 * extent instead of trimming the allocation.
--		 */
--		if (!xfs_alloc_is_userdata(args->datatype) &&
--		    !(busyp->flags & XFS_EXTENT_BUSY_DISCARDED)) {
--			if (!xfs_extent_busy_update_extent(args->mp, args->pag,
--							  busyp, fbno, flen,
--							  false))
--				goto restart;
--			continue;
--		}
+-	if (!edev->component[0].scratch)
+-		return 0;
 -
- 		if (bbno <= fbno) {
- 			/* start overlap */
+ 	for (i = 0; i < edev->components; i++) {
+ 		scomp = edev->component[i].scratch;
+ 		if (scomp->addr != efd->addr)
+@@ -596,8 +593,10 @@ static void ses_enclosure_data_process(s
+ 						components++,
+ 						type_ptr[0],
+ 						name);
+-				else
++				else if (components < edev->components)
+ 					ecomp = &edev->component[components++];
++				else
++					ecomp = ERR_PTR(-EINVAL);
  
+ 				if (!IS_ERR(ecomp)) {
+ 					if (addl_desc_ptr) {
+@@ -728,11 +727,6 @@ static int ses_intf_add(struct device *c
+ 			components += type_ptr[1];
+ 	}
+ 
+-	if (components == 0) {
+-		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
+-		goto err_free;
+-	}
+-
+ 	ses_dev->page1 = buf;
+ 	ses_dev->page1_len = len;
+ 	buf = NULL;
+@@ -774,9 +768,11 @@ static int ses_intf_add(struct device *c
+ 		buf = NULL;
+ 	}
+ page2_not_supported:
+-	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
+-	if (!scomp)
+-		goto err_free;
++	if (components > 0) {
++		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
++		if (!scomp)
++			goto err_free;
++	}
+ 
+ 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
+ 				  components, &ses_enclosure_callbacks);
 
 
