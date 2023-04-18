@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9476E6374
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB25F6E64A2
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231794AbjDRMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
+        id S232050AbjDRMvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231841AbjDRMko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:44 -0400
+        with ESMTP id S232075AbjDRMvH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E2113C14
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5834716DEC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63CD563310
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB4DC433D2;
-        Tue, 18 Apr 2023 12:40:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A960C63421
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BED39C4339C;
+        Tue, 18 Apr 2023 12:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821642;
-        bh=tA4Tw6Ea+ZlkCbD/ldWcpM2m3bNZNkGF79eHyq/KUBA=;
+        s=korg; t=1681822246;
+        bh=aR1XZuGzzHdJ7T6DKAe/O9zZFsR7b7IpXFZ3VXf0y5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NT7i8eSk4q1VSKkDhqpGDr/83qmHel6p9fk4gENw8cV1NxkyXTo3ZccpgPNIjwbIa
-         hB9jwa2U9+OFOT3iRL+QWFbcsP4izRZc78gYYAptVG+HTZrKPQvUbgw9uf45RxdJIW
-         rg+YDv7daaOIJkPhMsBE4N00AhGYZEJ+O2Z0P98E=
+        b=bKswjp2H7SDN7p45kBex0G5zqFh729f/hXcYFWeyV141MEhEvX9WiBhW1THz7bevE
+         /6j84bCUFNWl0H6Vt3zUjuCcUxkCoa7uy1J0WFQu4qiQGYa0S5a4B9P684vgyLGltB
+         D/4EeE+lrI22jWrDqQ9uxFfelj1vpGraTJKJ/+T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tobias Gruetzmacher <tobias-git@23.gs>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 79/91] nvme-pci: Crucial P2 has bogus namespace ids
+        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Chris Morgan <macromorgan@hotmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 078/139] power: supply: rk817: Fix unsigned comparison with less than zero
 Date:   Tue, 18 Apr 2023 14:22:23 +0200
-Message-Id: <20230418120308.294219156@linuxfoundation.org>
+Message-Id: <20230418120316.778530328@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Gruetzmacher <tobias-git@23.gs>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit d6c52fa3e955b97f8eb3ac824d2a3e0af147b3ce ]
+[ Upstream commit 3268a4d9b0b85a4382e93bdf7be5400a73db74c5 ]
 
-This adds a quirk for the Crucial P2.
+The tmp is defined as u32 type, which results in invalid processing of
+tmp<0 in function rk817_read_or_set_full_charge_on_boot(). Therefore,
+drop the comparison.
 
-Signed-off-by: Tobias Gruetzmacher <tobias-git@23.gs>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Stable-dep-of: 74391b3e6985 ("nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD")
+drivers/power/supply/rk817_charger.c:828 rk817_read_or_set_full_charge_on_boot() warn: unsigned 'tmp' is never less than zero.
+drivers/power/supply/rk817_charger.c:788 rk817_read_or_set_full_charge_on_boot() warn: unsigned 'tmp' is never less than zero.
+
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3444
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Tested-by: Chris Morgan <macromorgan@hotmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/power/supply/rk817_charger.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 7b0331848664d..4e75d329562fa 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3392,6 +3392,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1e49, 0x0041),   /* ZHITAI TiPro7000 NVMe SSD */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
-+	{ PCI_DEVICE(0xc0a9, 0x540a),   /* Crucial P2 */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
- 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
+diff --git a/drivers/power/supply/rk817_charger.c b/drivers/power/supply/rk817_charger.c
+index 4f9c1c4179165..36f807b5ec442 100644
+--- a/drivers/power/supply/rk817_charger.c
++++ b/drivers/power/supply/rk817_charger.c
+@@ -785,8 +785,6 @@ rk817_read_or_set_full_charge_on_boot(struct rk817_charger *charger,
+ 		regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_Q_PRES_H3,
+ 				 bulk_reg, 4);
+ 		tmp = get_unaligned_be32(bulk_reg);
+-		if (tmp < 0)
+-			tmp = 0;
+ 		boot_charge_mah = ADC_TO_CHARGE_UAH(tmp,
+ 						    charger->res_div) / 1000;
+ 		/*
+@@ -825,8 +823,6 @@ rk817_read_or_set_full_charge_on_boot(struct rk817_charger *charger,
+ 	regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_Q_PRES_H3,
+ 			 bulk_reg, 4);
+ 	tmp = get_unaligned_be32(bulk_reg);
+-	if (tmp < 0)
+-		tmp = 0;
+ 	boot_charge_mah = ADC_TO_CHARGE_UAH(tmp, charger->res_div) / 1000;
+ 	regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_OCV_VOL_H,
+ 			 bulk_reg, 2);
 -- 
 2.39.2
 
