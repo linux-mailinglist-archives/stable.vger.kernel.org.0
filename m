@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F616E644E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A824C6E61B6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232076AbjDRMsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
+        id S231479AbjDRM06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:26:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232072AbjDRMsI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:08 -0400
+        with ESMTP id S231506AbjDRM0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6281CF9D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98D3B9EDE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C6E3633D1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E966C433EF;
-        Tue, 18 Apr 2023 12:47:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 472586312F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E23FC433D2;
+        Tue, 18 Apr 2023 12:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822077;
-        bh=2wA44kDtgI9IRu4YzCwgCu50ewXF20yfzD+KbsOE260=;
+        s=korg; t=1681820754;
+        bh=uA0Ga6t+TX486qjbu/ucVKAI49WYguMa6O6fyVcinFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJ716IqCTzskK4PKp0/TLrpP9wwVaF5RU95xFkxr2AL5lkux4N6aV9hGAahy5H+v+
-         iEfwR2Zg9/+6nT0g4sjlU3gngXpDxw7O3XRsB45i0kahcZfdmKuKckOJvpjSTDEf9J
-         s29QItzMKBe54ya7HIlNLA4cs/JHO0azUS3T6uXU=
+        b=YfE5VzBkAPfduk9b3ECboPUPevvyGywS+Myzrdt18roNoQ1h/RYIURPoGuwTPu4mg
+         g1kQP/876lgeYsK/MQe6tdR77n+KLUCq7qttvjHU2oFej9qqSucARuMHeLGSimIjwR
+         dMJFUxvg7sF2VDkNwy4jAZ9I2dwTmwETSsMJioFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 6.2 014/139] Bluetooth: Fix race condition in hidp_session_thread
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 4.19 19/57] tty: serial: sh-sci: Fix transmit end interrupt handler
 Date:   Tue, 18 Apr 2023 14:21:19 +0200
-Message-Id: <20230418120314.219818142@linuxfoundation.org>
+Message-Id: <20230418120259.418310214@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +47,46 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Min Li <lm0963hack@gmail.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
+commit b43a18647f03c87e77d50d6fe74904b61b96323e upstream.
 
-There is a potential race condition in hidp_session_thread that may
-lead to use-after-free. For instance, the timer is active while
-hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
-then 'session' will be freed, causing kernel panic when hidp_idle_timeout
-is running.
+The fourth interrupt on SCI port is transmit end interrupt compared to
+the break interrupt on other port types. So, shuffle the interrupts to fix
+the transmit end interrupt handler.
 
-The solution is to use del_timer_sync instead of del_timer.
-
-Here is the call trace:
-
-? hidp_session_probe+0x780/0x780
-call_timer_fn+0x2d/0x1e0
-__run_timers.part.0+0x569/0x940
-hidp_session_probe+0x780/0x780
-call_timer_fn+0x1e0/0x1e0
-ktime_get+0x5c/0xf0
-lapic_next_deadline+0x2c/0x40
-clockevents_program_event+0x205/0x320
-run_timer_softirq+0xa9/0x1b0
-__do_softirq+0x1b9/0x641
-__irq_exit_rcu+0xdc/0x190
-irq_exit_rcu+0xe/0x20
-sysvec_apic_timer_interrupt+0xa1/0xc0
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Min Li <lm0963hack@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Cc: stable <stable@kernel.org>
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20230317150403.154094-1-biju.das.jz@bp.renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hidp/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sh-sci.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -433,7 +433,7 @@ static void hidp_set_timer(struct hidp_s
- static void hidp_del_timer(struct hidp_session *session)
- {
- 	if (session->idle_to > 0)
--		del_timer(&session->timer);
-+		del_timer_sync(&session->timer);
- }
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -2908,6 +2908,13 @@ static int sci_init_single(struct platfo
+ 	for (i = 0; i < ARRAY_SIZE(sci_port->irqs); ++i)
+ 		sci_port->irqs[i] = platform_get_irq(dev, i);
  
- static void hidp_process_report(struct hidp_session *session, int type,
++	/*
++	 * The fourth interrupt on SCI port is transmit end interrupt, so
++	 * shuffle the interrupts.
++	 */
++	if (p->type == PORT_SCI)
++		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
++
+ 	/* The SCI generates several interrupts. They can be muxed together or
+ 	 * connected to different interrupt lines. In the muxed case only one
+ 	 * interrupt resource is specified as there is only one interrupt ID.
 
 
