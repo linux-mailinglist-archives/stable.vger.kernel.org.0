@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4D46E626E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D0A6E62CA
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbjDRMce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45210 "EHLO
+        id S229681AbjDRMf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231205AbjDRMcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3427C9741
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:11 -0700 (PDT)
+        with ESMTP id S231668AbjDRMfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A97BBA5
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AEC963219
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304D3C433D2;
-        Tue, 18 Apr 2023 12:32:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A64B7629EA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB56FC4339B;
+        Tue, 18 Apr 2023 12:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821124;
-        bh=OWsC+RlSBWRoNvougj80y3T8tX3mx0IkRNMcosEg6mo=;
+        s=korg; t=1681821317;
+        bh=9WQJUuBx43rDKifELWYZzWPnM5IAzTiTe0N5DCkWi04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdUd32vDNjvlu/nWhj6War0qdNFYOWNSAZ5gSRUtWcr/hE47535JNP5/LVxKuoYU3
-         yo0af4yiSSWdVnHloW3kBlqbAwr0XRu8r2xQusmAc3fLqBDyUV5BMgaMr19PklAjrs
-         qZqgKcMxy66aAX8GwIEIiC6I0szOxVJu1yU379tE=
+        b=ANyWHuEQ0JZDdKTsx8kmIQs9VWsnXNBJ3/nHOSn8hZrvCqvTE9jVqOIol3zp5XpNy
+         40eCvKURB+FrOU3YiHW5nnlcSh12VGxT7JnDewo/NVYT8X/Bhepi6CoYl9YctiOAwf
+         WTHiPcv4WpO3Zu/ntyqvBLxnpBHhu51CCkvSk6Ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Grant Grundler <grundler@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev,
+        syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 64/92] power: supply: cros_usbpd: reclassify "default case!" as debug
+Subject: [PATCH 5.10 080/124] net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
 Date:   Tue, 18 Apr 2023 14:21:39 +0200
-Message-Id: <20230418120307.073068857@linuxfoundation.org>
+Message-Id: <20230418120312.769632614@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,40 +58,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Grundler <grundler@chromium.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 14c76b2e75bca4d96e2b85a0c12aa43e84fe3f74 ]
+[ Upstream commit 6417070918de3bcdbe0646e7256dae58fd8083ba ]
 
-This doesn't need to be printed every second as an error:
-...
-<3>[17438.628385] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
-<3>[17439.634176] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
-<3>[17440.640298] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
-...
+Syzbot reported a bug as following:
 
-Reduce priority from ERROR to DEBUG.
+=====================================================
+BUG: KMSAN: uninit-value in qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
+ qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
+ qrtr_endpoint_post+0xf85/0x11b0 net/qrtr/af_qrtr.c:519
+ qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Signed-off-by: Grant Grundler <grundler@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ __netdev_alloc_skb+0x120/0x7d0 net/core/skbuff.c:630
+ qrtr_endpoint_post+0xbd/0x11b0 net/qrtr/af_qrtr.c:446
+ qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
+ call_write_iter include/linux/fs.h:2189 [inline]
+ aio_write+0x63a/0x950 fs/aio.c:1600
+ io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
+ __do_sys_io_submit fs/aio.c:2078 [inline]
+ __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
+ __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+It is because that skb->len requires at least sizeof(struct qrtr_ctrl_pkt)
+in qrtr_tx_resume(). And skb->len equals to size in qrtr_endpoint_post().
+But size is less than sizeof(struct qrtr_ctrl_pkt) when qrtr_cb->type
+equals to QRTR_TYPE_RESUME_TX in qrtr_endpoint_post() under the syzbot
+scenario. This triggers the uninit variable access bug.
+
+Add size check when qrtr_cb->type equals to QRTR_TYPE_RESUME_TX in
+qrtr_endpoint_post() to fix the bug.
+
+Fixes: 5fdeb0d372ab ("net: qrtr: Implement outgoing flow control")
+Reported-by: syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=c14607f0963d27d5a3d5f4c8639b500909e43540
+Suggested-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230410012352.3997823-1-william.xuanziyang@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cros_usbpd-charger.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/qrtr/af_qrtr.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/power/supply/cros_usbpd-charger.c b/drivers/power/supply/cros_usbpd-charger.c
-index 6cc7c3910e098..0f80fdf88253c 100644
---- a/drivers/power/supply/cros_usbpd-charger.c
-+++ b/drivers/power/supply/cros_usbpd-charger.c
-@@ -282,7 +282,7 @@ static int cros_usbpd_charger_get_power_info(struct port_data *port)
- 		port->psy_current_max = 0;
- 		break;
- 	default:
--		dev_err(dev, "Port %d: default case!\n", port->port_number);
-+		dev_dbg(dev, "Port %d: default case!\n", port->port_number);
- 		port->psy_usb_type = POWER_SUPPLY_USB_TYPE_SDP;
- 	}
+diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
+index d0f0b2b8dce2f..71c2295d4a573 100644
+--- a/net/qrtr/af_qrtr.c
++++ b/net/qrtr/af_qrtr.c
+@@ -492,6 +492,11 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 	if (!size || len != ALIGN(size, 4) + hdrlen)
+ 		goto err;
  
++	if ((cb->type == QRTR_TYPE_NEW_SERVER ||
++	     cb->type == QRTR_TYPE_RESUME_TX) &&
++	    size < sizeof(struct qrtr_ctrl_pkt))
++		goto err;
++
+ 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
+ 	    cb->type != QRTR_TYPE_RESUME_TX)
+ 		goto err;
+@@ -500,6 +505,14 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 
+ 	qrtr_node_assign(node, cb->src_node);
+ 
++	if (cb->type == QRTR_TYPE_NEW_SERVER) {
++		/* Remote node endpoint can bridge other distant nodes */
++		const struct qrtr_ctrl_pkt *pkt;
++
++		pkt = data + hdrlen;
++		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
++	}
++
+ 	if (cb->type == QRTR_TYPE_RESUME_TX) {
+ 		qrtr_tx_resume(node, skb);
+ 	} else {
 -- 
 2.39.2
 
