@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C80CB6E646A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2296E62C6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbjDRMtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
+        id S231664AbjDRMfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232115AbjDRMsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:55 -0400
+        with ESMTP id S231704AbjDRMfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82B71546A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1850C670
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B353C633DF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FC3C433D2;
-        Tue, 18 Apr 2023 12:48:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EFE963275
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 847FDC433D2;
+        Tue, 18 Apr 2023 12:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822127;
-        bh=Wv4e16uRRrKhpTeME6jbvXsBSDPmDTT148k+e8OyN9A=;
+        s=korg; t=1681821311;
+        bh=iv4IODpkbQlxW2iaDF+Q7rkFYHtf0lVcrXU7gcPUHxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iPc+YJbPMHhVJbVa++B+wnj2G7FFX59jkWSoM2tmO1qhi4kLtbOfvhItix0C9HmRw
-         nTSn3aQBWFb/SO1WThPmmXRIC02FTeD7T75qFKGDGy4u4Z4AVkUXJN/KowLuovmA56
-         fDL82B/Px3ZqQWGQ0bE+kx6Y2VFRlIpLdBX6fgwg=
+        b=q4rfk3JiXIDD57xmAYoSKMVm4mYAnF5FukjcZsOGUKn7OyZ50IePRsoYaX/ZZOwLZ
+         kvRnImG0IQ4p+cAN1Ozig9MyT0UqP8pogONhMDavRLev3c1aG8O9G2dxdHaqPjqweb
+         vcJOcvVZZBdoqy6Fy5O61HiB0+sGrXfNRGnPtzqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 032/139] RDMA/irdma: Fix memory leak of PBLE objects
+Subject: [PATCH 5.10 078/124] drm/armada: Fix a potential double free in an error handling path
 Date:   Tue, 18 Apr 2023 14:21:37 +0200
-Message-Id: <20230418120314.850859430@linuxfoundation.org>
+Message-Id: <20230418120312.702941224@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b69a6979dbaa2453675fe9c71bdc2497fedb11f9 ]
+[ Upstream commit b89ce1177d42d5c124e83f3858818cd4e6a2c46f ]
 
-On rmmod of irdma, the PBLE object memory is not being freed. PBLE object
-memory are not statically pre-allocated at function initialization time
-unlike other HMC objects. PBLEs objects and the Segment Descriptors (SD)
-for it can be dynamically allocated during scale up and SD's remain
-allocated till function deinitialization.
+'priv' is a managed resource, so there is no need to free it explicitly or
+there will be a double free().
 
-Fix this leak by adding IRDMA_HMC_IW_PBLE to the iw_hmc_obj_types[] table
-and skip pbles in irdma_create_hmc_obj but not in irdma_del_hmc_objects().
-
-Fixes: 44d9e52977a1 ("RDMA/irdma: Implement device initialization definitions")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20230315145231.931-3-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 90ad200b4cbc ("drm/armada: Use devm_drm_dev_alloc")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/c4f3c9207a9fce35cb6dd2cc60e755275961588a.1640536364.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/hw.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/armada/armada_drv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/irdma/hw.c b/drivers/infiniband/hw/irdma/hw.c
-index 2e1e2bad04011..43dfa4761f069 100644
---- a/drivers/infiniband/hw/irdma/hw.c
-+++ b/drivers/infiniband/hw/irdma/hw.c
-@@ -41,6 +41,7 @@ static enum irdma_hmc_rsrc_type iw_hmc_obj_types[] = {
- 	IRDMA_HMC_IW_XFFL,
- 	IRDMA_HMC_IW_Q1,
- 	IRDMA_HMC_IW_Q1FL,
-+	IRDMA_HMC_IW_PBLE,
- 	IRDMA_HMC_IW_TIMER,
- 	IRDMA_HMC_IW_FSIMC,
- 	IRDMA_HMC_IW_FSIAV,
-@@ -827,6 +828,8 @@ static int irdma_create_hmc_objs(struct irdma_pci_f *rf, bool privileged,
- 	info.entry_type = rf->sd_type;
+diff --git a/drivers/gpu/drm/armada/armada_drv.c b/drivers/gpu/drm/armada/armada_drv.c
+index 980d3f1f8f16e..2d1e1e48f0eec 100644
+--- a/drivers/gpu/drm/armada/armada_drv.c
++++ b/drivers/gpu/drm/armada/armada_drv.c
+@@ -102,7 +102,6 @@ static int armada_drm_bind(struct device *dev)
+ 	if (ret) {
+ 		dev_err(dev, "[" DRM_NAME ":%s] can't kick out simple-fb: %d\n",
+ 			__func__, ret);
+-		kfree(priv);
+ 		return ret;
+ 	}
  
- 	for (i = 0; i < IW_HMC_OBJ_TYPE_NUM; i++) {
-+		if (iw_hmc_obj_types[i] == IRDMA_HMC_IW_PBLE)
-+			continue;
- 		if (dev->hmc_info->hmc_obj[iw_hmc_obj_types[i]].cnt) {
- 			info.rsrc_type = iw_hmc_obj_types[i];
- 			info.count = dev->hmc_info->hmc_obj[info.rsrc_type].cnt;
 -- 
 2.39.2
 
