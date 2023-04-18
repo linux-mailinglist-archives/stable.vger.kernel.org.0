@@ -2,166 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB0C6E61B3
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DBFD6E6208
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231404AbjDRM0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:26:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
+        id S231535AbjDRM33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229756AbjDRM0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13674AD37
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:05 -0700 (PDT)
+        with ESMTP id S231438AbjDRM32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F361C65F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C909263109
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D75FFC433EF;
-        Tue, 18 Apr 2023 12:26:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CC61628B4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF98C4339B;
+        Tue, 18 Apr 2023 12:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820765;
-        bh=pF4V/uSzBEDqsjjMXJICL3TlgrroEcdCv9l8XZ54jHE=;
+        s=korg; t=1681820945;
+        bh=gqJicJtcT82xki/diuI83cpATTBe/d4ZT1A/6jqLHgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkIL5Nrj/Xc8dmgEcezfLfpp/pOFcgQJHbg2tGGUqiSmTVodBxZyjVbj+mCdl16k9
-         z0i4i7LSOxFRQpg/RkSt2TiE0ZMYZIff9a0vPh55edm+/+Irw3AaGyLpu4Wiig5chM
-         OisYlliSQcJuaupqHcp0fIxvN2HtwgtLAW1ag6mM=
+        b=YMntdfGSBC6d5B2rOL9P9hvaynlQbba34Wpbi2T3tGvrkkNySvirXpdOyj/Ee/KYY
+         Dt5kC+nBlcevj0ZhEQXQaIPe8AraGM8/vNqAersyxnSX6AHDqR8CKX8z75PG1Iik9G
+         G4ILNvlr1B9duFumgk+MKGlekSBkeyC2jvUZqm84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/57] NFSv4: Convert struct nfs4_state to use refcount_t
-Date:   Tue, 18 Apr 2023 14:21:05 +0200
-Message-Id: <20230418120258.913083090@linuxfoundation.org>
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
+        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 31/92] nilfs2: fix sysfs interface lifetime
+Date:   Tue, 18 Apr 2023 14:21:06 +0200
+Message-Id: <20230418120305.931783047@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit ace9fad43aa60a88af4b57a8328f0958e3d07bf0 ]
+commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Stable-dep-of: 6165a16a5ad9 ("NFSv4: Fix hangs when recovering open state after a server reboot")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The current nilfs2 sysfs support has issues with the timing of creation
+and deletion of sysfs entries, potentially leading to null pointer
+dereferences, use-after-free, and lockdep warnings.
+
+Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
+metadata file "cpfile", "sufile", or "dat", but
+nilfs_sysfs_create_device_group that creates those attributes is executed
+before the inodes for these metadata files are loaded, and
+nilfs_sysfs_delete_device_group which deletes these sysfs entries is
+called after releasing their metadata file inodes.
+
+Therefore, access to some of these sysfs attributes may occur outside of
+the lifetime of these metadata files, resulting in inode NULL pointer
+dereferences or use-after-free.
+
+In addition, the call to nilfs_sysfs_create_device_group() is made during
+the locking period of the semaphore "ns_sem" of nilfs object, so the
+shrinker call caused by the memory allocation for the sysfs entries, may
+derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
+nilfs_evict_inode()".
+
+Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
+locks via its error handler __nilfs_error(), this causes lockdep to report
+circular locking.  This is a false positive and no circular locking
+actually occurs as no inodes exist yet when
+nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
+warnings can be resolved by simply moving the call to
+nilfs_sysfs_create_device_group() out of "ns_sem".
+
+This fixes these sysfs issues by revising where the device's sysfs
+interface is created/deleted and keeping its lifetime within the lifetime
+of the metadata files above.
+
+Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
+Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
+Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4_fs.h   | 2 +-
- fs/nfs/nfs4proc.c  | 8 ++++----
- fs/nfs/nfs4state.c | 8 ++++----
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ fs/nilfs2/super.c     |    2 ++
+ fs/nilfs2/the_nilfs.c |   12 +++++++-----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index 5ac7bf24c507b..2d438318681a5 100644
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -190,7 +190,7 @@ struct nfs4_state {
- 	unsigned int n_wronly;		/* Number of write-only references */
- 	unsigned int n_rdwr;		/* Number of read/write references */
- 	fmode_t state;			/* State on the server (R,W, or RW) */
--	atomic_t count;
-+	refcount_t count;
- 
- 	wait_queue_head_t waitq;
- };
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 250fa88303fad..4f8775d9d0f06 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1792,7 +1792,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- out:
- 	return ERR_PTR(ret);
- out_return_state:
--	atomic_inc(&state->count);
-+	refcount_inc(&state->count);
- 	return state;
- }
- 
-@@ -1864,7 +1864,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(struct nfs4_opendata *data)
- update:
- 	update_open_stateid(state, &data->o_res.stateid, NULL,
- 			    data->o_arg.fmode);
--	atomic_inc(&state->count);
-+	refcount_inc(&state->count);
- 
- 	return state;
- }
-@@ -1902,7 +1902,7 @@ nfs4_opendata_find_nfs4_state(struct nfs4_opendata *data)
- 		return ERR_CAST(inode);
- 	if (data->state != NULL && data->state->inode == inode) {
- 		state = data->state;
--		atomic_inc(&state->count);
-+		refcount_inc(&state->count);
- 	} else
- 		state = nfs4_get_open_state(inode, data->owner);
- 	iput(inode);
-@@ -1975,7 +1975,7 @@ static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context
- 	if (opendata == NULL)
- 		return ERR_PTR(-ENOMEM);
- 	opendata->state = state;
--	atomic_inc(&state->count);
-+	refcount_inc(&state->count);
- 	return opendata;
- }
- 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index b9fbd01ef4cfe..e5b4c6987c846 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -675,7 +675,7 @@ nfs4_alloc_open_state(void)
- 	state = kzalloc(sizeof(*state), GFP_NOFS);
- 	if (!state)
- 		return NULL;
--	atomic_set(&state->count, 1);
-+	refcount_set(&state->count, 1);
- 	INIT_LIST_HEAD(&state->lock_states);
- 	spin_lock_init(&state->state_lock);
- 	seqlock_init(&state->seqlock);
-@@ -709,7 +709,7 @@ __nfs4_find_state_byowner(struct inode *inode, struct nfs4_state_owner *owner)
- 			continue;
- 		if (!nfs4_valid_open_stateid(state))
- 			continue;
--		if (atomic_inc_not_zero(&state->count))
-+		if (refcount_inc_not_zero(&state->count))
- 			return state;
+--- a/fs/nilfs2/super.c
++++ b/fs/nilfs2/super.c
+@@ -477,6 +477,7 @@ static void nilfs_put_super(struct super
+ 		up_write(&nilfs->ns_sem);
  	}
- 	return NULL;
-@@ -763,7 +763,7 @@ void nfs4_put_open_state(struct nfs4_state *state)
- 	struct inode *inode = state->inode;
- 	struct nfs4_state_owner *owner = state->owner;
  
--	if (!atomic_dec_and_lock(&state->count, &owner->so_lock))
-+	if (!refcount_dec_and_lock(&state->count, &owner->so_lock))
- 		return;
- 	spin_lock(&inode->i_lock);
- 	list_del(&state->inode_states);
-@@ -1596,7 +1596,7 @@ static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs
- 			continue;
- 		if (state->state == 0)
- 			continue;
--		atomic_inc(&state->count);
-+		refcount_inc(&state->count);
- 		spin_unlock(&sp->so_lock);
- 		status = ops->recover_open(sp, state);
- 		if (status >= 0) {
--- 
-2.39.2
-
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+@@ -1103,6 +1104,7 @@ nilfs_fill_super(struct super_block *sb,
+ 	nilfs_put_root(fsroot);
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
+ {
+ 	might_sleep();
+ 	if (nilfs_init(nilfs)) {
+-		nilfs_sysfs_delete_device_group(nilfs);
+ 		brelse(nilfs->ns_sbh[0]);
+ 		brelse(nilfs->ns_sbh[1]);
+ 	}
+@@ -275,6 +274,10 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 		goto failed;
+ 	}
+ 
++	err = nilfs_sysfs_create_device_group(sb);
++	if (unlikely(err))
++		goto sysfs_error;
++
+ 	if (valid_fs)
+ 		goto skip_recovery;
+ 
+@@ -336,6 +339,9 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 	goto failed;
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
++
++ sysfs_error:
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_dat);
+@@ -668,10 +674,6 @@ int init_nilfs(struct the_nilfs *nilfs,
+ 	if (err)
+ 		goto failed_sbh;
+ 
+-	err = nilfs_sysfs_create_device_group(sb);
+-	if (err)
+-		goto failed_sbh;
+-
+ 	set_nilfs_init(nilfs);
+ 	err = 0;
+  out:
 
 
