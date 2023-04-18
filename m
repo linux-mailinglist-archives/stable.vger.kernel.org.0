@@ -2,48 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 835666E6F43
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 00:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C58D96E6F44
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 00:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230408AbjDRWQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 18:16:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51732 "EHLO
+        id S230491AbjDRWQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 18:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230491AbjDRWQN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 18:16:13 -0400
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E656658E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 15:15:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-        s=20170329; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=uA6P+8Hkrzo+D0+qPODF3BQfuZv/J+mQAU+Dzcl5MQc=; b=cmUMrnUeenYwfKDF4cFVPTRe/1
-        t6p9MLU/246fi5J2DzE4LPWbg9l8HOAPIGN1ON7xlUC9sa5TdiEP7Xh/U7W7tdxmgiMRl5h+gM+/y
-        zS0WFjqu/BoMzqU/N4Z/ZFAOLdd0K9YhY+Y7VGrlsSrGVocWr5VFcyWjNQE4xy/Ern0ChCQT9ClUX
-        KWFANSmSSoSqczAyu4lr+Te51N6U/7PDENDSmW69OaLXMfvT5NisC2psUppznHHrL6XGqJYdRmycz
-        ltXI/1sC893MKimUH7treA0yztdhQCSvTdt4Rdm3+PcirNOwQYu2N+0szUWhGgfDIozBHBqLlq3Q2
-        Xdsc6CuQ==;
-Received: from 201-92-79-199.dsl.telesp.net.br ([201.92.79.199] helo=localhost)
-        by fanzine2.igalia.com with esmtpsa 
-        (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-        id 1potbo-004Qxi-6G; Wed, 19 Apr 2023 00:15:33 +0200
-From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        amd-gfx@lists.freedesktop.org, alexander.deucher@amd.com,
-        James.Zhu@amd.com, leo.liu@amd.com, kernel@gpiccoli.net,
-        kernel-dev@igalia.com
-Subject: [PATCH 6.1.y] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh broken BIOSes
-Date:   Tue, 18 Apr 2023 19:15:22 -0300
-Message-Id: <20230418221522.1287942-1-gpiccoli@igalia.com>
-X-Mailer: git-send-email 2.40.0
+        with ESMTP id S232455AbjDRWQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 18:16:19 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 564074C22
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 15:15:50 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id d2e1a72fcca58-63b4bf2d74aso2231388b3a.2
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 15:15:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20221208.gappssmtp.com; s=20221208; t=1681856149; x=1684448149;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=4PtV0vp+KR51hhTLgoc49SH7X+u9wvOHB44f8ZYA2EY=;
+        b=FCV9MQHeRUR8vhq0/N7IYauLFySc+/PCexHdH0hrSq6BTP5O/QXamQXX8DNRJ6dI0l
+         ktQnkDvJb2K2daiJBdGC7wQPNdzym8klSrNvle1w3GLns7gpruryZRhPbDkxURHNz0S7
+         v7aLfzcJMtvYgznu4mUDYcVZWBbQa3hrHO3FzYcYiTcdBPlhQJ9jxGdufR5ztLfRbKj3
+         DdmrwAc67ZpU2NyJbsgfRvxcQgu0MMkW3KHXD3dhrkNY52+whXrAQWihBJdsoWWcJ1IL
+         LzFdtX8NrSjF+gdvI7gxGYjFSZpK5NYw1wTQvENKxzdwXAMpYG6zXrK1w9dEkZoA0AHX
+         rvuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681856149; x=1684448149;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4PtV0vp+KR51hhTLgoc49SH7X+u9wvOHB44f8ZYA2EY=;
+        b=My04BD8Bk7vu6FmDTUnx3f7uHDsvTkcjVvEVOvcryjzf3KSaRO3MuMc9D8GOkUTkGg
+         8YR1FZzkbc5th6A71Lzp9UT/aaPn3IudOOTA7i+gwr7uaW3LUwjtAyMx1Snuq0napl15
+         syXDFXAIA8BD6kRujvZtPPf33ArlqQAb7RIZl6XnwGX0upjQd1wEdFnxUqD32SXCxx+r
+         qRpVzkMC6ecKOaZ7VRvKjKdeeit7Tj4fdAJid8bJfoZAacUMhfNqHz+HKpF6+rEbISoU
+         6zfZCCXxEBwJ9rtaNnHgCODuU8CQ3pNZWgLZIqABQrA0THYb7lyU6jTZi8LNKcYDnnpb
+         WLXw==
+X-Gm-Message-State: AAQBX9exWYDnodLgvyP8aGJI1DEDR2wR/u/X93z/7/KdcMDSwdPhdYPu
+        Y56OAr62LIh7SPwzbnGaqalo4BZeGsaNkLXDGuRsLzUA
+X-Google-Smtp-Source: AKy350aQ7HV506nGPEADVlDL40ns/3BugCK1bJ14PzYsxWr6tMlLmImgxl8RFmIqdqeAmC2QAKRP8A==
+X-Received: by 2002:a05:6a00:1409:b0:626:2ce1:263c with SMTP id l9-20020a056a00140900b006262ce1263cmr1313774pfu.5.1681856149047;
+        Tue, 18 Apr 2023 15:15:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p15-20020aa7860f000000b005810c4286d6sm9804741pfn.0.2023.04.18.15.15.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Apr 2023 15:15:48 -0700 (PDT)
+Message-ID: <643f1694.a70a0220.b1b96.6905@mx.google.com>
+Date:   Tue, 18 Apr 2023 15:15:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.105-280-g0b6a5617247c
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.15.y baseline: 77 runs,
+ 10 regressions (v5.15.105-280-g0b6a5617247c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,119 +72,450 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 542a56e8eb4467ae654eefab31ff194569db39cd upstream.
+stable-rc/linux-5.15.y baseline: 77 runs, 10 regressions (v5.15.105-280-g0b=
+6a5617247c)
 
-The VCN firmware loading path enables the indirect SRAM mode if it's
-advertised as supported. We might have some cases of FW issues that
-prevents this mode to working properly though, ending-up in a failed
-probe. An example below, observed in the Steam Deck:
+Regressions Summary
+-------------------
 
-[...]
-[drm] failed to load ucode VCN0_RAM(0x3A)
-[drm] psp gfx command LOAD_IP_FW(0x6) failed and response status is (0xFFFF0000)
-amdgpu 0000:04:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vcn_dec_0 test failed (-110)
-[drm:amdgpu_device_init.cold [amdgpu]] *ERROR* hw_init of IP block <vcn_v3_0> failed -110
-amdgpu 0000:04:00.0: amdgpu: amdgpu_device_ip_init failed
-amdgpu 0000:04:00.0: amdgpu: Fatal error during GPU init
-[...]
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+cubietruck                | arm   | lab-baylibre    | gcc-10   | multi_v7_d=
+efconfig | 1          =
 
-Disabling the VCN block circumvents this, but it's a very invasive
-workaround that turns off the entire feature. So, let's add a quirk
-on VCN loading that checks for known problematic BIOSes on Vangogh,
-so we can proactively disable the indirect SRAM mode and allow the
-HW proper probe and VCN IP block to work fine.
+hifive-unleashed-a00      | riscv | lab-baylibre    | gcc-10   | defconfig =
+         | 1          =
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2385
-Fixes: 82132ecc5432 ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
-Fixes: 9a8cc8cabc1e ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
-Cc: stable@vger.kernel.org
-Cc: James Zhu <James.Zhu@amd.com>
-Cc: Leo Liu <leo.liu@amd.com>
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
----
+imx53-qsrb                | arm   | lab-pengutronix | gcc-10   | multi_v7_d=
+efconfig | 1          =
 
-Hi folks, this was build/boot tested on Deck. I've also adjusted the
-context, function was reworked on 6.2.
+qemu_riscv64              | riscv | lab-baylibre    | gcc-10   | defconfig =
+         | 1          =
 
-But what a surprise was for me not see this fix already in 6.1.y, since
-I've CCed stable, and the reason for that is really peculiar:
+qemu_riscv64              | riscv | lab-broonie     | gcc-10   | defconfig =
+         | 1          =
 
+qemu_riscv64              | riscv | lab-collabora   | gcc-10   | defconfig =
+         | 1          =
 
-$ git log -1 --pretty="%an <%ae>: %s" 82132ecc5432
-Leo Liu <leo.liu@amd.com>: drm/amdgpu: enable Vangogh VCN indirect sram mode
+qemu_smp8_riscv64         | riscv | lab-baylibre    | gcc-10   | defconfig =
+         | 1          =
 
-$ git describe --contains 82132ecc5432
-v6.2-rc1~124^2~1^2~13
+qemu_smp8_riscv64         | riscv | lab-broonie     | gcc-10   | defconfig =
+         | 1          =
+
+qemu_smp8_riscv64         | riscv | lab-collabora   | gcc-10   | defconfig =
+         | 1          =
+
+sun8i-h2-plus-orangepi-r1 | arm   | lab-baylibre    | gcc-10   | sunxi_defc=
+onfig    | 1          =
 
 
-$ git log -1 --pretty="%an <%ae>: %s" 9a8cc8cabc1e
-Leo Liu <leo.liu@amd.com>: drm/amdgpu: enable Vangogh VCN indirect sram mode
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.105-280-g0b6a5617247c/plan/baseline/
 
-$ git describe --contains 9a8cc8cabc1e
-v6.1-rc8~16^2^2
-
-
-This is quite strange for me, we have 2 commit hashes pointing to the *same*
-commit, and each one is present..in a different release !!?!
-Since I've marked this patch as fixing 82132ecc5432 originally, 6.1.y stable
-misses it, since it only contains 9a8cc8cabc1e (which is the same patch!).
-
-Alex, do you have an idea why sometimes commits from the AMD tree appear
-duplicate in mainline? Specially in different releases, this could cause
-some confusion I guess.
-
-Thanks in advance,
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.105-280-g0b6a5617247c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0b6a5617247cb685e4efb226d56074068ad8d0ce =
 
 
-Guilherme
+
+Test Regressions
+---------------- =
 
 
- drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-index ce64ca1c6e66..5c1193dd7d88 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-@@ -26,6 +26,7 @@
- 
- #include <linux/firmware.h>
- #include <linux/module.h>
-+#include <linux/dmi.h>
- #include <linux/pci.h>
- #include <linux/debugfs.h>
- #include <drm/drm_drv.h>
-@@ -84,6 +85,7 @@ int amdgpu_vcn_sw_init(struct amdgpu_device *adev)
- {
- 	unsigned long bo_size;
- 	const char *fw_name;
-+	const char *bios_ver;
- 	const struct common_firmware_header *hdr;
- 	unsigned char fw_check;
- 	unsigned int fw_shared_size, log_offset;
-@@ -159,6 +161,21 @@ int amdgpu_vcn_sw_init(struct amdgpu_device *adev)
- 		if ((adev->firmware.load_type == AMDGPU_FW_LOAD_PSP) &&
- 		    (adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG))
- 			adev->vcn.indirect_sram = true;
-+		/*
-+		 * Some Steam Deck's BIOS versions are incompatible with the
-+		 * indirect SRAM mode, leading to amdgpu being unable to get
-+		 * properly probed (and even potentially crashing the kernel).
-+		 * Hence, check for these versions here - notice this is
-+		 * restricted to Vangogh (Deck's APU).
-+		 */
-+		bios_ver = dmi_get_system_info(DMI_BIOS_VERSION);
-+
-+		if (bios_ver && (!strncmp("F7A0113", bios_ver, 7) ||
-+		     !strncmp("F7A0114", bios_ver, 7))) {
-+			adev->vcn.indirect_sram = false;
-+			dev_info(adev->dev,
-+				"Steam Deck quirk: indirect SRAM disabled on BIOS %s\n", bios_ver);
-+		}
- 		break;
- 	case IP_VERSION(3, 0, 16):
- 		fw_name = FIRMWARE_DIMGREY_CAVEFISH;
--- 
-2.40.0
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+cubietruck                | arm   | lab-baylibre    | gcc-10   | multi_v7_d=
+efconfig | 1          =
 
+
+  Details:     https://kernelci.org/test/plan/id/643ee5e2fd4fb2b8e72e861e
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/643ee5e2fd4fb2b8e72e8623
+        failing since 91 days (last pass: v5.15.82-124-gd731c63c25d1, first=
+ fail: v5.15.87-101-g5bcc318cb4cd)
+
+    2023-04-18T18:47:38.818173  + set +x<8>[    9.975529] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 3508948_1.5.2.4.1>
+    2023-04-18T18:47:38.818884  =
+
+    2023-04-18T18:47:38.928180  / # #
+    2023-04-18T18:47:39.031414  export SHELL=3D/bin/sh
+    2023-04-18T18:47:39.032282  #
+    2023-04-18T18:47:39.134297  / # export SHELL=3D/bin/sh. /lava-3508948/e=
+nvironment
+    2023-04-18T18:47:39.135353  =
+
+    2023-04-18T18:47:39.237540  / # . /lava-3508948/environment/lava-350894=
+8/bin/lava-test-runner /lava-3508948/1
+    2023-04-18T18:47:39.239404  =
+
+    2023-04-18T18:47:39.243970  / # /lava-3508948/bin/lava-test-runner /lav=
+a-3508948/1 =
+
+    ... (13 line(s) more)  =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+hifive-unleashed-a00      | riscv | lab-baylibre    | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee2e20c0dc09c632e85fa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-un=
+leashed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-un=
+leashed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643ee2e20c0dc09c632e8=
+5fb
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+imx53-qsrb                | arm   | lab-pengutronix | gcc-10   | multi_v7_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee59da1303041382e8600
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline=
+-imx53-qsrb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline=
+-imx53-qsrb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/643ee59da1303041382e8605
+        failing since 78 days (last pass: v5.15.81-122-gc5f8d4a5d3c8, first=
+ fail: v5.15.90-205-g5605d15db022)
+
+    2023-04-18T18:46:28.070315  + set +x
+    2023-04-18T18:46:28.070500  [    9.352125] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+929860_1.5.2.3.1>
+    2023-04-18T18:46:28.178012  / # #
+    2023-04-18T18:46:28.279484  export SHELL=3D/bin/sh
+    2023-04-18T18:46:28.279803  #
+    2023-04-18T18:46:28.380964  / # export SHELL=3D/bin/sh. /lava-929860/en=
+vironment
+    2023-04-18T18:46:28.381405  =
+
+    2023-04-18T18:46:28.482677  / # . /lava-929860/environment/lava-929860/=
+bin/lava-test-runner /lava-929860/1
+    2023-04-18T18:46:28.483261  =
+
+    2023-04-18T18:46:28.486139  / # /lava-929860/bin/lava-test-runner /lava=
+-929860/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+qemu_riscv64              | riscv | lab-baylibre    | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee23065dcaa43cb2e8623
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-baylibre/baseline-qemu_risc=
+v64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-baylibre/baseline-qemu_risc=
+v64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643ee23065dcaa43cb2e8=
+624
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+qemu_riscv64              | riscv | lab-broonie     | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643f016681d39b46532e85fa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-broonie/baseline-qemu_riscv=
+64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-broonie/baseline-qemu_riscv=
+64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643f016681d39b46532e8=
+5fb
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+qemu_riscv64              | riscv | lab-collabora   | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee1fe56558f9d292e85ff
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-collabora/baseline-qemu_ris=
+cv64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-collabora/baseline-qemu_ris=
+cv64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643ee1fe56558f9d292e8=
+600
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+qemu_smp8_riscv64         | riscv | lab-baylibre    | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee22fd765cbda022e85f5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-baylibre/baseline-qemu_smp8=
+_riscv64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-baylibre/baseline-qemu_smp8=
+_riscv64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643ee22fd765cbda022e8=
+5f6
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+qemu_smp8_riscv64         | riscv | lab-broonie     | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643f0152aaa6be72972e85ef
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-broonie/baseline-qemu_smp8_=
+riscv64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-broonie/baseline-qemu_smp8_=
+riscv64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643f0152aaa6be72972e8=
+5f0
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+qemu_smp8_riscv64         | riscv | lab-collabora   | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee1ff8c98a5a4ae2e85f3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-collabora/baseline-qemu_smp=
+8_riscv64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/riscv/defconfig/gcc-10/lab-collabora/baseline-qemu_smp=
+8_riscv64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/643ee1ff8c98a5a4ae2e8=
+5f4
+        new failure (last pass: v5.15.105-194-g415a9d81c640) =
+
+ =
+
+
+
+platform                  | arch  | lab             | compiler | defconfig =
+         | regressions
+--------------------------+-------+-----------------+----------+-----------=
+---------+------------
+sun8i-h2-plus-orangepi-r1 | arm   | lab-baylibre    | gcc-10   | sunxi_defc=
+onfig    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/643ee2cc6e7dd8ed202e85f9
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: sunxi_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
+-h2-plus-orangepi-r1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+05-280-g0b6a5617247c/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
+-h2-plus-orangepi-r1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/643ee2cc6e7dd8ed202e85fe
+        failing since 6 days (last pass: v5.15.82-124-g2b8b2c150867, first =
+fail: v5.15.105-194-g415a9d81c640)
+
+    2023-04-18T18:34:40.609835  <8>[    5.791359] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3508893_1.5.2.4.1>
+    2023-04-18T18:34:40.729231  / # #
+    2023-04-18T18:34:40.834830  export SHELL=3D/bin/sh
+    2023-04-18T18:34:40.836369  #
+    2023-04-18T18:34:40.939703  / # export SHELL=3D/bin/sh. /lava-3508893/e=
+nvironment
+    2023-04-18T18:34:40.941229  =
+
+    2023-04-18T18:34:41.044650  / # . /lava-3508893/environment/lava-350889=
+3/bin/lava-test-runner /lava-3508893/1
+    2023-04-18T18:34:41.047433  =
+
+    2023-04-18T18:34:41.054385  / # /lava-3508893/bin/lava-test-runner /lav=
+a-3508893/1
+    2023-04-18T18:34:41.174142  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =20
