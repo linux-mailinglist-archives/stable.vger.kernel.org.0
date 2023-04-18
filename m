@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 899626E635B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 238766E6486
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbjDRMjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56364 "EHLO
+        id S232116AbjDRMuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbjDRMjv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:51 -0400
+        with ESMTP id S232118AbjDRMt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 652584699
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDD515A0A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F40B2632F5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10E50C4339B;
-        Tue, 18 Apr 2023 12:39:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE22563405
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF85C433D2;
+        Tue, 18 Apr 2023 12:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821589;
-        bh=zRLMH/4M1S3OWNZU5MIgZLHkKCAM3Htt2XONDBZDETI=;
+        s=korg; t=1681822193;
+        bh=hUhH4UZYXMJ8PKOZYaInp7KKb0cyL+zSVe5yqg4Nf8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVcmRLaqNqCdh4bMzppkw/2MkhMe0KHko3w+YWy/3FWxbQ+DdiajKEA+5m1Y2b2RZ
-         NcJT1mtmjw7h95ostVz29QgJ1Ay60JreWQuuUqzc3O/5Vi63spfdW4LGgNp7aHUKsZ
-         /mlDj+9bju6XFwqONBUMoZ8/o060nBz7K4fOcsL0=
+        b=rcu+7DN2PZJrX1lrXktGKO8oS2erPsTitY/vx0UA3J0oyWYifYI3lhygQ94oqFXcg
+         k3Xbt8LxAjmidogjcax//G7owWJjtGAQrZdbdQpjJchQcVKHyT6wTqbHuYL2cYfRrw
+         DfzC8Z6UnXA47sOongvSU6J1Qird10AQZvfoV5Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mathis Salmen <mathis.salmen@matsal.de>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.15 58/91] riscv: add icache flush for nommu sigreturn trampoline
+        patches@lists.linux.dev,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 057/139] Bluetooth: Fix printing errors if LE Connection times out
 Date:   Tue, 18 Apr 2023 14:22:02 +0200
-Message-Id: <20230418120307.611756567@linuxfoundation.org>
+Message-Id: <20230418120315.895401713@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathis Salmen <mathis.salmen@matsal.de>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 8d736482749f6d350892ef83a7a11d43cd49981e upstream.
+[ Upstream commit b62e72200eaad523f08d8319bba50fc652e032a8 ]
 
-In a NOMMU kernel, sigreturn trampolines are generated on the user
-stack by setup_rt_frame. Currently, these trampolines are not instruction
-fenced, thus their visibility to ifetch is not guaranteed.
+This fixes errors like bellow when LE Connection times out since that
+is actually not a controller error:
 
-This patch adds a flush_icache_range in setup_rt_frame to fix this
-problem.
+ Bluetooth: hci0: Opcode 0x200d failed: -110
+ Bluetooth: hci0: request failed to create LE connection: err -110
 
-Signed-off-by: Mathis Salmen <mathis.salmen@matsal.de>
-Fixes: 6bd33e1ece52 ("riscv: add nommu support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230406101130.82304-1-mathis.salmen@matsal.de
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Instead the code shall properly detect if -ETIMEDOUT is returned and
+send HCI_OP_LE_CREATE_CONN_CANCEL to give up on the connection.
+
+Link: https://github.com/bluez/bluez/issues/340
+Fixes: 8e8b92ee60de ("Bluetooth: hci_sync: Add hci_le_create_conn_sync")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/signal.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/net/bluetooth/hci_core.h |  1 +
+ net/bluetooth/hci_conn.c         |  7 +++++--
+ net/bluetooth/hci_event.c        | 16 ++++++----------
+ net/bluetooth/hci_sync.c         | 13 ++++++++++---
+ 4 files changed, 22 insertions(+), 15 deletions(-)
 
---- a/arch/riscv/kernel/signal.c
-+++ b/arch/riscv/kernel/signal.c
-@@ -16,6 +16,7 @@
- #include <asm/vdso.h>
- #include <asm/switch_to.h>
- #include <asm/csr.h>
-+#include <asm/cacheflush.h>
- 
- extern u32 __user_rt_sigreturn[2];
- 
-@@ -178,6 +179,7 @@ static int setup_rt_frame(struct ksignal
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index 7254edfba4c9c..ffb89b98b2714 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -954,6 +954,7 @@ enum {
+ 	HCI_CONN_STK_ENCRYPT,
+ 	HCI_CONN_AUTH_INITIATOR,
+ 	HCI_CONN_DROP,
++	HCI_CONN_CANCEL,
+ 	HCI_CONN_PARAM_REMOVAL_PEND,
+ 	HCI_CONN_NEW_LINK_KEY,
+ 	HCI_CONN_SCANNING,
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index 6fbc1fe7b1dcb..bd38e36e5a58a 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1245,6 +1245,8 @@ static void create_le_conn_complete(struct hci_dev *hdev, void *data, int err)
  {
- 	struct rt_sigframe __user *frame;
- 	long err = 0;
-+	unsigned long __maybe_unused addr;
+ 	struct hci_conn *conn = data;
  
- 	frame = get_sigframe(ksig, regs, sizeof(*frame));
- 	if (!access_ok(frame, sizeof(*frame)))
-@@ -206,7 +208,12 @@ static int setup_rt_frame(struct ksignal
- 	if (copy_to_user(&frame->sigreturn_code, __user_rt_sigreturn,
- 			 sizeof(frame->sigreturn_code)))
- 		return -EFAULT;
--	regs->ra = (unsigned long)&frame->sigreturn_code;
++	bt_dev_dbg(hdev, "err %d", err);
 +
-+	addr = (unsigned long)&frame->sigreturn_code;
-+	/* Make sure the two instructions are pushed to icache. */
-+	flush_icache_range(addr, addr + sizeof(frame->sigreturn_code));
-+
-+	regs->ra = addr;
- #endif /* CONFIG_MMU */
+ 	hci_dev_lock(hdev);
  
- 	/*
+ 	if (!err) {
+@@ -1252,8 +1254,6 @@ static void create_le_conn_complete(struct hci_dev *hdev, void *data, int err)
+ 		goto done;
+ 	}
+ 
+-	bt_dev_err(hdev, "request failed to create LE connection: err %d", err);
+-
+ 	/* Check if connection is still pending */
+ 	if (conn != hci_lookup_le_connect(hdev))
+ 		goto done;
+@@ -2787,6 +2787,9 @@ int hci_abort_conn(struct hci_conn *conn, u8 reason)
+ {
+ 	int r = 0;
+ 
++	if (test_and_set_bit(HCI_CONN_CANCEL, &conn->flags))
++		return 0;
++
+ 	switch (conn->state) {
+ 	case BT_CONNECTED:
+ 	case BT_CONFIG:
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index ad92a4be58517..e68f2a7d863ac 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -2881,16 +2881,6 @@ static void cs_le_create_conn(struct hci_dev *hdev, bdaddr_t *peer_addr,
+ 
+ 	conn->resp_addr_type = peer_addr_type;
+ 	bacpy(&conn->resp_addr, peer_addr);
+-
+-	/* We don't want the connection attempt to stick around
+-	 * indefinitely since LE doesn't have a page timeout concept
+-	 * like BR/EDR. Set a timer for any connection that doesn't use
+-	 * the accept list for connecting.
+-	 */
+-	if (filter_policy == HCI_LE_USE_PEER_ADDR)
+-		queue_delayed_work(conn->hdev->workqueue,
+-				   &conn->le_conn_timeout,
+-				   conn->conn_timeout);
+ }
+ 
+ static void hci_cs_le_create_conn(struct hci_dev *hdev, u8 status)
+@@ -5902,6 +5892,12 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+ 	if (status)
+ 		goto unlock;
+ 
++	/* Drop the connection if it has been aborted */
++	if (test_bit(HCI_CONN_CANCEL, &conn->flags)) {
++		hci_conn_drop(conn);
++		goto unlock;
++	}
++
+ 	if (conn->dst_type == ADDR_LE_DEV_PUBLIC)
+ 		addr_type = BDADDR_LE_PUBLIC;
+ 	else
+diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
+index 5a6aa1627791b..632be12672887 100644
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -246,8 +246,9 @@ int __hci_cmd_sync_status_sk(struct hci_dev *hdev, u16 opcode, u32 plen,
+ 
+ 	skb = __hci_cmd_sync_sk(hdev, opcode, plen, param, event, timeout, sk);
+ 	if (IS_ERR(skb)) {
+-		bt_dev_err(hdev, "Opcode 0x%4x failed: %ld", opcode,
+-				PTR_ERR(skb));
++		if (!event)
++			bt_dev_err(hdev, "Opcode 0x%4x failed: %ld", opcode,
++				   PTR_ERR(skb));
+ 		return PTR_ERR(skb);
+ 	}
+ 
+@@ -5126,8 +5127,11 @@ static int hci_le_connect_cancel_sync(struct hci_dev *hdev,
+ 	if (test_bit(HCI_CONN_SCANNING, &conn->flags))
+ 		return 0;
+ 
++	if (test_and_set_bit(HCI_CONN_CANCEL, &conn->flags))
++		return 0;
++
+ 	return __hci_cmd_sync_status(hdev, HCI_OP_LE_CREATE_CONN_CANCEL,
+-				     6, &conn->dst, HCI_CMD_TIMEOUT);
++				     0, NULL, HCI_CMD_TIMEOUT);
+ }
+ 
+ static int hci_connect_cancel_sync(struct hci_dev *hdev, struct hci_conn *conn)
+@@ -6102,6 +6106,9 @@ int hci_le_create_conn_sync(struct hci_dev *hdev, struct hci_conn *conn)
+ 				       conn->conn_timeout, NULL);
+ 
+ done:
++	if (err == -ETIMEDOUT)
++		hci_le_connect_cancel_sync(hdev, conn);
++
+ 	/* Re-enable advertising after the connection attempt is finished. */
+ 	hci_resume_advertising_sync(hdev);
+ 	return err;
+-- 
+2.39.2
+
 
 
