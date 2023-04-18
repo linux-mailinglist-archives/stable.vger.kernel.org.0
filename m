@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E1D6E64F1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CBEB6E64D3
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbjDRMxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47376 "EHLO
+        id S232187AbjDRMw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbjDRMxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB2810272
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:28 -0700 (PDT)
+        with ESMTP id S232128AbjDRMw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD6316DF4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57F5463459
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C3BC433D2;
-        Tue, 18 Apr 2023 12:53:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD05763435
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0432C433EF;
+        Tue, 18 Apr 2023 12:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822407;
-        bh=Bo+Ov/mM8A2n+RHFUjybyOZiC0R85cbf+IkHUeRwAjc=;
+        s=korg; t=1681822328;
+        bh=GKB3CvPjbC66XIIeCxgUIgQb5ZQ3aGJWM4MYC0VZ5zM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+2Hyk3KDLDB9YOxcaOgqWF+HRlxGbLeOzWUAWoK6MCXzXt1VnITjgOdw7kbo55Yr
-         K1J6EKyv4c0BLKNPND/HomOYXN71tWZ/Uh5tfb/R0c5NAywI/ozNTRJonDCFdUedAf
-         2xBqHrpLBMd+97gVHFlEwyb51G+1CHt6l5wFGZYM=
+        b=v78QfirPp9HmvcXbT+AUTWjtzHXfIPST0Foe5nv+9u+Hbh87Y0bnfPcXl+8XNP2ez
+         M9kFfF2lygiQV2zyHSLbSy5xQpgoSD4sniXPLEOL9Pm9nxkkDPHVP/Lp2xXyumZVXB
+         CBOacg/kyyLwSB92vve+SNByFoiLMZNBl3EUdR1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ivan Bornyakov <i.bornyakov@metrotek.ru>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 6.2 108/139] net: sfp: initialize sfp->i2c_block_size at sfp allocation
-Date:   Tue, 18 Apr 2023 14:22:53 +0200
-Message-Id: <20230418120317.842195437@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 6.2 109/139] net: phy: nxp-c45-tja11xx: add remove callback
+Date:   Tue, 18 Apr 2023 14:22:54 +0200
+Message-Id: <20230418120317.871736126@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,78 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Bornyakov <i.bornyakov@metrotek.ru>
+From: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 
-commit 813c2dd78618f108fdcf9cd726ea90f081ee2881 upstream.
+commit a4506722dc39ca840593f14e3faa4c9ba9408211 upstream.
 
-sfp->i2c_block_size is initialized at SFP module insertion in
-sfp_sm_mod_probe(). Because of that, if SFP module was never inserted
-since boot, sfp_read() call will lead to zero-length I2C read attempt,
-and not all I2C controllers are happy with zero-length reads.
+Unregister PTP clock when the driver is removed.
+Purge the RX and TX skb queues.
 
-One way to issue sfp_read() on empty SFP cage is to execute ethtool -m.
-If SFP module was never plugged since boot, there will be a zero-length
-I2C read attempt.
-
-  # ethtool -m xge0
-  i2c i2c-3: adapter quirk: no zero length (addr 0x0050, size 0, read)
-  Cannot get Module EEPROM data: Operation not supported
-
-If SFP module was plugged then removed at least once,
-sfp->i2c_block_size will be initialized and ethtool -m will fail with
-different exit code and without I2C error
-
-  # ethtool -m xge0
-  Cannot get Module EEPROM data: Remote I/O error
-
-Fix this by initializing sfp->i2_block_size at struct sfp allocation
-stage so no wild sfp_read() could issue zero-length I2C read.
-
-Signed-off-by: Ivan Bornyakov <i.bornyakov@metrotek.ru>
-Fixes: 0d035bed2a4a ("net: sfp: VSOL V2801F / CarlitoxxPro CPGOS03-0490 v2.0 workaround")
-Cc: stable@vger.kernel.org
+Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20230406095904.75456-1-radu-nicolae.pirea@oss.nxp.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/sfp.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/phy/nxp-c45-tja11xx.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -212,6 +212,12 @@ static const enum gpiod_flags gpio_flags
- #define SFP_PHY_ADDR		22
- #define SFP_PHY_ADDR_ROLLBALL	17
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -1337,6 +1337,17 @@ no_ptp_support:
+ 	return ret;
+ }
  
-+/* SFP_EEPROM_BLOCK_SIZE is the size of data chunk to read the EEPROM
-+ * at a time. Some SFP modules and also some Linux I2C drivers do not like
-+ * reads longer than 16 bytes.
-+ */
-+#define SFP_EEPROM_BLOCK_SIZE	16
++static void nxp_c45_remove(struct phy_device *phydev)
++{
++	struct nxp_c45_phy *priv = phydev->priv;
 +
- struct sff_data {
- 	unsigned int gpios;
- 	bool (*module_supported)(const struct sfp_eeprom_id *id);
-@@ -1927,11 +1933,7 @@ static int sfp_sm_mod_probe(struct sfp *
- 	u8 check;
- 	int ret;
++	if (priv->ptp_clock)
++		ptp_clock_unregister(priv->ptp_clock);
++
++	skb_queue_purge(&priv->tx_queue);
++	skb_queue_purge(&priv->rx_queue);
++}
++
+ static struct phy_driver nxp_c45_driver[] = {
+ 	{
+ 		PHY_ID_MATCH_MODEL(PHY_ID_TJA_1103),
+@@ -1359,6 +1370,7 @@ static struct phy_driver nxp_c45_driver[
+ 		.set_loopback		= genphy_c45_loopback,
+ 		.get_sqi		= nxp_c45_get_sqi,
+ 		.get_sqi_max		= nxp_c45_get_sqi_max,
++		.remove			= nxp_c45_remove,
+ 	},
+ };
  
--	/* Some SFP modules and also some Linux I2C drivers do not like reads
--	 * longer than 16 bytes, so read the EEPROM in chunks of 16 bytes at
--	 * a time.
--	 */
--	sfp->i2c_block_size = 16;
-+	sfp->i2c_block_size = SFP_EEPROM_BLOCK_SIZE;
- 
- 	ret = sfp_read(sfp, false, 0, &id.base, sizeof(id.base));
- 	if (ret < 0) {
-@@ -2614,6 +2616,7 @@ static struct sfp *sfp_alloc(struct devi
- 		return ERR_PTR(-ENOMEM);
- 
- 	sfp->dev = dev;
-+	sfp->i2c_block_size = SFP_EEPROM_BLOCK_SIZE;
- 
- 	mutex_init(&sfp->sm_mutex);
- 	mutex_init(&sfp->st_mutex);
 
 
