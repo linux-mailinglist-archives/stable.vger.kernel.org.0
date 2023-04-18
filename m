@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22ECB6E62A9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9CA6E624A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbjDRMeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48682 "EHLO
+        id S231445AbjDRMbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231655AbjDRMea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9A03ABC
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:12 -0700 (PDT)
+        with ESMTP id S231561AbjDRMb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4752C1024A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E324F629EA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0266EC433EF;
-        Tue, 18 Apr 2023 12:34:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 568B9631C9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 678EFC433EF;
+        Tue, 18 Apr 2023 12:30:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821251;
-        bh=hC//EILTmgsZv315SZZAnvyMSThWJwlXatm2mURPRPQ=;
+        s=korg; t=1681821037;
+        bh=8yuQmf4c41uS0KiWGa06rUuUPSrGNFfZKE8qvMfZzGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgF7wFSrk20cqhGlZ8a9DN70E5req+ejUsyy/U0fWKTfiIEak3PQJZFoWCi1ZbryU
-         IzjI1zsjfDs6NLl6/1krFPEIXT6GpKdcAkXqzDVTMo3WJLZ/5hCtQ0bvXUCVBchcMX
-         CHG2+R/EpY1RMKIPihQe7qmOOXzT162xKgQvF7Nc=
+        b=Fzifyu7TTHaBhT8+u/oYz/t1OCnhxbIXRXRngaE/GT7pUeXd0AL5QGzoHB57LdwSO
+         KW0RhtRfkrUdmQ8eolt2matMhdIQtXMqkfhN4kVDKaE5lz7ioqgdEhlBsSDzx/i52o
+         T1Ek2a9G9WPUd0h8jwWb6jcnxOPl0Shu1I7f9avc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 054/124] ALSA: emu10k1: fix capture interrupt handler unlinking
+        patches@lists.linux.dev, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.4 38/92] drm/panfrost: Fix the panfrost_mmu_map_fault_addr() error path
 Date:   Tue, 18 Apr 2023 14:21:13 +0200
-Message-Id: <20230418120311.799516882@linuxfoundation.org>
+Message-Id: <20230418120306.170047286@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,49 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit b09c551c77c7e01dc6e4f3c8bf06b5ffa7b06db5 upstream.
+commit 764a2ab9eb56e1200083e771aab16186836edf1d upstream.
 
-Due to two copy/pastos, closing the MIC or EFX capture device would
-make a running ADC capture hang due to unsetting its interrupt handler.
-In principle, this would have also allowed dereferencing dangling
-pointers, but we're actually rather thorough at disabling and flushing
-the ints.
+Make sure all bo->base.pages entries are either NULL or pointing to a
+valid page before calling drm_gem_shmem_put_pages().
 
-While it may sound like one, this actually wasn't a hypothetical bug:
-PortAudio will open a capture stream at startup (and close it right
-away) even if not asked to. If the first device is busy, it will just
-proceed with the next one ... thus killing a concurrent capture.
-
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201220.2197923-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210521093811.1018992-1-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/emu10k1/emupcm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -1232,7 +1232,7 @@ static int snd_emu10k1_capture_mic_close
- {
- 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
- 
--	emu->capture_interrupt = NULL;
-+	emu->capture_mic_interrupt = NULL;
- 	emu->pcm_capture_mic_substream = NULL;
- 	return 0;
- }
-@@ -1340,7 +1340,7 @@ static int snd_emu10k1_capture_efx_close
- {
- 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
- 
--	emu->capture_interrupt = NULL;
-+	emu->capture_efx_interrupt = NULL;
- 	emu->pcm_capture_efx_substream = NULL;
- 	return 0;
- }
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -502,6 +502,7 @@ static int panfrost_mmu_map_fault_addr(s
+ 		if (IS_ERR(pages[i])) {
+ 			mutex_unlock(&bo->base.pages_lock);
+ 			ret = PTR_ERR(pages[i]);
++			pages[i] = NULL;
+ 			goto err_pages;
+ 		}
+ 	}
 
 
