@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4906E62CB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E30446E6254
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231668AbjDRMf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50052 "EHLO
+        id S230037AbjDRMbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231690AbjDRMfY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:24 -0400
+        with ESMTP id S231574AbjDRMbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 569F2125BC
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C201EAF3E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9BEC629EA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A513C433EF;
-        Tue, 18 Apr 2023 12:35:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C3886313B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F859C433EF;
+        Tue, 18 Apr 2023 12:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821322;
-        bh=P7ZuACcIa2HspGuV6cg3lJz4794sq1Wj+a1QOGAQrN4=;
+        s=korg; t=1681821080;
+        bh=5jd+H2qvse9+0T5vZAv2KLu4Yc33gmFKItwqhzT1A0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kK5IpRL03NcdR5JxUIEwk69BavLgjZIkKdryQSfzwMFdRKR8i216Vq1I4kwqFavPw
-         H/Ej/6xBjmsucpLOA1JdBMjdOfRonxn1+Qu4MeezptpJAFiOugtpvXJodcW/dGOQ3f
-         R2tUxF5RkTSvzQdoDjz6Exa0xVKYTmaYckgyRka0=
+        b=wSiieC4ltwRQhCEQFspxff1spRpMzrlJLTId+eeBO3XSeRd6S6A4oid6BumeGG0FL
+         GzZQ9Ssj1Mw4ICEBHXKsU6rge3P1yCUsa3YxKXMt28nG0QdNs/UIriWBY0D4pntppv
+         EIba0M6QP3EQt5e4x30ivvb6wSkCDAfHfBUAWofI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Selvin Xavier <selvin.xavier@broadcom.com>,
-        Saravanan Vajravel <saravanan.vajravel@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 082/124] RDMA/core: Fix GID entry ref leak when create_ah fails
+Subject: [PATCH 5.4 66/92] efi: sysfb_efi: Add quirk for Lenovo Yoga Book X91F/L
 Date:   Tue, 18 Apr 2023 14:21:41 +0200
-Message-Id: <20230418120312.848506462@linuxfoundation.org>
+Message-Id: <20230418120307.132254845@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravanan Vajravel <saravanan.vajravel@broadcom.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit aca3b0fa3d04b40c96934d86cc224cccfa7ea8e0 ]
+[ Upstream commit 5ed213dd64681f84a01ceaa82fb336cf7d59ddcf ]
 
-If AH create request fails, release sgid_attr to avoid GID entry
-referrence leak reported while releasing GID table
+Another Lenovo convertable which reports a landscape resolution of
+1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
+has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
 
-Fixes: 1a1f460ff151 ("RDMA: Hold the sgid_attr inside the struct ib_ah/qp")
-Link: https://lore.kernel.org/r/20230401063424.342204-1-saravanan.vajravel@broadcom.com
-Reviewed-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Saravanan Vajravel <saravanan.vajravel@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/verbs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/sysfb_efi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
-index 5123be0ab02f5..4fcabe5a84bee 100644
---- a/drivers/infiniband/core/verbs.c
-+++ b/drivers/infiniband/core/verbs.c
-@@ -535,6 +535,8 @@ static struct ib_ah *_rdma_create_ah(struct ib_pd *pd,
+diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
+index 9ea65611fba0b..fff04d2859765 100644
+--- a/arch/x86/kernel/sysfb_efi.c
++++ b/arch/x86/kernel/sysfb_efi.c
+@@ -272,6 +272,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
+ 					"IdeaPad Duet 3 10IGL5"),
+ 		},
+ 	},
++	{
++		/* Lenovo Yoga Book X91F / X91L */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			/* Non exact match to match F + L versions */
++			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
++		},
++	},
+ 	{},
+ };
  
- 	ret = device->ops.create_ah(ah, &init_attr, udata);
- 	if (ret) {
-+		if (ah->sgid_attr)
-+			rdma_put_gid_attr(ah->sgid_attr);
- 		kfree(ah);
- 		return ERR_PTR(ret);
- 	}
 -- 
 2.39.2
 
