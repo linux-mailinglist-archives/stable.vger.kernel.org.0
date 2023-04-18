@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3119D6E63AF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D0E6E61B4
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231899AbjDRMm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59964 "EHLO
+        id S230025AbjDRM0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:26:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231893AbjDRMm1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:27 -0400
+        with ESMTP id S231196AbjDRM0j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D722A146C7
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2373BB77B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6436332F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63169C433A0;
-        Tue, 18 Apr 2023 12:42:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE8286302E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3288C433D2;
+        Tue, 18 Apr 2023 12:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821735;
-        bh=JYpjVoq8LwBolFcohl3M9riLk9OOvKVgEN1lGOKG0b4=;
+        s=korg; t=1681820752;
+        bh=RCcIzMqCRkDHlbXcY9Qu9etEFyg9ePZW9O64p7a5/C4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpKVwfPzEZYWtVWfO+GsCCW3t9uVkL7HHcptvHbcESTuMLumlsIuQlIrFcr5nansx
-         U1G7V1BraHS0lFllq0u1sU6+c9eJbZciFUNYf4VR/mnkWwEdPTLYt1fC/RBHzFqKbE
-         SMygkImAo75Mp3bWc1f8ViC8r11vpRSpAFJg96u4=
+        b=h0QIVsP3w6bnz45Po0Fxmx0qSf5KileVomLVo0j5CFi98oeEWBHdwMf4RocY26IFT
+         l7s8gSaIaUWApVNh9A1hDLeOShXOesO4WUx/8/0YSzR/QymYq1uW3swHFPsUuUMQbr
+         umq/CCFj6IVZc7GJc89O1ZHr474pBtkNIx8IcvQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.1 022/134] mtd: rawnand: stm32_fmc2: remove unsupported EDO mode
+        William Breathitt Gray <william.gray@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 18/57] iio: dac: cio-dac: Fix max DAC write value check for 12-bit
 Date:   Tue, 18 Apr 2023 14:21:18 +0200
-Message-Id: <20230418120313.766581527@linuxfoundation.org>
+Message-Id: <20230418120259.371655699@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Kerello <christophe.kerello@foss.st.com>
+From: William Breathitt Gray <william.gray@linaro.org>
 
-commit f71e0e329c152c7f11ddfd97ffc62aba152fad3f upstream.
+commit c3701185ee1973845db088d8b0fc443397ab0eb2 upstream.
 
-Remove the EDO mode support from as the FMC2 controller does not
-support the feature.
+The CIO-DAC series of devices only supports DAC values up to 12-bit
+rather than 16-bit. Trying to write a 16-bit value results in only the
+lower 12 bits affecting the DAC output which is not what the user
+expects. Instead, adjust the DAC write value check to reject values
+larger than 12-bit so that they fail explicitly as invalid for the user.
 
-Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash controller driver")
-Cc: stable@vger.kernel.org #v5.4+
-Reviewed-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20230328155819.225521-2-christophe.kerello@foss.st.com
+Fixes: 3b8df5fd526e ("iio: Add IIO support for the Measurement Computing CIO-DAC family")
+Cc: stable@vger.kernel.org
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+Link: https://lore.kernel.org/r/20230311002248.8548-1-william.gray@linaro.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/stm32_fmc2_nand.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/dac/cio-dac.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-+++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-@@ -1531,6 +1531,9 @@ static int stm32_fmc2_nfc_setup_interfac
- 	if (IS_ERR(sdrt))
- 		return PTR_ERR(sdrt);
+--- a/drivers/iio/dac/cio-dac.c
++++ b/drivers/iio/dac/cio-dac.c
+@@ -74,8 +74,8 @@ static int cio_dac_write_raw(struct iio_
+ 	if (mask != IIO_CHAN_INFO_RAW)
+ 		return -EINVAL;
  
-+	if (sdrt->tRC_min < 30000)
-+		return -EOPNOTSUPP;
-+
- 	if (chipnr == NAND_DATA_IFACE_CHECK_ONLY)
- 		return 0;
+-	/* DAC can only accept up to a 16-bit value */
+-	if ((unsigned int)val > 65535)
++	/* DAC can only accept up to a 12-bit value */
++	if ((unsigned int)val > 4095)
+ 		return -EINVAL;
  
+ 	priv->chan_out_states[chan->channel] = val;
 
 
