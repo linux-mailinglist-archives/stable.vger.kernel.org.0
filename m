@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E806E64F2
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6972D6E6442
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232210AbjDRMxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47354 "EHLO
+        id S232043AbjDRMrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232233AbjDRMxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:43 -0400
+        with ESMTP id S232004AbjDRMri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 747E516F84
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4ED14F72
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C843629B0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C39C4339B;
-        Tue, 18 Apr 2023 12:53:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20D82633C7
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3158CC433EF;
+        Tue, 18 Apr 2023 12:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822394;
-        bh=+dnhBPc/YfgR9BLsubh3mk4uFixd5cRxmk+2Yv1vbGY=;
+        s=korg; t=1681822048;
+        bh=zr5LTGDtV+oczzGvn6qOkrO6MGsv74CWL+RACJzmASk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwTW9lZXT+BBXYZQF+2vKhY0fdGwu0bag5XXPRdnoX8EC0KihKq8h0sjPrcQhSrvI
-         wWVBU+3wGJY2XhDslN8DtCB49LZ4QEa0wuI4tMs/PYK4bdSHL58H915tPwMfdJhcjw
-         F6mMsRQL2A3mCXhe1Iod8YGQoGX7JCQffIH6M0v8=
+        b=PHcFqOCFXMTPOc36axcjqyqXc7RiYHNVlbwu7WpR2l3W/aQdLBrlawIOa08K5Lkz0
+         5hWqFi23jHsMunkLVzORbr7MZWMSzVRj5ch2XL1whyD/uS2ZfjPxaO8qUCzzXYq4NS
+         iEOwhLkqzDiFoLcinmy9Auimr70GJ/uHnMPrVSfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 103/139] ksmbd: avoid out of bounds access in decode_preauth_ctxt()
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 6.1 112/134] cgroup/cpuset: Fix partition roots cpuset.cpus update bug
 Date:   Tue, 18 Apr 2023 14:22:48 +0200
-Message-Id: <20230418120317.665282002@linuxfoundation.org>
+Message-Id: <20230418120317.089478368@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Waiman Long <longman@redhat.com>
 
-commit e7067a446264a7514fa1cfaa4052cdb6803bc6a2 upstream.
+commit 292fd843de26c551856e66faf134512c52dd78b4 upstream.
 
-Confirm that the accessed pneg_ctxt->HashAlgorithms address sits within
-the SMB request boundary; deassemble_neg_contexts() only checks that the
-eight byte smb2_neg_context header + (client controlled) DataLength are
-within the packet boundary, which is insufficient.
+It was found that commit 7a2127e66a00 ("cpuset: Call
+set_cpus_allowed_ptr() with appropriate mask for task") introduced a bug
+that corrupted "cpuset.cpus" of a partition root when it was updated.
 
-Checking for sizeof(struct smb2_preauth_neg_context) is overkill given
-that the type currently assumes SMB311_SALT_SIZE bytes of trailing Salt.
+It is because the tmp->new_cpus field of the passed tmp parameter
+of update_parent_subparts_cpumask() should not be used at all as
+it contains important cpumask data that should not be overwritten.
+Fix it by using tmp->addmask instead.
 
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Also update update_cpumask() to make sure that trialcs->cpu_allowed
+will not be corrupted until it is no longer needed.
+
+Fixes: 7a2127e66a00 ("cpuset: Call set_cpus_allowed_ptr() with appropriate mask for task")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Cc: stable@vger.kernel.org # v6.2+
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2pdu.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ kernel/cgroup/cpuset.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -872,17 +872,21 @@ static void assemble_neg_contexts(struct
- }
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1509,7 +1509,7 @@ static int update_parent_subparts_cpumas
+ 	spin_unlock_irq(&callback_lock);
  
- static __le32 decode_preauth_ctxt(struct ksmbd_conn *conn,
--				  struct smb2_preauth_neg_context *pneg_ctxt)
-+				  struct smb2_preauth_neg_context *pneg_ctxt,
-+				  int len_of_ctxts)
- {
--	__le32 err = STATUS_NO_PREAUTH_INTEGRITY_HASH_OVERLAP;
-+	/*
-+	 * sizeof(smb2_preauth_neg_context) assumes SMB311_SALT_SIZE Salt,
-+	 * which may not be present. Only check for used HashAlgorithms[1].
-+	 */
-+	if (len_of_ctxts < MIN_PREAUTH_CTXT_DATA_LEN)
-+		return STATUS_INVALID_PARAMETER;
+ 	if (adding || deleting)
+-		update_tasks_cpumask(parent, tmp->new_cpus);
++		update_tasks_cpumask(parent, tmp->addmask);
  
--	if (pneg_ctxt->HashAlgorithms == SMB2_PREAUTH_INTEGRITY_SHA512) {
--		conn->preauth_info->Preauth_HashId =
--			SMB2_PREAUTH_INTEGRITY_SHA512;
--		err = STATUS_SUCCESS;
--	}
-+	if (pneg_ctxt->HashAlgorithms != SMB2_PREAUTH_INTEGRITY_SHA512)
-+		return STATUS_NO_PREAUTH_INTEGRITY_HASH_OVERLAP;
+ 	/*
+ 	 * Set or clear CS_SCHED_LOAD_BALANCE when partcmd_update, if necessary.
+@@ -1766,10 +1766,13 @@ static int update_cpumask(struct cpuset
+ 	/*
+ 	 * Use the cpumasks in trialcs for tmpmasks when they are pointers
+ 	 * to allocated cpumasks.
++	 *
++	 * Note that update_parent_subparts_cpumask() uses only addmask &
++	 * delmask, but not new_cpus.
+ 	 */
+ 	tmp.addmask  = trialcs->subparts_cpus;
+ 	tmp.delmask  = trialcs->effective_cpus;
+-	tmp.new_cpus = trialcs->cpus_allowed;
++	tmp.new_cpus = NULL;
+ #endif
  
--	return err;
-+	conn->preauth_info->Preauth_HashId = SMB2_PREAUTH_INTEGRITY_SHA512;
-+	return STATUS_SUCCESS;
- }
+ 	retval = validate_change(cs, trialcs);
+@@ -1834,6 +1837,11 @@ static int update_cpumask(struct cpuset
+ 	}
+ 	spin_unlock_irq(&callback_lock);
  
- static void decode_encrypt_ctxt(struct ksmbd_conn *conn,
-@@ -1010,7 +1014,8 @@ static __le32 deassemble_neg_contexts(st
- 				break;
++#ifdef CONFIG_CPUMASK_OFFSTACK
++	/* Now trialcs->cpus_allowed is available */
++	tmp.new_cpus = trialcs->cpus_allowed;
++#endif
++
+ 	/* effective_cpus will be updated here */
+ 	update_cpumasks_hier(cs, &tmp, false);
  
- 			status = decode_preauth_ctxt(conn,
--						     (struct smb2_preauth_neg_context *)pctx);
-+						     (struct smb2_preauth_neg_context *)pctx,
-+						     len_of_ctxts);
- 			if (status != STATUS_SUCCESS)
- 				break;
- 		} else if (pctx->ContextType == SMB2_ENCRYPTION_CAPABILITIES) {
 
 
