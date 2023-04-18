@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3A86E6264
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A966E6497
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbjDRMcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44898 "EHLO
+        id S232136AbjDRMub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229933AbjDRMcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:19 -0400
+        with ESMTP id S232143AbjDRMu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAE2C10253
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1541545A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A128E63172
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5EA4C433D2;
-        Tue, 18 Apr 2023 12:31:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B8B663413
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA32C433EF;
+        Tue, 18 Apr 2023 12:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821114;
-        bh=/i4JeonNcl7yTmzvkZsMwUBtzVV6i0BqUJcQJfrhM4A=;
+        s=korg; t=1681822225;
+        bh=UfVJAro4hS0sb7wS/UaCLZeYCdQCigB984hcleKeoXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2XSSidq48cRq5GXyhIAoM6cOolyzbVy3Jz7BEAHR15526BV10fHBEFIGzksXhDS+F
-         52eOIbmZ8vGrlKmawcthe7w6iMa+w9JIELjKJxh0gDgvqBmEtkFzOnBL4X6CGXO0wi
-         sf3KfIB11K3rDseGZsUnwlFJWkzxE4cYB05Y5Z/k=
+        b=uhIeEyof+dXw/DmzJTiKovbkTeyMzSx3nHXUi7PDiCyyfFSPjHXwHQv/7gRfazZZB
+         8azjK4pO6IhITxWc05gLInOQsivcsfGrrn2eo9pmY0Aqdjax6pCNLFCGR95VKwTeHH
+         nspI1mV078Er7DoM1JtxpGxdeNMpeYfhrzj4X4+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Nicolas Schichan <nschichan@freebox.fr>,
-        Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 70/92] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 040/139] clk: rs9: Fix suspend/resume
 Date:   Tue, 18 Apr 2023 14:21:45 +0200
-Message-Id: <20230418120307.257865827@linuxfoundation.org>
+Message-Id: <20230418120315.160367179@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
+[ Upstream commit 632e04739c8f45c2d9ca4d4c5bd18d80c2ac9296 ]
 
-Following process will make ubi attaching failed since commit
-1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
+Disabling the cache in commit 2ff4ba9e3702 ("clk: rs9: Fix I2C accessors")
+without removing cache synchronization in resume path results in a
+kernel panic as map->cache_ops is unset, due to REGCACHE_NONE.
+Enable flat cache again to support resume again. num_reg_defaults_raw
+is necessary to read the cache defaults from hardware. Some registers
+are strapped in hardware and cannot be provided in software.
 
-ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
-modprobe nandsim id_bytes=$ID
-flash_eraseall /dev/mtd0
-modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
-(dmesg):
-  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
-  UBI error: cannot attach mtd0
-  UBI error: cannot initialize UBI, error -22
-
-Rework original solution, the key point is making sure
-'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
-so we should check vid_hdr_shift rather not vid_hdr_offset.
-Then, ubi still support (sub)page aligined VID header offset.
-
-Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Tested-by: Nicolas Schichan <nschichan@freebox.fr>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2ff4ba9e3702 ("clk: rs9: Fix I2C accessors")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20230310074940.3475703-1-alexander.stein@ew.tq-group.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/clk/clk-renesas-pcie.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -644,12 +644,6 @@ static int io_init(struct ubi_device *ub
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
- 
--	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
--	    ubi->vid_hdr_alsize)) {
--		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
--		return -EINVAL;
--	}
--
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
-@@ -667,6 +661,21 @@ static int io_init(struct ubi_device *ub
- 						ubi->vid_hdr_aloffset;
- 	}
- 
-+	/*
-+	 * Memory allocation for VID header is ubi->vid_hdr_alsize
-+	 * which is described in comments in io.c.
-+	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
-+	 * ubi->vid_hdr_alsize, so that all vid header operations
-+	 * won't access memory out of bounds.
-+	 */
-+	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
-+		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
-+			" + VID header size(%zu) > VID header aligned size(%d).",
-+			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
-+			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
-+		return -EINVAL;
-+	}
-+
- 	/* Similar for the data offset */
- 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
- 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
+diff --git a/drivers/clk/clk-renesas-pcie.c b/drivers/clk/clk-renesas-pcie.c
+index e6247141d0c05..3e98a16eba6bb 100644
+--- a/drivers/clk/clk-renesas-pcie.c
++++ b/drivers/clk/clk-renesas-pcie.c
+@@ -144,8 +144,9 @@ static int rs9_regmap_i2c_read(void *context,
+ static const struct regmap_config rs9_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+-	.cache_type = REGCACHE_NONE,
++	.cache_type = REGCACHE_FLAT,
+ 	.max_register = RS9_REG_BCP,
++	.num_reg_defaults_raw = 0x8,
+ 	.rd_table = &rs9_readable_table,
+ 	.wr_table = &rs9_writeable_table,
+ 	.reg_write = rs9_regmap_i2c_write,
+-- 
+2.39.2
+
 
 
