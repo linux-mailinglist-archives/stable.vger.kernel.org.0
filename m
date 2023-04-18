@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 730486E6445
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7386E64EE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbjDRMrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:47:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
+        id S232248AbjDRMxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232049AbjDRMrk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:40 -0400
+        with ESMTP id S232250AbjDRMxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141B0167CB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F6C16FBE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E56A4633CA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02532C433EF;
-        Tue, 18 Apr 2023 12:47:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE41F6344E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2134C433D2;
+        Tue, 18 Apr 2023 12:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822056;
-        bh=Bq7eLeDQuN5P523DdTnmowlXWXxJCDwZljSS5hG+XSA=;
+        s=korg; t=1681822402;
+        bh=L2qpSYZN89yg6JT/x90oJp6boUmemheD0VU0QcLFxgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDwblORUrymz6bZOva8iNX8a98trO76yMMswPaNdqfbGKLML39gKmwtDCrGimysKh
-         6EPtAhZ0eq3HnBy41yHzeK0WNXk+IWbkF9+a1yqtQs9R20IOtThUrNpeJMBBYnq4t9
-         qKtfs/c27Wq4H9QpcaS30akKO9U3xYoqmmjZx7bs=
+        b=dysTxIqqTqPwiicPjsE12T3q6vBHKBNA0q3FSENFIIEqokTnpSJhvPrJCj6or+/2r
+         7yLp88ZjZVZpFNo8GXXriwaHycBIblum3VM/KCw8WnhgCXsB95MC0vTrbjCyp0zS2H
+         Xnov6Fy9MgfSOvNMT707jKZJpS9/XK7fhp6KhX64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 115/134] drm/amd/pm: correct SMU13.0.7 max shader clock reporting
+        patches@lists.linux.dev, Mathis Salmen <mathis.salmen@matsal.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.2 106/139] riscv: add icache flush for nommu sigreturn trampoline
 Date:   Tue, 18 Apr 2023 14:22:51 +0200
-Message-Id: <20230418120317.201473765@linuxfoundation.org>
+Message-Id: <20230418120317.776104085@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatio Zhang <Hongkun.Zhang@amd.com>
+From: Mathis Salmen <mathis.salmen@matsal.de>
 
-commit 85e0689eb6b10cd3b2fb455d1b3f4d4d0b13ff78 upstream.
+commit 8d736482749f6d350892ef83a7a11d43cd49981e upstream.
 
-Correct the max shader clock reporting on SMU
-13.0.7.
+In a NOMMU kernel, sigreturn trampolines are generated on the user
+stack by setup_rt_frame. Currently, these trampolines are not instruction
+fenced, thus their visibility to ifetch is not guaranteed.
 
-Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
+This patch adds a flush_icache_range in setup_rt_frame to fix this
+problem.
+
+Signed-off-by: Mathis Salmen <mathis.salmen@matsal.de>
+Fixes: 6bd33e1ece52 ("riscv: add nommu support")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230406101130.82304-1-mathis.salmen@matsal.de
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |   61 ++++++++++++++++++-
- 1 file changed, 60 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/signal.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -575,6 +575,14 @@ static int smu_v13_0_7_set_default_dpm_t
- 						     dpm_table);
- 		if (ret)
- 			return ret;
-+
-+		if (skutable->DriverReportedClocks.GameClockAc &&
-+			(dpm_table->dpm_levels[dpm_table->count - 1].value >
-+			skutable->DriverReportedClocks.GameClockAc)) {
-+			dpm_table->dpm_levels[dpm_table->count - 1].value =
-+				skutable->DriverReportedClocks.GameClockAc;
-+			dpm_table->max = skutable->DriverReportedClocks.GameClockAc;
-+		}
- 	} else {
- 		dpm_table->count = 1;
- 		dpm_table->dpm_levels[0].value = smu->smu_table.boot_values.gfxclk / 100;
-@@ -828,6 +836,57 @@ static int smu_v13_0_7_get_smu_metrics_d
- 	return ret;
- }
+--- a/arch/riscv/kernel/signal.c
++++ b/arch/riscv/kernel/signal.c
+@@ -19,6 +19,7 @@
+ #include <asm/signal32.h>
+ #include <asm/switch_to.h>
+ #include <asm/csr.h>
++#include <asm/cacheflush.h>
  
-+static int smu_v13_0_7_get_dpm_ultimate_freq(struct smu_context *smu,
-+					     enum smu_clk_type clk_type,
-+					     uint32_t *min,
-+					     uint32_t *max)
-+{
-+	struct smu_13_0_dpm_context *dpm_context =
-+		smu->smu_dpm.dpm_context;
-+	struct smu_13_0_dpm_table *dpm_table;
+ extern u32 __user_rt_sigreturn[2];
+ 
+@@ -181,6 +182,7 @@ static int setup_rt_frame(struct ksignal
+ {
+ 	struct rt_sigframe __user *frame;
+ 	long err = 0;
++	unsigned long __maybe_unused addr;
+ 
+ 	frame = get_sigframe(ksig, regs, sizeof(*frame));
+ 	if (!access_ok(frame, sizeof(*frame)))
+@@ -209,7 +211,12 @@ static int setup_rt_frame(struct ksignal
+ 	if (copy_to_user(&frame->sigreturn_code, __user_rt_sigreturn,
+ 			 sizeof(frame->sigreturn_code)))
+ 		return -EFAULT;
+-	regs->ra = (unsigned long)&frame->sigreturn_code;
 +
-+	switch (clk_type) {
-+	case SMU_MCLK:
-+	case SMU_UCLK:
-+		/* uclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.uclk_table;
-+		break;
-+	case SMU_GFXCLK:
-+	case SMU_SCLK:
-+		/* gfxclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.gfx_table;
-+		break;
-+	case SMU_SOCCLK:
-+		/* socclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.soc_table;
-+		break;
-+	case SMU_FCLK:
-+		/* fclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.fclk_table;
-+		break;
-+	case SMU_VCLK:
-+	case SMU_VCLK1:
-+		/* vclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.vclk_table;
-+		break;
-+	case SMU_DCLK:
-+	case SMU_DCLK1:
-+		/* dclk dpm table */
-+		dpm_table = &dpm_context->dpm_tables.dclk_table;
-+		break;
-+	default:
-+		dev_err(smu->adev->dev, "Unsupported clock type!\n");
-+		return -EINVAL;
-+	}
++	addr = (unsigned long)&frame->sigreturn_code;
++	/* Make sure the two instructions are pushed to icache. */
++	flush_icache_range(addr, addr + sizeof(frame->sigreturn_code));
 +
-+	if (min)
-+		*min = dpm_table->min;
-+	if (max)
-+		*max = dpm_table->max;
-+
-+	return 0;
-+}
-+
- static int smu_v13_0_7_read_sensor(struct smu_context *smu,
- 				   enum amd_pp_sensors sensor,
- 				   void *data,
-@@ -1683,7 +1742,7 @@ static const struct pptable_funcs smu_v1
- 	.dpm_set_jpeg_enable = smu_v13_0_set_jpeg_enable,
- 	.init_pptable_microcode = smu_v13_0_init_pptable_microcode,
- 	.populate_umd_state_clk = smu_v13_0_7_populate_umd_state_clk,
--	.get_dpm_ultimate_freq = smu_v13_0_get_dpm_ultimate_freq,
-+	.get_dpm_ultimate_freq = smu_v13_0_7_get_dpm_ultimate_freq,
- 	.get_vbios_bootup_values = smu_v13_0_get_vbios_bootup_values,
- 	.read_sensor = smu_v13_0_7_read_sensor,
- 	.feature_is_enabled = smu_cmn_feature_is_enabled,
++	regs->ra = addr;
+ #endif /* CONFIG_MMU */
+ 
+ 	/*
 
 
