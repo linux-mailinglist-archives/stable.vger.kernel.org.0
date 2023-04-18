@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5CB6E64DF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 030956E64E2
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232204AbjDRMxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46574 "EHLO
+        id S232244AbjDRMxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232203AbjDRMxT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:19 -0400
+        with ESMTP id S232209AbjDRMxV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E86216DDF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95A318380
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE3463463
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3166BC433EF;
-        Tue, 18 Apr 2023 12:52:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B35E063461
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C47F2C433D2;
+        Tue, 18 Apr 2023 12:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822378;
-        bh=F6q80nabvQNpLFsM3og/BNMlWlZ7hNIBRWTm36hddvE=;
+        s=korg; t=1681822381;
+        bh=GrbFPr1uIDerg+g5dzeCl7cYj+L0Zd2Sk5UU7sEuDGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMMJWRV/wZNKOaZMkrK/otlZt/y7W75au7ad+viwb9YXesa45ParHD+8ya6KWnWWX
-         y0ENj8rlInriFwejJgkMykM9X6Y8w3l6Neh6TN/pPOzJBNmIfQH3kjXkVa5IDctqZ3
-         TYI4wg2k7fktoMiFsuV9o5zBgEugSauvn6VFPHkM=
+        b=iw0q8yXJdnytaFcF5A+zJCHKkiHRj9AyiL/k+vMuOhYhI1FEkiCXItOcLX9eDxY7b
+         Z03UAfLzVLRMhyMSGAYAihjFft6HPShAoLStxqrAW0ARlTqoN43IIiiBwPMYUOpmPb
+         HbSndZwFB5C5Zxq0p+TZQ+HPU/Y+Zc60g/eo3dhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.2 127/139] selftests: mptcp: userspace pm: uniform verify events
-Date:   Tue, 18 Apr 2023 14:23:12 +0200
-Message-Id: <20230418120318.625690997@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Nicolas Schichan <nschichan@freebox.fr>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 6.2 128/139] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
+Date:   Tue, 18 Apr 2023 14:23:13 +0200
+Message-Id: <20230418120318.674125499@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -54,52 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 711ae788cbbb82818531b55e32b09518ee09a11a upstream.
+commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
 
-Simply adding a "sleep" before checking something is usually not a good
-idea because the time that has been picked can not be enough or too
-much. The best is to wait for events with a timeout.
+Following process will make ubi attaching failed since commit
+1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
 
-In this selftest, 'sleep 0.5' is used more than 40 times. It is always
-used before calling a 'verify_*' function except for this
-verify_listener_events which has been added later.
+ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
+modprobe nandsim id_bytes=$ID
+flash_eraseall /dev/mtd0
+modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
+(dmesg):
+  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
+  UBI error: cannot attach mtd0
+  UBI error: cannot initialize UBI, error -22
 
-At the end, using all these 'sleep 0.5' seems to work: the slow CIs
-don't complain so far. Also because it doesn't take too much time, we
-can just add two more 'sleep 0.5' to uniform what is done before calling
-a 'verify_*' function. For the same reasons, we can also delay a bigger
-refactoring to replace all these 'sleep 0.5' by functions waiting for
-events instead of waiting for a fix time and hope for the best.
+Rework original solution, the key point is making sure
+'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
+so we should check vid_hdr_shift rather not vid_hdr_offset.
+Then, ubi still support (sub)page aligined VID header offset.
 
-Fixes: 6c73008aa301 ("selftests: mptcp: listener test for userspace PM")
-Cc: stable@vger.kernel.org
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Tested-by: Nicolas Schichan <nschichan@freebox.fr>
+Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/mptcp/userspace_pm.sh |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mtd/ubi/build.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
---- a/tools/testing/selftests/net/mptcp/userspace_pm.sh
-+++ b/tools/testing/selftests/net/mptcp/userspace_pm.sh
-@@ -884,6 +884,7 @@ test_listener()
- 		$client4_port > /dev/null 2>&1 &
- 	local listener_pid=$!
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -664,12 +664,6 @@ static int io_init(struct ubi_device *ub
+ 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
+ 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
  
-+	sleep 0.5
- 	verify_listener_events $client_evts $LISTENER_CREATED $AF_INET 10.0.2.2 $client4_port
+-	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
+-	    ubi->vid_hdr_alsize)) {
+-		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
+-		return -EINVAL;
+-	}
+-
+ 	dbg_gen("min_io_size      %d", ubi->min_io_size);
+ 	dbg_gen("max_write_size   %d", ubi->max_write_size);
+ 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
+@@ -687,6 +681,21 @@ static int io_init(struct ubi_device *ub
+ 						ubi->vid_hdr_aloffset;
+ 	}
  
- 	# ADD_ADDR from client to server machine reusing the subflow port
-@@ -899,6 +900,7 @@ test_listener()
- 	# Delete the listener from the client ns, if one was created
- 	kill_wait $listener_pid
- 
-+	sleep 0.5
- 	verify_listener_events $client_evts $LISTENER_CLOSED $AF_INET 10.0.2.2 $client4_port
- }
- 
++	/*
++	 * Memory allocation for VID header is ubi->vid_hdr_alsize
++	 * which is described in comments in io.c.
++	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
++	 * ubi->vid_hdr_alsize, so that all vid header operations
++	 * won't access memory out of bounds.
++	 */
++	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
++		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
++			" + VID header size(%zu) > VID header aligned size(%d).",
++			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
++			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
++		return -EINVAL;
++	}
++
+ 	/* Similar for the data offset */
+ 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
+ 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
 
 
