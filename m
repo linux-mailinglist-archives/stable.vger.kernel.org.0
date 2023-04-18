@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DED0F6E6272
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2529E6E6274
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbjDRMcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45504 "EHLO
+        id S231562AbjDRMcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:32:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231574AbjDRMci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:38 -0400
+        with ESMTP id S230280AbjDRMcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBCAD10258
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FB4AD332
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E42263204
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A044AC433D2;
-        Tue, 18 Apr 2023 12:32:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2893E631D9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F858C433EF;
+        Tue, 18 Apr 2023 12:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821135;
-        bh=y/Xi5HlJClvPsLqUR4SKSPjS6RRD8Y7sjXm+cDZTVJ0=;
+        s=korg; t=1681821137;
+        bh=td9itcEbHeVxWDLGycNfLQlOrNvGKm//OX9liq57E/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0wz19q6ydDnGY9qCnBhul3XrRNL3uRjeE4oWBqnxlo2dO6I0Uu+VsV+BT6SGEyk8
-         5LUHJ/XhQZF4jaCYHZ7kbba7naoQO7Xs9Q8TxH5BlbKNvyVuzyEOJT0pEw/No/SU7i
-         YIJVf3DrrGeK44Zt7f7rNsriL5m3I/GKrumQIMVc=
+        b=F9ey4pawc/1tKeVaFs1HrW/aHoztj8KWpteyySkkFb3Q+hQaFpq5Rl3AJkMDtZ0MU
+         ciDSLv4gqCRODOw0VvfUPffXsV+dnt2Q6NksUvKZthD1ykCDGjn9Rl+uP6nQu0EPkd
+         TKGldohkxiogf8xPlq8H+oGF8eSB8u47dxiZLp7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Manivannan Sadhasivam <mani@kernel.org>,
-        Ram Kumar Dharuman <quic_ramd@quicinc.com>,
-        Sricharan Ramabadhran <quic_srichara@quicinc.com>,
+        patches@lists.linux.dev,
+        syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/124] net: qrtr: Do not do DEL_SERVER broadcast after DEL_CLIENT
-Date:   Tue, 18 Apr 2023 14:20:31 +0200
-Message-Id: <20230418120310.062496064@linuxfoundation.org>
+Subject: [PATCH 5.10 013/124] ipv6: Fix an uninit variable access bug in __ip6_make_skb()
+Date:   Tue, 18 Apr 2023 14:20:32 +0200
+Message-Id: <20230418120310.102065102@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
 References: <20230418120309.539243408@linuxfoundation.org>
@@ -56,92 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sricharan Ramabadhran <quic_srichara@quicinc.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 839349d13905927d8a567ca4d21d88c82028e31d ]
+[ Upstream commit ea30388baebcce37fd594d425a65037ca35e59e8 ]
 
-On the remote side, when QRTR socket is removed, af_qrtr will call
-qrtr_port_remove() which broadcasts the DEL_CLIENT packet to all neighbours
-including local NS. NS upon receiving the DEL_CLIENT packet, will remove
-the lookups associated with the node:port and broadcasts the DEL_SERVER
-packet.
+Syzbot reported a bug as following:
 
-But on the host side, due to the arrival of the DEL_CLIENT packet, the NS
-would've already deleted the server belonging to that port. So when the
-remote's NS again broadcasts the DEL_SERVER for that port, it throws below
-error message on the host:
+=====================================================
+BUG: KMSAN: uninit-value in arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+BUG: KMSAN: uninit-value in arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+BUG: KMSAN: uninit-value in atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+BUG: KMSAN: uninit-value in __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ arch_atomic64_inc arch/x86/include/asm/atomic64_64.h:88 [inline]
+ arch_atomic_long_inc include/linux/atomic/atomic-long.h:161 [inline]
+ atomic_long_inc include/linux/atomic/atomic-instrumented.h:1429 [inline]
+ __ip6_make_skb+0x2f37/0x30f0 net/ipv6/ip6_output.c:1956
+ ip6_finish_skb include/net/ipv6.h:1122 [inline]
+ ip6_push_pending_frames+0x10e/0x550 net/ipv6/ip6_output.c:1987
+ rawv6_push_pending_frames+0xb12/0xb90 net/ipv6/raw.c:579
+ rawv6_sendmsg+0x297e/0x2e60 net/ipv6/raw.c:922
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-"failed while handling packet from 2:-2"
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:766 [inline]
+ slab_alloc_node mm/slub.c:3452 [inline]
+ __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
+ __do_kmalloc_node mm/slab_common.c:967 [inline]
+ __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
+ kmalloc_reserve net/core/skbuff.c:492 [inline]
+ __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
+ alloc_skb include/linux/skbuff.h:1270 [inline]
+ __ip6_append_data+0x51c1/0x6bb0 net/ipv6/ip6_output.c:1684
+ ip6_append_data+0x411/0x580 net/ipv6/ip6_output.c:1854
+ rawv6_sendmsg+0x2882/0x2e60 net/ipv6/raw.c:915
+ inet_sendmsg+0x101/0x180 net/ipv4/af_inet.c:827
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0xa8e/0xe70 net/socket.c:2476
+ ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2530
+ __sys_sendmsg net/socket.c:2559 [inline]
+ __do_sys_sendmsg net/socket.c:2568 [inline]
+ __se_sys_sendmsg net/socket.c:2566 [inline]
+ __x64_sys_sendmsg+0x367/0x540 net/socket.c:2566
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-So fix this error by not broadcasting the DEL_SERVER packet when the
-DEL_CLIENT packet gets processed."
+It is because icmp6hdr does not in skb linear region under the scenario
+of SOCK_RAW socket. Access icmp6_hdr(skb)->icmp6_type directly will
+trigger the uninit variable access bug.
 
-Fixes: 0c2204a4ad71 ("net: qrtr: Migrate nameservice to kernel from userspace")
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ram Kumar Dharuman <quic_ramd@quicinc.com>
-Signed-off-by: Sricharan Ramabadhran <quic_srichara@quicinc.com>
+Use a local variable icmp6_type to carry the correct value in different
+scenarios.
+
+Fixes: 14878f75abd5 ("[IPV6]: Add ICMPMsgStats MIB (RFC 4293) [rev 2]")
+Reported-by: syzbot+8257f4dcef79de670baf@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3d605ec1d0a7f2a269a1a6936ac7f2b85975ee9c
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/ns.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ net/ipv6/ip6_output.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/qrtr/ns.c b/net/qrtr/ns.c
-index fe81e03851686..713e9940d88bb 100644
---- a/net/qrtr/ns.c
-+++ b/net/qrtr/ns.c
-@@ -273,7 +273,7 @@ static struct qrtr_server *server_add(unsigned int service,
- 	return NULL;
- }
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index e427f5040a08e..c62e44224bf84 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1925,8 +1925,13 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
+ 	IP6_UPD_PO_STATS(net, rt->rt6i_idev, IPSTATS_MIB_OUT, skb->len);
+ 	if (proto == IPPROTO_ICMPV6) {
+ 		struct inet6_dev *idev = ip6_dst_idev(skb_dst(skb));
++		u8 icmp6_type;
  
--static int server_del(struct qrtr_node *node, unsigned int port)
-+static int server_del(struct qrtr_node *node, unsigned int port, bool bcast)
- {
- 	struct qrtr_lookup *lookup;
- 	struct qrtr_server *srv;
-@@ -286,7 +286,7 @@ static int server_del(struct qrtr_node *node, unsigned int port)
- 	radix_tree_delete(&node->servers, port);
- 
- 	/* Broadcast the removal of local servers */
--	if (srv->node == qrtr_ns.local_node)
-+	if (srv->node == qrtr_ns.local_node && bcast)
- 		service_announce_del(&qrtr_ns.bcast_sq, srv);
- 
- 	/* Announce the service's disappearance to observers */
-@@ -372,7 +372,7 @@ static int ctrl_cmd_bye(struct sockaddr_qrtr *from)
- 		}
- 		slot = radix_tree_iter_resume(slot, &iter);
- 		rcu_read_unlock();
--		server_del(node, srv->port);
-+		server_del(node, srv->port, true);
- 		rcu_read_lock();
- 	}
- 	rcu_read_unlock();
-@@ -458,10 +458,13 @@ static int ctrl_cmd_del_client(struct sockaddr_qrtr *from,
- 		kfree(lookup);
+-		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_hdr(skb)->icmp6_type);
++		if (sk->sk_socket->type == SOCK_RAW && !inet_sk(sk)->hdrincl)
++			icmp6_type = fl6->fl6_icmp_type;
++		else
++			icmp6_type = icmp6_hdr(skb)->icmp6_type;
++		ICMP6MSGOUT_INC_STATS(net, idev, icmp6_type);
+ 		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTMSGS);
  	}
  
--	/* Remove the server belonging to this port */
-+	/* Remove the server belonging to this port but don't broadcast
-+	 * DEL_SERVER. Neighbours would've already removed the server belonging
-+	 * to this port due to the DEL_CLIENT broadcast from qrtr_port_remove().
-+	 */
- 	node = node_get(node_id);
- 	if (node)
--		server_del(node, port);
-+		server_del(node, port, false);
- 
- 	/* Advertise the removal of this client to all local servers */
- 	local_node = node_get(qrtr_ns.local_node);
-@@ -574,7 +577,7 @@ static int ctrl_cmd_del_server(struct sockaddr_qrtr *from,
- 	if (!node)
- 		return -ENOENT;
- 
--	return server_del(node, port);
-+	return server_del(node, port, true);
- }
- 
- static int ctrl_cmd_new_lookup(struct sockaddr_qrtr *from,
 -- 
 2.39.2
 
