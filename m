@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC386E62E8
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0276E648A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231364AbjDRMgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
+        id S232146AbjDRMuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231737AbjDRMg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C67412C84
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:29 -0700 (PDT)
+        with ESMTP id S232131AbjDRMuI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B4F16DC0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A96B863243
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFE0C433D2;
-        Tue, 18 Apr 2023 12:36:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 754E46340B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 869DFC433EF;
+        Tue, 18 Apr 2023 12:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821388;
-        bh=cb5aHSoMojPxGhhFtZN/E6stPrQdc9yWM8XqkfR9wCg=;
+        s=korg; t=1681822203;
+        bh=JKv030SXGkCg+MZ24BYUSh+KHff6OFw9/xqV8cw7hS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZoXwT3BYJbRMZ4kSEQLiUkg6rWIisbjNPYf9iawsFqUYG9kimaq+Cp8e3ofweecBR
-         0xaOpTbgQcevb9aTthkc5nwBrJLclRZqLN730RBrOwgT7hBnL7QVA+ZPl4nQTFg8ew
-         We8HVKv6EebCrYOAwdRiqyN5PDOFVaNkkMqn+sZs=
+        b=HbTxNyQFs2IoHGslyO3Y50cx+IyQoFpEpuGrvx6nfXdj+dlucdc/CjRpCnsMu9oQe
+         GoRMWC2+4ayZ1cah1gZumkNRKb14l3Jd5BD0PlrsMCeYhzP12uVm3Ux5gc5Y3Egh12
+         FUHpO073sFIVHgSrPiD/3/O35fgknFV5G8UR/mtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, zgpeng <zgpeng@tencent.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Samuel Liao <samuelliao@tencent.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/124] sched/fair: Move calculate of avg_load to a better location
+Subject: [PATCH 6.2 061/139] drm/armada: Fix a potential double free in an error handling path
 Date:   Tue, 18 Apr 2023 14:22:06 +0200
-Message-Id: <20230418120313.700527184@linuxfoundation.org>
+Message-Id: <20230418120316.076043330@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,48 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zgpeng <zgpeng.linux@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 06354900787f25bf5be3c07a68e3cdbc5bf0fa69 ]
+[ Upstream commit b89ce1177d42d5c124e83f3858818cd4e6a2c46f ]
 
-In calculate_imbalance function, when the value of local->avg_load is
-greater than or equal to busiest->avg_load, the calculated sds->avg_load is
-not used. So this calculation can be placed in a more appropriate position.
+'priv' is a managed resource, so there is no need to free it explicitly or
+there will be a double free().
 
-Signed-off-by: zgpeng <zgpeng@tencent.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Samuel Liao <samuelliao@tencent.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/1649239025-10010-1-git-send-email-zgpeng@tencent.com
-Stable-dep-of: 91dcf1e8068e ("sched/fair: Fix imbalance overflow")
+Fixes: 90ad200b4cbc ("drm/armada: Use devm_drm_dev_alloc")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/c4f3c9207a9fce35cb6dd2cc60e755275961588a.1640536364.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/armada/armada_drv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index bb70a7856277f..22139e97b2a8e 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -9342,8 +9342,6 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
- 		local->avg_load = (local->group_load * SCHED_CAPACITY_SCALE) /
- 				  local->group_capacity;
- 
--		sds->avg_load = (sds->total_load * SCHED_CAPACITY_SCALE) /
--				sds->total_capacity;
- 		/*
- 		 * If the local group is more loaded than the selected
- 		 * busiest group don't try to pull any tasks.
-@@ -9352,6 +9350,9 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
- 			env->imbalance = 0;
- 			return;
- 		}
-+
-+		sds->avg_load = (sds->total_load * SCHED_CAPACITY_SCALE) /
-+				sds->total_capacity;
+diff --git a/drivers/gpu/drm/armada/armada_drv.c b/drivers/gpu/drm/armada/armada_drv.c
+index 0643887800b4d..142668cd6d7cd 100644
+--- a/drivers/gpu/drm/armada/armada_drv.c
++++ b/drivers/gpu/drm/armada/armada_drv.c
+@@ -99,7 +99,6 @@ static int armada_drm_bind(struct device *dev)
+ 	if (ret) {
+ 		dev_err(dev, "[" DRM_NAME ":%s] can't kick out simple-fb: %d\n",
+ 			__func__, ret);
+-		kfree(priv);
+ 		return ret;
  	}
  
- 	/*
 -- 
 2.39.2
 
