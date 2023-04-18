@@ -2,54 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEFEA6E63DF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F74E6E61D5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231570AbjDRMoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:44:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
+        id S231461AbjDRM2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbjDRMoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3032B1560A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:00 -0700 (PDT)
+        with ESMTP id S231315AbjDRM2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47CB04692
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A79B963369
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B927EC433EF;
-        Tue, 18 Apr 2023 12:43:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFC8E6312F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D000CC433EF;
+        Tue, 18 Apr 2023 12:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821839;
-        bh=I6ga2qarMUTw/LBMWwkY72jb0CH+PxiO9wPzxj2uLZg=;
+        s=korg; t=1681820857;
+        bh=LuRK2qy8fMgQcDSs2oCTEPhOfoIRcDqpdlKeAk9cYeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7KEZL5++YycsBpujjqZD94KO/2gLF/Fcx5JH2L88D/NkzeJOoQ9VuewIZ8uGL+9O
-         lrNttY7j2wdhaMZxK/JnM6rxvcV4nITZ7uVi4fCeD/VJzBKByd3HClDlX8OLODh9p2
-         jl0ODQw1c68QcwxsK3U0XlhZK+S2P+CxwM9rS6dU=
+        b=UFiemxfOXliVqrm8njebehq6dpwnOsdYFBpncdjgA/rkQF2zCaz60Y3gTm9hWC+4J
+         2MNBIfY/1hK6z7DFX74q22c+8/DQdvNCjqLe9t/De4lZTgwYXNGrIQ3BPz/SvktUUi
+         TiUE6L7Z99L/MigUgb4l+o11OLnF5jWe4AIqI3QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 061/134] cgroup,freezer: hold cpu_hotplug_lock before freezer_mutex
+        patches@lists.linux.dev, Marc Zyngier <marc.zyngier@arm.com>,
+        Takahiro Itazuri <itazur@amazon.com>
+Subject: [PATCH 4.19 57/57] arm64: KVM: Fix system register enumeration
 Date:   Tue, 18 Apr 2023 14:21:57 +0200
-Message-Id: <20230418120315.095574560@linuxfoundation.org>
+Message-Id: <20230418120300.727546696@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,127 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-[ Upstream commit 57dcd64c7e036299ef526b400a8d12b8a2352f26 ]
+commit 5d8d4af24460d079ecdb190254b14b528add1228 upstream.
 
-syzbot is reporting circular locking dependency between cpu_hotplug_lock
-and freezer_mutex, for commit f5d39b020809 ("freezer,sched: Rewrite core
-freezer logic") replaced atomic_inc() in freezer_apply_state() with
-static_branch_inc() which holds cpu_hotplug_lock.
+The introduction of the SVE registers to userspace started with a
+refactoring of the way we expose any register via the ONE_REG
+interface.
 
-cpu_hotplug_lock => cgroup_threadgroup_rwsem => freezer_mutex
+Unfortunately, this change doesn't exactly behave as expected
+if the number of registers is non-zero and consider everything
+to be an error. The visible result is that QEMU barfs very early
+when creating vcpus.
 
-  cgroup_file_write() {
-    cgroup_procs_write() {
-      __cgroup_procs_write() {
-        cgroup_procs_write_start() {
-          cgroup_attach_lock() {
-            cpus_read_lock() {
-              percpu_down_read(&cpu_hotplug_lock);
-            }
-            percpu_down_write(&cgroup_threadgroup_rwsem);
-          }
-        }
-        cgroup_attach_task() {
-          cgroup_migrate() {
-            cgroup_migrate_execute() {
-              freezer_attach() {
-                mutex_lock(&freezer_mutex);
-                (...snipped...)
-              }
-            }
-          }
-        }
-        (...snipped...)
-      }
-    }
-  }
+Make sure we only exit early in case there is an actual error, rather
+than a positive number of registers...
 
-freezer_mutex => cpu_hotplug_lock
-
-  cgroup_file_write() {
-    freezer_write() {
-      freezer_change_state() {
-        mutex_lock(&freezer_mutex);
-        freezer_apply_state() {
-          static_branch_inc(&freezer_active) {
-            static_key_slow_inc() {
-              cpus_read_lock();
-              static_key_slow_inc_cpuslocked();
-              cpus_read_unlock();
-            }
-          }
-        }
-        mutex_unlock(&freezer_mutex);
-      }
-    }
-  }
-
-Swap locking order by moving cpus_read_lock() in freezer_apply_state()
-to before mutex_lock(&freezer_mutex) in freezer_change_state().
-
-Reported-by: syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>
-Link: https://syzkaller.appspot.com/bug?extid=c39682e86c9d84152f93
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Fixes: f5d39b020809 ("freezer,sched: Rewrite core freezer logic")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: be25bbb392fa ("KVM: arm64: Factor out core register ID enumeration")
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Takahiro Itazuri <itazur@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/legacy_freezer.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/guest.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/cgroup/legacy_freezer.c b/kernel/cgroup/legacy_freezer.c
-index 1b6b21851e9d4..936473203a6b5 100644
---- a/kernel/cgroup/legacy_freezer.c
-+++ b/kernel/cgroup/legacy_freezer.c
-@@ -22,6 +22,7 @@
- #include <linux/freezer.h>
- #include <linux/seq_file.h>
- #include <linux/mutex.h>
-+#include <linux/cpu.h>
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -333,17 +333,17 @@ int kvm_arm_copy_reg_indices(struct kvm_
+ 	int ret;
  
- /*
-  * A cgroup is freezing if any FREEZING flags are set.  FREEZING_SELF is
-@@ -350,7 +351,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
+ 	ret = kvm_arm_copy_core_reg_indices(uindices);
+-	if (ret)
++	if (ret < 0)
+ 		return ret;
+ 	uindices += ret;
  
- 	if (freeze) {
- 		if (!(freezer->state & CGROUP_FREEZING))
--			static_branch_inc(&freezer_active);
-+			static_branch_inc_cpuslocked(&freezer_active);
- 		freezer->state |= state;
- 		freeze_cgroup(freezer);
- 	} else {
-@@ -361,7 +362,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
- 		if (!(freezer->state & CGROUP_FREEZING)) {
- 			freezer->state &= ~CGROUP_FROZEN;
- 			if (was_freezing)
--				static_branch_dec(&freezer_active);
-+				static_branch_dec_cpuslocked(&freezer_active);
- 			unfreeze_cgroup(freezer);
- 		}
- 	}
-@@ -379,6 +380,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
- {
- 	struct cgroup_subsys_state *pos;
+ 	ret = kvm_arm_copy_fw_reg_indices(vcpu, uindices);
+-	if (ret)
++	if (ret < 0)
+ 		return ret;
+ 	uindices += kvm_arm_get_fw_num_regs(vcpu);
  
-+	cpus_read_lock();
- 	/*
- 	 * Update all its descendants in pre-order traversal.  Each
- 	 * descendant will try to inherit its parent's FREEZING state as
-@@ -407,6 +409,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
- 	}
- 	rcu_read_unlock();
- 	mutex_unlock(&freezer_mutex);
-+	cpus_read_unlock();
- }
+ 	ret = copy_timer_indices(vcpu, uindices);
+-	if (ret)
++	if (ret < 0)
+ 		return ret;
+ 	uindices += NUM_TIMER_REGS;
  
- static ssize_t freezer_write(struct kernfs_open_file *of,
--- 
-2.39.2
-
 
 
