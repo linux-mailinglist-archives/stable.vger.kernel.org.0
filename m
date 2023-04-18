@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9E86E631A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C2F6E6216
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231783AbjDRMh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53498 "EHLO
+        id S231563AbjDRMaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:30:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231787AbjDRMhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60EA13866
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:52 -0700 (PDT)
+        with ESMTP id S231584AbjDRMaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78242C148
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 760A16251D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E3DC433D2;
-        Tue, 18 Apr 2023 12:37:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 595E76313B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71B77C433EF;
+        Tue, 18 Apr 2023 12:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821471;
-        bh=RsPzg7tOgj8ne2UAPtj5+A2OTjmu+aQkqUdItbmNXeI=;
+        s=korg; t=1681820974;
+        bh=2F4CZAnNnQKfp2Y4krkHQZqyH0jNoJO4PjinYFAMRLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0pXxXuutr6B5B/eKh3Rj+P9CnwKgIAGuc67h6KDkz0eqUpex1TkqnQvT9kFw+Y2d
-         SY8g8dtIq4aOPXpGAxZrGf2mcSYt1n6uJRILVb0sJWRkcPopLjg6jPdxfTs0385ycn
-         nhQGNs5aoUVkjgwiyF1oxMzwOA1z3KlWOA0KtN4o=
+        b=eZcO2+EOYmuGpOMLcISXYiwa9RpUeNASWJMnaugOFRMsJA3pVeX/0ahXIZDwmdnTp
+         Sc3rBkEbXnvg4DJH8Dcvscr/9qqULO+FcUJP9godPl5X3Pzxoe/GTvAyjsHm/sRwL0
+         K/9qImpTTxpA4xnfzqCdFemZRlaS5+/5IzKS7dk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 15/91] mtd: rawnand: stm32_fmc2: remove unsupported EDO mode
+        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 44/92] Revert "pinctrl: amd: Disable and mask interrupts on resume"
 Date:   Tue, 18 Apr 2023 14:21:19 +0200
-Message-Id: <20230418120306.089243416@linuxfoundation.org>
+Message-Id: <20230418120306.374496677@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,35 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Kerello <christophe.kerello@foss.st.com>
+From: Kornel Dulęba <korneld@chromium.org>
 
-commit f71e0e329c152c7f11ddfd97ffc62aba152fad3f upstream.
+commit 534e465845ebfb4a97eb5459d3931a0b35e3b9a5 upstream.
 
-Remove the EDO mode support from as the FMC2 controller does not
-support the feature.
+This reverts commit b26cd9325be4c1fcd331b77f10acb627c560d4d7.
 
-Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash controller driver")
-Cc: stable@vger.kernel.org #v5.4+
-Reviewed-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20230328155819.225521-2-christophe.kerello@foss.st.com
+This patch introduces a regression on Lenovo Z13, which can't wake
+from the lid with it applied; and some unspecified AMD based Dell
+platforms are unable to wake from hitting the power button
+
+Signed-off-by: Kornel Dulęba <korneld@chromium.org>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20230411134932.292287-1-korneld@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/stm32_fmc2_nand.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++--------------------
+ 1 file changed, 16 insertions(+), 20 deletions(-)
 
---- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-+++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-@@ -1527,6 +1527,9 @@ static int stm32_fmc2_nfc_setup_interfac
- 	if (IS_ERR(sdrt))
- 		return PTR_ERR(sdrt);
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -770,34 +770,32 @@ static const struct pinconf_ops amd_pinc
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
  
-+	if (sdrt->tRC_min < 30000)
-+		return -EOPNOTSUPP;
+-static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+ {
+-	const struct pin_desc *pd;
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+ 	unsigned long flags;
+ 	u32 pin_reg, mask;
++	int i;
+ 
+ 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+ 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+ 		BIT(WAKE_CNTRL_OFF_S4);
+ 
+-	pd = pin_desc_get(gpio_dev->pctrl, pin);
+-	if (!pd)
+-		return;
++	for (i = 0; i < desc->npins; i++) {
++		int pin = desc->pins[i].number;
++		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+ 
+-	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+-	pin_reg = readl(gpio_dev->base + pin * 4);
+-	pin_reg &= ~mask;
+-	writel(pin_reg, gpio_dev->base + pin * 4);
+-	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+-}
++		if (!pd)
++			continue;
+ 
+-static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+-{
+-	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+-	int i;
++		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 
+-	for (i = 0; i < desc->npins; i++)
+-		amd_gpio_irq_init_pin(gpio_dev, i);
++		pin_reg = readl(gpio_dev->base + i * 4);
++		pin_reg &= ~mask;
++		writel(pin_reg, gpio_dev->base + i * 4);
 +
- 	if (chipnr == NAND_DATA_IFACE_CHECK_ONLY)
- 		return 0;
++		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++	}
+ }
  
+ #ifdef CONFIG_PM_SLEEP
+@@ -850,10 +848,8 @@ static int amd_gpio_resume(struct device
+ 	for (i = 0; i < desc->npins; i++) {
+ 		int pin = desc->pins[i].number;
+ 
+-		if (!amd_gpio_should_save(gpio_dev, pin)) {
+-			amd_gpio_irq_init_pin(gpio_dev, pin);
++		if (!amd_gpio_should_save(gpio_dev, pin))
+ 			continue;
+-		}
+ 
+ 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
 
 
