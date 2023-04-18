@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F516E634C
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 353086E63D9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231818AbjDRMjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55758 "EHLO
+        id S231903AbjDRMns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231819AbjDRMjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D554813860
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:20 -0700 (PDT)
+        with ESMTP id S231137AbjDRMnr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72081446D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70C21632EF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81E3DC433EF;
-        Tue, 18 Apr 2023 12:39:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA7763366
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A9AC433EF;
+        Tue, 18 Apr 2023 12:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821559;
-        bh=4ObIQEFT28XMyBb0BYjDdLUP28ymPeN1aWYQT7wGy+A=;
+        s=korg; t=1681821825;
+        bh=gDlxUZ1mPVhgwJcnDzU2x4Mp65YZFnSvOCftdKJLIog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLtxEEMIxrqQPHsJS1Z2cCvGusgjt13n4ew9mT5lE6BfNwkVtAnTaHJzF2UCFBnuQ
-         QoN+wg5UbATVAs+Dz5wZ3z8ROYXIpqP0X2PQhccQIRnvO+uncns82HC2Hva2eTG4w/
-         l1L9aTrqiOGMZn0dHaEsKnp6YoTvaPFhvezoiE7g=
+        b=YHJNEZnz07YbtOdC+1YxB73ib1AmwaFJMKBCsP7OEQlkQLeVI9lXEB3z0t9X+Agb6
+         j9Ni/ZU9bhX1sNW6ypQYCKSEntEEsrIqyoZ34hHYQ4RZg+eSPSi/ikEqOyhW5SDRfr
+         L2sjRnzL6eXFKe6v7+FXbmZ+HTUdzSA9oMw9VMX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aymeric Wibo <obiwac@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 48/91] ACPI: resource: Add Medion S17413 to IRQ override quirk
+Subject: [PATCH 6.1 056/134] Bluetooth: SCO: Fix possible circular locking dependency sco_sock_getsockopt
 Date:   Tue, 18 Apr 2023 14:21:52 +0200
-Message-Id: <20230418120307.245380470@linuxfoundation.org>
+Message-Id: <20230418120314.902632866@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,40 +54,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aymeric Wibo <obiwac@gmail.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 2d0ab14634a26e54f8d6d231b47b7ef233e84599 ]
+[ Upstream commit 975abc0c90fc485ff9b4a6afa475c3b1398d5d47 ]
 
-Add DMI info of the Medion S17413 (board M1xA) to the IRQ override
-quirk table. This fixes the keyboard not working on these laptops.
+This attempts to fix the following trace:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213031
-Signed-off-by: Aymeric Wibo <obiwac@gmail.com>
-[ rjw: Fixed up white space ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+======================================================
+WARNING: possible circular locking dependency detected
+6.3.0-rc2-g68fcb3a7bf97 #4706 Not tainted
+------------------------------------------------------
+sco-tester/31 is trying to acquire lock:
+ffff8880025b8070 (&hdev->lock){+.+.}-{3:3}, at:
+sco_sock_getsockopt+0x1fc/0xa90
+
+but task is already holding lock:
+ffff888001eeb130 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
+sco_sock_getsockopt+0x104/0xa90
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}:
+       lock_sock_nested+0x32/0x80
+       sco_connect_cfm+0x118/0x4a0
+       hci_sync_conn_complete_evt+0x1e6/0x3d0
+       hci_event_packet+0x55c/0x7c0
+       hci_rx_work+0x34c/0xa00
+       process_one_work+0x575/0x910
+       worker_thread+0x89/0x6f0
+       kthread+0x14e/0x180
+       ret_from_fork+0x2b/0x50
+
+-> #1 (hci_cb_list_lock){+.+.}-{3:3}:
+       __mutex_lock+0x13b/0xcc0
+       hci_sync_conn_complete_evt+0x1ad/0x3d0
+       hci_event_packet+0x55c/0x7c0
+       hci_rx_work+0x34c/0xa00
+       process_one_work+0x575/0x910
+       worker_thread+0x89/0x6f0
+       kthread+0x14e/0x180
+       ret_from_fork+0x2b/0x50
+
+-> #0 (&hdev->lock){+.+.}-{3:3}:
+       __lock_acquire+0x18cc/0x3740
+       lock_acquire+0x151/0x3a0
+       __mutex_lock+0x13b/0xcc0
+       sco_sock_getsockopt+0x1fc/0xa90
+       __sys_getsockopt+0xe9/0x190
+       __x64_sys_getsockopt+0x5b/0x70
+       do_syscall_64+0x42/0x90
+       entry_SYSCALL_64_after_hwframe+0x70/0xda
+
+other info that might help us debug this:
+
+Chain exists of:
+  &hdev->lock --> hci_cb_list_lock --> sk_lock-AF_BLUETOOTH-BTPROTO_SCO
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(sk_lock-AF_BLUETOOTH-BTPROTO_SCO);
+                               lock(hci_cb_list_lock);
+                               lock(sk_lock-AF_BLUETOOTH-BTPROTO_SCO);
+  lock(&hdev->lock);
+
+ *** DEADLOCK ***
+
+1 lock held by sco-tester/31:
+ #0: ffff888001eeb130 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0},
+ at: sco_sock_getsockopt+0x104/0xa90
+
+Fixes: 248733e87d50 ("Bluetooth: Allow querying of supported offload codecs over SCO socket")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/bluetooth/sco.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index 3b9f894873365..803dc6afa6d69 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -396,6 +396,13 @@ static const struct dmi_system_id medion_laptop[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "M17T"),
- 		},
- 	},
-+	{
-+		.ident = "MEDION S17413",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
-+			DMI_MATCH(DMI_BOARD_NAME, "M1xA"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 1111da4e2f2bd..1755f91a66f6a 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -1129,6 +1129,8 @@ static int sco_sock_getsockopt(struct socket *sock, int level, int optname,
+ 			break;
+ 		}
  
++		release_sock(sk);
++
+ 		/* find total buffer size required to copy codec + caps */
+ 		hci_dev_lock(hdev);
+ 		list_for_each_entry(c, &hdev->local_codecs, list) {
+@@ -1146,15 +1148,13 @@ static int sco_sock_getsockopt(struct socket *sock, int level, int optname,
+ 		buf_len += sizeof(struct bt_codecs);
+ 		if (buf_len > len) {
+ 			hci_dev_put(hdev);
+-			err = -ENOBUFS;
+-			break;
++			return -ENOBUFS;
+ 		}
+ 		ptr = optval;
+ 
+ 		if (put_user(num_codecs, ptr)) {
+ 			hci_dev_put(hdev);
+-			err = -EFAULT;
+-			break;
++			return -EFAULT;
+ 		}
+ 		ptr += sizeof(num_codecs);
+ 
+@@ -1194,12 +1194,14 @@ static int sco_sock_getsockopt(struct socket *sock, int level, int optname,
+ 			ptr += len;
+ 		}
+ 
+-		if (!err && put_user(buf_len, optlen))
+-			err = -EFAULT;
+-
+ 		hci_dev_unlock(hdev);
+ 		hci_dev_put(hdev);
+ 
++		lock_sock(sk);
++
++		if (!err && put_user(buf_len, optlen))
++			err = -EFAULT;
++
+ 		break;
+ 
+ 	default:
 -- 
 2.39.2
 
