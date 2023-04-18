@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA98B6E627B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F10D6E6499
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbjDRMc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
+        id S232155AbjDRMud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231233AbjDRMcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C2078A48
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:34 -0700 (PDT)
+        with ESMTP id S232143AbjDRMuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47EF716DEC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8EB063229
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0FAC4339B;
-        Tue, 18 Apr 2023 12:31:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA69C63417
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8F19C433D2;
+        Tue, 18 Apr 2023 12:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821119;
-        bh=5FbvnDcsV0iHBMA6EomBETRkk0lcdkcoABMf9AmA5DI=;
+        s=korg; t=1681822230;
+        bh=Id7GFtZh4hW4W0Drte2YouIRbhqjeE2dYh5azugHUDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WREINLnO9BtyoDUxhsuXzyo/7USuhEyO/tRXnnupAsSvWeVB0Kr/lNO8mmIqDRtEY
-         6FyRFS6S+VXvl8Eg+27cWLPxSld/bpQGYrxAMp0apnntsYlhRht+8M+5IVINSkIsoi
-         dhKqG4XJi/mOFIEjfb2amSOE7UQVvr09YXEssQBU=
+        b=TKgMJ5UHVoIDm6qh/E+MUD7M3dbwgVl33sQAxlFXDAH4FWaTK8uCXzY1WyerqJqeM
+         E5oPA7SpeOxddHHc2WMVPJn4JVLLRmiRPTGttzrek5JNosgDXK3oSIrPHv5ZNX3Qwv
+         kVdjfJzBAK204X6rLmH3/bpW/aG53JYkgcDHvGlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhaoLong Wang <wangzhaolong1@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Martin KaFai Lau <martin.lau@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 72/92] ubi: Fix deadlock caused by recursively holding work_sem
+Subject: [PATCH 6.2 042/139] bpf: tcp: Use sock_gen_put instead of sock_put in bpf_iter_tcp
 Date:   Tue, 18 Apr 2023 14:21:47 +0200
-Message-Id: <20230418120307.317593602@linuxfoundation.org>
+Message-Id: <20230418120315.230258902@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,64 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhaoLong Wang <wangzhaolong1@huawei.com>
+From: Martin KaFai Lau <martin.lau@kernel.org>
 
-[ Upstream commit f773f0a331d6c41733b17bebbc1b6cae12e016f5 ]
+[ Upstream commit 580031ff9952b7dbf48dedba6b56a100ae002bef ]
 
-During the processing of the bgt, if the sync_erase() return -EBUSY
-or some other error code in __erase_worker(),schedule_erase() called
-again lead to the down_read(ubi->work_sem) hold twice and may get
-block by down_write(ubi->work_sem) in ubi_update_fastmap(),
-which cause deadlock.
+While reviewing the udp-iter batching patches, noticed the bpf_iter_tcp
+calling sock_put() is incorrect. It should call sock_gen_put instead
+because bpf_iter_tcp is iterating the ehash table which has the req sk
+and tw sk. This patch replaces all sock_put with sock_gen_put in the
+bpf_iter_tcp codepath.
 
-          ubi bgt                        other task
- do_work
-  down_read(&ubi->work_sem)          ubi_update_fastmap
-  erase_worker                         # Blocked by down_read
-   __erase_worker                      down_write(&ubi->work_sem)
-    schedule_erase
-     schedule_ubi_work
-      down_read(&ubi->work_sem)
-
-Fix this by changing input parameter @nested of the schedule_erase() to
-'true' to avoid recursively acquiring the down_read(&ubi->work_sem).
-
-Also, fix the incorrect comment about @nested parameter of the
-schedule_erase() because when down_write(ubi->work_sem) is held, the
-@nested is also need be true.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217093
-Fixes: 2e8f08deabbc ("ubi: Fix races around ubi_refill_pools()")
-Signed-off-by: ZhaoLong Wang <wangzhaolong1@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 04c7820b776f ("bpf: tcp: Bpf iter batching and lock_sock")
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20230328004232.2134233-1-martin.lau@linux.dev
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/wl.c | 4 ++--
+ net/ipv4/tcp_ipv4.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
-index 28110cd4400b5..fd0e8f948c3da 100644
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -576,7 +576,7 @@ static int erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk,
-  * @vol_id: the volume ID that last used this PEB
-  * @lnum: the last used logical eraseblock number for the PEB
-  * @torture: if the physical eraseblock has to be tortured
-- * @nested: denotes whether the work_sem is already held in read mode
-+ * @nested: denotes whether the work_sem is already held
-  *
-  * This function returns zero in case of success and a %-ENOMEM in case of
-  * failure.
-@@ -1110,7 +1110,7 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
- 		int err1;
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 8320d0ecb13ae..339a9cea90473 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -2779,7 +2779,7 @@ static int tcp_prog_seq_show(struct bpf_prog *prog, struct bpf_iter_meta *meta,
+ static void bpf_iter_tcp_put_batch(struct bpf_tcp_iter_state *iter)
+ {
+ 	while (iter->cur_sk < iter->end_sk)
+-		sock_put(iter->batch[iter->cur_sk++]);
++		sock_gen_put(iter->batch[iter->cur_sk++]);
+ }
  
- 		/* Re-schedule the LEB for erasure */
--		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
-+		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, true);
- 		if (err1) {
- 			spin_lock(&ubi->wl_lock);
- 			wl_entry_destroy(ubi, e);
+ static int bpf_iter_tcp_realloc_batch(struct bpf_tcp_iter_state *iter,
+@@ -2940,7 +2940,7 @@ static void *bpf_iter_tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ 		 * st->bucket.  See tcp_seek_last_pos().
+ 		 */
+ 		st->offset++;
+-		sock_put(iter->batch[iter->cur_sk++]);
++		sock_gen_put(iter->batch[iter->cur_sk++]);
+ 	}
+ 
+ 	if (iter->cur_sk < iter->end_sk)
 -- 
 2.39.2
 
