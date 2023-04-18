@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E11956E61EB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 746386E61F8
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231454AbjDRM2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38670 "EHLO
+        id S231469AbjDRM3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231519AbjDRM22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:28 -0400
+        with ESMTP id S231476AbjDRM2x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 721B2BB9E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C82EC642
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA89560F56
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE205C433EF;
-        Tue, 18 Apr 2023 12:28:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 483BF63186
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6D4C433EF;
+        Tue, 18 Apr 2023 12:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820889;
-        bh=bBWI9P1bT7+Gmfl32gxt6tI7vcQ21ymmUGy2KqlEWug=;
+        s=korg; t=1681820891;
+        bh=bGka4uJoPhSK0Z8nP2H8DJohBwzhhwcSe3mwDJ2vWMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LYFgs1YUI6m4ZzZRrDkW34EiUY/Ww/BqLrxFIaPiWrOkhY76qJOx/swuETzNJ79rt
-         fzjSzmByZpcqqwVE9WY/faG6xXty+AtL38WURm/IDWb4lU5i6uwG6RQgjfki+6oKAu
-         41nhtcLhBzBrXyxqiJ6/Qjh1MYKXsc/Pxl9bvmP0=
+        b=gzuPxnUcmS2mCJ3UifeUXNlMp6ok0Yp+YkAsrSKKCojekSNOXQBZTysVQgLgu9phN
+         27G06ea2fazpYxUUg3EoZH55R7OFoA6SF1U4NUVwsFUo/f/IMuHqyyWldL/C6T/1nI
+         Eq0ktJpwjR01qRwPyrVjU8bBq2bDto5TVRRl3Nrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Coverstone <brian@mainsequence.net>,
-        Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev,
+        syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/92] wifi: mac80211: fix invalid drv_sta_pre_rcu_remove calls for non-uploaded sta
-Date:   Tue, 18 Apr 2023 14:20:47 +0200
-Message-Id: <20230418120305.206590210@linuxfoundation.org>
+Subject: [PATCH 5.4 13/92] icmp: guard against too small mtu
+Date:   Tue, 18 Apr 2023 14:20:48 +0200
+Message-Id: <20230418120305.245676462@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
 References: <20230418120304.658273364@linuxfoundation.org>
@@ -55,37 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 12b220a6171faf10638ab683a975cadcf1a352d6 ]
+[ Upstream commit 7d63b67125382ff0ffdfca434acbc94a38bd092b ]
 
-Avoid potential data corruption issues caused by uninitialized driver
-private data structures.
+syzbot was able to trigger a panic [1] in icmp_glue_bits(), or
+more exactly in skb_copy_and_csum_bits()
 
-Reported-by: Brian Coverstone <brian@mainsequence.net>
-Fixes: 6a9d1b91f34d ("mac80211: add pre-RCU-sync sta removal driver operation")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20230324120924.38412-3-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+There is no repro yet, but I think the issue is that syzbot
+manages to lower device mtu to a small value, fooling __icmp_send()
+
+__icmp_send() must make sure there is enough room for the
+packet to include at least the headers.
+
+We might in the future refactor skb_copy_and_csum_bits() and its
+callers to no longer crash when something bad happens.
+
+[1]
+kernel BUG at net/core/skbuff.c:3343 !
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 15766 Comm: syz-executor.0 Not tainted 6.3.0-rc4-syzkaller-00039-gffe78bbd5121 #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+RIP: 0010:skb_copy_and_csum_bits+0x798/0x860 net/core/skbuff.c:3343
+Code: f0 c1 c8 08 41 89 c6 e9 73 ff ff ff e8 61 48 d4 f9 e9 41 fd ff ff 48 8b 7c 24 48 e8 52 48 d4 f9 e9 c3 fc ff ff e8 c8 27 84 f9 <0f> 0b 48 89 44 24 28 e8 3c 48 d4 f9 48 8b 44 24 28 e9 9d fb ff ff
+RSP: 0018:ffffc90000007620 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000000001e8 RCX: 0000000000000100
+RDX: ffff8880276f6280 RSI: ffffffff87fdd138 RDI: 0000000000000005
+RBP: 0000000000000000 R08: 0000000000000005 R09: 0000000000000000
+R10: 00000000000001e8 R11: 0000000000000001 R12: 000000000000003c
+R13: 0000000000000000 R14: ffff888028244868 R15: 0000000000000b0e
+FS: 00007fbc81f1c700(0000) GS:ffff88802ca00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2df43000 CR3: 00000000744db000 CR4: 0000000000150ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<IRQ>
+icmp_glue_bits+0x7b/0x210 net/ipv4/icmp.c:353
+__ip_append_data+0x1d1b/0x39f0 net/ipv4/ip_output.c:1161
+ip_append_data net/ipv4/ip_output.c:1343 [inline]
+ip_append_data+0x115/0x1a0 net/ipv4/ip_output.c:1322
+icmp_push_reply+0xa8/0x440 net/ipv4/icmp.c:370
+__icmp_send+0xb80/0x1430 net/ipv4/icmp.c:765
+ipv4_send_dest_unreach net/ipv4/route.c:1239 [inline]
+ipv4_link_failure+0x5a9/0x9e0 net/ipv4/route.c:1246
+dst_link_failure include/net/dst.h:423 [inline]
+arp_error_report+0xcb/0x1c0 net/ipv4/arp.c:296
+neigh_invalidate+0x20d/0x560 net/core/neighbour.c:1079
+neigh_timer_handler+0xc77/0xff0 net/core/neighbour.c:1166
+call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
+expire_timers+0x29b/0x4b0 kernel/time/timer.c:1751
+__run_timers kernel/time/timer.c:2022 [inline]
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230330174502.1915328-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/sta_info.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/icmp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 4d6890250337d..0f97c6fcec174 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -1023,7 +1023,8 @@ static int __must_check __sta_info_destroy_part1(struct sta_info *sta)
- 	list_del_rcu(&sta->list);
- 	sta->removed = true;
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index b44f51e404aee..ac82a4158b86b 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -754,6 +754,11 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
+ 		room = 576;
+ 	room -= sizeof(struct iphdr) + icmp_param.replyopts.opt.opt.optlen;
+ 	room -= sizeof(struct icmphdr);
++	/* Guard against tiny mtu. We need to include at least one
++	 * IP network header for this message to make any sense.
++	 */
++	if (room <= (int)sizeof(struct iphdr))
++		goto ende;
  
--	drv_sta_pre_rcu_remove(local, sta->sdata, sta);
-+	if (sta->uploaded)
-+		drv_sta_pre_rcu_remove(local, sta->sdata, sta);
- 
- 	if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
- 	    rcu_access_pointer(sdata->u.vlan.sta) == sta)
+ 	icmp_param.data_len = skb_in->len - icmp_param.offset;
+ 	if (icmp_param.data_len > room)
 -- 
 2.39.2
 
