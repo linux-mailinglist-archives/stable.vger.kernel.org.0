@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14DAD6E6134
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 031A76E632B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231156AbjDRMYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:24:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60740 "EHLO
+        id S231363AbjDRMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230035AbjDRMYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:32 -0400
+        with ESMTP id S231825AbjDRMiX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8533A265
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4857C13F90
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D2163116
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B03C433D2;
-        Tue, 18 Apr 2023 12:24:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCFD4632A6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF7ECC433A1;
+        Tue, 18 Apr 2023 12:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820648;
-        bh=8HEt2sEu/CmMpmBQTDTjLhkyhdkurJm2MqO+w4kVH6k=;
+        s=korg; t=1681821496;
+        bh=qDezilUMX6BqWDTwq6SUXe1vw8swDi/2+ZRZPudVva4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+LgWsskt+62IHVigFAyTalrsHbaO0znJhsy6kZX+H3kdVG03pJyiU3EaWUu39zWl
-         wAX3wkWYVClJCXP8Cr1T6zNU/u4JOmB2rrNWt8827WOJYWymFCXOzbYQEroNtnbilJ
-         SU9+3Fjs0HcMqceMtgvhax6kf9/N7SNchJSMFA2E=
+        b=pnh2B27szw14s/8qxZu7LxMy3ZQipYUPPlD0OarvXANlrg8xG7y9w4+lEkhXwONaO
+         ans6/xE9w7hYSrooFmSMCrTzZ3yUYJjqBg+r3CC9ZIPnTGxdCgzzjFvcrn+kBbLPt4
+         rTZM6nuurpE6A9avAZymm7v5/GWg+i8JorTIU0dQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 17/37] ALSA: emu10k1: fix capture interrupt handler unlinking
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Aya Levin <ayal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 23/91] IB/mlx5: Add support for 400G_8X lane speed
 Date:   Tue, 18 Apr 2023 14:21:27 +0200
-Message-Id: <20230418120255.275863900@linuxfoundation.org>
+Message-Id: <20230418120306.387376062@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-commit b09c551c77c7e01dc6e4f3c8bf06b5ffa7b06db5 upstream.
+[ Upstream commit 88c9483faf15ada14eca82714114656893063458 ]
 
-Due to two copy/pastos, closing the MIC or EFX capture device would
-make a running ADC capture hang due to unsetting its interrupt handler.
-In principle, this would have also allowed dereferencing dangling
-pointers, but we're actually rather thorough at disabling and flushing
-the ints.
+Currently, when driver queries PTYS to report which link speed is being
+used on its RoCE ports, it does not check the case of having 400Gbps
+transmitted over 8 lanes. Thus it fails to report the said speed and
+instead it defaults to report 10G over 4 lanes.
 
-While it may sound like one, this actually wasn't a hypothetical bug:
-PortAudio will open a capture stream at startup (and close it right
-away) even if not asked to. If the first device is busy, it will just
-proceed with the next one ... thus killing a concurrent capture.
+Add a check for the said speed when querying PTYS and report it back
+correctly when needed.
 
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201220.2197923-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 08e8676f1607 ("IB/mlx5: Add support for 50Gbps per lane link modes")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/ec9040548d119d22557d6a4b4070d6f421701fd4.1678973994.git.leon@kernel.org
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/emu10k1/emupcm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -1251,7 +1251,7 @@ static int snd_emu10k1_capture_mic_close
- {
- 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
- 
--	emu->capture_interrupt = NULL;
-+	emu->capture_mic_interrupt = NULL;
- 	emu->pcm_capture_mic_substream = NULL;
- 	return 0;
- }
-@@ -1359,7 +1359,7 @@ static int snd_emu10k1_capture_efx_close
- {
- 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
- 
--	emu->capture_interrupt = NULL;
-+	emu->capture_efx_interrupt = NULL;
- 	emu->pcm_capture_efx_substream = NULL;
- 	return 0;
- }
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 827ee3040bea2..2361caa385471 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -443,6 +443,10 @@ static int translate_eth_ext_proto_oper(u32 eth_proto_oper, u16 *active_speed,
+ 		*active_width = IB_WIDTH_2X;
+ 		*active_speed = IB_SPEED_NDR;
+ 		break;
++	case MLX5E_PROT_MASK(MLX5E_400GAUI_8):
++		*active_width = IB_WIDTH_8X;
++		*active_speed = IB_SPEED_HDR;
++		break;
+ 	case MLX5E_PROT_MASK(MLX5E_400GAUI_4_400GBASE_CR4_KR4):
+ 		*active_width = IB_WIDTH_4X;
+ 		*active_speed = IB_SPEED_NDR;
+-- 
+2.39.2
+
 
 
