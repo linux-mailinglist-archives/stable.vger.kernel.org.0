@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA556E6463
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D26596E61B9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232108AbjDRMst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:48:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39984 "EHLO
+        id S231468AbjDRM1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:27:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232003AbjDRMsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:46 -0400
+        with ESMTP id S231492AbjDRM07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF6215452
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064AF9ECE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A8A5632C7
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F72FC433EF;
-        Tue, 18 Apr 2023 12:48:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB62E6317A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F240BC433EF;
+        Tue, 18 Apr 2023 12:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822116;
-        bh=q7rPS2itDY61B52ajRHYzcxXeT+7U+tZdyaE91ohcSE=;
+        s=korg; t=1681820799;
+        bh=sNNywKqsvfwkYYENnh9EVh9j/8u6Qie2S8/fLBu2cGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1xG+MsGkh6GARRbYlcSeORiBysK28AJjjMUCjGGVm+hXdUtdFi4XWvVcko+6JSMz
-         qkjB9hAoH42AWh+pno9gjIuMI08jLwRTYLDic0PBwcxlotHDq3edgPEK9OQvL6Rnk4
-         /5iP1Uj6P/KYvZ8aCCFD1R4Xu9NuI0uJrqbk0jtU=
+        b=Ixs3utP03Em/DNtKWKD2Elzf5PvJcxJFXWkKPvDdAp7rwb/PzPxdHse21S3/JVj1t
+         G3if6dxKt4w2UQbd3JOgCdZ1m9ZUs+WYWMuhLF4nJXOFlGyQjlO80FMZJcm27YSvcA
+         faqxnMF/e4uFPwTORCcEzjWYIZ8iBkyyLhQGWqkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ville Syrjala <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.2 028/139] drm/i915/dsi: fix DSS CTL register offsets for TGL+
-Date:   Tue, 18 Apr 2023 14:21:33 +0200
-Message-Id: <20230418120314.702206509@linuxfoundation.org>
+        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 4.19 34/57] Bluetooth: Fix race condition in hidp_session_thread
+Date:   Tue, 18 Apr 2023 14:21:34 +0200
+Message-Id: <20230418120259.932608441@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Min Li <lm0963hack@gmail.com>
 
-commit 6b8446859c971a5783a2cdc90adf32e64de3bd23 upstream.
+commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
 
-On TGL+ the DSS control registers are at different offsets, and there's
-one per pipe. Fix the offsets to fix dual link DSI for TGL+.
+There is a potential race condition in hidp_session_thread that may
+lead to use-after-free. For instance, the timer is active while
+hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
+then 'session' will be freed, causing kernel panic when hidp_idle_timeout
+is running.
 
-There would be helpers for this in the DSC code, but just do the quick
-fix now for DSI. Long term, we should probably move all the DSS handling
-into intel_vdsc.c, so exporting the helpers seems counter-productive.
+The solution is to use del_timer_sync instead of del_timer.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8232
-Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
+Here is the call trace:
+
+? hidp_session_probe+0x780/0x780
+call_timer_fn+0x2d/0x1e0
+__run_timers.part.0+0x569/0x940
+hidp_session_probe+0x780/0x780
+call_timer_fn+0x1e0/0x1e0
+ktime_get+0x5c/0xf0
+lapic_next_deadline+0x2c/0x40
+clockevents_program_event+0x205/0x320
+run_timer_softirq+0xa9/0x1b0
+__do_softirq+0x1b9/0x641
+__irq_exit_rcu+0xdc/0x190
+irq_exit_rcu+0xe/0x20
+sysvec_apic_timer_interrupt+0xa1/0xc0
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230301151409.1581574-1-jani.nikula@intel.com
-(cherry picked from commit 1a62dd9895dca78bee28bba3a36f08836fdd143d)
+Signed-off-by: Min Li <lm0963hack@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/icl_dsi.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ net/bluetooth/hidp/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/icl_dsi.c
-+++ b/drivers/gpu/drm/i915/display/icl_dsi.c
-@@ -300,9 +300,21 @@ static void configure_dual_link_mode(str
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -428,7 +428,7 @@ static void hidp_set_timer(struct hidp_s
+ static void hidp_del_timer(struct hidp_session *session)
  {
- 	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
- 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
-+	i915_reg_t dss_ctl1_reg, dss_ctl2_reg;
- 	u32 dss_ctl1;
- 
--	dss_ctl1 = intel_de_read(dev_priv, DSS_CTL1);
-+	/* FIXME: Move all DSS handling to intel_vdsc.c */
-+	if (DISPLAY_VER(dev_priv) >= 12) {
-+		struct intel_crtc *crtc = to_intel_crtc(pipe_config->uapi.crtc);
-+
-+		dss_ctl1_reg = ICL_PIPE_DSS_CTL1(crtc->pipe);
-+		dss_ctl2_reg = ICL_PIPE_DSS_CTL2(crtc->pipe);
-+	} else {
-+		dss_ctl1_reg = DSS_CTL1;
-+		dss_ctl2_reg = DSS_CTL2;
-+	}
-+
-+	dss_ctl1 = intel_de_read(dev_priv, dss_ctl1_reg);
- 	dss_ctl1 |= SPLITTER_ENABLE;
- 	dss_ctl1 &= ~OVERLAP_PIXELS_MASK;
- 	dss_ctl1 |= OVERLAP_PIXELS(intel_dsi->pixel_overlap);
-@@ -323,16 +335,16 @@ static void configure_dual_link_mode(str
- 
- 		dss_ctl1 &= ~LEFT_DL_BUF_TARGET_DEPTH_MASK;
- 		dss_ctl1 |= LEFT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
--		dss_ctl2 = intel_de_read(dev_priv, DSS_CTL2);
-+		dss_ctl2 = intel_de_read(dev_priv, dss_ctl2_reg);
- 		dss_ctl2 &= ~RIGHT_DL_BUF_TARGET_DEPTH_MASK;
- 		dss_ctl2 |= RIGHT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
--		intel_de_write(dev_priv, DSS_CTL2, dss_ctl2);
-+		intel_de_write(dev_priv, dss_ctl2_reg, dss_ctl2);
- 	} else {
- 		/* Interleave */
- 		dss_ctl1 |= DUAL_LINK_MODE_INTERLEAVE;
- 	}
- 
--	intel_de_write(dev_priv, DSS_CTL1, dss_ctl1);
-+	intel_de_write(dev_priv, dss_ctl1_reg, dss_ctl1);
+ 	if (session->idle_to > 0)
+-		del_timer(&session->timer);
++		del_timer_sync(&session->timer);
  }
  
- /* aka DSI 8X clock */
+ static void hidp_process_report(struct hidp_session *session, int type,
 
 
