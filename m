@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D8C6E626B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE8D6E6448
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbjDRMcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45162 "EHLO
+        id S232038AbjDRMry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230003AbjDRMc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15E910256
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:06 -0700 (PDT)
+        with ESMTP id S232051AbjDRMrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC82C1CF86
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5A3A63187
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D8AC4339B;
-        Tue, 18 Apr 2023 12:26:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5795462875
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B7D3C433AA;
+        Tue, 18 Apr 2023 12:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820802;
-        bh=s3dsItB7vcQSbe8IJwpN6EH8MFid+e+sYq566924UvA=;
+        s=korg; t=1681822066;
+        bh=8sb2Wy+tm6fkbGioQL/zhQrwbOwJbe8jjWAoDa8Jwks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYkiDiij/j6S0aX1EOkjABCxsZxpPoaHBZl3Z7ub0CWZH+4BVk1XA7Sh3tqsR/+HD
-         5TQ0dr3hJS75UET2akolcq1vA/q+fI9gs1lz/Qpr4+jUDmfn5DGb3zungOvY0toGd6
-         nYgGaVhduEir/oNWdrJsisDA+832oSz8mCCxU5vg=
+        b=jHW1AaTZplUO1GgmtOmtPM0z1T5v7u4JliN5onp9ZbKb7KNH3koofxnZuD5bpRwNI
+         ohS8YOvn5Hqd4SEJ6o3ibOGrN6GfgH37Moyhk8ntz2IVTTl7LZaQEDRCrHPPmdUNNJ
+         Eep4Hul/0/r2Ar4ouHZ4qvULYDPDD7ZZFLaGRMZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/57] NFSv4: Fix hangs when recovering open state after a server reboot
+        patches@lists.linux.dev, Jerry Zuo <Jerry.Zuo@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Veronika Schwan <veronika@pisquaredover6.de>
+Subject: [PATCH 6.2 002/139] drm/amd/display: Pass the right info to drm_dp_remove_payload
 Date:   Tue, 18 Apr 2023 14:21:07 +0200
-Message-Id: <20230418120258.971213286@linuxfoundation.org>
+Message-Id: <20230418120313.812326593@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,50 +58,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3 ]
+commit b8ca445f550a9a079134f836466ddda3bfad6108 upstream.
 
-When we're using a cached open stateid or a delegation in order to avoid
-sending a CLAIM_PREVIOUS open RPC call to the server, we don't have a
-new open stateid to present to update_open_stateid().
-Instead rely on nfs4_try_open_cached(), just as if we were doing a
-normal open.
+[Why & How]
+drm_dp_remove_payload() interface was changed. Correct amdgpu dm code
+to pass the right parameter to the drm helper function.
 
-Fixes: d2bfda2e7aa0 ("NFSv4: don't reprocess cached open CLAIM_PREVIOUS")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Jerry Zuo <Jerry.Zuo@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+(cherry-picked from b8ca445f550a9a079134f836466ddda3bfad6108)
+[Hand modified due to missing f0127cb11299df80df45583b216e13f27c408545 which
+ failed to apply due to missing 94dfeaa46925bb6b4d43645bbb6234e846dec257]
+Reported-and-tested-by: Veronika Schwan <veronika@pisquaredover6.de>
+Fixes: d7b5638bd337 ("drm/amd/display: Take FEC Overhead into Timeslot Calculation")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c |   57 ++++++++++++--
+ 1 file changed, 50 insertions(+), 7 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 70150894ed77f..3651619468d74 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1851,8 +1851,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(struct nfs4_opendata *data)
- 	if (!data->rpc_done) {
- 		if (data->rpc_status)
- 			return ERR_PTR(data->rpc_status);
--		/* cached opens have already been processed */
--		goto update;
-+		return nfs4_try_open_cached(data);
- 	}
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+@@ -175,6 +175,40 @@ void dm_helpers_dp_update_branch_info(
+ 	const struct dc_link *link)
+ {}
  
- 	ret = nfs_refresh_inode(inode, &data->f_attr);
-@@ -1861,7 +1860,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(struct nfs4_opendata *data)
- 
- 	if (data->o_res.delegation_type != 0)
- 		nfs4_opendata_check_deleg(data, state);
--update:
++static void dm_helpers_construct_old_payload(
++			struct dc_link *link,
++			int pbn_per_slot,
++			struct drm_dp_mst_atomic_payload *new_payload,
++			struct drm_dp_mst_atomic_payload *old_payload)
++{
++	struct link_mst_stream_allocation_table current_link_table =
++									link->mst_stream_alloc_table;
++	struct link_mst_stream_allocation *dc_alloc;
++	int i;
 +
- 	if (!update_open_stateid(state, &data->o_res.stateid,
- 				NULL, data->o_arg.fmode))
- 		return ERR_PTR(-EAGAIN);
--- 
-2.39.2
-
++	*old_payload = *new_payload;
++
++	/* Set correct time_slots/PBN of old payload.
++	 * other fields (delete & dsc_enabled) in
++	 * struct drm_dp_mst_atomic_payload are don't care fields
++	 * while calling drm_dp_remove_payload()
++	 */
++	for (i = 0; i < current_link_table.stream_count; i++) {
++		dc_alloc =
++			&current_link_table.stream_allocations[i];
++
++		if (dc_alloc->vcp_id == new_payload->vcpi) {
++			old_payload->time_slots = dc_alloc->slot_count;
++			old_payload->pbn = dc_alloc->slot_count * pbn_per_slot;
++			break;
++		}
++	}
++
++	/* make sure there is an old payload*/
++	ASSERT(i != current_link_table.stream_count);
++
++}
++
+ /*
+  * Writes payload allocation table in immediate downstream device.
+  */
+@@ -186,7 +220,7 @@ bool dm_helpers_dp_mst_write_payload_all
+ {
+ 	struct amdgpu_dm_connector *aconnector;
+ 	struct drm_dp_mst_topology_state *mst_state;
+-	struct drm_dp_mst_atomic_payload *payload;
++	struct drm_dp_mst_atomic_payload *target_payload, *new_payload, old_payload;
+ 	struct drm_dp_mst_topology_mgr *mst_mgr;
+ 
+ 	aconnector = (struct amdgpu_dm_connector *)stream->dm_stream_context;
+@@ -202,17 +236,26 @@ bool dm_helpers_dp_mst_write_payload_all
+ 	mst_state = to_drm_dp_mst_topology_state(mst_mgr->base.state);
+ 
+ 	/* It's OK for this to fail */
+-	payload = drm_atomic_get_mst_payload_state(mst_state, aconnector->port);
+-	if (enable)
+-		drm_dp_add_payload_part1(mst_mgr, mst_state, payload);
+-	else
+-		drm_dp_remove_payload(mst_mgr, mst_state, payload, payload);
++	new_payload = drm_atomic_get_mst_payload_state(mst_state, aconnector->port);
++
++	if (enable) {
++		target_payload = new_payload;
++
++		drm_dp_add_payload_part1(mst_mgr, mst_state, new_payload);
++	} else {
++		/* construct old payload by VCPI*/
++		dm_helpers_construct_old_payload(stream->link, mst_state->pbn_div,
++						new_payload, &old_payload);
++		target_payload = &old_payload;
++
++		drm_dp_remove_payload(mst_mgr, mst_state, &old_payload, new_payload);
++	}
+ 
+ 	/* mst_mgr->->payloads are VC payload notify MST branch using DPCD or
+ 	 * AUX message. The sequence is slot 1-63 allocated sequence for each
+ 	 * stream. AMD ASIC stream slot allocation should follow the same
+ 	 * sequence. copy DRM MST allocation to dc */
+-	fill_dc_mst_payload_table_from_drm(stream->link, enable, payload, proposed_table);
++	fill_dc_mst_payload_table_from_drm(stream->link, enable, target_payload, proposed_table);
+ 
+ 	return true;
+ }
 
 
