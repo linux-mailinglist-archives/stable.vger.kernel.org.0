@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9446E629A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF436E620A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231693AbjDRMeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47536 "EHLO
+        id S231438AbjDRM3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231706AbjDRMdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAF110260
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:35 -0700 (PDT)
+        with ESMTP id S231394AbjDRM3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E940CC14
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 298B1629E1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1680EC433EF;
-        Tue, 18 Apr 2023 12:33:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67F54631C9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 799E7C433D2;
+        Tue, 18 Apr 2023 12:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821214;
-        bh=ayLCKjBcXV8S6zyWST9efiwCeulaUxJVrHTjPzx/lD4=;
+        s=korg; t=1681820931;
+        bh=HHLCPK6/GT6dWKKz3rTCV12fmFyxE+LcbuXx8G/hhpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtpnBjOSuA8sH6D228ZDvx6+EKwKKMIHb3YDw9DqUxK4fXRACrSHOELNQwdCwsYCI
-         At4WAYZiSzly2WjfBY0GOvEFuGRmiGO/z5DuIdIXRZsNivI9xnGR522QzKDU+sSa9n
-         Zps4WaM08ZPM/xYgjoWJuuAxRj2kGMAdYg7/c8G0=
+        b=bCzm4FCPNXnfJwTb1MMsXwO8Qavv1PsKpkfij8XDu1WxTCrcjyniz9hrqrG+uxOQP
+         KkYj89x4TZw1/cZPtdpSUHJbid5FujR1pNBAe8Hz6uIRs7vqnmaN1sMBskhFcE9Ci6
+         tgr5E6y+gLe6IOTkGEHZLGBQgsuEdMBZupC9Avos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 042/124] tracing: Free error logs of tracing instances
-Date:   Tue, 18 Apr 2023 14:21:01 +0200
-Message-Id: <20230418120311.357110777@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 5.4 27/92] tty: serial: sh-sci: Fix transmit end interrupt handler
+Date:   Tue, 18 Apr 2023 14:21:02 +0200
+Message-Id: <20230418120305.779179312@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,93 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
+commit b43a18647f03c87e77d50d6fe74904b61b96323e upstream.
 
-When a tracing instance is removed, the error messages that hold errors
-that occurred in the instance needs to be freed. The following reports a
-memory leak:
+The fourth interrupt on SCI port is transmit end interrupt compared to
+the break interrupt on other port types. So, shuffle the interrupts to fix
+the transmit end interrupt handler.
 
- # cd /sys/kernel/tracing
- # mkdir instances/foo
- # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
- # cat instances/foo/error_log
- [  117.404795] hist:sched:sched_switch: error: Couldn't find field
-   Command: hist:keys=x
-                      ^
- # rmdir instances/foo
-
-Then check for memory leaks:
-
- # echo scan > /sys/kernel/debug/kmemleak
- # cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffff88810d8ec700 (size 192):
-  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
-  hex dump (first 32 bytes):
-    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
-    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
-  backtrace:
-    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
-    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
-    [<000000004a0e1b07>] parse_atom+0x966/0xb40
-    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
-    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
-    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
-    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
-    [<000000002cadc509>] vfs_write+0x162/0x670
-    [<0000000059c3b9be>] ksys_write+0xca/0x170
-    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
-    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
-unreferenced object 0xffff888170c35a00 (size 32):
-  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
-  hex dump (first 32 bytes):
-    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
-    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
-  backtrace:
-    [<000000006a747de5>] __kmalloc+0x4d/0x160
-    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
-    [<000000004a0e1b07>] parse_atom+0x966/0xb40
-    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
-    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
-    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
-    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
-    [<000000002cadc509>] vfs_write+0x162/0x670
-    [<0000000059c3b9be>] ksys_write+0xca/0x170
-    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
-    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
-
-The problem is that the error log needs to be freed when the instance is
-removed.
-
-Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
-Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Cc: stable <stable@kernel.org>
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20230317150403.154094-1-biju.das.jz@bp.renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/sh-sci.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8895,6 +8895,7 @@ static int __remove_instance(struct trac
- 	ftrace_destroy_function_files(tr);
- 	tracefs_remove(tr->dir);
- 	free_trace_buffers(tr);
-+	clear_tracing_err_log(tr);
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -2925,6 +2925,13 @@ static int sci_init_single(struct platfo
+ 			sci_port->irqs[i] = platform_get_irq(dev, i);
+ 	}
  
- 	for (i = 0; i < tr->nr_topts; i++) {
- 		kfree(tr->topts[i].topts);
++	/*
++	 * The fourth interrupt on SCI port is transmit end interrupt, so
++	 * shuffle the interrupts.
++	 */
++	if (p->type == PORT_SCI)
++		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
++
+ 	/* The SCI generates several interrupts. They can be muxed together or
+ 	 * connected to different interrupt lines. In the muxed case only one
+ 	 * interrupt resource is specified as there is only one interrupt ID.
 
 
