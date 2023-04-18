@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C196E62A7
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD1C6E6129
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231634AbjDRMe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48620 "EHLO
+        id S231297AbjDRMX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:23:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231549AbjDRMe1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:27 -0400
+        with ESMTP id S231222AbjDRMX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:23:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8D9118F1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC9CE7EEB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:23:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0DC26325C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A8EC433D2;
-        Tue, 18 Apr 2023 12:34:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56A2563109
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:23:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67392C4339C;
+        Tue, 18 Apr 2023 12:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821246;
-        bh=R+IU/AaI+zuGRzljSq6G9Hys8aJ9m2yfdsuLZfhfW4A=;
+        s=korg; t=1681820629;
+        bh=YzRUwLwbwJenkdyUFzBK52VgfD3vlcZhzD2inaeePss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WaeVTkIp7a+wH4399b440MpIXVV7PRW03BjCwZhhceslRI1BwZyDqYcYvQPPpzoZw
-         +isouZ2yeoOP/5Z1y/h95C2TiJglej4iRxmlmHp7sq9wF1QUeY9RKuKnEJv2gT7SRV
-         blq6M0ahococAFH3HNv8/opK6CHcU5+nTJ01U+Is=
+        b=ut7HoXu3trGy2chDER1AXT7bEVx70M/3IPkp4cCCqC3K4d2QfNnDf4RtRucQg7uKq
+         2jCqGs//WSCCGTqO4qUo4yudEiejI8HdqahYv0dIhY4/cBnUiojSIx1WBsdQNPdAj9
+         XFxpVW4vUxsLk6T+YCRQ69pMMDiJ0q2EHxatv5BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 053/124] Revert "pinctrl: amd: Disable and mask interrupts on resume"
+        patches@lists.linux.dev, Brian Coverstone <brian@mainsequence.net>,
+        Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 02/37] wifi: mac80211: fix invalid drv_sta_pre_rcu_remove calls for non-uploaded sta
 Date:   Tue, 18 Apr 2023 14:21:12 +0200
-Message-Id: <20230418120311.762025993@linuxfoundation.org>
+Message-Id: <20230418120254.768428722@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kornel Dulęba <korneld@chromium.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 534e465845ebfb4a97eb5459d3931a0b35e3b9a5 upstream.
+[ Upstream commit 12b220a6171faf10638ab683a975cadcf1a352d6 ]
 
-This reverts commit b26cd9325be4c1fcd331b77f10acb627c560d4d7.
+Avoid potential data corruption issues caused by uninitialized driver
+private data structures.
 
-This patch introduces a regression on Lenovo Z13, which can't wake
-from the lid with it applied; and some unspecified AMD based Dell
-platforms are unable to wake from hitting the power button
-
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20230411134932.292287-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Brian Coverstone <brian@mainsequence.net>
+Fixes: 6a9d1b91f34d ("mac80211: add pre-RCU-sync sta removal driver operation")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20230324120924.38412-3-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
+ net/mac80211/sta_info.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -764,34 +764,32 @@ static const struct pinconf_ops amd_pinc
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 0d5265adf5396..4e406cd115738 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -942,7 +942,8 @@ static int __must_check __sta_info_destroy_part1(struct sta_info *sta)
+ 	list_del_rcu(&sta->list);
+ 	sta->removed = true;
  
--static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
- {
--	const struct pin_desc *pd;
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
-+	int i;
+-	drv_sta_pre_rcu_remove(local, sta->sdata, sta);
++	if (sta->uploaded)
++		drv_sta_pre_rcu_remove(local, sta->sdata, sta);
  
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
- 
--	pd = pin_desc_get(gpio_dev->pctrl, pin);
--	if (!pd)
--		return;
-+	for (i = 0; i < desc->npins; i++) {
-+		int pin = desc->pins[i].number;
-+		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
- 
--	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
--	pin_reg = readl(gpio_dev->base + pin * 4);
--	pin_reg &= ~mask;
--	writel(pin_reg, gpio_dev->base + pin * 4);
--	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--}
-+		if (!pd)
-+			continue;
- 
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
--{
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
--	int i;
-+		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 
--	for (i = 0; i < desc->npins; i++)
--		amd_gpio_irq_init_pin(gpio_dev, i);
-+		pin_reg = readl(gpio_dev->base + i * 4);
-+		pin_reg &= ~mask;
-+		writel(pin_reg, gpio_dev->base + i * 4);
-+
-+		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+	}
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -844,10 +842,8 @@ static int amd_gpio_resume(struct device
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin)) {
--			amd_gpio_irq_init_pin(gpio_dev, pin);
-+		if (!amd_gpio_should_save(gpio_dev, pin))
- 			continue;
--		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
+ 	if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
+ 	    rcu_access_pointer(sdata->u.vlan.sta) == sta)
+-- 
+2.39.2
+
 
 
