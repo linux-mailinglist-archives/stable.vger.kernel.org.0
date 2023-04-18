@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2374B6E6429
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3045F6E64CC
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbjDRMqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S232194AbjDRMwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232018AbjDRMqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1107014F6B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:37 -0700 (PDT)
+        with ESMTP id S232180AbjDRMwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 803B8AA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9460C633A8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EFCC4339B;
-        Tue, 18 Apr 2023 12:46:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 614F963382
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77653C433EF;
+        Tue, 18 Apr 2023 12:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821996;
-        bh=GrbFPr1uIDerg+g5dzeCl7cYj+L0Zd2Sk5UU7sEuDGw=;
+        s=korg; t=1681822330;
+        bh=phccvm6yp0Roa2UoU0zNFZvTK811b8TuF8twIphPFf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+gUhFkv6yHQYLGkEnsDOR6AVE6Vz1iY/jNVsEbedUi5vFU6BHONGeUDsMg3HeXfW
-         UsXUezkzB6+JpZOdZOrJXLWpja1Fhv50dv0jEGLLBonUqZytMjl8YHYPigwtfdI1tn
-         wJ0fvK2UZvJUcHQd9+Md/Gbom+1XvYgk0oOSX56s=
+        b=eHd8WK89oOXFU3wN2qA/5lzeMi6h5yS95J+BY2JG6wtHavNfnyGc6tcXmeE0IjHVk
+         EZCF0iPK0Je+eI98qS590nuIw4eDHiirx3byNfiSWssRnF/lAIVWfDa0ZtMDR7owZv
+         lJ59HgvevXa5e6OJYiSX6wqE3B2L0TL4EG8Iznds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Nicolas Schichan <nschichan@freebox.fr>,
-        Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.1 118/134] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
-Date:   Tue, 18 Apr 2023 14:22:54 +0200
-Message-Id: <20230418120317.297954332@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 110/139] net: phy: nxp-c45-tja11xx: fix unsigned long multiplication overflow
+Date:   Tue, 18 Apr 2023 14:22:55 +0200
+Message-Id: <20230418120317.901634403@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 
-commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
+commit bdaaecc127d471c422ee9e994978617c8aa79e1e upstream.
 
-Following process will make ubi attaching failed since commit
-1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
+Any multiplication between GENMASK(31, 0) and a number bigger than 1
+will be truncated because of the overflow, if the size of unsigned long
+is 32 bits.
 
-ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
-modprobe nandsim id_bytes=$ID
-flash_eraseall /dev/mtd0
-modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
-(dmesg):
-  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
-  UBI error: cannot attach mtd0
-  UBI error: cannot initialize UBI, error -22
+Replaced GENMASK with GENMASK_ULL to make sure that multiplication will
+be between 64 bits values.
 
-Rework original solution, the key point is making sure
-'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
-so we should check vid_hdr_shift rather not vid_hdr_offset.
-Then, ubi still support (sub)page aligined VID header offset.
-
-Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Tested-by: Nicolas Schichan <nschichan@freebox.fr>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Cc: <stable@vger.kernel.org> # 5.15+
+Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
+Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20230406095953.75622-1-radu-nicolae.pirea@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/build.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/net/phy/nxp-c45-tja11xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -664,12 +664,6 @@ static int io_init(struct ubi_device *ub
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -191,7 +191,7 @@
+ #define MAX_ID_PS			2260U
+ #define DEFAULT_ID_PS			2000U
  
--	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
--	    ubi->vid_hdr_alsize)) {
--		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
--		return -EINVAL;
--	}
--
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
-@@ -687,6 +681,21 @@ static int io_init(struct ubi_device *ub
- 						ubi->vid_hdr_aloffset;
- 	}
+-#define PPM_TO_SUBNS_INC(ppb)	div_u64(GENMASK(31, 0) * (ppb) * \
++#define PPM_TO_SUBNS_INC(ppb)	div_u64(GENMASK_ULL(31, 0) * (ppb) * \
+ 					PTP_CLK_PERIOD_100BT1, NSEC_PER_SEC)
  
-+	/*
-+	 * Memory allocation for VID header is ubi->vid_hdr_alsize
-+	 * which is described in comments in io.c.
-+	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
-+	 * ubi->vid_hdr_alsize, so that all vid header operations
-+	 * won't access memory out of bounds.
-+	 */
-+	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
-+		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
-+			" + VID header size(%zu) > VID header aligned size(%d).",
-+			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
-+			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
-+		return -EINVAL;
-+	}
-+
- 	/* Similar for the data offset */
- 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
- 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
+ #define NXP_C45_SKB_CB(skb)	((struct nxp_c45_skb_cb *)(skb)->cb)
 
 
