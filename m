@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E8A6E64F7
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A5E6E64FA
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232266AbjDRMxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47476 "EHLO
+        id S232308AbjDRMx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232281AbjDRMxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:48 -0400
+        with ESMTP id S232262AbjDRMxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DFCF167C8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C82915620
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 674B063425
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A50C4339B;
-        Tue, 18 Apr 2023 12:53:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07E7362B02
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEE6C4339E;
+        Tue, 18 Apr 2023 12:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822415;
-        bh=XAdkwq/v7ensHuK/Jwi7tilFGTqQ2dc2NiexxrLVGSY=;
+        s=korg; t=1681822418;
+        bh=qD7DoLbDeFsWhvdCSOJ5OAayrjgOYTRWYbMVYo35hrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFZ/V8hS7SAM5dFZrgq8rCvKl35wH4AQGcZ1bIB+5b6nz6J0MSvFhBwP5MKsI07Tr
-         JhADFarGGNI4tgkfIS5cHO5rwlBvGubbJShml3ejfVrNyM+r5ZxSD3ECnSxxrhsYc6
-         hzmQjkMhc1fNZWLYCjE6iXMBs2dDQw5sU9wSgR00=
+        b=ilHmDdtsw+Zd1ON95fK1eHW/hI4RCP53nBBY+srzO8kZXGpBMYVLNd2goX1PgihdC
+         ks2jPOOldBF7ETFCSqiJg4dv6np8aszLEgcnIDOMAkT7PZG6ZQRohLuwp/vsYVU+LL
+         5anA7NXPaZ0uvrlsgpFQE8W0t1sRExAK9gW9839U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Gregor Herburger <gregor.herburger@tq-group.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Federico Vaga <federico.vaga@cern.ch>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 134/139] i2c: ocores: generate stop condition after timeout in polling mode
-Date:   Tue, 18 Apr 2023 14:23:19 +0200
-Message-Id: <20230418120318.935989609@linuxfoundation.org>
+        patches@lists.linux.dev, Volker Lendecke <vl@samba.org>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        David Disseldorp <ddiss@suse.de>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 135/139] cifs: fix negotiate context parsing
+Date:   Tue, 18 Apr 2023 14:23:20 +0200
+Message-Id: <20230418120318.979061068@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -58,104 +56,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregor Herburger <gregor.herburger@tq-group.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit f8160d3b35fc94491bb0cb974dbda310ef96c0e2 ]
+[ Upstream commit 5105a7ffce19160e7062aee67fb6b3b8a1b56d78 ]
 
-In polling mode, no stop condition is generated after a timeout. This
-causes SCL to remain low and thereby block the bus. If this happens
-during a transfer it can cause slaves to misinterpret the subsequent
-transfer and return wrong values.
+smb311_decode_neg_context() doesn't properly check against SMB packet
+boundaries prior to accessing individual negotiate context entries. This
+is due to the length check omitting the eight byte smb2_neg_context
+header, as well as incorrect decrementing of len_of_ctxts.
 
-To solve this, pass the ETIMEDOUT error up from ocores_process_polling()
-instead of setting STATE_ERROR directly. The caller is adjusted to call
-ocores_process_timeout() on error both in polling and in IRQ mode, which
-will set STATE_ERROR and generate a stop condition.
-
-Fixes: 69c8c0c0efa8 ("i2c: ocores: add polling interface")
-Signed-off-by: Gregor Herburger <gregor.herburger@tq-group.com>
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Acked-by: Peter Korsgaard <peter@korsgaard.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Federico Vaga <federico.vaga@cern.ch>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 5100d8a3fe03 ("SMB311: Improve checking of negotiate security contexts")
+Reported-by: Volker Lendecke <vl@samba.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-ocores.c | 35 ++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+ fs/cifs/smb2pdu.c | 41 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index a0af027db04c1..2e575856c5cd5 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -342,18 +342,18 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
-  * ocores_isr(), we just add our polling code around it.
-  *
-  * It can run in atomic context
-+ *
-+ * Return: 0 on success, -ETIMEDOUT on timeout
-  */
--static void ocores_process_polling(struct ocores_i2c *i2c)
-+static int ocores_process_polling(struct ocores_i2c *i2c)
- {
--	while (1) {
--		irqreturn_t ret;
--		int err;
-+	irqreturn_t ret;
-+	int err = 0;
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index b37379b62cc77..ab59faf8a06a7 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -588,11 +588,15 @@ assemble_neg_contexts(struct smb2_negotiate_req *req,
  
-+	while (1) {
- 		err = ocores_poll_wait(i2c);
--		if (err) {
--			i2c->state = STATE_ERROR;
-+		if (err)
- 			break; /* timeout */
--		}
- 
- 		ret = ocores_isr(-1, i2c);
- 		if (ret == IRQ_NONE)
-@@ -364,13 +364,15 @@ static void ocores_process_polling(struct ocores_i2c *i2c)
- 					break;
- 		}
- 	}
-+
-+	return err;
  }
  
- static int ocores_xfer_core(struct ocores_i2c *i2c,
- 			    struct i2c_msg *msgs, int num,
- 			    bool polling)
++/* If invalid preauth context warn but use what we requested, SHA-512 */
+ static void decode_preauth_context(struct smb2_preauth_neg_context *ctxt)
  {
--	int ret;
-+	int ret = 0;
- 	u8 ctrl;
+ 	unsigned int len = le16_to_cpu(ctxt->DataLength);
  
- 	ctrl = oc_getreg(i2c, OCI2C_CONTROL);
-@@ -388,15 +390,16 @@ static int ocores_xfer_core(struct ocores_i2c *i2c,
- 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+-	/* If invalid preauth context warn but use what we requested, SHA-512 */
++	/*
++	 * Caller checked that DataLength remains within SMB boundary. We still
++	 * need to confirm that one HashAlgorithms member is accounted for.
++	 */
+ 	if (len < MIN_PREAUTH_CTXT_DATA_LEN) {
+ 		pr_warn_once("server sent bad preauth context\n");
+ 		return;
+@@ -611,7 +615,11 @@ static void decode_compress_ctx(struct TCP_Server_Info *server,
+ {
+ 	unsigned int len = le16_to_cpu(ctxt->DataLength);
  
- 	if (polling) {
--		ocores_process_polling(i2c);
-+		ret = ocores_process_polling(i2c);
- 	} else {
--		ret = wait_event_timeout(i2c->wait,
--					 (i2c->state == STATE_ERROR) ||
--					 (i2c->state == STATE_DONE), HZ);
--		if (ret == 0) {
--			ocores_process_timeout(i2c);
--			return -ETIMEDOUT;
--		}
-+		if (wait_event_timeout(i2c->wait,
-+				       (i2c->state == STATE_ERROR) ||
-+				       (i2c->state == STATE_DONE), HZ) == 0)
-+			ret = -ETIMEDOUT;
-+	}
-+	if (ret) {
-+		ocores_process_timeout(i2c);
-+		return ret;
+-	/* sizeof compress context is a one element compression capbility struct */
++	/*
++	 * Caller checked that DataLength remains within SMB boundary. We still
++	 * need to confirm that one CompressionAlgorithms member is accounted
++	 * for.
++	 */
+ 	if (len < 10) {
+ 		pr_warn_once("server sent bad compression cntxt\n");
+ 		return;
+@@ -633,6 +641,11 @@ static int decode_encrypt_ctx(struct TCP_Server_Info *server,
+ 	unsigned int len = le16_to_cpu(ctxt->DataLength);
+ 
+ 	cifs_dbg(FYI, "decode SMB3.11 encryption neg context of len %d\n", len);
++	/*
++	 * Caller checked that DataLength remains within SMB boundary. We still
++	 * need to confirm that one Cipher flexible array member is accounted
++	 * for.
++	 */
+ 	if (len < MIN_ENCRYPT_CTXT_DATA_LEN) {
+ 		pr_warn_once("server sent bad crypto ctxt len\n");
+ 		return -EINVAL;
+@@ -679,6 +692,11 @@ static void decode_signing_ctx(struct TCP_Server_Info *server,
+ {
+ 	unsigned int len = le16_to_cpu(pctxt->DataLength);
+ 
++	/*
++	 * Caller checked that DataLength remains within SMB boundary. We still
++	 * need to confirm that one SigningAlgorithms flexible array member is
++	 * accounted for.
++	 */
+ 	if ((len < 4) || (len > 16)) {
+ 		pr_warn_once("server sent bad signing negcontext\n");
+ 		return;
+@@ -720,14 +738,19 @@ static int smb311_decode_neg_context(struct smb2_negotiate_rsp *rsp,
+ 	for (i = 0; i < ctxt_cnt; i++) {
+ 		int clen;
+ 		/* check that offset is not beyond end of SMB */
+-		if (len_of_ctxts == 0)
+-			break;
+-
+ 		if (len_of_ctxts < sizeof(struct smb2_neg_context))
+ 			break;
+ 
+ 		pctx = (struct smb2_neg_context *)(offset + (char *)rsp);
+-		clen = le16_to_cpu(pctx->DataLength);
++		clen = sizeof(struct smb2_neg_context)
++			+ le16_to_cpu(pctx->DataLength);
++		/*
++		 * 2.2.4 SMB2 NEGOTIATE Response
++		 * Subsequent negotiate contexts MUST appear at the first 8-byte
++		 * aligned offset following the previous negotiate context.
++		 */
++		if (i + 1 != ctxt_cnt)
++			clen = ALIGN(clen, 8);
+ 		if (clen > len_of_ctxts)
+ 			break;
+ 
+@@ -748,12 +771,10 @@ static int smb311_decode_neg_context(struct smb2_negotiate_rsp *rsp,
+ 		else
+ 			cifs_server_dbg(VFS, "unknown negcontext of type %d ignored\n",
+ 				le16_to_cpu(pctx->ContextType));
+-
+ 		if (rc)
+ 			break;
+-		/* offsets must be 8 byte aligned */
+-		clen = ALIGN(clen, 8);
+-		offset += clen + sizeof(struct smb2_neg_context);
++
++		offset += clen;
+ 		len_of_ctxts -= clen;
  	}
- 
- 	return (i2c->state == STATE_DONE) ? num : -EIO;
+ 	return rc;
 -- 
 2.39.2
 
