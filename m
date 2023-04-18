@@ -2,119 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32C596E6B83
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 19:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7B86E6BA9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 20:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbjDRR4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 13:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
+        id S232477AbjDRSEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 14:04:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231398AbjDRR4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 13:56:00 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6356198E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 10:55:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681840557; x=1713376557;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=jcoNkbXmxLmrUtfWFmVA8DeXbqh1QEP3x+TSptatjgg=;
-  b=n52VITvJ1N5WpfO5yKeekTaSKCm3BJ2Uq5g3K5MUCPVUhpHO2h4nLWp0
-   XE0DclUqIQmxein1RGHfBEjdOzwXSZacs3DypHsFkWKvQJ8ouA3WUiCX2
-   rWUtOePKkVEpr9habuSty8QlcTb7REa/m670/m7O1yrWy1nX6weDm5zm2
-   stNmPPpfjviObXZGjSABmJZuaB4XPMmCUCjPPonx26eROLhwQp5ybAtK4
-   5s0BWJTxyImgHowxc3slpjzjyOwM6XKmGwH42s1JIcvOku24lXWRW+QRB
-   wnWYcVPQWudrWnchXf5hLKmsqypWvHr1GIfjjdAxyvFYScdR5SIZMVoQo
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10684"; a="334052748"
-X-IronPort-AV: E=Sophos;i="5.99,207,1677571200"; 
-   d="scan'208";a="334052748"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Apr 2023 10:55:34 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10684"; a="641451575"
-X-IronPort-AV: E=Sophos;i="5.99,207,1677571200"; 
-   d="scan'208";a="641451575"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
-  by orsmga003.jf.intel.com with SMTP; 18 Apr 2023 10:55:31 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 18 Apr 2023 20:55:31 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>
-Subject: [PATCH 01/15] drm/i915: Check pipe source size when using skl+ scalers
-Date:   Tue, 18 Apr 2023 20:55:14 +0300
-Message-Id: <20230418175528.13117-2-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230418175528.13117-1-ville.syrjala@linux.intel.com>
-References: <20230418175528.13117-1-ville.syrjala@linux.intel.com>
+        with ESMTP id S232438AbjDRSEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 14:04:54 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D550E7B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 11:04:51 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-3ee6c339cceso68685e9.0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 11:04:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1681841090; x=1684433090;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bVo7ErolbBsB3vbOoqmPHuRczZ4pjL/sGStpYzTmAxM=;
+        b=ZU5RGYlhPrrm3RUw1BAJD4ultlC7dOla6Lr/381b9LpQqBWglBq0ppKxwlU9+VwW2M
+         msjDDhP3G6FP/MJDlvw9WHNWoycAFQEK1CG2E+AxoRClYltCV0ke/P6Mp/bSZ9tg8sVf
+         s7kFlG7VZVRqpnP1CauObtccey3KhAJUwE/IlnQwXPdVJ8Rfwhx2WcvDSo8I7XBf2c+E
+         3FDWG6WCqT/xBrYcz57O2Unf215gtdpwlDaCTpY//bSDI82W9wr8KLyVA3XBzdIDYuJC
+         AQX0LuH73IcR+OEC9L+kBCdnN2DFePLw18BAbA+0j5sWsfiJiZvQokxB5ziUnLfkEX+f
+         Bm+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681841090; x=1684433090;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bVo7ErolbBsB3vbOoqmPHuRczZ4pjL/sGStpYzTmAxM=;
+        b=au6KIgJ9jeHZoaR8MNGX5uF+pqVM4IPc8FmNXjoVK4jLXGfrq+AnaSS1PHYlUkGrC3
+         AB0ux1Zsjodds/TYs8RvMYZgLXdW5AGGQgZbA1MOlNM0IpHnYAFP/UgxZIq1UMQqw1+1
+         St75xJAZ8N98aGnLFPBi+63bQPsyn7uF8roh1qJnrRagOLDkxZm3lZ+h7UFWGbQGewes
+         UDy0duXDri8fIYfnXAToi5mQCGN3EkPKT1NKFzMtSjSsk7rFZffy8Azx5J3eCg5dNLec
+         rJOStPZba7MF8WEo2eEHh/408OzAXGevda4kTBVav7LP0jN4Con6Rgb8t1cxyKo1WDT5
+         5+Nw==
+X-Gm-Message-State: AAQBX9disXWsCKrseiupUuJHxfuDtbM6GS13BQ+gdNTdjnqJ11sGviRK
+        t24Xpl1b0aAgBcW+x6OdvwiUAdHZmdndQPXAGAf/JQ==
+X-Google-Smtp-Source: AKy350a2qGvbYaY2rIFNyUnYbU0oiNOCuTWBN2WMAQLltFtgZZpkczBs4IU4AxO4IcKD/c5XRH1zdF6YZte2RTXgYl8=
+X-Received: by 2002:a05:600c:3c97:b0:3f1:73b8:b5fe with SMTP id
+ bg23-20020a05600c3c9700b003f173b8b5femr7640wmb.3.1681841089846; Tue, 18 Apr
+ 2023 11:04:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20230417122943.2155502-1-anders.roxell@linaro.org>
+ <20230417122943.2155502-2-anders.roxell@linaro.org> <CAP-5=fWUevSnyn5MtVO1p6cEVE8MvBTq4Qgth7RcPYueRERQKA@mail.gmail.com>
+ <d940f802-8aab-140d-7a87-9cf0b3a8ac9f@isovalent.com>
+In-Reply-To: <d940f802-8aab-140d-7a87-9cf0b3a8ac9f@isovalent.com>
+From:   Ian Rogers <irogers@google.com>
+Date:   Tue, 18 Apr 2023 11:04:35 -0700
+Message-ID: <CAP-5=fVh=zNuwcQM++KFxt6ETv-Z6GpY9pWDQ=RbvnuSGUhT8g@mail.gmail.com>
+Subject: Re: [backport PATCH 1/2] tools perf: Fix compilation error with new binutils
+To:     Quentin Monnet <quentin@isovalent.com>
+Cc:     Anders Roxell <anders.roxell@linaro.org>, stable@vger.kernel.org,
+        acme@redhat.com, andres@anarazel.de, linux-kernel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ben Hutchings <benh@debian.org>, Jiri Olsa <jolsa@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL,
+        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Tue, Apr 18, 2023 at 9:43=E2=80=AFAM Quentin Monnet <quentin@isovalent.c=
+om> wrote:
+>
+> 2023-04-17 10:14 UTC-0700 ~ Ian Rogers <irogers@google.com>
+> > On Mon, Apr 17, 2023 at 5:30=E2=80=AFAM Anders Roxell <anders.roxell@li=
+naro.org> wrote:
+> >>
+> >> From: Andres Freund <andres@anarazel.de>
+> >>
+> >> binutils changed the signature of init_disassemble_info(), which now c=
+auses
+> >> compilation failures for tools/perf/util/annotate.c, e.g. on debian
+> >> unstable.
+> >
+> > Thanks, I believe the compilation issue may well be resolved by:
+> > https://lore.kernel.org/lkml/20230311065753.3012826-8-irogers@google.co=
+m/
+> > where binutils is made opt-in rather than opt-out.
+>
+> Hi,
+> These commits are to make it possible to build against recent binutils,
+> without having to leave it out at compile time, so as I understand they
+> address a different issue?
 
-The skl+ scalers only sample 12 bits of PIPESRC so we can't
-do any plane scaling at all when the pipe source size is >4k.
+Kind of. We don't want the Linux perf build to break. Previously if
+binutils were installed then Linux perf would default to linking with
+it and break your build were binutils to change its API. That is no
+longer the case as we don't default to linking against binutils. This
+was motivated by distributions not being able to link Linux perf with
+binutils due to the license incompatibilities. I don't see a problem
+supporting linking against newer and older binutils if people want to
+on non-distributed binaries. We'll probably need more build
+tests/containers to cover the possibilities of this. I'm not sure
+what's motivating binutils support other than personal experimentation
+though.
 
-Make sure the pipe source size is also below the scaler's src
-size limits. Might not be 100% accurate, but should at least be
-safe. We can refine the limits later if we discover that recent
-hw is less restricted.
+Thanks,
+Ian
 
-Cc: stable@vger.kernel.org
-Tested-by: Ross Zwisler <zwisler@google.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8357
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/skl_scaler.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/display/skl_scaler.c b/drivers/gpu/drm/i915/display/skl_scaler.c
-index 473d53610b92..0e7e014fcc71 100644
---- a/drivers/gpu/drm/i915/display/skl_scaler.c
-+++ b/drivers/gpu/drm/i915/display/skl_scaler.c
-@@ -111,6 +111,8 @@ skl_update_scaler(struct intel_crtc_state *crtc_state, bool force_detach,
- 	struct drm_i915_private *dev_priv = to_i915(crtc->base.dev);
- 	const struct drm_display_mode *adjusted_mode =
- 		&crtc_state->hw.adjusted_mode;
-+	int pipe_src_w = drm_rect_width(&crtc_state->pipe_src);
-+	int pipe_src_h = drm_rect_height(&crtc_state->pipe_src);
- 	int min_src_w, min_src_h, min_dst_w, min_dst_h;
- 	int max_src_w, max_src_h, max_dst_w, max_dst_h;
- 
-@@ -207,6 +209,21 @@ skl_update_scaler(struct intel_crtc_state *crtc_state, bool force_detach,
- 		return -EINVAL;
- 	}
- 
-+	/*
-+	 * The pipe scaler does not use all the bits of PIPESRC, at least
-+	 * on the earlier platforms. So even when we're scaling a plane
-+	 * the *pipe* source size must not be too large. For simplicity
-+	 * we assume the limits match the scaler source size limits. Might
-+	 * not be 100% accurate on all platforms, but good enough for now.
-+	 */
-+	if (pipe_src_w > max_src_w || pipe_src_h > max_src_h) {
-+		drm_dbg_kms(&dev_priv->drm,
-+			    "scaler_user index %u.%u: pipe src size %ux%u "
-+			    "is out of scaler range\n",
-+			    crtc->pipe, scaler_user, pipe_src_w, pipe_src_h);
-+		return -EINVAL;
-+	}
-+
- 	/* mark this plane as a scaler user in crtc_state */
- 	scaler_state->scaler_users |= (1 << scaler_user);
- 	drm_dbg_kms(&dev_priv->drm, "scaler_user index %u.%u: "
--- 
-2.39.2
-
+> >
+> >> Relevant binutils commit:
+> >>
+> >>   https://sourceware.org/git/?p=3Dbinutils-gdb.git;a=3Dcommit;h=3D60a3=
+da00bd5407f07
+> >>
+> >> Wire up the feature test and switch to init_disassemble_info_compat(),
+> >> which were introduced in prior commits, fixing the compilation failure=
+.
+> >
+> > I was kind of surprised to see no version check ifdef. Is
+> > init_disassemble_info_compat is supported in older binutils?
+>
+> It is not part of binutils, it was introduced in commit a45b3d692623
+> ("tools include: add dis-asm-compat.h to handle version differences"),
+> which should likely be backported alongside these ones if it hasn't been
+> already. Possibly the others from the same series [0], as well?
+>
+> I think all 5 patches from Andres' series were backported to 5.15 [1].
+>
+> [0]
+> https://lore.kernel.org/all/20220703212551.1114923-1-andres@anarazel.de/t=
+/#m999a44663894e235b523ffc41ce87e956019ea72
+> [1]
+> https://lore.kernel.org/all/e6e2df31-6327-f2ad-3049-0cbfa214ae5c@hauke-m.=
+de/t/#u
+>
+> Best regards,
+> Quentin
