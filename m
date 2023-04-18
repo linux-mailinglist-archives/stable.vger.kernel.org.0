@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0276E648A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11DF6E63EA
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232146AbjDRMuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41982 "EHLO
+        id S231937AbjDRMo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232131AbjDRMuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:08 -0400
+        with ESMTP id S231927AbjDRMo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B4F16DC0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B96C719A6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 754E46340B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 869DFC433EF;
-        Tue, 18 Apr 2023 12:50:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B42363378
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B93C433D2;
+        Tue, 18 Apr 2023 12:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822203;
-        bh=JKv030SXGkCg+MZ24BYUSh+KHff6OFw9/xqV8cw7hS0=;
+        s=korg; t=1681821865;
+        bh=DEWe0jkc9Y6r28LdFAGOYrRGMnBiZ+L83NWmkJE1QTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbTxNyQFs2IoHGslyO3Y50cx+IyQoFpEpuGrvx6nfXdj+dlucdc/CjRpCnsMu9oQe
-         GoRMWC2+4ayZ1cah1gZumkNRKb14l3Jd5BD0PlrsMCeYhzP12uVm3Ux5gc5Y3Egh12
-         FUHpO073sFIVHgSrPiD/3/O35fgknFV5G8UR/mtM=
+        b=rVyz1qNbZ5j267z8Nyb8Mb7TLQJR+eB7+RManAlJyA0ypzY9PB7TUhPHmeav7XRGM
+         l6dPT22wfTGmor2e1SfBvogXHXi4fdCC3fVbgaDBYMY2tjUVy8aTNaVpJ1ljOgY/Xs
+         1eKFow5FxI+HiPvUOyHLlATIpMFaBHJ32waamWuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        patches@lists.linux.dev, Andrew Jeffery <andrew@aj.id.au>,
+        Zev Weiss <zev@bewilderbeest.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 061/139] drm/armada: Fix a potential double free in an error handling path
+Subject: [PATCH 6.1 070/134] ARM: 9290/1: uaccess: Fix KASAN false-positives
 Date:   Tue, 18 Apr 2023 14:22:06 +0200
-Message-Id: <20230418120316.076043330@linuxfoundation.org>
+Message-Id: <20230418120315.432383269@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Andrew Jeffery <andrew@aj.id.au>
 
-[ Upstream commit b89ce1177d42d5c124e83f3858818cd4e6a2c46f ]
+[ Upstream commit ceac10c83b330680cc01ceaaab86cd49f4f30d81 ]
 
-'priv' is a managed resource, so there is no need to free it explicitly or
-there will be a double free().
+__copy_to_user_memcpy() and __clear_user_memset() had been calling
+memcpy() and memset() respectively, leading to false-positive KASAN
+reports when starting userspace:
 
-Fixes: 90ad200b4cbc ("drm/armada: Use devm_drm_dev_alloc")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/c4f3c9207a9fce35cb6dd2cc60e755275961588a.1640536364.git.christophe.jaillet@wanadoo.fr
+    [   10.707901] Run /init as init process
+    [   10.731892] process '/bin/busybox' started with executable stack
+    [   10.745234] ==================================================================
+    [   10.745796] BUG: KASAN: user-memory-access in __clear_user_memset+0x258/0x3ac
+    [   10.747260] Write of size 2687 at addr 000de581 by task init/1
+
+Use __memcpy() and __memset() instead to allow userspace access, which
+is of course the intent of these functions.
+
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/armada/armada_drv.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/lib/uaccess_with_memcpy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/armada/armada_drv.c b/drivers/gpu/drm/armada/armada_drv.c
-index 0643887800b4d..142668cd6d7cd 100644
---- a/drivers/gpu/drm/armada/armada_drv.c
-+++ b/drivers/gpu/drm/armada/armada_drv.c
-@@ -99,7 +99,6 @@ static int armada_drm_bind(struct device *dev)
- 	if (ret) {
- 		dev_err(dev, "[" DRM_NAME ":%s] can't kick out simple-fb: %d\n",
- 			__func__, ret);
--		kfree(priv);
- 		return ret;
- 	}
+diff --git a/arch/arm/lib/uaccess_with_memcpy.c b/arch/arm/lib/uaccess_with_memcpy.c
+index 14eecaaf295fa..e4c2677cc1e9e 100644
+--- a/arch/arm/lib/uaccess_with_memcpy.c
++++ b/arch/arm/lib/uaccess_with_memcpy.c
+@@ -116,7 +116,7 @@ __copy_to_user_memcpy(void __user *to, const void *from, unsigned long n)
+ 			tocopy = n;
  
+ 		ua_flags = uaccess_save_and_enable();
+-		memcpy((void *)to, from, tocopy);
++		__memcpy((void *)to, from, tocopy);
+ 		uaccess_restore(ua_flags);
+ 		to += tocopy;
+ 		from += tocopy;
+@@ -178,7 +178,7 @@ __clear_user_memset(void __user *addr, unsigned long n)
+ 			tocopy = n;
+ 
+ 		ua_flags = uaccess_save_and_enable();
+-		memset((void *)addr, 0, tocopy);
++		__memset((void *)addr, 0, tocopy);
+ 		uaccess_restore(ua_flags);
+ 		addr += tocopy;
+ 		n -= tocopy;
 -- 
 2.39.2
 
