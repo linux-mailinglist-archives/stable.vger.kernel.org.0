@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D546B6E6304
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B376E624F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231757AbjDRMhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
+        id S231631AbjDRMbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:31:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231770AbjDRMhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FAC51384A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:13 -0700 (PDT)
+        with ESMTP id S231455AbjDRMbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C5DC676
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19EE6632AF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE48C433D2;
-        Tue, 18 Apr 2023 12:37:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B65631FB
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA4F9C433EF;
+        Tue, 18 Apr 2023 12:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821432;
-        bh=N+4i+yZYMRbWxZzRVTcYVu7G1SPVlXOuYNmOjLBduZE=;
+        s=korg; t=1681821072;
+        bh=q5argzPEaClpJQEMbplI8xlCdFHDVW1Foo1B0xfKLaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAp6sMpRhYmR/AD1hEzSnCLAmmgKxfqv7oSDPCzGHBydzkgYOt2lgBuq/l/hyQe2R
-         ZdeCxPvt/S/86n1LhYDuCzzrccczdH1jUhYDjQ4TIdOkprCw6Xb/1cNFDcOLjwh0dJ
-         NjFZS0ofgyGSNWwIlbnmmh5g2yr3UoQAa5KBFBKE=
+        b=p1smbpHlCFKJoFvEHHXOvPijMXnfgSMD/Ytyd23S8StabDTo2kmBiJNwd/7w4gMx/
+         4gDYQUixQypBQmk55sV4/4csxDXdIbRj5en4oxeLvGyy3hXoWbZQr7tJC57R/rdN+S
+         kaNdghX2hGLq26rvIs8uapSrpTlJlYl3W2bdAkSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Glanzmann <thomas@glanzmann.de>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.10 096/124] x86/PCI: Add quirk for AMD XHCI controller that loses MSI-X state in D3hot
-Date:   Tue, 18 Apr 2023 14:21:55 +0200
-Message-Id: <20230418120313.328948530@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        Chandan Rajendra <chandanrlinux@gmail.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Subject: [PATCH 5.4 81/92] xfs: add a new xfs_sb_version_has_v3inode helper
+Date:   Tue, 18 Apr 2023 14:21:56 +0200
+Message-Id: <20230418120307.616641452@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,65 +57,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit f195fc1e9715ba826c3b62d58038f760f66a4fe9 upstream.
+commit b81b79f4eda2ea98ae5695c0b6eb384c8d90b74d upstream.
 
-The AMD [1022:15b8] USB controller loses some internal functional MSI-X
-context when transitioning from D0 to D3hot. BIOS normally traps D0->D3hot
-and D3hot->D0 transitions so it can save and restore that internal context,
-but some firmware in the field can't do this because it fails to clear the
-AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit.
+Add a new wrapper to check if a file system supports the v3 inode format
+with a larger dinode core.  Previously we used xfs_sb_version_hascrc for
+that, which is technically correct but a little confusing to read.
 
-Clear AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit before USB controller
-initialization during boot.
+Also move xfs_dinode_good_version next to xfs_sb_version_has_v3inode
+so that we have one place that documents the superblock version to
+inode version relationship.
 
-Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
-Link: https://lore.kernel.org/r/20230329172859.699743-1-Basavaraj.Natikar@amd.com
-Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
-Tested-by: Thomas Glanzmann <thomas@glanzmann.de>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/pci/fixup.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ fs/xfs/libxfs/xfs_format.h     |   17 +++++++++++++++++
+ fs/xfs/libxfs/xfs_ialloc.c     |    4 ++--
+ fs/xfs/libxfs/xfs_inode_buf.c  |   17 +++--------------
+ fs/xfs/libxfs/xfs_inode_buf.h  |    2 --
+ fs/xfs/libxfs/xfs_trans_resv.c |    2 +-
+ fs/xfs/xfs_buf_item.c          |    2 +-
+ fs/xfs/xfs_log_recover.c       |    2 +-
+ 7 files changed, 25 insertions(+), 21 deletions(-)
 
---- a/arch/x86/pci/fixup.c
-+++ b/arch/x86/pci/fixup.c
-@@ -7,6 +7,7 @@
- #include <linux/dmi.h>
- #include <linux/pci.h>
- #include <linux/vgaarb.h>
-+#include <asm/amd_nb.h>
- #include <asm/hpet.h>
- #include <asm/pci_x86.h>
+--- a/fs/xfs/libxfs/xfs_format.h
++++ b/fs/xfs/libxfs/xfs_format.h
+@@ -497,6 +497,23 @@ static inline bool xfs_sb_version_hascrc
+ 	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
+ }
  
-@@ -824,3 +825,23 @@ static void rs690_fix_64bit_dma(struct p
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7910, rs690_fix_64bit_dma);
- 
- #endif
-+
-+#ifdef CONFIG_AMD_NB
-+
-+#define AMD_15B8_RCC_DEV2_EPF0_STRAP2                                  0x10136008
-+#define AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK       0x00000080L
-+
-+static void quirk_clear_strap_no_soft_reset_dev2_f0(struct pci_dev *dev)
++/*
++ * v5 file systems support V3 inodes only, earlier file systems support
++ * v2 and v1 inodes.
++ */
++static inline bool xfs_sb_version_has_v3inode(struct xfs_sb *sbp)
 +{
-+	u32 data;
-+
-+	if (!amd_smn_read(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, &data)) {
-+		data &= ~AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK;
-+		if (amd_smn_write(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, data))
-+			pci_err(dev, "Failed to write data 0x%x\n", data);
-+	} else {
-+		pci_err(dev, "Failed to read data\n");
-+	}
++	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
 +}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15b8, quirk_clear_strap_no_soft_reset_dev2_f0);
-+#endif
++
++static inline bool xfs_dinode_good_version(struct xfs_sb *sbp,
++		uint8_t version)
++{
++	if (xfs_sb_version_has_v3inode(sbp))
++		return version == 3;
++	return version == 1 || version == 2;
++}
++
+ static inline bool xfs_sb_version_has_pquotino(struct xfs_sb *sbp)
+ {
+ 	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
+--- a/fs/xfs/libxfs/xfs_ialloc.c
++++ b/fs/xfs/libxfs/xfs_ialloc.c
+@@ -303,7 +303,7 @@ xfs_ialloc_inode_init(
+ 	 * That means for v3 inode we log the entire buffer rather than just the
+ 	 * inode cores.
+ 	 */
+-	if (xfs_sb_version_hascrc(&mp->m_sb)) {
++	if (xfs_sb_version_has_v3inode(&mp->m_sb)) {
+ 		version = 3;
+ 		ino = XFS_AGINO_TO_INO(mp, agno, XFS_AGB_TO_AGINO(mp, agbno));
+ 
+@@ -2818,7 +2818,7 @@ xfs_ialloc_setup_geometry(
+ 	 * cannot change the behavior.
+ 	 */
+ 	igeo->inode_cluster_size_raw = XFS_INODE_BIG_CLUSTER_SIZE;
+-	if (xfs_sb_version_hascrc(&mp->m_sb)) {
++	if (xfs_sb_version_has_v3inode(&mp->m_sb)) {
+ 		int	new_size = igeo->inode_cluster_size_raw;
+ 
+ 		new_size *= mp->m_sb.sb_inodesize / XFS_DINODE_MIN_SIZE;
+--- a/fs/xfs/libxfs/xfs_inode_buf.c
++++ b/fs/xfs/libxfs/xfs_inode_buf.c
+@@ -44,17 +44,6 @@ xfs_inobp_check(
+ }
+ #endif
+ 
+-bool
+-xfs_dinode_good_version(
+-	struct xfs_mount *mp,
+-	__u8		version)
+-{
+-	if (xfs_sb_version_hascrc(&mp->m_sb))
+-		return version == 3;
+-
+-	return version == 1 || version == 2;
+-}
+-
+ /*
+  * If we are doing readahead on an inode buffer, we might be in log recovery
+  * reading an inode allocation buffer that hasn't yet been replayed, and hence
+@@ -93,7 +82,7 @@ xfs_inode_buf_verify(
+ 		dip = xfs_buf_offset(bp, (i << mp->m_sb.sb_inodelog));
+ 		unlinked_ino = be32_to_cpu(dip->di_next_unlinked);
+ 		di_ok = xfs_verify_magic16(bp, dip->di_magic) &&
+-			xfs_dinode_good_version(mp, dip->di_version) &&
++			xfs_dinode_good_version(&mp->m_sb, dip->di_version) &&
+ 			xfs_verify_agino_or_null(mp, agno, unlinked_ino);
+ 		if (unlikely(XFS_TEST_ERROR(!di_ok, mp,
+ 						XFS_ERRTAG_ITOBP_INOTOBP))) {
+@@ -454,7 +443,7 @@ xfs_dinode_verify(
+ 
+ 	/* Verify v3 integrity information first */
+ 	if (dip->di_version >= 3) {
+-		if (!xfs_sb_version_hascrc(&mp->m_sb))
++		if (!xfs_sb_version_has_v3inode(&mp->m_sb))
+ 			return __this_address;
+ 		if (!xfs_verify_cksum((char *)dip, mp->m_sb.sb_inodesize,
+ 				      XFS_DINODE_CRC_OFF))
+@@ -629,7 +618,7 @@ xfs_iread(
+ 
+ 	/* shortcut IO on inode allocation if possible */
+ 	if ((iget_flags & XFS_IGET_CREATE) &&
+-	    xfs_sb_version_hascrc(&mp->m_sb) &&
++	    xfs_sb_version_has_v3inode(&mp->m_sb) &&
+ 	    !(mp->m_flags & XFS_MOUNT_IKEEP)) {
+ 		/* initialise the on-disk inode core */
+ 		memset(&ip->i_d, 0, sizeof(ip->i_d));
+--- a/fs/xfs/libxfs/xfs_inode_buf.h
++++ b/fs/xfs/libxfs/xfs_inode_buf.h
+@@ -59,8 +59,6 @@ void	xfs_inode_from_disk(struct xfs_inod
+ void	xfs_log_dinode_to_disk(struct xfs_log_dinode *from,
+ 			       struct xfs_dinode *to);
+ 
+-bool	xfs_dinode_good_version(struct xfs_mount *mp, __u8 version);
+-
+ #if defined(DEBUG)
+ void	xfs_inobp_check(struct xfs_mount *, struct xfs_buf *);
+ #else
+--- a/fs/xfs/libxfs/xfs_trans_resv.c
++++ b/fs/xfs/libxfs/xfs_trans_resv.c
+@@ -187,7 +187,7 @@ xfs_calc_inode_chunk_res(
+ 			       XFS_FSB_TO_B(mp, 1));
+ 	if (alloc) {
+ 		/* icreate tx uses ordered buffers */
+-		if (xfs_sb_version_hascrc(&mp->m_sb))
++		if (xfs_sb_version_has_v3inode(&mp->m_sb))
+ 			return res;
+ 		size = XFS_FSB_TO_B(mp, 1);
+ 	}
+--- a/fs/xfs/xfs_buf_item.c
++++ b/fs/xfs/xfs_buf_item.c
+@@ -328,7 +328,7 @@ xfs_buf_item_format(
+ 	 * occurs during recovery.
+ 	 */
+ 	if (bip->bli_flags & XFS_BLI_INODE_BUF) {
+-		if (xfs_sb_version_hascrc(&lip->li_mountp->m_sb) ||
++		if (xfs_sb_version_has_v3inode(&lip->li_mountp->m_sb) ||
+ 		    !((bip->bli_flags & XFS_BLI_INODE_ALLOC_BUF) &&
+ 		      xfs_log_item_in_current_chkpt(lip)))
+ 			bip->__bli_format.blf_flags |= XFS_BLF_INODE_BUF;
+--- a/fs/xfs/xfs_log_recover.c
++++ b/fs/xfs/xfs_log_recover.c
+@@ -3018,7 +3018,7 @@ xlog_recover_inode_pass2(
+ 	 * superblock flag to determine whether we need to look at di_flushiter
+ 	 * to skip replay when the on disk inode is newer than the log one
+ 	 */
+-	if (!xfs_sb_version_hascrc(&mp->m_sb) &&
++	if (!xfs_sb_version_has_v3inode(&mp->m_sb) &&
+ 	    ldip->di_flushiter < be16_to_cpu(dip->di_flushiter)) {
+ 		/*
+ 		 * Deal with the wrap case, DI_MAX_FLUSH is less
 
 
