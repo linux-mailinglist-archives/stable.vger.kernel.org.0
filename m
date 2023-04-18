@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 065306E6368
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C916E63F1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbjDRMkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:40:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56996 "EHLO
+        id S231945AbjDRMoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231831AbjDRMkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE2E13C07
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:22 -0700 (PDT)
+        with ESMTP id S231466AbjDRMop (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD53118C9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 691B9632EC
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 570AEC4339B;
-        Tue, 18 Apr 2023 12:40:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BC746337E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D364C4339B;
+        Tue, 18 Apr 2023 12:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821621;
-        bh=qixoTPKxX7fBnzMb5Rb/7T5gr0XBR8HRO2HGJLduK0M=;
+        s=korg; t=1681821883;
+        bh=aR4tzvaq6aFDgiKzOJuCoJ5m5puKPmDIg7ag4LBXosE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpmAAw7PbVOZf6K+swD60+vVR38Ip1kDSOQt4qS0u+rk0G+CgU7G7/ErkasXTzaTd
-         Nr4cJ8MlZ//bNvlIr/OPxtY4tLtzJQXq7iJJI+q3MfV2m5g3oWjtCl7iLJBeBtSURG
-         ynRoNU7ZrScksKbFpRIs7N70n9YYUpSMjHIp2few=
+        b=bE+I4Zf6gYfKSL+RZRlSWH71wBAemoYFnYSoSTsMg/CizcGKYrIzz+TOsSDEeT8rM
+         RJQjXyC5+Xsfy6HeQp6NPt6zkCFKkz+Cdxoaxohi07AHc2usb96ueFp5kYMjn4eLkE
+         eYGQsovxT+VIZuxfTF1Opl603ekvKMLDWCHkq7B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Simon Horman <simon.horman@corigine.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 40/91] wifi: mwifiex: mark OF related data as maybe unused
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 048/134] niu: Fix missing unwind goto in niu_alloc_channels()
 Date:   Tue, 18 Apr 2023 14:21:44 +0200
-Message-Id: <20230418120306.958187401@linuxfoundation.org>
+Message-Id: <20230418120314.608572928@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,52 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 139f6973bf140c65d4d1d4bde5485badb4454d7a ]
+[ Upstream commit 8ce07be703456acb00e83d99f3b8036252c33b02 ]
 
-The driver can be compile tested with !CONFIG_OF making certain data
-unused:
+Smatch reports: drivers/net/ethernet/sun/niu.c:4525
+	niu_alloc_channels() warn: missing unwind goto?
 
-  drivers/net/wireless/marvell/mwifiex/sdio.c:498:34: error: ‘mwifiex_sdio_of_match_table’ defined but not used [-Werror=unused-const-variable=]
-  drivers/net/wireless/marvell/mwifiex/pcie.c:175:34: error: ‘mwifiex_pcie_of_match_table’ defined but not used [-Werror=unused-const-variable=]
+If niu_rbr_fill() fails, then we are directly returning 'err' without
+freeing the channels.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fix this by changing direct return to a goto 'out_err'.
+
+Fixes: a3138df9f20e ("[NIU]: Add Sun Neptune ethernet driver.")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230312132523.352182-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c | 2 +-
- drivers/net/wireless/marvell/mwifiex/sdio.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/sun/niu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index d5fb29400bad5..94a6bbcae2d38 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -184,7 +184,7 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
- 	.can_ext_scan = true,
- };
+diff --git a/drivers/net/ethernet/sun/niu.c b/drivers/net/ethernet/sun/niu.c
+index e6144d963eaaa..4bbf011d53e69 100644
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -4522,7 +4522,7 @@ static int niu_alloc_channels(struct niu *np)
  
--static const struct of_device_id mwifiex_pcie_of_match_table[] = {
-+static const struct of_device_id mwifiex_pcie_of_match_table[] __maybe_unused = {
- 	{ .compatible = "pci11ab,2b42" },
- 	{ .compatible = "pci1b4b,2b42" },
- 	{ }
-diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
-index 7fb6eef409285..b09e60fedeb16 100644
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -484,7 +484,7 @@ static struct memory_type_mapping mem_type_mapping_tbl[] = {
- 	{"EXTLAST", NULL, 0, 0xFE},
- };
+ 		err = niu_rbr_fill(np, rp, GFP_KERNEL);
+ 		if (err)
+-			return err;
++			goto out_err;
+ 	}
  
--static const struct of_device_id mwifiex_sdio_of_match_table[] = {
-+static const struct of_device_id mwifiex_sdio_of_match_table[] __maybe_unused = {
- 	{ .compatible = "marvell,sd8787" },
- 	{ .compatible = "marvell,sd8897" },
- 	{ .compatible = "marvell,sd8997" },
+ 	tx_rings = kcalloc(num_tx_rings, sizeof(struct tx_ring_info),
 -- 
 2.39.2
 
