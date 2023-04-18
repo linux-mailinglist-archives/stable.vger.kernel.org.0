@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B9D6E61DF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A93556E63EC
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230256AbjDRM2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38560 "EHLO
+        id S231940AbjDRMod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231458AbjDRM2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9E0A5CD
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:59 -0700 (PDT)
+        with ESMTP id S231927AbjDRMod (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC38219A6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC3A631A3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0105C433D2;
-        Tue, 18 Apr 2023 12:27:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6923C63373
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 719F3C433D2;
+        Tue, 18 Apr 2023 12:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820865;
-        bh=w/Ld7ML3CWNjf3VfKnnMELNBwLRO5LiJpIbpcsBnT4Y=;
+        s=korg; t=1681821870;
+        bh=VKnqOnmHp7CK4bPnkeQ3nnLx3pQJqwfCsspfDMUnl0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olTAgvZ71/IPkTeDIrloVT+Qfph+aD8nBCYFz0N2+/qS3yATs7Dkje2hOq5lV6OIA
-         /q1sD2M9ottxSQlq8wjQrDA725VxAcWA6tci1eIq6sQzAigadgLDgGBeaAdLoGpaBL
-         eez+1+0OKxoVI1kTqwn9J6WOzFc8V8Ym+MdgFVVw=
+        b=DtHe5RKU2t0a3/w5OqJgIhpd+d5luSokmF9AANY/DKJYxQS++2LPanUTuxjJAAUr1
+         DU3yGfoGR0z40h5m8CUUjW6Ojv1Bwqm5PVP9kou3doMYsWYkr/L+c4MWoOlCoNUMs8
+         9eQTK+ei8qt6egfAeuSs+4BDp6jsVd8dK10zRDC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roman Gushchin <roman.gushchin@linux.dev>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Florent Revest <revest@chromium.org>,
+        Xu Kuohai <xukuohai@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/57] net: macb: fix a memory corruption in extended buffer descriptor mode
-Date:   Tue, 18 Apr 2023 14:21:40 +0200
-Message-Id: <20230418120300.125703924@linuxfoundation.org>
+Subject: [PATCH 6.1 045/134] bpf, arm64: Fixed a BTI error on returning to patched function
+Date:   Tue, 18 Apr 2023 14:21:41 +0200
+Message-Id: <20230418120314.497466124@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,148 +55,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <roman.gushchin@linux.dev>
+From: Xu Kuohai <xukuohai@huawei.com>
 
-[ Upstream commit e8b74453555872851bdd7ea43a7c0ec39659834f ]
+[ Upstream commit 738a96c4a8c36950803fdd27e7c30aca92dccefd ]
 
-For quite some time we were chasing a bug which looked like a sudden
-permanent failure of networking and mmc on some of our devices.
-The bug was very sensitive to any software changes and even more to
-any kernel debug options.
+When BPF_TRAMP_F_CALL_ORIG is set, BPF trampoline uses BLR to jump
+back to the instruction next to call site to call the patched function.
+For BTI-enabled kernel, the instruction next to call site is usually
+PACIASP, in this case, it's safe to jump back with BLR. But when
+the call site is not followed by a PACIASP or bti, a BTI exception
+is triggered.
 
-Finally we got a setup where the problem was reproducible with
-CONFIG_DMA_API_DEBUG=y and it revealed the issue with the rx dma:
+Here is a fault log:
 
-[   16.992082] ------------[ cut here ]------------
-[   16.996779] DMA-API: macb ff0b0000.ethernet: device driver tries to free DMA memory it has not allocated [device address=0x0000000875e3e244] [size=1536 bytes]
-[   17.011049] WARNING: CPU: 0 PID: 85 at kernel/dma/debug.c:1011 check_unmap+0x6a0/0x900
-[   17.018977] Modules linked in: xxxxx
-[   17.038823] CPU: 0 PID: 85 Comm: irq/55-8000f000 Not tainted 5.4.0 #28
-[   17.045345] Hardware name: xxxxx
-[   17.049528] pstate: 60000005 (nZCv daif -PAN -UAO)
-[   17.054322] pc : check_unmap+0x6a0/0x900
-[   17.058243] lr : check_unmap+0x6a0/0x900
-[   17.062163] sp : ffffffc010003c40
-[   17.065470] x29: ffffffc010003c40 x28: 000000004000c03c
-[   17.070783] x27: ffffffc010da7048 x26: ffffff8878e38800
-[   17.076095] x25: ffffff8879d22810 x24: ffffffc010003cc8
-[   17.081407] x23: 0000000000000000 x22: ffffffc010a08750
-[   17.086719] x21: ffffff8878e3c7c0 x20: ffffffc010acb000
-[   17.092032] x19: 0000000875e3e244 x18: 0000000000000010
-[   17.097343] x17: 0000000000000000 x16: 0000000000000000
-[   17.102647] x15: ffffff8879e4a988 x14: 0720072007200720
-[   17.107959] x13: 0720072007200720 x12: 0720072007200720
-[   17.113261] x11: 0720072007200720 x10: 0720072007200720
-[   17.118565] x9 : 0720072007200720 x8 : 000000000000022d
-[   17.123869] x7 : 0000000000000015 x6 : 0000000000000098
-[   17.129173] x5 : 0000000000000000 x4 : 0000000000000000
-[   17.134475] x3 : 00000000ffffffff x2 : ffffffc010a1d370
-[   17.139778] x1 : b420c9d75d27bb00 x0 : 0000000000000000
-[   17.145082] Call trace:
-[   17.147524]  check_unmap+0x6a0/0x900
-[   17.151091]  debug_dma_unmap_page+0x88/0x90
-[   17.155266]  gem_rx+0x114/0x2f0
-[   17.158396]  macb_poll+0x58/0x100
-[   17.161705]  net_rx_action+0x118/0x400
-[   17.165445]  __do_softirq+0x138/0x36c
-[   17.169100]  irq_exit+0x98/0xc0
-[   17.172234]  __handle_domain_irq+0x64/0xc0
-[   17.176320]  gic_handle_irq+0x5c/0xc0
-[   17.179974]  el1_irq+0xb8/0x140
-[   17.183109]  xiic_process+0x5c/0xe30
-[   17.186677]  irq_thread_fn+0x28/0x90
-[   17.190244]  irq_thread+0x208/0x2a0
-[   17.193724]  kthread+0x130/0x140
-[   17.196945]  ret_from_fork+0x10/0x20
-[   17.200510] ---[ end trace 7240980785f81d6f ]---
+ Unhandled 64-bit el1h sync exception on CPU0, ESR 0x0000000034000002 -- BTI
+ CPU: 0 PID: 263 Comm: test_progs Tainted: GF
+ Hardware name: linux,dummy-virt (DT)
+ pstate: 40400805 (nZcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=-c)
+ pc : bpf_fentry_test1+0xc/0x30
+ lr : bpf_trampoline_6442573892_0+0x48/0x1000
+ sp : ffff80000c0c3a50
+ x29: ffff80000c0c3a90 x28: ffff0000c2e6c080 x27: 0000000000000000
+ x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000050
+ x23: 0000000000000000 x22: 0000ffffcfd2a7f0 x21: 000000000000000a
+ x20: 0000ffffcfd2a7f0 x19: 0000000000000000 x18: 0000000000000000
+ x17: 0000000000000000 x16: 0000000000000000 x15: 0000ffffcfd2a7f0
+ x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+ x11: 0000000000000000 x10: ffff80000914f5e4 x9 : ffff8000082a1528
+ x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0101010101010101
+ x5 : 0000000000000000 x4 : 00000000fffffff2 x3 : 0000000000000001
+ x2 : ffff8001f4b82000 x1 : 0000000000000000 x0 : 0000000000000001
+ Kernel panic - not syncing: Unhandled exception
+ CPU: 0 PID: 263 Comm: test_progs Tainted: GF
+ Hardware name: linux,dummy-virt (DT)
+ Call trace:
+  dump_backtrace+0xec/0x144
+  show_stack+0x24/0x7c
+  dump_stack_lvl+0x8c/0xb8
+  dump_stack+0x18/0x34
+  panic+0x1cc/0x3ec
+  __el0_error_handler_common+0x0/0x130
+  el1h_64_sync_handler+0x60/0xd0
+  el1h_64_sync+0x78/0x7c
+  bpf_fentry_test1+0xc/0x30
+  bpf_fentry_test1+0xc/0x30
+  bpf_prog_test_run_tracing+0xdc/0x2a0
+  __sys_bpf+0x438/0x22a0
+  __arm64_sys_bpf+0x30/0x54
+  invoke_syscall+0x78/0x110
+  el0_svc_common.constprop.0+0x6c/0x1d0
+  do_el0_svc+0x38/0xe0
+  el0_svc+0x30/0xd0
+  el0t_64_sync_handler+0x1ac/0x1b0
+  el0t_64_sync+0x1a0/0x1a4
+ Kernel Offset: disabled
+ CPU features: 0x0000,00034c24,f994fdab
+ Memory Limit: none
 
-[  237.021490] ------------[ cut here ]------------
-[  237.026129] DMA-API: exceeded 7 overlapping mappings of cacheline 0x0000000021d79e7b
-[  237.033886] WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:499 add_dma_entry+0x214/0x240
-[  237.041802] Modules linked in: xxxxx
-[  237.061637] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W         5.4.0 #28
-[  237.068941] Hardware name: xxxxx
-[  237.073116] pstate: 80000085 (Nzcv daIf -PAN -UAO)
-[  237.077900] pc : add_dma_entry+0x214/0x240
-[  237.081986] lr : add_dma_entry+0x214/0x240
-[  237.086072] sp : ffffffc010003c30
-[  237.089379] x29: ffffffc010003c30 x28: ffffff8878a0be00
-[  237.094683] x27: 0000000000000180 x26: ffffff8878e387c0
-[  237.099987] x25: 0000000000000002 x24: 0000000000000000
-[  237.105290] x23: 000000000000003b x22: ffffffc010a0fa00
-[  237.110594] x21: 0000000021d79e7b x20: ffffffc010abe600
-[  237.115897] x19: 00000000ffffffef x18: 0000000000000010
-[  237.121201] x17: 0000000000000000 x16: 0000000000000000
-[  237.126504] x15: ffffffc010a0fdc8 x14: 0720072007200720
-[  237.131807] x13: 0720072007200720 x12: 0720072007200720
-[  237.137111] x11: 0720072007200720 x10: 0720072007200720
-[  237.142415] x9 : 0720072007200720 x8 : 0000000000000259
-[  237.147718] x7 : 0000000000000001 x6 : 0000000000000000
-[  237.153022] x5 : ffffffc010003a20 x4 : 0000000000000001
-[  237.158325] x3 : 0000000000000006 x2 : 0000000000000007
-[  237.163628] x1 : 8ac721b3a7dc1c00 x0 : 0000000000000000
-[  237.168932] Call trace:
-[  237.171373]  add_dma_entry+0x214/0x240
-[  237.175115]  debug_dma_map_page+0xf8/0x120
-[  237.179203]  gem_rx_refill+0x190/0x280
-[  237.182942]  gem_rx+0x224/0x2f0
-[  237.186075]  macb_poll+0x58/0x100
-[  237.189384]  net_rx_action+0x118/0x400
-[  237.193125]  __do_softirq+0x138/0x36c
-[  237.196780]  irq_exit+0x98/0xc0
-[  237.199914]  __handle_domain_irq+0x64/0xc0
-[  237.204000]  gic_handle_irq+0x5c/0xc0
-[  237.207654]  el1_irq+0xb8/0x140
-[  237.210789]  arch_cpu_idle+0x40/0x200
-[  237.214444]  default_idle_call+0x18/0x30
-[  237.218359]  do_idle+0x200/0x280
-[  237.221578]  cpu_startup_entry+0x20/0x30
-[  237.225493]  rest_init+0xe4/0xf0
-[  237.228713]  arch_call_rest_init+0xc/0x14
-[  237.232714]  start_kernel+0x47c/0x4a8
-[  237.236367] ---[ end trace 7240980785f81d70 ]---
+And the instruction next to call site of bpf_fentry_test1 is ADD,
+not PACIASP:
 
-Lars was fast to find an explanation: according to the datasheet
-bit 2 of the rx buffer descriptor entry has a different meaning in the
-extended mode:
-  Address [2] of beginning of buffer, or
-  in extended buffer descriptor mode (DMA configuration register [28] = 1),
-  indicates a valid timestamp in the buffer descriptor entry.
+<bpf_fentry_test1>:
+	bti     c
+	nop
+	nop
+	add     w0, w0, #0x1
+	paciasp
 
-The macb driver didn't mask this bit while getting an address and it
-eventually caused a memory corruption and a dma failure.
+For BPF prog, JIT always puts a PACIASP after call site for BTI-enabled
+kernel, so there is no problem. To fix it, replace BLR with RET to bypass
+the branch target check.
 
-The problem is resolved by explicitly clearing the problematic bit
-if hw timestamping is used.
-
-Fixes: 7b4296148066 ("net: macb: Add support for PTP timestamps in DMA descriptors")
-Signed-off-by: Roman Gushchin <roman.gushchin@linux.dev>
-Co-developed-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Link: https://lore.kernel.org/r/20230412232144.770336-1-roman.gushchin@linux.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: efc9909fdce0 ("bpf, arm64: Add bpf trampoline for arm64")
+Reported-by: Florent Revest <revest@chromium.org>
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Florent Revest <revest@chromium.org>
+Acked-by: Florent Revest <revest@chromium.org>
+Link: https://lore.kernel.org/bpf/20230401234144.3719742-1-xukuohai@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/net/bpf_jit.h      | 4 ++++
+ arch/arm64/net/bpf_jit_comp.c | 3 ++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 324d81516832c..d58f5bbb87956 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -707,6 +707,10 @@ static dma_addr_t macb_get_addr(struct macb *bp, struct macb_dma_desc *desc)
- 	}
- #endif
- 	addr |= MACB_BF(RX_WADDR, MACB_BFEXT(RX_WADDR, desc->addr));
-+#ifdef CONFIG_MACB_USE_HWSTAMP
-+	if (bp->hw_dma_cap & HW_DMA_CAP_PTP)
-+		addr &= ~GEM_BIT(DMA_RXVALID);
-+#endif
- 	return addr;
- }
+diff --git a/arch/arm64/net/bpf_jit.h b/arch/arm64/net/bpf_jit.h
+index a6acb94ea3d63..c2edadb8ec6a3 100644
+--- a/arch/arm64/net/bpf_jit.h
++++ b/arch/arm64/net/bpf_jit.h
+@@ -281,4 +281,8 @@
+ /* DMB */
+ #define A64_DMB_ISH aarch64_insn_gen_dmb(AARCH64_INSN_MB_ISH)
  
++/* ADR */
++#define A64_ADR(Rd, offset) \
++	aarch64_insn_gen_adr(0, offset, Rd, AARCH64_INSN_ADR_TYPE_ADR)
++
+ #endif /* _BPF_JIT_H */
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index 30f76178608b3..8f16217c111c8 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1905,7 +1905,8 @@ static int prepare_trampoline(struct jit_ctx *ctx, struct bpf_tramp_image *im,
+ 		restore_args(ctx, args_off, nargs);
+ 		/* call original func */
+ 		emit(A64_LDR64I(A64_R(10), A64_SP, retaddr_off), ctx);
+-		emit(A64_BLR(A64_R(10)), ctx);
++		emit(A64_ADR(A64_LR, AARCH64_INSN_SIZE * 2), ctx);
++		emit(A64_RET(A64_R(10)), ctx);
+ 		/* store return value */
+ 		emit(A64_STR64I(A64_R(0), A64_SP, retval_off), ctx);
+ 		/* reserve a nop for bpf_tramp_image_put */
 -- 
 2.39.2
 
