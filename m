@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D65B6E633F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EECA16E6471
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231379AbjDRMjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
+        id S232094AbjDRMtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231797AbjDRMjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACBE119A4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:02 -0700 (PDT)
+        with ESMTP id S232102AbjDRMtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB391563D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26020632C2
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38632C433D2;
-        Tue, 18 Apr 2023 12:39:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE2D6633F4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3951C433D2;
+        Tue, 18 Apr 2023 12:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821541;
-        bh=gJleLW6bg7ntG8ihwYxRUcJ0eA9AqXpPFHotb/8krJ8=;
+        s=korg; t=1681822143;
+        bh=+u1662A/TS/jEK57TZTkhaiBLkAVM7lwAXCYbZamQng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIUSlWpJCMcUtA//XIzi44njz2tM8LEgW4lApFT0rXVsacBnpdHxHCLmD5OBSZ+8X
-         a1TyMmJb6G41IdXiYzzOUxZEvvkw2sG80ro47McyDexOURJSQGFv9KyB2bA3LenH4X
-         imsXIpcyDaUBy/+0ioJ2D/6JpERNqjVeN5KjmSIo=
+        b=drni8X0E3Dfuk0aK38Rcz6AovZHWHLK6RsMa5oNRDxg3kQrZlo+ypSVr+Cx8Y9AaL
+         +wiUZNnSRRzo+HLdeQv439Sw3sVbZFQDEGa+j0lUg5TTPLgChefPQuG8OcqwaI/4+R
+         AcWVJksd3jNG2UDHjBod6b3spCiAgpiXH8wPnvTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 10/91] btrfs: print checksum type and implementation at mount time
+        patches@lists.linux.dev, Xu Biang <xubiang@hust.edu.cn>,
+        Dan Carpenter <error27@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.2 009/139] ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
 Date:   Tue, 18 Apr 2023 14:21:14 +0200
-Message-Id: <20230418120305.904694785@linuxfoundation.org>
+Message-Id: <20230418120314.058253037@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,40 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Xu Biang <xubiang@hust.edu.cn>
 
-commit c8a5f8ca9a9c7d5c5bc31d54f47ea9d86f93ed69 upstream.
+commit fb4a624f88f658c7b7ae124452bd42eaa8ac7168 upstream.
 
-Per user request, print the checksum type and implementation at mount
-time among the messages. The checksum is user configurable and the
-actual crypto implementation is useful to see for performance reasons.
-The same information is also available after mount in
-/sys/fs/FSID/checksum file.
+Smatch Warns:
+sound/firewire/tascam/tascam-stream.c:493 snd_tscm_stream_start_duplex()
+warn: missing unwind goto?
 
-Example:
+The direct return will cause the stream list of "&tscm->domain" unemptied
+and the session in "tscm" unfinished if amdtp_domain_start() returns with
+an error.
 
-  [25.323662] BTRFS info (device vdb): using sha256 (sha256-generic) checksum algorithm
+Fix this by changing the direct return to a goto which will empty the
+stream list of "&tscm->domain" and finish the session in "tscm".
 
-Link: https://github.com/kdave/btrfs-progs/issues/483
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+The snd_tscm_stream_start_duplex() function is called in the prepare
+callback of PCM. According to "ALSA Kernel API Documentation", the prepare
+callback of PCM will be called many times at each setup. So, if the
+"&d->streams" list is not emptied, when the prepare callback is called
+next time, snd_tscm_stream_start_duplex() will receive -EBUSY from
+amdtp_domain_add_stream() that tries to add an existing stream to the
+domain. The error handling code after the "error" label will be executed
+in this case, and the "&d->streams" list will be emptied. So not emptying
+the "&d->streams" list will not cause an issue. But it is more efficient
+and readable to empty it on the first error by changing the direct return
+to a goto statement.
+
+The session in "tscm" has been begun before amdtp_domain_start(), so it
+needs to be finished when amdtp_domain_start() fails.
+
+Fixes: c281d46a51e3 ("ALSA: firewire-tascam: support AMDTP domain")
+Signed-off-by: Xu Biang <xubiang@hust.edu.cn>
+Reviewed-by: Dan Carpenter <error27@gmail.com>
+Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230406132801.105108-1-xubiang@hust.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/firewire/tascam/tascam-stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -2318,6 +2318,9 @@ static int btrfs_init_csum_hash(struct b
+--- a/sound/firewire/tascam/tascam-stream.c
++++ b/sound/firewire/tascam/tascam-stream.c
+@@ -490,7 +490,7 @@ int snd_tscm_stream_start_duplex(struct
+ 		// packet is important for media clock recovery.
+ 		err = amdtp_domain_start(&tscm->domain, tx_init_skip_cycles, true, true);
+ 		if (err < 0)
+-			return err;
++			goto error;
  
- 	fs_info->csum_shash = csum_shash;
- 
-+	btrfs_info(fs_info, "using %s (%s) checksum algorithm",
-+			btrfs_super_csum_name(csum_type),
-+			crypto_shash_driver_name(csum_shash));
- 	return 0;
- }
- 
+ 		if (!amdtp_domain_wait_ready(&tscm->domain, READY_TIMEOUT_MS)) {
+ 			err = -ETIMEDOUT;
 
 
