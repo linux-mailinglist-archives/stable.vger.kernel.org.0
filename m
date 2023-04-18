@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7996E6483
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4723B6E6172
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232119AbjDRMts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
+        id S231182AbjDRMZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232116AbjDRMtr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:47 -0400
+        with ESMTP id S231377AbjDRMZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B1515453
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 085814C1B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FAD963406
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22795C433D2;
-        Tue, 18 Apr 2023 12:49:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 774F16311E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85CDBC433EF;
+        Tue, 18 Apr 2023 12:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822185;
-        bh=8UKPwe02LmQsjjoM3LNVYSADvML97FNzYVa2IoTQDko=;
+        s=korg; t=1681820690;
+        bh=lhFgXouRcJVBXb9ZKVSN2C1yF227R7iljp1pi5Wb5EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsizqzywtAUaOx9OTUWRdS29Q+nkenUU7m5NxnPGFyAHThrb4RVW1SxdR6Zr83W41
-         9LSeJLoLAWz8px9+uw+xrPW6u6Pc6ePdtCHofmv0KZB64Dwwyp/jJLvByF83k7dgwe
-         4EZOFwWaMqCKC7IWUfzGAWDLNSnXZ55S3mizKNR4=
+        b=1mdkK9Qnt6Sj/T7USowl2m7dUoYdgGARUOu08vTkmtN6/gHByWn5AqFpoMytniQ7G
+         VI0Tp5XLFkHKT59wmdz//HZyPIIyC2mYyWgvJCaL9i9qe+KoDVnWA8MnTIR/Cf6cCF
+         A8bWhltD3NByydOi7BRkk3OWhL4O3y/XF77oJCRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cheng Xu <chengyou@linux.alibaba.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 037/139] RDMA/erdma: Update default EQ depth to 4096 and max_send_wr to 8192
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.14 32/37] cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
 Date:   Tue, 18 Apr 2023 14:21:42 +0200
-Message-Id: <20230418120315.043114938@linuxfoundation.org>
+Message-Id: <20230418120255.840916258@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Xu <chengyou@linux.alibaba.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 6256aa9ae955d10ec73a434533ca62034eff1b76 ]
+commit ba9182a89626d5f83c2ee4594f55cb9c1e60f0e2 upstream.
 
-Max EQ depth of hardware is 32K, the current default EQ depth is too small
-for some applications, so change the default depth to 4096.
-Max send WRs the hardware can support is 8K, but the driver limits the
-value to 4K. Remove this limitation.
+After a successful cpuset_can_attach() call which increments the
+attach_in_progress flag, either cpuset_cancel_attach() or cpuset_attach()
+will be called later. In cpuset_attach(), tasks in cpuset_attach_wq,
+if present, will be woken up at the end. That is not the case in
+cpuset_cancel_attach(). So missed wakeup is possible if the attach
+operation is somehow cancelled. Fix that by doing the wakeup in
+cpuset_cancel_attach() as well.
 
-Fixes: be3cff0f242d ("RDMA/erdma: Add the hardware related definitions")
-Fixes: db23ae64caac ("RDMA/erdma: Add verbs header file")
-Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230320084652.16807-3-chengyou@linux.alibaba.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e44193d39e8d ("cpuset: let hotplug propagation work wait for task attaching")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: stable@vger.kernel.org # v3.11+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/erdma/erdma_hw.h    | 2 +-
- drivers/infiniband/hw/erdma/erdma_verbs.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/cgroup/cpuset.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/erdma/erdma_hw.h b/drivers/infiniband/hw/erdma/erdma_hw.h
-index cbeb6909580cf..8a8d4539a006b 100644
---- a/drivers/infiniband/hw/erdma/erdma_hw.h
-+++ b/drivers/infiniband/hw/erdma/erdma_hw.h
-@@ -441,7 +441,7 @@ struct erdma_reg_mr_sqe {
- };
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1508,7 +1508,9 @@ static void cpuset_cancel_attach(struct
+ 	cs = css_cs(css);
  
- /* EQ related. */
--#define ERDMA_DEFAULT_EQ_DEPTH 256
-+#define ERDMA_DEFAULT_EQ_DEPTH 4096
+ 	mutex_lock(&cpuset_mutex);
+-	css_cs(css)->attach_in_progress--;
++	cs->attach_in_progress--;
++	if (!cs->attach_in_progress)
++		wake_up(&cpuset_attach_wq);
+ 	mutex_unlock(&cpuset_mutex);
+ }
  
- /* ceqe */
- #define ERDMA_CEQE_HDR_DB_MASK BIT_ULL(63)
-diff --git a/drivers/infiniband/hw/erdma/erdma_verbs.h b/drivers/infiniband/hw/erdma/erdma_verbs.h
-index e0a993bc032a4..131cf5f409822 100644
---- a/drivers/infiniband/hw/erdma/erdma_verbs.h
-+++ b/drivers/infiniband/hw/erdma/erdma_verbs.h
-@@ -11,7 +11,7 @@
- 
- /* RDMA Capability. */
- #define ERDMA_MAX_PD (128 * 1024)
--#define ERDMA_MAX_SEND_WR 4096
-+#define ERDMA_MAX_SEND_WR 8192
- #define ERDMA_MAX_ORD 128
- #define ERDMA_MAX_IRD 128
- #define ERDMA_MAX_SGE_RD 1
--- 
-2.39.2
-
 
 
