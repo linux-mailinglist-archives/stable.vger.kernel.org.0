@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4176E641B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01B56E64CF
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231987AbjDRMqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:46:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
+        id S232197AbjDRMwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231980AbjDRMqT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:19 -0400
+        with ESMTP id S232217AbjDRMwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFC814F65
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B83B14F76
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 231BC633A5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A2BC433EF;
-        Tue, 18 Apr 2023 12:46:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93D0363436
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7978C433EF;
+        Tue, 18 Apr 2023 12:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821977;
-        bh=5aP2MZitRMu7m5JTImsGIFU6mtqfgvzLQMMYsFJgxqo=;
+        s=korg; t=1681822307;
+        bh=LpDryaN6WiNagpJ8zj57/RCJ1k3qVuhfwXNU59XG290=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMz/KXSgcA0cEA/mJsbmxKDvFqHIDL9D/Y2svRAQVQTElCWe3/N1c/66Yu9dGXmNl
-         D2s0oAMtz+XbnARTEjs0CWX2HtbRN1kxom1FBz9uE48VG5vzECaz0hnjEo6RW4i452
-         eb6KIPNjwxOLJFZ00u3u25PVgQKhdmTzivVYKCl8=
+        b=bMLV2kounfPMRldCq0/x2fT1gtQsLsUgjlXDlwg1inmomBn7Jzdu/RdSAZxjj9RLa
+         +CeujanwpXQHqYRiCpbh5NqBxqIp4t7Qb524lCV/uk1ttHMe/GNLiHv+ONYE65OmO/
+         4rDeq3ot5tdQd7eynl5eReXVoBASY6RHpt+2AIFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ziyang Zhang <ZiyangZhang@linux.alibaba.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, lena wang <lena.wang@mediatek.com>,
+        Eric Dumazet <edumazet@google.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 080/134] block: ublk_drv: mark device as LIVE before adding disk
+Subject: [PATCH 6.2 071/139] udp6: fix potential access to stale information
 Date:   Tue, 18 Apr 2023 14:22:16 +0200
-Message-Id: <20230418120315.851057960@linuxfoundation.org>
+Message-Id: <20230418120316.480819410@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 4985e7b2c002eb4c5c794a1d3acd91b82c89a0fd ]
+[ Upstream commit 1c5950fc6fe996235f1d18539b9c6b64b597f50f ]
 
-IO can be started before add_disk() returns, such as reading parititon table,
-then the monitor work should work for making forward progress.
+lena wang reported an issue caused by udpv6_sendmsg()
+mangling msg->msg_name and msg->msg_namelen, which
+are later read from ____sys_sendmsg() :
 
-So mark device as LIVE before adding disk, meantime change to
-DEAD if add_disk() fails.
+	/*
+	 * If this is sendmmsg() and sending to current destination address was
+	 * successful, remember it.
+	 */
+	if (used_address && err >= 0) {
+		used_address->name_len = msg_sys->msg_namelen;
+		if (msg_sys->msg_name)
+			memcpy(&used_address->name, msg_sys->msg_name,
+			       used_address->name_len);
+	}
 
-Fixed: 71f28f3136af ("ublk_drv: add io_uring based userspace block driver")
-Reviewed-by: Ziyang Zhang <ZiyangZhang@linux.alibaba.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20230318141231.55562-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+udpv6_sendmsg() wants to pretend the remote address family
+is AF_INET in order to call udp_sendmsg().
+
+A fix would be to modify the address in-place, instead
+of using a local variable, but this could have other side effects.
+
+Instead, restore initial values before we return from udpv6_sendmsg().
+
+Fixes: c71d8ebe7a44 ("net: Fix security_socket_sendmsg() bypass problem.")
+Reported-by: lena wang <lena.wang@mediatek.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20230412130308.1202254-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ublk_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv6/udp.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
-index 2ed994a313a91..c0cbc5f3eb266 100644
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -1571,17 +1571,18 @@ static int ublk_ctrl_start_dev(struct io_uring_cmd *cmd)
- 		set_bit(GD_SUPPRESS_PART_SCAN, &disk->state);
- 
- 	get_device(&ub->cdev_dev);
-+	ub->dev_info.state = UBLK_S_DEV_LIVE;
- 	ret = add_disk(disk);
- 	if (ret) {
- 		/*
- 		 * Has to drop the reference since ->free_disk won't be
- 		 * called in case of add_disk failure.
- 		 */
-+		ub->dev_info.state = UBLK_S_DEV_DEAD;
- 		ublk_put_device(ub);
- 		goto out_put_disk;
+diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
+index 9fb2f33ee3a76..a675acfb901d1 100644
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1395,9 +1395,11 @@ int udpv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 			msg->msg_name = &sin;
+ 			msg->msg_namelen = sizeof(sin);
+ do_udp_sendmsg:
+-			if (ipv6_only_sock(sk))
+-				return -ENETUNREACH;
+-			return udp_sendmsg(sk, msg, len);
++			err = ipv6_only_sock(sk) ?
++				-ENETUNREACH : udp_sendmsg(sk, msg, len);
++			msg->msg_name = sin6;
++			msg->msg_namelen = addr_len;
++			return err;
+ 		}
  	}
- 	set_bit(UB_STATE_USED, &ub->state);
--	ub->dev_info.state = UBLK_S_DEV_LIVE;
- out_put_disk:
- 	if (ret)
- 		put_disk(disk);
+ 
 -- 
 2.39.2
 
