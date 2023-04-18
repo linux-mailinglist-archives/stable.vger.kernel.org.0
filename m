@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16EEA6E63E1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F6F6E6372
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbjDRMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:44:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34028 "EHLO
+        id S231838AbjDRMkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231928AbjDRMoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C324315614
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:02 -0700 (PDT)
+        with ESMTP id S231794AbjDRMkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A064813C31
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FAE263366
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62847C433D2;
-        Tue, 18 Apr 2023 12:44:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28A0763307
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40CC8C433EF;
+        Tue, 18 Apr 2023 12:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821841;
-        bh=Vn8QK5Ti7fSLqNnH/6GgBs20HXHYkD2LCjknZ9MXBGA=;
+        s=korg; t=1681821637;
+        bh=n58u0Tbsa25gml142dB+NUX9VNi3p/SJgdxipmZoWRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/Pt07CrieMaFTXRA30J+RyQ1N2QPHAKg5djSepGaN+yGb+JUfWCfcm9rTvm2JvZ/
-         +d8WqKj1qFbTkBWvYIbDx49j1aHXTSzyTC1/cgbVqpSim629yAfOXrrtdlKS7qHYEn
-         G+ErP102oDyQ0WpulrF++JvSExjdiELViqmbaUZM=
+        b=CJrvuQKc44Kmzf/fKIJlIRalm0OAxyyKxD9By9HD7tf8mtyJlEUVZsezunHUZcU4U
+         YJG2jcxhOnOzK8G8crOOyfWaBpv8g4iDLaRFsrtdLIpm/j5K+SVjNTk8ygM0ZabDj2
+         H9aAkQ/DWOErxghPjKNwhYHVpM3L9pQiAjfSyLCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
+        patches@lists.linux.dev, Liang Chen <liangchen.linux@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 044/134] 9p/xen : Fix use after free bug in xen_9pfs_front_remove due to race condition
+Subject: [PATCH 5.15 36/91] skbuff: Fix a race between coalescing and releasing SKBs
 Date:   Tue, 18 Apr 2023 14:21:40 +0200
-Message-Id: <20230418120314.459971956@linuxfoundation.org>
+Message-Id: <20230418120306.837235565@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,58 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-[ Upstream commit ea4f1009408efb4989a0f139b70fb338e7f687d0 ]
+[ Upstream commit 0646dc31ca886693274df5749cd0c8c1eaaeb5ca ]
 
-In xen_9pfs_front_probe, it calls xen_9pfs_front_alloc_dataring
-to init priv->rings and bound &ring->work with p9_xen_response.
+Commit 1effe8ca4e34 ("skbuff: fix coalescing for page_pool fragment
+recycling") allowed coalescing to proceed with non page pool page and page
+pool page when @from is cloned, i.e.
 
-When it calls xen_9pfs_front_event_handler to handle IRQ requests,
-it will finally call schedule_work to start the work.
+to->pp_recycle    --> false
+from->pp_recycle  --> true
+skb_cloned(from)  --> true
 
-When we call xen_9pfs_front_remove to remove the driver, there
-may be a sequence as follows:
+However, it actually requires skb_cloned(@from) to hold true until
+coalescing finishes in this situation. If the other cloned SKB is
+released while the merging is in process, from_shinfo->nr_frags will be
+set to 0 toward the end of the function, causing the increment of frag
+page _refcount to be unexpectedly skipped resulting in inconsistent
+reference counts. Later when SKB(@to) is released, it frees the page
+directly even though the page pool page is still in use, leading to
+use-after-free or double-free errors. So it should be prohibited.
 
-Fix it by finishing the work before cleanup in xen_9pfs_front_free.
+The double-free error message below prompted us to investigate:
+BUG: Bad page state in process swapper/1  pfn:0e0d1
+page:00000000c6548b28 refcount:-1 mapcount:0 mapping:0000000000000000
+index:0x2 pfn:0xe0d1
+flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc0000000 0000000000000000 ffffffff00000101 0000000000000000
+raw: 0000000000000002 0000000000000000 ffffffffffffffff 0000000000000000
+page dumped because: nonzero _refcount
 
-Note that, this bug is found by static analysis, which might be
-false positive.
+CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E      6.2.0+
+Call Trace:
+ <IRQ>
+dump_stack_lvl+0x32/0x50
+bad_page+0x69/0xf0
+free_pcp_prepare+0x260/0x2f0
+free_unref_page+0x20/0x1c0
+skb_release_data+0x10b/0x1a0
+napi_consume_skb+0x56/0x150
+net_rx_action+0xf0/0x350
+? __napi_schedule+0x79/0x90
+__do_softirq+0xc8/0x2b1
+__irq_exit_rcu+0xb9/0xf0
+common_interrupt+0x82/0xa0
+</IRQ>
+<TASK>
+asm_common_interrupt+0x22/0x40
+RIP: 0010:default_idle+0xb/0x20
 
-CPU0                  CPU1
-
-                     |p9_xen_response
-xen_9pfs_front_remove|
-  xen_9pfs_front_free|
-kfree(priv)          |
-//free priv          |
-                     |p9_tag_lookup
-                     |//use priv->client
-
-Fixes: 71ebd71921e4 ("xen/9pfs: connect to the backend")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230413090353.14448-1-liangchen.linux@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/core/skbuff.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index 75c03a82baf38..68027e4fb4216 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -278,6 +278,10 @@ static void xen_9pfs_front_free(struct xen_9pfs_front_priv *priv)
- 	write_unlock(&xen_9pfs_lock);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 2d3f82b622366..46cc3a7632f79 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -5397,18 +5397,18 @@ bool skb_try_coalesce(struct sk_buff *to, struct sk_buff *from,
+ 	if (skb_cloned(to))
+ 		return false;
  
- 	for (i = 0; i < priv->num_rings; i++) {
-+		struct xen_9pfs_dataring *ring = &priv->rings[i];
-+
-+		cancel_work_sync(&ring->work);
-+
- 		if (!priv->rings[i].intf)
- 			break;
- 		if (priv->rings[i].irq > 0)
+-	/* In general, avoid mixing slab allocated and page_pool allocated
+-	 * pages within the same SKB. However when @to is not pp_recycle and
+-	 * @from is cloned, we can transition frag pages from page_pool to
+-	 * reference counted.
+-	 *
+-	 * On the other hand, don't allow coalescing two pp_recycle SKBs if
+-	 * @from is cloned, in case the SKB is using page_pool fragment
++	/* In general, avoid mixing page_pool and non-page_pool allocated
++	 * pages within the same SKB. Additionally avoid dealing with clones
++	 * with page_pool pages, in case the SKB is using page_pool fragment
+ 	 * references (PP_FLAG_PAGE_FRAG). Since we only take full page
+ 	 * references for cloned SKBs at the moment that would result in
+ 	 * inconsistent reference counts.
++	 * In theory we could take full references if @from is cloned and
++	 * !@to->pp_recycle but its tricky (due to potential race with
++	 * the clone disappearing) and rare, so not worth dealing with.
+ 	 */
+-	if (to->pp_recycle != (from->pp_recycle && !skb_cloned(from)))
++	if (to->pp_recycle != from->pp_recycle ||
++	    (from->pp_recycle && skb_cloned(from)))
+ 		return false;
+ 
+ 	if (len <= skb_tailroom(to)) {
 -- 
 2.39.2
 
