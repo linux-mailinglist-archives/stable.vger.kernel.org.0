@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC696E6366
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C546E6494
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231232AbjDRMkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        id S232147AbjDRMuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231820AbjDRMkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:18 -0400
+        with ESMTP id S232138AbjDRMuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A40F13C05
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4AF015456
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1565E632E8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28424C433EF;
-        Tue, 18 Apr 2023 12:40:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 609C56340D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F40CC4339B;
+        Tue, 18 Apr 2023 12:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821616;
-        bh=GrbFPr1uIDerg+g5dzeCl7cYj+L0Zd2Sk5UU7sEuDGw=;
+        s=korg; t=1681822219;
+        bh=V26JAyjDdHgLN/TnIpmRp3OAKzkjGSrx7oEYO2sxNGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UECbu9wD0d74j/pFOVMRtlyzLg80fej+paFNHzNxMD9L1rPMXhZ6dwiuyLd4GFEW5
-         X/iBjwy/54nX3Pbilc/He9fmFOa5D760609+jq/UIPrIEKN5ActfrmRuj6BiZQcQGi
-         v2vcEsouuc4MW1dSUVPmP9FoG9nfr4dtUCDHgAac=
+        b=Vp6xV8ZT3gRzjvouenAipYUcPiSQ9+FTqsu9M7RyPLEBxAUC63ii6Ig4qbwhehHKp
+         YvivOA4MjCvrFgt0KYIeU9yA1B1lG6ZzolRs0h1W6IpFJsOHoiGNZJQ8d6ZsKWGfXy
+         KDbJbA1/K6rOSNM9pvD+oi3YuT/mPzp91eTxX/8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Nicolas Schichan <nschichan@freebox.fr>,
-        Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 67/91] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
+        patches@lists.linux.dev, Martin Willi <martin@strongswan.org>,
+        Guillaume Nault <gnault@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 066/139] rtnetlink: Restore RTM_NEW/DELLINK notification behavior
 Date:   Tue, 18 Apr 2023 14:22:11 +0200
-Message-Id: <20230418120307.899201795@linuxfoundation.org>
+Message-Id: <20230418120316.297576918@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +56,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Martin Willi <martin@strongswan.org>
 
-commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
+[ Upstream commit 59d3efd27c11c59b32291e5ebc307bed2edb65ee ]
 
-Following process will make ubi attaching failed since commit
-1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
+The commits referenced below allows userspace to use the NLM_F_ECHO flag
+for RTM_NEW/DELLINK operations to receive unicast notifications for the
+affected link. Prior to these changes, applications may have relied on
+multicast notifications to learn the same information without specifying
+the NLM_F_ECHO flag.
 
-ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
-modprobe nandsim id_bytes=$ID
-flash_eraseall /dev/mtd0
-modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
-(dmesg):
-  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
-  UBI error: cannot attach mtd0
-  UBI error: cannot initialize UBI, error -22
+For such applications, the mentioned commits changed the behavior for
+requests not using NLM_F_ECHO. Multicast notifications are still received,
+but now use the portid of the requester and the sequence number of the
+request instead of zero values used previously. For the application, this
+message may be unexpected and likely handled as a response to the
+NLM_F_ACKed request, especially if it uses the same socket to handle
+requests and notifications.
 
-Rework original solution, the key point is making sure
-'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
-so we should check vid_hdr_shift rather not vid_hdr_offset.
-Then, ubi still support (sub)page aligined VID header offset.
+To fix existing applications relying on the old notification behavior,
+set the portid and sequence number in the notification only if the
+request included the NLM_F_ECHO flag. This restores the old behavior
+for applications not using it, but allows unicasted notifications for
+others.
 
-Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Tested-by: Nicolas Schichan <nschichan@freebox.fr>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f3a63cce1b4f ("rtnetlink: Honour NLM_F_ECHO flag in rtnl_delete_link")
+Fixes: d88e136cab37 ("rtnetlink: Honour NLM_F_ECHO flag in rtnl_newlink_create")
+Signed-off-by: Martin Willi <martin@strongswan.org>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Acked-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20230411074319.24133-1-martin@strongswan.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ include/linux/rtnetlink.h |  3 ++-
+ net/core/dev.c            |  2 +-
+ net/core/rtnetlink.c      | 11 +++++++++--
+ 3 files changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -664,12 +664,6 @@ static int io_init(struct ubi_device *ub
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
+diff --git a/include/linux/rtnetlink.h b/include/linux/rtnetlink.h
+index 92ad75549e9cd..b6e6378dcbbd7 100644
+--- a/include/linux/rtnetlink.h
++++ b/include/linux/rtnetlink.h
+@@ -25,7 +25,8 @@ void rtmsg_ifinfo_newnet(int type, struct net_device *dev, unsigned int change,
+ struct sk_buff *rtmsg_ifinfo_build_skb(int type, struct net_device *dev,
+ 				       unsigned change, u32 event,
+ 				       gfp_t flags, int *new_nsid,
+-				       int new_ifindex, u32 portid, u32 seq);
++				       int new_ifindex, u32 portid,
++				       const struct nlmsghdr *nlh);
+ void rtmsg_ifinfo_send(struct sk_buff *skb, struct net_device *dev,
+ 		       gfp_t flags, u32 portid, const struct nlmsghdr *nlh);
  
--	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
--	    ubi->vid_hdr_alsize)) {
--		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
--		return -EINVAL;
--	}
--
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
-@@ -687,6 +681,21 @@ static int io_init(struct ubi_device *ub
- 						ubi->vid_hdr_aloffset;
- 	}
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 127815273ce3c..404125e7a57a5 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -10837,7 +10837,7 @@ void unregister_netdevice_many_notify(struct list_head *head,
+ 		    dev->rtnl_link_state == RTNL_LINK_INITIALIZED)
+ 			skb = rtmsg_ifinfo_build_skb(RTM_DELLINK, dev, ~0U, 0,
+ 						     GFP_KERNEL, NULL, 0,
+-						     portid, nlmsg_seq(nlh));
++						     portid, nlh);
  
-+	/*
-+	 * Memory allocation for VID header is ubi->vid_hdr_alsize
-+	 * which is described in comments in io.c.
-+	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
-+	 * ubi->vid_hdr_alsize, so that all vid header operations
-+	 * won't access memory out of bounds.
-+	 */
-+	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
-+		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
-+			" + VID header size(%zu) > VID header aligned size(%d).",
-+			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
-+			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
-+		return -EINVAL;
-+	}
+ 		/*
+ 		 *	Flush the unicast and multicast chains
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 64289bc988878..f5114b2395ae3 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3939,16 +3939,23 @@ static int rtnl_dump_all(struct sk_buff *skb, struct netlink_callback *cb)
+ struct sk_buff *rtmsg_ifinfo_build_skb(int type, struct net_device *dev,
+ 				       unsigned int change,
+ 				       u32 event, gfp_t flags, int *new_nsid,
+-				       int new_ifindex, u32 portid, u32 seq)
++				       int new_ifindex, u32 portid,
++				       const struct nlmsghdr *nlh)
+ {
+ 	struct net *net = dev_net(dev);
+ 	struct sk_buff *skb;
+ 	int err = -ENOBUFS;
++	u32 seq = 0;
+ 
+ 	skb = nlmsg_new(if_nlmsg_size(dev, 0), flags);
+ 	if (skb == NULL)
+ 		goto errout;
+ 
++	if (nlmsg_report(nlh))
++		seq = nlmsg_seq(nlh);
++	else
++		portid = 0;
 +
- 	/* Similar for the data offset */
- 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
- 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
+ 	err = rtnl_fill_ifinfo(skb, dev, dev_net(dev),
+ 			       type, portid, seq, change, 0, 0, event,
+ 			       new_nsid, new_ifindex, -1, flags);
+@@ -3984,7 +3991,7 @@ static void rtmsg_ifinfo_event(int type, struct net_device *dev,
+ 		return;
+ 
+ 	skb = rtmsg_ifinfo_build_skb(type, dev, change, event, flags, new_nsid,
+-				     new_ifindex, portid, nlmsg_seq(nlh));
++				     new_ifindex, portid, nlh);
+ 	if (skb)
+ 		rtmsg_ifinfo_send(skb, dev, flags, portid, nlh);
+ }
+-- 
+2.39.2
+
 
 
