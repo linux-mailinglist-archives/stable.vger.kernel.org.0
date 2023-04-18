@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0F66E6202
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C32426E6195
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbjDRM3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:29:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
+        id S231225AbjDRMZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231575AbjDRM3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:11 -0400
+        with ESMTP id S231425AbjDRMZx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27967EE3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E32F83F7
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDA77631C3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF74BC433EF;
-        Tue, 18 Apr 2023 12:28:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFE086312F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3EF1C433EF;
+        Tue, 18 Apr 2023 12:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820929;
-        bh=NhsScW4y2Y9pkswRHZwszDvBFBlk2v4xUQOht6nyfu0=;
+        s=korg; t=1681820728;
+        bh=iSlH1YU6NyrpxL5h9pF5bYMmIuS5fZQQjseBFeXDF+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uf1uavm5JPZRXo3pZ82SveK/N1h16tPh5Q5oVB9DdmhqsFRuTDSuQRC+tN1WdViif
-         7HE+km4t9m2M4HQSq0deCHhheOJi19R5SLivmheKwiPfbDJtDYbFNZ8cLYollocOVO
-         5UOkC00ykqdmITR26yaKcEPWrFOqZpaFt7K/ekCg=
+        b=KOXaFQpAv1wek+8BbqWzYL9uH2NgEUY5N+m/9WGX8ZZ9j2+FO5ESj+3VPROhCxd/V
+         nNGM5LtdJ+zq4Wz/Rq4RSvTfm/tB+3Wm1zbcKcSbPC+E1oSY5NDpJMTlfqF0TJ1Axa
+         WhC2ZnLHKCTjOUEia9u8x81xqp1fcW5TSiZoHzB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        William Breathitt Gray <william.gray@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 26/92] iio: dac: cio-dac: Fix max DAC write value check for 12-bit
+        patches@lists.linux.dev, Sandeep Singh <Sandeep.Singh@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Nehal Shah <Nehal-bakulchandra.Shah@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/57] pinctrl: Added IRQF_SHARED flag for amd-pinctrl driver
 Date:   Tue, 18 Apr 2023 14:21:01 +0200
-Message-Id: <20230418120305.747051895@linuxfoundation.org>
+Message-Id: <20230418120258.773778655@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,38 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Breathitt Gray <william.gray@linaro.org>
+From: Sandeep Singh <sandeep.singh@amd.com>
 
-commit c3701185ee1973845db088d8b0fc443397ab0eb2 upstream.
+[ Upstream commit 279ffafaf39d60b3c37cb3f0f7de310d0dd834ad ]
 
-The CIO-DAC series of devices only supports DAC values up to 12-bit
-rather than 16-bit. Trying to write a 16-bit value results in only the
-lower 12 bits affecting the DAC output which is not what the user
-expects. Instead, adjust the DAC write value check to reject values
-larger than 12-bit so that they fail explicitly as invalid for the user.
+Some of the AMD reference boards used single GPIO line for
+multiple devices. So added IRQF_SHARED flag in amd pinctrl driver.
 
-Fixes: 3b8df5fd526e ("iio: Add IIO support for the Measurement Computing CIO-DAC family")
-Cc: stable@vger.kernel.org
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-Link: https://lore.kernel.org/r/20230311002248.8548-1-william.gray@linaro.org
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sandeep Singh <Sandeep.Singh@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+cc: Nehal Shah <Nehal-bakulchandra.Shah@amd.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Stable-dep-of: b26cd9325be4 ("pinctrl: amd: Disable and mask interrupts on resume")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/cio-dac.c |    4 ++--
+ drivers/pinctrl/pinctrl-amd.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/dac/cio-dac.c
-+++ b/drivers/iio/dac/cio-dac.c
-@@ -66,8 +66,8 @@ static int cio_dac_write_raw(struct iio_
- 	if (mask != IIO_CHAN_INFO_RAW)
- 		return -EINVAL;
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index 66b9c5826ec03..d76e50bc9d85c 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -943,8 +943,8 @@ static int amd_gpio_probe(struct platform_device *pdev)
+ 		goto out2;
+ 	}
  
--	/* DAC can only accept up to a 16-bit value */
--	if ((unsigned int)val > 65535)
-+	/* DAC can only accept up to a 12-bit value */
-+	if ((unsigned int)val > 4095)
- 		return -EINVAL;
+-	ret = devm_request_irq(&pdev->dev, irq_base, amd_gpio_irq_handler, 0,
+-			       KBUILD_MODNAME, gpio_dev);
++	ret = devm_request_irq(&pdev->dev, irq_base, amd_gpio_irq_handler,
++			       IRQF_SHARED, KBUILD_MODNAME, gpio_dev);
+ 	if (ret)
+ 		goto out2;
  
- 	priv->chan_out_states[chan->channel] = val;
+-- 
+2.39.2
+
 
 
