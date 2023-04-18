@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD04F6E628F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578E16E6211
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbjDRMde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:33:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47066 "EHLO
+        id S230416AbjDRM3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231622AbjDRMdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E418D118C2
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:12 -0700 (PDT)
+        with ESMTP id S231528AbjDRM3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 860E48A74
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:29:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CCF963238
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 418A5C433D2;
-        Tue, 18 Apr 2023 12:33:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A83A631D0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517B4C433D2;
+        Tue, 18 Apr 2023 12:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821190;
-        bh=x56azieUZ+uRlKvWVAU8DC9DUcZVkTo6qiVvuz0bVs8=;
+        s=korg; t=1681820961;
+        bh=izWBjCfd33gCZzN4ZCzawYnE9E/YyCVN/NaFG8OgrgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viWa2VnxSBP1+gRnHSCcUgM+HnAZxQN02UDzQSPVl6/WMNjIlIy6JH/JgTAF6qZTD
-         RShqzElBm5A66Lq2wVdBiHgVXd3pZVHCGfVjgWRVvGr+ZwBXecV7Wwx1yI95VRbRLb
-         UqHJLjf8ZA+NsLYD5pxRgac/Pb7S4tdXwK7uIvtU=
+        b=heDJhBRrnBHj91Z2j/qSoruWB07vy5DoodXtc9qWWC+/9tgktpGn7CQDtvC+3xI0K
+         XzuIqzQbSS4edXo6JgIIT4UcC9FzxgQAz1CsnzqbM6jdGVkUIIGvVHdlib6lwXIwEQ
+         DJeXz/wPQu7E4Xphe8n2/xmUlUoXh/nW1HTdJJMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
-        David Lechner <david@lechnology.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 025/124] iio: adc: ti-ads7950: Set `can_sleep` flag for GPIO chip
+        patches@lists.linux.dev,
+        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/92] pinctrl: amd: Disable and mask interrupts on resume
 Date:   Tue, 18 Apr 2023 14:20:44 +0200
-Message-Id: <20230418120310.625944463@linuxfoundation.org>
+Message-Id: <20230418120305.090917488@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,37 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Kornel Dulęba <korneld@chromium.org>
 
-commit 363c7dc72f79edd55bf1c4380e0fbf7f1bbc2c86 upstream.
+[ Upstream commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 ]
 
-The ads7950 uses a mutex as well as SPI transfers in its GPIO callbacks.
-This means these callbacks can sleep and the `can_sleep` flag should be
-set.
+This fixes a similar problem to the one observed in:
+commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
 
-Having the flag set will make sure that warnings are generated when calling
-any of the callbacks from a potentially non-sleeping context.
+On some systems, during suspend/resume cycle firmware leaves
+an interrupt enabled on a pin that is not used by the kernel.
+This confuses the AMD pinctrl driver and causes spurious interrupts.
 
-Fixes: c97dce792dc8 ("iio: adc: ti-ads7950: add GPIO support")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Acked-by: David Lechner <david@lechnology.com>
-Link: https://lore.kernel.org/r/20230312210933.2275376-1-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The driver already has logic to detect if a pin is used by the kernel.
+Leverage it to re-initialize interrupt fields of a pin only if it's not
+used by us.
+
+Cc: stable@vger.kernel.org
+Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
+Signed-off-by: Kornel Dulęba <korneld@chromium.org>
+Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-ads7950.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/pinctrl-amd.c | 36 +++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
---- a/drivers/iio/adc/ti-ads7950.c
-+++ b/drivers/iio/adc/ti-ads7950.c
-@@ -634,6 +634,7 @@ static int ti_ads7950_probe(struct spi_d
- 	st->chip.label = dev_name(&st->spi->dev);
- 	st->chip.parent = &st->spi->dev;
- 	st->chip.owner = THIS_MODULE;
-+	st->chip.can_sleep = true;
- 	st->chip.base = -1;
- 	st->chip.ngpio = TI_ADS7950_NUM_GPIOS;
- 	st->chip.get_direction = ti_ads7950_get_direction;
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index 887dc57704402..347ec9adbdc29 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -770,32 +770,34 @@ static const struct pinconf_ops amd_pinconf_ops = {
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
+ 
+-static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
+ {
+-	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	const struct pin_desc *pd;
+ 	unsigned long flags;
+ 	u32 pin_reg, mask;
+-	int i;
+ 
+ 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+ 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+ 		BIT(WAKE_CNTRL_OFF_S4);
+ 
+-	for (i = 0; i < desc->npins; i++) {
+-		int pin = desc->pins[i].number;
+-		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+-
+-		if (!pd)
+-			continue;
++	pd = pin_desc_get(gpio_dev->pctrl, pin);
++	if (!pd)
++		return;
+ 
+-		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	pin_reg = readl(gpio_dev->base + pin * 4);
++	pin_reg &= ~mask;
++	writel(pin_reg, gpio_dev->base + pin * 4);
++	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++}
+ 
+-		pin_reg = readl(gpio_dev->base + i * 4);
+-		pin_reg &= ~mask;
+-		writel(pin_reg, gpio_dev->base + i * 4);
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++{
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	int i;
+ 
+-		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+-	}
++	for (i = 0; i < desc->npins; i++)
++		amd_gpio_irq_init_pin(gpio_dev, i);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -848,8 +850,10 @@ static int amd_gpio_resume(struct device *dev)
+ 	for (i = 0; i < desc->npins; i++) {
+ 		int pin = desc->pins[i].number;
+ 
+-		if (!amd_gpio_should_save(gpio_dev, pin))
++		if (!amd_gpio_should_save(gpio_dev, pin)) {
++			amd_gpio_irq_init_pin(gpio_dev, pin);
+ 			continue;
++		}
+ 
+ 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
+-- 
+2.39.2
+
 
 
