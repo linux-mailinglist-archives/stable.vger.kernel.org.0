@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E2C6E6489
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 025296E635F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbjDRMuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
+        id S231807AbjDRMkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232123AbjDRMuF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:05 -0400
+        with ESMTP id S231837AbjDRMj7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 479D4167FE
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BE1D13F80
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6D7663403
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90F8C4339B;
-        Tue, 18 Apr 2023 12:50:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB05F632FD
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C2EC433D2;
+        Tue, 18 Apr 2023 12:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822201;
-        bh=ttPfqKU8tBpqAGFsxkqzheDJ2xQwkaS3xpjM45mBpO8=;
+        s=korg; t=1681821597;
+        bh=N41EXYR55Ch85XZze7JbwDJN4o6jv6/Uzj1LYWPsArA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNWnd60cPbNoIc4dx0XUXF6yRchECP7ftx5YhsQ6MdbIp1OgOQeo34+vrYOMoDpGP
-         vg0vIMchfGm3JHHP75mkQTe8J6Pd1x/JTAxUIK1k/5VXq0/IWvkA0s2wLe38BfSw6X
-         GTOeKt2AUera2Ds4o1dWCqbPRT1v5Ug59tNZ30K8=
+        b=JCZJE9+h3nQIYyDpjDcQgWNzfBe6RKdh+SuoP9mStBoVYyim9Taa1SsDBxcfyHz+s
+         +5uBKK7QgmpgemEkLpsI5OYIZLgGnP6mRIM2xrQdaOEVqONG3Wk9GL9iV5shmqFBVI
+         B7SIyBuI6COcgV91UvQYBn6VOUpNN7GaiGoek+8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 060/139] drm/nouveau/fb: add missing sysmen flush callbacks
+        patches@lists.linux.dev,
+        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 61/91] net: phy: nxp-c45-tja11xx: fix unsigned long multiplication overflow
 Date:   Tue, 18 Apr 2023 14:22:05 +0200
-Message-Id: <20230418120316.030405443@linuxfoundation.org>
+Message-Id: <20230418120307.707481181@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 
-[ Upstream commit 86d8740dae5a397d8344ae75f8758103c1fcba97 ]
+commit bdaaecc127d471c422ee9e994978617c8aa79e1e upstream.
 
-Closes: https://gitlab.freedesktop.org/drm/nouveau/-/issues/203
-Fixes: 5728d064190e1 ("drm/nouveau/fb: handle sysmem flush page from common code")
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230405110455.1368428-1-kherbst@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Any multiplication between GENMASK(31, 0) and a number bigger than 1
+will be truncated because of the overflow, if the size of unsigned long
+is 32 bits.
+
+Replaced GENMASK with GENMASK_ULL to make sure that multiplication will
+be between 64 bits values.
+
+Cc: <stable@vger.kernel.org> # 5.15+
+Fixes: 514def5dd339 ("phy: nxp-c45-tja11xx: add timestamping support")
+Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20230406095953.75622-1-radu-nicolae.pirea@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gf108.c | 1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk104.c | 1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk110.c | 1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gm107.c | 1 +
- 4 files changed, 4 insertions(+)
+ drivers/net/phy/nxp-c45-tja11xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gf108.c b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gf108.c
-index 76678dd60f93f..c4c6f67af7ccc 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gf108.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gf108.c
-@@ -31,6 +31,7 @@ gf108_fb = {
- 	.init = gf100_fb_init,
- 	.init_page = gf100_fb_init_page,
- 	.intr = gf100_fb_intr,
-+	.sysmem.flush_page_init = gf100_fb_sysmem_flush_page_init,
- 	.ram_new = gf108_ram_new,
- 	.default_bigpage = 17,
- };
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk104.c b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk104.c
-index f73442ccb424b..433fa966ba231 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk104.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk104.c
-@@ -77,6 +77,7 @@ gk104_fb = {
- 	.init = gf100_fb_init,
- 	.init_page = gf100_fb_init_page,
- 	.intr = gf100_fb_intr,
-+	.sysmem.flush_page_init = gf100_fb_sysmem_flush_page_init,
- 	.ram_new = gk104_ram_new,
- 	.default_bigpage = 17,
- 	.clkgate_pack = gk104_fb_clkgate_pack,
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk110.c b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk110.c
-index 45d6cdffafeed..4dc283dedf8b5 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk110.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk110.c
-@@ -59,6 +59,7 @@ gk110_fb = {
- 	.init = gf100_fb_init,
- 	.init_page = gf100_fb_init_page,
- 	.intr = gf100_fb_intr,
-+	.sysmem.flush_page_init = gf100_fb_sysmem_flush_page_init,
- 	.ram_new = gk104_ram_new,
- 	.default_bigpage = 17,
- 	.clkgate_pack = gk110_fb_clkgate_pack,
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gm107.c b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gm107.c
-index de52462a92bf0..90bfff616d35b 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gm107.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/fb/gm107.c
-@@ -31,6 +31,7 @@ gm107_fb = {
- 	.init = gf100_fb_init,
- 	.init_page = gf100_fb_init_page,
- 	.intr = gf100_fb_intr,
-+	.sysmem.flush_page_init = gf100_fb_sysmem_flush_page_init,
- 	.ram_new = gm107_ram_new,
- 	.default_bigpage = 17,
- };
--- 
-2.39.2
-
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -168,7 +168,7 @@
+ #define MAX_ID_PS			2260U
+ #define DEFAULT_ID_PS			2000U
+ 
+-#define PPM_TO_SUBNS_INC(ppb)	div_u64(GENMASK(31, 0) * (ppb) * \
++#define PPM_TO_SUBNS_INC(ppb)	div_u64(GENMASK_ULL(31, 0) * (ppb) * \
+ 					PTP_CLK_PERIOD_100BT1, NSEC_PER_SEC)
+ 
+ #define NXP_C45_SKB_CB(skb)	((struct nxp_c45_skb_cb *)(skb)->cb)
 
 
