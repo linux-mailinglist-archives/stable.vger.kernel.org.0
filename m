@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C5B6E643E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B20A86E64E3
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232035AbjDRMrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:47:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
+        id S232202AbjDRMx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232004AbjDRMrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:36 -0400
+        with ESMTP id S232248AbjDRMxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AED98
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19431A275
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8F09633C3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA8B4C433D2;
-        Tue, 18 Apr 2023 12:47:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5696163466
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67BE2C433EF;
+        Tue, 18 Apr 2023 12:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822043;
-        bh=N+4i+yZYMRbWxZzRVTcYVu7G1SPVlXOuYNmOjLBduZE=;
+        s=korg; t=1681822383;
+        bh=7LDD/xBz/TwO2+c7fqTXVr85Nb0HEZeIa/qy3SvRtYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqmUo0nM1Kq6Cp3ytU+P3iAQCXwtVMMTtyAN2f7QOkokfKhFYMR2aYndU4nPNjtaQ
-         7JsiTwKf59WCY9T8BPGkYOLG9SM/fr6ZM/KTi0yOedU4Tt9wHW2jVRI7XBlmHHxE4y
-         3kauHUg+0gdslqn2zt0XG5IzADctWELiN42cOAbw=
+        b=jsUrNadmwOkNFpEP0z5MqngD5zNUFRh7lVs6XMZEmCd7iNJRxsZ6Wz6/QhnLgr6ua
+         axZmrmehX8hSprCcVoEQkJpeY7dv2cg5JyzOmgXXLx+hC72RI0cWJJNjUkB4BMRv8s
+         jTQTKz92cIw1Bsn1DcgCoOWBcHKVQHa1jdCNMSpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Glanzmann <thomas@glanzmann.de>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 6.1 110/134] x86/PCI: Add quirk for AMD XHCI controller that loses MSI-X state in D3hot
-Date:   Tue, 18 Apr 2023 14:22:46 +0200
-Message-Id: <20230418120317.030192692@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 102/139] maple_tree: fix write memory barrier of nodes once dead for RCU mode
+Date:   Tue, 18 Apr 2023 14:22:47 +0200
+Message-Id: <20230418120317.628357621@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +56,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Liam R. Howlett <Liam.Howlett@oracle.com>
 
-commit f195fc1e9715ba826c3b62d58038f760f66a4fe9 upstream.
+[ Upstream commit c13af03de46ba27674dd9fb31a17c0d480081139 ]
 
-The AMD [1022:15b8] USB controller loses some internal functional MSI-X
-context when transitioning from D0 to D3hot. BIOS normally traps D0->D3hot
-and D3hot->D0 transitions so it can save and restore that internal context,
-but some firmware in the field can't do this because it fails to clear the
-AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit.
+During the development of the maple tree, the strategy of freeing multiple
+nodes changed and, in the process, the pivots were reused to store
+pointers to dead nodes.  To ensure the readers see accurate pivots, the
+writers need to mark the nodes as dead and call smp_wmb() to ensure any
+readers can identify the node as dead before using the pivot values.
 
-Clear AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit before USB controller
-initialization during boot.
+There were two places where the old method of marking the node as dead
+without smp_wmb() were being used, which resulted in RCU readers seeing
+the wrong pivot value before seeing the node was dead.  Fix this race
+condition by using mte_set_node_dead() which has the smp_wmb() call to
+ensure the race is closed.
 
-Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
-Link: https://lore.kernel.org/r/20230329172859.699743-1-Basavaraj.Natikar@amd.com
-Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
-Tested-by: Thomas Glanzmann <thomas@glanzmann.de>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a WARN_ON() to the ma_free_rcu() call to ensure all nodes being freed
+are marked as dead to ensure there are no other call paths besides the two
+updated paths.
+
+This is necessary for the RCU mode of the maple tree.
+
+Link: https://lkml.kernel.org/r/20230227173632.3292573-6-surenb@google.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/pci/fixup.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ lib/maple_tree.c                 |  7 +++++--
+ tools/testing/radix-tree/maple.c | 16 ++++++++++++++++
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
---- a/arch/x86/pci/fixup.c
-+++ b/arch/x86/pci/fixup.c
-@@ -7,6 +7,7 @@
- #include <linux/dmi.h>
- #include <linux/pci.h>
- #include <linux/vgaarb.h>
-+#include <asm/amd_nb.h>
- #include <asm/hpet.h>
- #include <asm/pci_x86.h>
+diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+index fb452873914f2..022573f499578 100644
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -178,7 +178,7 @@ static void mt_free_rcu(struct rcu_head *head)
+  */
+ static void ma_free_rcu(struct maple_node *node)
+ {
+-	node->parent = ma_parent_ptr(node);
++	WARN_ON(node->parent != ma_parent_ptr(node));
+ 	call_rcu(&node->rcu, mt_free_rcu);
+ }
  
-@@ -824,3 +825,23 @@ static void rs690_fix_64bit_dma(struct p
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7910, rs690_fix_64bit_dma);
+@@ -1785,8 +1785,10 @@ static inline void mas_replace(struct ma_state *mas, bool advanced)
+ 		rcu_assign_pointer(slots[offset], mas->node);
+ 	}
  
- #endif
-+
-+#ifdef CONFIG_AMD_NB
-+
-+#define AMD_15B8_RCC_DEV2_EPF0_STRAP2                                  0x10136008
-+#define AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK       0x00000080L
-+
-+static void quirk_clear_strap_no_soft_reset_dev2_f0(struct pci_dev *dev)
-+{
-+	u32 data;
-+
-+	if (!amd_smn_read(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, &data)) {
-+		data &= ~AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK;
-+		if (amd_smn_write(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, data))
-+			pci_err(dev, "Failed to write data 0x%x\n", data);
-+	} else {
-+		pci_err(dev, "Failed to read data\n");
+-	if (!advanced)
++	if (!advanced) {
++		mte_set_node_dead(old_enode);
+ 		mas_free(mas, old_enode);
 +	}
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15b8, quirk_clear_strap_no_soft_reset_dev2_f0);
-+#endif
+ }
+ 
+ /*
+@@ -4221,6 +4223,7 @@ static inline bool mas_wr_node_store(struct ma_wr_state *wr_mas)
+ done:
+ 	mas_leaf_set_meta(mas, newnode, dst_pivots, maple_leaf_64, new_end);
+ 	if (in_rcu) {
++		mte_set_node_dead(mas->node);
+ 		mas->node = mt_mk_node(newnode, wr_mas->type);
+ 		mas_replace(mas, false);
+ 	} else {
+diff --git a/tools/testing/radix-tree/maple.c b/tools/testing/radix-tree/maple.c
+index 1f36bc1c5d362..2a16939cf0285 100644
+--- a/tools/testing/radix-tree/maple.c
++++ b/tools/testing/radix-tree/maple.c
+@@ -108,6 +108,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 	MT_BUG_ON(mt, mn->slot[1] != NULL);
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+ 
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 	mas.node = MAS_START;
+ 	mas_nomem(&mas, GFP_KERNEL);
+@@ -160,6 +161,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != i);
+ 		MT_BUG_ON(mt, !mn);
+ 		MT_BUG_ON(mt, not_empty(mn));
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 	}
+ 
+@@ -192,6 +194,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		MT_BUG_ON(mt, not_empty(mn));
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != i - 1);
+ 		MT_BUG_ON(mt, !mn);
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 	}
+ 
+@@ -210,6 +213,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			mn = mas_pop_node(&mas);
+ 			MT_BUG_ON(mt, not_empty(mn));
+ 			MT_BUG_ON(mt, mas_allocated(&mas) != j - 1);
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 		}
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+@@ -233,6 +237,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			MT_BUG_ON(mt, mas_allocated(&mas) != i - j);
+ 			mn = mas_pop_node(&mas);
+ 			MT_BUG_ON(mt, not_empty(mn));
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 			MT_BUG_ON(mt, mas_allocated(&mas) != i - j - 1);
+ 		}
+@@ -269,6 +274,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			mn = mas_pop_node(&mas); /* get the next node. */
+ 			MT_BUG_ON(mt, mn == NULL);
+ 			MT_BUG_ON(mt, not_empty(mn));
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 		}
+ 		MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+@@ -294,6 +300,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 			mn = mas_pop_node(&mas2); /* get the next node. */
+ 			MT_BUG_ON(mt, mn == NULL);
+ 			MT_BUG_ON(mt, not_empty(mn));
++			mn->parent = ma_parent_ptr(mn);
+ 			ma_free_rcu(mn);
+ 		}
+ 		MT_BUG_ON(mt, mas_allocated(&mas2) != 0);
+@@ -334,10 +341,12 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != MAPLE_ALLOC_SLOTS + 2);
+ 	mn = mas_pop_node(&mas);
+ 	MT_BUG_ON(mt, not_empty(mn));
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 	for (i = 1; i <= MAPLE_ALLOC_SLOTS + 1; i++) {
+ 		mn = mas_pop_node(&mas);
+ 		MT_BUG_ON(mt, not_empty(mn));
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 	}
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != 0);
+@@ -375,6 +384,7 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		mas_node_count(&mas, i); /* Request */
+ 		mas_nomem(&mas, GFP_KERNEL); /* Fill request */
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mas_destroy(&mas);
+ 
+@@ -382,10 +392,13 @@ static noinline void check_new_node(struct maple_tree *mt)
+ 		mas_node_count(&mas, i); /* Request */
+ 		mas_nomem(&mas, GFP_KERNEL); /* Fill request */
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mn = mas_pop_node(&mas); /* get the next node. */
++		mn->parent = ma_parent_ptr(mn);
+ 		ma_free_rcu(mn);
+ 		mas_destroy(&mas);
+ 	}
+@@ -35369,6 +35382,7 @@ static noinline void check_prealloc(struct maple_tree *mt)
+ 	MT_BUG_ON(mt, allocated != 1 + height * 3);
+ 	mn = mas_pop_node(&mas);
+ 	MT_BUG_ON(mt, mas_allocated(&mas) != allocated - 1);
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 	MT_BUG_ON(mt, mas_preallocate(&mas, ptr, GFP_KERNEL) != 0);
+ 	mas_destroy(&mas);
+@@ -35386,6 +35400,7 @@ static noinline void check_prealloc(struct maple_tree *mt)
+ 	mas_destroy(&mas);
+ 	allocated = mas_allocated(&mas);
+ 	MT_BUG_ON(mt, allocated != 0);
++	mn->parent = ma_parent_ptr(mn);
+ 	ma_free_rcu(mn);
+ 
+ 	MT_BUG_ON(mt, mas_preallocate(&mas, ptr, GFP_KERNEL) != 0);
+@@ -35756,6 +35771,7 @@ void farmer_tests(void)
+ 	tree.ma_root = mt_mk_node(node, maple_leaf_64);
+ 	mt_dump(&tree);
+ 
++	node->parent = ma_parent_ptr(node);
+ 	ma_free_rcu(node);
+ 
+ 	/* Check things that will make lockdep angry */
+-- 
+2.39.2
+
 
 
