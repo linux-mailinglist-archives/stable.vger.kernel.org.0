@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 096D36E63C9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C80CB6E646A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231893AbjDRMn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60554 "EHLO
+        id S232112AbjDRMtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231927AbjDRMnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2321444D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:12 -0700 (PDT)
+        with ESMTP id S232115AbjDRMsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82B71546A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BF1A63354
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506D8C433D2;
-        Tue, 18 Apr 2023 12:43:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B353C633DF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FC3C433D2;
+        Tue, 18 Apr 2023 12:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821791;
-        bh=8YUJalr43YpmpfEaz8yWBdBI4sfRtGFKgUpH/UCuEDM=;
+        s=korg; t=1681822127;
+        bh=Wv4e16uRRrKhpTeME6jbvXsBSDPmDTT148k+e8OyN9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZXCVnh5JB5vC+9idd05wud0Vj5lTnW9iuL4CM+phT+Gfcgrs3QBl1L1DgmPDGWTu
-         rYrC/lVihnTvrNWYUg1T2VYt3zgEQGQ5IgcfJxUfxM9OfZnlLvoSbiVW+W2WEWhf5u
-         BVpuYepFUiNRRN42sTSpUp91vpgbOmeUnqPm5xHo=
+        b=iPc+YJbPMHhVJbVa++B+wnj2G7FFX59jkWSoM2tmO1qhi4kLtbOfvhItix0C9HmRw
+         nTSn3aQBWFb/SO1WThPmmXRIC02FTeD7T75qFKGDGy4u4Z4AVkUXJN/KowLuovmA56
+         fDL82B/Px3ZqQWGQ0bE+kx6Y2VFRlIpLdBX6fgwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 041/134] dmaengine: apple-admac: Handle global interrupt flags
+        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 032/139] RDMA/irdma: Fix memory leak of PBLE objects
 Date:   Tue, 18 Apr 2023 14:21:37 +0200
-Message-Id: <20230418120314.370705292@linuxfoundation.org>
+Message-Id: <20230418120314.850859430@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,67 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit a288fd158fbf85c06a9ac01cecabf97ac5d962e7 ]
+[ Upstream commit b69a6979dbaa2453675fe9c71bdc2497fedb11f9 ]
 
-In addition to TX channel and RX channel interrupt flags there's
-another class of 'global' interrupt flags with unknown semantics. Those
-weren't being handled up to now, and they are the suspected cause of
-stuck IRQ states that have been sporadically occurring. Check the global
-flags and clear them if raised.
+On rmmod of irdma, the PBLE object memory is not being freed. PBLE object
+memory are not statically pre-allocated at function initialization time
+unlike other HMC objects. PBLEs objects and the Segment Descriptors (SD)
+for it can be dynamically allocated during scale up and SD's remain
+allocated till function deinitialization.
 
-Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20230224152222.26732-1-povik+lin@cutebit.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix this leak by adding IRDMA_HMC_IW_PBLE to the iw_hmc_obj_types[] table
+and skip pbles in irdma_create_hmc_obj but not in irdma_del_hmc_objects().
+
+Fixes: 44d9e52977a1 ("RDMA/irdma: Implement device initialization definitions")
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20230315145231.931-3-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/apple-admac.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/irdma/hw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
-index 90f28bda29c8b..00cbfafe0ed9d 100644
---- a/drivers/dma/apple-admac.c
-+++ b/drivers/dma/apple-admac.c
-@@ -75,6 +75,7 @@
+diff --git a/drivers/infiniband/hw/irdma/hw.c b/drivers/infiniband/hw/irdma/hw.c
+index 2e1e2bad04011..43dfa4761f069 100644
+--- a/drivers/infiniband/hw/irdma/hw.c
++++ b/drivers/infiniband/hw/irdma/hw.c
+@@ -41,6 +41,7 @@ static enum irdma_hmc_rsrc_type iw_hmc_obj_types[] = {
+ 	IRDMA_HMC_IW_XFFL,
+ 	IRDMA_HMC_IW_Q1,
+ 	IRDMA_HMC_IW_Q1FL,
++	IRDMA_HMC_IW_PBLE,
+ 	IRDMA_HMC_IW_TIMER,
+ 	IRDMA_HMC_IW_FSIMC,
+ 	IRDMA_HMC_IW_FSIAV,
+@@ -827,6 +828,8 @@ static int irdma_create_hmc_objs(struct irdma_pci_f *rf, bool privileged,
+ 	info.entry_type = rf->sd_type;
  
- #define REG_TX_INTSTATE(idx)		(0x0030 + (idx) * 4)
- #define REG_RX_INTSTATE(idx)		(0x0040 + (idx) * 4)
-+#define REG_GLOBAL_INTSTATE(idx)	(0x0050 + (idx) * 4)
- #define REG_CHAN_INTSTATUS(ch, idx)	(0x8010 + (ch) * 0x200 + (idx) * 4)
- #define REG_CHAN_INTMASK(ch, idx)	(0x8020 + (ch) * 0x200 + (idx) * 4)
- 
-@@ -672,13 +673,14 @@ static void admac_handle_chan_int(struct admac_data *ad, int no)
- static irqreturn_t admac_interrupt(int irq, void *devid)
- {
- 	struct admac_data *ad = devid;
--	u32 rx_intstate, tx_intstate;
-+	u32 rx_intstate, tx_intstate, global_intstate;
- 	int i;
- 
- 	rx_intstate = readl_relaxed(ad->base + REG_RX_INTSTATE(ad->irq_index));
- 	tx_intstate = readl_relaxed(ad->base + REG_TX_INTSTATE(ad->irq_index));
-+	global_intstate = readl_relaxed(ad->base + REG_GLOBAL_INTSTATE(ad->irq_index));
- 
--	if (!tx_intstate && !rx_intstate)
-+	if (!tx_intstate && !rx_intstate && !global_intstate)
- 		return IRQ_NONE;
- 
- 	for (i = 0; i < ad->nchannels; i += 2) {
-@@ -693,6 +695,12 @@ static irqreturn_t admac_interrupt(int irq, void *devid)
- 		rx_intstate >>= 1;
- 	}
- 
-+	if (global_intstate) {
-+		dev_warn(ad->dev, "clearing unknown global interrupt flag: %x\n",
-+			 global_intstate);
-+		writel_relaxed(~(u32) 0, ad->base + REG_GLOBAL_INTSTATE(ad->irq_index));
-+	}
-+
- 	return IRQ_HANDLED;
- }
- 
+ 	for (i = 0; i < IW_HMC_OBJ_TYPE_NUM; i++) {
++		if (iw_hmc_obj_types[i] == IRDMA_HMC_IW_PBLE)
++			continue;
+ 		if (dev->hmc_info->hmc_obj[iw_hmc_obj_types[i]].cnt) {
+ 			info.rsrc_type = iw_hmc_obj_types[i];
+ 			info.count = dev->hmc_info->hmc_obj[info.rsrc_type].cnt;
 -- 
 2.39.2
 
