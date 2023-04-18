@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA196E6406
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5766E64AE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbjDRMpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35138 "EHLO
+        id S232225AbjDRMvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:51:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231985AbjDRMpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:30 -0400
+        with ESMTP id S232201AbjDRMvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA546118C9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596AB16B28
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:51:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63D656338A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71646C433D2;
-        Tue, 18 Apr 2023 12:45:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C12AD63400
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D06C4339C;
+        Tue, 18 Apr 2023 12:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821920;
-        bh=DRNAUhd7xodd9PlPJsbvFfafmxww8S+HTLuBkpEHq8g=;
+        s=korg; t=1681822259;
+        bh=uPMOlphHBamsx4/oDxVMrw3tPvD+rItJxPuTUtzs+Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jQAq9+/5tkY/iSek+Lwkj0HxolBrj3HhYfZ4Cxm9kdbOxNwQvTrazKHa41CZXjg7
-         oeMTotZdroAZHgPAu2dOQbjYEDbhfLBvT9FPrgX976hbgJxrdkJMU/RFsJZneH7IAx
-         dBD8hHkrub5Gv+xRs+rkOUMOuqYdSjz6XTKdd/PY=
+        b=0hAqj/A10Hh+G3K1LqBU8Vd5ZSgzOvPoMsd6gJXrt/WJAQ6abj/n9robk6szQ5wB+
+         j5DIQueGQu08tQmh2Fl4tgQDpk2zjQQYHJmVmvZu1vIeY1ufxQBdsNpYRai1aU6FNm
+         3gOlZaJLxUi4oFX/x75UcHx35nVfZ/l70uAbf/Ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jane Jian <Jane.Jian@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 092/134] drm/amdgpu/gfx: set cg flags to enter/exit safe mode
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 083/139] i2c: imx-lpi2c: clean rx/tx buffers upon new message
 Date:   Tue, 18 Apr 2023 14:22:28 +0200
-Message-Id: <20230418120316.383363818@linuxfoundation.org>
+Message-Id: <20230418120316.950391610@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Jian <Jane.Jian@amd.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit e06bfcc1a1c41bcb8c31470d437e147ce9f0acfd ]
+[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
 
-sriov needs to enter/exit safe mode in update umd p state
-add the cg flag to let it enter or exit while needed
+When start sending a new message clear the Rx & Tx buffer pointers in
+order to avoid using stale pointers.
 
-Signed-off-by: Jane Jian <Jane.Jian@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-index 7a13129842602..0dd2fe4f071e8 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-@@ -1316,6 +1316,11 @@ static int gfx_v11_0_sw_init(void *handle)
- 		break;
- 	}
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 9b2f9544c5681..a49b14d52a986 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -463,6 +463,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ 		if (num == 1 && msgs[0].len == 0)
+ 			goto stop;
  
-+	/* Enable CG flag in one VF mode for enabling RLC safe mode enter/exit */
-+	if (adev->ip_versions[GC_HWIP][0] == IP_VERSION(11, 0, 3) &&
-+		amdgpu_sriov_is_pp_one_vf(adev))
-+		adev->cg_flags = AMD_CG_SUPPORT_GFX_CGCG;
-+
- 	/* EOP Event */
- 	r = amdgpu_irq_add_id(adev, SOC21_IH_CLIENTID_GRBM_CP,
- 			      GFX_11_0_0__SRCID__CP_EOP_INTERRUPT,
++		lpi2c_imx->rx_buf = NULL;
++		lpi2c_imx->tx_buf = NULL;
+ 		lpi2c_imx->delivered = 0;
+ 		lpi2c_imx->msglen = msgs[i].len;
+ 		init_completion(&lpi2c_imx->complete);
 -- 
 2.39.2
 
