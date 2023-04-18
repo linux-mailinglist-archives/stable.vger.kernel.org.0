@@ -2,59 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21736E630B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988086E649E
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231745AbjDRMhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
+        id S232154AbjDRMu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231764AbjDRMh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B749F658C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:26 -0700 (PDT)
+        with ESMTP id S232039AbjDRMu4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9026916B2C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55D46632B3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1EAC433EF;
-        Tue, 18 Apr 2023 12:37:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06C9663424
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E4BC433EF;
+        Tue, 18 Apr 2023 12:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821445;
-        bh=5op9BPLFe+PJyBhjHnYYX1TwMbzgrAgackaqGVX0eJ4=;
+        s=korg; t=1681822243;
+        bh=z9o7Gy80xuXBJVjJC/gwCeXN5TON0qeLJDJlfxt07A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fr5pLrTDzE0mS0XZo0pocnxPVIKnBamX7a1UOmBUOOT/J9+mM71vVa0/bHlsmu0MS
-         tl3N514Dd3jh1yhGoD49AbVl7r4D3hLWc10Jls/1lndVXNpmzqFlL3dhFsJWDk8Tjn
-         HPneFT/d9oHV4vVH59V46KB224WL1g/4c/EChjaI=
+        b=W+t/nV11nf0Ez8pIjA1k1x1NeUB94fqRc2JzgE1BMPGsDOTUGZXqhyAfQUkh4Q2SW
+         IDPw1dSys61q6yTj2QftUb0DY4bZlWVvb/ISNu3NLgnnkzpLLmia+VaTwzEvN+I0An
+         Hawns9VkXBWQKXYIe+uitl9jXWYuVxKEeeTPbKO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Valentin Schneider <vschneid@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Juri Lelli <jlelli@redhat.com>,
-        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Baoquan He <bhe@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Wen Yang <wenyang.linux@foxmail.com>
-Subject: [PATCH 5.10 122/124] kexec: turn all kexec_mutex acquisitions into trylocks
-Date:   Tue, 18 Apr 2023 14:22:21 +0200
-Message-Id: <20230418120314.188444872@linuxfoundation.org>
+        patches@lists.linux.dev, Brian Masney <bmasney@redhat.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 077/139] arm64: dts: qcom: sa8540p-ride: correct name of remoteproc_nsp0 firmware
+Date:   Tue, 18 Apr 2023 14:22:22 +0200
+Message-Id: <20230418120316.738352584@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,111 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <vschneid@redhat.com>
+From: Brian Masney <bmasney@redhat.com>
 
-commit 7bb5da0d490b2d836c5218f5186ee588d2145310 upstream.
+[ Upstream commit b891251b40d4dc4cfd28341f62f6784c02ad3a78 ]
 
-Patch series "kexec, panic: Making crash_kexec() NMI safe", v4.
+The cdsp.mbn firmware that's referenced in sa8540p-ride.dts is actually
+named cdsp0.mbn in the deliverables from Qualcomm. Let's go ahead and
+correct the name to match what's in Qualcomm's deliverable.
 
-
-This patch (of 2):
-
-Most acquistions of kexec_mutex are done via mutex_trylock() - those were
-a direct "translation" from:
-
-  8c5a1cf0ad3a ("kexec: use a mutex for locking rather than xchg()")
-
-there have however been two additions since then that use mutex_lock():
-crash_get_memory_size() and crash_shrink_memory().
-
-A later commit will replace said mutex with an atomic variable, and
-locking operations will become atomic_cmpxchg().  Rather than having those
-mutex_lock() become while (atomic_cmpxchg(&lock, 0, 1)), turn them into
-trylocks that can return -EBUSY on acquisition failure.
-
-This does halve the printable size of the crash kernel, but that's still
-neighbouring 2G for 32bit kernels which should be ample enough.
-
-Link: https://lkml.kernel.org/r/20220630223258.4144112-1-vschneid@redhat.com
-Link: https://lkml.kernel.org/r/20220630223258.4144112-2-vschneid@redhat.com
-Signed-off-by: Valentin Schneider <vschneid@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "Eric W . Biederman" <ebiederm@xmission.com>
-Cc: Juri Lelli <jlelli@redhat.com>
-Cc: Luis Claudio R. Goncalves <lgoncalv@redhat.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Baoquan He <bhe@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Wen Yang <wenyang.linux@foxmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230307232340.2370476-1-bmasney@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kexec.h |    2 +-
- kernel/kexec_core.c   |   12 ++++++++----
- kernel/ksysfs.c       |    7 ++++++-
- 3 files changed, 15 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/qcom/sa8540p-ride.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -380,8 +380,8 @@ extern note_buf_t __percpu *crash_notes;
- extern bool kexec_in_progress;
+diff --git a/arch/arm64/boot/dts/qcom/sa8540p-ride.dts b/arch/arm64/boot/dts/qcom/sa8540p-ride.dts
+index 6c547f1b13dc4..0f560a4661eba 100644
+--- a/arch/arm64/boot/dts/qcom/sa8540p-ride.dts
++++ b/arch/arm64/boot/dts/qcom/sa8540p-ride.dts
+@@ -177,7 +177,7 @@
+ };
  
- int crash_shrink_memory(unsigned long new_size);
--size_t crash_get_memory_size(void);
- void crash_free_reserved_phys_range(unsigned long begin, unsigned long end);
-+ssize_t crash_get_memory_size(void);
+ &remoteproc_nsp0 {
+-	firmware-name = "qcom/sa8540p/cdsp.mbn";
++	firmware-name = "qcom/sa8540p/cdsp0.mbn";
+ 	status = "okay";
+ };
  
- void arch_kexec_protect_crashkres(void);
- void arch_kexec_unprotect_crashkres(void);
---- a/kernel/kexec_core.c
-+++ b/kernel/kexec_core.c
-@@ -989,13 +989,16 @@ void crash_kexec(struct pt_regs *regs)
- 	}
- }
- 
--size_t crash_get_memory_size(void)
-+ssize_t crash_get_memory_size(void)
- {
--	size_t size = 0;
-+	ssize_t size = 0;
-+
-+	if (!mutex_trylock(&kexec_mutex))
-+		return -EBUSY;
- 
--	mutex_lock(&kexec_mutex);
- 	if (crashk_res.end != crashk_res.start)
- 		size = resource_size(&crashk_res);
-+
- 	mutex_unlock(&kexec_mutex);
- 	return size;
- }
-@@ -1016,7 +1019,8 @@ int crash_shrink_memory(unsigned long ne
- 	unsigned long old_size;
- 	struct resource *ram_res;
- 
--	mutex_lock(&kexec_mutex);
-+	if (!mutex_trylock(&kexec_mutex))
-+		return -EBUSY;
- 
- 	if (kexec_crash_image) {
- 		ret = -ENOENT;
---- a/kernel/ksysfs.c
-+++ b/kernel/ksysfs.c
-@@ -106,7 +106,12 @@ KERNEL_ATTR_RO(kexec_crash_loaded);
- static ssize_t kexec_crash_size_show(struct kobject *kobj,
- 				       struct kobj_attribute *attr, char *buf)
- {
--	return sprintf(buf, "%zu\n", crash_get_memory_size());
-+	ssize_t size = crash_get_memory_size();
-+
-+	if (size < 0)
-+		return size;
-+
-+	return sprintf(buf, "%zd\n", size);
- }
- static ssize_t kexec_crash_size_store(struct kobject *kobj,
- 				   struct kobj_attribute *attr,
+-- 
+2.39.2
+
 
 
