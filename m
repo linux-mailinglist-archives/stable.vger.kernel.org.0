@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E9F6E64D0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 106E16E64D1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232145AbjDRMww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44198 "EHLO
+        id S232180AbjDRMwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbjDRMwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:49 -0400
+        with ESMTP id S232187AbjDRMwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 791861561C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79370146FC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B60976344F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F3CC433EF;
-        Tue, 18 Apr 2023 12:52:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 584B963453
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EA2C433D2;
+        Tue, 18 Apr 2023 12:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822344;
-        bh=UeapDqoFCU/e0mlgZE+qav74B4r1hZnvn4+6MryPqbQ=;
+        s=korg; t=1681822346;
+        bh=N+4i+yZYMRbWxZzRVTcYVu7G1SPVlXOuYNmOjLBduZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/0kwxQIhb1FW4cJbtfaOMak0SZjv+nYDJSMUFrgPNJ/4jJXdSC//lBXQP1S1m2LB
-         Xp1pP/lgzh2yDxkB0YVdW5TSsuzWwKQGFjhpi/HrSe2z491DQ9C1sfeKtmNs4BxeHg
-         JHBliVkwM6SZWwL6V4U6tYgR0R6sa5qBRlcoV6Rg=
+        b=gb4SzRY/DSW2a9q3kr0Ogy/1psslbsY7T3pzk+ip7zmB8ARB+qBpPdCnIgewQhPNA
+         G6FjnfwFqlYTVgonMFRubkpsOa8pV2uiDQG6t8oloCUZhIiy2rGFxWwu2tFQgf9907
+         lOOUOG3iqPLKy0sumIPU7rWBIeaEHebsymwSuNwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
+        patches@lists.linux.dev, Thomas Glanzmann <thomas@glanzmann.de>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [PATCH 6.2 115/139] PCI/MSI: Provide missing stub for pci_msix_can_alloc_dyn()
-Date:   Tue, 18 Apr 2023 14:23:00 +0200
-Message-Id: <20230418120318.093188643@linuxfoundation.org>
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 6.2 116/139] x86/PCI: Add quirk for AMD XHCI controller that loses MSI-X state in D3hot
+Date:   Tue, 18 Apr 2023 14:23:01 +0200
+Message-Id: <20230418120318.144171232@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -56,48 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-commit 195d8e5da3acb17c5357526494f818a21e97cd10 upstream.
+commit f195fc1e9715ba826c3b62d58038f760f66a4fe9 upstream.
 
-pci_msix_can_alloc_dyn() is not declared when CONFIG_PCI_MSI is disabled.
+The AMD [1022:15b8] USB controller loses some internal functional MSI-X
+context when transitioning from D0 to D3hot. BIOS normally traps D0->D3hot
+and D3hot->D0 transitions so it can save and restore that internal context,
+but some firmware in the field can't do this because it fails to clear the
+AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit.
 
-There is no existing user of pci_msix_can_alloc_dyn() but work is in
-progress to change this. This work encounters the following error when
-CONFIG_PCI_MSI is disabled:
+Clear AMD_15B8_RCC_DEV2_EPF0_STRAP2 NO_SOFT_RESET bit before USB controller
+initialization during boot.
 
-  drivers/vfio/pci/vfio_pci_intrs.c:427:21: error: implicit declaration of function 'pci_msix_can_alloc_dyn' [-Werror=implicit-function-declaration]
-
-Provide definition for pci_msix_can_alloc_dyn() in preparation for users
-that need to compile when CONFIG_PCI_MSI is disabled.
-
-[bhelgaas: Also reported by Arnd Bergmann <arnd@kernel.org> in
-drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c; added his Fixes: line]
-
-Fixes: fb0a6a268dcd ("net/mlx5: Provide external API for allocating vectors")
-Fixes: 34026364df8e ("PCI/MSI: Provide post-enable dynamic allocation interfaces for MSI-X")
-Link: https://lore.kernel.org/oe-kbuild-all/202303291000.PWFqGCxH-lkp@intel.com/
-Link: https://lore.kernel.org/r/310ecc4815dae4174031062f525245f0755c70e2.1680119924.git.reinette.chatre@intel.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
+Link: https://lore.kernel.org/r/20230329172859.699743-1-Basavaraj.Natikar@amd.com
+Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
+Tested-by: Thomas Glanzmann <thomas@glanzmann.de>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: stable@vger.kernel.org	# v6.2+
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pci.h |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/pci/fixup.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1623,6 +1623,8 @@ pci_alloc_irq_vectors(struct pci_dev *de
- 					      flags, NULL);
- }
+--- a/arch/x86/pci/fixup.c
++++ b/arch/x86/pci/fixup.c
+@@ -7,6 +7,7 @@
+ #include <linux/dmi.h>
+ #include <linux/pci.h>
+ #include <linux/vgaarb.h>
++#include <asm/amd_nb.h>
+ #include <asm/hpet.h>
+ #include <asm/pci_x86.h>
  
-+static inline bool pci_msix_can_alloc_dyn(struct pci_dev *dev)
-+{ return false; }
- static inline struct msi_map pci_msix_alloc_irq_at(struct pci_dev *dev, unsigned int index,
- 						   const struct irq_affinity_desc *affdesc)
- {
+@@ -824,3 +825,23 @@ static void rs690_fix_64bit_dma(struct p
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7910, rs690_fix_64bit_dma);
+ 
+ #endif
++
++#ifdef CONFIG_AMD_NB
++
++#define AMD_15B8_RCC_DEV2_EPF0_STRAP2                                  0x10136008
++#define AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK       0x00000080L
++
++static void quirk_clear_strap_no_soft_reset_dev2_f0(struct pci_dev *dev)
++{
++	u32 data;
++
++	if (!amd_smn_read(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, &data)) {
++		data &= ~AMD_15B8_RCC_DEV2_EPF0_STRAP2_NO_SOFT_RESET_DEV2_F0_MASK;
++		if (amd_smn_write(0, AMD_15B8_RCC_DEV2_EPF0_STRAP2, data))
++			pci_err(dev, "Failed to write data 0x%x\n", data);
++	} else {
++		pci_err(dev, "Failed to read data\n");
++	}
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15b8, quirk_clear_strap_no_soft_reset_dev2_f0);
++#endif
 
 
