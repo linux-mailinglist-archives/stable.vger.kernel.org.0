@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F02B06E61CC
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3CB86E63BD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231340AbjDRM2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37736 "EHLO
+        id S231959AbjDRMnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231315AbjDRM14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:56 -0400
+        with ESMTP id S231972AbjDRMmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF4C9EC6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3222415629
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4ED86316F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01D2CC4339B;
-        Tue, 18 Apr 2023 12:26:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2B2F629B0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6EF8C433EF;
+        Tue, 18 Apr 2023 12:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820778;
-        bh=7RNqbOeYZsUNjSIobFNOAptOLSZ2laRX1ve9WxV9usI=;
+        s=korg; t=1681821762;
+        bh=88B838DTdlpDW2SpNu5skgxEB44SPoNUziSs1+nBFws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XcPaQ7OpEpIRw8uSfcZJLbnJhEKK3CnMoAemwGIWn2kT2rHtUQvaXCTUrFKTYD1g8
-         vdu89i2Fo+jk1DZhFt68MxApUsoh0/fNUGcyxVOupkvC9AOTmUJAk3AvL2eyDEizxw
-         nWUFHSsX5H+ljiB3R/NrdcCYixk9ZatYzfIIvgQQ=
+        b=TIz5jiJbySC2iemwOQpOXrLL+LH/jWG1hQF1YcUJG/pHyH/gUZW4jB764r0y+mnBx
+         piJ1PJgoCaBJPZlW1PgnazVxn6MJKnTnkvz/PEr5BVboQ4s9LHaW0mSlda2Wm1mAaR
+         7ISPYRKGFlOsH+XyWcja2I9ryA1zbhdjIo5r73xQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Yongchen Yin <wb-yyc939293@alibaba-inc.com>,
-        Rongwei Wang <rongwei.wang@linux.alibaba.com>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Aaron Lu <aaron.lu@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 27/57] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 031/134] RDMA/irdma: Increase iWARP CM default rexmit count
 Date:   Tue, 18 Apr 2023 14:21:27 +0200
-Message-Id: <20230418120259.692140009@linuxfoundation.org>
+Message-Id: <20230418120314.068823814@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,119 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-commit 6fe7d6b992113719e96744d974212df3fcddc76c upstream.
+[ Upstream commit 8385a875c9eecc429b2f72970efcbb0e5cb5b547 ]
 
-The si->lock must be held when deleting the si from the available list.
-Otherwise, another thread can re-add the si to the available list, which
-can lead to memory corruption.  The only place we have found where this
-happens is in the swapoff path.  This case can be described as below:
+When running perftest with large number of connections in iWARP mode, the
+passive side could be slow to respond. Increase the rexmit counter default
+to allow scaling connections.
 
-core 0                       core 1
-swapoff
-
-del_from_avail_list(si)      waiting
-
-try lock si->lock            acquire swap_avail_lock
-                             and re-add si into
-                             swap_avail_head
-
-acquire si->lock but missing si already being added again, and continuing
-to clear SWP_WRITEOK, etc.
-
-It can be easily found that a massive warning messages can be triggered
-inside get_swap_pages() by some special cases, for example, we call
-madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
-run much swapon-swapoff operations (e.g.  stress-ng-swap).
-
-However, in the worst case, panic can be caused by the above scene.  In
-swapoff(), the memory used by si could be kept in swap_info[] after
-turning off a swap.  This means memory corruption will not be caused
-immediately until allocated and reset for a new swap in the swapon path.
-A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
-
-------------[ cut here ]------------
-top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
-prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
-next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
-WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
-Modules linked in: rfkill(E) crct10dif_ce(E)...
-CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
-Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-pc : plist_check_prev_next_node+0x50/0x70
-lr : plist_check_prev_next_node+0x50/0x70
-sp : ffff0018009d3c30
-x29: ffff0018009d3c40 x28: ffff800011b32a98
-x27: 0000000000000000 x26: ffff001803908000
-x25: ffff8000128ea088 x24: ffff800011b32a48
-x23: 0000000000000028 x22: ffff001800875c00
-x21: ffff800010f9e520 x20: ffff001800875c00
-x19: ffff001800fdc6e0 x18: 0000000000000030
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0736076307640766 x14: 0730073007380731
-x13: 0736076307640766 x12: 0730073007380731
-x11: 000000000004058d x10: 0000000085a85b76
-x9 : ffff8000101436e4 x8 : ffff800011c8ce08
-x7 : 0000000000000000 x6 : 0000000000000001
-x5 : ffff0017df9ed338 x4 : 0000000000000001
-x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- plist_check_prev_next_node+0x50/0x70
- plist_check_head+0x80/0xf0
- plist_add+0x28/0x140
- add_to_avail_list+0x9c/0xf0
- _enable_swap_info+0x78/0xb4
- __do_sys_swapon+0x918/0xa10
- __arm64_sys_swapon+0x20/0x30
- el0_svc_common+0x8c/0x220
- do_el0_svc+0x2c/0x90
- el0_svc+0x1c/0x30
- el0_sync_handler+0xa8/0xb0
- el0_sync+0x148/0x180
-irq event stamp: 2082270
-
-Now, si->lock locked before calling 'del_from_avail_list()' to make sure
-other thread see the si had been deleted and SWP_WRITEOK cleared together,
-will not reinsert again.
-
-This problem exists in versions after stable 5.10.y.
-
-Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
-Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node")
-Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Cc: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aaron Lu <aaron.lu@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20230315145231.931-4-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/swapfile.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/irdma/cm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -620,6 +620,7 @@ static void __del_from_avail_list(struct
- {
- 	int nid;
+diff --git a/drivers/infiniband/hw/irdma/cm.h b/drivers/infiniband/hw/irdma/cm.h
+index 19c284975fc7c..7feadb3e1eda3 100644
+--- a/drivers/infiniband/hw/irdma/cm.h
++++ b/drivers/infiniband/hw/irdma/cm.h
+@@ -41,7 +41,7 @@
+ #define TCP_OPTIONS_PADDING	3
  
-+	assert_spin_locked(&p->lock);
- 	for_each_node(nid)
- 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
- }
-@@ -2575,8 +2576,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
- 		spin_unlock(&swap_lock);
- 		goto out_dput;
- 	}
--	del_from_avail_list(p);
- 	spin_lock(&p->lock);
-+	del_from_avail_list(p);
- 	if (p->prio < 0) {
- 		struct swap_info_struct *si = p;
- 		int nid;
+ #define IRDMA_DEFAULT_RETRYS	64
+-#define IRDMA_DEFAULT_RETRANS	8
++#define IRDMA_DEFAULT_RETRANS	32
+ #define IRDMA_DEFAULT_TTL		0x40
+ #define IRDMA_DEFAULT_RTT_VAR		6
+ #define IRDMA_DEFAULT_SS_THRESH		0x3fffffff
+-- 
+2.39.2
+
 
 
