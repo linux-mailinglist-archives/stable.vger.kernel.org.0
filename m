@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D4A26E6345
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC086E62A1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231810AbjDRMjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55562 "EHLO
+        id S229710AbjDRMeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231814AbjDRMjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:11 -0400
+        with ESMTP id S231661AbjDRMeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E9F13867
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03551C670
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C36632D4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06840C4339B;
-        Tue, 18 Apr 2023 12:39:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7C9629EA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F69CC433EF;
+        Tue, 18 Apr 2023 12:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821549;
-        bh=MTUNfAsmHbMJAoAT99tu01VGbukSgZfK5ybTOvlMCYg=;
+        s=korg; t=1681821232;
+        bh=eDfIysiHtif25dioZ0+Vprp78mJ4bfvV3avaGi5lWFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+2+KZddvEbb/mCNb1ksmW1whBkN17y8MI9v+zUk/w7vxqGmT5BrR6+IAdo3uPejc
-         uGui/RWvDemCKHmm+7YtOIu8usej3ZU+A5JkhaWLM7tIAcydEG+mhGQyfI1YDEL7Vt
-         IezLhWyE2fwrGs+hQH//xxUclQ2nq8hvjw+ykXQQ=
+        b=zPimGmX6Jw4sN9GHWoxuGXwUouDvyYSjg97mUOVv+w21+9yRzUGmKl9qI5Eewlhzx
+         +Favc4Yr9tVZzYDkKKJMtyrmflgcTjR7Mm8kNSucL4nNeOv5qEoV+VoyZffcE0Fgqe
+         F1Ip3Hzc2T8qWVNlb5dw8glfPjschcqnQFsspKy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 03/91] ALSA: hda/sigmatel: add pin overrides for Intel DP45SG motherboard
+        patches@lists.linux.dev, Tommi Rantala <tommi.t.rantala@nokia.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.10 048/124] selftests: intel_pstate: ftime() is deprecated
 Date:   Tue, 18 Apr 2023 14:21:07 +0200
-Message-Id: <20230418120305.649423681@linuxfoundation.org>
+Message-Id: <20230418120311.584136970@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Tommi Rantala <tommi.t.rantala@nokia.com>
 
-commit c17f8fd31700392b1bb9e7b66924333568cb3700 upstream.
+commit fc4a3a1bf9ad799181e4d4ec9c2598c0405bc27d upstream.
 
-Like the other boards from the D*45* series, this one sets up the
-outputs not quite correctly.
+Use clock_gettime() instead of deprecated ftime().
 
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201220.2197826-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  aperf.c: In function ‘main’:
+  aperf.c:58:2: warning: ‘ftime’ is deprecated [-Wdeprecated-declarations]
+     58 |  ftime(&before);
+        |  ^~~~~
+  In file included from aperf.c:9:
+  /usr/include/sys/timeb.h:39:12: note: declared here
+     39 | extern int ftime (struct timeb *__timebuf)
+        |            ^~~~~
+
+Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/oe-kbuild-all/202304060514.ELO1BqLI-lkp@intel.com/
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sound/hd-audio/models.rst |    2 +-
- sound/pci/hda/patch_sigmatel.c          |    2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/intel_pstate/aperf.c |   22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
---- a/Documentation/sound/hd-audio/models.rst
-+++ b/Documentation/sound/hd-audio/models.rst
-@@ -704,7 +704,7 @@ ref
- no-jd
-     BIOS setup but without jack-detection
- intel
--    Intel DG45* mobos
-+    Intel D*45* mobos
- dell-m6-amic
-     Dell desktops/laptops with analog mics
- dell-m6-dmic
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -1955,6 +1955,8 @@ static const struct snd_pci_quirk stac92
- 				"DFI LanParty", STAC_92HD73XX_REF),
- 	SND_PCI_QUIRK(PCI_VENDOR_ID_DFI, 0x3101,
- 				"DFI LanParty", STAC_92HD73XX_REF),
-+	SND_PCI_QUIRK(PCI_VENDOR_ID_INTEL, 0x5001,
-+				"Intel DP45SG", STAC_92HD73XX_INTEL),
- 	SND_PCI_QUIRK(PCI_VENDOR_ID_INTEL, 0x5002,
- 				"Intel DG45ID", STAC_92HD73XX_INTEL),
- 	SND_PCI_QUIRK(PCI_VENDOR_ID_INTEL, 0x5003,
+--- a/tools/testing/selftests/intel_pstate/aperf.c
++++ b/tools/testing/selftests/intel_pstate/aperf.c
+@@ -10,8 +10,12 @@
+ #include <sched.h>
+ #include <errno.h>
+ #include <string.h>
++#include <time.h>
+ #include "../kselftest.h"
+ 
++#define MSEC_PER_SEC	1000L
++#define NSEC_PER_MSEC	1000000L
++
+ void usage(char *name) {
+ 	printf ("Usage: %s cpunum\n", name);
+ }
+@@ -22,7 +26,7 @@ int main(int argc, char **argv) {
+ 	long long tsc, old_tsc, new_tsc;
+ 	long long aperf, old_aperf, new_aperf;
+ 	long long mperf, old_mperf, new_mperf;
+-	struct timeb before, after;
++	struct timespec before, after;
+ 	long long int start, finish, total;
+ 	cpu_set_t cpuset;
+ 
+@@ -55,7 +59,10 @@ int main(int argc, char **argv) {
+ 		return 1;
+ 	}
+ 
+-	ftime(&before);
++	if (clock_gettime(CLOCK_MONOTONIC, &before) < 0) {
++		perror("clock_gettime");
++		return 1;
++	}
+ 	pread(fd, &old_tsc,  sizeof(old_tsc), 0x10);
+ 	pread(fd, &old_aperf,  sizeof(old_mperf), 0xe7);
+ 	pread(fd, &old_mperf,  sizeof(old_aperf), 0xe8);
+@@ -64,7 +71,10 @@ int main(int argc, char **argv) {
+ 		sqrt(i);
+ 	}
+ 
+-	ftime(&after);
++	if (clock_gettime(CLOCK_MONOTONIC, &after) < 0) {
++		perror("clock_gettime");
++		return 1;
++	}
+ 	pread(fd, &new_tsc,  sizeof(new_tsc), 0x10);
+ 	pread(fd, &new_aperf,  sizeof(new_mperf), 0xe7);
+ 	pread(fd, &new_mperf,  sizeof(new_aperf), 0xe8);
+@@ -73,11 +83,11 @@ int main(int argc, char **argv) {
+ 	aperf = new_aperf-old_aperf;
+ 	mperf = new_mperf-old_mperf;
+ 
+-	start = before.time*1000 + before.millitm;
+-	finish = after.time*1000 + after.millitm;
++	start = before.tv_sec*MSEC_PER_SEC + before.tv_nsec/NSEC_PER_MSEC;
++	finish = after.tv_sec*MSEC_PER_SEC + after.tv_nsec/NSEC_PER_MSEC;
+ 	total = finish - start;
+ 
+-	printf("runTime: %4.2f\n", 1.0*total/1000);
++	printf("runTime: %4.2f\n", 1.0*total/MSEC_PER_SEC);
+ 	printf("freq: %7.0f\n", tsc / (1.0*aperf / (1.0 * mperf)) / total);
+ 	return 0;
+ }
 
 
