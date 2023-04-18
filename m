@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07FCC6E62AE
+	by mail.lfdr.de (Postfix) with ESMTP id A07686E62AF
 	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231698AbjDRMen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48882 "EHLO
+        id S231679AbjDRMeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231664AbjDRMei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E55FC179
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:25 -0700 (PDT)
+        with ESMTP id S231676AbjDRMej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8B48684
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FBB86325A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 266C5C433EF;
-        Tue, 18 Apr 2023 12:34:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACBF66325C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFF2BC433D2;
+        Tue, 18 Apr 2023 12:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821264;
-        bh=BY4l+RYPMBfwgJLDHisUSlShNIazD+4GjRrsnmKH8ho=;
+        s=korg; t=1681821267;
+        bh=Wgc+uXACuvOJerjVPlegHD8mMmjz8y+qUt0YA9WlrwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyAiKe1TjCACjiV0BXZHHh0xwv/1dhxlqdD5N7F5RWoJiWjZuBvokn0cd+GFSquOe
-         JDRqln459oJ2rHI9B8PzH0vbFlraN2woqKxsv5Cdzfve/I9p2nrINzR9Q6qtlEXv+U
-         T7VvOAOM4rgVrWAAkXlE1zpa6Y19gtkdJEgA48TI=
+        b=F53k8TqXImNCuQq4B3GXFjof70826l72R5nZWDU7kKfGGUUZ0im47ksjdxpr1TucT
+         i8z8uns1CQOOL6YO5EqJu9fclxFFlKjcEXJT5tgCIKDOtRwWr0tKA6BzLcAzPpkay7
+         fEVN0PwJXhl3R2lL4/JGe/nQMyqVVqNNhzUd1deQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com,
         Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com,
+        syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 031/124] nilfs2: fix potential UAF of struct nilfs_sc_info in nilfs_segctor_thread()
-Date:   Tue, 18 Apr 2023 14:20:50 +0200
-Message-Id: <20230418120310.903885208@linuxfoundation.org>
+Subject: [PATCH 5.10 032/124] nilfs2: fix sysfs interface lifetime
+Date:   Tue, 18 Apr 2023 14:20:51 +0200
+Message-Id: <20230418120310.945461285@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
 References: <20230418120309.539243408@linuxfoundation.org>
@@ -45,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,53 +59,116 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 6be49d100c22ffea3287a4b19d7639d259888e33 upstream.
+commit 42560f9c92cc43dce75dbf06cc0d840dced39b12 upstream.
 
-The finalization of nilfs_segctor_thread() can race with
-nilfs_segctor_kill_thread() which terminates that thread, potentially
-causing a use-after-free BUG as KASAN detected.
+The current nilfs2 sysfs support has issues with the timing of creation
+and deletion of sysfs entries, potentially leading to null pointer
+dereferences, use-after-free, and lockdep warnings.
 
-At the end of nilfs_segctor_thread(), it assigns NULL to "sc_task" member
-of "struct nilfs_sc_info" to indicate the thread has finished, and then
-notifies nilfs_segctor_kill_thread() of this using waitqueue
-"sc_wait_task" on the struct nilfs_sc_info.
+Some of the sysfs attributes for nilfs2 per-filesystem instance refer to
+metadata file "cpfile", "sufile", or "dat", but
+nilfs_sysfs_create_device_group that creates those attributes is executed
+before the inodes for these metadata files are loaded, and
+nilfs_sysfs_delete_device_group which deletes these sysfs entries is
+called after releasing their metadata file inodes.
 
-However, here, immediately after the NULL assignment to "sc_task", it is
-possible that nilfs_segctor_kill_thread() will detect it and return to
-continue the deallocation, freeing the nilfs_sc_info structure before the
-thread does the notification.
+Therefore, access to some of these sysfs attributes may occur outside of
+the lifetime of these metadata files, resulting in inode NULL pointer
+dereferences or use-after-free.
 
-This fixes the issue by protecting the NULL assignment to "sc_task" and
-its notification, with spinlock "sc_state_lock" of the struct
-nilfs_sc_info.  Since nilfs_segctor_kill_thread() does a final check to
-see if "sc_task" is NULL with "sc_state_lock" locked, this can eliminate
-the race.
+In addition, the call to nilfs_sysfs_create_device_group() is made during
+the locking period of the semaphore "ns_sem" of nilfs object, so the
+shrinker call caused by the memory allocation for the sysfs entries, may
+derive lock dependencies "ns_sem" -> (shrinker) -> "locks acquired in
+nilfs_evict_inode()".
 
-Link: https://lkml.kernel.org/r/20230327175318.8060-1-konishi.ryusuke@gmail.com
-Reported-by: syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com
-Link: https://lkml.kernel.org/r/00000000000000660d05f7dfa877@google.com
+Since nilfs2 may acquire "ns_sem" deep in the call stack holding other
+locks via its error handler __nilfs_error(), this causes lockdep to report
+circular locking.  This is a false positive and no circular locking
+actually occurs as no inodes exist yet when
+nilfs_sysfs_create_device_group() is called.  Fortunately, the lockdep
+warnings can be resolved by simply moving the call to
+nilfs_sysfs_create_device_group() out of "ns_sem".
+
+This fixes these sysfs issues by revising where the device's sysfs
+interface is created/deleted and keeping its lifetime within the lifetime
+of the metadata files above.
+
+Link: https://lkml.kernel.org/r/20230330205515.6167-1-konishi.ryusuke@gmail.com
+Fixes: dd70edbde262 ("nilfs2: integrate sysfs support into driver")
 Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+979fa7f9c0d086fdc282@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000003414b505f7885f7e@google.com
+Reported-by: syzbot+5b7d542076d9bddc3c6a@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/0000000000006ac86605f5f44eb9@google.com
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nilfs2/super.c     |    2 ++
+ fs/nilfs2/the_nilfs.c |   12 +++++++-----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2614,11 +2614,10 @@ static int nilfs_segctor_thread(void *ar
- 	goto loop;
+--- a/fs/nilfs2/super.c
++++ b/fs/nilfs2/super.c
+@@ -482,6 +482,7 @@ static void nilfs_put_super(struct super
+ 		up_write(&nilfs->ns_sem);
+ 	}
  
-  end_thread:
--	spin_unlock(&sci->sc_state_lock);
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+@@ -1105,6 +1106,7 @@ nilfs_fill_super(struct super_block *sb,
+ 	nilfs_put_root(fsroot);
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_dat);
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -87,7 +87,6 @@ void destroy_nilfs(struct the_nilfs *nil
+ {
+ 	might_sleep();
+ 	if (nilfs_init(nilfs)) {
+-		nilfs_sysfs_delete_device_group(nilfs);
+ 		brelse(nilfs->ns_sbh[0]);
+ 		brelse(nilfs->ns_sbh[1]);
+ 	}
+@@ -305,6 +304,10 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 		goto failed;
+ 	}
+ 
++	err = nilfs_sysfs_create_device_group(sb);
++	if (unlikely(err))
++		goto sysfs_error;
++
+ 	if (valid_fs)
+ 		goto skip_recovery;
+ 
+@@ -366,6 +369,9 @@ int load_nilfs(struct the_nilfs *nilfs,
+ 	goto failed;
+ 
+  failed_unload:
++	nilfs_sysfs_delete_device_group(nilfs);
++
++ sysfs_error:
+ 	iput(nilfs->ns_cpfile);
+ 	iput(nilfs->ns_sufile);
+ 	iput(nilfs->ns_dat);
+@@ -697,10 +703,6 @@ int init_nilfs(struct the_nilfs *nilfs,
+ 	if (err)
+ 		goto failed_sbh;
+ 
+-	err = nilfs_sysfs_create_device_group(sb);
+-	if (err)
+-		goto failed_sbh;
 -
- 	/* end sync. */
- 	sci->sc_task = NULL;
- 	wake_up(&sci->sc_wait_task); /* for nilfs_segctor_kill_thread() */
-+	spin_unlock(&sci->sc_state_lock);
- 	return 0;
- }
- 
+ 	set_nilfs_init(nilfs);
+ 	err = 0;
+  out:
 
 
