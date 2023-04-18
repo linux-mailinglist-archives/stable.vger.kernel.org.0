@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A04AF6E629B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF5836E61A0
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbjDRMeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47542 "EHLO
+        id S231187AbjDRM0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:26:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231673AbjDRMdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:49 -0400
+        with ESMTP id S231195AbjDRMZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB3112595
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C8A9773
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7A6C63238
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90EAC4339B;
-        Tue, 18 Apr 2023 12:33:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1DD863152
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E8F9C433D2;
+        Tue, 18 Apr 2023 12:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821217;
-        bh=8HeqEwN9bz79Z34xpNI0lFd2kG0CISYLc/kdcOkTMdI=;
+        s=korg; t=1681820731;
+        bh=hDoRuFjWfE8Srb84JAWadR9v0xdVv0XNUmJe7YhANkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVoyKuHshCAg4/0i0KxBLIF5RZ1uGAX9NmJcGEZYXbB7pzFxbloZgIKZAHQexrJn8
-         J+MnvVEjMGyn2AZP3RTW9IyBUbjk+1Y8FgR0AWBTZX4K13S+BVrkpBGU4Xy7x/VXVo
-         PpVconIiBfBSJlhHQbcIV14w77+Bto7Tj8U71DeA=
+        b=SpW4pQ0gMcW9cPCBhD2gK9IOdmVpWkdj9efQuTv936tsChzJMETfZ/BqewyAD/Wu0
+         AgYsmIPtf4i79SqJY8D6xkGwx9RDi+4pUanWY1Id2UWLa3IR0xYGNjQARxQeh9Cc53
+         0PITjWoyIUkPRcPMfJozp10tnMA79/yYd6hTT8VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Montleon <jmontleo@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 043/124] ASoC: hdac_hdmi: use set_stream() instead of set_tdm_slots()
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Sandeep Singh <sandeep.singh@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 02/57] pinctrl: amd: Use irqchip template
 Date:   Tue, 18 Apr 2023 14:21:02 +0200
-Message-Id: <20230418120311.388752736@linuxfoundation.org>
+Message-Id: <20230418120258.811603994@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Montleon <jmontleo@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit f6887a71bdd2f0dcba9b8180dd2223cfa8637e85 upstream.
+[ Upstream commit e81376ebbafc679a5cea65f25f5ab242172f52df ]
 
-hdac_hdmi was not updated to use set_stream() instead of set_tdm_slots()
-in the original commit so HDMI no longer produces audio.
+This makes the driver use the irqchip template to assign
+properties to the gpio_irq_chip instead of using the
+explicit call to gpiochip_irqchip_add().
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/regressions/CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com/
-Fixes: 636110411ca7 ("ASoC: Intel/SOF: use set_stream() instead of set_tdm_slots() for HDAudio")
-Signed-off-by: Jason Montleon <jmontleo@redhat.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20230324170711.2526-1-jmontleo@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The irqchip is instead added while adding the gpiochip.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Cc: Sandeep Singh <sandeep.singh@amd.com>
+Link: https://lore.kernel.org/r/20200722101545.144373-1-linus.walleij@linaro.org
+Stable-dep-of: b26cd9325be4 ("pinctrl: amd: Disable and mask interrupts on resume")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hdmi.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/sound/soc/codecs/hdac_hdmi.c
-+++ b/sound/soc/codecs/hdac_hdmi.c
-@@ -436,23 +436,28 @@ static int hdac_hdmi_setup_audio_infofra
- 	return 0;
- }
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index d76e50bc9d85c..4d283ebaaf230 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -858,6 +858,7 @@ static int amd_gpio_probe(struct platform_device *pdev)
+ 	int irq_base;
+ 	struct resource *res;
+ 	struct amd_gpio *gpio_dev;
++	struct gpio_irq_chip *girq;
  
--static int hdac_hdmi_set_tdm_slot(struct snd_soc_dai *dai,
--		unsigned int tx_mask, unsigned int rx_mask,
--		int slots, int slot_width)
-+static int hdac_hdmi_set_stream(struct snd_soc_dai *dai,
-+				void *stream, int direction)
- {
- 	struct hdac_hdmi_priv *hdmi = snd_soc_dai_get_drvdata(dai);
- 	struct hdac_device *hdev = hdmi->hdev;
- 	struct hdac_hdmi_dai_port_map *dai_map;
- 	struct hdac_hdmi_pcm *pcm;
-+	struct hdac_stream *hstream;
+ 	gpio_dev = devm_kzalloc(&pdev->dev,
+ 				sizeof(struct amd_gpio), GFP_KERNEL);
+@@ -921,6 +922,15 @@ static int amd_gpio_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gpio_dev->pctrl);
+ 	}
  
--	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, tx_mask);
-+	if (!stream)
-+		return -EINVAL;
++	girq = &gpio_dev->gc.irq;
++	girq->chip = &amd_gpio_irqchip;
++	/* This will let us handle the parent IRQ in the driver */
++	girq->parent_handler = NULL;
++	girq->num_parents = 0;
++	girq->parents = NULL;
++	girq->default_type = IRQ_TYPE_NONE;
++	girq->handler = handle_simple_irq;
 +
-+	hstream = (struct hdac_stream *)stream;
-+
-+	dev_dbg(&hdev->dev, "%s: strm_tag: %d\n", __func__, hstream->stream_tag);
+ 	ret = gpiochip_add_data(&gpio_dev->gc, gpio_dev);
+ 	if (ret)
+ 		return ret;
+@@ -932,17 +942,6 @@ static int amd_gpio_probe(struct platform_device *pdev)
+ 		goto out2;
+ 	}
  
- 	dai_map = &hdmi->dai_map[dai->id];
- 
- 	pcm = hdac_hdmi_get_pcm_from_cvt(hdmi, dai_map->cvt);
- 
- 	if (pcm)
--		pcm->stream_tag = (tx_mask << 4);
-+		pcm->stream_tag = (hstream->stream_tag << 4);
- 
- 	return 0;
- }
-@@ -1544,7 +1549,7 @@ static const struct snd_soc_dai_ops hdmi
- 	.startup = hdac_hdmi_pcm_open,
- 	.shutdown = hdac_hdmi_pcm_close,
- 	.hw_params = hdac_hdmi_set_hw_params,
--	.set_tdm_slot = hdac_hdmi_set_tdm_slot,
-+	.set_stream = hdac_hdmi_set_stream,
- };
- 
- /*
+-	ret = gpiochip_irqchip_add(&gpio_dev->gc,
+-				&amd_gpio_irqchip,
+-				0,
+-				handle_simple_irq,
+-				IRQ_TYPE_NONE);
+-	if (ret) {
+-		dev_err(&pdev->dev, "could not add irqchip\n");
+-		ret = -ENODEV;
+-		goto out2;
+-	}
+-
+ 	ret = devm_request_irq(&pdev->dev, irq_base, amd_gpio_irq_handler,
+ 			       IRQF_SHARED, KBUILD_MODNAME, gpio_dev);
+ 	if (ret)
+-- 
+2.39.2
+
 
 
