@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A365C6E63DD
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6953E6E647D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231898AbjDRMn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33828 "EHLO
+        id S232105AbjDRMte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbjDRMnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:55 -0400
+        with ESMTP id S232106AbjDRMte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1FFC15603
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED871546C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EB6E63352
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A78C433EF;
-        Tue, 18 Apr 2023 12:43:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1A03633F4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E41D7C433EF;
+        Tue, 18 Apr 2023 12:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821833;
-        bh=lVLKM0NOuTQExlSnMc3COC2k+sIlb8a9XFSwgYSHVBI=;
+        s=korg; t=1681822172;
+        bh=aR4tzvaq6aFDgiKzOJuCoJ5m5puKPmDIg7ag4LBXosE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CI0DtlN8hwH6lAuy8B9S0zJQtA8t1WIWLfn8FuWv+4ZmqeL/abkuDeD5sexMpHL+H
-         O4p8HupYO7JhLh4Ko7AIKBWOjApY8X8TxrFSQ8vWP+hu71jewYeQLl/pM5E8zTJx3C
-         zsGouY4JaBPPtCinQFCv91xnMmAgpnhHOXj4G+oY=
+        b=R99scWAto6a/j393kK2gm1Sh++74W6fy2vGmokRejrwL7/MZaw8N+m5EVVVDGg2hM
+         S/yr88eGhh07Ww0ldBOj8l7X020av7JtqX+qcIe0tS5Hd4hDU7L2uUjdizVHiz0GmR
+         94pZlRk0ED/6D2OEPJYEiLkeod++arHp6EqoDKSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Denis Plotnikov <den-plotnikov@yandex-team.ru>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Simon Horman <simon.horman@corigine.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 059/134] qlcnic: check pci_reset_function result
+Subject: [PATCH 6.2 050/139] niu: Fix missing unwind goto in niu_alloc_channels()
 Date:   Tue, 18 Apr 2023 14:21:55 +0200
-Message-Id: <20230418120315.014699863@linuxfoundation.org>
+Message-Id: <20230418120315.590403052@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Plotnikov <den-plotnikov@yandex-team.ru>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 7573099e10ca69c3be33995c1fcd0d241226816d ]
+[ Upstream commit 8ce07be703456acb00e83d99f3b8036252c33b02 ]
 
-Static code analyzer complains to unchecked return value.
-The result of pci_reset_function() is unchecked.
-Despite, the issue is on the FLR supported code path and in that
-case reset can be done with pcie_flr(), the patch uses less invasive
-approach by adding the result check of pci_reset_function().
+Smatch reports: drivers/net/ethernet/sun/niu.c:4525
+	niu_alloc_channels() warn: missing unwind goto?
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+If niu_rbr_fill() fails, then we are directly returning 'err' without
+freeing the channels.
 
-Fixes: 7e2cf4feba05 ("qlcnic: change driver hardware interface mechanism")
-Signed-off-by: Denis Plotnikov <den-plotnikov@yandex-team.ru>
+Fix this by changing direct return to a goto 'out_err'.
+
+Fixes: a3138df9f20e ("[NIU]: Add Sun Neptune ethernet driver.")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/sun/niu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
-index 87f76bac2e463..eb827b86ecae8 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
-@@ -628,7 +628,13 @@ int qlcnic_fw_create_ctx(struct qlcnic_adapter *dev)
- 	int i, err, ring;
+diff --git a/drivers/net/ethernet/sun/niu.c b/drivers/net/ethernet/sun/niu.c
+index e6144d963eaaa..4bbf011d53e69 100644
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -4522,7 +4522,7 @@ static int niu_alloc_channels(struct niu *np)
  
- 	if (dev->flags & QLCNIC_NEED_FLR) {
--		pci_reset_function(dev->pdev);
-+		err = pci_reset_function(dev->pdev);
-+		if (err) {
-+			dev_err(&dev->pdev->dev,
-+				"Adapter reset failed (%d). Please reboot\n",
-+				err);
-+			return err;
-+		}
- 		dev->flags &= ~QLCNIC_NEED_FLR;
+ 		err = niu_rbr_fill(np, rp, GFP_KERNEL);
+ 		if (err)
+-			return err;
++			goto out_err;
  	}
  
+ 	tx_rings = kcalloc(num_tx_rings, sizeof(struct tx_ring_info),
 -- 
 2.39.2
 
