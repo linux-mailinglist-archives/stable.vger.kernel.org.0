@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC086E62A1
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBB366E6475
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbjDRMeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48264 "EHLO
+        id S232059AbjDRMt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231661AbjDRMeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03551C670
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:54 -0700 (PDT)
+        with ESMTP id S232111AbjDRMtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659DC13859
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7C9629EA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F69CC433EF;
-        Tue, 18 Apr 2023 12:33:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46030633E2
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55EB9C433EF;
+        Tue, 18 Apr 2023 12:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821232;
-        bh=eDfIysiHtif25dioZ0+Vprp78mJ4bfvV3avaGi5lWFs=;
+        s=korg; t=1681822153;
+        bh=EUObet2hIT1be7OH5BUhrq19QmW/9Rsc5ca2zW2wjmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPimGmX6Jw4sN9GHWoxuGXwUouDvyYSjg97mUOVv+w21+9yRzUGmKl9qI5Eewlhzx
-         +Favc4Yr9tVZzYDkKKJMtyrmflgcTjR7Mm8kNSucL4nNeOv5qEoV+VoyZffcE0Fgqe
-         F1Ip3Hzc2T8qWVNlb5dw8glfPjschcqnQFsspKy8=
+        b=GgyWHF0HD9m8b0IU9xJTdxMFOOsx6k9NHhYMWyLognT77kuPNx0V8COZCeO85Tdwf
+         tbPPFA2twwvzzWBQaTTWQBzghs0zXwe8Iu+nU21XTssL8bsj3HtzRRjOTTZ7uePV6N
+         78yCVbLnlLyGWZD9LjzxBYfxDIZaff0i4qFOOnkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.10 048/124] selftests: intel_pstate: ftime() is deprecated
-Date:   Tue, 18 Apr 2023 14:21:07 +0200
-Message-Id: <20230418120311.584136970@linuxfoundation.org>
+        patches@lists.linux.dev, Manasi Navare <navaremanasi@google.com>,
+        Drew Davenport <ddavenport@chromium.org>,
+        Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.2 003/139] drm/i915: Workaround ICL CSC_MODE sticky arming
+Date:   Tue, 18 Apr 2023 14:21:08 +0200
+Message-Id: <20230418120313.841656654@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,93 +58,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit fc4a3a1bf9ad799181e4d4ec9c2598c0405bc27d upstream.
+commit 4d4e766f8b7dbdefa7a78e91eb9c7a29d0d818b8 upstream.
 
-Use clock_gettime() instead of deprecated ftime().
+Unlike SKL/GLK the ICL CSC unit suffers from a new issue where
+CSC_MODE arming is sticky. That is, once armed it remains armed
+causing the CSC coeff/offset registers to become effectively
+self-arming.
 
-  aperf.c: In function ‘main’:
-  aperf.c:58:2: warning: ‘ftime’ is deprecated [-Wdeprecated-declarations]
-     58 |  ftime(&before);
-        |  ^~~~~
-  In file included from aperf.c:9:
-  /usr/include/sys/timeb.h:39:12: note: declared here
-     39 | extern int ftime (struct timeb *__timebuf)
-        |            ^~~~~
+CSC coeff/offset registers writes no longer disarm the CSC,
+but fortunately register read still do. So we can use that
+to disarm the CSC unit once the registers for the current
+frame have been latched. This avoid s the self-arming behaviour
+from persisting into the next frame's .color_commit_noarm()
+call.
 
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/oe-kbuild-all/202304060514.ELO1BqLI-lkp@intel.com/
+Cc: <stable@vger.kernel.org> #v5.19+
+Cc: Manasi Navare <navaremanasi@google.com>
+Cc: Drew Davenport <ddavenport@chromium.org>
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Fixes: d13dde449580 ("drm/i915: Split pipe+output CSC programming to noarm+arm pair")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-5-ville.syrjala@linux.intel.com
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+(cherry picked from commit 92736f1b452bbb8a66bdb5b1d263ad00e04dd3b8)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/intel_pstate/aperf.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/display/intel_color.c |   43 ++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/intel_pstate/aperf.c
-+++ b/tools/testing/selftests/intel_pstate/aperf.c
-@@ -10,8 +10,12 @@
- #include <sched.h>
- #include <errno.h>
- #include <string.h>
-+#include <time.h>
- #include "../kselftest.h"
+--- a/drivers/gpu/drm/i915/display/intel_color.c
++++ b/drivers/gpu/drm/i915/display/intel_color.c
+@@ -516,6 +516,14 @@ static void ilk_lut_12p4_pack(struct drm
  
-+#define MSEC_PER_SEC	1000L
-+#define NSEC_PER_MSEC	1000000L
+ static void icl_color_commit_noarm(const struct intel_crtc_state *crtc_state)
+ {
++	/*
++	 * Despite Wa_1406463849, ICL no longer suffers from the SKL
++	 * DC5/PSR CSC black screen issue (see skl_color_commit_noarm()).
++	 * Possibly due to the extra sticky CSC arming
++	 * (see icl_color_post_update()).
++	 *
++	 * On TGL+ all CSC arming issues have been properly fixed.
++	 */
+ 	icl_load_csc_matrix(crtc_state);
+ }
+ 
+@@ -617,6 +625,28 @@ static void icl_color_commit_arm(const s
+ 			  crtc_state->csc_mode);
+ }
+ 
++static void icl_color_post_update(const struct intel_crtc_state *crtc_state)
++{
++	struct intel_crtc *crtc = to_intel_crtc(crtc_state->uapi.crtc);
++	struct drm_i915_private *i915 = to_i915(crtc->base.dev);
 +
- void usage(char *name) {
- 	printf ("Usage: %s cpunum\n", name);
- }
-@@ -22,7 +26,7 @@ int main(int argc, char **argv) {
- 	long long tsc, old_tsc, new_tsc;
- 	long long aperf, old_aperf, new_aperf;
- 	long long mperf, old_mperf, new_mperf;
--	struct timeb before, after;
-+	struct timespec before, after;
- 	long long int start, finish, total;
- 	cpu_set_t cpuset;
++	/*
++	 * Despite Wa_1406463849, ICL CSC is no longer disarmed by
++	 * coeff/offset register *writes*. Instead, once CSC_MODE
++	 * is armed it stays armed, even after it has been latched.
++	 * Afterwards the coeff/offset registers become effectively
++	 * self-arming. That self-arming must be disabled before the
++	 * next icl_color_commit_noarm() tries to write the next set
++	 * of coeff/offset registers. Fortunately register *reads*
++	 * do still disarm the CSC. Naturally this must not be done
++	 * until the previously written CSC registers have actually
++	 * been latched.
++	 *
++	 * TGL+ no longer need this workaround.
++	 */
++	intel_de_read_fw(i915, PIPE_CSC_PREOFF_HI(crtc->pipe));
++}
++
+ static struct drm_property_blob *
+ create_linear_lut(struct drm_i915_private *i915, int lut_size)
+ {
+@@ -2345,10 +2375,19 @@ static const struct intel_color_funcs i9
+ 	.read_luts = i9xx_read_luts,
+ };
  
-@@ -55,7 +59,10 @@ int main(int argc, char **argv) {
- 		return 1;
- 	}
- 
--	ftime(&before);
-+	if (clock_gettime(CLOCK_MONOTONIC, &before) < 0) {
-+		perror("clock_gettime");
-+		return 1;
-+	}
- 	pread(fd, &old_tsc,  sizeof(old_tsc), 0x10);
- 	pread(fd, &old_aperf,  sizeof(old_mperf), 0xe7);
- 	pread(fd, &old_mperf,  sizeof(old_aperf), 0xe8);
-@@ -64,7 +71,10 @@ int main(int argc, char **argv) {
- 		sqrt(i);
- 	}
- 
--	ftime(&after);
-+	if (clock_gettime(CLOCK_MONOTONIC, &after) < 0) {
-+		perror("clock_gettime");
-+		return 1;
-+	}
- 	pread(fd, &new_tsc,  sizeof(new_tsc), 0x10);
- 	pread(fd, &new_aperf,  sizeof(new_mperf), 0xe7);
- 	pread(fd, &new_mperf,  sizeof(new_aperf), 0xe8);
-@@ -73,11 +83,11 @@ int main(int argc, char **argv) {
- 	aperf = new_aperf-old_aperf;
- 	mperf = new_mperf-old_mperf;
- 
--	start = before.time*1000 + before.millitm;
--	finish = after.time*1000 + after.millitm;
-+	start = before.tv_sec*MSEC_PER_SEC + before.tv_nsec/NSEC_PER_MSEC;
-+	finish = after.tv_sec*MSEC_PER_SEC + after.tv_nsec/NSEC_PER_MSEC;
- 	total = finish - start;
- 
--	printf("runTime: %4.2f\n", 1.0*total/1000);
-+	printf("runTime: %4.2f\n", 1.0*total/MSEC_PER_SEC);
- 	printf("freq: %7.0f\n", tsc / (1.0*aperf / (1.0 * mperf)) / total);
- 	return 0;
- }
++static const struct intel_color_funcs tgl_color_funcs = {
++	.color_check = icl_color_check,
++	.color_commit_noarm = icl_color_commit_noarm,
++	.color_commit_arm = icl_color_commit_arm,
++	.load_luts = icl_load_luts,
++	.read_luts = icl_read_luts,
++};
++
+ static const struct intel_color_funcs icl_color_funcs = {
+ 	.color_check = icl_color_check,
+ 	.color_commit_noarm = icl_color_commit_noarm,
+ 	.color_commit_arm = icl_color_commit_arm,
++	.color_post_update = icl_color_post_update,
+ 	.load_luts = icl_load_luts,
+ 	.read_luts = icl_read_luts,
+ };
+@@ -2440,7 +2479,9 @@ void intel_color_init_hooks(struct drm_i
+ 		else
+ 			i915->display.funcs.color = &i9xx_color_funcs;
+ 	} else {
+-		if (DISPLAY_VER(i915) >= 11)
++		if (DISPLAY_VER(i915) >= 12)
++			i915->display.funcs.color = &tgl_color_funcs;
++		else if (DISPLAY_VER(i915) == 11)
+ 			i915->display.funcs.color = &icl_color_funcs;
+ 		else if (DISPLAY_VER(i915) == 10)
+ 			i915->display.funcs.color = &glk_color_funcs;
 
 
