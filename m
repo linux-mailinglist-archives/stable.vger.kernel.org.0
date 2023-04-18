@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5266E64B5
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5106E638D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232212AbjDRMvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:51:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S231860AbjDRMl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:41:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232248AbjDRMvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:41 -0400
+        with ESMTP id S231854AbjDRMl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97BEF16B2D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:51:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E52413C3D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78AF463407
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFF7C433D2;
-        Tue, 18 Apr 2023 12:51:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C43B863325
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D719AC433EF;
+        Tue, 18 Apr 2023 12:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822277;
-        bh=gi+aNmMLzNAw/upSPG9ogRlXPz1oNELyCI8+p65yLEk=;
+        s=korg; t=1681821677;
+        bh=kbj36jtAV4D1b7Tsu97XVvIrmabLu59Ylra6ZXQ8xqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQdCfLtJO4chc+wXo1M3BYVeIVbMiJ9qLYf0fBsydT4IYNluN9oBg5+uuSNVRtFlV
-         /xITTyXj08Yh9cCnLUbW1kDkaI1iajP9ABOqQhLRanpO02lcH+M+mqlUwezvUWdGAE
-         3CZb+IZjgW9fnR9qTLEnEGBVRoeCEpKKwQvNX6eM=
+        b=Sliq+mnF/vKd5bjBJqtKVHKDDr7MT+lhSLoJe3kE2aM6UMaiEgiAq1oiFGrUxL5Tc
+         AjhdMd8BKH7mwGFS2VHJTz72eSGQFtcdF6YJAIA9ddu/kGhhFRyCbFC08TtTgUnph/
+         znw3Ud8S9R2ajQ69vkbzFS0VvbMa9a5vNTbXnbA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Fertser <fercerpav@gmail.com>,
-        Iwona Winiarska <iwona.winiarska@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 089/139] hwmon: (peci/cputemp) Fix miscalculated DTS for SKX
-Date:   Tue, 18 Apr 2023 14:22:34 +0200
-Message-Id: <20230418120317.139847151@linuxfoundation.org>
+        patches@lists.linux.dev, Xi Ruoyao <xry111@xry111.site>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Chang Feng <flukehn@gmail.com>
+Subject: [PATCH 5.15 91/91] nvme-pci: avoid the deepest sleep state on ZHITAI TiPro5000 SSDs
+Date:   Tue, 18 Apr 2023 14:22:35 +0200
+Message-Id: <20230418120308.722868604@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iwona Winiarska <iwona.winiarska@intel.com>
+From: Xi Ruoyao <xry111@xry111.site>
 
-[ Upstream commit 2b91c4a870c9830eaf95e744454c9c218cccb736 ]
+commit d5d3c100ac40dcb03959a6f1d2f0f13204c4f145 upstream.
 
-For Skylake, DTS temperature of the CPU is reported in S10.6 format
-instead of S8.8.
+ZHITAI TiPro5000 SSDs has the same APST sleep problem as its cousin,
+TiPro7000.  The quirk for TiPro7000 has been added in
+commit 6b961bce50e4 ("nvme-pci: avoid the deepest sleep state on
+ZHITAI TiPro7000 SSDs"), use the same quirk for TiPro5000.
 
-Reported-by: Paul Fertser <fercerpav@gmail.com>
-Link: https://lore.kernel.org/lkml/ZBhHS7v+98NK56is@home.paul.comp/
-Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Link: https://lore.kernel.org/r/20230321090410.866766-1-iwona.winiarska@intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The ASPT data from "nvme id-ctrl /dev/nvme1":
+
+vid       : 0x1e49
+ssvid     : 0x1e49
+sn        : ZTA21T0KA2227304LM
+mn        : ZHITAI TiPlus5000 1TB
+fr        : ZTA09139
+[...]
+ps    0 : mp:6.50W operational enlat:0 exlat:0 rrt:0 rrl:0
+         rwt:0 rwl:0 idle_power:- active_power:-
+ps    1 : mp:5.80W operational enlat:0 exlat:0 rrt:1 rrl:1
+         rwt:1 rwl:1 idle_power:- active_power:-
+ps    2 : mp:3.60W operational enlat:0 exlat:0 rrt:2 rrl:2
+         rwt:2 rwl:2 idle_power:- active_power:-
+ps    3 : mp:0.0500W non-operational enlat:5000 exlat:10000 rrt:3 rrl:3
+         rwt:3 rwl:3 idle_power:- active_power:-
+ps    4 : mp:0.0025W non-operational enlat:8000 exlat:45000 rrt:4 rrl:4
+         rwt:4 rwl:4 idle_power:- active_power:-
+
+Reported-and-tested-by: Chang Feng <flukehn@gmail.com>
+Signed-off-by: Xi Ruoyao <xry111@xry111.site>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/peci/cputemp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/nvme/host/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hwmon/peci/cputemp.c b/drivers/hwmon/peci/cputemp.c
-index 30850a479f61f..87d56f0fc888c 100644
---- a/drivers/hwmon/peci/cputemp.c
-+++ b/drivers/hwmon/peci/cputemp.c
-@@ -537,6 +537,12 @@ static const struct cpu_info cpu_hsx = {
- 	.thermal_margin_to_millidegree = &dts_eight_dot_eight_to_millidegree,
- };
- 
-+static const struct cpu_info cpu_skx = {
-+	.reg		= &resolved_cores_reg_hsx,
-+	.min_peci_revision = 0x33,
-+	.thermal_margin_to_millidegree = &dts_ten_dot_six_to_millidegree,
-+};
-+
- static const struct cpu_info cpu_icx = {
- 	.reg		= &resolved_cores_reg_icx,
- 	.min_peci_revision = 0x40,
-@@ -558,7 +564,7 @@ static const struct auxiliary_device_id peci_cputemp_ids[] = {
- 	},
- 	{
- 		.name = "peci_cpu.cputemp.skx",
--		.driver_data = (kernel_ulong_t)&cpu_hsx,
-+		.driver_data = (kernel_ulong_t)&cpu_skx,
- 	},
- 	{
- 		.name = "peci_cpu.cputemp.icx",
--- 
-2.39.2
-
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3390,6 +3390,8 @@ static const struct pci_device_id nvme_i
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1cc1, 0x5350),   /* ADATA XPG GAMMIX S50 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
++	{ PCI_DEVICE(0x1e49, 0x0021),   /* ZHITAI TiPro5000 NVMe SSD */
++		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0x1e49, 0x0041),   /* ZHITAI TiPro7000 NVMe SSD */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0xc0a9, 0x540a),   /* Crucial P2 */
 
 
