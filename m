@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B6A6E616D
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E316E63D4
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231361AbjDRMZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33498 "EHLO
+        id S229833AbjDRMnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231346AbjDRMZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:05 -0400
+        with ESMTP id S231337AbjDRMnf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14CB87AA9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED789146EF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B4C63111
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B70B7C4339B;
-        Tue, 18 Apr 2023 12:24:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 532386335F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630D0C4339B;
+        Tue, 18 Apr 2023 12:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820683;
-        bh=1+g7eqLuyOnPiPDUrW+1zFjZb3jUlRhPKvkJOd1CUj0=;
+        s=korg; t=1681821812;
+        bh=jaQaabwiGAugIc2jTfWH15Ai29yX7+57k6YWU76NwQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deO+KW10E7E7DHatSRI46ww4wxtS0mo5cXHWrgmOj2Z4gdkav0WzPRGSHn9XluhAU
-         p1r7MGGqpMG3w/VYVaL6bg1+8Jl6Y7nimjJ36qAh3sypnKl77QGr3RyTm8XvBR/xpM
-         1CJKQ+eWqBLcmluCXplzaoUlAz+czl9CtaZaIbfw=
+        b=erZCq2AAmnxQ54FklfsdRNerPlN7ymQrneMueFMf92ghqZ+Zv8k88ng80A600kOlI
+         LdT7skywtT0gdrKJ1GjTv38laaJ1G9kJemmFOlbFmnMguwtb5nRjB+2lrIzAnl2QZg
+         5Ap4KUnntyY0a2CB6PjCh4ajTNAFat0Pc65vygQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/37] efi: sysfb_efi: Add quirk for Lenovo Yoga Book X91F/L
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 043/134] dmaengine: apple-admac: Fix current_tx not getting freed
 Date:   Tue, 18 Apr 2023 14:21:39 +0200
-Message-Id: <20230418120255.715492890@linuxfoundation.org>
+Message-Id: <20230418120314.432041259@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 5ed213dd64681f84a01ceaa82fb336cf7d59ddcf ]
+[ Upstream commit d9503be5a100c553731c0e8a82c7b4201e8a970c ]
 
-Another Lenovo convertable which reports a landscape resolution of
-1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
-has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
+In terminate_all we should queue up all submitted descriptors to be
+freed. We do that for the content of the 'issued' and 'submitted' lists,
+but the 'current_tx' descriptor falls through the cracks as it's
+removed from the 'issued' list once it gets assigned to be the current
+descriptor. Explicitly queue up freeing of the 'current_tx' descriptor
+to address a memory leak that is otherwise present.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20230224152222.26732-2-povik+lin@cutebit.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sysfb_efi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/dma/apple-admac.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
-index dd8d7636c5420..5bc0fedb33420 100644
---- a/arch/x86/kernel/sysfb_efi.c
-+++ b/arch/x86/kernel/sysfb_efi.c
-@@ -273,6 +273,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
- 					"IdeaPad Duet 3 10IGL5"),
- 		},
- 	},
-+	{
-+		/* Lenovo Yoga Book X91F / X91L */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			/* Non exact match to match F + L versions */
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
-+		},
-+	},
- 	{},
- };
+diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
+index b9132b495d181..4cf8da77bdd91 100644
+--- a/drivers/dma/apple-admac.c
++++ b/drivers/dma/apple-admac.c
+@@ -512,7 +512,10 @@ static int admac_terminate_all(struct dma_chan *chan)
+ 	admac_stop_chan(adchan);
+ 	admac_reset_rings(adchan);
  
+-	adchan->current_tx = NULL;
++	if (adchan->current_tx) {
++		list_add_tail(&adchan->current_tx->node, &adchan->to_free);
++		adchan->current_tx = NULL;
++	}
+ 	/*
+ 	 * Descriptors can only be freed after the tasklet
+ 	 * has been killed (in admac_synchronize).
 -- 
 2.39.2
 
