@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F16726E64C9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BFE16E6394
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbjDRMwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
+        id S231865AbjDRMlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232233AbjDRMw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:26 -0400
+        with ESMTP id S231862AbjDRMlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2713183AA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7B6D146DC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87A4363437
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D00EC433D2;
-        Tue, 18 Apr 2023 12:51:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E78E63329
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40649C4339B;
+        Tue, 18 Apr 2023 12:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822315;
-        bh=7lWJPG4MKJn2MuWiZGbL/jDPdbuFP20hCmCra5TBhwY=;
+        s=korg; t=1681821690;
+        bh=tN6AO7RAWMwxOAKSP31pYZBz3tVNweDgtvnVzY4G2C0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvYG359aDoBei51gD4FJI9ugNqc8SerHzESUOmy5cWnCqldBck/OeIZz+/SG0HuPj
-         +oxLNGSRBi2VfCYFhYsMjcnuRRXsT+GzlbLfpk+UsKC9q3egIBACyb+/2oKwAOWkg/
-         2gYCZdc5mIENwPnIvLv2R01tzX+qQ4LzTwTEnNXE=
+        b=DDuEZqzP20BuQRda732IfdKl6RzGtXFoetol4VpWuKCAODIle6KOv5sa1M77W+mki
+         JpuVkgyaPIcQuZ5FxF6kWlAeK3OXrPfYDZp1+kuD0IgdOx4hkpAImKGIwCpzoFD3yK
+         f2nC8BJHWRommvsQ5NFpBpbTkoICYdAnaW7d4b8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang Chen <liangchen.linux@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 074/139] skbuff: Fix a race between coalescing and releasing SKBs
-Date:   Tue, 18 Apr 2023 14:22:19 +0200
-Message-Id: <20230418120316.615193244@linuxfoundation.org>
+Subject: [PATCH 5.15 76/91] purgatory: fix disabling debug info
+Date:   Tue, 18 Apr 2023 14:22:20 +0200
+Message-Id: <20230418120308.186875532@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang Chen <liangchen.linux@gmail.com>
+From: Alyssa Ross <hi@alyssa.is>
 
-[ Upstream commit 0646dc31ca886693274df5749cd0c8c1eaaeb5ca ]
+[ Upstream commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 ]
 
-Commit 1effe8ca4e34 ("skbuff: fix coalescing for page_pool fragment
-recycling") allowed coalescing to proceed with non page pool page and page
-pool page when @from is cloned, i.e.
+Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
+Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
+-Wa versions of both of those if building with Clang and GNU as.  As a
+result, debug info was being generated for the purgatory objects, even
+though the intention was that it not be.
 
-to->pp_recycle    --> false
-from->pp_recycle  --> true
-skb_cloned(from)  --> true
-
-However, it actually requires skb_cloned(@from) to hold true until
-coalescing finishes in this situation. If the other cloned SKB is
-released while the merging is in process, from_shinfo->nr_frags will be
-set to 0 toward the end of the function, causing the increment of frag
-page _refcount to be unexpectedly skipped resulting in inconsistent
-reference counts. Later when SKB(@to) is released, it frees the page
-directly even though the page pool page is still in use, leading to
-use-after-free or double-free errors. So it should be prohibited.
-
-The double-free error message below prompted us to investigate:
-BUG: Bad page state in process swapper/1  pfn:0e0d1
-page:00000000c6548b28 refcount:-1 mapcount:0 mapping:0000000000000000
-index:0x2 pfn:0xe0d1
-flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
-raw: 000fffffc0000000 0000000000000000 ffffffff00000101 0000000000000000
-raw: 0000000000000002 0000000000000000 ffffffffffffffff 0000000000000000
-page dumped because: nonzero _refcount
-
-CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E      6.2.0+
-Call Trace:
- <IRQ>
-dump_stack_lvl+0x32/0x50
-bad_page+0x69/0xf0
-free_pcp_prepare+0x260/0x2f0
-free_unref_page+0x20/0x1c0
-skb_release_data+0x10b/0x1a0
-napi_consume_skb+0x56/0x150
-net_rx_action+0xf0/0x350
-? __napi_schedule+0x79/0x90
-__do_softirq+0xc8/0x2b1
-__irq_exit_rcu+0xb9/0xf0
-common_interrupt+0x82/0xa0
-</IRQ>
-<TASK>
-asm_common_interrupt+0x22/0x40
-RIP: 0010:default_idle+0xb/0x20
-
-Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
-Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230413090353.14448-1-liangchen.linux@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Cc: stable@vger.kernel.org
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/purgatory/Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index a31ff4d83ecc4..43e1b89695c22 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5475,18 +5475,18 @@ bool skb_try_coalesce(struct sk_buff *to, struct sk_buff *from,
- 	if (skb_cloned(to))
- 		return false;
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 95ea17a9d20cb..1d6ccd4214d5a 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -64,8 +64,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
  
--	/* In general, avoid mixing slab allocated and page_pool allocated
--	 * pages within the same SKB. However when @to is not pp_recycle and
--	 * @from is cloned, we can transition frag pages from page_pool to
--	 * reference counted.
--	 *
--	 * On the other hand, don't allow coalescing two pp_recycle SKBs if
--	 * @from is cloned, in case the SKB is using page_pool fragment
-+	/* In general, avoid mixing page_pool and non-page_pool allocated
-+	 * pages within the same SKB. Additionally avoid dealing with clones
-+	 * with page_pool pages, in case the SKB is using page_pool fragment
- 	 * references (PP_FLAG_PAGE_FRAG). Since we only take full page
- 	 * references for cloned SKBs at the moment that would result in
- 	 * inconsistent reference counts.
-+	 * In theory we could take full references if @from is cloned and
-+	 * !@to->pp_recycle but its tricky (due to potential race with
-+	 * the clone disappearing) and rare, so not worth dealing with.
- 	 */
--	if (to->pp_recycle != (from->pp_recycle && !skb_cloned(from)))
-+	if (to->pp_recycle != from->pp_recycle ||
-+	    (from->pp_recycle && skb_cloned(from)))
- 		return false;
+-AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
++asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
  
- 	if (len <= skb_tailroom(to)) {
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
 -- 
 2.39.2
 
