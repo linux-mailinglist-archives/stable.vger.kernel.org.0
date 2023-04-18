@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D1566E6476
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F26396E6171
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232049AbjDRMt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40978 "EHLO
+        id S231375AbjDRMZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232117AbjDRMtY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD7B3C24
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:17 -0700 (PDT)
+        with ESMTP id S231346AbjDRMZK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1FD2AD1F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C5B3633F0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B53C433D2;
-        Tue, 18 Apr 2023 12:49:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA5F263125
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF941C433AC;
+        Tue, 18 Apr 2023 12:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822156;
-        bh=sgnAwlEzF26ishKFFok/I/STR5zd3qxwa8msNWEC4X8=;
+        s=korg; t=1681820688;
+        bh=622MB85swaWaxoNjO1Xbt1YJfqgE0oHxkWWnR3iqLMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuKGxlkDrE09widkFUcplaTUaAcZkJa5lLY0T/4ZZdLACQo/1Hl3SaIHhWSyFXT6Y
-         RhZa+iCqXJP9EaSj3qZYVpTHGXvZowLVEvPDkEnByMXOTT58uCJ2dCWRZmW8tn9XU7
-         23460DGAnlRVclOCAJg7GjMGGFI4VdBpY5SEoZzk=
+        b=gytChgVGvs7eormHOEuP3gM31QP9rEE12/QQqCCwXxQVwbh0/QaNz5gqXR2rhDcc7
+         K1RsO8NbI8Dki4OGWq2A6FrnVoWHM1/bWdtzION78DrUcFjoiQ3yUhiQtrLmDG/U2G
+         Mgnaf8s0QTGa2b+qLPEiJD4MDZYqR8clQjUESxPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cheng Xu <chengyou@linux.alibaba.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 036/139] RDMA/erdma: Fix some typos
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Nicolas Schichan <nschichan@freebox.fr>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 31/37] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
 Date:   Tue, 18 Apr 2023 14:21:41 +0200
-Message-Id: <20230418120315.013479699@linuxfoundation.org>
+Message-Id: <20230418120255.803151618@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,64 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Xu <chengyou@linux.alibaba.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 3fe26c0493e4c2da4b7d8ba8c975a6f48fb75ec2 ]
+commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
 
-FAA is short for atomic fetch and add, not FAD. Fix this.
+Following process will make ubi attaching failed since commit
+1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
 
-Fixes: 0ca9c2e2844a ("RDMA/erdma: Implement atomic operations support")
-Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230320084652.16807-2-chengyou@linux.alibaba.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
+modprobe nandsim id_bytes=$ID
+flash_eraseall /dev/mtd0
+modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
+(dmesg):
+  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
+  UBI error: cannot attach mtd0
+  UBI error: cannot initialize UBI, error -22
+
+Rework original solution, the key point is making sure
+'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
+so we should check vid_hdr_shift rather not vid_hdr_offset.
+Then, ubi still support (sub)page aligined VID header offset.
+
+Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Tested-by: Nicolas Schichan <nschichan@freebox.fr>
+Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/erdma/erdma_cq.c | 2 +-
- drivers/infiniband/hw/erdma/erdma_hw.h | 2 +-
- drivers/infiniband/hw/erdma/erdma_qp.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/mtd/ubi/build.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/hw/erdma/erdma_cq.c b/drivers/infiniband/hw/erdma/erdma_cq.c
-index cabd8678b3558..7bc354273d4ec 100644
---- a/drivers/infiniband/hw/erdma/erdma_cq.c
-+++ b/drivers/infiniband/hw/erdma/erdma_cq.c
-@@ -65,7 +65,7 @@ static const enum ib_wc_opcode wc_mapping_table[ERDMA_NUM_OPCODES] = {
- 	[ERDMA_OP_LOCAL_INV] = IB_WC_LOCAL_INV,
- 	[ERDMA_OP_READ_WITH_INV] = IB_WC_RDMA_READ,
- 	[ERDMA_OP_ATOMIC_CAS] = IB_WC_COMP_SWAP,
--	[ERDMA_OP_ATOMIC_FAD] = IB_WC_FETCH_ADD,
-+	[ERDMA_OP_ATOMIC_FAA] = IB_WC_FETCH_ADD,
- };
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -648,12 +648,6 @@ static int io_init(struct ubi_device *ub
+ 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
+ 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
  
- static const struct {
-diff --git a/drivers/infiniband/hw/erdma/erdma_hw.h b/drivers/infiniband/hw/erdma/erdma_hw.h
-index ab371fec610c3..cbeb6909580cf 100644
---- a/drivers/infiniband/hw/erdma/erdma_hw.h
-+++ b/drivers/infiniband/hw/erdma/erdma_hw.h
-@@ -491,7 +491,7 @@ enum erdma_opcode {
- 	ERDMA_OP_LOCAL_INV = 15,
- 	ERDMA_OP_READ_WITH_INV = 16,
- 	ERDMA_OP_ATOMIC_CAS = 17,
--	ERDMA_OP_ATOMIC_FAD = 18,
-+	ERDMA_OP_ATOMIC_FAA = 18,
- 	ERDMA_NUM_OPCODES = 19,
- 	ERDMA_OP_INVALID = ERDMA_NUM_OPCODES + 1
- };
-diff --git a/drivers/infiniband/hw/erdma/erdma_qp.c b/drivers/infiniband/hw/erdma/erdma_qp.c
-index d088d6bef431a..ff473b208acfb 100644
---- a/drivers/infiniband/hw/erdma/erdma_qp.c
-+++ b/drivers/infiniband/hw/erdma/erdma_qp.c
-@@ -439,7 +439,7 @@ static int erdma_push_one_sqe(struct erdma_qp *qp, u16 *pi,
- 				cpu_to_le64(atomic_wr(send_wr)->compare_add);
- 		} else {
- 			wqe_hdr |= FIELD_PREP(ERDMA_SQE_HDR_OPCODE_MASK,
--					      ERDMA_OP_ATOMIC_FAD);
-+					      ERDMA_OP_ATOMIC_FAA);
- 			atomic_sqe->fetchadd_swap_data =
- 				cpu_to_le64(atomic_wr(send_wr)->compare_add);
- 		}
--- 
-2.39.2
-
+-	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
+-	    ubi->vid_hdr_alsize)) {
+-		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
+-		return -EINVAL;
+-	}
+-
+ 	dbg_gen("min_io_size      %d", ubi->min_io_size);
+ 	dbg_gen("max_write_size   %d", ubi->max_write_size);
+ 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
+@@ -671,6 +665,21 @@ static int io_init(struct ubi_device *ub
+ 						ubi->vid_hdr_aloffset;
+ 	}
+ 
++	/*
++	 * Memory allocation for VID header is ubi->vid_hdr_alsize
++	 * which is described in comments in io.c.
++	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
++	 * ubi->vid_hdr_alsize, so that all vid header operations
++	 * won't access memory out of bounds.
++	 */
++	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
++		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
++			" + VID header size(%zu) > VID header aligned size(%d).",
++			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
++			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
++		return -EINVAL;
++	}
++
+ 	/* Similar for the data offset */
+ 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
+ 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
 
 
