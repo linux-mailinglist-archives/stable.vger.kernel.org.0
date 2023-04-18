@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E1E6E6386
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4176E641B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231855AbjDRMlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:41:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57838 "EHLO
+        id S231987AbjDRMqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:46:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231847AbjDRMlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:15 -0400
+        with ESMTP id S231980AbjDRMqT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59B0E1CFB8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFC814F65
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9ABF63323
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7616C433EF;
-        Tue, 18 Apr 2023 12:41:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 231BC633A5
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A2BC433EF;
+        Tue, 18 Apr 2023 12:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821669;
-        bh=3x6INlL+EyQvHlMmm7eq6/GZXrYaDgUt1YGPrTJfwUg=;
+        s=korg; t=1681821977;
+        bh=5aP2MZitRMu7m5JTImsGIFU6mtqfgvzLQMMYsFJgxqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+M9EBGsK7hJi3YZAuF1B8G3QNvrS77nRUrxuM9HE4ZI+zG9crPT8FP5olJUiOouD
-         lKGGzSNeuOXrOxuxL+zDHV/3OFBo3Uykjz0sSp7B0cusp6iBx2BTfnbfa/4zbWkmtR
-         U2drEuLznUSr72IBcmm3KsMgqyEryZ/mh6Ix1HG0=
+        b=zMz/KXSgcA0cEA/mJsbmxKDvFqHIDL9D/Y2svRAQVQTElCWe3/N1c/66Yu9dGXmNl
+         D2s0oAMtz+XbnARTEjs0CWX2HtbRN1kxom1FBz9uE48VG5vzECaz0hnjEo6RW4i452
+         eb6KIPNjwxOLJFZ00u3u25PVgQKhdmTzivVYKCl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tingjia Cao <tjcao980311@gmail.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev,
+        Ziyang Zhang <ZiyangZhang@linux.alibaba.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 71/91] sched/fair: Fix imbalance overflow
-Date:   Tue, 18 Apr 2023 14:22:15 +0200
-Message-Id: <20230418120308.022151080@linuxfoundation.org>
+Subject: [PATCH 6.1 080/134] block: ublk_drv: mark device as LIVE before adding disk
+Date:   Tue, 18 Apr 2023 14:22:16 +0200
+Message-Id: <20230418120315.851057960@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 91dcf1e8068e9a8823e419a7a34ff4341275fb70 ]
+[ Upstream commit 4985e7b2c002eb4c5c794a1d3acd91b82c89a0fd ]
 
-When local group is fully busy but its average load is above system load,
-computing the imbalance will overflow and local group is not the best
-target for pulling this load.
+IO can be started before add_disk() returns, such as reading parititon table,
+then the monitor work should work for making forward progress.
 
-Fixes: 0b0695f2b34a ("sched/fair: Rework load_balance()")
-Reported-by: Tingjia Cao <tjcao980311@gmail.com>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Tingjia Cao <tjcao980311@gmail.com>
-Link: https://lore.kernel.org/lkml/CABcWv9_DAhVBOq2=W=2ypKE9dKM5s2DvoV8-U0+GDwwuKZ89jQ@mail.gmail.com/T/
+So mark device as LIVE before adding disk, meantime change to
+DEAD if add_disk() fails.
+
+Fixed: 71f28f3136af ("ublk_drv: add io_uring based userspace block driver")
+Reviewed-by: Ziyang Zhang <ZiyangZhang@linux.alibaba.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20230318141231.55562-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/block/ublk_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 024d18d85526d..7ac00dede846c 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -9647,6 +9647,16 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
+diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
+index 2ed994a313a91..c0cbc5f3eb266 100644
+--- a/drivers/block/ublk_drv.c
++++ b/drivers/block/ublk_drv.c
+@@ -1571,17 +1571,18 @@ static int ublk_ctrl_start_dev(struct io_uring_cmd *cmd)
+ 		set_bit(GD_SUPPRESS_PART_SCAN, &disk->state);
  
- 		sds->avg_load = (sds->total_load * SCHED_CAPACITY_SCALE) /
- 				sds->total_capacity;
-+
-+		/*
-+		 * If the local group is more loaded than the average system
-+		 * load, don't try to pull any tasks.
-+		 */
-+		if (local->avg_load >= sds->avg_load) {
-+			env->imbalance = 0;
-+			return;
-+		}
-+
+ 	get_device(&ub->cdev_dev);
++	ub->dev_info.state = UBLK_S_DEV_LIVE;
+ 	ret = add_disk(disk);
+ 	if (ret) {
+ 		/*
+ 		 * Has to drop the reference since ->free_disk won't be
+ 		 * called in case of add_disk failure.
+ 		 */
++		ub->dev_info.state = UBLK_S_DEV_DEAD;
+ 		ublk_put_device(ub);
+ 		goto out_put_disk;
  	}
- 
- 	/*
+ 	set_bit(UB_STATE_USED, &ub->state);
+-	ub->dev_info.state = UBLK_S_DEV_LIVE;
+ out_put_disk:
+ 	if (ret)
+ 		put_disk(disk);
 -- 
 2.39.2
 
