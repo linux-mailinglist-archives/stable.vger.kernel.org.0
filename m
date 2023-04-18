@@ -2,102 +2,260 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8D16E6334
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC7B6E63C4
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231789AbjDRMiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:38:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54934 "EHLO
+        id S231921AbjDRMnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231781AbjDRMiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B16A61385B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:36 -0700 (PDT)
+        with ESMTP id S231926AbjDRMnK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AFAF15617
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9561632D4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84C7C433D2;
-        Tue, 18 Apr 2023 12:38:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEB846334F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D88C433D2;
+        Tue, 18 Apr 2023 12:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821515;
-        bh=lVLKM0NOuTQExlSnMc3COC2k+sIlb8a9XFSwgYSHVBI=;
+        s=korg; t=1681821781;
+        bh=0GBB7lNvKnv2pFKTVpzayXUyTgWR3BcFEun/fx6uhTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBQDUOvsGs6MFWnocUkKGeTtSKWpkG8wJCfHhk/2dgkQw0Wkw0QDfze4K4mYjR/hC
-         mKa6kpw1k+nNjEkB+1Ajmz8moaETDreMWYO846hNmIpstJb3CJ9w2oSZL1apvePXl2
-         3y7yzwRynqGKl2fnyhLWvXzZJ3DLRPjMQ/NvwIXc=
+        b=J+FzTexaXhO2FmCr5iTSVcr9Yo2AMtqIpKsl7GZ5+NpcmkIrYpOHlsApEHbr8R92C
+         KAIk5vM4q0XX22lX5zxbck4pIlnZTiAWmj9tLeoK2e+OSKIiriC9rNSfFtd1AH3tH3
+         tuDCZXnYWKhe7i89x3MbfIlmYPMfeYYXBUst53Eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Denis Plotnikov <den-plotnikov@yandex-team.ru>,
-        Simon Horman <simon.horman@corigine.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        syzbot+8fcbb77276d43cc8b693@syzkaller.appspotmail.com,
+        Mark Zhang <markzhang@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 30/91] qlcnic: check pci_reset_function result
+Subject: [PATCH 6.1 038/134] RDMA/cma: Allow UD qp_type to join multicast only
 Date:   Tue, 18 Apr 2023 14:21:34 +0200
-Message-Id: <20230418120306.636061597@linuxfoundation.org>
+Message-Id: <20230418120314.278827901@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Plotnikov <den-plotnikov@yandex-team.ru>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit 7573099e10ca69c3be33995c1fcd0d241226816d ]
+[ Upstream commit 58e84f6b3e84e46524b7e5a916b53c1ad798bc8f ]
 
-Static code analyzer complains to unchecked return value.
-The result of pci_reset_function() is unchecked.
-Despite, the issue is on the FLR supported code path and in that
-case reset can be done with pcie_flr(), the patch uses less invasive
-approach by adding the result check of pci_reset_function().
+As for multicast:
+- The SIDR is the only mode that makes sense;
+- Besides PS_UDP, other port spaces like PS_IB is also allowed, as it is
+  UD compatible. In this case qkey also needs to be set [1].
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+This patch allows only UD qp_type to join multicast, and set qkey to
+default if it's not set, to fix an uninit-value error: the ib->rec.qkey
+field is accessed without being initialized.
 
-Fixes: 7e2cf4feba05 ("qlcnic: change driver hardware interface mechanism")
-Signed-off-by: Denis Plotnikov <den-plotnikov@yandex-team.ru>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+=====================================================
+BUG: KMSAN: uninit-value in cma_set_qkey drivers/infiniband/core/cma.c:510 [inline]
+BUG: KMSAN: uninit-value in cma_make_mc_event+0xb73/0xe00 drivers/infiniband/core/cma.c:4570
+ cma_set_qkey drivers/infiniband/core/cma.c:510 [inline]
+ cma_make_mc_event+0xb73/0xe00 drivers/infiniband/core/cma.c:4570
+ cma_iboe_join_multicast drivers/infiniband/core/cma.c:4782 [inline]
+ rdma_join_multicast+0x2b83/0x30a0 drivers/infiniband/core/cma.c:4814
+ ucma_process_join+0xa76/0xf60 drivers/infiniband/core/ucma.c:1479
+ ucma_join_multicast+0x1e3/0x250 drivers/infiniband/core/ucma.c:1546
+ ucma_write+0x639/0x6d0 drivers/infiniband/core/ucma.c:1732
+ vfs_write+0x8ce/0x2030 fs/read_write.c:588
+ ksys_write+0x28c/0x520 fs/read_write.c:643
+ __do_sys_write fs/read_write.c:655 [inline]
+ __se_sys_write fs/read_write.c:652 [inline]
+ __ia32_sys_write+0xdb/0x120 fs/read_write.c:652
+ do_syscall_32_irqs_on arch/x86/entry/common.c:114 [inline]
+ __do_fast_syscall_32+0x96/0xf0 arch/x86/entry/common.c:180
+ do_fast_syscall_32+0x34/0x70 arch/x86/entry/common.c:205
+ do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:248
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+
+Local variable ib.i created at:
+cma_iboe_join_multicast drivers/infiniband/core/cma.c:4737 [inline]
+rdma_join_multicast+0x586/0x30a0 drivers/infiniband/core/cma.c:4814
+ucma_process_join+0xa76/0xf60 drivers/infiniband/core/ucma.c:1479
+
+CPU: 0 PID: 29874 Comm: syz-executor.3 Not tainted 5.16.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+=====================================================
+
+[1] https://lore.kernel.org/linux-rdma/20220117183832.GD84788@nvidia.com/
+
+Fixes: b5de0c60cc30 ("RDMA/cma: Fix use after free race in roce multicast join")
+Reported-by: syzbot+8fcbb77276d43cc8b693@syzkaller.appspotmail.com
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Link: https://lore.kernel.org/r/58a4a98323b5e6b1282e83f6b76960d06e43b9fa.1679309909.git.leon@kernel.org
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/cma.c | 60 ++++++++++++++++++++---------------
+ 1 file changed, 34 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
-index 87f76bac2e463..eb827b86ecae8 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c
-@@ -628,7 +628,13 @@ int qlcnic_fw_create_ctx(struct qlcnic_adapter *dev)
- 	int i, err, ring;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 8730674ceb2e1..c6a671edba5c8 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -624,22 +624,11 @@ static inline unsigned short cma_family(struct rdma_id_private *id_priv)
+ 	return id_priv->id.route.addr.src_addr.ss_family;
+ }
  
- 	if (dev->flags & QLCNIC_NEED_FLR) {
--		pci_reset_function(dev->pdev);
-+		err = pci_reset_function(dev->pdev);
-+		if (err) {
-+			dev_err(&dev->pdev->dev,
-+				"Adapter reset failed (%d). Please reboot\n",
-+				err);
-+			return err;
-+		}
- 		dev->flags &= ~QLCNIC_NEED_FLR;
+-static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
++static int cma_set_default_qkey(struct rdma_id_private *id_priv)
+ {
+ 	struct ib_sa_mcmember_rec rec;
+ 	int ret = 0;
+ 
+-	if (id_priv->qkey) {
+-		if (qkey && id_priv->qkey != qkey)
+-			return -EINVAL;
+-		return 0;
+-	}
+-
+-	if (qkey) {
+-		id_priv->qkey = qkey;
+-		return 0;
+-	}
+-
+ 	switch (id_priv->id.ps) {
+ 	case RDMA_PS_UDP:
+ 	case RDMA_PS_IB:
+@@ -659,6 +648,16 @@ static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
+ 	return ret;
+ }
+ 
++static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
++{
++	if (!qkey ||
++	    (id_priv->qkey && (id_priv->qkey != qkey)))
++		return -EINVAL;
++
++	id_priv->qkey = qkey;
++	return 0;
++}
++
+ static void cma_translate_ib(struct sockaddr_ib *sib, struct rdma_dev_addr *dev_addr)
+ {
+ 	dev_addr->dev_type = ARPHRD_INFINIBAND;
+@@ -1229,7 +1228,7 @@ static int cma_ib_init_qp_attr(struct rdma_id_private *id_priv,
+ 	*qp_attr_mask = IB_QP_STATE | IB_QP_PKEY_INDEX | IB_QP_PORT;
+ 
+ 	if (id_priv->id.qp_type == IB_QPT_UD) {
+-		ret = cma_set_qkey(id_priv, 0);
++		ret = cma_set_default_qkey(id_priv);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -4558,7 +4557,10 @@ static int cma_send_sidr_rep(struct rdma_id_private *id_priv,
+ 	memset(&rep, 0, sizeof rep);
+ 	rep.status = status;
+ 	if (status == IB_SIDR_SUCCESS) {
+-		ret = cma_set_qkey(id_priv, qkey);
++		if (qkey)
++			ret = cma_set_qkey(id_priv, qkey);
++		else
++			ret = cma_set_default_qkey(id_priv);
+ 		if (ret)
+ 			return ret;
+ 		rep.qp_num = id_priv->qp_num;
+@@ -4763,9 +4765,7 @@ static void cma_make_mc_event(int status, struct rdma_id_private *id_priv,
+ 	enum ib_gid_type gid_type;
+ 	struct net_device *ndev;
+ 
+-	if (!status)
+-		status = cma_set_qkey(id_priv, be32_to_cpu(multicast->rec.qkey));
+-	else
++	if (status)
+ 		pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to join multicast. status %d\n",
+ 				     status);
+ 
+@@ -4793,7 +4793,7 @@ static void cma_make_mc_event(int status, struct rdma_id_private *id_priv,
  	}
  
+ 	event->param.ud.qp_num = 0xFFFFFF;
+-	event->param.ud.qkey = be32_to_cpu(multicast->rec.qkey);
++	event->param.ud.qkey = id_priv->qkey;
+ 
+ out:
+ 	if (ndev)
+@@ -4812,8 +4812,11 @@ static int cma_ib_mc_handler(int status, struct ib_sa_multicast *multicast)
+ 	    READ_ONCE(id_priv->state) == RDMA_CM_DESTROYING)
+ 		goto out;
+ 
+-	cma_make_mc_event(status, id_priv, multicast, &event, mc);
+-	ret = cma_cm_event_handler(id_priv, &event);
++	ret = cma_set_qkey(id_priv, be32_to_cpu(multicast->rec.qkey));
++	if (!ret) {
++		cma_make_mc_event(status, id_priv, multicast, &event, mc);
++		ret = cma_cm_event_handler(id_priv, &event);
++	}
+ 	rdma_destroy_ah_attr(&event.param.ud.ah_attr);
+ 	WARN_ON(ret);
+ 
+@@ -4866,9 +4869,11 @@ static int cma_join_ib_multicast(struct rdma_id_private *id_priv,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = cma_set_qkey(id_priv, 0);
+-	if (ret)
+-		return ret;
++	if (!id_priv->qkey) {
++		ret = cma_set_default_qkey(id_priv);
++		if (ret)
++			return ret;
++	}
+ 
+ 	cma_set_mgid(id_priv, (struct sockaddr *) &mc->addr, &rec.mgid);
+ 	rec.qkey = cpu_to_be32(id_priv->qkey);
+@@ -4945,9 +4950,6 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
+ 	cma_iboe_set_mgid(addr, &ib.rec.mgid, gid_type);
+ 
+ 	ib.rec.pkey = cpu_to_be16(0xffff);
+-	if (id_priv->id.ps == RDMA_PS_UDP)
+-		ib.rec.qkey = cpu_to_be32(RDMA_UDP_QKEY);
+-
+ 	if (dev_addr->bound_dev_if)
+ 		ndev = dev_get_by_index(dev_addr->net, dev_addr->bound_dev_if);
+ 	if (!ndev)
+@@ -4973,6 +4975,9 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
+ 	if (err || !ib.rec.mtu)
+ 		return err ?: -EINVAL;
+ 
++	if (!id_priv->qkey)
++		cma_set_default_qkey(id_priv);
++
+ 	rdma_ip2gid((struct sockaddr *)&id_priv->id.route.addr.src_addr,
+ 		    &ib.rec.port_gid);
+ 	INIT_WORK(&mc->iboe_join.work, cma_iboe_join_work_handler);
+@@ -4998,6 +5003,9 @@ int rdma_join_multicast(struct rdma_cm_id *id, struct sockaddr *addr,
+ 			    READ_ONCE(id_priv->state) != RDMA_CM_ADDR_RESOLVED))
+ 		return -EINVAL;
+ 
++	if (id_priv->id.qp_type != IB_QPT_UD)
++		return -EINVAL;
++
+ 	mc = kzalloc(sizeof(*mc), GFP_KERNEL);
+ 	if (!mc)
+ 		return -ENOMEM;
 -- 
 2.39.2
 
