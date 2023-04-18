@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 194BB6E63BF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 212DB6E62BB
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbjDRMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60442 "EHLO
+        id S231670AbjDRMe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231940AbjDRMm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D85146ED
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:48 -0700 (PDT)
+        with ESMTP id S231707AbjDRMeu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198A3B767
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5552F62DE3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 438E1C433EF;
-        Tue, 18 Apr 2023 12:42:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0B7F6326C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FC2C433EF;
+        Tue, 18 Apr 2023 12:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821767;
-        bh=k/HB4zxvp8gyenny9Zjs2yixtVMg9eZfyBxRQrGyrk8=;
+        s=korg; t=1681821288;
+        bh=EQ3gihb6Ff2FptoG0ltDjZrmF6w89IUzb4ypIn8FCTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdgV6gHCUpYzI26Z80w+Xow08QIA2jBPP0CyrcV6ajlZJIzVXJxxZkF3G1Kh7BJOl
-         Q1tFNCDSjnQ4ZhFSR7VK1P3lUfxeyNwzl/zbdvjydMxu9F8S/9fiRsqz5NtyiTDGtp
-         DKw+KoWw0gAXgvzzegkXx1X/g6y8M55YIuUArlH0=
+        b=wFMwIUjvX/p3Wqj8tx0EHEmnrLFu5KItRT2Umqzb3FkA0kGQYDtbf8tQh5nC6wljy
+         5DdO2knfJ9K60/55EQfKprSt749wxz+MOP4jqghc0pBxO7Z5xx8iEidR4eEKUHwJjU
+         kALLxyKU+I4WKGGpIpT+lG2ra2xJqGbxcf1oetfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,20 +36,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 033/134] IB/mlx5: Add support for 400G_8X lane speed
+Subject: [PATCH 5.10 070/124] IB/mlx5: Add support for 400G_8X lane speed
 Date:   Tue, 18 Apr 2023 14:21:29 +0200
-Message-Id: <20230418120314.127253146@linuxfoundation.org>
+Message-Id: <20230418120312.390105190@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index c669ef6e47e73..eaa35e1df2a85 100644
+index 638da09ff8380..5ef37902e96b5 100644
 --- a/drivers/infiniband/hw/mlx5/main.c
 +++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -442,6 +442,10 @@ static int translate_eth_ext_proto_oper(u32 eth_proto_oper, u16 *active_speed,
+@@ -437,6 +437,10 @@ static int translate_eth_ext_proto_oper(u32 eth_proto_oper, u16 *active_speed,
  		*active_width = IB_WIDTH_2X;
  		*active_speed = IB_SPEED_NDR;
  		break;
