@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3D06E63D8
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E86466E62FE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230476AbjDRMnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:43:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33658 "EHLO
+        id S231775AbjDRMhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:37:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231137AbjDRMnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:45 -0400
+        with ESMTP id S231761AbjDRMhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA56146C0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C521CFAF;
+        Tue, 18 Apr 2023 05:37:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCCCB63364
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED505C4339B;
-        Tue, 18 Apr 2023 12:43:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABFB4632A0;
+        Tue, 18 Apr 2023 12:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99843C433EF;
+        Tue, 18 Apr 2023 12:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821823;
-        bh=QLuWp/FA/lwtuc7GQjwRB/DPIc3cr0LAm4izXSO+5pA=;
+        s=korg; t=1681821422;
+        bh=xIRVmdSoxQHHV+WQF3InEHiP6aN6H/TEQ+/N5ju+cTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGZo/mA89jLMZuguJtjGMLb2otqpOcWux2GBSifNNoC7Skmk29kWngRVKvulWPRZu
-         +e34XceB7TqvobKgCy9QO0Z5Lj4NmNK3vQLbSkqqLb1An4c7FjH4p0fAKwFg3rslTm
-         yfF9u6lapUYNUmN1JyU2odzxU+WbF2wS0LV49RUo=
+        b=GTZ/rCE9rS+zZ70jK73lxw6I4Xg0n+YBNjH4ga3+PGzj2SRXm9+bEZqjfGN/kqppw
+         7TtwUqvVnrX64Swicg6p9IPRq/w+/45mNRsgYQ+oLdnVAwF6P4CfhNYTI7VgswFn1V
+         NRd6T+zQu3cP84EW0T1WxRzjMH0FrLFQjS5gT6E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 055/134] Bluetooth: Fix printing errors if LE Connection times out
+        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 092/124] asymmetric_keys: log on fatal failures in PE/pkcs7
 Date:   Tue, 18 Apr 2023 14:21:51 +0200
-Message-Id: <20230418120314.855365087@linuxfoundation.org>
+Message-Id: <20230418120313.191130834@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,147 +58,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Robbie Harwood <rharwood@redhat.com>
 
-[ Upstream commit b62e72200eaad523f08d8319bba50fc652e032a8 ]
+[ Upstream commit 3584c1dbfffdabf8e3dc1dd25748bb38dd01cd43 ]
 
-This fixes errors like bellow when LE Connection times out since that
-is actually not a controller error:
+These particular errors can be encountered while trying to kexec when
+secureboot lockdown is in place.  Without this change, even with a
+signed debug build, one still needs to reboot the machine to add the
+appropriate dyndbg parameters (since lockdown blocks debugfs).
 
- Bluetooth: hci0: Opcode 0x200d failed: -110
- Bluetooth: hci0: request failed to create LE connection: err -110
+Accordingly, upgrade all pr_debug() before fatal error into pr_warn().
 
-Instead the code shall properly detect if -ETIMEDOUT is returned and
-send HCI_OP_LE_CREATE_CONN_CANCEL to give up on the connection.
-
-Link: https://github.com/bluez/bluez/issues/340
-Fixes: 8e8b92ee60de ("Bluetooth: hci_sync: Add hci_le_create_conn_sync")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Robbie Harwood <rharwood@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jarkko Sakkinen <jarkko@kernel.org>
+cc: Eric Biederman <ebiederm@xmission.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: keyrings@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: kexec@lists.infradead.org
+Link: https://lore.kernel.org/r/20230220171254.592347-3-rharwood@redhat.com/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci_core.h |  1 +
- net/bluetooth/hci_conn.c         |  7 +++++--
- net/bluetooth/hci_event.c        | 16 ++++++----------
- net/bluetooth/hci_sync.c         | 13 ++++++++++---
- 4 files changed, 22 insertions(+), 15 deletions(-)
+ crypto/asymmetric_keys/pkcs7_verify.c  | 10 +++++-----
+ crypto/asymmetric_keys/verify_pefile.c | 24 ++++++++++++------------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 7f585e5dd71b8..061fec6fd0152 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -953,6 +953,7 @@ enum {
- 	HCI_CONN_STK_ENCRYPT,
- 	HCI_CONN_AUTH_INITIATOR,
- 	HCI_CONN_DROP,
-+	HCI_CONN_CANCEL,
- 	HCI_CONN_PARAM_REMOVAL_PEND,
- 	HCI_CONN_NEW_LINK_KEY,
- 	HCI_CONN_SCANNING,
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index 1b80d94d639cc..c2c6dea01cc91 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1247,6 +1247,8 @@ static void create_le_conn_complete(struct hci_dev *hdev, void *data, int err)
+diff --git a/crypto/asymmetric_keys/pkcs7_verify.c b/crypto/asymmetric_keys/pkcs7_verify.c
+index ce49820caa97f..01e54450c846f 100644
+--- a/crypto/asymmetric_keys/pkcs7_verify.c
++++ b/crypto/asymmetric_keys/pkcs7_verify.c
+@@ -79,16 +79,16 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
+ 		}
+ 
+ 		if (sinfo->msgdigest_len != sig->digest_size) {
+-			pr_debug("Sig %u: Invalid digest size (%u)\n",
+-				 sinfo->index, sinfo->msgdigest_len);
++			pr_warn("Sig %u: Invalid digest size (%u)\n",
++				sinfo->index, sinfo->msgdigest_len);
+ 			ret = -EBADMSG;
+ 			goto error;
+ 		}
+ 
+ 		if (memcmp(sig->digest, sinfo->msgdigest,
+ 			   sinfo->msgdigest_len) != 0) {
+-			pr_debug("Sig %u: Message digest doesn't match\n",
+-				 sinfo->index);
++			pr_warn("Sig %u: Message digest doesn't match\n",
++				sinfo->index);
+ 			ret = -EKEYREJECTED;
+ 			goto error;
+ 		}
+@@ -488,7 +488,7 @@ int pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
+ 			       const void *data, size_t datalen)
  {
- 	struct hci_conn *conn = data;
+ 	if (pkcs7->data) {
+-		pr_debug("Data already supplied\n");
++		pr_warn("Data already supplied\n");
+ 		return -EINVAL;
+ 	}
+ 	pkcs7->data = data;
+diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
+index fe1bb374239d7..22beaf2213a22 100644
+--- a/crypto/asymmetric_keys/verify_pefile.c
++++ b/crypto/asymmetric_keys/verify_pefile.c
+@@ -74,7 +74,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
+ 		break;
  
-+	bt_dev_dbg(hdev, "err %d", err);
-+
- 	hci_dev_lock(hdev);
- 
- 	if (!err) {
-@@ -1254,8 +1256,6 @@ static void create_le_conn_complete(struct hci_dev *hdev, void *data, int err)
- 		goto done;
+ 	default:
+-		pr_debug("Unknown PEOPT magic = %04hx\n", pe32->magic);
++		pr_warn("Unknown PEOPT magic = %04hx\n", pe32->magic);
+ 		return -ELIBBAD;
  	}
  
--	bt_dev_err(hdev, "request failed to create LE connection: err %d", err);
--
- 	/* Check if connection is still pending */
- 	if (conn != hci_lookup_le_connect(hdev))
- 		goto done;
-@@ -2796,6 +2796,9 @@ int hci_abort_conn(struct hci_conn *conn, u8 reason)
- {
- 	int r = 0;
+@@ -95,7 +95,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
+ 	ctx->certs_size = ddir->certs.size;
  
-+	if (test_and_set_bit(HCI_CONN_CANCEL, &conn->flags))
-+		return 0;
-+
- 	switch (conn->state) {
- 	case BT_CONNECTED:
- 	case BT_CONFIG:
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 0e2425eb6aa79..78c505f528a47 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2876,16 +2876,6 @@ static void cs_le_create_conn(struct hci_dev *hdev, bdaddr_t *peer_addr,
- 
- 	conn->resp_addr_type = peer_addr_type;
- 	bacpy(&conn->resp_addr, peer_addr);
--
--	/* We don't want the connection attempt to stick around
--	 * indefinitely since LE doesn't have a page timeout concept
--	 * like BR/EDR. Set a timer for any connection that doesn't use
--	 * the accept list for connecting.
--	 */
--	if (filter_policy == HCI_LE_USE_PEER_ADDR)
--		queue_delayed_work(conn->hdev->workqueue,
--				   &conn->le_conn_timeout,
--				   conn->conn_timeout);
- }
- 
- static void hci_cs_le_create_conn(struct hci_dev *hdev, u8 status)
-@@ -5892,6 +5882,12 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
- 	if (status)
- 		goto unlock;
- 
-+	/* Drop the connection if it has been aborted */
-+	if (test_bit(HCI_CONN_CANCEL, &conn->flags)) {
-+		hci_conn_drop(conn);
-+		goto unlock;
-+	}
-+
- 	if (conn->dst_type == ADDR_LE_DEV_PUBLIC)
- 		addr_type = BDADDR_LE_PUBLIC;
- 	else
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index f614f96c5c23d..9361fb3685cc7 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -246,8 +246,9 @@ int __hci_cmd_sync_status_sk(struct hci_dev *hdev, u16 opcode, u32 plen,
- 
- 	skb = __hci_cmd_sync_sk(hdev, opcode, plen, param, event, timeout, sk);
- 	if (IS_ERR(skb)) {
--		bt_dev_err(hdev, "Opcode 0x%4x failed: %ld", opcode,
--				PTR_ERR(skb));
-+		if (!event)
-+			bt_dev_err(hdev, "Opcode 0x%4x failed: %ld", opcode,
-+				   PTR_ERR(skb));
- 		return PTR_ERR(skb);
+ 	if (!ddir->certs.virtual_address || !ddir->certs.size) {
+-		pr_debug("Unsigned PE binary\n");
++		pr_warn("Unsigned PE binary\n");
+ 		return -ENODATA;
  	}
  
-@@ -5108,8 +5109,11 @@ static int hci_le_connect_cancel_sync(struct hci_dev *hdev,
- 	if (test_bit(HCI_CONN_SCANNING, &conn->flags))
+@@ -127,7 +127,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	unsigned len;
+ 
+ 	if (ctx->sig_len < sizeof(wrapper)) {
+-		pr_debug("Signature wrapper too short\n");
++		pr_warn("Signature wrapper too short\n");
+ 		return -ELIBBAD;
+ 	}
+ 
+@@ -142,16 +142,16 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	 * rounded up since 0.110.
+ 	 */
+ 	if (wrapper.length > ctx->sig_len) {
+-		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
+-			 ctx->sig_len, wrapper.length);
++		pr_warn("Signature wrapper bigger than sig len (%x > %x)\n",
++			ctx->sig_len, wrapper.length);
+ 		return -ELIBBAD;
+ 	}
+ 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
+-		pr_debug("Signature is not revision 2.0\n");
++		pr_warn("Signature is not revision 2.0\n");
+ 		return -ENOTSUPP;
+ 	}
+ 	if (wrapper.cert_type != WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
+-		pr_debug("Signature certificate type is not PKCS\n");
++		pr_warn("Signature certificate type is not PKCS\n");
+ 		return -ENOTSUPP;
+ 	}
+ 
+@@ -164,7 +164,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	ctx->sig_offset += sizeof(wrapper);
+ 	ctx->sig_len -= sizeof(wrapper);
+ 	if (ctx->sig_len < 4) {
+-		pr_debug("Signature data missing\n");
++		pr_warn("Signature data missing\n");
+ 		return -EKEYREJECTED;
+ 	}
+ 
+@@ -198,7 +198,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
  		return 0;
- 
-+	if (test_and_set_bit(HCI_CONN_CANCEL, &conn->flags))
-+		return 0;
-+
- 	return __hci_cmd_sync_status(hdev, HCI_OP_LE_CREATE_CONN_CANCEL,
--				     6, &conn->dst, HCI_CMD_TIMEOUT);
-+				     0, NULL, HCI_CMD_TIMEOUT);
+ 	}
+ not_pkcs7:
+-	pr_debug("Signature data not PKCS#7\n");
++	pr_warn("Signature data not PKCS#7\n");
+ 	return -ELIBBAD;
  }
  
- static int hci_connect_cancel_sync(struct hci_dev *hdev, struct hci_conn *conn)
-@@ -6084,6 +6088,9 @@ int hci_le_create_conn_sync(struct hci_dev *hdev, struct hci_conn *conn)
- 				       conn->conn_timeout, NULL);
+@@ -341,8 +341,8 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
+ 	digest_size = crypto_shash_digestsize(tfm);
  
- done:
-+	if (err == -ETIMEDOUT)
-+		hci_le_connect_cancel_sync(hdev, conn);
-+
- 	/* Re-enable advertising after the connection attempt is finished. */
- 	hci_resume_advertising_sync(hdev);
- 	return err;
+ 	if (digest_size != ctx->digest_len) {
+-		pr_debug("Digest size mismatch (%zx != %x)\n",
+-			 digest_size, ctx->digest_len);
++		pr_warn("Digest size mismatch (%zx != %x)\n",
++			digest_size, ctx->digest_len);
+ 		ret = -EBADMSG;
+ 		goto error_no_desc;
+ 	}
+@@ -373,7 +373,7 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
+ 	 * PKCS#7 certificate.
+ 	 */
+ 	if (memcmp(digest, ctx->digest, ctx->digest_len) != 0) {
+-		pr_debug("Digest mismatch\n");
++		pr_warn("Digest mismatch\n");
+ 		ret = -EKEYREJECTED;
+ 	} else {
+ 		pr_debug("The digests match!\n");
 -- 
 2.39.2
 
