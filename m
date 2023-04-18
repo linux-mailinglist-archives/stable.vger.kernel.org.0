@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E0736E64D6
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4137B6E642D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232093AbjDRMxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46270 "EHLO
+        id S232018AbjDRMqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:46:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232193AbjDRMw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:59 -0400
+        with ESMTP id S231994AbjDRMqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157D516F89
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374C31563D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12B7963440
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E75C433EF;
-        Tue, 18 Apr 2023 12:52:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C845B633B0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD97FC433EF;
+        Tue, 18 Apr 2023 12:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822333;
-        bh=1PTmcP2+6LuJsrULf4ZIc+pv2aA7YcGzRwoLHFAWLGU=;
+        s=korg; t=1681822001;
+        bh=UwyG6Gy9KDhGWvKveRFzAcaAt077RRfEM4d2FevbDdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8G+ljkIE7h+6ADFW9mHy2pqibU2EHhwlvPO5TylQ8/sOt+rkkpOj5RI6dfYskrTS
-         d+3x+wKUntmpjIef7VqnPMRemLKWXYnjIp/FHcSBaiDuiH6/oX7Zqmgbt6Zrb30xL/
-         5zuoL+wYr+V9oBBX7MaIGuc/Smgcd4mwwFG1GrEo=
+        b=HpAwKc7FjFgzLxSctIc7LBGRWcUDacS6X6ybyqD0ttCb8yJzgwd8QMIPODb+Bpdr2
+         5RGQiIkiIlNCMTmaYeOIbrPFUGDEjFaV+YIz8LUQ+9mSnDVwuZ1VovfpOvdX+SbBYc
+         9K7bDv8m4b6xVVOx6Ft/U5LhBAsukKEQuwIc3OrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Kolar <mich.k@seznam.cz>,
-        Jiri Kosina <jkosina@suse.cz>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Ding Hui <dinghui@sangfor.com.cn>
-Subject: [PATCH 6.2 111/139] scsi: ses: Handle enclosure with just a primary component gracefully
+        patches@lists.linux.dev,
+        Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 120/134] i2c: mchp-pci1xxxx: Update Timing registers
 Date:   Tue, 18 Apr 2023 14:22:56 +0200
-Message-Id: <20230418120317.941276260@linuxfoundation.org>
+Message-Id: <20230418120317.364975549@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +55,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
 
-commit c8e22b7a1694bb8d025ea636816472739d859145 upstream.
+[ Upstream commit aa874cdfec07d4dd9c6f0c356d65c609ba31a26f ]
 
-This reverts commit 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure
-has no components") and introduces proper handling of case where there are
-no detected secondary components, but primary component (enumerated in
-num_enclosures) does exist. That fix was originally proposed by Ding Hui
-<dinghui@sangfor.com.cn>.
+Update I2C timing registers based on latest hardware design.
+This fix does not break functionality of chips with older design and
+existing users will not be affected.
 
-Completely ignoring devices that have one primary enclosure and no
-secondary one results in ses_intf_add() bailing completely
-
-	scsi 2:0:0:254: enclosure has no enumerated components
-        scsi 2:0:0:254: Failed to bind enclosure -12ven in valid configurations such
-
-even on valid configurations with 1 primary and 0 secondary enclosures as
-below:
-
-	# sg_ses /dev/sg0
-	  3PARdata  SES               3321
-	Supported diagnostic pages:
-	  Supported Diagnostic Pages [sdp] [0x0]
-	  Configuration (SES) [cf] [0x1]
-	  Short Enclosure Status (SES) [ses] [0x8]
-	# sg_ses -p cf /dev/sg0
-	  3PARdata  SES               3321
-	Configuration diagnostic page:
-	  number of secondary subenclosures: 0
-	  generation code: 0x0
-	  enclosure descriptor list
-	    Subenclosure identifier: 0 [primary]
-	      relative ES process id: 0, number of ES processes: 1
-	      number of type descriptor headers: 1
-	      enclosure logical identifier (hex): 20000002ac02068d
-	      enclosure vendor: 3PARdata  product: VV                rev: 3321
-	  type descriptor header and text list
-	    Element type: Unspecified, subenclosure id: 0
-	      number of possible elements: 1
-
-The changelog for the original fix follows
-
-=====
-We can get a crash when disconnecting the iSCSI session,
-the call trace like this:
-
-  [ffff00002a00fb70] kfree at ffff00000830e224
-  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
-  [ffff00002a00fbd0] device_del at ffff0000086b6a98
-  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
-  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
-  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
-  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
-  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
-  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
-  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
-  [ffff00002a00fe00] worker_thread at ffff00000810f648
-  [ffff00002a00fe70] kthread at ffff000008116e98
-
-In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
-but not saved in edev->component[i].scratch
-
-In this situation, edev->component[0].scratch is an invalid pointer,
-when kfree it in ses_intf_remove_enclosure, a crash like above would happen
-The call trace also could be other random cases when kfree cannot catch
-the invalid pointer
-
-We should not use edev->component[] array when the components count is 0
-We also need check index when use edev->component[] array in
-ses_enclosure_data_process
-=====
-
-Reported-by: Michal Kolar <mich.k@seznam.cz>
-Originally-by: Ding Hui <dinghui@sangfor.com.cn>
-Cc: stable@vger.kernel.org
-Fixes: 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2304042122270.29760@cbobk.fhfr.pm
-Tested-by: Michal Kolar <mich.k@seznam.cz>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 361693697249 ("i2c: microchip: pci1xxxx: Add driver for I2C host controller in multifunction endpoint of pci1xxxx switch")
+Signed-off-by: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-mchp-pci1xxxx.c | 60 +++++++++++++-------------
+ 1 file changed, 30 insertions(+), 30 deletions(-)
 
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -503,9 +503,6 @@ static int ses_enclosure_find_by_addr(st
- 	int i;
- 	struct ses_component *scomp;
+diff --git a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
+index 09af759211478..b21ffd6df9276 100644
+--- a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
++++ b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
+@@ -48,9 +48,9 @@
+  * SR_HOLD_TIME_XK_TICKS field will indicate the number of ticks of the
+  * baud clock required to program 'Hold Time' at X KHz.
+  */
+-#define SR_HOLD_TIME_100K_TICKS	133
+-#define SR_HOLD_TIME_400K_TICKS	20
+-#define SR_HOLD_TIME_1000K_TICKS	11
++#define SR_HOLD_TIME_100K_TICKS		150
++#define SR_HOLD_TIME_400K_TICKS		20
++#define SR_HOLD_TIME_1000K_TICKS	12
  
--	if (!edev->component[0].scratch)
--		return 0;
--
- 	for (i = 0; i < edev->components; i++) {
- 		scomp = edev->component[i].scratch;
- 		if (scomp->addr != efd->addr)
-@@ -596,8 +593,10 @@ static void ses_enclosure_data_process(s
- 						components++,
- 						type_ptr[0],
- 						name);
--				else
-+				else if (components < edev->components)
- 					ecomp = &edev->component[components++];
-+				else
-+					ecomp = ERR_PTR(-EINVAL);
+ #define SMB_CORE_COMPLETION_REG_OFF3	(SMBUS_MAST_CORE_ADDR_BASE + 0x23)
  
- 				if (!IS_ERR(ecomp)) {
- 					if (addl_desc_ptr) {
-@@ -728,11 +727,6 @@ static int ses_intf_add(struct device *c
- 			components += type_ptr[1];
- 	}
+@@ -65,17 +65,17 @@
+  * the baud clock required to program 'fair idle delay' at X KHz. Fair idle
+  * delay establishes the MCTP T(IDLE_DELAY) period.
+  */
+-#define FAIR_BUS_IDLE_MIN_100K_TICKS		969
+-#define FAIR_BUS_IDLE_MIN_400K_TICKS		157
+-#define FAIR_BUS_IDLE_MIN_1000K_TICKS		157
++#define FAIR_BUS_IDLE_MIN_100K_TICKS		992
++#define FAIR_BUS_IDLE_MIN_400K_TICKS		500
++#define FAIR_BUS_IDLE_MIN_1000K_TICKS		500
  
--	if (components == 0) {
--		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
--		goto err_free;
--	}
--
- 	ses_dev->page1 = buf;
- 	ses_dev->page1_len = len;
- 	buf = NULL;
-@@ -774,9 +768,11 @@ static int ses_intf_add(struct device *c
- 		buf = NULL;
- 	}
- page2_not_supported:
--	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
--	if (!scomp)
--		goto err_free;
-+	if (components > 0) {
-+		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
-+		if (!scomp)
-+			goto err_free;
-+	}
+ /*
+  * FAIR_IDLE_DELAY_XK_TICKS field will indicate the number of ticks of the
+  * baud clock required to satisfy the fairness protocol at X KHz.
+  */
+-#define FAIR_IDLE_DELAY_100K_TICKS	1000
+-#define FAIR_IDLE_DELAY_400K_TICKS	500
+-#define FAIR_IDLE_DELAY_1000K_TICKS	500
++#define FAIR_IDLE_DELAY_100K_TICKS	963
++#define FAIR_IDLE_DELAY_400K_TICKS	156
++#define FAIR_IDLE_DELAY_1000K_TICKS	156
  
- 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
- 				  components, &ses_enclosure_callbacks);
+ #define SMB_IDLE_SCALING_100K		\
+ 	((FAIR_IDLE_DELAY_100K_TICKS << 16) | FAIR_BUS_IDLE_MIN_100K_TICKS)
+@@ -105,7 +105,7 @@
+  */
+ #define BUS_CLK_100K_LOW_PERIOD_TICKS		156
+ #define BUS_CLK_400K_LOW_PERIOD_TICKS		41
+-#define BUS_CLK_1000K_LOW_PERIOD_TICKS	15
++#define BUS_CLK_1000K_LOW_PERIOD_TICKS		15
+ 
+ /*
+  * BUS_CLK_XK_HIGH_PERIOD_TICKS field defines the number of I2C Baud Clock
+@@ -131,7 +131,7 @@
+  */
+ #define CLK_SYNC_100K			4
+ #define CLK_SYNC_400K			4
+-#define CLK_SYNC_1000K		4
++#define CLK_SYNC_1000K			4
+ 
+ #define SMB_CORE_DATA_TIMING_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x40)
+ 
+@@ -142,25 +142,25 @@
+  * determines the SCLK hold time following SDAT driven low during the first
+  * START bit in a transfer.
+  */
+-#define FIRST_START_HOLD_100K_TICKS	22
+-#define FIRST_START_HOLD_400K_TICKS	16
+-#define FIRST_START_HOLD_1000K_TICKS	6
++#define FIRST_START_HOLD_100K_TICKS	23
++#define FIRST_START_HOLD_400K_TICKS	8
++#define FIRST_START_HOLD_1000K_TICKS	12
+ 
+ /*
+  * STOP_SETUP_XK_TICKS will indicate the number of ticks of the baud clock
+  * required to program 'STOP_SETUP' timer at X KHz. This timer determines the
+  * SDAT setup time from the rising edge of SCLK for a STOP condition.
+  */
+-#define STOP_SETUP_100K_TICKS		157
++#define STOP_SETUP_100K_TICKS		150
+ #define STOP_SETUP_400K_TICKS		20
+-#define STOP_SETUP_1000K_TICKS	12
++#define STOP_SETUP_1000K_TICKS		12
+ 
+ /*
+  * RESTART_SETUP_XK_TICKS will indicate the number of ticks of the baud clock
+  * required to program 'RESTART_SETUP' timer at X KHz. This timer determines the
+  * SDAT setup time from the rising edge of SCLK for a repeated START condition.
+  */
+-#define RESTART_SETUP_100K_TICKS	157
++#define RESTART_SETUP_100K_TICKS	156
+ #define RESTART_SETUP_400K_TICKS	20
+ #define RESTART_SETUP_1000K_TICKS	12
+ 
+@@ -169,7 +169,7 @@
+  * required to program 'DATA_HOLD' timer at X KHz. This timer determines the
+  * SDAT hold time following SCLK driven low.
+  */
+-#define DATA_HOLD_100K_TICKS		2
++#define DATA_HOLD_100K_TICKS		12
+ #define DATA_HOLD_400K_TICKS		2
+ #define DATA_HOLD_1000K_TICKS		2
+ 
+@@ -190,35 +190,35 @@
+  * Bus Idle Minimum time = BUS_IDLE_MIN[7:0] x Baud_Clock_Period x
+  * (BUS_IDLE_MIN_XK_TICKS[7] ? 4,1)
+  */
+-#define BUS_IDLE_MIN_100K_TICKS		167UL
+-#define BUS_IDLE_MIN_400K_TICKS		139UL
+-#define BUS_IDLE_MIN_1000K_TICKS		133UL
++#define BUS_IDLE_MIN_100K_TICKS		36UL
++#define BUS_IDLE_MIN_400K_TICKS		10UL
++#define BUS_IDLE_MIN_1000K_TICKS	4UL
+ 
+ /*
+  * CTRL_CUM_TIME_OUT_XK_TICKS defines SMBus Controller Cumulative Time-Out.
+  * SMBus Controller Cumulative Time-Out duration =
+  * CTRL_CUM_TIME_OUT_XK_TICKS[7:0] x Baud_Clock_Period x 2048
+  */
+-#define CTRL_CUM_TIME_OUT_100K_TICKS		159
+-#define CTRL_CUM_TIME_OUT_400K_TICKS		159
+-#define CTRL_CUM_TIME_OUT_1000K_TICKS		159
++#define CTRL_CUM_TIME_OUT_100K_TICKS		76
++#define CTRL_CUM_TIME_OUT_400K_TICKS		76
++#define CTRL_CUM_TIME_OUT_1000K_TICKS		76
+ 
+ /*
+  * TARGET_CUM_TIME_OUT_XK_TICKS defines SMBus Target Cumulative Time-Out duration.
+  * SMBus Target Cumulative Time-Out duration = TARGET_CUM_TIME_OUT_XK_TICKS[7:0] x
+  * Baud_Clock_Period x 4096
+  */
+-#define TARGET_CUM_TIME_OUT_100K_TICKS	199
+-#define TARGET_CUM_TIME_OUT_400K_TICKS	199
+-#define TARGET_CUM_TIME_OUT_1000K_TICKS	199
++#define TARGET_CUM_TIME_OUT_100K_TICKS	95
++#define TARGET_CUM_TIME_OUT_400K_TICKS	95
++#define TARGET_CUM_TIME_OUT_1000K_TICKS	95
+ 
+ /*
+  * CLOCK_HIGH_TIME_OUT_XK defines Clock High time out period.
+  * Clock High time out period = CLOCK_HIGH_TIME_OUT_XK[7:0] x Baud_Clock_Period x 8
+  */
+-#define CLOCK_HIGH_TIME_OUT_100K_TICKS	204
+-#define CLOCK_HIGH_TIME_OUT_400K_TICKS	204
+-#define CLOCK_HIGH_TIME_OUT_1000K_TICKS	204
++#define CLOCK_HIGH_TIME_OUT_100K_TICKS	97
++#define CLOCK_HIGH_TIME_OUT_400K_TICKS	97
++#define CLOCK_HIGH_TIME_OUT_1000K_TICKS	97
+ 
+ #define TO_SCALING_100K		\
+ 	((BUS_IDLE_MIN_100K_TICKS << 24) | (CTRL_CUM_TIME_OUT_100K_TICKS << 16) | \
+-- 
+2.39.2
+
 
 
