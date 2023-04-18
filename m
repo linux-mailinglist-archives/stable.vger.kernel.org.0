@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A562D6E6244
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBEA6E649B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230089AbjDRMbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:31:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42564 "EHLO
+        id S232072AbjDRMuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231243AbjDRMbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:13 -0400
+        with ESMTP id S232157AbjDRMuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341445596
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCCF16B0C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1478A631FA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27BB9C433EF;
-        Tue, 18 Apr 2023 12:30:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1512363426
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2209FC433D2;
+        Tue, 18 Apr 2023 12:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821053;
-        bh=/jVknyqDoBXKUCtuDs+bg2w7QcWTLJv20qYAW+HF7aQ=;
+        s=korg; t=1681822235;
+        bh=8YUJalr43YpmpfEaz8yWBdBI4sfRtGFKgUpH/UCuEDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0saa8sFhuVpRWDlqs5odkfWhlO1ymBQ9SiD/Z8+nqxdtaCvhSwUKkIaBEw0f1ovN
-         bQJcN/CI5qmhluH40hWnXw+BPm7SXLgUSPwryKjaM4PYEpG8Lk2RJ9CAowq+mJMNvo
-         bZVk++WsVInVaI6Q57yUlkFVSFMsWXT1o4wPHByM=
+        b=b2Jpy4jZPhNYqahE20yqpQiG/RdbN9g6s7WziT+a2vG9hwoqRShj7xLVYPqF/UklD
+         ChJ11/wh6xD8g2ZLX/YxUbYIFze3MXDADC+6hQfuYj9nvQwP0OG161T4LyyArLGtKT
+         uQOJHDFtYEmAeIl2bBU6jyFI6+n0p2jcFu0KVWUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        George Cherian <george.cherian@marvell.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
-Subject: [PATCH 5.4 74/92] watchdog: sbsa_wdog: Make sure the timeout programming is within the limits
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 044/139] dmaengine: apple-admac: Handle global interrupt flags
 Date:   Tue, 18 Apr 2023 14:21:49 +0200
-Message-Id: <20230418120307.376820411@linuxfoundation.org>
+Message-Id: <20230418120315.305084540@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Cherian <george.cherian@marvell.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit 000987a38b53c172f435142a4026dd71378ca464 upstream.
+[ Upstream commit a288fd158fbf85c06a9ac01cecabf97ac5d962e7 ]
 
-Make sure to honour the max_hw_heartbeat_ms while programming the timeout
-value to WOR. Clamp the timeout passed to sbsa_gwdt_set_timeout() to
-make sure the programmed value is within the permissible range.
+In addition to TX channel and RX channel interrupt flags there's
+another class of 'global' interrupt flags with unknown semantics. Those
+weren't being handled up to now, and they are the suspected cause of
+stuck IRQ states that have been sporadically occurring. Check the global
+flags and clear them if raised.
 
-Fixes: abd3ac7902fb ("watchdog: sbsa: Support architecture version 1")
-
-Signed-off-by: George Cherian <george.cherian@marvell.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20230209021117.1512097-1-george.cherian@marvell.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20230224152222.26732-1-povik+lin@cutebit.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sbsa_gwdt.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/apple-admac.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/watchdog/sbsa_gwdt.c
-+++ b/drivers/watchdog/sbsa_gwdt.c
-@@ -121,6 +121,7 @@ static int sbsa_gwdt_set_timeout(struct
- 	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
+diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
+index 90f28bda29c8b..00cbfafe0ed9d 100644
+--- a/drivers/dma/apple-admac.c
++++ b/drivers/dma/apple-admac.c
+@@ -75,6 +75,7 @@
  
- 	wdd->timeout = timeout;
-+	timeout = clamp_t(unsigned int, timeout, 1, wdd->max_hw_heartbeat_ms / 1000);
+ #define REG_TX_INTSTATE(idx)		(0x0030 + (idx) * 4)
+ #define REG_RX_INTSTATE(idx)		(0x0040 + (idx) * 4)
++#define REG_GLOBAL_INTSTATE(idx)	(0x0050 + (idx) * 4)
+ #define REG_CHAN_INTSTATUS(ch, idx)	(0x8010 + (ch) * 0x200 + (idx) * 4)
+ #define REG_CHAN_INTMASK(ch, idx)	(0x8020 + (ch) * 0x200 + (idx) * 4)
  
- 	if (action)
- 		writel(gwdt->clk * timeout,
+@@ -672,13 +673,14 @@ static void admac_handle_chan_int(struct admac_data *ad, int no)
+ static irqreturn_t admac_interrupt(int irq, void *devid)
+ {
+ 	struct admac_data *ad = devid;
+-	u32 rx_intstate, tx_intstate;
++	u32 rx_intstate, tx_intstate, global_intstate;
+ 	int i;
+ 
+ 	rx_intstate = readl_relaxed(ad->base + REG_RX_INTSTATE(ad->irq_index));
+ 	tx_intstate = readl_relaxed(ad->base + REG_TX_INTSTATE(ad->irq_index));
++	global_intstate = readl_relaxed(ad->base + REG_GLOBAL_INTSTATE(ad->irq_index));
+ 
+-	if (!tx_intstate && !rx_intstate)
++	if (!tx_intstate && !rx_intstate && !global_intstate)
+ 		return IRQ_NONE;
+ 
+ 	for (i = 0; i < ad->nchannels; i += 2) {
+@@ -693,6 +695,12 @@ static irqreturn_t admac_interrupt(int irq, void *devid)
+ 		rx_intstate >>= 1;
+ 	}
+ 
++	if (global_intstate) {
++		dev_warn(ad->dev, "clearing unknown global interrupt flag: %x\n",
++			 global_intstate);
++		writel_relaxed(~(u32) 0, ad->base + REG_GLOBAL_INTSTATE(ad->irq_index));
++	}
++
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+2.39.2
+
 
 
