@@ -2,111 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBB56E6E25
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 23:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF7F6E6E32
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 23:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231856AbjDRV1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 17:27:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44338 "EHLO
+        id S232814AbjDRV3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 17:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232194AbjDRV1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 17:27:48 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4977DB2;
-        Tue, 18 Apr 2023 14:27:46 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 298571C0AB3; Tue, 18 Apr 2023 23:27:44 +0200 (CEST)
-Date:   Tue, 18 Apr 2023 23:27:43 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
-        Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-Subject: Re: [PATCH 5.10 000/124] 5.10.178-rc1 review
-Message-ID: <ZD8LT95DKIT0PKmC@duo.ucw.cz>
-References: <20230418120309.539243408@linuxfoundation.org>
- <CA+G9fYsA+CzsxVYgQEN3c2pOV6F+1EOqY1vQrhj8yt1t-EYs7g@mail.gmail.com>
+        with ESMTP id S232983AbjDRV3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 17:29:09 -0400
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BDC7D30C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 14:28:43 -0700 (PDT)
+Received: by mail-io1-xd36.google.com with SMTP id ca18e2360f4ac-760dff4b701so9763339f.0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 14:28:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google; t=1681853320; x=1684445320;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=AF+TKDSwlJxEFvef+zLB3pMaYgBVJqNgkRygFdxNlT4=;
+        b=CPg4nV1fbFsHAryFxUq33eiQukeLnfEN2+T6suHcy8BLOSsHvyB88Ad0wrH3eIlsms
+         d3i4pw6V8UogxgGWZ8SjdWyqpwBaah5C9D/S0Txmr/FFB+lA2PxhcQFA7Do2P0hwraUV
+         +XuqF7dyqNsRBFGoeJjX5/tJEDiNUlwZQMpJE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681853320; x=1684445320;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=AF+TKDSwlJxEFvef+zLB3pMaYgBVJqNgkRygFdxNlT4=;
+        b=Y5wPb7FNfH86rwTRVklY4b4eCB4f4j8DiFTOiG6QRU6kID6LUiqbsh0iQuB7uR59vn
+         S4pnwSrWPFqus2LVeavembSjWBK7kop/i2Oyo3DlGEcxPIOazHqhyk+W6skgYyuh9ZgN
+         m8ZYl6W1QhMVnXFGwNwYLjkgAGlgJYKZvHRROhLtY49OkiHfLZJE6O8Cn4bLZpnvmwqv
+         ZMCnIyc1ad4usXmk3yBdiCcyT/hMMV7bP4/HjlV6avm8/HYq8st9qCTXoTxsWD8MZotb
+         1dHcX1RL7VamSD3TyrHMGdB+ayJGM93XXTUpu3X4c7PJ9vMKnIHqHyNDzA0VnZLzCINr
+         hHTQ==
+X-Gm-Message-State: AAQBX9fKLjMJv4h50XgRBrSUqqNa0OLqaqGWC9kVrID6pcBKC2ctUSFJ
+        Go85k+YzIaXNyoxyzp/a4J2zSA==
+X-Google-Smtp-Source: AKy350YiS5R2Iq9yAjKo6pDkiNMNYsvpJyUtu0o416AIUIjVw5bg2sAXzqIda+xaA9Ecpg8BKrTcyQ==
+X-Received: by 2002:a05:6602:340e:b0:760:ede8:5371 with SMTP id n14-20020a056602340e00b00760ede85371mr6811092ioz.0.1681853320248;
+        Tue, 18 Apr 2023 14:28:40 -0700 (PDT)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id r16-20020a056638131000b0040bc5460051sm3531116jad.98.2023.04.18.14.28.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Apr 2023 14:28:39 -0700 (PDT)
+Message-ID: <a94f6d9b-d2d3-1c56-e6dd-964e15763eb3@linuxfoundation.org>
+Date:   Tue, 18 Apr 2023 15:28:39 -0600
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TQZ0e1oGHiPq7BSO"
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYsA+CzsxVYgQEN3c2pOV6F+1EOqY1vQrhj8yt1t-EYs7g@mail.gmail.com>
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH 5.4 00/92] 5.4.241-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 4/18/23 06:20, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.241 release.
+> There are 92 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.241-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
---TQZ0e1oGHiPq7BSO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Compiled and booted on my test system. No dmesg regressions.
 
-Hi!
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-> > This is the start of the stable review cycle for the 5.10.178 release.
-> > There are 124 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patc=
-h-5.10.178-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
->=20
-> Following build errors noticed on 5.15 and 5.10.,
->=20
->=20
-> > Waiman Long <longman@redhat.com>
-> >     cgroup/cpuset: Change references of cpuset_mutex to cpuset_rwsem
->=20
-> kernel/cgroup/cpuset.c: In function 'cpuset_can_fork':
-> kernel/cgroup/cpuset.c:2941:30: error: 'cgroup_mutex' undeclared
-> (first use in this function); did you mean 'cgroup_put'?
->  2941 |         lockdep_assert_held(&cgroup_mutex);
->       |                              ^~~~~~~~~~~~
-
-For the record, we can see the same failure in CIP testing.
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/8=
-40769270
-
-And it is the only build error I can see in a quick search.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,        Managing Director: Erika Unter
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---TQZ0e1oGHiPq7BSO
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCZD8LTwAKCRAw5/Bqldv6
-8ojdAJ94Tx88lz9vazlcV37F4csfMvZRDACdHCUBoLiiaDK17WwQY99HSxqb4Ew=
-=IUAC
------END PGP SIGNATURE-----
-
---TQZ0e1oGHiPq7BSO--
+thanks,
+-- Shuah
