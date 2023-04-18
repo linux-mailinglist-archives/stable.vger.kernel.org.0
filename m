@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FA16E6381
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C5A6E6407
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbjDRMlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:41:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57194 "EHLO
+        id S231978AbjDRMpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:45:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbjDRMlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:02 -0400
+        with ESMTP id S231987AbjDRMpc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7D3313C36
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99ACF14F4E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 380396330F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A065C433EF;
-        Tue, 18 Apr 2023 12:40:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35A2A63382
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A017C433D2;
+        Tue, 18 Apr 2023 12:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821658;
-        bh=nPHExvQb4lL04JhR3nioSKcfHc1FIn53aqQkraH2nqI=;
+        s=korg; t=1681821926;
+        bh=MeGy0MOALBiuRe8CcWLS3lryePjtmMT+QnPF+LdrO28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njQ+fUVmFEqfIBEoh/rIoxcrunWc1+yt/3OuRmF17R6z7X4wIUS1p+wq3aAFmI5FO
-         dK2HZYygy+N8XIhC8/WyMOVLH8eQaYR1sLOmSQESIgp0kJqgoUCpnK1s+1M0DbVVP5
-         I6ILztfFLwplFKsXT29ZoYfGZuSILdsNOXJ4acFo=
+        b=FKVUnn6nTrgW5oop7s/JKJ6KSWcsnmGi/gYzXr23p3LWKXfBRe6RXaVjmjoJUWp7z
+         FVlqPDYY+2JU+L9EjOXluu6UHcSvxKhbdWccIwJl3jXq++2Db305ml32aOs5aPX7Ru
+         ULNcpKYWBL3c9QiKP3MmihDpTQKDfAWf4tfL3wGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Giuseppe Scrivano <gscrivan@redhat.com>,
-        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
+        patches@lists.linux.dev, Aymeric Wibo <obiwac@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 85/91] cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP properly
+Subject: [PATCH 6.1 093/134] ACPI: resource: Add Medion S17413 to IRQ override quirk
 Date:   Tue, 18 Apr 2023 14:22:29 +0200
-Message-Id: <20230418120308.512857363@linuxfoundation.org>
+Message-Id: <20230418120316.411800423@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,131 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Aymeric Wibo <obiwac@gmail.com>
 
-[ Upstream commit 42a11bf5c5436e91b040aeb04063be1710bb9f9c ]
+[ Upstream commit 2d0ab14634a26e54f8d6d231b47b7ef233e84599 ]
 
-By default, the clone(2) syscall spawn a child process into the same
-cgroup as its parent. With the use of the CLONE_INTO_CGROUP flag
-introduced by commit ef2c41cf38a7 ("clone3: allow spawning processes
-into cgroups"), the child will be spawned into a different cgroup which
-is somewhat similar to writing the child's tid into "cgroup.threads".
+Add DMI info of the Medion S17413 (board M1xA) to the IRQ override
+quirk table. This fixes the keyboard not working on these laptops.
 
-The current cpuset_fork() method does not properly handle the
-CLONE_INTO_CGROUP case where the cpuset of the child may be different
-from that of its parent.  Update the cpuset_fork() method to treat the
-CLONE_INTO_CGROUP case similar to cpuset_attach().
-
-Since the newly cloned task has not been running yet, its actual
-memory usage isn't known. So it is not necessary to make change to mm
-in cpuset_fork().
-
-Fixes: ef2c41cf38a7 ("clone3: allow spawning processes into cgroups")
-Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213031
+Signed-off-by: Aymeric Wibo <obiwac@gmail.com>
+[ rjw: Fixed up white space ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c | 62 ++++++++++++++++++++++++++++--------------
- 1 file changed, 42 insertions(+), 20 deletions(-)
+ drivers/acpi/resource.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 3d254498eb275..a6829e21b50c3 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2242,16 +2242,33 @@ static void cpuset_cancel_attach(struct cgroup_taskset *tset)
- }
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index a222bda7e15b0..d08818baea88f 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -400,6 +400,13 @@ static const struct dmi_system_id medion_laptop[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "M17T"),
+ 		},
+ 	},
++	{
++		.ident = "MEDION S17413",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
++			DMI_MATCH(DMI_BOARD_NAME, "M1xA"),
++		},
++	},
+ 	{ }
+ };
  
- /*
-- * Protected by cpuset_rwsem.  cpus_attach is used only by cpuset_attach()
-+ * Protected by cpuset_rwsem. cpus_attach is used only by cpuset_attach_task()
-  * but we can't allocate it dynamically there.  Define it global and
-  * allocate from cpuset_init().
-  */
- static cpumask_var_t cpus_attach;
-+static nodemask_t cpuset_attach_nodemask_to;
-+
-+static void cpuset_attach_task(struct cpuset *cs, struct task_struct *task)
-+{
-+	percpu_rwsem_assert_held(&cpuset_rwsem);
-+
-+	if (cs != &top_cpuset)
-+		guarantee_online_cpus(task, cpus_attach);
-+	else
-+		cpumask_copy(cpus_attach, task_cpu_possible_mask(task));
-+	/*
-+	 * can_attach beforehand should guarantee that this doesn't
-+	 * fail.  TODO: have a better way to handle failure here
-+	 */
-+	WARN_ON_ONCE(set_cpus_allowed_ptr(task, cpus_attach));
-+
-+	cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
-+	cpuset_update_task_spread_flags(cs, task);
-+}
- 
- static void cpuset_attach(struct cgroup_taskset *tset)
- {
--	/* static buf protected by cpuset_rwsem */
--	static nodemask_t cpuset_attach_nodemask_to;
- 	struct task_struct *task;
- 	struct task_struct *leader;
- 	struct cgroup_subsys_state *css;
-@@ -2266,20 +2283,8 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 
- 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
- 
--	cgroup_taskset_for_each(task, css, tset) {
--		if (cs != &top_cpuset)
--			guarantee_online_cpus(task, cpus_attach);
--		else
--			cpumask_copy(cpus_attach, task_cpu_possible_mask(task));
--		/*
--		 * can_attach beforehand should guarantee that this doesn't
--		 * fail.  TODO: have a better way to handle failure here
--		 */
--		WARN_ON_ONCE(set_cpus_allowed_ptr(task, cpus_attach));
--
--		cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
--		cpuset_update_task_spread_flags(cs, task);
--	}
-+	cgroup_taskset_for_each(task, css, tset)
-+		cpuset_attach_task(cs, task);
- 
- 	/*
- 	 * Change mm for all threadgroup leaders. This is expensive and may
-@@ -2952,11 +2957,28 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
-  */
- static void cpuset_fork(struct task_struct *task)
- {
--	if (task_css_is_root(task, cpuset_cgrp_id))
-+	struct cpuset *cs;
-+	bool same_cs;
-+
-+	rcu_read_lock();
-+	cs = task_cs(task);
-+	same_cs = (cs == task_cs(current));
-+	rcu_read_unlock();
-+
-+	if (same_cs) {
-+		if (cs == &top_cpuset)
-+			return;
-+
-+		set_cpus_allowed_ptr(task, current->cpus_ptr);
-+		task->mems_allowed = current->mems_allowed;
- 		return;
-+	}
- 
--	set_cpus_allowed_ptr(task, current->cpus_ptr);
--	task->mems_allowed = current->mems_allowed;
-+	/* CLONE_INTO_CGROUP */
-+	percpu_down_write(&cpuset_rwsem);
-+	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
-+	cpuset_attach_task(cs, task);
-+	percpu_up_write(&cpuset_rwsem);
- }
- 
- struct cgroup_subsys cpuset_cgrp_subsys = {
 -- 
 2.39.2
 
