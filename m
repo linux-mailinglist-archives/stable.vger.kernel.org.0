@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3704B6E646E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCD706E633D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232083AbjDRMtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40704 "EHLO
+        id S231792AbjDRMi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232093AbjDRMtO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:14 -0400
+        with ESMTP id S231379AbjDRMi6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDA915A10
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9C11386B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 712A8633E0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83EFBC433D2;
-        Tue, 18 Apr 2023 12:48:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C947E632DE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FB6C4339C;
+        Tue, 18 Apr 2023 12:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822137;
-        bh=bDeK0m9SNktXyIdbP6hPB19l6qsk7ey/Kphqh7REGSg=;
+        s=korg; t=1681821536;
+        bh=0mt26iVTqwPUcTu9GZ1KJp1Pi0NpaixLhjWQmQt46oA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8MQyKIaXbRWrNoFJU/pIhFaAxQMfWt0GjwKenQJxD8S6bwdNl13CBTat3gmv4wB4
-         JqYiqzRiapUj2sWjeL6K53+tAoHjTHFPXRmSGXqYaj1ta0ZsIp1KuVS11/rcmfd6lz
-         srEwvAVu/wk5U+bwtuwPShDNdD249DpEKIRMV220=
+        b=NCnbdepZby+HmoY2XNWoFSBr7y8H9ChbptvaJjMuE+s+Ud35HY1HwrfoeqUc+ak99
+         Z/UpWSsG7CfiD6Oj9bsuees7e0cvSFnGDhTaKeJ5U7h3dnpzC6ma6/Q3XLsBmOXaDl
+         scK94wpH9kgUB4VHWCC+wwl4/29tOy5HpAxDEW8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Erik Brakkee <erik@brakkee.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.2 007/139] ALSA: hda: patch_realtek: add quirk for Asus N7601ZM
+        patches@lists.linux.dev, stable@kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Min Li <lm0963hack@gmail.com>
+Subject: [PATCH 5.15 08/91] Bluetooth: L2CAP: Fix use-after-free in l2cap_disconnect_{req,rsp}
 Date:   Tue, 18 Apr 2023 14:21:12 +0200
-Message-Id: <20230418120313.986330605@linuxfoundation.org>
+Message-Id: <20230418120305.824878860@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,78 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit e959f2beec8e655dba79c5a7111beedae5e757e0 upstream.
+commit a2a9339e1c9deb7e1e079e12e27a0265aea8421a upstream.
 
-Add pins and verbs needed to enable speakers and jack.
+Similar to commit d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free
+caused by l2cap_chan_put"), just use l2cap_chan_hold_unless_zero to
+prevent referencing a channel that is about to be destroyed.
 
-The pins and verbs configurations were identified by snooping the
-Windows driver commands, with a nice write-up here:
-https://brakkee.org/site/2023/02/07/fixing-sound-on-the-asus-n7601zm/
-
-Reported-by: Erik Brakkee <erik@brakkee.org>
-Link: https://github.com/thesofproject/linux/issues/4176
-Tested-by: Erik Brakkee <erik@brakkee.org>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230406152725.15191-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@kernel.org
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Min Li <lm0963hack@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ net/bluetooth/l2cap_core.c |   24 ++++++------------------
+ 1 file changed, 6 insertions(+), 18 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6960,6 +6960,8 @@ enum {
- 	ALC269_FIXUP_DELL_M101Z,
- 	ALC269_FIXUP_SKU_IGNORE,
- 	ALC269_FIXUP_ASUS_G73JW,
-+	ALC269_FIXUP_ASUS_N7601ZM_PINS,
-+	ALC269_FIXUP_ASUS_N7601ZM,
- 	ALC269_FIXUP_LENOVO_EAPD,
- 	ALC275_FIXUP_SONY_HWEQ,
- 	ALC275_FIXUP_SONY_DISABLE_AAMIX,
-@@ -7256,6 +7258,29 @@ static const struct hda_fixup alc269_fix
- 			{ }
- 		}
- 	},
-+	[ALC269_FIXUP_ASUS_N7601ZM_PINS] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x03A11050 },
-+			{ 0x1a, 0x03A11C30 },
-+			{ 0x21, 0x03211420 },
-+			{ }
-+		}
-+	},
-+	[ALC269_FIXUP_ASUS_N7601ZM] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{0x20, AC_VERB_SET_COEF_INDEX, 0x62},
-+			{0x20, AC_VERB_SET_PROC_COEF, 0xa007},
-+			{0x20, AC_VERB_SET_COEF_INDEX, 0x10},
-+			{0x20, AC_VERB_SET_PROC_COEF, 0x8420},
-+			{0x20, AC_VERB_SET_COEF_INDEX, 0x0f},
-+			{0x20, AC_VERB_SET_PROC_COEF, 0x7774},
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_ASUS_N7601ZM_PINS,
-+	},
- 	[ALC269_FIXUP_LENOVO_EAPD] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -9465,6 +9490,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1271, "ASUS X430UN", ALC256_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x1290, "ASUS X441SA", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x12a0, "ASUS X441UV", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1043, 0x12a3, "Asus N7691ZM", ALC269_FIXUP_ASUS_N7601ZM),
- 	SND_PCI_QUIRK(0x1043, 0x12af, "ASUS UX582ZS", ALC245_FIXUP_CS35L41_SPI_2),
- 	SND_PCI_QUIRK(0x1043, 0x12e0, "ASUS X541SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x12f0, "ASUS X541UV", ALC256_FIXUP_ASUS_MIC),
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4652,33 +4652,27 @@ static inline int l2cap_disconnect_req(s
+ 
+ 	BT_DBG("scid 0x%4.4x dcid 0x%4.4x", scid, dcid);
+ 
+-	mutex_lock(&conn->chan_lock);
+-
+-	chan = __l2cap_get_chan_by_scid(conn, dcid);
++	chan = l2cap_get_chan_by_scid(conn, dcid);
+ 	if (!chan) {
+-		mutex_unlock(&conn->chan_lock);
+ 		cmd_reject_invalid_cid(conn, cmd->ident, dcid, scid);
+ 		return 0;
+ 	}
+ 
+-	l2cap_chan_hold(chan);
+-	l2cap_chan_lock(chan);
+-
+ 	rsp.dcid = cpu_to_le16(chan->scid);
+ 	rsp.scid = cpu_to_le16(chan->dcid);
+ 	l2cap_send_cmd(conn, cmd->ident, L2CAP_DISCONN_RSP, sizeof(rsp), &rsp);
+ 
+ 	chan->ops->set_shutdown(chan);
+ 
++	mutex_lock(&conn->chan_lock);
+ 	l2cap_chan_del(chan, ECONNRESET);
++	mutex_unlock(&conn->chan_lock);
+ 
+ 	chan->ops->close(chan);
+ 
+ 	l2cap_chan_unlock(chan);
+ 	l2cap_chan_put(chan);
+ 
+-	mutex_unlock(&conn->chan_lock);
+-
+ 	return 0;
+ }
+ 
+@@ -4698,33 +4692,27 @@ static inline int l2cap_disconnect_rsp(s
+ 
+ 	BT_DBG("dcid 0x%4.4x scid 0x%4.4x", dcid, scid);
+ 
+-	mutex_lock(&conn->chan_lock);
+-
+-	chan = __l2cap_get_chan_by_scid(conn, scid);
++	chan = l2cap_get_chan_by_scid(conn, scid);
+ 	if (!chan) {
+ 		mutex_unlock(&conn->chan_lock);
+ 		return 0;
+ 	}
+ 
+-	l2cap_chan_hold(chan);
+-	l2cap_chan_lock(chan);
+-
+ 	if (chan->state != BT_DISCONN) {
+ 		l2cap_chan_unlock(chan);
+ 		l2cap_chan_put(chan);
+-		mutex_unlock(&conn->chan_lock);
+ 		return 0;
+ 	}
+ 
++	mutex_lock(&conn->chan_lock);
+ 	l2cap_chan_del(chan, 0);
++	mutex_unlock(&conn->chan_lock);
+ 
+ 	chan->ops->close(chan);
+ 
+ 	l2cap_chan_unlock(chan);
+ 	l2cap_chan_put(chan);
+ 
+-	mutex_unlock(&conn->chan_lock);
+-
+ 	return 0;
+ }
+ 
 
 
