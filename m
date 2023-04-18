@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E486E6263
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F1536E6173
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229841AbjDRMcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44870 "EHLO
+        id S230070AbjDRMZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:25:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230327AbjDRMcS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0812E10251
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:54 -0700 (PDT)
+        with ESMTP id S229637AbjDRMZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155868A61
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C065863221
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DC8C433EF;
-        Tue, 18 Apr 2023 12:31:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C4806311D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 604A3C433EF;
+        Tue, 18 Apr 2023 12:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821106;
-        bh=Aq8vcejyKWuvLtlAKkoLOGG9pzuV4Z9p3791cnIrGFQ=;
+        s=korg; t=1681820693;
+        bh=7P5FyF7dWbMmUfz1KqjjZ0wfuS6f2ex6qUAWYh8lfZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBlm3CTvRRYCAUueW0kD9Pq4odhHq3KqCjYztY191yPftNyDE7xQfOvaB7tX25yBU
-         st+KEY8I9z0dsIkfakVNvy9hc+bIyFy5yB7ePrjTGeUzgKsmlrhhr5GqGRmkbSt1or
-         JuydHYbQcshwrmC9mmoIBLbz9qg/OF81xMrwpqQg=
+        b=VuallBQFT2JVnkJDtIxCDgBXiqddz/avmQIfMCEo/xQJC852rvIuEeTfCXDAdH2Kj
+         dgLUtPihL8ywEYjwDqhZ0P3ynntXIr6DImhJuqTO95XgBcerqjYQyMUGnRtfEtQ4e7
+         kOlYeSH1xtJLoZvPHCEFJCUvZG/91XoPVsaZUX+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 67/92] drm: panel-orientation-quirks: Add quirk for Lenovo Yoga Book X90F
-Date:   Tue, 18 Apr 2023 14:21:42 +0200
-Message-Id: <20230418120307.161711686@linuxfoundation.org>
+        patches@lists.linux.dev,
+        George Cherian <george.cherian@marvell.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
+Subject: [PATCH 4.14 33/37] watchdog: sbsa_wdog: Make sure the timeout programming is within the limits
+Date:   Tue, 18 Apr 2023 14:21:43 +0200
+Message-Id: <20230418120255.883205205@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,55 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: George Cherian <george.cherian@marvell.com>
 
-[ Upstream commit 03aecb1acbcd7a660f97d645ca6c09d9de27ff9d ]
+commit 000987a38b53c172f435142a4026dd71378ca464 upstream.
 
-Like the Windows Lenovo Yoga Book X91F/L the Android Lenovo Yoga Book
-X90F/L has a portrait 1200x1920 screen used in landscape mode,
-add a quirk for this.
+Make sure to honour the max_hw_heartbeat_ms while programming the timeout
+value to WOR. Clamp the timeout passed to sbsa_gwdt_set_timeout() to
+make sure the programmed value is within the permissible range.
 
-When the quirk for the X91F/L was initially added it was written to
-also apply to the X90F/L but this does not work because the Android
-version of the Yoga Book uses completely different DMI strings.
-Also adjust the X91F/L quirk to reflect that it only applies to
-the X91F/L models.
+Fixes: abd3ac7902fb ("watchdog: sbsa: Support architecture version 1")
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230301095218.28457-1-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20230209021117.1512097-1-george.cherian@marvell.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/watchdog/sbsa_gwdt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 8768073794fbf..6106fa7c43028 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -284,10 +284,17 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "IdeaPad Duet 3 10IGL5"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
--	}, {	/* Lenovo Yoga Book X90F / X91F / X91L */
-+	}, {	/* Lenovo Yoga Book X90F / X90L */
- 		.matches = {
--		  /* Non exact match to match all versions */
--		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9"),
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
-+		},
-+		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Lenovo Yoga Book X91F / X91L */
-+		.matches = {
-+		  /* Non exact match to match F + L versions */
-+		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
- 	}, {	/* OneGX1 Pro */
--- 
-2.39.2
-
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -130,6 +130,7 @@ static int sbsa_gwdt_set_timeout(struct
+ 	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
+ 
+ 	wdd->timeout = timeout;
++	timeout = clamp_t(unsigned int, timeout, 1, wdd->max_hw_heartbeat_ms / 1000);
+ 
+ 	if (action)
+ 		writel(gwdt->clk * timeout,
 
 
