@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A04956E6308
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F16726E64C9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231752AbjDRMh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52938 "EHLO
+        id S232213AbjDRMwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230471AbjDRMh0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0ED13843
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:21 -0700 (PDT)
+        with ESMTP id S232233AbjDRMw0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2713183AA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2527A63227
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C105C433EF;
-        Tue, 18 Apr 2023 12:37:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87A4363437
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D00EC433D2;
+        Tue, 18 Apr 2023 12:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821440;
-        bh=mW8Y1CkHX8lCQV0Us4SDvk43W03NToPaBMbKohQPfJk=;
+        s=korg; t=1681822315;
+        bh=7lWJPG4MKJn2MuWiZGbL/jDPdbuFP20hCmCra5TBhwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtdgBELWd3CXnk3NrVZpFXakYA1XLjk1rPWkhXI9qY6E68Awxct/tNno94Izqy1RX
-         M+ai+MOZx7J4cdxb85SF5YDJPxRIDFwHKGouBrWI9hpv+jmNqCHgb3pOt399+fK8mp
-         GYxA7hBOVvxGEF3uyWp81RzkgMKOFch2hJGa9pJM=
+        b=uvYG359aDoBei51gD4FJI9ugNqc8SerHzESUOmy5cWnCqldBck/OeIZz+/SG0HuPj
+         +oxLNGSRBi2VfCYFhYsMjcnuRRXsT+GzlbLfpk+UsKC9q3egIBACyb+/2oKwAOWkg/
+         2gYCZdc5mIENwPnIvLv2R01tzX+qQ4LzTwTEnNXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 120/124] riscv: Handle zicsr/zifencei issues between clang and binutils
+        patches@lists.linux.dev, Liang Chen <liangchen.linux@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 074/139] skbuff: Fix a race between coalescing and releasing SKBs
 Date:   Tue, 18 Apr 2023 14:22:19 +0200
-Message-Id: <20230418120314.128977947@linuxfoundation.org>
+Message-Id: <20230418120316.615193244@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,123 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-commit e89c2e815e76471cb507bd95728bf26da7976430 upstream.
+[ Upstream commit 0646dc31ca886693274df5749cd0c8c1eaaeb5ca ]
 
-There are two related issues that appear in certain combinations with
-clang and GNU binutils.
+Commit 1effe8ca4e34 ("skbuff: fix coalescing for page_pool fragment
+recycling") allowed coalescing to proceed with non page pool page and page
+pool page when @from is cloned, i.e.
 
-The first occurs when a version of clang that supports zicsr or zifencei
-via '-march=' [1] (i.e, >= 17.x) is used in combination with a version
-of GNU binutils that do not recognize zicsr and zifencei in the
-'-march=' value (i.e., < 2.36):
+to->pp_recycle    --> false
+from->pp_recycle  --> true
+skb_cloned(from)  --> true
 
-  riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_c2p0_zicsr2p0_zifencei2p0: Invalid or unknown z ISA extension: 'zifencei'
-  riscv64-linux-gnu-ld: failed to merge target specific data of file fs/efivarfs/file.o
-  riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_c2p0_zicsr2p0_zifencei2p0: Invalid or unknown z ISA extension: 'zifencei'
-  riscv64-linux-gnu-ld: failed to merge target specific data of file fs/efivarfs/super.o
+However, it actually requires skb_cloned(@from) to hold true until
+coalescing finishes in this situation. If the other cloned SKB is
+released while the merging is in process, from_shinfo->nr_frags will be
+set to 0 toward the end of the function, causing the increment of frag
+page _refcount to be unexpectedly skipped resulting in inconsistent
+reference counts. Later when SKB(@to) is released, it frees the page
+directly even though the page pool page is still in use, leading to
+use-after-free or double-free errors. So it should be prohibited.
 
-The second occurs when a version of clang that does not support zicsr or
-zifencei via '-march=' (i.e., <= 16.x) is used in combination with a
-version of GNU as that defaults to a newer ISA base spec, which requires
-specifying zicsr and zifencei in the '-march=' value explicitly (i.e, >=
-2.38):
+The double-free error message below prompted us to investigate:
+BUG: Bad page state in process swapper/1  pfn:0e0d1
+page:00000000c6548b28 refcount:-1 mapcount:0 mapping:0000000000000000
+index:0x2 pfn:0xe0d1
+flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc0000000 0000000000000000 ffffffff00000101 0000000000000000
+raw: 0000000000000002 0000000000000000 ffffffffffffffff 0000000000000000
+page dumped because: nonzero _refcount
 
-  ../arch/riscv/kernel/kexec_relocate.S: Assembler messages:
-  ../arch/riscv/kernel/kexec_relocate.S:147: Error: unrecognized opcode `fence.i', extension `zifencei' required
-  clang-12: error: assembler command failed with exit code 1 (use -v to see invocation)
+CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E      6.2.0+
+Call Trace:
+ <IRQ>
+dump_stack_lvl+0x32/0x50
+bad_page+0x69/0xf0
+free_pcp_prepare+0x260/0x2f0
+free_unref_page+0x20/0x1c0
+skb_release_data+0x10b/0x1a0
+napi_consume_skb+0x56/0x150
+net_rx_action+0xf0/0x350
+? __napi_schedule+0x79/0x90
+__do_softirq+0xc8/0x2b1
+__irq_exit_rcu+0xb9/0xf0
+common_interrupt+0x82/0xa0
+</IRQ>
+<TASK>
+asm_common_interrupt+0x22/0x40
+RIP: 0010:default_idle+0xb/0x20
 
-This is the same issue addressed by commit 6df2a016c0c8 ("riscv: fix
-build with binutils 2.38") (see [2] for additional information) but
-older versions of clang miss out on it because the cc-option check
-fails:
-
-  clang-12: error: invalid arch name 'rv64imac_zicsr_zifencei', unsupported standard user-level extension 'zicsr'
-  clang-12: error: invalid arch name 'rv64imac_zicsr_zifencei', unsupported standard user-level extension 'zicsr'
-
-To resolve the first issue, only attempt to add zicsr and zifencei to
-the march string when using the GNU assembler 2.38 or newer, which is
-when the default ISA spec was updated, requiring these extensions to be
-specified explicitly. LLVM implements an older version of the base
-specification for all currently released versions, so these instructions
-are available as part of the 'i' extension. If LLVM's implementation is
-updated in the future, a CONFIG_AS_IS_LLVM condition can be added to
-CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI.
-
-To resolve the second issue, use version 2.2 of the base ISA spec when
-using an older version of clang that does not support zicsr or zifencei
-via '-march=', as that is the spec version most compatible with the one
-clang/LLVM implements and avoids the need to specify zicsr and zifencei
-explicitly due to still being a part of 'i'.
-
-[1]: https://github.com/llvm/llvm-project/commit/22e199e6afb1263c943c0c0d4498694e15bf8a16
-[2]: https://lore.kernel.org/ZAxT7T9Xy1Fo3d5W@aurel32.net/
-
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1808
-Co-developed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20230313-riscv-zicsr-zifencei-fiasco-v1-1-dd1b7840a551@kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230413090353.14448-1-liangchen.linux@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig  |   22 ++++++++++++++++++++++
- arch/riscv/Makefile |   10 ++++++----
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ net/core/skbuff.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -331,6 +331,28 @@ config RISCV_BASE_PMU
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index a31ff4d83ecc4..43e1b89695c22 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -5475,18 +5475,18 @@ bool skb_try_coalesce(struct sk_buff *to, struct sk_buff *from,
+ 	if (skb_cloned(to))
+ 		return false;
  
- endmenu
+-	/* In general, avoid mixing slab allocated and page_pool allocated
+-	 * pages within the same SKB. However when @to is not pp_recycle and
+-	 * @from is cloned, we can transition frag pages from page_pool to
+-	 * reference counted.
+-	 *
+-	 * On the other hand, don't allow coalescing two pp_recycle SKBs if
+-	 * @from is cloned, in case the SKB is using page_pool fragment
++	/* In general, avoid mixing page_pool and non-page_pool allocated
++	 * pages within the same SKB. Additionally avoid dealing with clones
++	 * with page_pool pages, in case the SKB is using page_pool fragment
+ 	 * references (PP_FLAG_PAGE_FRAG). Since we only take full page
+ 	 * references for cloned SKBs at the moment that would result in
+ 	 * inconsistent reference counts.
++	 * In theory we could take full references if @from is cloned and
++	 * !@to->pp_recycle but its tricky (due to potential race with
++	 * the clone disappearing) and rare, so not worth dealing with.
+ 	 */
+-	if (to->pp_recycle != (from->pp_recycle && !skb_cloned(from)))
++	if (to->pp_recycle != from->pp_recycle ||
++	    (from->pp_recycle && skb_cloned(from)))
+ 		return false;
  
-+config TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI
-+	def_bool y
-+	# https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=aed44286efa8ae8717a77d94b51ac3614e2ca6dc
-+	depends on AS_IS_GNU && AS_VERSION >= 23800
-+	help
-+	  Newer binutils versions default to ISA spec version 20191213 which
-+	  moves some instructions from the I extension to the Zicsr and Zifencei
-+	  extensions.
-+
-+config TOOLCHAIN_NEEDS_OLD_ISA_SPEC
-+	def_bool y
-+	depends on TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI
-+	# https://github.com/llvm/llvm-project/commit/22e199e6afb1263c943c0c0d4498694e15bf8a16
-+	depends on CC_IS_CLANG && CLANG_VERSION < 170000
-+	help
-+	  Certain versions of clang do not support zicsr and zifencei via -march
-+	  but newer versions of binutils require it for the reasons noted in the
-+	  help text of CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI. This
-+	  option causes an older ISA spec compatible with these older versions
-+	  of clang to be passed to GAS, which has the same result as passing zicsr
-+	  and zifencei to -march.
-+
- config FPU
- 	bool "FPU support"
- 	default y
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -53,10 +53,12 @@ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64
- riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
- riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
- 
--# Newer binutils versions default to ISA spec version 20191213 which moves some
--# instructions from the I extension to the Zicsr and Zifencei extensions.
--toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
--riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
-+ifdef CONFIG_TOOLCHAIN_NEEDS_OLD_ISA_SPEC
-+KBUILD_CFLAGS += -Wa,-misa-spec=2.2
-+KBUILD_AFLAGS += -Wa,-misa-spec=2.2
-+else
-+riscv-march-$(CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI) := $(riscv-march-y)_zicsr_zifencei
-+endif
- 
- KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
- KBUILD_AFLAGS += -march=$(riscv-march-y)
+ 	if (len <= skb_tailroom(to)) {
+-- 
+2.39.2
+
 
 
