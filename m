@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8927D6E63F0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BA36E61E3
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231944AbjDRMoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:44:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
+        id S231484AbjDRM2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231945AbjDRMon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:43 -0400
+        with ESMTP id S231458AbjDRM2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B18167C2
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D60AF29
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C64A963374
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D83ABC433D2;
-        Tue, 18 Apr 2023 12:44:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABA59631A9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5BFC433D2;
+        Tue, 18 Apr 2023 12:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821881;
-        bh=mSsL7HZGPx3DaCzUaCYeDawLRizkN8o1Fw+ubaHMdhQ=;
+        s=korg; t=1681820873;
+        bh=HOYySgiVD99gfj2I/s9UvJSoeydPSb12be38qPR4uxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3Fqj58yHkZkZJeHFD4CzKNoYWfHDqbC7GJw3ooWcaRD7kc//usNvnwakTjm6facJ
-         m4xywCCASioQMpIC3gbyEJ/N3/GP4jAbfZOCLUFsAK8Y52EI9DIseAeP55eoDWCbtj
-         R1yKoSiQshMEX+mdwOnvS9UbnB7+T+lhnVqdfdNo=
+        b=kEyn5GIl+g41mIuOA4IyC6rnAXYdXfUkiVlc/+syYFp61yqaGXqyI2lcMQqv1rCbr
+         tAdbpzdX/sMnKz4qIUo2vSCA3tqcCuhyc0fafl/PANVbb5IBfm7q1Sxw/pcbywZtqm
+         wFUoCoVQ0ns86H8cLfTdfjT1z5tiTvuYWs8jMXK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fuad Tabba <tabba@google.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 047/134] KVM: arm64: Advertise ID_AA64PFR0_EL1.CSV2/3 to protected VMs
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 43/57] i2c: imx-lpi2c: clean rx/tx buffers upon new message
 Date:   Tue, 18 Apr 2023 14:21:43 +0200
-Message-Id: <20230418120314.570071134@linuxfoundation.org>
+Message-Id: <20230418120300.238715011@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fuad Tabba <tabba@google.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit e81625218bf7986ba1351a98c43d346b15601d26 ]
+[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
 
-The existing pKVM code attempts to advertise CSV2/3 using values
-initialized to 0, but never set. To advertise CSV2/3 to protected
-guests, pass the CSV2/3 values to hyp when initializing hyp's
-view of guests' ID_AA64PFR0_EL1.
+When start sending a new message clear the Rx & Tx buffer pointers in
+order to avoid using stale pointers.
 
-Similar to non-protected KVM, these are system-wide, rather than
-per cpu, for simplicity.
-
-Fixes: 6c30bfb18d0b ("KVM: arm64: Add handlers for protected VM System Registers")
-Signed-off-by: Fuad Tabba <tabba@google.com>
-Link: https://lore.kernel.org/r/20230404152321.413064-1-tabba@google.com
-Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/arm.c                          | 26 ++++++++++++++++++-
- .../arm64/kvm/hyp/include/nvhe/fixed_config.h |  5 +++-
- arch/arm64/kvm/hyp/nvhe/sys_regs.c            |  7 -----
- 3 files changed, 29 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index e40606a560997..6ce6888cf73d6 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -1870,9 +1870,33 @@ static int do_pkvm_init(u32 hyp_va_bits)
- 	return ret;
- }
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 90c510d166516..f494b27497005 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -468,6 +468,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ 		if (num == 1 && msgs[0].len == 0)
+ 			goto stop;
  
-+static u64 get_hyp_id_aa64pfr0_el1(void)
-+{
-+	/*
-+	 * Track whether the system isn't affected by spectre/meltdown in the
-+	 * hypervisor's view of id_aa64pfr0_el1, used for protected VMs.
-+	 * Although this is per-CPU, we make it global for simplicity, e.g., not
-+	 * to have to worry about vcpu migration.
-+	 *
-+	 * Unlike for non-protected VMs, userspace cannot override this for
-+	 * protected VMs.
-+	 */
-+	u64 val = read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1);
-+
-+	val &= ~(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2) |
-+		 ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3));
-+
-+	val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2),
-+			  arm64_get_spectre_v2_state() == SPECTRE_UNAFFECTED);
-+	val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3),
-+			  arm64_get_meltdown_state() == SPECTRE_UNAFFECTED);
-+
-+	return val;
-+}
-+
- static void kvm_hyp_init_symbols(void)
- {
--	kvm_nvhe_sym(id_aa64pfr0_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1);
-+	kvm_nvhe_sym(id_aa64pfr0_el1_sys_val) = get_hyp_id_aa64pfr0_el1();
- 	kvm_nvhe_sym(id_aa64pfr1_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64PFR1_EL1);
- 	kvm_nvhe_sym(id_aa64isar0_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64ISAR0_EL1);
- 	kvm_nvhe_sym(id_aa64isar1_el1_sys_val) = read_sanitised_ftr_reg(SYS_ID_AA64ISAR1_EL1);
-diff --git a/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h b/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h
-index 07edfc7524c94..37440e1dda930 100644
---- a/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h
-+++ b/arch/arm64/kvm/hyp/include/nvhe/fixed_config.h
-@@ -33,11 +33,14 @@
-  * Allow for protected VMs:
-  * - Floating-point and Advanced SIMD
-  * - Data Independent Timing
-+ * - Spectre/Meltdown Mitigation
-  */
- #define PVM_ID_AA64PFR0_ALLOW (\
- 	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_FP) | \
- 	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_AdvSIMD) | \
--	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_DIT) \
-+	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_DIT) | \
-+	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2) | \
-+	ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3) \
- 	)
- 
- /*
-diff --git a/arch/arm64/kvm/hyp/nvhe/sys_regs.c b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-index 0f9ac25afdf40..3d5121ee39777 100644
---- a/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-+++ b/arch/arm64/kvm/hyp/nvhe/sys_regs.c
-@@ -84,19 +84,12 @@ static u64 get_restricted_features_unsigned(u64 sys_reg_val,
- 
- static u64 get_pvm_id_aa64pfr0(const struct kvm_vcpu *vcpu)
- {
--	const struct kvm *kvm = (const struct kvm *)kern_hyp_va(vcpu->kvm);
- 	u64 set_mask = 0;
- 	u64 allow_mask = PVM_ID_AA64PFR0_ALLOW;
- 
- 	set_mask |= get_restricted_features_unsigned(id_aa64pfr0_el1_sys_val,
- 		PVM_ID_AA64PFR0_RESTRICT_UNSIGNED);
- 
--	/* Spectre and Meltdown mitigation in KVM */
--	set_mask |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV2),
--			       (u64)kvm->arch.pfr0_csv2);
--	set_mask |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_EL1_CSV3),
--			       (u64)kvm->arch.pfr0_csv3);
--
- 	return (id_aa64pfr0_el1_sys_val & allow_mask) | set_mask;
- }
- 
++		lpi2c_imx->rx_buf = NULL;
++		lpi2c_imx->tx_buf = NULL;
+ 		lpi2c_imx->delivered = 0;
+ 		lpi2c_imx->msglen = msgs[i].len;
+ 		init_completion(&lpi2c_imx->complete);
 -- 
 2.39.2
 
