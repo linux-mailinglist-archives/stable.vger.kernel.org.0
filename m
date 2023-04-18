@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB7E6E6462
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B715C6E63C0
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbjDRMsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40040 "EHLO
+        id S231948AbjDRMnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232100AbjDRMsl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:41 -0400
+        with ESMTP id S231946AbjDRMnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95BBF15A13
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86A6415638
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77345633E0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5D4C433D2;
-        Tue, 18 Apr 2023 12:48:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 208656333D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B4E5C433D2;
+        Tue, 18 Apr 2023 12:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822108;
-        bh=4noMoL3Rn3mAiu1I8A8tQpGc7vuKqFTSM8ZgM1Oxfa0=;
+        s=korg; t=1681821770;
+        bh=pFT8mW1rANlh4xPbqokWJfD5HFIWqXyYVX2wTOFvyJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1UWxw6EHCTV25sbXhQ7XG8o1FlVp63pLfBjGxE5hSOlqmXst0u2DemPgLiJsOobO
-         FdvG0KuGxGCsanIwvwIgn/QLMTFzUwYO9MXWidXueq7BD5pkqqwq6oMBswrLLR6nSs
-         /mNHofGAwfDCYj2CC3rv1rBipDrh01w4mws4qXSI=
+        b=g4N/hQV34mS0VvjN7mQU0L7mPM1l2LYCjxIVg220Znt2R7agrtyy3payRnc3/X0Ow
+         iUM6MhV/7AMnX2PVzoPORUpuSc4InmdlulzKrCiOAVGQJZWCro2EIbz53EHwqBbShJ
+         XEaxA8S3z6ckmiZBLCYagoI3gRRtvDv3yQ0z4VQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
-        Reiji Watanabe <reijiw@google.com>,
-        Oliver Upton <oliver.upton@linux.dev>
-Subject: [PATCH 6.2 025/139] KVM: arm64: PMU: Restore the guests EL0 event counting after migration
+        patches@lists.linux.dev, Cheng Xu <chengyou@linux.alibaba.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 034/134] RDMA/erdma: Update default EQ depth to 4096 and max_send_wr to 8192
 Date:   Tue, 18 Apr 2023 14:21:30 +0200
-Message-Id: <20230418120314.596622309@linuxfoundation.org>
+Message-Id: <20230418120314.155944979@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reiji Watanabe <reijiw@google.com>
+From: Cheng Xu <chengyou@linux.alibaba.com>
 
-commit f9ea835e99bc8d049bf2a3ec8fa5a7cb4fcade23 upstream.
+[ Upstream commit 6256aa9ae955d10ec73a434533ca62034eff1b76 ]
 
-Currently, with VHE, KVM enables the EL0 event counting for the
-guest on vcpu_load() or KVM enables it as a part of the PMU
-register emulation process, when needed.  However, in the migration
-case (with VHE), the same handling is lacking, as vPMU register
-values that were restored by userspace haven't been propagated yet
-(the PMU events haven't been created) at the vcpu load-time on the
-first KVM_RUN (kvm_vcpu_pmu_restore_guest() called from vcpu_load()
-on the first KVM_RUN won't do anything as events_{guest,host} of
-kvm_pmu_events are still zero).
+Max EQ depth of hardware is 32K, the current default EQ depth is too small
+for some applications, so change the default depth to 4096.
+Max send WRs the hardware can support is 8K, but the driver limits the
+value to 4K. Remove this limitation.
 
-So, with VHE, enable the guest's EL0 event counting on the first
-KVM_RUN (after the migration) when needed.  More specifically,
-have kvm_pmu_handle_pmcr() call kvm_vcpu_pmu_restore_guest()
-so that kvm_pmu_handle_pmcr() on the first KVM_RUN can take
-care of it.
-
-Fixes: d0c94c49792c ("KVM: arm64: Restore PMU configuration on first run")
-Cc: stable@vger.kernel.org
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Reiji Watanabe <reijiw@google.com>
-Link: https://lore.kernel.org/r/20230329023944.2488484-1-reijiw@google.com
-Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: be3cff0f242d ("RDMA/erdma: Add the hardware related definitions")
+Fixes: db23ae64caac ("RDMA/erdma: Add verbs header file")
+Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20230320084652.16807-3-chengyou@linux.alibaba.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/pmu-emul.c |    1 +
- arch/arm64/kvm/sys_regs.c |    1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/erdma/erdma_hw.h    | 2 +-
+ drivers/infiniband/hw/erdma/erdma_verbs.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kvm/pmu-emul.c
-+++ b/arch/arm64/kvm/pmu-emul.c
-@@ -558,6 +558,7 @@ void kvm_pmu_handle_pmcr(struct kvm_vcpu
- 		for_each_set_bit(i, &mask, 32)
- 			kvm_pmu_set_pmc_value(kvm_vcpu_idx_to_pmc(vcpu, i), 0, true);
- 	}
-+	kvm_vcpu_pmu_restore_guest(vcpu);
- }
+diff --git a/drivers/infiniband/hw/erdma/erdma_hw.h b/drivers/infiniband/hw/erdma/erdma_hw.h
+index e788887732e1f..c533c693e5e38 100644
+--- a/drivers/infiniband/hw/erdma/erdma_hw.h
++++ b/drivers/infiniband/hw/erdma/erdma_hw.h
+@@ -420,7 +420,7 @@ struct erdma_reg_mr_sqe {
+ };
  
- static bool kvm_pmu_counter_is_enabled(struct kvm_pmc *pmc)
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -703,7 +703,6 @@ static bool access_pmcr(struct kvm_vcpu
- 		if (!kvm_supports_32bit_el0())
- 			val |= ARMV8_PMU_PMCR_LC;
- 		kvm_pmu_handle_pmcr(vcpu, val);
--		kvm_vcpu_pmu_restore_guest(vcpu);
- 	} else {
- 		/* PMCR.P & PMCR.C are RAZ */
- 		val = __vcpu_sys_reg(vcpu, PMCR_EL0)
+ /* EQ related. */
+-#define ERDMA_DEFAULT_EQ_DEPTH 256
++#define ERDMA_DEFAULT_EQ_DEPTH 4096
+ 
+ /* ceqe */
+ #define ERDMA_CEQE_HDR_DB_MASK BIT_ULL(63)
+diff --git a/drivers/infiniband/hw/erdma/erdma_verbs.h b/drivers/infiniband/hw/erdma/erdma_verbs.h
+index ab6380635e9e6..eabab8bba95af 100644
+--- a/drivers/infiniband/hw/erdma/erdma_verbs.h
++++ b/drivers/infiniband/hw/erdma/erdma_verbs.h
+@@ -11,7 +11,7 @@
+ 
+ /* RDMA Capability. */
+ #define ERDMA_MAX_PD (128 * 1024)
+-#define ERDMA_MAX_SEND_WR 4096
++#define ERDMA_MAX_SEND_WR 8192
+ #define ERDMA_MAX_ORD 128
+ #define ERDMA_MAX_IRD 128
+ #define ERDMA_MAX_SGE_RD 1
+-- 
+2.39.2
+
 
 
