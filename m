@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D196E61A3
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E626E6205
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbjDRM0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:26:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34872 "EHLO
+        id S231480AbjDRM3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231513AbjDRMZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:56 -0400
+        with ESMTP id S231553AbjDRM3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235659745
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACBEBBA9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F15486311D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12B7AC433EF;
-        Tue, 18 Apr 2023 12:25:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B33F63186
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA75C433EF;
+        Tue, 18 Apr 2023 12:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820736;
-        bh=IzWKUTF551H6mnKLGohgVmqHKRh9+idPwQz84TQJKDA=;
+        s=korg; t=1681820937;
+        bh=x3fMCb9BaSePBgl0HRh0ADXMOv6oYhfANuaNwauPeOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSSd3xg0wp5UAL075/Lrfh9duaoY6+5Zh4OeeXt1BXgRjVrt0mttL5x2l9jr0C6nh
-         kshvvlydep4VjuulmKgYDUGm2RBltMuPSozvdsWGKykZQqyqzy4AbQFD7Af+U3SfNL
-         nOzLBPL+Iwhfzlpmc9ugC3lJBlBkB2l5GPa9M318=
+        b=pGh7v/GZzmBFkS5doXM7C6dyt8cSXy5PUZeb2FXjQ8890l0Kk56k0I1P67ffkzvbQ
+         FChjg9Uv7wtaX5WlkIMhFu5RrIe84vr2TXOIe+oWMMmvjNxBjhwDW8zazADQ6Erar3
+         jZakHZaY5gOHeV0/AT6BCNsNHnx39g4PWEUxEbH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/57] pinctrl: amd: Disable and mask interrupts on resume
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Sherry Sun <sherry.sun@nxp.com>
+Subject: [PATCH 5.4 29/92] tty: serial: fsl_lpuart: avoid checking for transfer complete when UARTCTRL_SBK is asserted in lpuart32_tx_empty
 Date:   Tue, 18 Apr 2023 14:21:04 +0200
-Message-Id: <20230418120258.874977553@linuxfoundation.org>
+Message-Id: <20230418120305.868845056@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kornel Dulęba <korneld@chromium.org>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 ]
+commit 9425914f3de6febbd6250395f56c8279676d9c3c upstream.
 
-This fixes a similar problem to the one observed in:
-commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
+According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
+a break character by writing 1 to CTRL[SBK], so here need to avoid
+checking for transmission complete when UARTCTRL_SBK is asserted,
+otherwise the lpuart32_tx_empty may never get TIOCSER_TEMT.
 
-On some systems, during suspend/resume cycle firmware leaves
-an interrupt enabled on a pin that is not used by the kernel.
-This confuses the AMD pinctrl driver and causes spurious interrupts.
+Commit 2411fd94ceaa("tty: serial: fsl_lpuart: skip waiting for
+transmission complete when UARTCTRL_SBK is asserted") only fix it in
+lpuart32_set_termios(), here also fix it in lpuart32_tx_empty().
 
-The driver already has logic to detect if a pin is used by the kernel.
-Leverage it to re-initialize interrupt fields of a pin only if it's not
-used by us.
-
-Cc: stable@vger.kernel.org
-Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20230323054415.20363-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 36 +++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index a44902b140879..3f9540d4fd362 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -774,32 +774,34 @@ static const struct pinconf_ops amd_pinconf_ops = {
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -807,11 +807,17 @@ static unsigned int lpuart32_tx_empty(st
+ 			struct lpuart_port, port);
+ 	unsigned long stat = lpuart32_read(port, UARTSTAT);
+ 	unsigned long sfifo = lpuart32_read(port, UARTFIFO);
++	unsigned long ctrl = lpuart32_read(port, UARTCTRL);
  
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
- {
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	const struct pin_desc *pd;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
--	int i;
+ 	if (sport->dma_tx_in_progress)
+ 		return 0;
  
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
+-	if (stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT)
++	/*
++	 * LPUART Transmission Complete Flag may never be set while queuing a break
++	 * character, so avoid checking for transmission complete when UARTCTRL_SBK
++	 * is asserted.
++	 */
++	if ((stat & UARTSTAT_TC && sfifo & UARTFIFO_TXEMPT) || ctrl & UARTCTRL_SBK)
+ 		return TIOCSER_TEMT;
  
--	for (i = 0; i < desc->npins; i++) {
--		int pin = desc->pins[i].number;
--		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
--
--		if (!pd)
--			continue;
-+	pd = pin_desc_get(gpio_dev->pctrl, pin);
-+	if (!pd)
-+		return;
- 
--		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	pin_reg = readl(gpio_dev->base + pin * 4);
-+	pin_reg &= ~mask;
-+	writel(pin_reg, gpio_dev->base + pin * 4);
-+	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+}
- 
--		pin_reg = readl(gpio_dev->base + i * 4);
--		pin_reg &= ~mask;
--		writel(pin_reg, gpio_dev->base + i * 4);
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+{
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	int i;
- 
--		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--	}
-+	for (i = 0; i < desc->npins; i++)
-+		amd_gpio_irq_init_pin(gpio_dev, i);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -854,8 +856,10 @@ static int amd_gpio_resume(struct device *dev)
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin))
-+		if (!amd_gpio_should_save(gpio_dev, pin)) {
-+			amd_gpio_irq_init_pin(gpio_dev, pin);
- 			continue;
-+		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
--- 
-2.39.2
-
+ 	return 0;
 
 
