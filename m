@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3226E62F5
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E1E6E6386
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231734AbjDRMgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:36:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51862 "EHLO
+        id S231855AbjDRMlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:41:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231741AbjDRMgy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:54 -0400
+        with ESMTP id S231847AbjDRMlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C178E1CF82
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59B0E1CFB8
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BBEA63289
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42718C4339B;
-        Tue, 18 Apr 2023 12:36:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9ABF63323
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7616C433EF;
+        Tue, 18 Apr 2023 12:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821411;
-        bh=4xr1XZArObM+crzBG5lcvdijzoG8rYv0Mqgdj1ghbaI=;
+        s=korg; t=1681821669;
+        bh=3x6INlL+EyQvHlMmm7eq6/GZXrYaDgUt1YGPrTJfwUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BB9n1zTaJYuEiF93vfE/D1QLv3AyGNZLFXiXBZG7ZASzV9jE6WqiFFhmECr2L60wS
-         ekE2TTKFy2aRAC7rZ1fhhoCsaNSmFAjE9a52Qd3Fmr2OcHeWRrrPXEQCUV3xER/9pB
-         Or2cWxWSMox4HIbu48g1+8coIdtblnSxgKvSZUb0=
+        b=D+M9EBGsK7hJi3YZAuF1B8G3QNvrS77nRUrxuM9HE4ZI+zG9crPT8FP5olJUiOouD
+         lKGGzSNeuOXrOxuxL+zDHV/3OFBo3Uykjz0sSp7B0cusp6iBx2BTfnbfa/4zbWkmtR
+         U2drEuLznUSr72IBcmm3KsMgqyEryZ/mh6Ix1HG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Steve Clevenger <scclevenger@os.amperecomputing.com>,
-        James Clark <james.clark@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.10 116/124] coresight-etm4: Fix for() loop drvdata->nr_addr_cmp range bug
+        patches@lists.linux.dev, Tingjia Cao <tjcao980311@gmail.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 71/91] sched/fair: Fix imbalance overflow
 Date:   Tue, 18 Apr 2023 14:22:15 +0200
-Message-Id: <20230418120313.999417668@linuxfoundation.org>
+Message-Id: <20230418120308.022151080@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Clevenger <scclevenger@os.amperecomputing.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-commit bf84937e882009075f57fd213836256fc65d96bc upstream.
+[ Upstream commit 91dcf1e8068e9a8823e419a7a34ff4341275fb70 ]
 
-In etm4_enable_hw, fix for() loop range to represent address comparator pairs.
+When local group is fully busy but its average load is above system load,
+computing the imbalance will overflow and local group is not the best
+target for pulling this load.
 
-Fixes: 2e1cdfe184b5 ("coresight-etm4x: Adding CoreSight ETM4x driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve Clevenger <scclevenger@os.amperecomputing.com>
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/4a4ee61ce8ef402615a4528b21a051de3444fb7b.1677540079.git.scclevenger@os.amperecomputing.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0b0695f2b34a ("sched/fair: Rework load_balance()")
+Reported-by: Tingjia Cao <tjcao980311@gmail.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Tingjia Cao <tjcao980311@gmail.com>
+Link: https://lore.kernel.org/lkml/CABcWv9_DAhVBOq2=W=2ypKE9dKM5s2DvoV8-U0+GDwwuKZ89jQ@mail.gmail.com/T/
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-@@ -179,7 +179,7 @@ static int etm4_enable_hw(struct etmv4_d
- 		writel_relaxed(config->ss_pe_cmp[i],
- 			       drvdata->base + TRCSSPCICRn(i));
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 024d18d85526d..7ac00dede846c 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9647,6 +9647,16 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
+ 
+ 		sds->avg_load = (sds->total_load * SCHED_CAPACITY_SCALE) /
+ 				sds->total_capacity;
++
++		/*
++		 * If the local group is more loaded than the average system
++		 * load, don't try to pull any tasks.
++		 */
++		if (local->avg_load >= sds->avg_load) {
++			env->imbalance = 0;
++			return;
++		}
++
  	}
--	for (i = 0; i < drvdata->nr_addr_cmp; i++) {
-+	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
- 		writeq_relaxed(config->addr_val[i],
- 			       drvdata->base + TRCACVRn(i));
- 		writeq_relaxed(config->addr_acc[i],
+ 
+ 	/*
+-- 
+2.39.2
+
 
 
