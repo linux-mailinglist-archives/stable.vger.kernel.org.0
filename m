@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B2D6E6292
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8940F6E6270
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbjDRMdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:33:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47092 "EHLO
+        id S231518AbjDRMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231633AbjDRMdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7EB8C179
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:18 -0700 (PDT)
+        with ESMTP id S231320AbjDRMcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C048684
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E07C86320E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03036C433EF;
-        Tue, 18 Apr 2023 12:33:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B78D63224
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E351C433D2;
+        Tue, 18 Apr 2023 12:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821185;
-        bh=hINZRa8X9jaB9p+L4nhK29AmlG2e26gEQ6frFa+T7LM=;
+        s=korg; t=1681821129;
+        bh=1ICOn+6FXvqQknWIpt4KjNuMXJcNqFesNUOBWeopI+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSk3sox7aD+rCBV3aR7ONNduOSJAbZklG6l8M6hyMWv7eza/iuc6k5G2wDTV4oqdi
-         R86wrm00gBR/DHfrGwPQ0p6/f/YU0gRVZ8xmZDGsNp2IXeYvBfbD4AJR+oMOgWFSKQ
-         p2h3bMFDK1p66vdzClFPojcAxtAX0J6CnXHy6j70=
+        b=FMH6UxACxP5QiKzmCgmEhBl5B+zRBL20fheSsgrHA0RWuPeSpjWmwSd3lsD/f2Jpk
+         jsj7/ebj69KtwfSIX5eQp+Gy8W8LmHrpK8rmn/SUP5FIcRUzUsqjx5n893tyn7NMXY
+         G5aEgFGwptCvVzL1KwXKOVP4j1aYuKlXupQ6kUBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev, Roman Gushchin <roman.gushchin@linux.dev>,
         Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/124] icmp: guard against too small mtu
-Date:   Tue, 18 Apr 2023 14:20:28 +0200
-Message-Id: <20230418120309.944914663@linuxfoundation.org>
+Subject: [PATCH 5.10 010/124] net: dont let netpoll invoke NAPI if in xmit context
+Date:   Tue, 18 Apr 2023 14:20:29 +0200
+Message-Id: <20230418120309.983691606@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
 References: <20230418120309.539243408@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,84 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 7d63b67125382ff0ffdfca434acbc94a38bd092b ]
+[ Upstream commit 275b471e3d2daf1472ae8fa70dc1b50c9e0b9e75 ]
 
-syzbot was able to trigger a panic [1] in icmp_glue_bits(), or
-more exactly in skb_copy_and_csum_bits()
+Commit 0db3dc73f7a3 ("[NETPOLL]: tx lock deadlock fix") narrowed
+down the region under netif_tx_trylock() inside netpoll_send_skb().
+(At that point in time netif_tx_trylock() would lock all queues of
+the device.) Taking the tx lock was problematic because driver's
+cleanup method may take the same lock. So the change made us hold
+the xmit lock only around xmit, and expected the driver to take
+care of locking within ->ndo_poll_controller().
 
-There is no repro yet, but I think the issue is that syzbot
-manages to lower device mtu to a small value, fooling __icmp_send()
+Unfortunately this only works if netpoll isn't itself called with
+the xmit lock already held. Netpoll code is careful and uses
+trylock(). The drivers, however, may be using plain lock().
+Printing while holding the xmit lock is going to result in rare
+deadlocks.
 
-__icmp_send() must make sure there is enough room for the
-packet to include at least the headers.
+Luckily we record the xmit lock owners, so we can scan all the queues,
+the same way we scan NAPI owners. If any of the xmit locks is held
+by the local CPU we better not attempt any polling.
 
-We might in the future refactor skb_copy_and_csum_bits() and its
-callers to no longer crash when something bad happens.
+It would be nice if we could narrow down the check to only the NAPIs
+and the queue we're trying to use. I don't see a way to do that now.
 
-[1]
-kernel BUG at net/core/skbuff.c:3343 !
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 15766 Comm: syz-executor.0 Not tainted 6.3.0-rc4-syzkaller-00039-gffe78bbd5121 #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-RIP: 0010:skb_copy_and_csum_bits+0x798/0x860 net/core/skbuff.c:3343
-Code: f0 c1 c8 08 41 89 c6 e9 73 ff ff ff e8 61 48 d4 f9 e9 41 fd ff ff 48 8b 7c 24 48 e8 52 48 d4 f9 e9 c3 fc ff ff e8 c8 27 84 f9 <0f> 0b 48 89 44 24 28 e8 3c 48 d4 f9 48 8b 44 24 28 e9 9d fb ff ff
-RSP: 0018:ffffc90000007620 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 00000000000001e8 RCX: 0000000000000100
-RDX: ffff8880276f6280 RSI: ffffffff87fdd138 RDI: 0000000000000005
-RBP: 0000000000000000 R08: 0000000000000005 R09: 0000000000000000
-R10: 00000000000001e8 R11: 0000000000000001 R12: 000000000000003c
-R13: 0000000000000000 R14: ffff888028244868 R15: 0000000000000b0e
-FS: 00007fbc81f1c700(0000) GS:ffff88802ca00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2df43000 CR3: 00000000744db000 CR4: 0000000000150ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<IRQ>
-icmp_glue_bits+0x7b/0x210 net/ipv4/icmp.c:353
-__ip_append_data+0x1d1b/0x39f0 net/ipv4/ip_output.c:1161
-ip_append_data net/ipv4/ip_output.c:1343 [inline]
-ip_append_data+0x115/0x1a0 net/ipv4/ip_output.c:1322
-icmp_push_reply+0xa8/0x440 net/ipv4/icmp.c:370
-__icmp_send+0xb80/0x1430 net/ipv4/icmp.c:765
-ipv4_send_dest_unreach net/ipv4/route.c:1239 [inline]
-ipv4_link_failure+0x5a9/0x9e0 net/ipv4/route.c:1246
-dst_link_failure include/net/dst.h:423 [inline]
-arp_error_report+0xcb/0x1c0 net/ipv4/arp.c:296
-neigh_invalidate+0x20d/0x560 net/core/neighbour.c:1079
-neigh_timer_handler+0xc77/0xff0 net/core/neighbour.c:1166
-call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
-expire_timers+0x29b/0x4b0 kernel/time/timer.c:1751
-__run_timers kernel/time/timer.c:2022 [inline]
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+d373d60fddbdc915e666@syzkaller.appspotmail.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230330174502.1915328-1-edumazet@google.com
+Reported-by: Roman Gushchin <roman.gushchin@linux.dev>
+Fixes: 0db3dc73f7a3 ("[NETPOLL]: tx lock deadlock fix")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/icmp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/core/netpoll.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index a1aacf5e75a6a..0bbc047e8f6e1 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -755,6 +755,11 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
- 		room = 576;
- 	room -= sizeof(struct iphdr) + icmp_param.replyopts.opt.opt.optlen;
- 	room -= sizeof(struct icmphdr);
-+	/* Guard against tiny mtu. We need to include at least one
-+	 * IP network header for this message to make any sense.
-+	 */
-+	if (room <= (int)sizeof(struct iphdr))
-+		goto ende;
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index 960948290001e..2ad22511b9c6d 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -137,6 +137,20 @@ static void queue_process(struct work_struct *work)
+ 	}
+ }
  
- 	icmp_param.data_len = skb_in->len - icmp_param.offset;
- 	if (icmp_param.data_len > room)
++static int netif_local_xmit_active(struct net_device *dev)
++{
++	int i;
++
++	for (i = 0; i < dev->num_tx_queues; i++) {
++		struct netdev_queue *txq = netdev_get_tx_queue(dev, i);
++
++		if (READ_ONCE(txq->xmit_lock_owner) == smp_processor_id())
++			return 1;
++	}
++
++	return 0;
++}
++
+ static void poll_one_napi(struct napi_struct *napi)
+ {
+ 	int work;
+@@ -183,7 +197,10 @@ void netpoll_poll_dev(struct net_device *dev)
+ 	if (!ni || down_trylock(&ni->dev_lock))
+ 		return;
+ 
+-	if (!netif_running(dev)) {
++	/* Some drivers will take the same locks in poll and xmit,
++	 * we can't poll if local CPU is already in xmit.
++	 */
++	if (!netif_running(dev) || netif_local_xmit_active(dev)) {
+ 		up(&ni->dev_lock);
+ 		return;
+ 	}
 -- 
 2.39.2
 
