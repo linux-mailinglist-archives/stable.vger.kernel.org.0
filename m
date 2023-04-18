@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A44F26E62EE
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC696E6366
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231723AbjDRMgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:36:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51630 "EHLO
+        id S231232AbjDRMkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231734AbjDRMgn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:43 -0400
+        with ESMTP id S231820AbjDRMkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A5FC12C8F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A40F13C05
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9BD96329D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDD8EC433EF;
-        Tue, 18 Apr 2023 12:36:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1565E632E8
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28424C433EF;
+        Tue, 18 Apr 2023 12:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821401;
-        bh=4Rgr/Cg7L+jMAEbue8KRZ27W6GKscYOIYFnWrZNF3kc=;
+        s=korg; t=1681821616;
+        bh=GrbFPr1uIDerg+g5dzeCl7cYj+L0Zd2Sk5UU7sEuDGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPCAPWoKdvbb0BR3XhYRXCPTQKRVb/MSVtVerDWpoBzubf2Tf4GeyE4yiYNrpAR6X
-         1KPogmI9taaIED+NhHRWs/Jvrx9GJ+KhcHilEvGgAmeVYrHNSPjYhxZ2NXJ0YV9bfl
-         q55yt66T2IxKr6Db0oftpwspIeqC5b1/1kZfWZwo=
+        b=UECbu9wD0d74j/pFOVMRtlyzLg80fej+paFNHzNxMD9L1rPMXhZ6dwiuyLd4GFEW5
+         X/iBjwy/54nX3Pbilc/He9fmFOa5D760609+jq/UIPrIEKN5ActfrmRuj6BiZQcQGi
+         v2vcEsouuc4MW1dSUVPmP9FoG9nfr4dtUCDHgAac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.10 112/124] cgroup/cpuset: Skip spread flags update on v2
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Nicolas Schichan <nschichan@freebox.fr>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 67/91] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
 Date:   Tue, 18 Apr 2023 14:22:11 +0200
-Message-Id: <20230418120313.857467333@linuxfoundation.org>
+Message-Id: <20230418120307.899201795@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 18f9a4d47527772515ad6cbdac796422566e6440 upstream.
+commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
 
-Cpuset v2 has no spread flags to set. So we can skip spread
-flags update if cpuset v2 is being used. Also change the name to
-cpuset_update_task_spread_flags() to indicate that there are multiple
-spread flags.
+Following process will make ubi attaching failed since commit
+1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
 
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
+modprobe nandsim id_bytes=$ID
+flash_eraseall /dev/mtd0
+modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
+(dmesg):
+  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
+  UBI error: cannot attach mtd0
+  UBI error: cannot initialize UBI, error -22
+
+Rework original solution, the key point is making sure
+'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
+so we should check vid_hdr_shift rather not vid_hdr_offset.
+Then, ubi still support (sub)page aligined VID header offset.
+
+Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Tested-by: Nicolas Schichan <nschichan@freebox.fr>
+Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/mtd/ubi/build.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -424,11 +424,15 @@ static void guarantee_online_mems(struct
- /*
-  * update task's spread flag if cpuset's page/slab spread flag is set
-  *
-- * Call with callback_lock or cpuset_rwsem held.
-+ * Call with callback_lock or cpuset_rwsem held. The check can be skipped
-+ * if on default hierarchy.
-  */
--static void cpuset_update_task_spread_flag(struct cpuset *cs,
-+static void cpuset_update_task_spread_flags(struct cpuset *cs,
- 					struct task_struct *tsk)
- {
-+	if (cgroup_subsys_on_dfl(cpuset_cgrp_subsys))
-+		return;
-+
- 	if (is_spread_page(cs))
- 		task_set_spread_page(tsk);
- 	else
-@@ -1907,7 +1911,7 @@ static void update_tasks_flags(struct cp
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -664,12 +664,6 @@ static int io_init(struct ubi_device *ub
+ 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
+ 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
  
- 	css_task_iter_start(&cs->css, 0, &it);
- 	while ((task = css_task_iter_next(&it)))
--		cpuset_update_task_spread_flag(cs, task);
-+		cpuset_update_task_spread_flags(cs, task);
- 	css_task_iter_end(&it);
- }
- 
-@@ -2241,7 +2245,7 @@ static void cpuset_attach(struct cgroup_
- 		WARN_ON_ONCE(set_cpus_allowed_ptr(task, cpus_attach));
- 
- 		cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
--		cpuset_update_task_spread_flag(cs, task);
-+		cpuset_update_task_spread_flags(cs, task);
+-	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
+-	    ubi->vid_hdr_alsize)) {
+-		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
+-		return -EINVAL;
+-	}
+-
+ 	dbg_gen("min_io_size      %d", ubi->min_io_size);
+ 	dbg_gen("max_write_size   %d", ubi->max_write_size);
+ 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
+@@ -687,6 +681,21 @@ static int io_init(struct ubi_device *ub
+ 						ubi->vid_hdr_aloffset;
  	}
  
- 	/*
++	/*
++	 * Memory allocation for VID header is ubi->vid_hdr_alsize
++	 * which is described in comments in io.c.
++	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
++	 * ubi->vid_hdr_alsize, so that all vid header operations
++	 * won't access memory out of bounds.
++	 */
++	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
++		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
++			" + VID header size(%zu) > VID header aligned size(%d).",
++			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
++			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
++		return -EINVAL;
++	}
++
+ 	/* Similar for the data offset */
+ 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
+ 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
 
 
