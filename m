@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6346E62DA
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA98B6E627B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231720AbjDRMf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:35:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50648 "EHLO
+        id S230280AbjDRMc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231715AbjDRMf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC6C1CF92
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:57 -0700 (PDT)
+        with ESMTP id S231233AbjDRMcz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C2078A48
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A1FA63228
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 317A4C433EF;
-        Tue, 18 Apr 2023 12:35:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8EB063229
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0FAC4339B;
+        Tue, 18 Apr 2023 12:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821356;
-        bh=U5HtpG+d0dVGhYPv5g+6ZximuYd5Po6rEhcReZqduq4=;
+        s=korg; t=1681821119;
+        bh=5FbvnDcsV0iHBMA6EomBETRkk0lcdkcoABMf9AmA5DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCnlkIekjOi4y2rMibLCqtqeIVw4c58e6JB8PXs8IqCqaXLzmOg+UdBM/E9OCobI5
-         CKRwPsK+T6kF7hmwmrh0kyM2LDUa+so/n51cx4hwayVDS/iWe454mer93XUlHe/afg
-         Dlb81yEuA/GeV8q1+aKHjJ9ZtDJNxKQ2oZhl6fIQ=
+        b=WREINLnO9BtyoDUxhsuXzyo/7USuhEyO/tRXnnupAsSvWeVB0Kr/lNO8mmIqDRtEY
+         6FyRFS6S+VXvl8Eg+27cWLPxSld/bpQGYrxAMp0apnntsYlhRht+8M+5IVINSkIsoi
+         dhKqG4XJi/mOFIEjfb2amSOE7UQVvr09YXEssQBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/124] i2c: imx-lpi2c: clean rx/tx buffers upon new message
+        patches@lists.linux.dev, ZhaoLong Wang <wangzhaolong1@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 72/92] ubi: Fix deadlock caused by recursively holding work_sem
 Date:   Tue, 18 Apr 2023 14:21:47 +0200
-Message-Id: <20230418120313.061500545@linuxfoundation.org>
+Message-Id: <20230418120307.317593602@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,34 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: ZhaoLong Wang <wangzhaolong1@huawei.com>
 
-[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
+[ Upstream commit f773f0a331d6c41733b17bebbc1b6cae12e016f5 ]
 
-When start sending a new message clear the Rx & Tx buffer pointers in
-order to avoid using stale pointers.
+During the processing of the bgt, if the sync_erase() return -EBUSY
+or some other error code in __erase_worker(),schedule_erase() called
+again lead to the down_read(ubi->work_sem) hold twice and may get
+block by down_write(ubi->work_sem) in ubi_update_fastmap(),
+which cause deadlock.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+          ubi bgt                        other task
+ do_work
+  down_read(&ubi->work_sem)          ubi_update_fastmap
+  erase_worker                         # Blocked by down_read
+   __erase_worker                      down_write(&ubi->work_sem)
+    schedule_erase
+     schedule_ubi_work
+      down_read(&ubi->work_sem)
+
+Fix this by changing input parameter @nested of the schedule_erase() to
+'true' to avoid recursively acquiring the down_read(&ubi->work_sem).
+
+Also, fix the incorrect comment about @nested parameter of the
+schedule_erase() because when down_write(ubi->work_sem) is held, the
+@nested is also need be true.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217093
+Fixes: 2e8f08deabbc ("ubi: Fix races around ubi_refill_pools()")
+Signed-off-by: ZhaoLong Wang <wangzhaolong1@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mtd/ubi/wl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 2018dbcf241e9..d45ec26d51cb9 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -462,6 +462,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
- 		if (num == 1 && msgs[0].len == 0)
- 			goto stop;
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 28110cd4400b5..fd0e8f948c3da 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -576,7 +576,7 @@ static int erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk,
+  * @vol_id: the volume ID that last used this PEB
+  * @lnum: the last used logical eraseblock number for the PEB
+  * @torture: if the physical eraseblock has to be tortured
+- * @nested: denotes whether the work_sem is already held in read mode
++ * @nested: denotes whether the work_sem is already held
+  *
+  * This function returns zero in case of success and a %-ENOMEM in case of
+  * failure.
+@@ -1110,7 +1110,7 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 		int err1;
  
-+		lpi2c_imx->rx_buf = NULL;
-+		lpi2c_imx->tx_buf = NULL;
- 		lpi2c_imx->delivered = 0;
- 		lpi2c_imx->msglen = msgs[i].len;
- 		init_completion(&lpi2c_imx->complete);
+ 		/* Re-schedule the LEB for erasure */
+-		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
++		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, true);
+ 		if (err1) {
+ 			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e);
 -- 
 2.39.2
 
