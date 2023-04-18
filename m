@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 844686E627A
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A63666E627D
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230523AbjDRMc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45926 "EHLO
+        id S231614AbjDRMdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:33:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231320AbjDRMcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:55 -0400
+        with ESMTP id S230350AbjDRMc7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB5F8684
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A20846B9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:32:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 083FC6321D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10FAEC433D2;
-        Tue, 18 Apr 2023 12:32:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BFCB63204
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:32:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA97C433EF;
+        Tue, 18 Apr 2023 12:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821153;
-        bh=Rgw0IJi6UZmz4tVLNpXt7LzjIFMG99ZbJA/IwAf3pmg=;
+        s=korg; t=1681821158;
+        bh=AcPItg8NvLaplLX1JB3P8phC12zXZ2Dd2KRzeOTis4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=agEwjsVU8S/fXccWASsBFMg2qOdoHqM7bM2trch7c2JuxcyA9m+In4oyp4+QJZbcQ
-         /1rv3a++vw2/zlTchVGyYlN31bxYbMCCQl5KcCET6aczILQOM2TC0lhkCcS9KFRQVR
-         L2V8VkfRLuczh86Jjnh5I307z8Pw6J+E0bN77aKQ=
+        b=A7CS6R1wyIWydlwDopPACWBcaM/D9c5lNNfeZ2m4vu0ZHcAC31zl0xXPk76wf+39I
+         5lyiU6AVpltBjRYQDsDMNz8nKusjzukonMN9DgSSIFgXi6xCoQOPjPQaMfiHY/cLGF
+         lQ7oXIOtHjk1GlrDSXoSQsKFWdJu+43lIB3w+g64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Chang <waynec@nvidia.com>,
-        Haotien Hsu <haotienh@nvidia.com>
-Subject: [PATCH 5.10 019/124] usb: xhci: tegra: fix sleep in atomic call
-Date:   Tue, 18 Apr 2023 14:20:38 +0200
-Message-Id: <20230418120310.358737614@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        D Scott Phillips <scott@os.amperecomputing.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 020/124] xhci: also avoid the XHCI_ZERO_64B_REGS quirk with a passthrough iommu
+Date:   Tue, 18 Apr 2023 14:20:39 +0200
+Message-Id: <20230418120310.404968830@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
 References: <20230418120309.539243408@linuxfoundation.org>
@@ -53,76 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Chang <waynec@nvidia.com>
+From: D Scott Phillips <scott@os.amperecomputing.com>
 
-commit 4c7f9d2e413dc06a157c4e5dccde84aaf4655eb3 upstream.
+commit ecaa4902439298f6b0e29f47424a86b310a9ff4f upstream.
 
-When we set the dual-role port to Host mode, we observed the following
-splat:
-[  167.057718] BUG: sleeping function called from invalid context at
-include/linux/sched/mm.h:229
-[  167.057872] Workqueue: events tegra_xusb_usb_phy_work
-[  167.057954] Call trace:
-[  167.057962]  dump_backtrace+0x0/0x210
-[  167.057996]  show_stack+0x30/0x50
-[  167.058020]  dump_stack_lvl+0x64/0x84
-[  167.058065]  dump_stack+0x14/0x34
-[  167.058100]  __might_resched+0x144/0x180
-[  167.058140]  __might_sleep+0x64/0xd0
-[  167.058171]  slab_pre_alloc_hook.constprop.0+0xa8/0x110
-[  167.058202]  __kmalloc_track_caller+0x74/0x2b0
-[  167.058233]  kvasprintf+0xa4/0x190
-[  167.058261]  kasprintf+0x58/0x90
-[  167.058285]  tegra_xusb_find_port_node.isra.0+0x58/0xd0
-[  167.058334]  tegra_xusb_find_port+0x38/0xa0
-[  167.058380]  tegra_xusb_padctl_get_usb3_companion+0x38/0xd0
-[  167.058430]  tegra_xhci_id_notify+0x8c/0x1e0
-[  167.058473]  notifier_call_chain+0x88/0x100
-[  167.058506]  atomic_notifier_call_chain+0x44/0x70
-[  167.058537]  tegra_xusb_usb_phy_work+0x60/0xd0
-[  167.058581]  process_one_work+0x1dc/0x4c0
-[  167.058618]  worker_thread+0x54/0x410
-[  167.058650]  kthread+0x188/0x1b0
-[  167.058672]  ret_from_fork+0x10/0x20
+Previously the quirk was skipped when no iommu was present. The same
+rationale for skipping the quirk also applies in the iommu.passthrough=1
+case.
 
-The function tegra_xusb_padctl_get_usb3_companion eventually calls
-tegra_xusb_find_port and this in turn calls kasprintf which might sleep
-and so cannot be called from an atomic context.
+Skip applying the XHCI_ZERO_64B_REGS quirk if the device's iommu domain is
+passthrough.
 
-Fix this by moving the call to tegra_xusb_padctl_get_usb3_companion to
-the tegra_xhci_id_work function where it is really needed.
-
-Fixes: f836e7843036 ("usb: xhci-tegra: Add OTG support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Wayne Chang <waynec@nvidia.com>
-Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
-Link: https://lore.kernel.org/r/20230327095548.1599470-1-haotienh@nvidia.com
+Fixes: 12de0a35c996 ("xhci: Add quirk to zero 64bit registers on Renesas PCIe controllers")
+Cc: stable <stable@kernel.org>
+Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230330143056.1390020-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1175,6 +1175,9 @@ static void tegra_xhci_id_work(struct wo
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -9,6 +9,7 @@
+  */
  
- 	mutex_unlock(&tegra->lock);
+ #include <linux/pci.h>
++#include <linux/iommu.h>
+ #include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/log2.h>
+@@ -226,6 +227,7 @@ int xhci_reset(struct xhci_hcd *xhci, u6
+ static void xhci_zero_64b_regs(struct xhci_hcd *xhci)
+ {
+ 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
++	struct iommu_domain *domain;
+ 	int err, i;
+ 	u64 val;
+ 	u32 intrs;
+@@ -244,7 +246,9 @@ static void xhci_zero_64b_regs(struct xh
+ 	 * an iommu. Doing anything when there is no iommu is definitely
+ 	 * unsafe...
+ 	 */
+-	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !device_iommu_mapped(dev))
++	domain = iommu_get_domain_for_dev(dev);
++	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !domain ||
++	    domain->type == IOMMU_DOMAIN_IDENTITY)
+ 		return;
  
-+	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(tegra->padctl,
-+								    tegra->otg_usb2_port);
-+
- 	if (tegra->host_mode) {
- 		/* switch to host mode */
- 		if (tegra->otg_usb3_port >= 0) {
-@@ -1243,9 +1246,6 @@ static int tegra_xhci_id_notify(struct n
- 	}
- 
- 	tegra->otg_usb2_port = tegra_xusb_get_usb2_port(tegra, usbphy);
--	tegra->otg_usb3_port = tegra_xusb_padctl_get_usb3_companion(
--							tegra->padctl,
--							tegra->otg_usb2_port);
- 
- 	tegra->host_mode = (usbphy->last_event == USB_EVENT_ID) ? true : false;
- 
+ 	xhci_info(xhci, "Zeroing 64bit base registers, expecting fault\n");
 
 
