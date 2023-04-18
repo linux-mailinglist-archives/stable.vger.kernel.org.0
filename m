@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 212DB6E62BB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE8F6E6465
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231670AbjDRMe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49310 "EHLO
+        id S232078AbjDRMsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:48:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231707AbjDRMeu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198A3B767
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:49 -0700 (PDT)
+        with ESMTP id S232003AbjDRMsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04EDA15A04
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0B7F6326C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FC2C433EF;
-        Tue, 18 Apr 2023 12:34:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA98F6326B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F253BC433D2;
+        Tue, 18 Apr 2023 12:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821288;
-        bh=EQ3gihb6Ff2FptoG0ltDjZrmF6w89IUzb4ypIn8FCTk=;
+        s=korg; t=1681822106;
+        bh=fzAd6xMVxPqoigDacFBZ1ZFRV4kxd6oevsFExFdBmOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFMwIUjvX/p3Wqj8tx0EHEmnrLFu5KItRT2Umqzb3FkA0kGQYDtbf8tQh5nC6wljy
-         5DdO2knfJ9K60/55EQfKprSt749wxz+MOP4jqghc0pBxO7Z5xx8iEidR4eEKUHwJjU
-         kALLxyKU+I4WKGGpIpT+lG2ra2xJqGbxcf1oetfQ=
+        b=sd7Lxa5Ar33uxelERO+0I80Mv2TYT/47GH6M/zoOLijzyXBbAmqtcUJAlh8Yg5vEN
+         tkmGjvoQLmsJfUxQfMcHyjmk6gJ09qvtBYkeKsxoGgC+hbPgGoF13+AcJOCJsPdCrx
+         hAg0Xpq9D2x/Y88F+o01ufL7Pt57RzODhXSSV5+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
-        Aya Levin <ayal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/124] IB/mlx5: Add support for 400G_8X lane speed
+        patches@lists.linux.dev,
+        Christophe Kerello <christophe.kerello@foss.st.com>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 6.2 024/139] mtd: rawnand: stm32_fmc2: use timings.mode instead of checking tRC_min
 Date:   Tue, 18 Apr 2023 14:21:29 +0200
-Message-Id: <20230418120312.390105190@linuxfoundation.org>
+Message-Id: <20230418120314.552443035@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,46 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maher Sanalla <msanalla@nvidia.com>
+From: Christophe Kerello <christophe.kerello@foss.st.com>
 
-[ Upstream commit 88c9483faf15ada14eca82714114656893063458 ]
+commit ddbb664b6ab8de7dffa388ae0c88cd18616494e5 upstream.
 
-Currently, when driver queries PTYS to report which link speed is being
-used on its RoCE ports, it does not check the case of having 400Gbps
-transmitted over 8 lanes. Thus it fails to report the said speed and
-instead it defaults to report 10G over 4 lanes.
+Use timings.mode value instead of checking tRC_min timing
+for EDO mode support.
 
-Add a check for the said speed when querying PTYS and report it back
-correctly when needed.
-
-Fixes: 08e8676f1607 ("IB/mlx5: Add support for 50Gbps per lane link modes")
-Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/ec9040548d119d22557d6a4b4070d6f421701fd4.1678973994.git.leon@kernel.org
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
+Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash controller driver")
+Cc: stable@vger.kernel.org #v5.10+
+Reviewed-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20230328155819.225521-3-christophe.kerello@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mtd/nand/raw/stm32_fmc2_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 638da09ff8380..5ef37902e96b5 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -437,6 +437,10 @@ static int translate_eth_ext_proto_oper(u32 eth_proto_oper, u16 *active_speed,
- 		*active_width = IB_WIDTH_2X;
- 		*active_speed = IB_SPEED_NDR;
- 		break;
-+	case MLX5E_PROT_MASK(MLX5E_400GAUI_8):
-+		*active_width = IB_WIDTH_8X;
-+		*active_speed = IB_SPEED_HDR;
-+		break;
- 	case MLX5E_PROT_MASK(MLX5E_400GAUI_4_400GBASE_CR4_KR4):
- 		*active_width = IB_WIDTH_4X;
- 		*active_speed = IB_SPEED_NDR;
--- 
-2.39.2
-
+--- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
++++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
+@@ -1531,7 +1531,7 @@ static int stm32_fmc2_nfc_setup_interfac
+ 	if (IS_ERR(sdrt))
+ 		return PTR_ERR(sdrt);
+ 
+-	if (sdrt->tRC_min < 30000)
++	if (conf->timings.mode > 3)
+ 		return -EOPNOTSUPP;
+ 
+ 	if (chipnr == NAND_DATA_IFACE_CHECK_ONLY)
 
 
