@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F356E6238
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F27B36E62A6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231142AbjDRMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:31:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42350 "EHLO
+        id S231310AbjDRMeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231643AbjDRMav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B610B768
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:33 -0700 (PDT)
+        with ESMTP id S231655AbjDRMeY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84312125BA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CA10631E6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB46C433EF;
-        Tue, 18 Apr 2023 12:30:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20E3063258
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C8C0C433EF;
+        Tue, 18 Apr 2023 12:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821032;
-        bh=UdfLNpzNXIU8RRCdHeHy5c8lo2uTtmZZEQ1ODzw6GGg=;
+        s=korg; t=1681821243;
+        bh=0qdgd+Q5SL2DX44G41a3KrVBqolN/UgnE2wv12pknUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfiLH4SMitBTRn9O81fC5EJvyPb2xAUB7Gqoj2pbmBkuacgCtKmeFy1hNowXqLxWr
-         USEYsgDRt0cGktCfNI1+nsUBKSA6PUUfDKSBU26vyuBK6pJOXBHGZgLHTbASOtEhKT
-         Fu4qM1JM6NWLe4fQYrDk05KoPqZdP/YK88ESfOvU=
+        b=TD/6HTJysn+eG/0F/1NTQHihHh+O5QzEVRY8wJHpe0iouBrQoweq97mjfLXBX6D7c
+         tb6Ibh9twPx6Lp4FzfEIUTqUQEoNtDlMflS/XS1u4e/c4wppqN1UXXRMcqd+4ry461
+         3tqh/mD7eMG+e6j1fmAqeZb67LDo9Pw+hMn+Xbxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 36/92] tracing: Free error logs of tracing instances
+        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 052/124] bpftool: Print newline before } for struct with padding only fields
 Date:   Tue, 18 Apr 2023 14:21:11 +0200
-Message-Id: <20230418120306.110227180@linuxfoundation.org>
+Message-Id: <20230418120311.727432139@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,93 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Eduard Zingerman <eddyz87@gmail.com>
 
-commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
+[ Upstream commit 44a726c3f23cf762ef4ce3c1709aefbcbe97f62c ]
 
-When a tracing instance is removed, the error messages that hold errors
-that occurred in the instance needs to be freed. The following reports a
-memory leak:
+btf_dump_emit_struct_def attempts to print empty structures at a
+single line, e.g. `struct empty {}`. However, it has to account for a
+case when there are no regular but some padding fields in the struct.
+In such case `vlen` would be zero, but size would be non-zero.
 
- # cd /sys/kernel/tracing
- # mkdir instances/foo
- # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
- # cat instances/foo/error_log
- [  117.404795] hist:sched:sched_switch: error: Couldn't find field
-   Command: hist:keys=x
-                      ^
- # rmdir instances/foo
+E.g. here is struct bpf_timer from vmlinux.h before this patch:
 
-Then check for memory leaks:
+ struct bpf_timer {
+ 	long: 64;
+	long: 64;};
 
- # echo scan > /sys/kernel/debug/kmemleak
- # cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffff88810d8ec700 (size 192):
-  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
-  hex dump (first 32 bytes):
-    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
-    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
-  backtrace:
-    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
-    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
-    [<000000004a0e1b07>] parse_atom+0x966/0xb40
-    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
-    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
-    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
-    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
-    [<000000002cadc509>] vfs_write+0x162/0x670
-    [<0000000059c3b9be>] ksys_write+0xca/0x170
-    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
-    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
-unreferenced object 0xffff888170c35a00 (size 32):
-  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
-  hex dump (first 32 bytes):
-    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
-    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
-  backtrace:
-    [<000000006a747de5>] __kmalloc+0x4d/0x160
-    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
-    [<000000004a0e1b07>] parse_atom+0x966/0xb40
-    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
-    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
-    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
-    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
-    [<000000002cadc509>] vfs_write+0x162/0x670
-    [<0000000059c3b9be>] ksys_write+0xca/0x170
-    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
-    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+And after this patch:
 
-The problem is that the error log needs to be freed when the instance is
-removed.
+ struct bpf_dynptr {
+ 	long: 64;
+	long: 64;
+ };
 
-Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
-Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eduard Zingerman <eddyz87@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20221001104425.415768-1-eddyz87@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/bpf/btf_dump.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8542,6 +8542,7 @@ static int __remove_instance(struct trac
- 	ftrace_destroy_function_files(tr);
- 	tracefs_remove_recursive(tr->dir);
- 	free_trace_buffers(tr);
-+	clear_tracing_err_log(tr);
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 558d34fbd331c..6a8d8ed34b760 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -969,7 +969,11 @@ static void btf_dump_emit_struct_def(struct btf_dump *d,
+ 	if (is_struct)
+ 		btf_dump_emit_bit_padding(d, off, t->size * 8, align, false, lvl + 1);
  
- 	for (i = 0; i < tr->nr_topts; i++) {
- 		kfree(tr->topts[i].topts);
+-	if (vlen)
++	/*
++	 * Keep `struct empty {}` on a single line,
++	 * only print newline when there are regular or padding fields.
++	 */
++	if (vlen || t->size)
+ 		btf_dump_printf(d, "\n");
+ 	btf_dump_printf(d, "%s}", pfx(lvl));
+ 	if (packed)
+-- 
+2.39.2
+
 
 
