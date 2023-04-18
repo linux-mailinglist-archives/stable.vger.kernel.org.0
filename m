@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 030956E64E2
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48F16E64E4
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232244AbjDRMxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46546 "EHLO
+        id S232217AbjDRMx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232209AbjDRMxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:21 -0400
+        with ESMTP id S232210AbjDRMxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95A318380
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97B1C16FAF
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B35E063461
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C47F2C433D2;
-        Tue, 18 Apr 2023 12:53:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F278F6135B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF15C433D2;
+        Tue, 18 Apr 2023 12:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822381;
-        bh=GrbFPr1uIDerg+g5dzeCl7cYj+L0Zd2Sk5UU7sEuDGw=;
+        s=korg; t=1681822386;
+        bh=fr6YlN6fzrhqVkz8M+pyvwLkHR5JnN7/wVxrh7KEPNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iw0q8yXJdnytaFcF5A+zJCHKkiHRj9AyiL/k+vMuOhYhI1FEkiCXItOcLX9eDxY7b
-         Z03UAfLzVLRMhyMSGAYAihjFft6HPShAoLStxqrAW0ARlTqoN43IIiiBwPMYUOpmPb
-         HbSndZwFB5C5Zxq0p+TZQ+HPU/Y+Zc60g/eo3dhM=
+        b=FxtBnxunFY9ApXqblVIoFV/psjlN0GKcGjFfxb/irQOZ2n8+136Gp7Dk637sLZe/s
+         yvxnyWhL3o+Op4uuW0jxmDC4SzpOT3F9lASXAnJo1KDlKhULiud/v3vuYfphSG213x
+         PYHP3BXCicSaypeT5Q3PsB8BQhUBr0hSbeT59O5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Nicolas Schichan <nschichan@freebox.fr>,
+        patches@lists.linux.dev, ZhaoLong Wang <wangzhaolong1@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.2 128/139] ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
-Date:   Tue, 18 Apr 2023 14:23:13 +0200
-Message-Id: <20230418120318.674125499@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 129/139] ubi: Fix deadlock caused by recursively holding work_sem
+Date:   Tue, 18 Apr 2023 14:23:14 +0200
+Message-Id: <20230418120318.720770481@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -55,73 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: ZhaoLong Wang <wangzhaolong1@huawei.com>
 
-commit 1e020e1b96afdecd20680b5b5be2a6ffc3d27628 upstream.
+[ Upstream commit f773f0a331d6c41733b17bebbc1b6cae12e016f5 ]
 
-Following process will make ubi attaching failed since commit
-1b42b1a36fc946 ("ubi: ensure that VID header offset ... size"):
+During the processing of the bgt, if the sync_erase() return -EBUSY
+or some other error code in __erase_worker(),schedule_erase() called
+again lead to the down_read(ubi->work_sem) hold twice and may get
+block by down_write(ubi->work_sem) in ubi_update_fastmap(),
+which cause deadlock.
 
-ID="0xec,0xa1,0x00,0x15" # 128M 128KB 2KB
-modprobe nandsim id_bytes=$ID
-flash_eraseall /dev/mtd0
-modprobe ubi mtd="0,2048"  # set vid_hdr offset as 2048 (one page)
-(dmesg):
-  ubi0 error: ubi_attach_mtd_dev [ubi]: VID header offset 2048 too large.
-  UBI error: cannot attach mtd0
-  UBI error: cannot initialize UBI, error -22
+          ubi bgt                        other task
+ do_work
+  down_read(&ubi->work_sem)          ubi_update_fastmap
+  erase_worker                         # Blocked by down_read
+   __erase_worker                      down_write(&ubi->work_sem)
+    schedule_erase
+     schedule_ubi_work
+      down_read(&ubi->work_sem)
 
-Rework original solution, the key point is making sure
-'vid_hdr_shift + UBI_VID_HDR_SIZE < ubi->vid_hdr_alsize',
-so we should check vid_hdr_shift rather not vid_hdr_offset.
-Then, ubi still support (sub)page aligined VID header offset.
+Fix this by changing input parameter @nested of the schedule_erase() to
+'true' to avoid recursively acquiring the down_read(&ubi->work_sem).
 
-Fixes: 1b42b1a36fc946 ("ubi: ensure that VID header offset ... size")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Tested-by: Nicolas Schichan <nschichan@freebox.fr>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com> # v5.10, v4.19
+Also, fix the incorrect comment about @nested parameter of the
+schedule_erase() because when down_write(ubi->work_sem) is held, the
+@nested is also need be true.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217093
+Fixes: 2e8f08deabbc ("ubi: Fix races around ubi_refill_pools()")
+Signed-off-by: ZhaoLong Wang <wangzhaolong1@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/mtd/ubi/wl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -664,12 +664,6 @@ static int io_init(struct ubi_device *ub
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 9e14319225c97..6049ab9e46479 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -575,7 +575,7 @@ static int erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk,
+  * @vol_id: the volume ID that last used this PEB
+  * @lnum: the last used logical eraseblock number for the PEB
+  * @torture: if the physical eraseblock has to be tortured
+- * @nested: denotes whether the work_sem is already held in read mode
++ * @nested: denotes whether the work_sem is already held
+  *
+  * This function returns zero in case of success and a %-ENOMEM in case of
+  * failure.
+@@ -1131,7 +1131,7 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 		int err1;
  
--	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
--	    ubi->vid_hdr_alsize)) {
--		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
--		return -EINVAL;
--	}
--
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
-@@ -687,6 +681,21 @@ static int io_init(struct ubi_device *ub
- 						ubi->vid_hdr_aloffset;
- 	}
- 
-+	/*
-+	 * Memory allocation for VID header is ubi->vid_hdr_alsize
-+	 * which is described in comments in io.c.
-+	 * Make sure VID header shift + UBI_VID_HDR_SIZE not exceeds
-+	 * ubi->vid_hdr_alsize, so that all vid header operations
-+	 * won't access memory out of bounds.
-+	 */
-+	if ((ubi->vid_hdr_shift + UBI_VID_HDR_SIZE) > ubi->vid_hdr_alsize) {
-+		ubi_err(ubi, "Invalid VID header offset %d, VID header shift(%d)"
-+			" + VID header size(%zu) > VID header aligned size(%d).",
-+			ubi->vid_hdr_offset, ubi->vid_hdr_shift,
-+			UBI_VID_HDR_SIZE, ubi->vid_hdr_alsize);
-+		return -EINVAL;
-+	}
-+
- 	/* Similar for the data offset */
- 	ubi->leb_start = ubi->vid_hdr_offset + UBI_VID_HDR_SIZE;
- 	ubi->leb_start = ALIGN(ubi->leb_start, ubi->min_io_size);
+ 		/* Re-schedule the LEB for erasure */
+-		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
++		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, true);
+ 		if (err1) {
+ 			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e);
+-- 
+2.39.2
+
 
 
