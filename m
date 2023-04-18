@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B36A6E64CB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5F36E64D5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232235AbjDRMwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:52:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44342 "EHLO
+        id S232184AbjDRMw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbjDRMw3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:29 -0400
+        with ESMTP id S232196AbjDRMw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DFA183B3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A414E16DFD
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04D526340D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A0C2C433EF;
-        Tue, 18 Apr 2023 12:52:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80E1A63455
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FB64C433EF;
+        Tue, 18 Apr 2023 12:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822325;
-        bh=oI9XVPZM4FM/hX+LowSasvuW2cpQ0pBbEc9Yy5lIQD0=;
+        s=korg; t=1681822354;
+        bh=UwoDSbeHuJo8Pg8Uj7PGuCY/SERMjOSYdwZk01A2qvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJQiEX5nNTc/xl4CMtke705YiQ/4yXh1BrefRhqXs7dVnBEBwkRSbzLkT0HJqtDpW
-         UvIilB6xREB8Z4RVZ/KrUIrjvJdxAeigOZnsneMXQ2ey/rSgeZgXJGQFkuBnN14hbK
-         fieEUa+tTT11ki/H1oWOKie1uLD1LB07xZMYWUvs=
+        b=e4aSs8Oer12xAaqvkOqA5xlU4ms+Xgd2RLbx/cTjRFDi7wjCep9C7L6nuzUqzvX+g
+         Nl1joah7dE+wMexCPKRjVn3kQ4PnR9YtywDl1mT5iz92St9gYITWOkvFRiXLyA++IK
+         bTj96dWWxB9o/8kX8zrj+wMErzlC8zeaSK44odUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Ross Zwisler <zwisler@google.com>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 100/139] tracing: Add trace_array_puts() to write into instance
-Date:   Tue, 18 Apr 2023 14:22:45 +0200
-Message-Id: <20230418120317.539555076@linuxfoundation.org>
+Subject: [PATCH 6.2 101/139] tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance
+Date:   Tue, 18 Apr 2023 14:22:46 +0200
+Message-Id: <20230418120317.588170046@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -58,111 +59,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit d503b8f7474fe7ac616518f7fc49773cbab49f36 ]
+[ Upstream commit 9d52727f8043cfda241ae96896628d92fa9c50bb ]
 
-Add a generic trace_array_puts() that can be used to "trace_puts()" into
-an allocated trace_array instance. This is just another variant of
-trace_array_printk().
+If a trace instance has a failure with its snapshot code, the error
+message is to be written to that instance's buffer. But currently, the
+message is written to the top level buffer. Worse yet, it may also disable
+the top level buffer and not the instance that had the issue.
 
-Link: https://lkml.kernel.org/r/20230207173026.584717290@goodmis.org
+Link: https://lkml.kernel.org/r/20230405022341.688730321@goodmis.org
 
+Cc: stable@vger.kernel.org
 Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Ross Zwisler <zwisler@google.com>
+Cc: Ross Zwisler <zwisler@google.com>
+Fixes: 2824f50332486 ("tracing: Make the snapshot trigger work with instances")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Stable-dep-of: 9d52727f8043 ("tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace.h | 12 ++++++++++++
- kernel/trace/trace.c  | 27 +++++++++++++++++----------
- 2 files changed, 29 insertions(+), 10 deletions(-)
+ kernel/trace/trace.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/trace.h b/include/linux/trace.h
-index 80ffda8717491..2a70a447184c9 100644
---- a/include/linux/trace.h
-+++ b/include/linux/trace.h
-@@ -33,6 +33,18 @@ struct trace_array;
- int register_ftrace_export(struct trace_export *export);
- int unregister_ftrace_export(struct trace_export *export);
- 
-+/**
-+ * trace_array_puts - write a constant string into the trace buffer.
-+ * @tr:    The trace array to write to
-+ * @str:   The constant string to write
-+ */
-+#define trace_array_puts(tr, str)					\
-+	({								\
-+		str ? __trace_array_puts(tr, _THIS_IP_, str, strlen(str)) : -1;	\
-+	})
-+int __trace_array_puts(struct trace_array *tr, unsigned long ip,
-+		       const char *str, int size);
-+
- void trace_printk_init_buffers(void);
- __printf(3, 4)
- int trace_array_printk(struct trace_array *tr, unsigned long ip,
 diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 1a931896ba042..13c46787ba5fa 100644
+index 13c46787ba5fa..13b324f008256 100644
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -1001,13 +1001,8 @@ __buffer_unlock_commit(struct trace_buffer *buffer, struct ring_buffer_event *ev
- 		ring_buffer_unlock_commit(buffer);
- }
+@@ -1111,22 +1111,22 @@ static void tracing_snapshot_instance_cond(struct trace_array *tr,
+ 	unsigned long flags;
  
--/**
-- * __trace_puts - write a constant string into the trace buffer.
-- * @ip:	   The address of the caller
-- * @str:   The constant string to write
-- * @size:  The size of the string.
-- */
--int __trace_puts(unsigned long ip, const char *str, int size)
-+int __trace_array_puts(struct trace_array *tr, unsigned long ip,
-+		       const char *str, int size)
- {
- 	struct ring_buffer_event *event;
- 	struct trace_buffer *buffer;
-@@ -1015,7 +1010,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 	unsigned int trace_ctx;
- 	int alloc;
+ 	if (in_nmi()) {
+-		internal_trace_puts("*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
+-		internal_trace_puts("*** snapshot is being ignored        ***\n");
++		trace_array_puts(tr, "*** SNAPSHOT CALLED FROM NMI CONTEXT ***\n");
++		trace_array_puts(tr, "*** snapshot is being ignored        ***\n");
+ 		return;
+ 	}
  
--	if (!(global_trace.trace_flags & TRACE_ITER_PRINTK))
-+	if (!(tr->trace_flags & TRACE_ITER_PRINTK))
- 		return 0;
+ 	if (!tr->allocated_snapshot) {
+-		internal_trace_puts("*** SNAPSHOT NOT ALLOCATED ***\n");
+-		internal_trace_puts("*** stopping trace here!   ***\n");
+-		tracing_off();
++		trace_array_puts(tr, "*** SNAPSHOT NOT ALLOCATED ***\n");
++		trace_array_puts(tr, "*** stopping trace here!   ***\n");
++		tracer_tracing_off(tr);
+ 		return;
+ 	}
  
- 	if (unlikely(tracing_selftest_running || tracing_disabled))
-@@ -1024,7 +1019,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 	alloc = sizeof(*entry) + size + 2; /* possible \n added */
+ 	/* Note, snapshot can not be used when the tracer uses it */
+ 	if (tracer->use_max_tr) {
+-		internal_trace_puts("*** LATENCY TRACER ACTIVE ***\n");
+-		internal_trace_puts("*** Can not use snapshot (sorry) ***\n");
++		trace_array_puts(tr, "*** LATENCY TRACER ACTIVE ***\n");
++		trace_array_puts(tr, "*** Can not use snapshot (sorry) ***\n");
+ 		return;
+ 	}
  
- 	trace_ctx = tracing_gen_ctx();
--	buffer = global_trace.array_buffer.buffer;
-+	buffer = tr->array_buffer.buffer;
- 	ring_buffer_nest_start(buffer);
- 	event = __trace_buffer_lock_reserve(buffer, TRACE_PRINT, alloc,
- 					    trace_ctx);
-@@ -1046,11 +1041,23 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 		entry->buf[size] = '\0';
- 
- 	__buffer_unlock_commit(buffer, event);
--	ftrace_trace_stack(&global_trace, buffer, trace_ctx, 4, NULL);
-+	ftrace_trace_stack(tr, buffer, trace_ctx, 4, NULL);
-  out:
- 	ring_buffer_nest_end(buffer);
- 	return size;
- }
-+EXPORT_SYMBOL_GPL(__trace_array_puts);
-+
-+/**
-+ * __trace_puts - write a constant string into the trace buffer.
-+ * @ip:	   The address of the caller
-+ * @str:   The constant string to write
-+ * @size:  The size of the string.
-+ */
-+int __trace_puts(unsigned long ip, const char *str, int size)
-+{
-+	return __trace_array_puts(&global_trace, ip, str, size);
-+}
- EXPORT_SYMBOL_GPL(__trace_puts);
- 
- /**
 -- 
 2.39.2
 
