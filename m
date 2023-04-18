@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4376E623C
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA4046E63CF
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231651AbjDRMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:31:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42952 "EHLO
+        id S231904AbjDRMnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231713AbjDRMa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:30:57 -0400
+        with ESMTP id S231922AbjDRMn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094709764
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:30:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D8C3146ED
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEC7A631D0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B24C433EF;
-        Tue, 18 Apr 2023 12:30:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64E896333D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BADAC433EF;
+        Tue, 18 Apr 2023 12:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821040;
-        bh=Hni3skzJOrW0p0sNxo/IJzB+3rIO05KgduxKC3KJH1s=;
+        s=korg; t=1681821804;
+        bh=8aLQgSVXltm/b6/gEXaqKF7wEvcy4l6KoRlmcEKbxMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5XoviCYUzW4q4aNTBabuizt0QU0LsCdi29K4yGxGzZkvvUjg8EWZQNT+9LGbxF9k
-         D5wGZMzWeon094RtvVLfvUfuv8zx5yyzzT7/rzDrWSQMKIhLiTM5Hj6p7E5Peh+lNT
-         ki2gfXS+3IVmM6jtBncgBLrSKvpS6ywn0VM6tnl8=
+        b=P6fOE3We4JdHCBxIHc1ISALH56aHvd5suqWWlVbR44JJrRLLgXLCBvh29l+zDWLXI
+         eBuE8vuOVU+y+jShvU/dDj3WqEWunHNJMIDc5BJ5hZ2b49yDOYwtXKFPtTbILtYLpU
+         5ZZMXM0KFVkWFDq/cObTabkCiMU22jkBxuM11aNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 5.4 39/92] ring-buffer: Fix race while reader and writer are on the same page
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 018/134] btrfs: fix fast csum implementation detection
 Date:   Tue, 18 Apr 2023 14:21:14 +0200
-Message-Id: <20230418120306.209350216@linuxfoundation.org>
+Message-Id: <20230418120313.627606086@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 6455b6163d8c680366663cdb8c679514d55fc30c upstream.
+commit 68d99ab0e9221ef54506f827576c5a914680eeaf upstream.
 
-When user reads file 'trace_pipe', kernel keeps printing following logs
-that warn at "cpu_buffer->reader_page->read > rb_page_size(reader)" in
-rb_get_reader_page(). It just looks like there's an infinite loop in
-tracing_read_pipe(). This problem occurs several times on arm64 platform
-when testing v5.10 and below.
+The BTRFS_FS_CSUM_IMPL_FAST flag is currently set whenever a non-generic
+crc32c is detected, which is the incorrect check if the file system uses
+a different checksumming algorithm.  Refactor the code to only check
+this if crc32c is actually used.  Note that in an ideal world the
+information if an algorithm is hardware accelerated or not should be
+provided by the crypto API instead, but that's left for another day.
 
-  Call trace:
-   rb_get_reader_page+0x248/0x1300
-   rb_buffer_peek+0x34/0x160
-   ring_buffer_peek+0xbc/0x224
-   peek_next_entry+0x98/0xbc
-   __find_next_entry+0xc4/0x1c0
-   trace_find_next_entry_inc+0x30/0x94
-   tracing_read_pipe+0x198/0x304
-   vfs_read+0xb4/0x1e0
-   ksys_read+0x74/0x100
-   __arm64_sys_read+0x24/0x30
-   el0_svc_common.constprop.0+0x7c/0x1bc
-   do_el0_svc+0x2c/0x94
-   el0_svc+0x20/0x30
-   el0_sync_handler+0xb0/0xb4
-   el0_sync+0x160/0x180
-
-Then I dump the vmcore and look into the problematic per_cpu ring_buffer,
-I found that tail_page/commit_page/reader_page are on the same page while
-reader_page->read is obviously abnormal:
-  tail_page == commit_page == reader_page == {
-    .write = 0x100d20,
-    .read = 0x8f9f4805,  // Far greater than 0xd20, obviously abnormal!!!
-    .entries = 0x10004c,
-    .real_end = 0x0,
-    .page = {
-      .time_stamp = 0x857257416af0,
-      .commit = 0xd20,  // This page hasn't been full filled.
-      // .data[0...0xd20] seems normal.
-    }
- }
-
-The root cause is most likely the race that reader and writer are on the
-same page while reader saw an event that not fully committed by writer.
-
-To fix this, add memory barriers to make sure the reader can see the
-content of what is committed. Since commit a0fcaaed0c46 ("ring-buffer: Fix
-race between reset page and reading page") has added the read barrier in
-rb_get_reader_page(), here we just need to add the write barrier.
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230325021247.2923907-1-zhengyejian1@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 77ae365eca89 ("ring-buffer: make lockless")
-Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+CC: stable@vger.kernel.org # 5.4.x: c8a5f8ca9a9c: btrfs: print checksum type and implementation at mount time
+CC: stable@vger.kernel.org # 5.4.x
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |   14 ++++++++++++++
+ fs/btrfs/super.c   |    2 --
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -2532,6 +2532,10 @@ rb_set_commit_to_write(struct ring_buffe
- 		if (RB_WARN_ON(cpu_buffer,
- 			       rb_is_reader_page(cpu_buffer->tail_page)))
- 			return;
-+		/*
-+		 * No need for a memory barrier here, as the update
-+		 * of the tail_page did it for this page.
-+		 */
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		rb_inc_page(cpu_buffer, &cpu_buffer->commit_page);
-@@ -2545,6 +2549,8 @@ rb_set_commit_to_write(struct ring_buffe
- 	while (rb_commit_index(cpu_buffer) !=
- 	       rb_page_write(cpu_buffer->commit_page)) {
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2347,6 +2347,20 @@ static int btrfs_init_csum_hash(struct b
  
-+		/* Make sure the readers see the content of what is committed. */
-+		smp_wmb();
- 		local_set(&cpu_buffer->commit_page->page->commit,
- 			  rb_page_write(cpu_buffer->commit_page));
- 		RB_WARN_ON(cpu_buffer,
-@@ -3920,7 +3926,12 @@ rb_get_reader_page(struct ring_buffer_pe
+ 	fs_info->csum_shash = csum_shash;
  
- 	/*
- 	 * Make sure we see any padding after the write update
--	 * (see rb_reset_tail())
-+	 * (see rb_reset_tail()).
-+	 *
-+	 * In addition, a writer may be writing on the reader page
-+	 * if the page has not been fully filled, so the read barrier
-+	 * is also needed to make sure we see the content of what is
-+	 * committed by the writer (see rb_set_commit_to_write()).
- 	 */
- 	smp_rmb();
- 
++	/*
++	 * Check if the checksum implementation is a fast accelerated one.
++	 * As-is this is a bit of a hack and should be replaced once the csum
++	 * implementations provide that information themselves.
++	 */
++	switch (csum_type) {
++	case BTRFS_CSUM_TYPE_CRC32:
++		if (!strstr(crypto_shash_driver_name(csum_shash), "generic"))
++			set_bit(BTRFS_FS_CSUM_IMPL_FAST, &fs_info->flags);
++		break;
++	default:
++		break;
++	}
++
+ 	btrfs_info(fs_info, "using %s (%s) checksum algorithm",
+ 			btrfs_super_csum_name(csum_type),
+ 			crypto_shash_driver_name(csum_shash));
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1824,8 +1824,6 @@ static struct dentry *btrfs_mount_root(s
+ 		shrinker_debugfs_rename(&s->s_shrink, "sb-%s:%s", fs_type->name,
+ 					s->s_id);
+ 		btrfs_sb(s)->bdev_holder = fs_type;
+-		if (!strstr(crc32c_impl(), "generic"))
+-			set_bit(BTRFS_FS_CSUM_IMPL_FAST, &fs_info->flags);
+ 		error = btrfs_fill_super(s, fs_devices, data);
+ 	}
+ 	if (!error)
 
 
