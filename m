@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B73436E64D9
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EECF6E64E7
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232224AbjDRMxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46548 "EHLO
+        id S232236AbjDRMx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbjDRMxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB1F12C8C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:45 -0700 (PDT)
+        with ESMTP id S232200AbjDRMx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977087A80
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A688629B0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E58DC4339B;
-        Tue, 18 Apr 2023 12:52:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FA262B02
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 034DFC433EF;
+        Tue, 18 Apr 2023 12:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822362;
-        bh=hgCXkjGykAnia0TijUVwJBW7TAnDiYSwP0j4ShvuPk0=;
+        s=korg; t=1681822365;
+        bh=UcWlxnkfaTaHqhQh+AsaOONkbCEZ+BBA1EBTLwG5NIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7XubPIHK/FJstpzyN2QMuytrpnWZHsWo4ld8bFqv/uMhgKT0xy8Rzh3eK0uIw35C
-         OZHHm1nwegnIeM7MWtMWk1M4TflDpxq6ik6c8qAWjXS08c6GH1YvBru5z3EcWdxs/G
-         3rNPTy41YR1VeYbhmhil0UpbDIAGQ7wXBJz8l7Hk=
+        b=vj+fJEtheb0BcFh0SH1bGU6PyIa02pRyktdHkX7Zc1+sAboF6bJEbmII9MyhOvnAh
+         xZt243CWj6Wby1/Xxhe4KRycgfdwwuObgZkFlIwMKQfq2zXcjZfVJ9TZKOI/ig86XG
+         reZsDRiJCgdVVEtuNd0tE1woMGHCyKZFG+GjbDLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 6.2 121/139] cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
-Date:   Tue, 18 Apr 2023 14:23:06 +0200
-Message-Id: <20230418120318.369062391@linuxfoundation.org>
+        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
+        Kenneth Feng <kenneth.feng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 122/139] drm/amd/pm: correct SMU13.0.7 pstate profiling clock settings
+Date:   Tue, 18 Apr 2023 14:23:07 +0200
+Message-Id: <20230418120318.409162466@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,168 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Horatio Zhang <Hongkun.Zhang@amd.com>
 
-commit eee87853794187f6adbe19533ed79c8b44b36a91 upstream.
+commit f06b8887e3ef4f50098d3a949aef392c529c831a upstream.
 
-In the case of CLONE_INTO_CGROUP, not all cpusets are ready to accept
-new tasks. It is too late to check that in cpuset_fork(). So we need
-to add the cpuset_can_fork() and cpuset_cancel_fork() methods to
-pre-check it before we can allow attachment to a different cpuset.
+Correct the pstate standard/peak profiling mode clock
+settings for SMU13.0.7.
 
-We also need to set the attach_in_progress flag to alert other code
-that a new task is going to be added to the cpuset.
-
-Fixes: ef2c41cf38a7 ("clone3: allow spawning processes into cgroups")
-Suggested-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
+Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |   97 +++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 86 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |   22 ++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2453,6 +2453,20 @@ static int fmeter_getrate(struct fmeter
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -1329,9 +1329,17 @@ static int smu_v13_0_7_populate_umd_stat
+ 				&dpm_context->dpm_tables.fclk_table;
+ 	struct smu_umd_pstate_table *pstate_table =
+ 				&smu->pstate_table;
++	struct smu_table_context *table_context = &smu->smu_table;
++	PPTable_t *pptable = table_context->driver_pptable;
++	DriverReportedClocks_t driver_clocks =
++		pptable->SkuTable.DriverReportedClocks;
  
- static struct cpuset *cpuset_attach_old_cs;
+ 	pstate_table->gfxclk_pstate.min = gfx_table->min;
+-	pstate_table->gfxclk_pstate.peak = gfx_table->max;
++	if (driver_clocks.GameClockAc &&
++		(driver_clocks.GameClockAc < gfx_table->max))
++		pstate_table->gfxclk_pstate.peak = driver_clocks.GameClockAc;
++	else
++		pstate_table->gfxclk_pstate.peak = gfx_table->max;
  
-+/*
-+ * Check to see if a cpuset can accept a new task
-+ * For v1, cpus_allowed and mems_allowed can't be empty.
-+ * For v2, effective_cpus can't be empty.
-+ * Note that in v1, effective_cpus = cpus_allowed.
-+ */
-+static int cpuset_can_attach_check(struct cpuset *cs)
-+{
-+	if (cpumask_empty(cs->effective_cpus) ||
-+	   (!is_in_v2_mode() && nodes_empty(cs->mems_allowed)))
-+		return -ENOSPC;
-+	return 0;
-+}
-+
- /* Called by cgroups to determine if a cpuset is usable; cpuset_rwsem held */
- static int cpuset_can_attach(struct cgroup_taskset *tset)
- {
-@@ -2467,16 +2481,9 @@ static int cpuset_can_attach(struct cgro
+ 	pstate_table->uclk_pstate.min = mem_table->min;
+ 	pstate_table->uclk_pstate.peak = mem_table->max;
+@@ -1348,12 +1356,12 @@ static int smu_v13_0_7_populate_umd_stat
+ 	pstate_table->fclk_pstate.min = fclk_table->min;
+ 	pstate_table->fclk_pstate.peak = fclk_table->max;
  
- 	percpu_down_write(&cpuset_rwsem);
- 
--	/* allow moving tasks into an empty cpuset if on default hierarchy */
--	ret = -ENOSPC;
--	if (!is_in_v2_mode() &&
--	    (cpumask_empty(cs->cpus_allowed) || nodes_empty(cs->mems_allowed)))
--		goto out_unlock;
--
 -	/*
--	 * Task cannot be moved to a cpuset with empty effective cpus.
+-	 * For now, just use the mininum clock frequency.
+-	 * TODO: update them when the real pstate settings available
 -	 */
--	if (cpumask_empty(cs->effective_cpus))
-+	/* Check to see if task is allowed in the cpuset */
-+	ret = cpuset_can_attach_check(cs);
-+	if (ret)
- 		goto out_unlock;
- 
- 	cgroup_taskset_for_each(task, css, tset) {
-@@ -2493,7 +2500,6 @@ static int cpuset_can_attach(struct cgro
- 	 * changes which zero cpus/mems_allowed.
- 	 */
- 	cs->attach_in_progress++;
--	ret = 0;
- out_unlock:
- 	percpu_up_write(&cpuset_rwsem);
- 	return ret;
-@@ -3265,6 +3271,68 @@ static void cpuset_bind(struct cgroup_su
- }
- 
- /*
-+ * In case the child is cloned into a cpuset different from its parent,
-+ * additional checks are done to see if the move is allowed.
-+ */
-+static int cpuset_can_fork(struct task_struct *task, struct css_set *cset)
-+{
-+	struct cpuset *cs = css_cs(cset->subsys[cpuset_cgrp_id]);
-+	bool same_cs;
-+	int ret;
-+
-+	rcu_read_lock();
-+	same_cs = (cs == task_cs(current));
-+	rcu_read_unlock();
-+
-+	if (same_cs)
-+		return 0;
-+
-+	lockdep_assert_held(&cgroup_mutex);
-+	percpu_down_write(&cpuset_rwsem);
-+
-+	/* Check to see if task is allowed in the cpuset */
-+	ret = cpuset_can_attach_check(cs);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = task_can_attach(task, cs->effective_cpus);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = security_task_setscheduler(task);
-+	if (ret)
-+		goto out_unlock;
-+
-+	/*
-+	 * Mark attach is in progress.  This makes validate_change() fail
-+	 * changes which zero cpus/mems_allowed.
-+	 */
-+	cs->attach_in_progress++;
-+out_unlock:
-+	percpu_up_write(&cpuset_rwsem);
-+	return ret;
-+}
-+
-+static void cpuset_cancel_fork(struct task_struct *task, struct css_set *cset)
-+{
-+	struct cpuset *cs = css_cs(cset->subsys[cpuset_cgrp_id]);
-+	bool same_cs;
-+
-+	rcu_read_lock();
-+	same_cs = (cs == task_cs(current));
-+	rcu_read_unlock();
-+
-+	if (same_cs)
-+		return;
-+
-+	percpu_down_write(&cpuset_rwsem);
-+	cs->attach_in_progress--;
-+	if (!cs->attach_in_progress)
-+		wake_up(&cpuset_attach_wq);
-+	percpu_up_write(&cpuset_rwsem);
-+}
-+
-+/*
-  * Make sure the new task conform to the current state of its parent,
-  * which could have been changed by cpuset just after it inherits the
-  * state from the parent and before it sits on the cgroup's task list.
-@@ -3292,6 +3360,11 @@ static void cpuset_fork(struct task_stru
- 	percpu_down_write(&cpuset_rwsem);
- 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
- 	cpuset_attach_task(cs, task);
-+
-+	cs->attach_in_progress--;
-+	if (!cs->attach_in_progress)
-+		wake_up(&cpuset_attach_wq);
-+
- 	percpu_up_write(&cpuset_rwsem);
- }
- 
-@@ -3305,6 +3378,8 @@ struct cgroup_subsys cpuset_cgrp_subsys
- 	.attach		= cpuset_attach,
- 	.post_attach	= cpuset_post_attach,
- 	.bind		= cpuset_bind,
-+	.can_fork	= cpuset_can_fork,
-+	.cancel_fork	= cpuset_cancel_fork,
- 	.fork		= cpuset_fork,
- 	.legacy_cftypes	= legacy_files,
- 	.dfl_cftypes	= dfl_files,
+-	pstate_table->gfxclk_pstate.standard = gfx_table->min;
+-	pstate_table->uclk_pstate.standard = mem_table->min;
++	if (driver_clocks.BaseClockAc &&
++		driver_clocks.BaseClockAc < gfx_table->max)
++		pstate_table->gfxclk_pstate.standard = driver_clocks.BaseClockAc;
++	else
++		pstate_table->gfxclk_pstate.standard = gfx_table->max;
++	pstate_table->uclk_pstate.standard = mem_table->max;
+ 	pstate_table->socclk_pstate.standard = soc_table->min;
+ 	pstate_table->vclk_pstate.standard = vclk_table->min;
+ 	pstate_table->dclk_pstate.standard = dclk_table->min;
 
 
