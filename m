@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B376E624F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5076E63DE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbjDRMbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:31:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43410 "EHLO
+        id S231678AbjDRMn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:43:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231455AbjDRMbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:31:38 -0400
+        with ESMTP id S231907AbjDRMn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:43:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C5DC676
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E0115608
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:43:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B65631FB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA4F9C433EF;
-        Tue, 18 Apr 2023 12:31:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07F8063366
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1CEC433EF;
+        Tue, 18 Apr 2023 12:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821072;
-        bh=q5argzPEaClpJQEMbplI8xlCdFHDVW1Foo1B0xfKLaw=;
+        s=korg; t=1681821836;
+        bh=GC1ElIfd4d4yV76Nsn9CGAOKiO3k+cjxG6lcQ4FQguI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1smbpHlCFKJoFvEHHXOvPijMXnfgSMD/Ytyd23S8StabDTo2kmBiJNwd/7w4gMx/
-         4gDYQUixQypBQmk55sV4/4csxDXdIbRj5en4oxeLvGyy3hXoWbZQr7tJC57R/rdN+S
-         kaNdghX2hGLq26rvIs8uapSrpTlJlYl3W2bdAkSM=
+        b=dkD9xddRkOIy16JYTcQ7ZgNYw3Lu3H6Mr5Rn/XVuFZ7iBUytf3r1vKLwKbvTUO92l
+         sNLpQ7G7062OCdqTiof7jMP+GNs4DgQYGDx9OAFwFyBMJiZ0KWOqakLrcjL+NBo4xI
+         7vld8YHBoVkduIRaLwva1Rqkjcjmjwa7rJ0SbXcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Chandan Rajendra <chandanrlinux@gmail.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>
-Subject: [PATCH 5.4 81/92] xfs: add a new xfs_sb_version_has_v3inode helper
+        patches@lists.linux.dev, Simon Horman <simon.horman@corigine.com>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 060/134] net: wwan: iosm: Fix error handling path in ipc_pcie_probe()
 Date:   Tue, 18 Apr 2023 14:21:56 +0200
-Message-Id: <20230418120307.616641452@linuxfoundation.org>
+Message-Id: <20230418120315.065180636@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,172 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-commit b81b79f4eda2ea98ae5695c0b6eb384c8d90b74d upstream.
+[ Upstream commit a56ef25619e079bd7d744636cf18d054d1e91982 ]
 
-Add a new wrapper to check if a file system supports the v3 inode format
-with a larger dinode core.  Previously we used xfs_sb_version_hascrc for
-that, which is technically correct but a little confusing to read.
+Smatch reports:
+	drivers/net/wwan/iosm/iosm_ipc_pcie.c:298 ipc_pcie_probe()
+	warn: missing unwind goto?
 
-Also move xfs_dinode_good_version next to xfs_sb_version_has_v3inode
-so that we have one place that documents the superblock version to
-inode version relationship.
+When dma_set_mask fails it directly returns without disabling pci
+device and freeing ipc_pcie. Fix this my calling a correct goto label
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As dma_set_mask returns either 0 or -EIO, we can use a goto label, as
+it finally returns -EIO.
+
+Add a set_mask_fail goto label which stands consistent with other goto
+labels in this function..
+
+Fixes: 035e3befc191 ("net: wwan: iosm: fix driver not working with INTEL_IOMMU disabled")
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_format.h     |   17 +++++++++++++++++
- fs/xfs/libxfs/xfs_ialloc.c     |    4 ++--
- fs/xfs/libxfs/xfs_inode_buf.c  |   17 +++--------------
- fs/xfs/libxfs/xfs_inode_buf.h  |    2 --
- fs/xfs/libxfs/xfs_trans_resv.c |    2 +-
- fs/xfs/xfs_buf_item.c          |    2 +-
- fs/xfs/xfs_log_recover.c       |    2 +-
- 7 files changed, 25 insertions(+), 21 deletions(-)
+ drivers/net/wwan/iosm/iosm_ipc_pcie.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/xfs/libxfs/xfs_format.h
-+++ b/fs/xfs/libxfs/xfs_format.h
-@@ -497,6 +497,23 @@ static inline bool xfs_sb_version_hascrc
- 	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
- }
- 
-+/*
-+ * v5 file systems support V3 inodes only, earlier file systems support
-+ * v2 and v1 inodes.
-+ */
-+static inline bool xfs_sb_version_has_v3inode(struct xfs_sb *sbp)
-+{
-+	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
-+}
-+
-+static inline bool xfs_dinode_good_version(struct xfs_sb *sbp,
-+		uint8_t version)
-+{
-+	if (xfs_sb_version_has_v3inode(sbp))
-+		return version == 3;
-+	return version == 1 || version == 2;
-+}
-+
- static inline bool xfs_sb_version_has_pquotino(struct xfs_sb *sbp)
- {
- 	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
---- a/fs/xfs/libxfs/xfs_ialloc.c
-+++ b/fs/xfs/libxfs/xfs_ialloc.c
-@@ -303,7 +303,7 @@ xfs_ialloc_inode_init(
- 	 * That means for v3 inode we log the entire buffer rather than just the
- 	 * inode cores.
- 	 */
--	if (xfs_sb_version_hascrc(&mp->m_sb)) {
-+	if (xfs_sb_version_has_v3inode(&mp->m_sb)) {
- 		version = 3;
- 		ino = XFS_AGINO_TO_INO(mp, agno, XFS_AGB_TO_AGINO(mp, agbno));
- 
-@@ -2818,7 +2818,7 @@ xfs_ialloc_setup_geometry(
- 	 * cannot change the behavior.
- 	 */
- 	igeo->inode_cluster_size_raw = XFS_INODE_BIG_CLUSTER_SIZE;
--	if (xfs_sb_version_hascrc(&mp->m_sb)) {
-+	if (xfs_sb_version_has_v3inode(&mp->m_sb)) {
- 		int	new_size = igeo->inode_cluster_size_raw;
- 
- 		new_size *= mp->m_sb.sb_inodesize / XFS_DINODE_MIN_SIZE;
---- a/fs/xfs/libxfs/xfs_inode_buf.c
-+++ b/fs/xfs/libxfs/xfs_inode_buf.c
-@@ -44,17 +44,6 @@ xfs_inobp_check(
- }
- #endif
- 
--bool
--xfs_dinode_good_version(
--	struct xfs_mount *mp,
--	__u8		version)
--{
--	if (xfs_sb_version_hascrc(&mp->m_sb))
--		return version == 3;
--
--	return version == 1 || version == 2;
--}
--
- /*
-  * If we are doing readahead on an inode buffer, we might be in log recovery
-  * reading an inode allocation buffer that hasn't yet been replayed, and hence
-@@ -93,7 +82,7 @@ xfs_inode_buf_verify(
- 		dip = xfs_buf_offset(bp, (i << mp->m_sb.sb_inodelog));
- 		unlinked_ino = be32_to_cpu(dip->di_next_unlinked);
- 		di_ok = xfs_verify_magic16(bp, dip->di_magic) &&
--			xfs_dinode_good_version(mp, dip->di_version) &&
-+			xfs_dinode_good_version(&mp->m_sb, dip->di_version) &&
- 			xfs_verify_agino_or_null(mp, agno, unlinked_ino);
- 		if (unlikely(XFS_TEST_ERROR(!di_ok, mp,
- 						XFS_ERRTAG_ITOBP_INOTOBP))) {
-@@ -454,7 +443,7 @@ xfs_dinode_verify(
- 
- 	/* Verify v3 integrity information first */
- 	if (dip->di_version >= 3) {
--		if (!xfs_sb_version_hascrc(&mp->m_sb))
-+		if (!xfs_sb_version_has_v3inode(&mp->m_sb))
- 			return __this_address;
- 		if (!xfs_verify_cksum((char *)dip, mp->m_sb.sb_inodesize,
- 				      XFS_DINODE_CRC_OFF))
-@@ -629,7 +618,7 @@ xfs_iread(
- 
- 	/* shortcut IO on inode allocation if possible */
- 	if ((iget_flags & XFS_IGET_CREATE) &&
--	    xfs_sb_version_hascrc(&mp->m_sb) &&
-+	    xfs_sb_version_has_v3inode(&mp->m_sb) &&
- 	    !(mp->m_flags & XFS_MOUNT_IKEEP)) {
- 		/* initialise the on-disk inode core */
- 		memset(&ip->i_d, 0, sizeof(ip->i_d));
---- a/fs/xfs/libxfs/xfs_inode_buf.h
-+++ b/fs/xfs/libxfs/xfs_inode_buf.h
-@@ -59,8 +59,6 @@ void	xfs_inode_from_disk(struct xfs_inod
- void	xfs_log_dinode_to_disk(struct xfs_log_dinode *from,
- 			       struct xfs_dinode *to);
- 
--bool	xfs_dinode_good_version(struct xfs_mount *mp, __u8 version);
--
- #if defined(DEBUG)
- void	xfs_inobp_check(struct xfs_mount *, struct xfs_buf *);
- #else
---- a/fs/xfs/libxfs/xfs_trans_resv.c
-+++ b/fs/xfs/libxfs/xfs_trans_resv.c
-@@ -187,7 +187,7 @@ xfs_calc_inode_chunk_res(
- 			       XFS_FSB_TO_B(mp, 1));
- 	if (alloc) {
- 		/* icreate tx uses ordered buffers */
--		if (xfs_sb_version_hascrc(&mp->m_sb))
-+		if (xfs_sb_version_has_v3inode(&mp->m_sb))
- 			return res;
- 		size = XFS_FSB_TO_B(mp, 1);
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_pcie.c b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
+index 5bf5a93937c9c..04517bd3325a2 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_pcie.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
+@@ -295,7 +295,7 @@ static int ipc_pcie_probe(struct pci_dev *pci,
+ 	ret = dma_set_mask(ipc_pcie->dev, DMA_BIT_MASK(64));
+ 	if (ret) {
+ 		dev_err(ipc_pcie->dev, "Could not set PCI DMA mask: %d", ret);
+-		return ret;
++		goto set_mask_fail;
  	}
---- a/fs/xfs/xfs_buf_item.c
-+++ b/fs/xfs/xfs_buf_item.c
-@@ -328,7 +328,7 @@ xfs_buf_item_format(
- 	 * occurs during recovery.
- 	 */
- 	if (bip->bli_flags & XFS_BLI_INODE_BUF) {
--		if (xfs_sb_version_hascrc(&lip->li_mountp->m_sb) ||
-+		if (xfs_sb_version_has_v3inode(&lip->li_mountp->m_sb) ||
- 		    !((bip->bli_flags & XFS_BLI_INODE_ALLOC_BUF) &&
- 		      xfs_log_item_in_current_chkpt(lip)))
- 			bip->__bli_format.blf_flags |= XFS_BLF_INODE_BUF;
---- a/fs/xfs/xfs_log_recover.c
-+++ b/fs/xfs/xfs_log_recover.c
-@@ -3018,7 +3018,7 @@ xlog_recover_inode_pass2(
- 	 * superblock flag to determine whether we need to look at di_flushiter
- 	 * to skip replay when the on disk inode is newer than the log one
- 	 */
--	if (!xfs_sb_version_hascrc(&mp->m_sb) &&
-+	if (!xfs_sb_version_has_v3inode(&mp->m_sb) &&
- 	    ldip->di_flushiter < be16_to_cpu(dip->di_flushiter)) {
- 		/*
- 		 * Deal with the wrap case, DI_MAX_FLUSH is less
+ 
+ 	ipc_pcie_config_aspm(ipc_pcie);
+@@ -323,6 +323,7 @@ static int ipc_pcie_probe(struct pci_dev *pci,
+ imem_init_fail:
+ 	ipc_pcie_resources_release(ipc_pcie);
+ resources_req_fail:
++set_mask_fail:
+ 	pci_disable_device(pci);
+ pci_enable_fail:
+ 	kfree(ipc_pcie);
+-- 
+2.39.2
+
 
 
