@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE126E642E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD29F6E64CE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232006AbjDRMqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:46:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37032 "EHLO
+        id S232199AbjDRMwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:52:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232029AbjDRMqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:46:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E915214F57
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:46:44 -0700 (PDT)
+        with ESMTP id S232204AbjDRMwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:52:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22EB118E9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D761633A5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:46:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F69DC4339B;
-        Tue, 18 Apr 2023 12:46:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57D816344A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6683FC4339B;
+        Tue, 18 Apr 2023 12:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822003;
-        bh=oNRHKlpBGx5o+DM+fn7UAlEabvjKmS3NKQxywnfXrY4=;
+        s=korg; t=1681822338;
+        bh=5K+7JddlZrFYjRS2PhmvsYrGA2j2H6kx3Hz5/jx7L/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePNeZtz24vLKtb/0v5QVISUxUwih0fiYSXBFA9v/ca9Dix7T0bdKPX2Q3BRf+d6xA
-         KjrQV0UAKQuevePR2lezxuP0gQ7SYpfLASSaPRbkMAyn8H3ypG+r3kCDNiphvy3M9p
-         xav0CsBoTkhoGXLo0VQ4O4uPJMbF6cqC7YmIvyVo=
+        b=O6fCJSWhX3Hz1QNVSVnFfRzjR0AXZqbtRpXPnwSotha/UW5LRIIV5veAhtaV/tD5g
+         BdfVdBKpLxz35BLRYDhjHHuyaAqi0xpY5k4n376uqLPQqa0BcuaPkS3dhUKux31dM2
+         h+7bMsEkAEdF9QBX1OB/P5Vw/OXUldMoY9dl2tMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 121/134] powerpc/papr_scm: Update the NUMA distance table for the target node
-Date:   Tue, 18 Apr 2023 14:22:57 +0200
-Message-Id: <20230418120317.409905949@linuxfoundation.org>
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 113/139] drm/amd/pm: correct the pcie link state check for SMU13
+Date:   Tue, 18 Apr 2023 14:22:58 +0200
+Message-Id: <20230418120318.010994754@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,84 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit b277fc793daf258877b4c0744b52f69d6e6ba22e ]
+commit b9a24d8bd51e2db425602fa82d7f4c06aa3db852 upstream.
 
-Platform device helper routines won't update the NUMA distance table
-while creating a platform device, even if the device is present on a
-NUMA node that doesn't have memory or CPU. This is especially true for
-pmem devices. If the target node of the pmem device is not online, we
-find the nearest online node to the device and associate the pmem device
-with that online node. To find the nearest online node, we should have
-the numa distance table updated correctly. Update the distance
-information during the device probe.
+Update the driver implementations to fit those data exposed
+by PMFW.
 
-For a papr scm device on NUMA node 3 distance_lookup_table value for
-distance_ref_points_depth = 2 before and after fix is below:
-
-Before fix:
-  node 3 distance depth 0  - 0
-  node 3 distance depth 1  - 0
-  node 4 distance depth 0  - 4
-  node 4 distance depth 1  - 2
-  node 5 distance depth 0  - 5
-  node 5 distance depth 1  - 1
-
-After fix
-  node 3 distance depth 0  - 3
-  node 3 distance depth 1  - 1
-  node 4 distance depth 0  - 4
-  node 4 distance depth 1  - 2
-  node 5 distance depth 0  - 5
-  node 5 distance depth 1  - 1
-
-Without the fix, the nearest numa node to the pmem device (NUMA node 3)
-will be picked as 4. After the fix, we get the correct numa node which
-is 5.
-
-Fixes: da1115fdbd6e ("powerpc/nvdimm: Pick nearby online node if the device node is not online")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://msgid.link/20230404041433.1781804-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/numa.c                    | 1 +
- arch/powerpc/platforms/pseries/papr_scm.c | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h         |    6 ++++++
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c |    4 ++--
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |    4 ++--
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
-index b44ce71917d75..16cfe56be05bb 100644
---- a/arch/powerpc/mm/numa.c
-+++ b/arch/powerpc/mm/numa.c
-@@ -366,6 +366,7 @@ void update_numa_distance(struct device_node *node)
- 	WARN(numa_distance_table[nid][nid] == -1,
- 	     "NUMA distance details for node %d not provided\n", nid);
- }
-+EXPORT_SYMBOL_GPL(update_numa_distance);
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
+@@ -61,6 +61,12 @@
+ #define CTF_OFFSET_HOTSPOT		5
+ #define CTF_OFFSET_MEM			5
  
- /*
-  * ibm,numa-lookup-index-table= {N, domainid1, domainid2, ..... domainidN}
-diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
-index 2f8385523a132..1a53e048ceb76 100644
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -1428,6 +1428,13 @@ static int papr_scm_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
++static const int pmfw_decoded_link_speed[5] = {1, 2, 3, 4, 5};
++static const int pmfw_decoded_link_width[7] = {0, 1, 2, 4, 8, 12, 16};
++
++#define DECODE_GEN_SPEED(gen_speed_idx)		(pmfw_decoded_link_speed[gen_speed_idx])
++#define DECODE_LANE_WIDTH(lane_width_idx)	(pmfw_decoded_link_width[lane_width_idx])
++
+ struct smu_13_0_max_sustainable_clocks {
+ 	uint32_t display_clock;
+ 	uint32_t phy_clock;
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
+@@ -1125,8 +1125,8 @@ static int smu_v13_0_0_print_clk_levels(
+ 					(pcie_table->pcie_lane[i] == 5) ? "x12" :
+ 					(pcie_table->pcie_lane[i] == 6) ? "x16" : "",
+ 					pcie_table->clk_freq[i],
+-					((gen_speed - 1) == pcie_table->pcie_gen[i]) &&
+-					(lane_width == link_width[pcie_table->pcie_lane[i]]) ?
++					(gen_speed == DECODE_GEN_SPEED(pcie_table->pcie_gen[i])) &&
++					(lane_width == DECODE_LANE_WIDTH(link_width[pcie_table->pcie_lane[i]])) ?
+ 					"*" : "");
+ 		break;
  
-+	/*
-+	 * open firmware platform device create won't update the NUMA 
-+	 * distance table. For PAPR SCM devices we use numa_map_to_online_node()
-+	 * to find the nearest online NUMA node and that requires correct
-+	 * distance table information.
-+	 */
-+	update_numa_distance(dn);
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -1074,8 +1074,8 @@ static int smu_v13_0_7_print_clk_levels(
+ 					(pcie_table->pcie_lane[i] == 5) ? "x12" :
+ 					(pcie_table->pcie_lane[i] == 6) ? "x16" : "",
+ 					pcie_table->clk_freq[i],
+-					(gen_speed == pcie_table->pcie_gen[i]) &&
+-					(lane_width == pcie_table->pcie_lane[i]) ?
++					(gen_speed == DECODE_GEN_SPEED(pcie_table->pcie_gen[i])) &&
++					(lane_width == DECODE_LANE_WIDTH(pcie_table->pcie_lane[i])) ?
+ 					"*" : "");
+ 		break;
  
- 	p = kzalloc(sizeof(*p), GFP_KERNEL);
- 	if (!p)
--- 
-2.39.2
-
 
 
