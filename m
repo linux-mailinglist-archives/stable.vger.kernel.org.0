@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD096E64AD
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A246E6405
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232206AbjDRMve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:51:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43636 "EHLO
+        id S231976AbjDRMpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:45:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232182AbjDRMvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:21 -0400
+        with ESMTP id S231978AbjDRMp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9691E16B0E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD6514F44
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C116342C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C59C4339E;
-        Tue, 18 Apr 2023 12:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD7BD6338E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28B8C433EF;
+        Tue, 18 Apr 2023 12:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822256;
-        bh=DNHA9w31gGi6slqGhnDugKrUxRmBTEkUVrJjeSv3J8w=;
+        s=korg; t=1681821918;
+        bh=7H5totHyxq4yVx5iYXOEPlYPqoU+uIYlMPC64nUrdwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kid/WU51ROyD/mApx2QL718HGjUQkPLDecbgRflMeJ79XF7HXNixzk59NkPxR/cJ5
-         wID1PsgIF0qM+c6MzyHnzFH3BKDWXAqRkw34ITusPvg5jgG5dXp3dIR0zH7ZOpAF72
-         uHeyb+9htJZC2sVroeCmWu3lRrn2BDxjbMgNXYkM=
+        b=uaj+a2C9QEtBkq6mUnCL3rpCM96dClULtu+4wqVcIgH0NQr0f9RL/0yeLnn5Vp8jC
+         +2c2B44+xqqIblLAiI6GkvHmurfnQW7tJjTuFyYiuZoyksWsYNvUyOfaS5wJqiGCb+
+         VzUJPS7wNDmv+MpHdmgi9/aSh6+1jJe+bwSuBKqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Simon Horman <simon.horman@corigine.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 082/139] wifi: mwifiex: mark OF related data as maybe unused
+        patches@lists.linux.dev, YuBiao Wang <YuBiao.Wang@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 091/134] drm/amdgpu: Force signal hw_fences that are embedded in non-sched jobs
 Date:   Tue, 18 Apr 2023 14:22:27 +0200
-Message-Id: <20230418120316.912197574@linuxfoundation.org>
+Message-Id: <20230418120316.343689921@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: YuBiao Wang <YuBiao.Wang@amd.com>
 
-[ Upstream commit 139f6973bf140c65d4d1d4bde5485badb4454d7a ]
+[ Upstream commit 033c56474acf567a450f8bafca50e0b610f2b716 ]
 
-The driver can be compile tested with !CONFIG_OF making certain data
-unused:
+[Why]
+For engines not supporting soft reset, i.e. VCN, there will be a failed
+ib test before mode 1 reset during asic reset. The fences in this case
+are never signaled and next time when we try to free the sa_bo, kernel
+will hang.
 
-  drivers/net/wireless/marvell/mwifiex/sdio.c:498:34: error: ‘mwifiex_sdio_of_match_table’ defined but not used [-Werror=unused-const-variable=]
-  drivers/net/wireless/marvell/mwifiex/pcie.c:175:34: error: ‘mwifiex_pcie_of_match_table’ defined but not used [-Werror=unused-const-variable=]
+[How]
+During pre_asic_reset, driver will clear job fences and afterwards the
+fences' refcount will be reduced to 1. For drm_sched_jobs it will be
+released in job_free_cb, and for non-sched jobs like ib_test, it's meant
+to be released in sa_bo_free but only when the fences are signaled. So
+we have to force signal the non_sched bad job's fence during
+pre_asic_reset or the clear is not complete.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230312132523.352182-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
+Acked-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c | 2 +-
- drivers/net/wireless/marvell/mwifiex/sdio.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index 5dcf61761a165..9a698a16a8f38 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -172,7 +172,7 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
- 	.can_ext_scan = true,
- };
- 
--static const struct of_device_id mwifiex_pcie_of_match_table[] = {
-+static const struct of_device_id mwifiex_pcie_of_match_table[] __maybe_unused = {
- 	{ .compatible = "pci11ab,2b42" },
- 	{ .compatible = "pci1b4b,2b42" },
- 	{ }
-diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
-index 9f506efa53705..ea1c1c2412e72 100644
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -479,7 +479,7 @@ static struct memory_type_mapping mem_type_mapping_tbl[] = {
- 	{"EXTLAST", NULL, 0, 0xFE},
- };
- 
--static const struct of_device_id mwifiex_sdio_of_match_table[] = {
-+static const struct of_device_id mwifiex_sdio_of_match_table[] __maybe_unused = {
- 	{ .compatible = "marvell,sd8787" },
- 	{ .compatible = "marvell,sd8897" },
- 	{ .compatible = "marvell,sd8997" },
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index 6fdb679321d0d..3cc1929285fc0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -624,6 +624,15 @@ void amdgpu_fence_driver_clear_job_fences(struct amdgpu_ring *ring)
+ 		ptr = &ring->fence_drv.fences[i];
+ 		old = rcu_dereference_protected(*ptr, 1);
+ 		if (old && old->ops == &amdgpu_job_fence_ops) {
++			struct amdgpu_job *job;
++
++			/* For non-scheduler bad job, i.e. failed ib test, we need to signal
++			 * it right here or we won't be able to track them in fence_drv
++			 * and they will remain unsignaled during sa_bo free.
++			 */
++			job = container_of(old, struct amdgpu_job, hw_fence);
++			if (!job->base.s_fence && !dma_fence_is_signaled(old))
++				dma_fence_signal(old);
+ 			RCU_INIT_POINTER(*ptr, NULL);
+ 			dma_fence_put(old);
+ 		}
 -- 
 2.39.2
 
