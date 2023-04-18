@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC18E6E631B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A2B6E644F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbjDRMh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:37:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53548 "EHLO
+        id S232089AbjDRMsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbjDRMh4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:56 -0400
+        with ESMTP id S232088AbjDRMsK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9768F13842
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C473C24
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 115816104D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 231C2C433D2;
-        Tue, 18 Apr 2023 12:37:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE02562B21
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F21C4339B;
+        Tue, 18 Apr 2023 12:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821474;
-        bh=o+KkIphE59sGShHh0k/m9B067F3+qpW9h+65WhEoWZs=;
+        s=korg; t=1681822080;
+        bh=aXSOuYvmTIaGUJwOusY2pcfU4RwwyLNCWcxY7NsZPKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5vqr6ymqHhd5ecHUGM2mzWJhbPf9e6YC/pPjqIaL0DmvNJPjxX61yWU7LXSQxWAA
-         2oneDTPN1xbmNmLVn7WHIJyFtyW2ZDN29pVRdjqFWHyrqc3BdbuDKyrMrBbPaN9ku9
-         5H0LMSt8kwO23srJcrM8Y7q/yKXIclnMEHC3DDeY=
+        b=Ofc9t9SCq4ytg3w1P17YVULEbv9gVDHjW6LD0Du/y0aP93nrYisQiofYh9fXS8YbL
+         2YoCIVHx1A20HQ3/OVJWpZK3CcRIkd+O6D0+nUDLpSxmdKVhq9/70Ur5UbPLCufLeL
+         HF8ZJ1pMf87xUFNMF2G8FPeeu2Gs+ZJn95vlKiYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 16/91] mtd: rawnand: stm32_fmc2: use timings.mode instead of checking tRC_min
+        patches@lists.linux.dev, Sasha Finkelstein <fnkl.kernel@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 6.2 015/139] bluetooth: btbcm: Fix logic error in forming the board name.
 Date:   Tue, 18 Apr 2023 14:21:20 +0200
-Message-Id: <20230418120306.128707606@linuxfoundation.org>
+Message-Id: <20230418120314.253949729@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Kerello <christophe.kerello@foss.st.com>
+From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 
-commit ddbb664b6ab8de7dffa388ae0c88cd18616494e5 upstream.
+commit b76abe4648c1acc791a207e7c08d1719eb9f4ea8 upstream.
 
-Use timings.mode value instead of checking tRC_min timing
-for EDO mode support.
+This patch fixes an incorrect loop exit condition in code that replaces
+'/' symbols in the board name. There might also be a memory corruption
+issue here, but it is unlikely to be a real problem.
 
-Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash controller driver")
-Cc: stable@vger.kernel.org #v5.10+
-Reviewed-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20230328155819.225521-3-christophe.kerello@foss.st.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/stm32_fmc2_nand.c |    2 +-
+ drivers/bluetooth/btbcm.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-+++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-@@ -1527,7 +1527,7 @@ static int stm32_fmc2_nfc_setup_interfac
- 	if (IS_ERR(sdrt))
- 		return PTR_ERR(sdrt);
- 
--	if (sdrt->tRC_min < 30000)
-+	if (conf->timings.mode > 3)
- 		return -EOPNOTSUPP;
- 
- 	if (chipnr == NAND_DATA_IFACE_CHECK_ONLY)
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -511,7 +511,7 @@ static const char *btbcm_get_board_name(
+ 	len = strlen(tmp) + 1;
+ 	board_type = devm_kzalloc(dev, len, GFP_KERNEL);
+ 	strscpy(board_type, tmp, len);
+-	for (i = 0; i < board_type[i]; i++) {
++	for (i = 0; i < len; i++) {
+ 		if (board_type[i] == '/')
+ 			board_type[i] = '-';
+ 	}
 
 
