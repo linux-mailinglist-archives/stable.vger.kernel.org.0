@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 730DE6E63E6
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5C4B6E625B
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231907AbjDRMoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:44:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
+        id S230173AbjDRMcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:32:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231927AbjDRMoR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:17 -0400
+        with ESMTP id S231574AbjDRMcC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:32:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C3D819A6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152ED10247
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:31:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E9E062DF1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C370C433EF;
-        Tue, 18 Apr 2023 12:44:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3263763218
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41789C433D2;
+        Tue, 18 Apr 2023 12:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821855;
-        bh=r+XkguQLIPaOpEoPrDQQWgS4BP2jncf4vlzLNDpRuus=;
+        s=korg; t=1681821090;
+        bh=N21wMtQn63NagOixZ4zAZGnlBBW8v+o+UP864siyKn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMGpPj02cHotnH6rIMR2X1Z9G51OAKD14cxSyQDF/lerbrl8qc1C07FQ3H4nkMaMX
-         9MqqCDGyBPNqQ19itH9RgYLv98XIxmxXqVTLHVxu9jyfDGBNmy1wqUJ5g+4tGqKFy1
-         8bMUPC0QQayggtykZoAcLncoRQqZDdtVS3gA67L0=
+        b=eiedJKJn6MsPCbBjMEFhAB1mDfay5ldr4f0PZD/pHGdI4sJ0hsv8fDgGyCEKdwFh/
+         u+Zve0vZeY9GYCOY3MH/M15uQhyUbKkWB5YVXGh0zZvJbDIWnsm5xsM722g6ICalNI
+         fNa5h6OZ9UclmvE/j2bEscTh2GIAfY0dm0QRWjcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, lena wang <lena.wang@mediatek.com>,
-        Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 066/134] udp6: fix potential access to stale information
+        patches@lists.linux.dev,
+        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 87/92] xfs: set inode size after creating symlink
 Date:   Tue, 18 Apr 2023 14:22:02 +0200
-Message-Id: <20230418120315.266074779@linuxfoundation.org>
+Message-Id: <20230418120307.829460760@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
 
-[ Upstream commit 1c5950fc6fe996235f1d18539b9c6b64b597f50f ]
+commit 8aa921a95335d0a8c8e2be35a44467e7c91ec3e4 upstream.
 
-lena wang reported an issue caused by udpv6_sendmsg()
-mangling msg->msg_name and msg->msg_namelen, which
-are later read from ____sys_sendmsg() :
+When XFS creates a new symlink, it writes its size to disk but not to the
+VFS inode. This causes i_size_read() to return 0 for that symlink until
+it is re-read from disk, for example when the system is rebooted.
 
-	/*
-	 * If this is sendmmsg() and sending to current destination address was
-	 * successful, remember it.
-	 */
-	if (used_address && err >= 0) {
-		used_address->name_len = msg_sys->msg_namelen;
-		if (msg_sys->msg_name)
-			memcpy(&used_address->name, msg_sys->msg_name,
-			       used_address->name_len);
-	}
+I found this inconsistency while protecting directories with eCryptFS.
+The command "stat path/to/symlink/in/ecryptfs" will report "Size: 0" if
+the symlink was created after the last reboot on an XFS root.
 
-udpv6_sendmsg() wants to pretend the remote address family
-is AF_INET in order to call udp_sendmsg().
+Call i_size_write() in xfs_symlink()
 
-A fix would be to modify the address in-place, instead
-of using a local variable, but this could have other side effects.
-
-Instead, restore initial values before we return from udpv6_sendmsg().
-
-Fixes: c71d8ebe7a44 ("net: Fix security_socket_sendmsg() bypass problem.")
-Reported-by: lena wang <lena.wang@mediatek.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20230412130308.1202254-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/udp.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_symlink.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 98a64e8d9bdaa..17d721a6add72 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1391,9 +1391,11 @@ int udpv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 			msg->msg_name = &sin;
- 			msg->msg_namelen = sizeof(sin);
- do_udp_sendmsg:
--			if (ipv6_only_sock(sk))
--				return -ENETUNREACH;
--			return udp_sendmsg(sk, msg, len);
-+			err = ipv6_only_sock(sk) ?
-+				-ENETUNREACH : udp_sendmsg(sk, msg, len);
-+			msg->msg_name = sin6;
-+			msg->msg_namelen = addr_len;
-+			return err;
+--- a/fs/xfs/xfs_symlink.c
++++ b/fs/xfs/xfs_symlink.c
+@@ -314,6 +314,7 @@ xfs_symlink(
  		}
+ 		ASSERT(pathlen == 0);
  	}
++	i_size_write(VFS_I(ip), ip->i_d.di_size);
  
--- 
-2.39.2
-
+ 	/*
+ 	 * Create the directory entry for the symlink.
 
 
