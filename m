@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D0A6E62CA
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2456E649C
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229681AbjDRMf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
+        id S232167AbjDRMus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231668AbjDRMfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A97BBA5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:17 -0700 (PDT)
+        with ESMTP id S232157AbjDRMul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571E816B00
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A64B7629EA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB56FC4339B;
-        Tue, 18 Apr 2023 12:35:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B58F363425
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94E6C4339B;
+        Tue, 18 Apr 2023 12:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821317;
-        bh=9WQJUuBx43rDKifELWYZzWPnM5IAzTiTe0N5DCkWi04=;
+        s=korg; t=1681822238;
+        bh=k/HB4zxvp8gyenny9Zjs2yixtVMg9eZfyBxRQrGyrk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANyWHuEQ0JZDdKTsx8kmIQs9VWsnXNBJ3/nHOSn8hZrvCqvTE9jVqOIol3zp5XpNy
-         40eCvKURB+FrOU3YiHW5nnlcSh12VGxT7JnDewo/NVYT8X/Bhepi6CoYl9YctiOAwf
-         WTHiPcv4WpO3Zu/ntyqvBLxnpBHhu51CCkvSk6Ro=
+        b=vdT5rgZ0dXBmIJ+CTpnpxjrySeIX16IfBiummWMKGFhFof/sjzAm6W/vGhaLcuHyZ
+         qI1VB6/ei3aJADBMVq/A8+i+LH6slBBi/NqYiyNUC5gKFswZE7NyzLSnssP8LxVxLM
+         +Ou9esMY7hs7w8hemFsfTyAJdfTB3kqfMzZEcEDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Aya Levin <ayal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 080/124] net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
-Date:   Tue, 18 Apr 2023 14:21:39 +0200
-Message-Id: <20230418120312.769632614@linuxfoundation.org>
+Subject: [PATCH 6.2 035/139] IB/mlx5: Add support for 400G_8X lane speed
+Date:   Tue, 18 Apr 2023 14:21:40 +0200
+Message-Id: <20230418120314.974703458@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,101 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit 6417070918de3bcdbe0646e7256dae58fd8083ba ]
+[ Upstream commit 88c9483faf15ada14eca82714114656893063458 ]
 
-Syzbot reported a bug as following:
+Currently, when driver queries PTYS to report which link speed is being
+used on its RoCE ports, it does not check the case of having 400Gbps
+transmitted over 8 lanes. Thus it fails to report the said speed and
+instead it defaults to report 10G over 4 lanes.
 
-=====================================================
-BUG: KMSAN: uninit-value in qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
- qrtr_tx_resume+0x185/0x1f0 net/qrtr/af_qrtr.c:230
- qrtr_endpoint_post+0xf85/0x11b0 net/qrtr/af_qrtr.c:519
- qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Add a check for the said speed when querying PTYS and report it back
+correctly when needed.
 
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc_node_track_caller+0x114/0x3b0 mm/slab_common.c:988
- kmalloc_reserve net/core/skbuff.c:492 [inline]
- __alloc_skb+0x3af/0x8f0 net/core/skbuff.c:565
- __netdev_alloc_skb+0x120/0x7d0 net/core/skbuff.c:630
- qrtr_endpoint_post+0xbd/0x11b0 net/qrtr/af_qrtr.c:446
- qrtr_tun_write_iter+0x270/0x400 net/qrtr/tun.c:108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-It is because that skb->len requires at least sizeof(struct qrtr_ctrl_pkt)
-in qrtr_tx_resume(). And skb->len equals to size in qrtr_endpoint_post().
-But size is less than sizeof(struct qrtr_ctrl_pkt) when qrtr_cb->type
-equals to QRTR_TYPE_RESUME_TX in qrtr_endpoint_post() under the syzbot
-scenario. This triggers the uninit variable access bug.
-
-Add size check when qrtr_cb->type equals to QRTR_TYPE_RESUME_TX in
-qrtr_endpoint_post() to fix the bug.
-
-Fixes: 5fdeb0d372ab ("net: qrtr: Implement outgoing flow control")
-Reported-by: syzbot+4436c9630a45820fda76@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=c14607f0963d27d5a3d5f4c8639b500909e43540
-Suggested-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230410012352.3997823-1-william.xuanziyang@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 08e8676f1607 ("IB/mlx5: Add support for 50Gbps per lane link modes")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/ec9040548d119d22557d6a4b4070d6f421701fd4.1678973994.git.leon@kernel.org
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/af_qrtr.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/infiniband/hw/mlx5/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
-index d0f0b2b8dce2f..71c2295d4a573 100644
---- a/net/qrtr/af_qrtr.c
-+++ b/net/qrtr/af_qrtr.c
-@@ -492,6 +492,11 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 	if (!size || len != ALIGN(size, 4) + hdrlen)
- 		goto err;
- 
-+	if ((cb->type == QRTR_TYPE_NEW_SERVER ||
-+	     cb->type == QRTR_TYPE_RESUME_TX) &&
-+	    size < sizeof(struct qrtr_ctrl_pkt))
-+		goto err;
-+
- 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
- 	    cb->type != QRTR_TYPE_RESUME_TX)
- 		goto err;
-@@ -500,6 +505,14 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
- 
- 	qrtr_node_assign(node, cb->src_node);
- 
-+	if (cb->type == QRTR_TYPE_NEW_SERVER) {
-+		/* Remote node endpoint can bridge other distant nodes */
-+		const struct qrtr_ctrl_pkt *pkt;
-+
-+		pkt = data + hdrlen;
-+		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
-+	}
-+
- 	if (cb->type == QRTR_TYPE_RESUME_TX) {
- 		qrtr_tx_resume(node, skb);
- 	} else {
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index c669ef6e47e73..eaa35e1df2a85 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -442,6 +442,10 @@ static int translate_eth_ext_proto_oper(u32 eth_proto_oper, u16 *active_speed,
+ 		*active_width = IB_WIDTH_2X;
+ 		*active_speed = IB_SPEED_NDR;
+ 		break;
++	case MLX5E_PROT_MASK(MLX5E_400GAUI_8):
++		*active_width = IB_WIDTH_8X;
++		*active_speed = IB_SPEED_HDR;
++		break;
+ 	case MLX5E_PROT_MASK(MLX5E_400GAUI_4_400GBASE_CR4_KR4):
+ 		*active_width = IB_WIDTH_4X;
+ 		*active_speed = IB_SPEED_NDR;
 -- 
 2.39.2
 
