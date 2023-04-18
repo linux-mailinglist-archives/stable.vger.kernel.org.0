@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C2E6E64EB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFF7B6E6444
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbjDRMxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46612 "EHLO
+        id S232004AbjDRMrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:47:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbjDRMxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB8347A87
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:17 -0700 (PDT)
+        with ESMTP id S232042AbjDRMri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:47:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2103514F78
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:47:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BEA363437
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE13C4339B;
-        Tue, 18 Apr 2023 12:53:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1584633BE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F59C433D2;
+        Tue, 18 Apr 2023 12:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822397;
-        bh=CM6XRlSLbRIFu9ZYWx2s0PTk7kALrNAe/TEpeKMf95c=;
+        s=korg; t=1681822051;
+        bh=fF/dcsiIzn8wZeI2ZrY1tS/II0KNFvwcxXRNDNTsB/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nue+hqvHqEgLlc9JRp3cFW3j7/NzxH1L7kDbSYSA9tRlGuLQIBVR+fdOOXSYJ3vMt
-         x2ulx2Jv9l6UnTzjXswb+SVYG92O2S7u2r+o2kgO+139b+FGdfjrCBx9ohTh+wZ3U8
-         cVLZjUjciJgRfhTKPlM2RhhzzvSnPOmIDRrhhKqM=
+        b=YQD1MHddFnZlPQzydBcs0pvF1BnjVa2a9F5tZ8AedVL9xbqTwDJ3hz3G8ZK88q023
+         YAYryi/GfoyRmbIHUlzorTuQNG9uxT2+xZUw/Cuu3GqVnxnRAHkOuOIUEvz8c9F0/v
+         8B3s5NlWUUStHvEapCWJ6DBgQtwYGkQ/HMrwa0vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.2 104/139] riscv: Do not set initial_boot_params to the linear address of the dtb
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 6.1 113/134] cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
 Date:   Tue, 18 Apr 2023 14:22:49 +0200
-Message-Id: <20230418120317.712080553@linuxfoundation.org>
+Message-Id: <20230418120317.123168016@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,36 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexghiti@rivosinc.com>
+From: Waiman Long <longman@redhat.com>
 
-commit f1581626071c8e37c58c5e8f0b4126b17172a211 upstream.
+commit ba9182a89626d5f83c2ee4594f55cb9c1e60f0e2 upstream.
 
-early_init_dt_verify() is already called in parse_dtb() and since the dtb
-address does not change anymore (it is now in the fixmap region), no need
-to reset initial_boot_params by calling early_init_dt_verify() again.
+After a successful cpuset_can_attach() call which increments the
+attach_in_progress flag, either cpuset_cancel_attach() or cpuset_attach()
+will be called later. In cpuset_attach(), tasks in cpuset_attach_wq,
+if present, will be woken up at the end. That is not the case in
+cpuset_cancel_attach(). So missed wakeup is possible if the attach
+operation is somehow cancelled. Fix that by doing the wakeup in
+cpuset_cancel_attach() as well.
 
-Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Link: https://lore.kernel.org/r/20230329081932.79831-3-alexghiti@rivosinc.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: e44193d39e8d ("cpuset: let hotplug propagation work wait for task attaching")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: stable@vger.kernel.org # v3.11+
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/setup.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ kernel/cgroup/cpuset.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -278,10 +278,7 @@ void __init setup_arch(char **cmdline_p)
- #if IS_ENABLED(CONFIG_BUILTIN_DTB)
- 	unflatten_and_copy_device_tree();
- #else
--	if (early_init_dt_verify(__va(XIP_FIXUP(dtb_early_pa))))
--		unflatten_device_tree();
--	else
--		pr_err("No DTB found in kernel mappings\n");
-+	unflatten_device_tree();
- #endif
- 	early_init_fdt_scan_reserved_mem();
- 	misc_mem_init();
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2498,11 +2498,15 @@ out_unlock:
+ static void cpuset_cancel_attach(struct cgroup_taskset *tset)
+ {
+ 	struct cgroup_subsys_state *css;
++	struct cpuset *cs;
+ 
+ 	cgroup_taskset_first(tset, &css);
++	cs = css_cs(css);
+ 
+ 	percpu_down_write(&cpuset_rwsem);
+-	css_cs(css)->attach_in_progress--;
++	cs->attach_in_progress--;
++	if (!cs->attach_in_progress)
++		wake_up(&cpuset_attach_wq);
+ 	percpu_up_write(&cpuset_rwsem);
+ }
+ 
 
 
