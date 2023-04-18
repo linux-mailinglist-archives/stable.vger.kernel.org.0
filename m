@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F4A6E61EA
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6F66E629C
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231552AbjDRM2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38934 "EHLO
+        id S231638AbjDRMeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbjDRM22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515A7B474
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:09 -0700 (PDT)
+        with ESMTP id S231676AbjDRMdu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F43E118EC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E016286D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 773B0C433D2;
-        Tue, 18 Apr 2023 12:28:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70B976320E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A4A1C433EF;
+        Tue, 18 Apr 2023 12:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820883;
-        bh=jvPtX05g2Q2bmP5hOMlJm09PnPT8KZlGsG0wEJHZawo=;
+        s=korg; t=1681821219;
+        bh=NhsScW4y2Y9pkswRHZwszDvBFBlk2v4xUQOht6nyfu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBNt0chNfcNOZR2LoF7mcS+H74jQUDRpW6ACKIWhejss9DuHH8EwkeKjeZ4HXu9RQ
-         4Do5QUtZJJDO3irtDA3GQyq1mGr8O4JVsk1SxbDC2r4SpuQ1JJ0v5L8R9PVAXVSDVk
-         tPWI/IZepCVrOWb2ul1r6UK7c99KCaj2YGPFjCDA=
+        b=he7QAfnN0qzTk8ZBKYc20EtxZkKxJWdDoIBOl8+7aHSLGQD2cg+wAFJAwGX3l5Qur
+         0eV/EgMwHvC88G8UO1ZFUOPa1mUd+woZS3OopBZtCQ4t7HVw2XgvloMmnscegVDNdK
+         A10gavZf/X2y3kLOb6aKbD9Qkh8XEmIpQz2yxmC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <groeck@chromium.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/92] pwm: cros-ec: Explicitly set .polarity in .get_state()
+        patches@lists.linux.dev,
+        William Breathitt Gray <william.gray@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 026/124] iio: dac: cio-dac: Fix max DAC write value check for 12-bit
 Date:   Tue, 18 Apr 2023 14:20:45 +0200
-Message-Id: <20230418120305.119692731@linuxfoundation.org>
+Message-Id: <20230418120310.675334531@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
-References: <20230418120304.658273364@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: William Breathitt Gray <william.gray@linaro.org>
 
-[ Upstream commit 30006b77c7e130e01d1ab2148cc8abf73dfcc4bf ]
+commit c3701185ee1973845db088d8b0fc443397ab0eb2 upstream.
 
-The driver only supports normal polarity. Complete the implementation of
-.get_state() by setting .polarity accordingly.
+The CIO-DAC series of devices only supports DAC values up to 12-bit
+rather than 16-bit. Trying to write a 16-bit value results in only the
+lower 12 bits affecting the DAC output which is not what the user
+expects. Instead, adjust the DAC write value check to reject values
+larger than 12-bit so that they fail explicitly as invalid for the user.
 
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Fixes: 1f0d3bb02785 ("pwm: Add ChromeOS EC PWM driver")
-Link: https://lore.kernel.org/r/20230228135508.1798428-3-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3b8df5fd526e ("iio: Add IIO support for the Measurement Computing CIO-DAC family")
+Cc: stable@vger.kernel.org
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+Link: https://lore.kernel.org/r/20230311002248.8548-1-william.gray@linaro.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-cros-ec.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/dac/cio-dac.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pwm/pwm-cros-ec.c b/drivers/pwm/pwm-cros-ec.c
-index 89497448d2177..ad4321f2b6f87 100644
---- a/drivers/pwm/pwm-cros-ec.c
-+++ b/drivers/pwm/pwm-cros-ec.c
-@@ -125,6 +125,7 @@ static void cros_ec_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+--- a/drivers/iio/dac/cio-dac.c
++++ b/drivers/iio/dac/cio-dac.c
+@@ -66,8 +66,8 @@ static int cio_dac_write_raw(struct iio_
+ 	if (mask != IIO_CHAN_INFO_RAW)
+ 		return -EINVAL;
  
- 	state->enabled = (ret > 0);
- 	state->period = EC_PWM_MAX_DUTY;
-+	state->polarity = PWM_POLARITY_NORMAL;
+-	/* DAC can only accept up to a 16-bit value */
+-	if ((unsigned int)val > 65535)
++	/* DAC can only accept up to a 12-bit value */
++	if ((unsigned int)val > 4095)
+ 		return -EINVAL;
  
- 	/* Note that "disabled" and "duty cycle == 0" are treated the same */
- 	state->duty_cycle = ret;
--- 
-2.39.2
-
+ 	priv->chan_out_states[chan->channel] = val;
 
 
