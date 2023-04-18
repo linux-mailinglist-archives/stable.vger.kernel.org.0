@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 536DE6E6491
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084166E62CE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbjDRMuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42110 "EHLO
+        id S231674AbjDRMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232125AbjDRMuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:16 -0400
+        with ESMTP id S231695AbjDRMfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F3F9167FF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34507118FD
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E4846340C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE8A9C433D2;
-        Tue, 18 Apr 2023 12:50:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD79A63281
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF40BC4339B;
+        Tue, 18 Apr 2023 12:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822214;
-        bh=fm62TvR7NPEE5/Hxdew0cOtJUmQncyfx90ZN00e6dm4=;
+        s=korg; t=1681821330;
+        bh=n2sqtCVFlFJlBSwGMtTjOHkL1IZrrjKKSW5acwb/gh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEB+tx7QHJDdGSBOOjVKcAFSUyvMdjSvvqqRgEYwOmik3KpIknhliyHWT8z51OHgR
-         tZ7KU7GZTeZZuRKfMCvElZirP7uFMy/6GWnvyR4jJ0fj0KwWZU3cJi88AFhbhkZ8c4
-         IbGn8kwVHCoYlVDr7JzJrEuNSwtn3Z6HxyO+AYeY=
+        b=VQyUbrwkeMEFDNYcWh/tih1GM8g8LdgDiLUnFQm/gbwH3hpfZf0ElsdTtubsCfjnN
+         0bwckEfqSwdPRiCZKaGg7Kj7qGvEkOjferkDSKDFcj1Ozy9obO98HA15fPZPRQDWSH
+         6qJF2yUVL1LkjE99YBVvA1J6VAd0VzyGW2F6nfNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cheng Xu <chengyou@linux.alibaba.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 038/139] RDMA/erdma: Inline mtt entries into WQE if supported
-Date:   Tue, 18 Apr 2023 14:21:43 +0200
-Message-Id: <20230418120315.085857589@linuxfoundation.org>
+Subject: [PATCH 5.10 085/124] libbpf: Fix single-line struct definition output in btf_dump
+Date:   Tue, 18 Apr 2023 14:21:44 +0200
+Message-Id: <20230418120312.962825749@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Xu <chengyou@linux.alibaba.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 0dd83a4d7756713f81990d6c5547500f212a1190 ]
+[ Upstream commit 872aec4b5f635d94111d48ec3c57fbe078d64e7d ]
 
-The max inline mtt count supported is ERDMA_MAX_INLINE_MTT_ENTRIES.
-When mr->mem.mtt_nents == ERDMA_MAX_INLINE_MTT_ENTRIES, inline mtt
-is also supported, fix it.
+btf_dump APIs emit unnecessary tabs when emitting struct/union
+definition that fits on the single line. Before this patch we'd get:
 
-Fixes: 155055771704 ("RDMA/erdma: Add verbs implementation")
-Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230320084652.16807-4-chengyou@linux.alibaba.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+struct blah {<tab>};
+
+This patch fixes this and makes sure that we get more natural:
+
+struct blah {};
+
+Fixes: 44a726c3f23c ("bpftool: Print newline before '}' for struct with padding only fields")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20221212211505.558851-2-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/erdma/erdma_qp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/btf_dump.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/erdma/erdma_qp.c b/drivers/infiniband/hw/erdma/erdma_qp.c
-index ff473b208acfb..44923c51a01b4 100644
---- a/drivers/infiniband/hw/erdma/erdma_qp.c
-+++ b/drivers/infiniband/hw/erdma/erdma_qp.c
-@@ -405,7 +405,7 @@ static int erdma_push_one_sqe(struct erdma_qp *qp, u16 *pi,
- 			FIELD_PREP(ERDMA_SQE_MR_MTT_CNT_MASK,
- 				   mr->mem.mtt_nents);
- 
--		if (mr->mem.mtt_nents < ERDMA_MAX_INLINE_MTT_ENTRIES) {
-+		if (mr->mem.mtt_nents <= ERDMA_MAX_INLINE_MTT_ENTRIES) {
- 			attrs |= FIELD_PREP(ERDMA_SQE_MR_MTT_TYPE_MASK, 0);
- 			/* Copy SGLs to SQE content to accelerate */
- 			memcpy(get_queue_entry(qp->kern_qp.sq_buf, idx + 1,
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 6a8d8ed34b760..61aa2c47fbd5e 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -973,9 +973,12 @@ static void btf_dump_emit_struct_def(struct btf_dump *d,
+ 	 * Keep `struct empty {}` on a single line,
+ 	 * only print newline when there are regular or padding fields.
+ 	 */
+-	if (vlen || t->size)
++	if (vlen || t->size) {
+ 		btf_dump_printf(d, "\n");
+-	btf_dump_printf(d, "%s}", pfx(lvl));
++		btf_dump_printf(d, "%s}", pfx(lvl));
++	} else {
++		btf_dump_printf(d, "}");
++	}
+ 	if (packed)
+ 		btf_dump_printf(d, " __attribute__((packed))");
+ }
 -- 
 2.39.2
 
