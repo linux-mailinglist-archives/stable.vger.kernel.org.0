@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E6C6E6352
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEFEA6E63DF
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231814AbjDRMjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56110 "EHLO
+        id S231570AbjDRMoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:44:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229677AbjDRMjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:37 -0400
+        with ESMTP id S231907AbjDRMoB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:44:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF7813F8B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:39:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3032B1560A
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:44:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24B93632E9
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A989C433EF;
-        Tue, 18 Apr 2023 12:39:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A79B963369
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B927EC433EF;
+        Tue, 18 Apr 2023 12:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821573;
-        bh=0AqMinjpxCfHF+VACYeH+m/S2gDQCAg9TP4Euq8u2Ig=;
+        s=korg; t=1681821839;
+        bh=I6ga2qarMUTw/LBMWwkY72jb0CH+PxiO9wPzxj2uLZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlCqMtrRUH0iRm/1BKpJJs4uvNB7cr4TtnUnHKxnYIrUb9rGSlhH02sdFFs8IokTc
-         QqwbpVc8RVl3cUNh1UwrvVbIhB0Ivrk8vsLbBuDRkjmzyoNCUWhz8ZyZbX8Onk37CM
-         M9TpL+S4ft4kLm0t6HocfcKks1762NXgV1VOndQ4=
+        b=S7KEZL5++YycsBpujjqZD94KO/2gLF/Fcx5JH2L88D/NkzeJOoQ9VuewIZ8uGL+9O
+         lrNttY7j2wdhaMZxK/JnM6rxvcV4nITZ7uVi4fCeD/VJzBKByd3HClDlX8OLODh9p2
+         jl0ODQw1c68QcwxsK3U0XlhZK+S2P+CxwM9rS6dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ross Zwisler <zwisler@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 53/91] tracing: Add trace_array_puts() to write into instance
+        patches@lists.linux.dev,
+        syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 061/134] cgroup,freezer: hold cpu_hotplug_lock before freezer_mutex
 Date:   Tue, 18 Apr 2023 14:21:57 +0200
-Message-Id: <20230418120307.434272969@linuxfoundation.org>
+Message-Id: <20230418120315.095574560@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,113 +58,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit d503b8f7474fe7ac616518f7fc49773cbab49f36 ]
+[ Upstream commit 57dcd64c7e036299ef526b400a8d12b8a2352f26 ]
 
-Add a generic trace_array_puts() that can be used to "trace_puts()" into
-an allocated trace_array instance. This is just another variant of
-trace_array_printk().
+syzbot is reporting circular locking dependency between cpu_hotplug_lock
+and freezer_mutex, for commit f5d39b020809 ("freezer,sched: Rewrite core
+freezer logic") replaced atomic_inc() in freezer_apply_state() with
+static_branch_inc() which holds cpu_hotplug_lock.
 
-Link: https://lkml.kernel.org/r/20230207173026.584717290@goodmis.org
+cpu_hotplug_lock => cgroup_threadgroup_rwsem => freezer_mutex
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Ross Zwisler <zwisler@google.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Stable-dep-of: 9d52727f8043 ("tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance")
+  cgroup_file_write() {
+    cgroup_procs_write() {
+      __cgroup_procs_write() {
+        cgroup_procs_write_start() {
+          cgroup_attach_lock() {
+            cpus_read_lock() {
+              percpu_down_read(&cpu_hotplug_lock);
+            }
+            percpu_down_write(&cgroup_threadgroup_rwsem);
+          }
+        }
+        cgroup_attach_task() {
+          cgroup_migrate() {
+            cgroup_migrate_execute() {
+              freezer_attach() {
+                mutex_lock(&freezer_mutex);
+                (...snipped...)
+              }
+            }
+          }
+        }
+        (...snipped...)
+      }
+    }
+  }
+
+freezer_mutex => cpu_hotplug_lock
+
+  cgroup_file_write() {
+    freezer_write() {
+      freezer_change_state() {
+        mutex_lock(&freezer_mutex);
+        freezer_apply_state() {
+          static_branch_inc(&freezer_active) {
+            static_key_slow_inc() {
+              cpus_read_lock();
+              static_key_slow_inc_cpuslocked();
+              cpus_read_unlock();
+            }
+          }
+        }
+        mutex_unlock(&freezer_mutex);
+      }
+    }
+  }
+
+Swap locking order by moving cpus_read_lock() in freezer_apply_state()
+to before mutex_lock(&freezer_mutex) in freezer_change_state().
+
+Reported-by: syzbot <syzbot+c39682e86c9d84152f93@syzkaller.appspotmail.com>
+Link: https://syzkaller.appspot.com/bug?extid=c39682e86c9d84152f93
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Fixes: f5d39b020809 ("freezer,sched: Rewrite core freezer logic")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace.h | 12 ++++++++++++
- kernel/trace/trace.c  | 27 +++++++++++++++++----------
- 2 files changed, 29 insertions(+), 10 deletions(-)
+ kernel/cgroup/legacy_freezer.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/trace.h b/include/linux/trace.h
-index 80ffda8717491..2a70a447184c9 100644
---- a/include/linux/trace.h
-+++ b/include/linux/trace.h
-@@ -33,6 +33,18 @@ struct trace_array;
- int register_ftrace_export(struct trace_export *export);
- int unregister_ftrace_export(struct trace_export *export);
+diff --git a/kernel/cgroup/legacy_freezer.c b/kernel/cgroup/legacy_freezer.c
+index 1b6b21851e9d4..936473203a6b5 100644
+--- a/kernel/cgroup/legacy_freezer.c
++++ b/kernel/cgroup/legacy_freezer.c
+@@ -22,6 +22,7 @@
+ #include <linux/freezer.h>
+ #include <linux/seq_file.h>
+ #include <linux/mutex.h>
++#include <linux/cpu.h>
  
-+/**
-+ * trace_array_puts - write a constant string into the trace buffer.
-+ * @tr:    The trace array to write to
-+ * @str:   The constant string to write
-+ */
-+#define trace_array_puts(tr, str)					\
-+	({								\
-+		str ? __trace_array_puts(tr, _THIS_IP_, str, strlen(str)) : -1;	\
-+	})
-+int __trace_array_puts(struct trace_array *tr, unsigned long ip,
-+		       const char *str, int size);
-+
- void trace_printk_init_buffers(void);
- __printf(3, 4)
- int trace_array_printk(struct trace_array *tr, unsigned long ip,
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index dc097bd23dc3e..3d7bd251302fb 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -990,13 +990,8 @@ __buffer_unlock_commit(struct trace_buffer *buffer, struct ring_buffer_event *ev
- 		ring_buffer_unlock_commit(buffer, event);
- }
+ /*
+  * A cgroup is freezing if any FREEZING flags are set.  FREEZING_SELF is
+@@ -350,7 +351,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
  
--/**
-- * __trace_puts - write a constant string into the trace buffer.
-- * @ip:	   The address of the caller
-- * @str:   The constant string to write
-- * @size:  The size of the string.
-- */
--int __trace_puts(unsigned long ip, const char *str, int size)
-+int __trace_array_puts(struct trace_array *tr, unsigned long ip,
-+		       const char *str, int size)
+ 	if (freeze) {
+ 		if (!(freezer->state & CGROUP_FREEZING))
+-			static_branch_inc(&freezer_active);
++			static_branch_inc_cpuslocked(&freezer_active);
+ 		freezer->state |= state;
+ 		freeze_cgroup(freezer);
+ 	} else {
+@@ -361,7 +362,7 @@ static void freezer_apply_state(struct freezer *freezer, bool freeze,
+ 		if (!(freezer->state & CGROUP_FREEZING)) {
+ 			freezer->state &= ~CGROUP_FROZEN;
+ 			if (was_freezing)
+-				static_branch_dec(&freezer_active);
++				static_branch_dec_cpuslocked(&freezer_active);
+ 			unfreeze_cgroup(freezer);
+ 		}
+ 	}
+@@ -379,6 +380,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
  {
- 	struct ring_buffer_event *event;
- 	struct trace_buffer *buffer;
-@@ -1004,7 +999,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 	unsigned int trace_ctx;
- 	int alloc;
+ 	struct cgroup_subsys_state *pos;
  
--	if (!(global_trace.trace_flags & TRACE_ITER_PRINTK))
-+	if (!(tr->trace_flags & TRACE_ITER_PRINTK))
- 		return 0;
- 
- 	if (unlikely(tracing_selftest_running || tracing_disabled))
-@@ -1013,7 +1008,7 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 	alloc = sizeof(*entry) + size + 2; /* possible \n added */
- 
- 	trace_ctx = tracing_gen_ctx();
--	buffer = global_trace.array_buffer.buffer;
-+	buffer = tr->array_buffer.buffer;
- 	ring_buffer_nest_start(buffer);
- 	event = __trace_buffer_lock_reserve(buffer, TRACE_PRINT, alloc,
- 					    trace_ctx);
-@@ -1035,11 +1030,23 @@ int __trace_puts(unsigned long ip, const char *str, int size)
- 		entry->buf[size] = '\0';
- 
- 	__buffer_unlock_commit(buffer, event);
--	ftrace_trace_stack(&global_trace, buffer, trace_ctx, 4, NULL);
-+	ftrace_trace_stack(tr, buffer, trace_ctx, 4, NULL);
-  out:
- 	ring_buffer_nest_end(buffer);
- 	return size;
++	cpus_read_lock();
+ 	/*
+ 	 * Update all its descendants in pre-order traversal.  Each
+ 	 * descendant will try to inherit its parent's FREEZING state as
+@@ -407,6 +409,7 @@ static void freezer_change_state(struct freezer *freezer, bool freeze)
+ 	}
+ 	rcu_read_unlock();
+ 	mutex_unlock(&freezer_mutex);
++	cpus_read_unlock();
  }
-+EXPORT_SYMBOL_GPL(__trace_array_puts);
-+
-+/**
-+ * __trace_puts - write a constant string into the trace buffer.
-+ * @ip:	   The address of the caller
-+ * @str:   The constant string to write
-+ * @size:  The size of the string.
-+ */
-+int __trace_puts(unsigned long ip, const char *str, int size)
-+{
-+	return __trace_array_puts(&global_trace, ip, str, size);
-+}
- EXPORT_SYMBOL_GPL(__trace_puts);
  
- /**
+ static ssize_t freezer_write(struct kernfs_open_file *of,
 -- 
 2.39.2
 
