@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D98BA6E62CC
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7996E6483
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231690AbjDRMf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:35:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50172 "EHLO
+        id S232119AbjDRMts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231680AbjDRMf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:27 -0400
+        with ESMTP id S232116AbjDRMtr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2355125B3
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B1515453
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E0ED6326E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F9BC433D2;
-        Tue, 18 Apr 2023 12:35:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FAD963406
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22795C433D2;
+        Tue, 18 Apr 2023 12:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821325;
-        bh=05hprlS4PKcsiCHMi0oCtrM8GGgNsANbOjkul6wQkQ0=;
+        s=korg; t=1681822185;
+        bh=8UKPwe02LmQsjjoM3LNVYSADvML97FNzYVa2IoTQDko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hF8TuW7xE+oGTx+8KCCAYVEIU1YC1/+lJPEUyKLvcJFG5ECq6lbS1+D6SDsGBQPGb
-         62fMY1Mt83kkrtPcQibQv03jgMpgmloRp/TgGZR7uwmqtmZ1HCGx/dQGJ9tpm9yXSt
-         e78nxiq8cXeKNepPCIgs8CNpOo/wrZGQJAwM+GIM=
+        b=CsizqzywtAUaOx9OTUWRdS29Q+nkenUU7m5NxnPGFyAHThrb4RVW1SxdR6Zr83W41
+         9LSeJLoLAWz8px9+uw+xrPW6u6Pc6ePdtCHofmv0KZB64Dwwyp/jJLvByF83k7dgwe
+         4EZOFwWaMqCKC7IWUfzGAWDLNSnXZ55S3mizKNR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, lena wang <lena.wang@mediatek.com>,
-        Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Cheng Xu <chengyou@linux.alibaba.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/124] udp6: fix potential access to stale information
+Subject: [PATCH 6.2 037/139] RDMA/erdma: Update default EQ depth to 4096 and max_send_wr to 8192
 Date:   Tue, 18 Apr 2023 14:21:42 +0200
-Message-Id: <20230418120312.894948235@linuxfoundation.org>
+Message-Id: <20230418120315.043114938@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Cheng Xu <chengyou@linux.alibaba.com>
 
-[ Upstream commit 1c5950fc6fe996235f1d18539b9c6b64b597f50f ]
+[ Upstream commit 6256aa9ae955d10ec73a434533ca62034eff1b76 ]
 
-lena wang reported an issue caused by udpv6_sendmsg()
-mangling msg->msg_name and msg->msg_namelen, which
-are later read from ____sys_sendmsg() :
+Max EQ depth of hardware is 32K, the current default EQ depth is too small
+for some applications, so change the default depth to 4096.
+Max send WRs the hardware can support is 8K, but the driver limits the
+value to 4K. Remove this limitation.
 
-	/*
-	 * If this is sendmmsg() and sending to current destination address was
-	 * successful, remember it.
-	 */
-	if (used_address && err >= 0) {
-		used_address->name_len = msg_sys->msg_namelen;
-		if (msg_sys->msg_name)
-			memcpy(&used_address->name, msg_sys->msg_name,
-			       used_address->name_len);
-	}
-
-udpv6_sendmsg() wants to pretend the remote address family
-is AF_INET in order to call udp_sendmsg().
-
-A fix would be to modify the address in-place, instead
-of using a local variable, but this could have other side effects.
-
-Instead, restore initial values before we return from udpv6_sendmsg().
-
-Fixes: c71d8ebe7a44 ("net: Fix security_socket_sendmsg() bypass problem.")
-Reported-by: lena wang <lena.wang@mediatek.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20230412130308.1202254-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: be3cff0f242d ("RDMA/erdma: Add the hardware related definitions")
+Fixes: db23ae64caac ("RDMA/erdma: Add verbs header file")
+Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20230320084652.16807-3-chengyou@linux.alibaba.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/udp.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/erdma/erdma_hw.h    | 2 +-
+ drivers/infiniband/hw/erdma/erdma_verbs.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 1805cc5f7418b..20cc08210c700 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1340,9 +1340,11 @@ int udpv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 			msg->msg_name = &sin;
- 			msg->msg_namelen = sizeof(sin);
- do_udp_sendmsg:
--			if (__ipv6_only_sock(sk))
--				return -ENETUNREACH;
--			return udp_sendmsg(sk, msg, len);
-+			err = __ipv6_only_sock(sk) ?
-+				-ENETUNREACH : udp_sendmsg(sk, msg, len);
-+			msg->msg_name = sin6;
-+			msg->msg_namelen = addr_len;
-+			return err;
- 		}
- 	}
+diff --git a/drivers/infiniband/hw/erdma/erdma_hw.h b/drivers/infiniband/hw/erdma/erdma_hw.h
+index cbeb6909580cf..8a8d4539a006b 100644
+--- a/drivers/infiniband/hw/erdma/erdma_hw.h
++++ b/drivers/infiniband/hw/erdma/erdma_hw.h
+@@ -441,7 +441,7 @@ struct erdma_reg_mr_sqe {
+ };
  
+ /* EQ related. */
+-#define ERDMA_DEFAULT_EQ_DEPTH 256
++#define ERDMA_DEFAULT_EQ_DEPTH 4096
+ 
+ /* ceqe */
+ #define ERDMA_CEQE_HDR_DB_MASK BIT_ULL(63)
+diff --git a/drivers/infiniband/hw/erdma/erdma_verbs.h b/drivers/infiniband/hw/erdma/erdma_verbs.h
+index e0a993bc032a4..131cf5f409822 100644
+--- a/drivers/infiniband/hw/erdma/erdma_verbs.h
++++ b/drivers/infiniband/hw/erdma/erdma_verbs.h
+@@ -11,7 +11,7 @@
+ 
+ /* RDMA Capability. */
+ #define ERDMA_MAX_PD (128 * 1024)
+-#define ERDMA_MAX_SEND_WR 4096
++#define ERDMA_MAX_SEND_WR 8192
+ #define ERDMA_MAX_ORD 128
+ #define ERDMA_MAX_IRD 128
+ #define ERDMA_MAX_SGE_RD 1
 -- 
 2.39.2
 
