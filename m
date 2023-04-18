@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D426E6298
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04DEA6E6200
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231730AbjDRMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
+        id S231481AbjDRM3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:29:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231686AbjDRMdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38A5CC1D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:29 -0700 (PDT)
+        with ESMTP id S231550AbjDRM3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:29:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001CCCC2C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:28:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3A60629EA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2459C4339B;
-        Tue, 18 Apr 2023 12:33:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AAD6628B4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:28:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41DD6C433EF;
+        Tue, 18 Apr 2023 12:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821209;
-        bh=4lD04OAjI3ZG8K6M4vFAQ14rVCyn7UTx7mUU/WP1TE0=;
+        s=korg; t=1681820926;
+        bh=1FNGvXZKJ/grg9RH+9AYoFkTUlsuj7fNAa6rpb5+/tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPLgtDzTP9BUMBXoJRieAemOj9HTpp0ZjYgCXPwdaU2SZd1WYL//WgMBCB3vfcMw6
-         P1DK3TGGi9DRLZoEiN2YWdNK6vLfJgY8HjUsuEN6AT9bWFc+HG5PdGsArpSVEBVm78
-         vPuGu3ClWmmjEYqcBauQChbuQMpaCD5JRT/kYDEE=
+        b=H2wyjb2fr9UkvWOzlIAwCbwwE1O16dmZePLdUpAJ5AdsCz+lXHWqhFj4u/N+iwIIV
+         tuLfOY2DKxdHxSG1o+qspwK9v9mAHlY+x52GWujpWT31qXbclh7UBPIkG+V7ZSQ4gK
+         Pxd2ewktZT63V4qFnNlEIHvXSBue0m7p1pE9Ii+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shuangpeng Bai <sjb7183@psu.edu>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 040/124] can: j1939: j1939_tp_tx_dat_new(): fix out-of-bounds memory access
-Date:   Tue, 18 Apr 2023 14:20:59 +0200
-Message-Id: <20230418120311.288989764@linuxfoundation.org>
+        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
+        David Lechner <david@lechnology.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 25/92] iio: adc: ti-ads7950: Set `can_sleep` flag for GPIO chip
+Date:   Tue, 18 Apr 2023 14:21:00 +0200
+Message-Id: <20230418120305.706813029@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120304.658273364@linuxfoundation.org>
+References: <20230418120304.658273364@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,53 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit b45193cb4df556fe6251b285a5ce44046dd36b4a upstream.
+commit 363c7dc72f79edd55bf1c4380e0fbf7f1bbc2c86 upstream.
 
-In the j1939_tp_tx_dat_new() function, an out-of-bounds memory access
-could occur during the memcpy() operation if the size of skb->cb is
-larger than the size of struct j1939_sk_buff_cb. This is because the
-memcpy() operation uses the size of skb->cb, leading to a read beyond
-the struct j1939_sk_buff_cb.
+The ads7950 uses a mutex as well as SPI transfers in its GPIO callbacks.
+This means these callbacks can sleep and the `can_sleep` flag should be
+set.
 
-Updated the memcpy() operation to use the size of struct
-j1939_sk_buff_cb instead of the size of skb->cb. This ensures that the
-memcpy() operation only reads the memory within the bounds of struct
-j1939_sk_buff_cb, preventing out-of-bounds memory access.
+Having the flag set will make sure that warnings are generated when calling
+any of the callbacks from a potentially non-sleeping context.
 
-Additionally, add a BUILD_BUG_ON() to check that the size of skb->cb
-is greater than or equal to the size of struct j1939_sk_buff_cb. This
-ensures that the skb->cb buffer is large enough to hold the
-j1939_sk_buff_cb structure.
-
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Reported-by: Shuangpeng Bai <sjb7183@psu.edu>
-Tested-by: Shuangpeng Bai <sjb7183@psu.edu>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://groups.google.com/g/syzkaller/c/G_LL-C3plRs/m/-8xCi6dCAgAJ
-Link: https://lore.kernel.org/all/20230404073128.3173900-1-o.rempel@pengutronix.de
-Cc: stable@vger.kernel.org
-[mkl: rephrase commit message]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: c97dce792dc8 ("iio: adc: ti-ads7950: add GPIO support")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: David Lechner <david@lechnology.com>
+Link: https://lore.kernel.org/r/20230312210933.2275376-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/transport.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ti-ads7950.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -600,7 +600,10 @@ sk_buff *j1939_tp_tx_dat_new(struct j193
- 	/* reserve CAN header */
- 	skb_reserve(skb, offsetof(struct can_frame, data));
- 
--	memcpy(skb->cb, re_skcb, sizeof(skb->cb));
-+	/* skb->cb must be large enough to hold a j1939_sk_buff_cb structure */
-+	BUILD_BUG_ON(sizeof(skb->cb) < sizeof(*re_skcb));
-+
-+	memcpy(skb->cb, re_skcb, sizeof(*re_skcb));
- 	skcb = j1939_skb_to_cb(skb);
- 	if (swap_src_dst)
- 		j1939_skbcb_swap(skcb);
+--- a/drivers/iio/adc/ti-ads7950.c
++++ b/drivers/iio/adc/ti-ads7950.c
+@@ -635,6 +635,7 @@ static int ti_ads7950_probe(struct spi_d
+ 	st->chip.label = dev_name(&st->spi->dev);
+ 	st->chip.parent = &st->spi->dev;
+ 	st->chip.owner = THIS_MODULE;
++	st->chip.can_sleep = true;
+ 	st->chip.base = -1;
+ 	st->chip.ngpio = TI_ADS7950_NUM_GPIOS;
+ 	st->chip.get_direction = ti_ads7950_get_direction;
 
 
