@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F22786E6382
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0297B6E6409
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231844AbjDRMlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:41:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
+        id S231890AbjDRMph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:45:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231862AbjDRMlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F6313F8C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:02 -0700 (PDT)
+        with ESMTP id S231954AbjDRMpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2617014F47
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D11ED6331D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B8DC433EF;
-        Tue, 18 Apr 2023 12:41:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B64A163392
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:45:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DE0C433EF;
+        Tue, 18 Apr 2023 12:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821661;
-        bh=GX+rtvCD+IPEDRJ0AMtjWNKUKGFIwZ41KGnLROC8IwY=;
+        s=korg; t=1681821932;
+        bh=mTw7pS+E56UDl04SnmlegHvLQWsAqfxXNPj99ME7320=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvA6svSq8W9Cb9cDx4DZOn+AZ860V2CHrMLvuE7ZUmPprKaEwtuQM8r3YItjN0SaR
-         HWYbxcF8TlnZF9ZTQXs8u0lSznh5Y7pgBlhKSRi5KgyXrHdfU8phn5mSgR2DOZhsQ5
-         lTGpzeojhm9EMYwQVJImrka6M/oqIFJHn6HPDFls=
+        b=ApXYiqZv4zmpRLlkpd/NmtXt4A5GfI3MwlHdduC3XQu/LK8qlHGuAgk1xhteX4MWs
+         Tep/lkEP2AfSewR5VwcBEq+4DrWeR/miO/FsN+ffKbCXMhRpu/D1PUX3P6n4bRj2eV
+         I1MC4lOLpPeAn+kb70aL5lnED1iRaDqelUDISrTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.15 86/91] cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 094/134] x86/hyperv: Move VMCB enlightenment definitions to hyperv-tlfs.h
 Date:   Tue, 18 Apr 2023 14:22:30 +0200
-Message-Id: <20230418120308.548893720@linuxfoundation.org>
+Message-Id: <20230418120316.456770863@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,159 +55,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit eee87853794187f6adbe19533ed79c8b44b36a91 upstream.
+[ Upstream commit 089fe572a2e0a89e36a455d299d801770293d08f ]
 
-In the case of CLONE_INTO_CGROUP, not all cpusets are ready to accept
-new tasks. It is too late to check that in cpuset_fork(). So we need
-to add the cpuset_can_fork() and cpuset_cancel_fork() methods to
-pre-check it before we can allow attachment to a different cpuset.
+Move Hyper-V's VMCB enlightenment definitions to the TLFS header; the
+definitions come directly from the TLFS[*], not from KVM.
 
-We also need to set the attach_in_progress flag to alert other code
-that a new task is going to be added to the cpuset.
+No functional change intended.
 
-Fixes: ef2c41cf38a7 ("clone3: allow spawning processes into cgroups")
-Suggested-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[*] https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/tlfs/datatypes/hv_svm_enlightened_vmcb_fields
+
+[vitaly: rename VMCB_HV_ -> HV_VMCB_ to match the rest of
+hyperv-tlfs.h, keep svm/hyperv.h]
+
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20221101145426.251680-2-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Stable-dep-of: e5c972c1fada ("KVM: SVM: Flush Hyper-V TLB when required")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c |   88 ++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 83 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/hyperv-tlfs.h            | 22 +++++++++++++++++++
+ arch/x86/kvm/svm/hyperv.h                     | 22 -------------------
+ arch/x86/kvm/svm/nested.c                     |  2 +-
+ arch/x86/kvm/svm/svm_onhyperv.c               |  2 +-
+ arch/x86/kvm/svm/svm_onhyperv.h               |  4 ++--
+ .../selftests/kvm/x86_64/hyperv_svm_test.c    |  6 ++---
+ 6 files changed, 29 insertions(+), 29 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2186,6 +2186,18 @@ static int fmeter_getrate(struct fmeter
+diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
+index 3089ec352743b..245a806a97170 100644
+--- a/arch/x86/include/asm/hyperv-tlfs.h
++++ b/arch/x86/include/asm/hyperv-tlfs.h
+@@ -598,6 +598,28 @@ struct hv_enlightened_vmcs {
  
- static struct cpuset *cpuset_attach_old_cs;
+ #define HV_VMX_ENLIGHTENED_CLEAN_FIELD_ALL			0xFFFF
  
 +/*
-+ * Check to see if a cpuset can accept a new task
-+ * For v1, cpus_allowed and mems_allowed can't be empty.
++ * Hyper-V uses the software reserved 32 bytes in VMCB control area to expose
++ * SVM enlightenments to guests.
 + */
-+static int cpuset_can_attach_check(struct cpuset *cs)
-+{
-+	if (!is_in_v2_mode() &&
-+	    (cpumask_empty(cs->cpus_allowed) || nodes_empty(cs->mems_allowed)))
-+		return -ENOSPC;
-+	return 0;
-+}
++struct hv_enlightenments {
++	struct __packed hv_enlightenments_control {
++		u32 nested_flush_hypercall:1;
++		u32 msr_bitmap:1;
++		u32 enlightened_npt_tlb: 1;
++		u32 reserved:29;
++	} __packed hv_enlightenments_control;
++	u32 hv_vp_id;
++	u64 hv_vm_id;
++	u64 partition_assist_page;
++	u64 reserved;
++} __packed;
 +
- /* Called by cgroups to determine if a cpuset is usable; cpuset_rwsem held */
- static int cpuset_can_attach(struct cgroup_taskset *tset)
- {
-@@ -2200,10 +2212,8 @@ static int cpuset_can_attach(struct cgro
++/*
++ * Hyper-V uses the software reserved clean bit in VMCB.
++ */
++#define HV_VMCB_NESTED_ENLIGHTENMENTS		31
++
+ struct hv_partition_assist_pg {
+ 	u32 tlb_lock_count;
+ };
+diff --git a/arch/x86/kvm/svm/hyperv.h b/arch/x86/kvm/svm/hyperv.h
+index 7d6d97968fb98..c59544cdf03b7 100644
+--- a/arch/x86/kvm/svm/hyperv.h
++++ b/arch/x86/kvm/svm/hyperv.h
+@@ -10,26 +10,4 @@
  
- 	percpu_down_write(&cpuset_rwsem);
+ #include "../hyperv.h"
  
--	/* allow moving tasks into an empty cpuset if on default hierarchy */
--	ret = -ENOSPC;
--	if (!is_in_v2_mode() &&
--	    (cpumask_empty(cs->cpus_allowed) || nodes_empty(cs->mems_allowed)))
-+	ret = cpuset_can_attach_check(cs);
-+	if (ret)
- 		goto out_unlock;
+-/*
+- * Hyper-V uses the software reserved 32 bytes in VMCB
+- * control area to expose SVM enlightenments to guests.
+- */
+-struct hv_enlightenments {
+-	struct __packed hv_enlightenments_control {
+-		u32 nested_flush_hypercall:1;
+-		u32 msr_bitmap:1;
+-		u32 enlightened_npt_tlb: 1;
+-		u32 reserved:29;
+-	} __packed hv_enlightenments_control;
+-	u32 hv_vp_id;
+-	u64 hv_vm_id;
+-	u64 partition_assist_page;
+-	u64 reserved;
+-} __packed;
+-
+-/*
+- * Hyper-V uses the software reserved clean bit in VMCB
+- */
+-#define VMCB_HV_NESTED_ENLIGHTENMENTS VMCB_SW
+-
+ #endif /* __ARCH_X86_KVM_SVM_HYPERV_H__ */
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index 995bc0f907591..0be104ec79d96 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -194,7 +194,7 @@ static bool nested_svm_vmrun_msrpm(struct vcpu_svm *svm)
+ 	if (!svm->nested.force_msr_bitmap_recalc &&
+ 	    kvm_hv_hypercall_enabled(&svm->vcpu) &&
+ 	    hve->hv_enlightenments_control.msr_bitmap &&
+-	    (svm->nested.ctl.clean & BIT(VMCB_HV_NESTED_ENLIGHTENMENTS)))
++	    (svm->nested.ctl.clean & BIT(HV_VMCB_NESTED_ENLIGHTENMENTS)))
+ 		goto set_msrpm_base_pa;
  
- 	cgroup_taskset_for_each(task, css, tset) {
-@@ -2220,7 +2230,6 @@ static int cpuset_can_attach(struct cgro
- 	 * changes which zero cpus/mems_allowed.
- 	 */
- 	cs->attach_in_progress++;
--	ret = 0;
- out_unlock:
- 	percpu_up_write(&cpuset_rwsem);
- 	return ret;
-@@ -2951,6 +2960,68 @@ static void cpuset_bind(struct cgroup_su
+ 	if (!(vmcb12_is_intercept(&svm->nested.ctl, INTERCEPT_MSR_PROT)))
+diff --git a/arch/x86/kvm/svm/svm_onhyperv.c b/arch/x86/kvm/svm/svm_onhyperv.c
+index 8cdc62c74a964..ed5e793925441 100644
+--- a/arch/x86/kvm/svm/svm_onhyperv.c
++++ b/arch/x86/kvm/svm/svm_onhyperv.c
+@@ -32,7 +32,7 @@ int svm_hv_enable_direct_tlbflush(struct kvm_vcpu *vcpu)
+ 	hve->hv_vm_id = (unsigned long)vcpu->kvm;
+ 	if (!hve->hv_enlightenments_control.nested_flush_hypercall) {
+ 		hve->hv_enlightenments_control.nested_flush_hypercall = 1;
+-		vmcb_mark_dirty(to_svm(vcpu)->vmcb, VMCB_HV_NESTED_ENLIGHTENMENTS);
++		vmcb_mark_dirty(to_svm(vcpu)->vmcb, HV_VMCB_NESTED_ENLIGHTENMENTS);
+ 	}
+ 
+ 	return 0;
+diff --git a/arch/x86/kvm/svm/svm_onhyperv.h b/arch/x86/kvm/svm/svm_onhyperv.h
+index 4387173576d5e..35d69815d2f3a 100644
+--- a/arch/x86/kvm/svm/svm_onhyperv.h
++++ b/arch/x86/kvm/svm/svm_onhyperv.h
+@@ -64,7 +64,7 @@ static inline void svm_hv_vmcb_dirty_nested_enlightenments(
+ 		(struct hv_enlightenments *)vmcb->control.reserved_sw;
+ 
+ 	if (hve->hv_enlightenments_control.msr_bitmap)
+-		vmcb_mark_dirty(vmcb, VMCB_HV_NESTED_ENLIGHTENMENTS);
++		vmcb_mark_dirty(vmcb, HV_VMCB_NESTED_ENLIGHTENMENTS);
  }
  
+ static inline void svm_hv_update_vp_id(struct vmcb *vmcb,
+@@ -76,7 +76,7 @@ static inline void svm_hv_update_vp_id(struct vmcb *vmcb,
+ 
+ 	if (hve->hv_vp_id != vp_index) {
+ 		hve->hv_vp_id = vp_index;
+-		vmcb_mark_dirty(vmcb, VMCB_HV_NESTED_ENLIGHTENMENTS);
++		vmcb_mark_dirty(vmcb, HV_VMCB_NESTED_ENLIGHTENMENTS);
+ 	}
+ }
+ #else
+diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c b/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c
+index a380ad7bb9b34..5060fcfe17601 100644
+--- a/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c
++++ b/tools/testing/selftests/kvm/x86_64/hyperv_svm_test.c
+@@ -39,7 +39,7 @@ struct hv_enlightenments {
  /*
-+ * In case the child is cloned into a cpuset different from its parent,
-+ * additional checks are done to see if the move is allowed.
-+ */
-+static int cpuset_can_fork(struct task_struct *task, struct css_set *cset)
-+{
-+	struct cpuset *cs = css_cs(cset->subsys[cpuset_cgrp_id]);
-+	bool same_cs;
-+	int ret;
-+
-+	rcu_read_lock();
-+	same_cs = (cs == task_cs(current));
-+	rcu_read_unlock();
-+
-+	if (same_cs)
-+		return 0;
-+
-+	lockdep_assert_held(&cgroup_mutex);
-+	percpu_down_write(&cpuset_rwsem);
-+
-+	/* Check to see if task is allowed in the cpuset */
-+	ret = cpuset_can_attach_check(cs);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = task_can_attach(task, cs->effective_cpus);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = security_task_setscheduler(task);
-+	if (ret)
-+		goto out_unlock;
-+
-+	/*
-+	 * Mark attach is in progress.  This makes validate_change() fail
-+	 * changes which zero cpus/mems_allowed.
-+	 */
-+	cs->attach_in_progress++;
-+out_unlock:
-+	percpu_up_write(&cpuset_rwsem);
-+	return ret;
-+}
-+
-+static void cpuset_cancel_fork(struct task_struct *task, struct css_set *cset)
-+{
-+	struct cpuset *cs = css_cs(cset->subsys[cpuset_cgrp_id]);
-+	bool same_cs;
-+
-+	rcu_read_lock();
-+	same_cs = (cs == task_cs(current));
-+	rcu_read_unlock();
-+
-+	if (same_cs)
-+		return;
-+
-+	percpu_down_write(&cpuset_rwsem);
-+	cs->attach_in_progress--;
-+	if (!cs->attach_in_progress)
-+		wake_up(&cpuset_attach_wq);
-+	percpu_up_write(&cpuset_rwsem);
-+}
-+
-+/*
-  * Make sure the new task conform to the current state of its parent,
-  * which could have been changed by cpuset just after it inherits the
-  * state from the parent and before it sits on the cgroup's task list.
-@@ -2978,6 +3049,11 @@ static void cpuset_fork(struct task_stru
- 	percpu_down_write(&cpuset_rwsem);
- 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
- 	cpuset_attach_task(cs, task);
-+
-+	cs->attach_in_progress--;
-+	if (!cs->attach_in_progress)
-+		wake_up(&cpuset_attach_wq);
-+
- 	percpu_up_write(&cpuset_rwsem);
- }
+  * Hyper-V uses the software reserved clean bit in VMCB
+  */
+-#define VMCB_HV_NESTED_ENLIGHTENMENTS (1U << 31)
++#define HV_VMCB_NESTED_ENLIGHTENMENTS (1U << 31)
  
-@@ -2991,6 +3067,8 @@ struct cgroup_subsys cpuset_cgrp_subsys
- 	.attach		= cpuset_attach,
- 	.post_attach	= cpuset_post_attach,
- 	.bind		= cpuset_bind,
-+	.can_fork	= cpuset_can_fork,
-+	.cancel_fork	= cpuset_cancel_fork,
- 	.fork		= cpuset_fork,
- 	.legacy_cftypes	= legacy_files,
- 	.dfl_cftypes	= dfl_files,
+ void l2_guest_code(void)
+ {
+@@ -98,14 +98,14 @@ static void __attribute__((__flatten__)) guest_code(struct svm_test_data *svm)
+ 	/* Intercept RDMSR 0xc0000101 without telling KVM about it */
+ 	set_bit(2 * (MSR_GS_BASE & 0x1fff), svm->msr + 0x800);
+ 	/* Make sure HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP is set */
+-	vmcb->control.clean |= VMCB_HV_NESTED_ENLIGHTENMENTS;
++	vmcb->control.clean |= HV_VMCB_NESTED_ENLIGHTENMENTS;
+ 	run_guest(vmcb, svm->vmcb_gpa);
+ 	/* Make sure we don't see SVM_EXIT_MSR here so eMSR bitmap works */
+ 	GUEST_ASSERT(vmcb->control.exit_code == SVM_EXIT_VMMCALL);
+ 	vmcb->save.rip += 3; /* vmcall */
+ 
+ 	/* Now tell KVM we've changed MSR-Bitmap */
+-	vmcb->control.clean &= ~VMCB_HV_NESTED_ENLIGHTENMENTS;
++	vmcb->control.clean &= ~HV_VMCB_NESTED_ENLIGHTENMENTS;
+ 	run_guest(vmcb, svm->vmcb_gpa);
+ 	GUEST_ASSERT(vmcb->control.exit_code == SVM_EXIT_MSR);
+ 	vmcb->save.rip += 2; /* rdmsr */
+-- 
+2.39.2
+
 
 
