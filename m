@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5FE96E61D6
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C266E647F
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbjDRM2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:28:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
+        id S232113AbjDRMtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229761AbjDRM2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:28:07 -0400
+        with ESMTP id S232106AbjDRMtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C42271BCB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F57E15467
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1781B63189
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B249C433EF;
-        Tue, 18 Apr 2023 12:27:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F015633F4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33F4BC4339B;
+        Tue, 18 Apr 2023 12:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820854;
-        bh=SeccxuELWbny9Rc2UMmU2/E1AFAIwx93/j22JzEuoOk=;
+        s=korg; t=1681822177;
+        bh=8HxHUZ0paipYIcK2buACiAf6Z9RNPAeqzIvetxVKEDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2QmDUwaloJvSfxG8ulSdov2qfVOVafAWIVMDz8FOTcNqMhXK8md0aFiYBC958fsH
-         VScalYadaSem+aGIKdpSJlkjrxbweaOgX7ZjaEFxZxRnhYh/S28HunITXQqdLw0LeN
-         C7GoM30QevxrBBlWqL5+mvbr07uL5gcZ80drL9PE=
+        b=t1ijDJJrvBwmScF0ILHGG2YjIiodF3LTLmYzTwcjBHuzThMHGlwYrnj5f8pDEHMJE
+         0kRGVr6Hxr8RoXfc/1tBpKNjT3GJX2CxePMP9z3E5E6dJ7AZsWIvGnOgzV+VoJ5tIM
+         o4w/6qD4eX0p2SwUg5Fns70CnKoLI/vkEaTpIqcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Martin <Dave.Martin@arm.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Takahiro Itazuri <itazur@amazon.com>
-Subject: [PATCH 4.19 56/57] KVM: arm64: Filter out invalid core register IDs in KVM_GET_REG_LIST
-Date:   Tue, 18 Apr 2023 14:21:56 +0200
-Message-Id: <20230418120300.685113021@linuxfoundation.org>
+        patches@lists.linux.dev, Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 052/139] bonding: fix ns validation on backup slaves
+Date:   Tue, 18 Apr 2023 14:21:57 +0200
+Message-Id: <20230418120315.677262718@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,125 +56,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Martin <Dave.Martin@arm.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit df205b5c63281e4f32caac22adda18fd68795e80 upstream.
+[ Upstream commit 4598380f9c548aa161eb4e990a1583f0a7d1e0d7 ]
 
-Since commit d26c25a9d19b ("arm64: KVM: Tighten guest core register
-access from userspace"), KVM_{GET,SET}_ONE_REG rejects register IDs
-that do not correspond to a single underlying architectural register.
+When arp_validate is set to 2, 3, or 6, validation is performed for
+backup slaves as well. As stated in the bond documentation, validation
+involves checking the broadcast ARP request sent out via the active
+slave. This helps determine which slaves are more likely to function in
+the event of an active slave failure.
 
-KVM_GET_REG_LIST was not changed to match however: instead, it
-simply yields a list of 32-bit register IDs that together cover the
-whole kvm_regs struct.  This means that if userspace tries to use
-the resulting list of IDs directly to drive calls to KVM_*_ONE_REG,
-some of those calls will now fail.
+However, when the target is an IPv6 address, the NS message sent from
+the active interface is not checked on backup slaves. Additionally,
+based on the bond_arp_rcv() rule b, we must reverse the saddr and daddr
+when checking the NS message.
 
-This was not the intention.  Instead, iterating KVM_*_ONE_REG over
-the list of IDs returned by KVM_GET_REG_LIST should be guaranteed
-to work.
+Note that when checking the NS message, the destination address is a
+multicast address. Therefore, we must convert the target address to
+solicited multicast in the bond_get_targets_ip6() function.
 
-This patch fixes the problem by splitting validate_core_offset()
-into a backend core_reg_size_from_offset() which does all of the
-work except for checking that the size field in the register ID
-matches, and kvm_arm_copy_reg_indices() and num_core_regs() are
-converted to use this to enumerate the valid offsets.
+Prior to the fix, the backup slaves had a mii status of "down", but
+after the fix, all of the slaves' mii status was updated to "UP".
 
-kvm_arm_copy_reg_indices() now also sets the register ID size field
-appropriately based on the value returned, so the register ID
-supplied to userspace is fully qualified for use with the register
-access ioctls.
-
-Cc: stable@vger.kernel.org
-Fixes: d26c25a9d19b ("arm64: KVM: Tighten guest core register access from userspace")
-Signed-off-by: Dave Martin <Dave.Martin@arm.com>
-Reviewed-by: Andrew Jones <drjones@redhat.com>
-Tested-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Takahiro Itazuri <itazur@amazon.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4e24be018eb9 ("bonding: add new parameter ns_targets")
+Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/guest.c |   51 +++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 43 insertions(+), 8 deletions(-)
+ drivers/net/bonding/bond_main.c | 5 +++--
+ include/net/bonding.h           | 8 ++++++--
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -57,9 +57,8 @@ static u64 core_reg_offset_from_id(u64 i
- 	return id & ~(KVM_REG_ARCH_MASK | KVM_REG_SIZE_MASK | KVM_REG_ARM_CORE);
- }
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 116d295df0b55..415cd95fb140f 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3267,7 +3267,8 @@ static int bond_na_rcv(const struct sk_buff *skb, struct bonding *bond,
  
--static int validate_core_offset(const struct kvm_one_reg *reg)
-+static int core_reg_size_from_offset(u64 off)
+ 	combined = skb_header_pointer(skb, 0, sizeof(_combined), &_combined);
+ 	if (!combined || combined->ip6.nexthdr != NEXTHDR_ICMP ||
+-	    combined->icmp6.icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT)
++	    (combined->icmp6.icmp6_type != NDISC_NEIGHBOUR_SOLICITATION &&
++	     combined->icmp6.icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT))
+ 		goto out;
+ 
+ 	saddr = &combined->ip6.saddr;
+@@ -3289,7 +3290,7 @@ static int bond_na_rcv(const struct sk_buff *skb, struct bonding *bond,
+ 	else if (curr_active_slave &&
+ 		 time_after(slave_last_rx(bond, curr_active_slave),
+ 			    curr_active_slave->last_link_up))
+-		bond_validate_na(bond, slave, saddr, daddr);
++		bond_validate_na(bond, slave, daddr, saddr);
+ 	else if (curr_arp_slave &&
+ 		 bond_time_in_interval(bond, slave_last_tx(curr_arp_slave), 1))
+ 		bond_validate_na(bond, slave, saddr, daddr);
+diff --git a/include/net/bonding.h b/include/net/bonding.h
+index ea36ab7f9e724..c3843239517d5 100644
+--- a/include/net/bonding.h
++++ b/include/net/bonding.h
+@@ -761,13 +761,17 @@ static inline int bond_get_targets_ip(__be32 *targets, __be32 ip)
+ #if IS_ENABLED(CONFIG_IPV6)
+ static inline int bond_get_targets_ip6(struct in6_addr *targets, struct in6_addr *ip)
  {
--	u64 off = core_reg_offset_from_id(reg->id);
- 	int size;
++	struct in6_addr mcaddr;
+ 	int i;
  
- 	switch (off) {
-@@ -89,11 +88,24 @@ static int validate_core_offset(const st
- 		return -EINVAL;
- 	}
+-	for (i = 0; i < BOND_MAX_NS_TARGETS; i++)
+-		if (ipv6_addr_equal(&targets[i], ip))
++	for (i = 0; i < BOND_MAX_NS_TARGETS; i++) {
++		addrconf_addr_solict_mult(&targets[i], &mcaddr);
++		if ((ipv6_addr_equal(&targets[i], ip)) ||
++		    (ipv6_addr_equal(&mcaddr, ip)))
+ 			return i;
+ 		else if (ipv6_addr_any(&targets[i]))
+ 			break;
++	}
  
--	if (KVM_REG_SIZE(reg->id) == size &&
--	    IS_ALIGNED(off, size / sizeof(__u32)))
--		return 0;
-+	if (!IS_ALIGNED(off, size / sizeof(__u32)))
-+		return -EINVAL;
- 
--	return -EINVAL;
-+	return size;
-+}
-+
-+static int validate_core_offset(const struct kvm_one_reg *reg)
-+{
-+	u64 off = core_reg_offset_from_id(reg->id);
-+	int size = core_reg_size_from_offset(off);
-+
-+	if (size < 0)
-+		return -EINVAL;
-+
-+	if (KVM_REG_SIZE(reg->id) != size)
-+		return -EINVAL;
-+
-+	return 0;
+ 	return -1;
  }
- 
- static int get_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
-@@ -204,11 +216,34 @@ static int kvm_arm_copy_core_reg_indices
- {
- 	unsigned int i;
- 	int n = 0;
--	const u64 core_reg = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE;
- 
- 	for (i = 0; i < sizeof(struct kvm_regs) / sizeof(__u32); i++) {
-+		u64 reg = KVM_REG_ARM64 | KVM_REG_ARM_CORE | i;
-+		int size = core_reg_size_from_offset(i);
-+
-+		if (size < 0)
-+			continue;
-+
-+		switch (size) {
-+		case sizeof(__u32):
-+			reg |= KVM_REG_SIZE_U32;
-+			break;
-+
-+		case sizeof(__u64):
-+			reg |= KVM_REG_SIZE_U64;
-+			break;
-+
-+		case sizeof(__uint128_t):
-+			reg |= KVM_REG_SIZE_U128;
-+			break;
-+
-+		default:
-+			WARN_ON(1);
-+			continue;
-+		}
-+
- 		if (uindices) {
--			if (put_user(core_reg | i, uindices))
-+			if (put_user(reg, uindices))
- 				return -EFAULT;
- 			uindices++;
- 		}
+-- 
+2.39.2
+
 
 
