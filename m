@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A54676E639E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9446E629A
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231871AbjDRMmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59216 "EHLO
+        id S231693AbjDRMeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231868AbjDRMmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:08 -0400
+        with ESMTP id S231706AbjDRMdt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C69146CB
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAF110260
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45E50632E8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BBDAC433D2;
-        Tue, 18 Apr 2023 12:41:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 298B1629E1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1680EC433EF;
+        Tue, 18 Apr 2023 12:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821711;
-        bh=CgPIBuvQobeCEXJ85ow/D53Br8R3NtX34PVqfwAAaz4=;
+        s=korg; t=1681821214;
+        bh=ayLCKjBcXV8S6zyWST9efiwCeulaUxJVrHTjPzx/lD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nV9hstElAFqbcqEwkXqv++GGP5DSq/dpc8K1AdkY7xl9wV8lujyXlEAd0laTSKomj
-         9d8R6/75zXTwVxbrHlO5mBw7U6TWwH2lNqzsbGmdlRlD176rektoUMEOwuDf/TeojU
-         JeqWebLULjzgtAY9XqIJtmB7PLLSbnQdQD3//DyE=
+        b=MtpnBjOSuA8sH6D228ZDvx6+EKwKKMIHb3YDw9DqUxK4fXRACrSHOELNQwdCwsYCI
+         At4WAYZiSzly2WjfBY0GOvEFuGRmiGO/z5DuIdIXRZsNivI9xnGR522QzKDU+sSa9n
+         Zps4WaM08ZPM/xYgjoWJuuAxRj2kGMAdYg7/c8G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 005/134] ALSA: i2c/cs8427: fix iec958 mixer control deactivation
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 042/124] tracing: Free error logs of tracing instances
 Date:   Tue, 18 Apr 2023 14:21:01 +0200
-Message-Id: <20230418120313.205570251@linuxfoundation.org>
+Message-Id: <20230418120311.357110777@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit e98e7a82bca2b6dce3e03719cff800ec913f9af7 upstream.
+commit 3357c6e429643231e60447b52ffbb7ac895aca22 upstream.
 
-snd_cs8427_iec958_active() would always delete
-SNDRV_CTL_ELEM_ACCESS_INACTIVE, even though the function has an
-argument `active`.
+When a tracing instance is removed, the error messages that hold errors
+that occurred in the instance needs to be freed. The following reports a
+memory leak:
 
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201219.2197811-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ # cd /sys/kernel/tracing
+ # mkdir instances/foo
+ # echo 'hist:keys=x' > instances/foo/events/sched/sched_switch/trigger
+ # cat instances/foo/error_log
+ [  117.404795] hist:sched:sched_switch: error: Couldn't find field
+   Command: hist:keys=x
+                      ^
+ # rmdir instances/foo
+
+Then check for memory leaks:
+
+ # echo scan > /sys/kernel/debug/kmemleak
+ # cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff88810d8ec700 (size 192):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    60 dd 68 61 81 88 ff ff 60 dd 68 61 81 88 ff ff  `.ha....`.ha....
+    a0 30 8c 83 ff ff ff ff 26 00 0a 00 00 00 00 00  .0......&.......
+  backtrace:
+    [<00000000dae26536>] kmalloc_trace+0x2a/0xa0
+    [<00000000b2938940>] tracing_log_err+0x277/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+unreferenced object 0xffff888170c35a00 (size 32):
+  comm "bash", pid 869, jiffies 4294950577 (age 215.752s)
+  hex dump (first 32 bytes):
+    0a 20 20 43 6f 6d 6d 61 6e 64 3a 20 68 69 73 74  .  Command: hist
+    3a 6b 65 79 73 3d 78 0a 00 00 00 00 00 00 00 00  :keys=x.........
+  backtrace:
+    [<000000006a747de5>] __kmalloc+0x4d/0x160
+    [<000000000039df5f>] tracing_log_err+0x29b/0x2e0
+    [<000000004a0e1b07>] parse_atom+0x966/0xb40
+    [<0000000023b24337>] parse_expr+0x5f3/0xdb0
+    [<00000000594ad074>] event_hist_trigger_parse+0x27f8/0x3560
+    [<00000000293a9645>] trigger_process_regex+0x135/0x1a0
+    [<000000005c22b4f2>] event_trigger_write+0x87/0xf0
+    [<000000002cadc509>] vfs_write+0x162/0x670
+    [<0000000059c3b9be>] ksys_write+0xca/0x170
+    [<00000000f1cddc00>] do_syscall_64+0x3e/0xc0
+    [<00000000868ac68c>] entry_SYSCALL_64_after_hwframe+0x72/0xdc
+
+The problem is that the error log needs to be freed when the instance is
+removed.
+
+Link: https://lore.kernel.org/lkml/76134d9f-a5ba-6a0d-37b3-28310b4a1e91@alu.unizg.hr/
+Link: https://lore.kernel.org/linux-trace-kernel/20230404194504.5790b95f@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: 2f754e771b1a6 ("tracing: Have the error logs show up in the proper instances")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/i2c/cs8427.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/i2c/cs8427.c
-+++ b/sound/i2c/cs8427.c
-@@ -561,10 +561,13 @@ int snd_cs8427_iec958_active(struct snd_
- 	if (snd_BUG_ON(!cs8427))
- 		return -ENXIO;
- 	chip = cs8427->private_data;
--	if (active)
-+	if (active) {
- 		memcpy(chip->playback.pcm_status,
- 		       chip->playback.def_status, 24);
--	chip->playback.pcm_ctl->vd[0].access &= ~SNDRV_CTL_ELEM_ACCESS_INACTIVE;
-+		chip->playback.pcm_ctl->vd[0].access &= ~SNDRV_CTL_ELEM_ACCESS_INACTIVE;
-+	} else {
-+		chip->playback.pcm_ctl->vd[0].access |= SNDRV_CTL_ELEM_ACCESS_INACTIVE;
-+	}
- 	snd_ctl_notify(cs8427->bus->card,
- 		       SNDRV_CTL_EVENT_MASK_VALUE | SNDRV_CTL_EVENT_MASK_INFO,
- 		       &chip->playback.pcm_ctl->id);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -8895,6 +8895,7 @@ static int __remove_instance(struct trac
+ 	ftrace_destroy_function_files(tr);
+ 	tracefs_remove(tr->dir);
+ 	free_trace_buffers(tr);
++	clear_tracing_err_log(tr);
+ 
+ 	for (i = 0; i < tr->nr_topts; i++) {
+ 		kfree(tr->topts[i].topts);
 
 
