@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6936E632E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19AEB6E6146
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231777AbjDRMid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54608 "EHLO
+        id S230312AbjDRMYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:24:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231773AbjDRMic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:38:32 -0400
+        with ESMTP id S231295AbjDRMYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C5E13860
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:38:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8613B7DA9
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B09F9632CA
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:38:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C333CC433EF;
-        Tue, 18 Apr 2023 12:38:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FFF76311B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44FC4C433EF;
+        Tue, 18 Apr 2023 12:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821504;
-        bh=oqumtN+UpzTs0Xxsvqg+easqS6FeaIp0RlvEopGH24o=;
+        s=korg; t=1681820656;
+        bh=hI62uHcyCeDFcBV/qqOzG7EJtX9iBJONOvZbFEOulnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fNMDM3rmGoArbmRgAbNaTDaDoV+kxjdjXz2cQQeF+WdfDX6+6gZkm9Y6hQCE4HF+e
-         4QTOfCp7zT6Rbx54he4TCc1KQeHY7qccuoCvVUM+ItjYznJyenQQpLBT/LQo0RBMqV
-         cdDUCsxzuanL8n1ADz/QVBkUG0iDe15g/QTSKh10=
+        b=UU0sQEJxvqxVAigFY+oJQYcdVS6NoD8le7cxYocOkQIKe9PlQXn5bWPLSZxTPWZiC
+         AkOs/dJOL2oCMlvpvOwUZSH2iewsWJwWXvRQhs+jA93dQ5OLmBwGyxsdg77YfXpo6x
+         sjxYdaSE8PNn/gzwOwcRnjkuCN4NcO0h1f7A3N2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 26/91] 9p/xen : Fix use after free bug in xen_9pfs_front_remove due to race condition
+        patches@lists.linux.dev,
+        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 20/37] ALSA: hda/sigmatel: fix S/PDIF out on Intel D*45* motherboards
 Date:   Tue, 18 Apr 2023 14:21:30 +0200
-Message-Id: <20230418120306.496693915@linuxfoundation.org>
+Message-Id: <20230418120255.372988530@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 
-[ Upstream commit ea4f1009408efb4989a0f139b70fb338e7f687d0 ]
+commit f342ac00da1064eb4f94b1f4bcacbdfea955797a upstream.
 
-In xen_9pfs_front_probe, it calls xen_9pfs_front_alloc_dataring
-to init priv->rings and bound &ring->work with p9_xen_response.
+The BIOS botches this one completely - it says the 2nd S/PDIF output is
+used, while in fact it's the 1st one. This is tested on DP45SG, but I'm
+assuming it's valid for the other boards in the series as well.
 
-When it calls xen_9pfs_front_event_handler to handle IRQ requests,
-it will finally call schedule_work to start the work.
+Also add some comments regarding the pins.
+FWIW, the codec is apparently still sold by Tempo Semiconductor, Inc.,
+where one can download the documentation.
 
-When we call xen_9pfs_front_remove to remove the driver, there
-may be a sequence as follows:
-
-Fix it by finishing the work before cleanup in xen_9pfs_front_free.
-
-Note that, this bug is found by static analysis, which might be
-false positive.
-
-CPU0                  CPU1
-
-                     |p9_xen_response
-xen_9pfs_front_remove|
-  xen_9pfs_front_free|
-kfree(priv)          |
-//free priv          |
-                     |p9_tag_lookup
-                     |//use priv->client
-
-Fixes: 71ebd71921e4 ("xen/9pfs: connect to the backend")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230405201220.2197826-2-oswald.buddenhagen@gmx.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_xen.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_sigmatel.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index 9e4da8c1b907e..99e6b2483311c 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -300,6 +300,10 @@ static void xen_9pfs_front_free(struct xen_9pfs_front_priv *priv)
- 	write_unlock(&xen_9pfs_lock);
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -1741,6 +1741,7 @@ static const struct snd_pci_quirk stac92
+ };
  
- 	for (i = 0; i < priv->num_rings; i++) {
-+		struct xen_9pfs_dataring *ring = &priv->rings[i];
-+
-+		cancel_work_sync(&ring->work);
-+
- 		if (!priv->rings[i].intf)
- 			break;
- 		if (priv->rings[i].irq > 0)
--- 
-2.39.2
-
+ static const struct hda_pintbl ref92hd73xx_pin_configs[] = {
++	// Port A-H
+ 	{ 0x0a, 0x02214030 },
+ 	{ 0x0b, 0x02a19040 },
+ 	{ 0x0c, 0x01a19020 },
+@@ -1749,9 +1750,12 @@ static const struct hda_pintbl ref92hd73
+ 	{ 0x0f, 0x01014010 },
+ 	{ 0x10, 0x01014020 },
+ 	{ 0x11, 0x01014030 },
++	// CD in
+ 	{ 0x12, 0x02319040 },
++	// Digial Mic ins
+ 	{ 0x13, 0x90a000f0 },
+ 	{ 0x14, 0x90a000f0 },
++	// Digital outs
+ 	{ 0x22, 0x01452050 },
+ 	{ 0x23, 0x01452050 },
+ 	{}
+@@ -1792,6 +1796,7 @@ static const struct hda_pintbl alienware
+ };
+ 
+ static const struct hda_pintbl intel_dg45id_pin_configs[] = {
++	// Analog outputs
+ 	{ 0x0a, 0x02214230 },
+ 	{ 0x0b, 0x02A19240 },
+ 	{ 0x0c, 0x01013214 },
+@@ -1799,6 +1804,9 @@ static const struct hda_pintbl intel_dg4
+ 	{ 0x0e, 0x01A19250 },
+ 	{ 0x0f, 0x01011212 },
+ 	{ 0x10, 0x01016211 },
++	// Digital output
++	{ 0x22, 0x01451380 },
++	{ 0x23, 0x40f000f0 },
+ 	{}
+ };
+ 
 
 
