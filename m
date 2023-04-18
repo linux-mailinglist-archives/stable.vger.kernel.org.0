@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6F06E616F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED716E62C9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbjDRMZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:25:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
+        id S231288AbjDRMfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231182AbjDRMZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:09 -0400
+        with ESMTP id S231674AbjDRMfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD9E7A81;
-        Tue, 18 Apr 2023 05:24:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B64512599
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41EC763108;
-        Tue, 18 Apr 2023 12:24:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DB08C433D2;
-        Tue, 18 Apr 2023 12:24:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 523846326E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64631C433EF;
+        Tue, 18 Apr 2023 12:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820685;
-        bh=COtBPWd792pj4wDo6QCmYmv27EpEeD8uoH4fJakfhLM=;
+        s=korg; t=1681821319;
+        bh=s3CD/ddZ3u/SQWtdhax3A0dgVRfS8zBe+/En9A9Wmgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDnXTZoIfZDWsn1a4ZXCGbl704I9f90/EgCmUmRWSAnloQZn5ogYlpybVhKuze3hX
-         6vuAn/WbtaoZTuD9b1gapSXZebyH3N4dP+ckhqLujll4hENYBHkkbZxKg+jAHfDNXt
-         jv66q/Q6DRTrJ9nWZLXinlnNEPsfRTgPkUU8zlrc=
+        b=nJ5tVCNYr2nMFiI6gFmUfM3BPisR9zUApbhe0B5ZLEhGhXqpSrsHg96/7VbXPcNSG
+         2wGIJzGRHwbdllUSCbpmOX4dxxV2CbUZWHxh10DAuNF9LjwLdxnVwu3j71kflGQ1Sf
+         qOIwSUreQVeMiCxlaDmwe4Q+F6rNtCDmTdyxtycc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/37] verify_pefile: relax wrapper length check
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 081/124] sctp: fix a potential overflow in sctp_ifwdtsn_skip
 Date:   Tue, 18 Apr 2023 14:21:40 +0200
-Message-Id: <20230418120255.753919976@linuxfoundation.org>
+Message-Id: <20230418120312.807695559@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,59 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
+[ Upstream commit 32832a2caf82663870126c5186cf8f86c8b2a649 ]
 
-The PE Format Specification (section "The Attribute Certificate Table
-(Image Only)") states that `dwLength` is to be rounded up to 8-byte
-alignment when used for traversal.  Therefore, the field is not required
-to be an 8-byte multiple in the first place.
+Currently, when traversing ifwdtsn skips with _sctp_walk_ifwdtsn, it only
+checks the pos against the end of the chunk. However, the data left for
+the last pos may be < sizeof(struct sctp_ifwdtsn_skip), and dereference
+it as struct sctp_ifwdtsn_skip may cause coverflow.
 
-Accordingly, pesign has not performed this alignment since version
-0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
-Signature wrapper len wrong".  Update the comment and relax the check.
+This patch fixes it by checking the pos against "the end of the chunk -
+sizeof(struct sctp_ifwdtsn_skip)" in sctp_ifwdtsn_skip, similar to
+sctp_fwdtsn_skip.
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
-Link: https://github.com/rhboot/pesign
-Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
+Fixes: 0fc2ea922c8a ("sctp: implement validate_ftsn for sctp_stream_interleave")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/2a71bffcd80b4f2c61fac6d344bb2f11c8fd74f7.1681155810.git.lucien.xin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/sctp/stream_interleave.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index d178650fd524c..411977947adbe 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -139,11 +139,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	pr_debug("sig wrapper = { %x, %x, %x }\n",
- 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+diff --git a/net/sctp/stream_interleave.c b/net/sctp/stream_interleave.c
+index 6b13f737ebf2e..e3aad75cb11d9 100644
+--- a/net/sctp/stream_interleave.c
++++ b/net/sctp/stream_interleave.c
+@@ -1162,7 +1162,8 @@ static void sctp_generate_iftsn(struct sctp_outq *q, __u32 ctsn)
  
--	/* Both pesign and sbsign round up the length of certificate table
--	 * (in optional header data directories) to 8 byte alignment.
-+	/* sbsign rounds up the length of certificate table (in optional
-+	 * header data directories) to 8 byte alignment.  However, the PE
-+	 * specification states that while entries are 8-byte aligned, this is
-+	 * not included in their length, and as a result, pesign has not
-+	 * rounded up since 0.110.
- 	 */
--	if (round_up(wrapper.length, 8) != ctx->sig_len) {
--		pr_debug("Signature wrapper len wrong\n");
-+	if (wrapper.length > ctx->sig_len) {
-+		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
-+			 ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
+ #define _sctp_walk_ifwdtsn(pos, chunk, end) \
+ 	for (pos = chunk->subh.ifwdtsn_hdr->skip; \
+-	     (void *)pos < (void *)chunk->subh.ifwdtsn_hdr->skip + (end); pos++)
++	     (void *)pos <= (void *)chunk->subh.ifwdtsn_hdr->skip + (end) - \
++			    sizeof(struct sctp_ifwdtsn_skip); pos++)
+ 
+ #define sctp_walk_ifwdtsn(pos, ch) \
+ 	_sctp_walk_ifwdtsn((pos), (ch), ntohs((ch)->chunk_hdr->length) - \
 -- 
 2.39.2
 
