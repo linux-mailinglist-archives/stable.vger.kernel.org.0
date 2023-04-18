@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5766E64AE
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:51:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FA16E6381
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232225AbjDRMvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:51:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43688 "EHLO
+        id S231848AbjDRMlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:41:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232201AbjDRMvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:51:33 -0400
+        with ESMTP id S231846AbjDRMlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:41:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596AB16B28
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:51:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7D3313C36
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C12AD63400
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D06C4339C;
-        Tue, 18 Apr 2023 12:50:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 380396330F
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A065C433EF;
+        Tue, 18 Apr 2023 12:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822259;
-        bh=uPMOlphHBamsx4/oDxVMrw3tPvD+rItJxPuTUtzs+Kk=;
+        s=korg; t=1681821658;
+        bh=nPHExvQb4lL04JhR3nioSKcfHc1FIn53aqQkraH2nqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hAqj/A10Hh+G3K1LqBU8Vd5ZSgzOvPoMsd6gJXrt/WJAQ6abj/n9robk6szQ5wB+
-         j5DIQueGQu08tQmh2Fl4tgQDpk2zjQQYHJmVmvZu1vIeY1ufxQBdsNpYRai1aU6FNm
-         3gOlZaJLxUi4oFX/x75UcHx35nVfZ/l70uAbf/Ys=
+        b=njQ+fUVmFEqfIBEoh/rIoxcrunWc1+yt/3OuRmF17R6z7X4wIUS1p+wq3aAFmI5FO
+         dK2HZYygy+N8XIhC8/WyMOVLH8eQaYR1sLOmSQESIgp0kJqgoUCpnK1s+1M0DbVVP5
+         I6ILztfFLwplFKsXT29ZoYfGZuSILdsNOXJ4acFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 083/139] i2c: imx-lpi2c: clean rx/tx buffers upon new message
-Date:   Tue, 18 Apr 2023 14:22:28 +0200
-Message-Id: <20230418120316.950391610@linuxfoundation.org>
+        patches@lists.linux.dev, Giuseppe Scrivano <gscrivan@redhat.com>,
+        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 85/91] cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP properly
+Date:   Tue, 18 Apr 2023 14:22:29 +0200
+Message-Id: <20230418120308.512857363@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
+[ Upstream commit 42a11bf5c5436e91b040aeb04063be1710bb9f9c ]
 
-When start sending a new message clear the Rx & Tx buffer pointers in
-order to avoid using stale pointers.
+By default, the clone(2) syscall spawn a child process into the same
+cgroup as its parent. With the use of the CLONE_INTO_CGROUP flag
+introduced by commit ef2c41cf38a7 ("clone3: allow spawning processes
+into cgroups"), the child will be spawned into a different cgroup which
+is somewhat similar to writing the child's tid into "cgroup.threads".
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+The current cpuset_fork() method does not properly handle the
+CLONE_INTO_CGROUP case where the cpuset of the child may be different
+from that of its parent.  Update the cpuset_fork() method to treat the
+CLONE_INTO_CGROUP case similar to cpuset_attach().
+
+Since the newly cloned task has not been running yet, its actual
+memory usage isn't known. So it is not necessary to make change to mm
+in cpuset_fork().
+
+Fixes: ef2c41cf38a7 ("clone3: allow spawning processes into cgroups")
+Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/cgroup/cpuset.c | 62 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 42 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 9b2f9544c5681..a49b14d52a986 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -463,6 +463,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
- 		if (num == 1 && msgs[0].len == 0)
- 			goto stop;
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 3d254498eb275..a6829e21b50c3 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2242,16 +2242,33 @@ static void cpuset_cancel_attach(struct cgroup_taskset *tset)
+ }
  
-+		lpi2c_imx->rx_buf = NULL;
-+		lpi2c_imx->tx_buf = NULL;
- 		lpi2c_imx->delivered = 0;
- 		lpi2c_imx->msglen = msgs[i].len;
- 		init_completion(&lpi2c_imx->complete);
+ /*
+- * Protected by cpuset_rwsem.  cpus_attach is used only by cpuset_attach()
++ * Protected by cpuset_rwsem. cpus_attach is used only by cpuset_attach_task()
+  * but we can't allocate it dynamically there.  Define it global and
+  * allocate from cpuset_init().
+  */
+ static cpumask_var_t cpus_attach;
++static nodemask_t cpuset_attach_nodemask_to;
++
++static void cpuset_attach_task(struct cpuset *cs, struct task_struct *task)
++{
++	percpu_rwsem_assert_held(&cpuset_rwsem);
++
++	if (cs != &top_cpuset)
++		guarantee_online_cpus(task, cpus_attach);
++	else
++		cpumask_copy(cpus_attach, task_cpu_possible_mask(task));
++	/*
++	 * can_attach beforehand should guarantee that this doesn't
++	 * fail.  TODO: have a better way to handle failure here
++	 */
++	WARN_ON_ONCE(set_cpus_allowed_ptr(task, cpus_attach));
++
++	cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
++	cpuset_update_task_spread_flags(cs, task);
++}
+ 
+ static void cpuset_attach(struct cgroup_taskset *tset)
+ {
+-	/* static buf protected by cpuset_rwsem */
+-	static nodemask_t cpuset_attach_nodemask_to;
+ 	struct task_struct *task;
+ 	struct task_struct *leader;
+ 	struct cgroup_subsys_state *css;
+@@ -2266,20 +2283,8 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 
+ 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
+ 
+-	cgroup_taskset_for_each(task, css, tset) {
+-		if (cs != &top_cpuset)
+-			guarantee_online_cpus(task, cpus_attach);
+-		else
+-			cpumask_copy(cpus_attach, task_cpu_possible_mask(task));
+-		/*
+-		 * can_attach beforehand should guarantee that this doesn't
+-		 * fail.  TODO: have a better way to handle failure here
+-		 */
+-		WARN_ON_ONCE(set_cpus_allowed_ptr(task, cpus_attach));
+-
+-		cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
+-		cpuset_update_task_spread_flags(cs, task);
+-	}
++	cgroup_taskset_for_each(task, css, tset)
++		cpuset_attach_task(cs, task);
+ 
+ 	/*
+ 	 * Change mm for all threadgroup leaders. This is expensive and may
+@@ -2952,11 +2957,28 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
+  */
+ static void cpuset_fork(struct task_struct *task)
+ {
+-	if (task_css_is_root(task, cpuset_cgrp_id))
++	struct cpuset *cs;
++	bool same_cs;
++
++	rcu_read_lock();
++	cs = task_cs(task);
++	same_cs = (cs == task_cs(current));
++	rcu_read_unlock();
++
++	if (same_cs) {
++		if (cs == &top_cpuset)
++			return;
++
++		set_cpus_allowed_ptr(task, current->cpus_ptr);
++		task->mems_allowed = current->mems_allowed;
+ 		return;
++	}
+ 
+-	set_cpus_allowed_ptr(task, current->cpus_ptr);
+-	task->mems_allowed = current->mems_allowed;
++	/* CLONE_INTO_CGROUP */
++	percpu_down_write(&cpuset_rwsem);
++	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
++	cpuset_attach_task(cs, task);
++	percpu_up_write(&cpuset_rwsem);
+ }
+ 
+ struct cgroup_subsys cpuset_cgrp_subsys = {
 -- 
 2.39.2
 
