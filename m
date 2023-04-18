@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF66B6E6360
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC386E62E8
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231830AbjDRMkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:40:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
+        id S231364AbjDRMgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231837AbjDRMkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:03 -0400
+        with ESMTP id S231737AbjDRMg3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8AE13869
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:40:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C67412C84
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD4B3632C6
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:40:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D37B1C433EF;
-        Tue, 18 Apr 2023 12:39:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A96B863243
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFE0C433D2;
+        Tue, 18 Apr 2023 12:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821600;
-        bh=1PTmcP2+6LuJsrULf4ZIc+pv2aA7YcGzRwoLHFAWLGU=;
+        s=korg; t=1681821388;
+        bh=cb5aHSoMojPxGhhFtZN/E6stPrQdc9yWM8XqkfR9wCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTv1KV+K089jjErmpHybGbYMph72KpTUgYc/0lAbPwhm0LdYFYmIseVz+ojjI4tmB
-         1SP627Dp1bFCyB1jsJZdJXYPFQHhn6fQwyETZpEwzh6cH283VbjRfM3nsSjJ+STiNL
-         crJLPU/TkejjV/UvOQEgmGa0458R/Po0FrOhuoUU=
+        b=ZoXwT3BYJbRMZ4kSEQLiUkg6rWIisbjNPYf9iawsFqUYG9kimaq+Cp8e3ofweecBR
+         0xaOpTbgQcevb9aTthkc5nwBrJLclRZqLN730RBrOwgT7hBnL7QVA+ZPl4nQTFg8ew
+         We8HVKv6EebCrYOAwdRiqyN5PDOFVaNkkMqn+sZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Kolar <mich.k@seznam.cz>,
-        Jiri Kosina <jkosina@suse.cz>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Ding Hui <dinghui@sangfor.com.cn>
-Subject: [PATCH 5.15 62/91] scsi: ses: Handle enclosure with just a primary component gracefully
+        patches@lists.linux.dev, zgpeng <zgpeng@tencent.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Samuel Liao <samuelliao@tencent.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 107/124] sched/fair: Move calculate of avg_load to a better location
 Date:   Tue, 18 Apr 2023 14:22:06 +0200
-Message-Id: <20230418120307.742398613@linuxfoundation.org>
+Message-Id: <20230418120313.700527184@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: zgpeng <zgpeng.linux@gmail.com>
 
-commit c8e22b7a1694bb8d025ea636816472739d859145 upstream.
+[ Upstream commit 06354900787f25bf5be3c07a68e3cdbc5bf0fa69 ]
 
-This reverts commit 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure
-has no components") and introduces proper handling of case where there are
-no detected secondary components, but primary component (enumerated in
-num_enclosures) does exist. That fix was originally proposed by Ding Hui
-<dinghui@sangfor.com.cn>.
+In calculate_imbalance function, when the value of local->avg_load is
+greater than or equal to busiest->avg_load, the calculated sds->avg_load is
+not used. So this calculation can be placed in a more appropriate position.
 
-Completely ignoring devices that have one primary enclosure and no
-secondary one results in ses_intf_add() bailing completely
-
-	scsi 2:0:0:254: enclosure has no enumerated components
-        scsi 2:0:0:254: Failed to bind enclosure -12ven in valid configurations such
-
-even on valid configurations with 1 primary and 0 secondary enclosures as
-below:
-
-	# sg_ses /dev/sg0
-	  3PARdata  SES               3321
-	Supported diagnostic pages:
-	  Supported Diagnostic Pages [sdp] [0x0]
-	  Configuration (SES) [cf] [0x1]
-	  Short Enclosure Status (SES) [ses] [0x8]
-	# sg_ses -p cf /dev/sg0
-	  3PARdata  SES               3321
-	Configuration diagnostic page:
-	  number of secondary subenclosures: 0
-	  generation code: 0x0
-	  enclosure descriptor list
-	    Subenclosure identifier: 0 [primary]
-	      relative ES process id: 0, number of ES processes: 1
-	      number of type descriptor headers: 1
-	      enclosure logical identifier (hex): 20000002ac02068d
-	      enclosure vendor: 3PARdata  product: VV                rev: 3321
-	  type descriptor header and text list
-	    Element type: Unspecified, subenclosure id: 0
-	      number of possible elements: 1
-
-The changelog for the original fix follows
-
-=====
-We can get a crash when disconnecting the iSCSI session,
-the call trace like this:
-
-  [ffff00002a00fb70] kfree at ffff00000830e224
-  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
-  [ffff00002a00fbd0] device_del at ffff0000086b6a98
-  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
-  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
-  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
-  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
-  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
-  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
-  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
-  [ffff00002a00fe00] worker_thread at ffff00000810f648
-  [ffff00002a00fe70] kthread at ffff000008116e98
-
-In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
-but not saved in edev->component[i].scratch
-
-In this situation, edev->component[0].scratch is an invalid pointer,
-when kfree it in ses_intf_remove_enclosure, a crash like above would happen
-The call trace also could be other random cases when kfree cannot catch
-the invalid pointer
-
-We should not use edev->component[] array when the components count is 0
-We also need check index when use edev->component[] array in
-ses_enclosure_data_process
-=====
-
-Reported-by: Michal Kolar <mich.k@seznam.cz>
-Originally-by: Ding Hui <dinghui@sangfor.com.cn>
-Cc: stable@vger.kernel.org
-Fixes: 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2304042122270.29760@cbobk.fhfr.pm
-Tested-by: Michal Kolar <mich.k@seznam.cz>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: zgpeng <zgpeng@tencent.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Samuel Liao <samuelliao@tencent.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/1649239025-10010-1-git-send-email-zgpeng@tencent.com
+Stable-dep-of: 91dcf1e8068e ("sched/fair: Fix imbalance overflow")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ kernel/sched/fair.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -503,9 +503,6 @@ static int ses_enclosure_find_by_addr(st
- 	int i;
- 	struct ses_component *scomp;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index bb70a7856277f..22139e97b2a8e 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9342,8 +9342,6 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
+ 		local->avg_load = (local->group_load * SCHED_CAPACITY_SCALE) /
+ 				  local->group_capacity;
  
--	if (!edev->component[0].scratch)
--		return 0;
--
- 	for (i = 0; i < edev->components; i++) {
- 		scomp = edev->component[i].scratch;
- 		if (scomp->addr != efd->addr)
-@@ -596,8 +593,10 @@ static void ses_enclosure_data_process(s
- 						components++,
- 						type_ptr[0],
- 						name);
--				else
-+				else if (components < edev->components)
- 					ecomp = &edev->component[components++];
-+				else
-+					ecomp = ERR_PTR(-EINVAL);
- 
- 				if (!IS_ERR(ecomp)) {
- 					if (addl_desc_ptr) {
-@@ -728,11 +727,6 @@ static int ses_intf_add(struct device *c
- 			components += type_ptr[1];
+-		sds->avg_load = (sds->total_load * SCHED_CAPACITY_SCALE) /
+-				sds->total_capacity;
+ 		/*
+ 		 * If the local group is more loaded than the selected
+ 		 * busiest group don't try to pull any tasks.
+@@ -9352,6 +9350,9 @@ static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *s
+ 			env->imbalance = 0;
+ 			return;
+ 		}
++
++		sds->avg_load = (sds->total_load * SCHED_CAPACITY_SCALE) /
++				sds->total_capacity;
  	}
  
--	if (components == 0) {
--		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
--		goto err_free;
--	}
--
- 	ses_dev->page1 = buf;
- 	ses_dev->page1_len = len;
- 	buf = NULL;
-@@ -774,9 +768,11 @@ static int ses_intf_add(struct device *c
- 		buf = NULL;
- 	}
- page2_not_supported:
--	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
--	if (!scomp)
--		goto err_free;
-+	if (components > 0) {
-+		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
-+		if (!scomp)
-+			goto err_free;
-+	}
- 
- 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
- 				  components, &ses_enclosure_callbacks);
+ 	/*
+-- 
+2.39.2
+
 
 
