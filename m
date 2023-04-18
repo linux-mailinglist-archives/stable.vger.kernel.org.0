@@ -2,153 +2,351 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E80826E66DD
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 846F46E6700
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbjDROOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 10:14:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52898 "EHLO
+        id S232096AbjDROVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 10:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231545AbjDROOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:14:07 -0400
-Received: from JPN01-TYC-obe.outbound.protection.outlook.com (mail-tycjpn01on2090.outbound.protection.outlook.com [40.107.114.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2200814F47;
-        Tue, 18 Apr 2023 07:13:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=GVbt4N1jOSWYoK7Pey3HzHBJMYTE6oBdDxVEDp/b3tKJRkQELpuRCVfcj691XlQVJIG7AXDFBRFtUxg1BvhWyxuvC2SYP7gaLMsisYWbtFxIxD/SyNO4bFu0HQ96HnvuFvZQZg2q0Z8bBtqkWFsk/7g0hXTbBOFA8rmPAdC6b00eKPDg0PDEbqVQPVF3jaubjN4NKDEAWtamC0MjXAwoNm0ePctgGU+VADd4+7DLCzoADvgP1ugosuSfbIq0urBXdnt1PWCAc2Q+7OZf7hWgP+1qvYugeLoRENNa7l73ZTRp2G4ACydqTYbspoOsmNAmCiEg2zn6fpLZNlWhLwdlBw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0IIR1IMFTXr8nqs0nAHmEQ6USCm61i63rWGGYlzyaIg=;
- b=j1hczsjvp27v+yEfREzw7reTlceXpHMxe5bqFC9AHibYZUwKB5Y8plX92TuxoWybWEtZnfZ1KODghNXgp1mPSzudK+ekWHyoDzQFMhh5Rh2mrIiuhQdNRXLXdqZx32HOCnKu47hQHQfOErB4qgSLw3CuH4YDBJHn2E0JviY4Llaj+OGwgX1+ypKSX+3lwU/4aUBFa4Csbqq0diLuAMdNY3Z78+cgugDHguIayCGdapkvTfjh8fEDwoDfmcs/CQleIuu7L0VTYXxSBtAmXcp+eIGI0aTZ5M/xZCVa/0lyV8sA52wn+2PRiU29Ab4fUoiCMqbO54Sb7H4BUXZZ8onOmw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0IIR1IMFTXr8nqs0nAHmEQ6USCm61i63rWGGYlzyaIg=;
- b=kVMjQ/+MxtokcJO13XjZuQRpP0b/WZ/mjsEsVwsiJRV5ZEElctflnN0s0Xzv1ivYUO5dtCApxkOgPNoCc+Hrp25sQDI4Xz8obG06MlCVlvbiIJNEcj+/wcDPf4VHO1gmeE0A7st+A1T6zEBPBY9AjVL4YAKdhWJ9w8wL/Q66Xm8=
-Received: from TY2PR01MB3788.jpnprd01.prod.outlook.com (2603:1096:404:dd::14)
- by TYCPR01MB11801.jpnprd01.prod.outlook.com (2603:1096:400:3b8::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Tue, 18 Apr
- 2023 14:13:44 +0000
-Received: from TY2PR01MB3788.jpnprd01.prod.outlook.com
- ([fe80::8b5:5f09:5a0f:370]) by TY2PR01MB3788.jpnprd01.prod.outlook.com
- ([fe80::8b5:5f09:5a0f:370%6]) with mapi id 15.20.6298.045; Tue, 18 Apr 2023
- 14:13:44 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     "patches@lists.linux.dev" <patches@lists.linux.dev>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "pavel@denx.de" <pavel@denx.de>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
-        "sudipm.mukherjee@gmail.com" <sudipm.mukherjee@gmail.com>,
-        "srw@sladewatkins.net" <srw@sladewatkins.net>,
-        "rwarsow@gmx.de" <rwarsow@gmx.de>
-Subject: RE: [PATCH 6.2 000/139] 6.2.12-rc1 review
-Thread-Topic: [PATCH 6.2 000/139] 6.2.12-rc1 review
-Thread-Index: AQHZcfQH5b0mteCZlkSin2KXvs7LW68xG8ng
-Date:   Tue, 18 Apr 2023 14:13:44 +0000
-Message-ID: <TY2PR01MB37881454469F77A35B5EC2FCB79D9@TY2PR01MB3788.jpnprd01.prod.outlook.com>
-References: <20230418120313.725598495@linuxfoundation.org>
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=renesas.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TY2PR01MB3788:EE_|TYCPR01MB11801:EE_
-x-ms-office365-filtering-correlation-id: 1aa8c479-32ca-48c2-e044-08db40171e81
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: kTIF0U0M47GaXmdzPwbkeQe5VN/nw/cwlGcZN2WjDDxHMkcU4uq32cbhxrekiSLNaDF2mKx7Pbr+yApGHXnfvAmCAW+TBOvZghKldAm20ugxFRWINWZMU9YEAixszlG9TsApP7n8Z8PG2SbYikhNpzxi7MDd8JkVG99sQPhazBWRfByy7PMFVCWIwXL3xMqrtQaFDcn6fO6+XqekHlwE/rQmWuTOpztjB2rUAtcWSvLyTWufTv5PWPZbx0J8aC3kiAE/nCNR4ZUcWdQKu1pZAy7KRa+/YR5Dx0vcDdd64i8VKR1Isa6Itot67OOsqliKHk/wm2NT/rO/vi7j84A0GimghX6LWmIJkiU9eHNixw2txpXdv1d7kzupwVDTKQ5sCAauD0tIfdM9uC+eI8ZbEG2bJEicBAKTXFNXaE2i08K/gyyf0Y41JG0SMEMf1YVpCyz3cIQmn5pvvDX+/nSitOIaduLtgPQuOwoLsxwZbV26VG5KGubrcKHwvPjj8gjUuqdr0emnp3DawTz4WMSj7yZccNsF6+eZhshRj9HFIkqql5Zk1MCG5Xnu5Ii/p0BdGjGzVd/xkPZIHKV+TsyR4bJ8zo5H8cwNtCnCjN9lJh9d0WokmThRr3XE/2jNwHKupTYl/a+hGpPiWejkrxfilg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY2PR01MB3788.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(346002)(366004)(136003)(396003)(451199021)(66556008)(4744005)(2906002)(66946007)(66446008)(4326008)(66476007)(7416002)(64756008)(5660300002)(52536014)(8936002)(316002)(54906003)(55016003)(86362001)(76116006)(478600001)(41300700001)(110136005)(33656002)(7696005)(71200400001)(122000001)(186003)(26005)(9686003)(6506007)(966005)(8676002)(38070700005)(38100700002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-2?Q?TkdiJvg4zzhv4GL+/MNfvuihkA8HuDhrqMxGKJpXTRKNA8IR/ugqJJq9ms?=
- =?iso-8859-2?Q?nIwx1N1SY/zyK8s3hhlSZilW0hRFFYRyOGXur1KgNWwmvBPvqGx+OTIPLH?=
- =?iso-8859-2?Q?DOkgYxyTYzzRHt4FqV5Bq6tsMUBI4OSlinZodgBm6wEvfRxDxWLTum35Td?=
- =?iso-8859-2?Q?v9ofGuG5Lx7vG3GWaSZRkuerUYtSHg/h8wb2YKR116cEwpzvBAcLwDo5Vw?=
- =?iso-8859-2?Q?GOv47OQunBFwM65aZHT6IGM5fj/yFDBOZgzso9qJ9CH2eYPXED3TDJo2Tx?=
- =?iso-8859-2?Q?elohkKwrpjGbgahHza7asbFuvmgI1we6HN52gxRThysnnuzh2Uu+nP1Ljt?=
- =?iso-8859-2?Q?Po+eBxcNbECe47Mf2wc51B/x0T/bFjRPLRPHDqW0TM2ncNgmX/VNl8vbkW?=
- =?iso-8859-2?Q?91cLN/QtuDePptaxDoBwAwPyud0UODSaR/lM5asIgDqTv7by6k1yGJ4qiJ?=
- =?iso-8859-2?Q?fjsLDVa/cgZmg0ERv2BXBcSzqO2ztYihuOldfuS3Qmw/eUOO20VW50RZw9?=
- =?iso-8859-2?Q?IIbuU7YyG0k6SuYxvfa6aiI9WjiSIT8p0ATm6amleJI9zWPLdeASPXyFiB?=
- =?iso-8859-2?Q?8r8w+451c6hmUPaKMLTp7YfSwFpgb1N4A5Mm7nqcKwc7AUu6XBQjctMsYs?=
- =?iso-8859-2?Q?L+ozJIDpUDe5+mEOtPn+niN0F4JHHVdsAf8kFZx+VbirKUPAGPJsRs607P?=
- =?iso-8859-2?Q?WF8RwR6LVGSY7bMyqCRLuQODhIMt/FVLn7sDSwaBXhyhGtUnw5/dJDpxeF?=
- =?iso-8859-2?Q?yQgDU9BAGJAzTOdEj2M2W3xr+rI5u64IgZPNLbqRu1Z37W5+k+EIaATy1A?=
- =?iso-8859-2?Q?kUdH+6cfr/1fkppZgVoWy9HZ0g+NHEvuev9iytZsaGc8tgPYgMW7U/66T5?=
- =?iso-8859-2?Q?6tXrQ6TrpEZDNR+DF9En8qNYzEOGnoO+CSYeo15/+FzcdraNxyWoUT3kgO?=
- =?iso-8859-2?Q?bes51ug5aEXqbGKZSSUZOejjd40hw5OsCJaWs31Vpc0Ht5KNDxGsHh5fR4?=
- =?iso-8859-2?Q?E7wiJy3iHrmz/jVdRhZeFqW2w9j6Js4l+jnRob//kbewI1Mk8iITlznYdu?=
- =?iso-8859-2?Q?Ebfd3cXDkaqtxkecx7IMn6KgPkvTOdKnSSGUD/Y0eycFRNe3wNYB4atXdt?=
- =?iso-8859-2?Q?p0zoHgOGm1dfnsLYqHlY+TCCkwxUi9kATl0x18wWjo1pB2Blv6oTmf1wuJ?=
- =?iso-8859-2?Q?X9YJ4Q9jHTKTSU4A8zJ7FoTOAleJ6ucdw+u5zi/tCY22ZEPIRH+TqMI+TC?=
- =?iso-8859-2?Q?fVR94xW5ou2gvcJ997NSXM/dTnjUEFeVU0ExDK6sX2GzPeeN79ONNguojn?=
- =?iso-8859-2?Q?GmoSn2biL314jp0duczJbOY+2kyt44S0HnYpsONhfQh+nRXlJgd2pYCvDb?=
- =?iso-8859-2?Q?C0u1P2oL9wCFP466pS+JACvxG68j0jal6yMe2RbghkLiutSSJPSB5G+veR?=
- =?iso-8859-2?Q?z98I+SpvD+MjKLZY/8Gq4EZDXs0U3QZwjNibUIRoNxiANYubm9Poru3dCo?=
- =?iso-8859-2?Q?RL5WaWfv5LOEMb0Red3SjdVqfDrjWW2sVz6Qw6Byi9UJsTTO/XJqsM0Rx1?=
- =?iso-8859-2?Q?TgrYNaKNgR6NvFApQquoxeBILs3lwZJW23k3uvW88tqLex1j4FLhmuCauy?=
- =?iso-8859-2?Q?36lVsuWGpxQv+timAjyc2LScSI4whXYkYfRyGboexGLNWl9/sNAQwWMA?=
- =?iso-8859-2?Q?=3D=3D?=
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S232095AbjDROVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:21:02 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941659C;
+        Tue, 18 Apr 2023 07:21:00 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 3F5461F8D4;
+        Tue, 18 Apr 2023 14:20:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1681827659; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=msQfS+TSBvcJPSLbCbcdaZBhz2r4XoDvKXFYtrjO0cg=;
+        b=c5BhSCuHQ1OZB69jROiqYxnukOlvdbG7MJMlcpWaXpaxPNoUatL7ZmQ/jlNsXlUl7VgmGp
+        V4gY9iTwA+gJRe1dVkvCr7OxhuLK8EvAlH54m2p8lQBzd7xAi/Sv2CtUIZcSbA+msbuZqu
+        kOzbpaJvd00BFWYj2FZcWwRe+f3x76k=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1681827659;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=msQfS+TSBvcJPSLbCbcdaZBhz2r4XoDvKXFYtrjO0cg=;
+        b=TRAhHlQ1Eh+L1yFTxFOJzeT/fhsC+xIiNvUn700L2oNubeQyOOsrZ0R+Ap9voD+sHBy93Q
+        iCAvNYi/HdyXd3DA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B7A3A13581;
+        Tue, 18 Apr 2023 14:20:58 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id yKffKUqnPmQYWAAAMHmgww
+        (envelope-from <lhenriques@suse.de>); Tue, 18 Apr 2023 14:20:58 +0000
+Received: from localhost (brahms.olymp [local])
+        by brahms.olymp (OpenSMTPD) with ESMTPA id f9a92aa2;
+        Tue, 18 Apr 2023 14:20:57 +0000 (UTC)
+From:   =?utf-8?Q?Lu=C3=ADs_Henriques?= <lhenriques@suse.de>
+To:     xiubli@redhat.com
+Cc:     idryomov@gmail.com, ceph-devel@vger.kernel.org, jlayton@kernel.org,
+        vshankar@redhat.com, mchangir@redhat.com, stable@vger.kernel.org
+Subject: Re: [PATCH v3] ceph: fix potential use-after-free bug when trimming
+ caps
+References: <20230418014506.95428-1-xiubli@redhat.com>
+Date:   Tue, 18 Apr 2023 15:20:57 +0100
+In-Reply-To: <20230418014506.95428-1-xiubli@redhat.com> (xiubli@redhat.com's
+        message of "Tue, 18 Apr 2023 09:45:06 +0800")
+Message-ID: <877cu9w9ti.fsf@brahms.olymp>
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TY2PR01MB3788.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1aa8c479-32ca-48c2-e044-08db40171e81
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Apr 2023 14:13:44.3109
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: UnZsDZi+8Cc3zP3toSlV1YsPHWAl7tdtuAuvYMxV20XIfs3BarNH39Zrx3Fy4xyFJdsDSYUNV928jNZx4NZPKCm2Fni36YMcnd5Gj/kLUUE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYCPR01MB11801
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg,
+xiubli@redhat.com writes:
 
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Sent: Tuesday, April 18, 2023 1:21 PM
->=20
-> This is the start of the stable review cycle for the 6.2.12 release.
-> There are 139 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
-> Anything received after that time might be too late.
+> From: Xiubo Li <xiubli@redhat.com>
+>
+> When trimming the caps and just after the 'session->s_cap_lock' is
+> released in ceph_iterate_session_caps() the cap maybe removed by
+> another thread, and when using the stale cap memory in the callbacks
+> it will trigger use-after-free crash.
+>
+> We need to check the existence of the cap just after the 'ci->i_ceph_lock'
+> being acquired. And do nothing if it's already removed.
 
-CIP configurations built and booted with Linux 6.2.12-rc1 (0b816653f21b):
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/8=
-40769306
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/commits/lin=
-ux-6.2.y
+Your patch seems to be OK, but I'll be honest: the locking is *so* complex
+that I can say for sure it really solves any problem :-(
 
-Tested-by: Chris Paterson (CIP) <chris.paterson2@renesas.com>
+ceph_put_cap() uses mdsc->caps_list_lock to protect the list, but I can't
+be sure that holding ci->i_ceph_lock will protect a race in the case
+you're trying to solve.
 
-Kind regards, Chris
+Is the issue in that bugzilla reproducible, or was that a one-time thing?
+
+Cheers,
+--=20
+Lu=C3=ADs
+
+
+> Cc: stable@vger.kernel.org
+> URL: https://bugzilla.redhat.com/show_bug.cgi?id=3D2186264
+> URL: https://tracker.ceph.com/issues/43272
+> Signed-off-by: Xiubo Li <xiubli@redhat.com>
+> ---
+>
+> V3:
+> - Fixed 3 issues, which reported by Luis and kernel test robot <lkp@intel=
+.com>
+>
+>  fs/ceph/debugfs.c    |  7 ++++-
+>  fs/ceph/mds_client.c | 68 +++++++++++++++++++++++++++++---------------
+>  fs/ceph/mds_client.h |  2 +-
+>  3 files changed, 52 insertions(+), 25 deletions(-)
+>
+> diff --git a/fs/ceph/debugfs.c b/fs/ceph/debugfs.c
+> index bec3c4549c07..5c0f07df5b02 100644
+> --- a/fs/ceph/debugfs.c
+> +++ b/fs/ceph/debugfs.c
+> @@ -248,14 +248,19 @@ static int metrics_caps_show(struct seq_file *s, vo=
+id *p)
+>  	return 0;
+>  }
+>=20=20
+> -static int caps_show_cb(struct inode *inode, struct ceph_cap *cap, void =
+*p)
+> +static int caps_show_cb(struct inode *inode, struct rb_node *ci_node, vo=
+id *p)
+>  {
+> +	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	struct seq_file *s =3D p;
+> +	struct ceph_cap *cap;
+>=20=20
+> +	spin_lock(&ci->i_ceph_lock);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+>  	seq_printf(s, "0x%-17llx%-3d%-17s%-17s\n", ceph_ino(inode),
+>  		   cap->session->s_mds,
+>  		   ceph_cap_string(cap->issued),
+>  		   ceph_cap_string(cap->implemented));
+> +	spin_unlock(&ci->i_ceph_lock);
+>  	return 0;
+>  }
+>=20=20
+> diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+> index 294af79c25c9..fb777add2257 100644
+> --- a/fs/ceph/mds_client.c
+> +++ b/fs/ceph/mds_client.c
+> @@ -1786,7 +1786,7 @@ static void cleanup_session_requests(struct ceph_md=
+s_client *mdsc,
+>   * Caller must hold session s_mutex.
+>   */
+>  int ceph_iterate_session_caps(struct ceph_mds_session *session,
+> -			      int (*cb)(struct inode *, struct ceph_cap *,
+> +			      int (*cb)(struct inode *, struct rb_node *ci_node,
+>  					void *), void *arg)
+>  {
+>  	struct list_head *p;
+> @@ -1799,6 +1799,8 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
+on *session,
+>  	spin_lock(&session->s_cap_lock);
+>  	p =3D session->s_caps.next;
+>  	while (p !=3D &session->s_caps) {
+> +		struct rb_node *ci_node;
+> +
+>  		cap =3D list_entry(p, struct ceph_cap, session_caps);
+>  		inode =3D igrab(&cap->ci->netfs.inode);
+>  		if (!inode) {
+> @@ -1806,6 +1808,7 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
+on *session,
+>  			continue;
+>  		}
+>  		session->s_cap_iterator =3D cap;
+> +		ci_node =3D &cap->ci_node;
+>  		spin_unlock(&session->s_cap_lock);
+>=20=20
+>  		if (last_inode) {
+> @@ -1817,7 +1820,7 @@ int ceph_iterate_session_caps(struct ceph_mds_sessi=
+on *session,
+>  			old_cap =3D NULL;
+>  		}
+>=20=20
+> -		ret =3D cb(inode, cap, arg);
+> +		ret =3D cb(inode, ci_node, arg);
+>  		last_inode =3D inode;
+>=20=20
+>  		spin_lock(&session->s_cap_lock);
+> @@ -1850,20 +1853,26 @@ int ceph_iterate_session_caps(struct ceph_mds_ses=
+sion *session,
+>  	return ret;
+>  }
+>=20=20
+> -static int remove_session_caps_cb(struct inode *inode, struct ceph_cap *=
+cap,
+> +static int remove_session_caps_cb(struct inode *inode, struct rb_node *c=
+i_node,
+>  				  void *arg)
+>  {
+>  	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	bool invalidate =3D false;
+> -	int iputs;
+> +	struct ceph_cap *cap;
+> +	int iputs =3D 0;
+>=20=20
+> -	dout("removing cap %p, ci is %p, inode is %p\n",
+> -	     cap, ci, &ci->netfs.inode);
+>  	spin_lock(&ci->i_ceph_lock);
+> -	iputs =3D ceph_purge_inode_cap(inode, cap, &invalidate);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +	if (cap) {
+> +		dout(" removing cap %p, ci is %p, inode is %p\n",
+> +		     cap, ci, &ci->netfs.inode);
+> +
+> +		iputs =3D ceph_purge_inode_cap(inode, cap, &invalidate);
+> +	}
+>  	spin_unlock(&ci->i_ceph_lock);
+>=20=20
+> -	wake_up_all(&ci->i_cap_wq);
+> +	if (cap)
+> +		wake_up_all(&ci->i_cap_wq);
+>  	if (invalidate)
+>  		ceph_queue_invalidate(inode);
+>  	while (iputs--)
+> @@ -1934,8 +1943,7 @@ enum {
+>   *
+>   * caller must hold s_mutex.
+>   */
+> -static int wake_up_session_cb(struct inode *inode, struct ceph_cap *cap,
+> -			      void *arg)
+> +static int wake_up_session_cb(struct inode *inode, struct rb_node *ci_no=
+de, void *arg)
+>  {
+>  	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	unsigned long ev =3D (unsigned long)arg;
+> @@ -1946,12 +1954,14 @@ static int wake_up_session_cb(struct inode *inode=
+, struct ceph_cap *cap,
+>  		ci->i_requested_max_size =3D 0;
+>  		spin_unlock(&ci->i_ceph_lock);
+>  	} else if (ev =3D=3D RENEWCAPS) {
+> -		if (cap->cap_gen < atomic_read(&cap->session->s_cap_gen)) {
+> -			/* mds did not re-issue stale cap */
+> -			spin_lock(&ci->i_ceph_lock);
+> +		struct ceph_cap *cap;
+> +
+> +		spin_lock(&ci->i_ceph_lock);
+> +		cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +		/* mds did not re-issue stale cap */
+> +		if (cap && cap->cap_gen < atomic_read(&cap->session->s_cap_gen))
+>  			cap->issued =3D cap->implemented =3D CEPH_CAP_PIN;
+> -			spin_unlock(&ci->i_ceph_lock);
+> -		}
+> +		spin_unlock(&ci->i_ceph_lock);
+>  	} else if (ev =3D=3D FORCE_RO) {
+>  	}
+>  	wake_up_all(&ci->i_cap_wq);
+> @@ -2113,16 +2123,22 @@ static bool drop_negative_children(struct dentry =
+*dentry)
+>   * Yes, this is a bit sloppy.  Our only real goal here is to respond to
+>   * memory pressure from the MDS, though, so it needn't be perfect.
+>   */
+> -static int trim_caps_cb(struct inode *inode, struct ceph_cap *cap, void =
+*arg)
+> +static int trim_caps_cb(struct inode *inode, struct rb_node *ci_node, vo=
+id *arg)
+>  {
+>  	int *remaining =3D arg;
+>  	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	int used, wanted, oissued, mine;
+> +	struct ceph_cap *cap;
+>=20=20
+>  	if (*remaining <=3D 0)
+>  		return -1;
+>=20=20
+>  	spin_lock(&ci->i_ceph_lock);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +	if (!cap) {
+> +		spin_unlock(&ci->i_ceph_lock);
+> +		return 0;
+> +	}
+>  	mine =3D cap->issued | cap->implemented;
+>  	used =3D __ceph_caps_used(ci);
+>  	wanted =3D __ceph_caps_file_wanted(ci);
+> @@ -4265,26 +4281,23 @@ static struct dentry* d_find_primary(struct inode=
+ *inode)
+>  /*
+>   * Encode information about a cap for a reconnect with the MDS.
+>   */
+> -static int reconnect_caps_cb(struct inode *inode, struct ceph_cap *cap,
+> +static int reconnect_caps_cb(struct inode *inode, struct rb_node *ci_nod=
+e,
+>  			  void *arg)
+>  {
+>  	union {
+>  		struct ceph_mds_cap_reconnect v2;
+>  		struct ceph_mds_cap_reconnect_v1 v1;
+>  	} rec;
+> -	struct ceph_inode_info *ci =3D cap->ci;
+> +	struct ceph_inode_info *ci =3D ceph_inode(inode);
+>  	struct ceph_reconnect_state *recon_state =3D arg;
+>  	struct ceph_pagelist *pagelist =3D recon_state->pagelist;
+>  	struct dentry *dentry;
+> +	struct ceph_cap *cap;
+>  	char *path;
+> -	int pathlen =3D 0, err;
+> +	int pathlen =3D 0, err =3D 0;
+>  	u64 pathbase;
+>  	u64 snap_follows;
+>=20=20
+> -	dout(" adding %p ino %llx.%llx cap %p %lld %s\n",
+> -	     inode, ceph_vinop(inode), cap, cap->cap_id,
+> -	     ceph_cap_string(cap->issued));
+> -
+>  	dentry =3D d_find_primary(inode);
+>  	if (dentry) {
+>  		/* set pathbase to parent dir when msg_version >=3D 2 */
+> @@ -4301,6 +4314,15 @@ static int reconnect_caps_cb(struct inode *inode, =
+struct ceph_cap *cap,
+>  	}
+>=20=20
+>  	spin_lock(&ci->i_ceph_lock);
+> +	cap =3D rb_entry(ci_node, struct ceph_cap, ci_node);
+> +	if (!cap) {
+> +		spin_unlock(&ci->i_ceph_lock);
+> +		goto out_err;
+> +	}
+> +	dout(" adding %p ino %llx.%llx cap %p %lld %s\n",
+> +	     inode, ceph_vinop(inode), cap, cap->cap_id,
+> +	     ceph_cap_string(cap->issued));
+> +
+>  	cap->seq =3D 0;        /* reset cap seq */
+>  	cap->issue_seq =3D 0;  /* and issue_seq */
+>  	cap->mseq =3D 0;       /* and migrate_seq */
+> diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
+> index 0f70ca3cdb21..001b69d04307 100644
+> --- a/fs/ceph/mds_client.h
+> +++ b/fs/ceph/mds_client.h
+> @@ -569,7 +569,7 @@ extern void ceph_queue_cap_reclaim_work(struct ceph_m=
+ds_client *mdsc);
+>  extern void ceph_reclaim_caps_nr(struct ceph_mds_client *mdsc, int nr);
+>  extern int ceph_iterate_session_caps(struct ceph_mds_session *session,
+>  				     int (*cb)(struct inode *,
+> -					       struct ceph_cap *, void *),
+> +					       struct rb_node *ci_node, void *),
+>  				     void *arg);
+>  extern void ceph_mdsc_pre_umount(struct ceph_mds_client *mdsc);
+>=20=20
+> --=20
+>
+> 2.39.2
+>
