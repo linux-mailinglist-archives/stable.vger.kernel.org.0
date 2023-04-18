@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A5E6E64FA
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00FB86E6502
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232308AbjDRMx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+        id S232245AbjDRMx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232262AbjDRMxv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C82915620
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:39 -0700 (PDT)
+        with ESMTP id S232283AbjDRMxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D800016FB1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07E7362B02
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEE6C4339E;
-        Tue, 18 Apr 2023 12:53:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAFE863473
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB755C4339B;
+        Tue, 18 Apr 2023 12:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822418;
-        bh=qD7DoLbDeFsWhvdCSOJ5OAayrjgOYTRWYbMVYo35hrc=;
+        s=korg; t=1681822421;
+        bh=2Zfz/45ui6SGNUHMsEl4ommOIT4sYmyBiR8zMME8p+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilHmDdtsw+Zd1ON95fK1eHW/hI4RCP53nBBY+srzO8kZXGpBMYVLNd2goX1PgihdC
-         ks2jPOOldBF7ETFCSqiJg4dv6np8aszLEgcnIDOMAkT7PZG6ZQRohLuwp/vsYVU+LL
-         5anA7NXPaZ0uvrlsgpFQE8W0t1sRExAK9gW9839U=
+        b=TLvdkDxj8g6SwRQToemPmmVfSWceRNr+Ln5jUYGQTfJvFvkaQPTwjSk/6krc1jqXH
+         1ETpiL1hePhpyzV3uHrn9mPPy5fUzhpDNwshg0B+V6u8/C7lpyygzrSIemdkIayRba
+         DbLmTJ9kOlahQc7VMY32NZ1GcQkctF58nGdVq4qM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Volker Lendecke <vl@samba.org>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        David Disseldorp <ddiss@suse.de>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Andrew Jones <ajones@ventanamicro.com>,
+        Heiko Stuebner <heiko.stuebner@vrull.eu>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 135/139] cifs: fix negotiate context parsing
-Date:   Tue, 18 Apr 2023 14:23:20 +0200
-Message-Id: <20230418120318.979061068@linuxfoundation.org>
+Subject: [PATCH 6.2 136/139] RISC-V: add infrastructure to allow different str* implementations
+Date:   Tue, 18 Apr 2023 14:23:21 +0200
+Message-Id: <20230418120319.027178851@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,122 +56,260 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Heiko Stuebner <heiko.stuebner@vrull.eu>
 
-[ Upstream commit 5105a7ffce19160e7062aee67fb6b3b8a1b56d78 ]
+[ Upstream commit 56e0790c7f9e59ba6a0f4b59981d1d6fbf43efb0 ]
 
-smb311_decode_neg_context() doesn't properly check against SMB packet
-boundaries prior to accessing individual negotiate context entries. This
-is due to the length check omitting the eight byte smb2_neg_context
-header, as well as incorrect decrementing of len_of_ctxts.
+Depending on supported extensions on specific RISC-V cores,
+optimized str* functions might make sense.
 
-Fixes: 5100d8a3fe03 ("SMB311: Improve checking of negotiate security contexts")
-Reported-by: Volker Lendecke <vl@samba.org>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+This adds basic infrastructure to allow patching the function calls
+via alternatives later on.
+
+The Linux kernel provides standard implementations for string functions
+but when architectures want to extend them, they need to provide their
+own.
+
+The added generic string functions are done in assembler (taken from
+disassembling the main-kernel functions for now) to allow us to control
+the used registers and extend them with optimized variants.
+
+This doesn't override the compiler's use of builtin replacements. So still
+first of all the compiler will select if a builtin will be better suitable
+i.e. for known strings. For all regular cases we will want to later
+select possible optimized variants and in the worst case fall back to the
+generic implemention added with this change.
+
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@vrull.eu>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230113212301.3534711-2-heiko@sntech.de
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Stable-dep-of: d83806c4c0cc ("purgatory: fix disabling debug info")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 41 +++++++++++++++++++++++++++++++----------
- 1 file changed, 31 insertions(+), 10 deletions(-)
+ arch/riscv/include/asm/string.h | 10 ++++++++
+ arch/riscv/kernel/riscv_ksyms.c |  3 +++
+ arch/riscv/lib/Makefile         |  3 +++
+ arch/riscv/lib/strcmp.S         | 36 +++++++++++++++++++++++++++++
+ arch/riscv/lib/strlen.S         | 28 ++++++++++++++++++++++
+ arch/riscv/lib/strncmp.S        | 41 +++++++++++++++++++++++++++++++++
+ arch/riscv/purgatory/Makefile   | 13 +++++++++++
+ 7 files changed, 134 insertions(+)
+ create mode 100644 arch/riscv/lib/strcmp.S
+ create mode 100644 arch/riscv/lib/strlen.S
+ create mode 100644 arch/riscv/lib/strncmp.S
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index b37379b62cc77..ab59faf8a06a7 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -588,11 +588,15 @@ assemble_neg_contexts(struct smb2_negotiate_req *req,
- 
- }
- 
-+/* If invalid preauth context warn but use what we requested, SHA-512 */
- static void decode_preauth_context(struct smb2_preauth_neg_context *ctxt)
- {
- 	unsigned int len = le16_to_cpu(ctxt->DataLength);
- 
--	/* If invalid preauth context warn but use what we requested, SHA-512 */
-+	/*
-+	 * Caller checked that DataLength remains within SMB boundary. We still
-+	 * need to confirm that one HashAlgorithms member is accounted for.
-+	 */
- 	if (len < MIN_PREAUTH_CTXT_DATA_LEN) {
- 		pr_warn_once("server sent bad preauth context\n");
- 		return;
-@@ -611,7 +615,11 @@ static void decode_compress_ctx(struct TCP_Server_Info *server,
- {
- 	unsigned int len = le16_to_cpu(ctxt->DataLength);
- 
--	/* sizeof compress context is a one element compression capbility struct */
-+	/*
-+	 * Caller checked that DataLength remains within SMB boundary. We still
-+	 * need to confirm that one CompressionAlgorithms member is accounted
-+	 * for.
-+	 */
- 	if (len < 10) {
- 		pr_warn_once("server sent bad compression cntxt\n");
- 		return;
-@@ -633,6 +641,11 @@ static int decode_encrypt_ctx(struct TCP_Server_Info *server,
- 	unsigned int len = le16_to_cpu(ctxt->DataLength);
- 
- 	cifs_dbg(FYI, "decode SMB3.11 encryption neg context of len %d\n", len);
-+	/*
-+	 * Caller checked that DataLength remains within SMB boundary. We still
-+	 * need to confirm that one Cipher flexible array member is accounted
-+	 * for.
-+	 */
- 	if (len < MIN_ENCRYPT_CTXT_DATA_LEN) {
- 		pr_warn_once("server sent bad crypto ctxt len\n");
- 		return -EINVAL;
-@@ -679,6 +692,11 @@ static void decode_signing_ctx(struct TCP_Server_Info *server,
- {
- 	unsigned int len = le16_to_cpu(pctxt->DataLength);
- 
-+	/*
-+	 * Caller checked that DataLength remains within SMB boundary. We still
-+	 * need to confirm that one SigningAlgorithms flexible array member is
-+	 * accounted for.
-+	 */
- 	if ((len < 4) || (len > 16)) {
- 		pr_warn_once("server sent bad signing negcontext\n");
- 		return;
-@@ -720,14 +738,19 @@ static int smb311_decode_neg_context(struct smb2_negotiate_rsp *rsp,
- 	for (i = 0; i < ctxt_cnt; i++) {
- 		int clen;
- 		/* check that offset is not beyond end of SMB */
--		if (len_of_ctxts == 0)
--			break;
--
- 		if (len_of_ctxts < sizeof(struct smb2_neg_context))
- 			break;
- 
- 		pctx = (struct smb2_neg_context *)(offset + (char *)rsp);
--		clen = le16_to_cpu(pctx->DataLength);
-+		clen = sizeof(struct smb2_neg_context)
-+			+ le16_to_cpu(pctx->DataLength);
-+		/*
-+		 * 2.2.4 SMB2 NEGOTIATE Response
-+		 * Subsequent negotiate contexts MUST appear at the first 8-byte
-+		 * aligned offset following the previous negotiate context.
-+		 */
-+		if (i + 1 != ctxt_cnt)
-+			clen = ALIGN(clen, 8);
- 		if (clen > len_of_ctxts)
- 			break;
- 
-@@ -748,12 +771,10 @@ static int smb311_decode_neg_context(struct smb2_negotiate_rsp *rsp,
- 		else
- 			cifs_server_dbg(VFS, "unknown negcontext of type %d ignored\n",
- 				le16_to_cpu(pctx->ContextType));
--
- 		if (rc)
- 			break;
--		/* offsets must be 8 byte aligned */
--		clen = ALIGN(clen, 8);
--		offset += clen + sizeof(struct smb2_neg_context);
+diff --git a/arch/riscv/include/asm/string.h b/arch/riscv/include/asm/string.h
+index 9090493665555..a96b1fea24fe4 100644
+--- a/arch/riscv/include/asm/string.h
++++ b/arch/riscv/include/asm/string.h
+@@ -18,6 +18,16 @@ extern asmlinkage void *__memcpy(void *, const void *, size_t);
+ #define __HAVE_ARCH_MEMMOVE
+ extern asmlinkage void *memmove(void *, const void *, size_t);
+ extern asmlinkage void *__memmove(void *, const void *, size_t);
 +
-+		offset += clen;
- 		len_of_ctxts -= clen;
- 	}
- 	return rc;
++#define __HAVE_ARCH_STRCMP
++extern asmlinkage int strcmp(const char *cs, const char *ct);
++
++#define __HAVE_ARCH_STRLEN
++extern asmlinkage __kernel_size_t strlen(const char *);
++
++#define __HAVE_ARCH_STRNCMP
++extern asmlinkage int strncmp(const char *cs, const char *ct, size_t count);
++
+ /* For those files which don't want to check by kasan. */
+ #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+diff --git a/arch/riscv/kernel/riscv_ksyms.c b/arch/riscv/kernel/riscv_ksyms.c
+index 5ab1c7e1a6ed5..a72879b4249a5 100644
+--- a/arch/riscv/kernel/riscv_ksyms.c
++++ b/arch/riscv/kernel/riscv_ksyms.c
+@@ -12,6 +12,9 @@
+ EXPORT_SYMBOL(memset);
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(memmove);
++EXPORT_SYMBOL(strcmp);
++EXPORT_SYMBOL(strlen);
++EXPORT_SYMBOL(strncmp);
+ EXPORT_SYMBOL(__memset);
+ EXPORT_SYMBOL(__memcpy);
+ EXPORT_SYMBOL(__memmove);
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 25d5c9664e57e..6c74b0bedd60d 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -3,6 +3,9 @@ lib-y			+= delay.o
+ lib-y			+= memcpy.o
+ lib-y			+= memset.o
+ lib-y			+= memmove.o
++lib-y			+= strcmp.o
++lib-y			+= strlen.o
++lib-y			+= strncmp.o
+ lib-$(CONFIG_MMU)	+= uaccess.o
+ lib-$(CONFIG_64BIT)	+= tishift.o
+ 
+diff --git a/arch/riscv/lib/strcmp.S b/arch/riscv/lib/strcmp.S
+new file mode 100644
+index 0000000000000..8babd712b9587
+--- /dev/null
++++ b/arch/riscv/lib/strcmp.S
+@@ -0,0 +1,36 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <linux/linkage.h>
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++
++/* int strcmp(const char *cs, const char *ct) */
++SYM_FUNC_START(strcmp)
++	/*
++	 * Returns
++	 *   a0 - comparison result, value like strcmp
++	 *
++	 * Parameters
++	 *   a0 - string1
++	 *   a1 - string2
++	 *
++	 * Clobbers
++	 *   t0, t1
++	 */
++1:
++	lbu	t0, 0(a0)
++	lbu	t1, 0(a1)
++	addi	a0, a0, 1
++	addi	a1, a1, 1
++	bne	t0, t1, 2f
++	bnez	t0, 1b
++	li	a0, 0
++	ret
++2:
++	/*
++	 * strcmp only needs to return (< 0, 0, > 0) values
++	 * not necessarily -1, 0, +1
++	 */
++	sub	a0, t0, t1
++	ret
++SYM_FUNC_END(strcmp)
+diff --git a/arch/riscv/lib/strlen.S b/arch/riscv/lib/strlen.S
+new file mode 100644
+index 0000000000000..0a3b11853efdb
+--- /dev/null
++++ b/arch/riscv/lib/strlen.S
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <linux/linkage.h>
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++
++/* int strlen(const char *s) */
++SYM_FUNC_START(strlen)
++	/*
++	 * Returns
++	 *   a0 - string length
++	 *
++	 * Parameters
++	 *   a0 - String to measure
++	 *
++	 * Clobbers:
++	 *   t0, t1
++	 */
++	mv	t1, a0
++1:
++	lbu	t0, 0(t1)
++	beqz	t0, 2f
++	addi	t1, t1, 1
++	j	1b
++2:
++	sub	a0, t1, a0
++	ret
++SYM_FUNC_END(strlen)
+diff --git a/arch/riscv/lib/strncmp.S b/arch/riscv/lib/strncmp.S
+new file mode 100644
+index 0000000000000..1f644d0a93f68
+--- /dev/null
++++ b/arch/riscv/lib/strncmp.S
+@@ -0,0 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <linux/linkage.h>
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++
++/* int strncmp(const char *cs, const char *ct, size_t count) */
++SYM_FUNC_START(strncmp)
++	/*
++	 * Returns
++	 *   a0 - comparison result, value like strncmp
++	 *
++	 * Parameters
++	 *   a0 - string1
++	 *   a1 - string2
++	 *   a2 - number of characters to compare
++	 *
++	 * Clobbers
++	 *   t0, t1, t2
++	 */
++	li	t2, 0
++1:
++	beq	a2, t2, 2f
++	lbu	t0, 0(a0)
++	lbu	t1, 0(a1)
++	addi	a0, a0, 1
++	addi	a1, a1, 1
++	bne	t0, t1, 3f
++	addi	t2, t2, 1
++	bnez	t0, 1b
++2:
++	li	a0, 0
++	ret
++3:
++	/*
++	 * strncmp only needs to return (< 0, 0, > 0) values
++	 * not necessarily -1, 0, +1
++	 */
++	sub	a0, t0, t1
++	ret
++SYM_FUNC_END(strncmp)
+diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
+index dd58e1d993972..d16bf715a586b 100644
+--- a/arch/riscv/purgatory/Makefile
++++ b/arch/riscv/purgatory/Makefile
+@@ -2,6 +2,7 @@
+ OBJECT_FILES_NON_STANDARD := y
+ 
+ purgatory-y := purgatory.o sha256.o entry.o string.o ctype.o memcpy.o memset.o
++purgatory-y += strcmp.o strlen.o strncmp.o
+ 
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+@@ -18,6 +19,15 @@ $(obj)/memcpy.o: $(srctree)/arch/riscv/lib/memcpy.S FORCE
+ $(obj)/memset.o: $(srctree)/arch/riscv/lib/memset.S FORCE
+ 	$(call if_changed_rule,as_o_S)
+ 
++$(obj)/strcmp.o: $(srctree)/arch/riscv/lib/strcmp.S FORCE
++	$(call if_changed_rule,as_o_S)
++
++$(obj)/strlen.o: $(srctree)/arch/riscv/lib/strlen.S FORCE
++	$(call if_changed_rule,as_o_S)
++
++$(obj)/strncmp.o: $(srctree)/arch/riscv/lib/strncmp.S FORCE
++	$(call if_changed_rule,as_o_S)
++
+ $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
+ 
+@@ -77,6 +87,9 @@ CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+ AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
+ AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
+ AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_strcmp.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_strlen.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_strncmp.o		+= -Wa,-gdwarf-2
+ 
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
 -- 
 2.39.2
 
