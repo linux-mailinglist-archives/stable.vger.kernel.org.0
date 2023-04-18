@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 668F06E61C0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608BF6E63B6
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231317AbjDRM1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:27:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
+        id S231974AbjDRMmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:42:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231370AbjDRM1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:30 -0400
+        with ESMTP id S231929AbjDRMmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA43BB471
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E172BEC
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 652056313E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B53EC433D2;
-        Tue, 18 Apr 2023 12:26:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66BA763344
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E07BC433D2;
+        Tue, 18 Apr 2023 12:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820767;
-        bh=2T6rur25NKfmzE0lC8yrOcG5RkbSoPXJT7NLRZ6HSb4=;
+        s=korg; t=1681821748;
+        bh=AeAHrRlUGznp4R+iBgS5Igm05960uEjb2T0RJ8IGYUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Okys5XacU59hl+hltqBqhlYCeUNVlcfkwaId0ihuvwDhxxOfpkvXlvfKLy9DhtO3G
-         aZ4obugekojSFD7tSv+D07I647ToHZsxvlfwDMrIe7gvNj3qhJ5+KjP+P9vzPfzKsq
-         zAnhoWDeioK2VqvXo0WmrhhnNj2cwJnWoSBTYnN4=
+        b=1lrY4dTPdYA1+5FlqNGSmvVYpPo3BzKq+ELDk0rwiKSRaedHOdb9m30ql25/K2puX
+         Ex4KcTGWxu8uu8pOnMWuwjq6xg1DjHSQR7Dc18Sipiq5DO/qZSs9xBaOstvIM2L7rG
+         K4ks6PGUD8L61Nar7G+ab8pXAJb8PLFAN4i+5xm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeremy Soller <jeremy@system76.com>,
-        Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 23/57] ALSA: hda/realtek: Add quirk for Clevo X370SNW
+        patches@lists.linux.dev,
+        Ville Syrjala <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.1 027/134] drm/i915/dsi: fix DSS CTL register offsets for TGL+
 Date:   Tue, 18 Apr 2023 14:21:23 +0200
-Message-Id: <20230418120259.552890903@linuxfoundation.org>
+Message-Id: <20230418120313.952021160@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
-References: <20230418120258.713853188@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Soller <jeremy@system76.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit 36d4d213c6d4fffae2645a601e8ae996de4c3645 upstream.
+commit 6b8446859c971a5783a2cdc90adf32e64de3bd23 upstream.
 
-Fixes speaker output and headset detection on Clevo X370SNW.
+On TGL+ the DSS control registers are at different offsets, and there's
+one per pipe. Fix the offsets to fix dual link DSI for TGL+.
 
-Signed-off-by: Jeremy Soller <jeremy@system76.com>
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230331162317.14992-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+There would be helpers for this in the DSC code, but just do the quick
+fix now for DSI. Long term, we should probably move all the DSS handling
+into intel_vdsc.c, so exporting the helpers seems counter-productive.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8232
+Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230301151409.1581574-1-jani.nikula@intel.com
+(cherry picked from commit 1a62dd9895dca78bee28bba3a36f08836fdd143d)
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/display/icl_dsi.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2556,6 +2556,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1462, 0xda57, "MSI Z270-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK_VENDOR(0x1462, "MSI", ALC882_FIXUP_GPIO3),
- 	SND_PCI_QUIRK(0x147b, 0x107a, "Abit AW9D-MAX", ALC882_FIXUP_ABIT_AW9D_MAX),
-+	SND_PCI_QUIRK(0x1558, 0x3702, "Clevo X370SN[VW]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x50d3, "Clevo PC50[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -299,9 +299,21 @@ static void configure_dual_link_mode(str
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+ 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
++	i915_reg_t dss_ctl1_reg, dss_ctl2_reg;
+ 	u32 dss_ctl1;
+ 
+-	dss_ctl1 = intel_de_read(dev_priv, DSS_CTL1);
++	/* FIXME: Move all DSS handling to intel_vdsc.c */
++	if (DISPLAY_VER(dev_priv) >= 12) {
++		struct intel_crtc *crtc = to_intel_crtc(pipe_config->uapi.crtc);
++
++		dss_ctl1_reg = ICL_PIPE_DSS_CTL1(crtc->pipe);
++		dss_ctl2_reg = ICL_PIPE_DSS_CTL2(crtc->pipe);
++	} else {
++		dss_ctl1_reg = DSS_CTL1;
++		dss_ctl2_reg = DSS_CTL2;
++	}
++
++	dss_ctl1 = intel_de_read(dev_priv, dss_ctl1_reg);
+ 	dss_ctl1 |= SPLITTER_ENABLE;
+ 	dss_ctl1 &= ~OVERLAP_PIXELS_MASK;
+ 	dss_ctl1 |= OVERLAP_PIXELS(intel_dsi->pixel_overlap);
+@@ -322,16 +334,16 @@ static void configure_dual_link_mode(str
+ 
+ 		dss_ctl1 &= ~LEFT_DL_BUF_TARGET_DEPTH_MASK;
+ 		dss_ctl1 |= LEFT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
+-		dss_ctl2 = intel_de_read(dev_priv, DSS_CTL2);
++		dss_ctl2 = intel_de_read(dev_priv, dss_ctl2_reg);
+ 		dss_ctl2 &= ~RIGHT_DL_BUF_TARGET_DEPTH_MASK;
+ 		dss_ctl2 |= RIGHT_DL_BUF_TARGET_DEPTH(dl_buffer_depth);
+-		intel_de_write(dev_priv, DSS_CTL2, dss_ctl2);
++		intel_de_write(dev_priv, dss_ctl2_reg, dss_ctl2);
+ 	} else {
+ 		/* Interleave */
+ 		dss_ctl1 |= DUAL_LINK_MODE_INTERLEAVE;
+ 	}
+ 
+-	intel_de_write(dev_priv, DSS_CTL1, dss_ctl1);
++	intel_de_write(dev_priv, dss_ctl1_reg, dss_ctl1);
+ }
+ 
+ /* aka DSI 8X clock */
 
 
