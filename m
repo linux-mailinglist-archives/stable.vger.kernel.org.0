@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 429936E6194
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 992836E62D9
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbjDRMZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:25:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34734 "EHLO
+        id S231341AbjDRMf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231400AbjDRMZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:25:53 -0400
+        with ESMTP id S231710AbjDRMf4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65EB183E1
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:25:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114A51CF90
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4574363147
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:25:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59188C4339B;
-        Tue, 18 Apr 2023 12:25:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B3C26327D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC43C433EF;
+        Tue, 18 Apr 2023 12:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681820725;
-        bh=qYSl8r7/TM4iH+WEQqVwTH4PG7tpqvsm8isoGbxETPA=;
+        s=korg; t=1681821353;
+        bh=/0x4qIytua3tTDDEdLRx58OawLCMWWX5LblGQcA77MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZd7k8a6z0qwXstg1KtJlHa4a+PpJM32u7QDKnTOSqg5rf6FAhsETSFuv+BIj6KZo
-         9foeS0ro8WSikVZkzGLc3jqjXPKa2lZ3zd4g7/bxi+nlbjr2uuloMDBEsah5GRCOWj
-         Jz0NiVG2qpYhc/K8SdTsWo4cXnxaBeD37wSnBBEg=
+        b=0//CEZg6o1B2SVnGTN/9q9eSppLpzl8LmJqymDAGegbB443wUlsY4kr6fpIj3d8v+
+         7GoODen+gFw0HYLssDoAGyKEQCIB97VN9ZFJJgRCBHw+4oR5VeYDaPqh3MPxnsXd0f
+         Zs0KB0lQJ6AA92d36IXGonImawg3QTlrF8h03O4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dhruva Gole <d-gole@ti.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/37] gpio: davinci: Add irq chip flag to skip set wake
+        patches@lists.linux.dev,
+        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 056/124] ALSA: i2c/cs8427: fix iec958 mixer control deactivation
 Date:   Tue, 18 Apr 2023 14:21:15 +0200
-Message-Id: <20230418120254.865719180@linuxfoundation.org>
+Message-Id: <20230418120311.870503040@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-References: <20230418120254.687480980@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dhruva Gole <d-gole@ti.com>
+From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 
-[ Upstream commit 7b75c4703609a3ebaf67271813521bc0281e1ec1 ]
+commit e98e7a82bca2b6dce3e03719cff800ec913f9af7 upstream.
 
-Add the IRQCHIP_SKIP_SET_WAKE flag since there are no special IRQ Wake
-bits that can be set to enable wakeup IRQ.
+snd_cs8427_iec958_active() would always delete
+SNDRV_CTL_ELEM_ACCESS_INACTIVE, even though the function has an
+argument `active`.
 
-Fixes: 3d9edf09d452 ("[ARM] 4457/2: davinci: GPIO support")
-Signed-off-by: Dhruva Gole <d-gole@ti.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230405201219.2197811-1-oswald.buddenhagen@gmx.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-davinci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/i2c/cs8427.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-davinci.c b/drivers/gpio/gpio-davinci.c
-index e4b3d7db68c95..958c06ab9ade4 100644
---- a/drivers/gpio/gpio-davinci.c
-+++ b/drivers/gpio/gpio-davinci.c
-@@ -301,7 +301,7 @@ static struct irq_chip gpio_irqchip = {
- 	.irq_enable	= gpio_irq_enable,
- 	.irq_disable	= gpio_irq_disable,
- 	.irq_set_type	= gpio_irq_type,
--	.flags		= IRQCHIP_SET_TYPE_MASKED,
-+	.flags		= IRQCHIP_SET_TYPE_MASKED | IRQCHIP_SKIP_SET_WAKE,
- };
- 
- static void gpio_irq_handler(struct irq_desc *desc)
--- 
-2.39.2
-
+--- a/sound/i2c/cs8427.c
++++ b/sound/i2c/cs8427.c
+@@ -553,10 +553,13 @@ int snd_cs8427_iec958_active(struct snd_
+ 	if (snd_BUG_ON(!cs8427))
+ 		return -ENXIO;
+ 	chip = cs8427->private_data;
+-	if (active)
++	if (active) {
+ 		memcpy(chip->playback.pcm_status,
+ 		       chip->playback.def_status, 24);
+-	chip->playback.pcm_ctl->vd[0].access &= ~SNDRV_CTL_ELEM_ACCESS_INACTIVE;
++		chip->playback.pcm_ctl->vd[0].access &= ~SNDRV_CTL_ELEM_ACCESS_INACTIVE;
++	} else {
++		chip->playback.pcm_ctl->vd[0].access |= SNDRV_CTL_ELEM_ACCESS_INACTIVE;
++	}
+ 	snd_ctl_notify(cs8427->bus->card,
+ 		       SNDRV_CTL_EVENT_MASK_VALUE | SNDRV_CTL_EVENT_MASK_INFO,
+ 		       &chip->playback.pcm_ctl->id);
 
 
