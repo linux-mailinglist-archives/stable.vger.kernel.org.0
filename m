@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBBB26E6467
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE06C6E614E
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbjDRMs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:48:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40092 "EHLO
+        id S230139AbjDRMYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:24:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232110AbjDRMsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:45 -0400
+        with ESMTP id S230428AbjDRMYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:24:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCD11544C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7574B7ED1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:24:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB13E6326B
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FA8C4339B;
-        Tue, 18 Apr 2023 12:48:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ABE463121
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:24:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8134DC4339E;
+        Tue, 18 Apr 2023 12:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822114;
-        bh=76JEB8B+ffeW5lKj1shZ3Oh+S8yHioOzXCNOOvpndbE=;
+        s=korg; t=1681820661;
+        bh=sNNywKqsvfwkYYENnh9EVh9j/8u6Qie2S8/fLBu2cGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1Szes4cp8is8XQEE9+Lzyl8cuED5kG2VRT7VyIJbXzBmdJdbhh+CRwxx23N4OvtQ
-         ypIrMmDMxtnGWU14NbAn8AZIjblDvmuEhxv3ZeFuHk5kPv9HL/0y5xQqlYQ6O19sCT
-         APbODTxi0HLWv//aOC2kWxC6n5qu8g1xK7CDCoo4=
+        b=SYJZfXGwoIpWRWx5nEgS/3SgWVu82MpnOAYr9QGVWGG3WuaJXnY+dvWBoHip/K85y
+         Q0sclxfAMD09v3MS0LpSPnBjdzMHBQHfa0tjUQLhevUpmB/zOBwOpzadpgTjTwGTLD
+         kT7ReCNcvHv4hPCI6pgUAlRDS7KVwzu17ooodclA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Vetter <daniel.vetter@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Helge Deller <deller@gmx.de>, Xingyuan Mo <hdthky0@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 6.2 027/139] fbcon: set_con2fb_map needs to set con2fb_map!
+        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 4.14 22/37] Bluetooth: Fix race condition in hidp_session_thread
 Date:   Tue, 18 Apr 2023 14:21:32 +0200
-Message-Id: <20230418120314.669748026@linuxfoundation.org>
+Message-Id: <20230418120255.440381399@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
+References: <20230418120254.687480980@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Min Li <lm0963hack@gmail.com>
 
-commit fffb0b52d5258554c645c966c6cbef7de50b851d upstream.
+commit c95930abd687fcd1aa040dc4fe90dff947916460 upstream.
 
-I got really badly confused in d443d9386472 ("fbcon: move more common
-code into fb_open()") because we set the con2fb_map before the failure
-points, which didn't look good.
+There is a potential race condition in hidp_session_thread that may
+lead to use-after-free. For instance, the timer is active while
+hidp_del_timer is called in hidp_session_thread(). After hidp_session_put,
+then 'session' will be freed, causing kernel panic when hidp_idle_timeout
+is running.
 
-But in trying to fix that I moved the assignment into the wrong path -
-we need to do it for _all_ vc we take over, not just the first one
-(which additionally requires the call to con2fb_acquire_newinfo).
+The solution is to use del_timer_sync instead of del_timer.
 
-I've figured this out because of a KASAN bug report, where the
-fbcon_registered_fb and fbcon_display arrays went out of sync in
-fbcon_mode_deleted() because the con2fb_map pointed at the old
-fb_info, but the modes and everything was updated for the new one.
+Here is the call trace:
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Helge Deller <deller@gmx.de>
-Tested-by: Xingyuan Mo <hdthky0@gmail.com>
-Fixes: d443d9386472 ("fbcon: move more common code into fb_open()")
-Reported-by: Xingyuan Mo <hdthky0@gmail.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Xingyuan Mo <hdthky0@gmail.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.19+
+? hidp_session_probe+0x780/0x780
+call_timer_fn+0x2d/0x1e0
+__run_timers.part.0+0x569/0x940
+hidp_session_probe+0x780/0x780
+call_timer_fn+0x1e0/0x1e0
+ktime_get+0x5c/0xf0
+lapic_next_deadline+0x2c/0x40
+clockevents_program_event+0x205/0x320
+run_timer_softirq+0xa9/0x1b0
+__do_softirq+0x1b9/0x641
+__irq_exit_rcu+0xdc/0x190
+irq_exit_rcu+0xe/0x20
+sysvec_apic_timer_interrupt+0xa1/0xc0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Min Li <lm0963hack@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/hidp/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -846,10 +846,11 @@ static int set_con2fb_map(int unit, int
- 		if (err)
- 			return err;
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -428,7 +428,7 @@ static void hidp_set_timer(struct hidp_s
+ static void hidp_del_timer(struct hidp_session *session)
+ {
+ 	if (session->idle_to > 0)
+-		del_timer(&session->timer);
++		del_timer_sync(&session->timer);
+ }
  
--		con2fb_map[unit] = newidx;
- 		fbcon_add_cursor_work(info);
- 	}
- 
-+	con2fb_map[unit] = newidx;
-+
- 	/*
- 	 * If old fb is not mapped to any of the consoles,
- 	 * fbcon should release it.
+ static void hidp_process_report(struct hidp_session *session, int type,
 
 
