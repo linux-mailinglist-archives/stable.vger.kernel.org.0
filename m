@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB086E629E
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B8FE6E63A3
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230479AbjDRMeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47634 "EHLO
+        id S231889AbjDRMmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:42:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231690AbjDRMdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:55 -0400
+        with ESMTP id S231886AbjDRMmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45ABB10273
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6B9146DE
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 922D162EF8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC7A2C433D2;
-        Tue, 18 Apr 2023 12:33:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3036B63321
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BF0C433EF;
+        Tue, 18 Apr 2023 12:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821225;
-        bh=FuiqKjpWXyC67+hoP/2yhwlMpiu9wP6ougeSfop/jco=;
+        s=korg; t=1681821719;
+        bh=+u1662A/TS/jEK57TZTkhaiBLkAVM7lwAXCYbZamQng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRgu1o8PoLI+QZPeOKvZo9kjBEVrXZs9QL9w26zLTq1Frqo4u9/Ns3wFhrGyw801E
-         a6DR8yHrgdVJpdRGnGrAlAXttJR1wvCtSkz3G6idXxZVI089Klsh6eHOxLe7VBwH9G
-         uQJWGYa6I6vPnVe7a2+s4BOUOQiuSLeeDYnXw6ds=
+        b=cW7mS02gedmQI8XIO8pj91SDw8GXVTjJvyiSZuyuBaer2luoW8Y5F/e/e8zS+JAIs
+         EsGOUuHJKzJNZy0FSw5du/YNXCwHMLcBuVkYq8s6A6LOz/NPNA/9Q+AkwxrJcDlG0T
+         BNSWJZYbMbuJkzcSLLGU3rDan6MM1U4Zd+6GbzJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.10 045/124] drm/nouveau/disp: Support more modes by checking with lower bpc
+        patches@lists.linux.dev, Xu Biang <xubiang@hust.edu.cn>,
+        Dan Carpenter <error27@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.1 008/134] ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
 Date:   Tue, 18 Apr 2023 14:21:04 +0200
-Message-Id: <20230418120311.465243036@linuxfoundation.org>
+Message-Id: <20230418120313.303918078@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
+References: <20230418120313.001025904@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Xu Biang <xubiang@hust.edu.cn>
 
-commit 7f67aa097e875c87fba024e850cf405342300059 upstream.
+commit fb4a624f88f658c7b7ae124452bd42eaa8ac7168 upstream.
 
-This allows us to advertise more modes especially on HDR displays.
+Smatch Warns:
+sound/firewire/tascam/tascam-stream.c:493 snd_tscm_stream_start_duplex()
+warn: missing unwind goto?
 
-Fixes using 4K@60 modes on my TV and main display both using a HDMI to DP
-adapter. Also fixes similar issues for users running into this.
+The direct return will cause the stream list of "&tscm->domain" unemptied
+and the session in "tscm" unfinished if amdtp_domain_start() returns with
+an error.
 
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230330223938.4025569-1-kherbst@redhat.com
+Fix this by changing the direct return to a goto which will empty the
+stream list of "&tscm->domain" and finish the session in "tscm".
+
+The snd_tscm_stream_start_duplex() function is called in the prepare
+callback of PCM. According to "ALSA Kernel API Documentation", the prepare
+callback of PCM will be called many times at each setup. So, if the
+"&d->streams" list is not emptied, when the prepare callback is called
+next time, snd_tscm_stream_start_duplex() will receive -EBUSY from
+amdtp_domain_add_stream() that tries to add an existing stream to the
+domain. The error handling code after the "error" label will be executed
+in this case, and the "&d->streams" list will be emptied. So not emptying
+the "&d->streams" list will not cause an issue. But it is more efficient
+and readable to empty it on the first error by changing the direct return
+to a goto statement.
+
+The session in "tscm" has been begun before amdtp_domain_start(), so it
+needs to be finished when amdtp_domain_start() fails.
+
+Fixes: c281d46a51e3 ("ALSA: firewire-tascam: support AMDTP domain")
+Signed-off-by: Xu Biang <xubiang@hust.edu.cn>
+Reviewed-by: Dan Carpenter <error27@gmail.com>
+Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230406132801.105108-1-xubiang@hust.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c |   32 ++++++++++++++++++++++++++++++++
- drivers/gpu/drm/nouveau/nouveau_dp.c    |    8 +++++---
- 2 files changed, 37 insertions(+), 3 deletions(-)
+ sound/firewire/tascam/tascam-stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -396,6 +396,35 @@ nv50_outp_atomic_check_view(struct drm_e
- 	return 0;
- }
+--- a/sound/firewire/tascam/tascam-stream.c
++++ b/sound/firewire/tascam/tascam-stream.c
+@@ -490,7 +490,7 @@ int snd_tscm_stream_start_duplex(struct
+ 		// packet is important for media clock recovery.
+ 		err = amdtp_domain_start(&tscm->domain, tx_init_skip_cycles, true, true);
+ 		if (err < 0)
+-			return err;
++			goto error;
  
-+static void
-+nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *crtc_state)
-+{
-+	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
-+	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
-+	struct drm_display_mode *mode = &asyh->state.adjusted_mode;
-+	unsigned int max_rate, mode_rate;
-+
-+	switch (nv_encoder->dcb->type) {
-+	case DCB_OUTPUT_DP:
-+		max_rate = nv_encoder->dp.link_nr * nv_encoder->dp.link_bw;
-+
-+		/* we don't support more than 10 anyway */
-+		asyh->or.bpc = min_t(u8, asyh->or.bpc, 10);
-+
-+		/* reduce the bpc until it works out */
-+		while (asyh->or.bpc > 6) {
-+			mode_rate = DIV_ROUND_UP(mode->clock * asyh->or.bpc * 3, 8);
-+			if (mode_rate <= max_rate)
-+				break;
-+
-+			asyh->or.bpc -= 2;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
- static int
- nv50_outp_atomic_check(struct drm_encoder *encoder,
- 		       struct drm_crtc_state *crtc_state,
-@@ -414,6 +443,9 @@ nv50_outp_atomic_check(struct drm_encode
- 	if (crtc_state->mode_changed || crtc_state->connectors_changed)
- 		asyh->or.bpc = connector->display_info.bpc;
- 
-+	/* We might have to reduce the bpc */
-+	nv50_outp_atomic_fix_depth(encoder, crtc_state);
-+
- 	return 0;
- }
- 
---- a/drivers/gpu/drm/nouveau/nouveau_dp.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_dp.c
-@@ -220,8 +220,6 @@ void nouveau_dp_irq(struct nouveau_drm *
- }
- 
- /* TODO:
-- * - Use the minimum possible BPC here, once we add support for the max bpc
-- *   property.
-  * - Validate against the DP caps advertised by the GPU (we don't check these
-  *   yet)
-  */
-@@ -233,7 +231,11 @@ nv50_dp_mode_valid(struct drm_connector
- {
- 	const unsigned int min_clock = 25000;
- 	unsigned int max_rate, mode_rate, ds_max_dotclock, clock = mode->clock;
--	const u8 bpp = connector->display_info.bpc * 3;
-+	/* Check with the minmum bpc always, so we can advertise better modes.
-+	 * In particlar not doing this causes modes to be dropped on HDR
-+	 * displays as we might check with a bpc of 16 even.
-+	 */
-+	const u8 bpp = 6 * 3;
- 
- 	if (mode->flags & DRM_MODE_FLAG_INTERLACE && !outp->caps.dp_interlace)
- 		return MODE_NO_INTERLACE;
+ 		if (!amdtp_domain_wait_ready(&tscm->domain, READY_TIMEOUT_MS)) {
+ 			err = -ETIMEDOUT;
 
 
