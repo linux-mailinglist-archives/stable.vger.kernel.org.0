@@ -2,69 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E930D6E6342
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:39:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B3B6E62B5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231804AbjDRMjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:39:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
+        id S231686AbjDRMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231797AbjDRMjJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:39:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D7613867;
-        Tue, 18 Apr 2023 05:39:07 -0700 (PDT)
+        with ESMTP id S231664AbjDRMen (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5862C16C
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:34:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55543632E0;
-        Tue, 18 Apr 2023 12:39:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 455AAC433EF;
-        Tue, 18 Apr 2023 12:39:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86AB563243
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0EDC433EF;
+        Tue, 18 Apr 2023 12:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821546;
-        bh=2f+Am8ClJm0HmIKTaCxmCtNekRMLmg1AX1y+BDsZZXc=;
+        s=korg; t=1681821275;
+        bh=82ymGgi/XRf4oKO2pBGyU9x/WaPULgbyCe9Jc1nUUhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LevL8V9KBkSUaB1hOVW58W0wvMCj5h71ebdB9dHj3wH6XqZB3KWBc4AM88ceZGPOW
-         FgIVwIbGrQ6WrIREjEEYOQshFykJIbXby0sNwdX/5KVYN+RwkV/JB+93fwnclPLhd3
-         STnDURDx3B10apcbLt6i87sl4Jnpueoi3rSxMQiY=
+        b=wbGvzCM4o6bsyihKocqUh0WrNOwIxrgSfdeyup3J7UJJ+zTRkomXPbnp/61PEtdhu
+         Xl2XUSYWud/e6Ugx2rhB7psCFdRH6+N5etHEy3xFsrFnOIDwb7ZdxAjqQVuDwFWUzZ
+         ITv3DLqzlFo3TZtfL61yR+GBdQKUd8NfJx/TIt+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Alex Deucher <alexander.deucher@amd.com>, shlomo@fastmail.com,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Maxime Ripard <mripard@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Peter Rosin <peda@axentia.se>, linux-fbdev@vger.kernel.org,
-        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shigeru Yoshida <syoshida@redhat.com>
-Subject: [PATCH 5.15 12/91] fbmem: Reject FB_ACTIVATE_KD_TEXT from userspace
+        patches@lists.linux.dev, Xu Biang <xubiang@hust.edu.cn>,
+        Dan Carpenter <error27@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 057/124] ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
 Date:   Tue, 18 Apr 2023 14:21:16 +0200
-Message-Id: <20230418120305.975477545@linuxfoundation.org>
+Message-Id: <20230418120311.901068374@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
-References: <20230418120305.520719816@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -73,66 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Xu Biang <xubiang@hust.edu.cn>
 
-commit 6fd33a3333c7916689b8f051a185defe4dd515b0 upstream.
+commit fb4a624f88f658c7b7ae124452bd42eaa8ac7168 upstream.
 
-This is an oversight from dc5bdb68b5b3 ("drm/fb-helper: Fix vt
-restore") - I failed to realize that nasty userspace could set this.
+Smatch Warns:
+sound/firewire/tascam/tascam-stream.c:493 snd_tscm_stream_start_duplex()
+warn: missing unwind goto?
 
-It's not pretty to mix up kernel-internal and userspace uapi flags
-like this, but since the entire fb_var_screeninfo structure is uapi
-we'd need to either add a new parameter to the ->fb_set_par callback
-and fb_set_par() function, which has a _lot_ of users. Or some other
-fairly ugly side-channel int fb_info. Neither is a pretty prospect.
+The direct return will cause the stream list of "&tscm->domain" unemptied
+and the session in "tscm" unfinished if amdtp_domain_start() returns with
+an error.
 
-Instead just correct the issue at hand by filtering out this
-kernel-internal flag in the ioctl handling code.
+Fix this by changing the direct return to a goto which will empty the
+stream list of "&tscm->domain" and finish the session in "tscm".
 
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Fixes: dc5bdb68b5b3 ("drm/fb-helper: Fix vt restore")
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: shlomo@fastmail.com
-Cc: Michel Dänzer <michel@daenzer.net>
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.7+
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Qiujun Huang <hqjagain@gmail.com>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: linux-fbdev@vger.kernel.org
-Cc: Helge Deller <deller@gmx.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Shigeru Yoshida <syoshida@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230404193934.472457-1-daniel.vetter@ffwll.ch
+The snd_tscm_stream_start_duplex() function is called in the prepare
+callback of PCM. According to "ALSA Kernel API Documentation", the prepare
+callback of PCM will be called many times at each setup. So, if the
+"&d->streams" list is not emptied, when the prepare callback is called
+next time, snd_tscm_stream_start_duplex() will receive -EBUSY from
+amdtp_domain_add_stream() that tries to add an existing stream to the
+domain. The error handling code after the "error" label will be executed
+in this case, and the "&d->streams" list will be emptied. So not emptying
+the "&d->streams" list will not cause an issue. But it is more efficient
+and readable to empty it on the first error by changing the direct return
+to a goto statement.
+
+The session in "tscm" has been begun before amdtp_domain_start(), so it
+needs to be finished when amdtp_domain_start() fails.
+
+Fixes: c281d46a51e3 ("ALSA: firewire-tascam: support AMDTP domain")
+Signed-off-by: Xu Biang <xubiang@hust.edu.cn>
+Reviewed-by: Dan Carpenter <error27@gmail.com>
+Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230406132801.105108-1-xubiang@hust.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/firewire/tascam/tascam-stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1119,6 +1119,8 @@ static long do_fb_ioctl(struct fb_info *
- 	case FBIOPUT_VSCREENINFO:
- 		if (copy_from_user(&var, argp, sizeof(var)))
- 			return -EFAULT;
-+		/* only for kernel-internal use */
-+		var.activate &= ~FB_ACTIVATE_KD_TEXT;
- 		console_lock();
- 		lock_fb_info(info);
- 		ret = fbcon_modechange_possible(info, &var);
+--- a/sound/firewire/tascam/tascam-stream.c
++++ b/sound/firewire/tascam/tascam-stream.c
+@@ -475,7 +475,7 @@ int snd_tscm_stream_start_duplex(struct
+ 
+ 		err = amdtp_domain_start(&tscm->domain, 0);
+ 		if (err < 0)
+-			return err;
++			goto error;
+ 
+ 		if (!amdtp_stream_wait_callback(&tscm->rx_stream,
+ 						CALLBACK_TIMEOUT) ||
 
 
