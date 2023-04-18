@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 036AA6E62C5
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56BBE6E6469
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231652AbjDRMfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50014 "EHLO
+        id S232098AbjDRMtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:49:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231720AbjDRMfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496B8C16C
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:10 -0700 (PDT)
+        with ESMTP id S232097AbjDRMsx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C253C24
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD3886325E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2F3CC433D2;
-        Tue, 18 Apr 2023 12:35:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22066633E6
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3878FC4339C;
+        Tue, 18 Apr 2023 12:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821309;
-        bh=YCz5Z0ggB9GHbRITYlaXLp5w4MLs4qZj+Hw5EKgws3k=;
+        s=korg; t=1681822124;
+        bh=xtGEDVJm4OrHZzuvlFRTJ3y2iBEqnWKHjzoKnOyk48o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19uRYFtCL9BCE7eM0U7Qgh9FcTKZsp3ZsRplc1Ayp0OG7JX8Un0vXSWUbSoWjqzzI
-         vU3jhSQGT9S9UZKBIowf86ictAg8lF6Aqv3muoXpxQ6JK8djUOSVdFaXHqcgfC93JC
-         HdxPRNOMuu9T8k5GwIVwz8cxbfheW2Y1AmrYNCjQ=
+        b=WrJTFeA3Va2u2aY86cjqElRdfvdvtSbwIDRZrVs5lYUpoGlVLkqbHVydlGnyloAfv
+         n1xIzO97CQqRo4zHqKgCLBJkN8WyNWm9xqoNJ4SwUu0NBp/IoLskAjvUhRFdxGD6uT
+         iZLUhdmP6dOkkcA9wpCufbRlWMdDjfgJWYY00bEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 077/124] tcp: restrict net.ipv4.tcp_app_win
+Subject: [PATCH 6.2 031/139] RDMA/irdma: Do not generate SW completions for NOPs
 Date:   Tue, 18 Apr 2023 14:21:36 +0200
-Message-Id: <20230418120312.660137303@linuxfoundation.org>
+Message-Id: <20230418120314.809541111@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
+References: <20230418120313.725598495@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,72 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit dc5110c2d959c1707e12df5f792f41d90614adaa ]
+[ Upstream commit 30ed9ee9a10a90ae719dcfcacead1d0506fa45ed ]
 
-UBSAN: shift-out-of-bounds in net/ipv4/tcp_input.c:555:23
-shift exponent 255 is too large for 32-bit type 'int'
-CPU: 1 PID: 7907 Comm: ssh Not tainted 6.3.0-rc4-00161-g62bad54b26db-dirty #206
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x136/0x150
- __ubsan_handle_shift_out_of_bounds+0x21f/0x5a0
- tcp_init_transfer.cold+0x3a/0xb9
- tcp_finish_connect+0x1d0/0x620
- tcp_rcv_state_process+0xd78/0x4d60
- tcp_v4_do_rcv+0x33d/0x9d0
- __release_sock+0x133/0x3b0
- release_sock+0x58/0x1b0
+Currently, artificial SW completions are generated for NOP wqes which can
+generate unexpected completions with wr_id = 0. Skip the generation of
+artificial completions for NOPs.
 
-'maxwin' is int, shifting int for 32 or more bits is undefined behaviour.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 81091d7696ae ("RDMA/irdma: Add SW mechanism to generate completions on error")
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20230315145231.931-2-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.rst | 2 ++
- net/ipv4/sysctl_net_ipv4.c             | 3 +++
- 2 files changed, 5 insertions(+)
+ drivers/infiniband/hw/irdma/utils.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
-index 0158dff638873..df26cf4110ef5 100644
---- a/Documentation/networking/ip-sysctl.rst
-+++ b/Documentation/networking/ip-sysctl.rst
-@@ -272,6 +272,8 @@ tcp_app_win - INTEGER
- 	Reserve max(window/2^tcp_app_win, mss) of window for application
- 	buffer. Value 0 is special, it means that nothing is reserved.
- 
-+	Possible values are [0, 31], inclusive.
-+
- 	Default: 31
- 
- tcp_autocorking - BOOLEAN
-diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
-index 1a2506f795d4e..3a34e9768bff0 100644
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -37,6 +37,7 @@ static int ip_local_port_range_min[] = { 1, 1 };
- static int ip_local_port_range_max[] = { 65535, 65535 };
- static int tcp_adv_win_scale_min = -31;
- static int tcp_adv_win_scale_max = 31;
-+static int tcp_app_win_max = 31;
- static int tcp_min_snd_mss_min = TCP_MIN_SND_MSS;
- static int tcp_min_snd_mss_max = 65535;
- static int ip_privileged_port_min;
-@@ -1115,6 +1116,8 @@ static struct ctl_table ipv4_net_table[] = {
- 		.maxlen		= sizeof(u8),
- 		.mode		= 0644,
- 		.proc_handler	= proc_dou8vec_minmax,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= &tcp_app_win_max,
- 	},
- 	{
- 		.procname	= "tcp_adv_win_scale",
+diff --git a/drivers/infiniband/hw/irdma/utils.c b/drivers/infiniband/hw/irdma/utils.c
+index 445e69e864097..7887230c867b1 100644
+--- a/drivers/infiniband/hw/irdma/utils.c
++++ b/drivers/infiniband/hw/irdma/utils.c
+@@ -2595,7 +2595,10 @@ void irdma_generate_flush_completions(struct irdma_qp *iwqp)
+ 			/* remove the SQ WR by moving SQ tail*/
+ 			IRDMA_RING_SET_TAIL(*sq_ring,
+ 				sq_ring->tail + qp->sq_wrtrk_array[sq_ring->tail].quanta);
+-
++			if (cmpl->cpi.op_type == IRDMAQP_OP_NOP) {
++				kfree(cmpl);
++				continue;
++			}
+ 			ibdev_dbg(iwqp->iwscq->ibcq.device,
+ 				  "DEV: %s: adding wr_id = 0x%llx SQ Completion to list qp_id=%d\n",
+ 				  __func__, cmpl->cpi.wr_id, qp->qp_id);
 -- 
 2.39.2
 
