@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D323F6E6479
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D966E61CE
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232102AbjDRMta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:49:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41040 "EHLO
+        id S231190AbjDRM2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:28:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232126AbjDRMt0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:49:26 -0400
+        with ESMTP id S231153AbjDRM16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D8B13859
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:49:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B079764
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09675633EF
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1CFC433EF;
-        Tue, 18 Apr 2023 12:49:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6E1063199
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04BB6C433EF;
+        Tue, 18 Apr 2023 12:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822164;
-        bh=iu9wBuZ02aHx7fzvtDYgfYaQ2ZPGAD+kpBBVvDsJRyg=;
+        s=korg; t=1681820841;
+        bh=7P5FyF7dWbMmUfz1KqjjZ0wfuS6f2ex6qUAWYh8lfZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWY895KP6wmyQVgQj5HgSb9HvInTnWJhsRMGd8dPEbxLqU/OzFBB5vZht5+E4xWlP
-         qEEEw/aeou94efG6zyEGzhtp35LqGGlckzPJ38RN7HHKd4VGfONx9STqWo9IST0sif
-         kfj1B0awI6cwlRFa+24B/JwRN2TWmjJLEIQCsqhk=
+        b=hEF34BHbT/gBCuzdRIV68p3+LR/c3TieHfpxXhNUnSOPLADvFbuqb4lx+e59PT9HC
+         +gM1lQzBE7Ua65P18aCwC61oB5CitFbJIHV9ZA/pgjnteEsxKm43QHJ7gUkKeDItMV
+         sIAQyWtdapim+R71h7vAFamLHRVeVRherWi4Ha/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 047/139] 9p/xen : Fix use after free bug in xen_9pfs_front_remove due to race condition
+        patches@lists.linux.dev,
+        George Cherian <george.cherian@marvell.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
+Subject: [PATCH 4.19 52/57] watchdog: sbsa_wdog: Make sure the timeout programming is within the limits
 Date:   Tue, 18 Apr 2023 14:21:52 +0200
-Message-Id: <20230418120315.442278518@linuxfoundation.org>
+Message-Id: <20230418120300.563290267@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: George Cherian <george.cherian@marvell.com>
 
-[ Upstream commit ea4f1009408efb4989a0f139b70fb338e7f687d0 ]
+commit 000987a38b53c172f435142a4026dd71378ca464 upstream.
 
-In xen_9pfs_front_probe, it calls xen_9pfs_front_alloc_dataring
-to init priv->rings and bound &ring->work with p9_xen_response.
+Make sure to honour the max_hw_heartbeat_ms while programming the timeout
+value to WOR. Clamp the timeout passed to sbsa_gwdt_set_timeout() to
+make sure the programmed value is within the permissible range.
 
-When it calls xen_9pfs_front_event_handler to handle IRQ requests,
-it will finally call schedule_work to start the work.
+Fixes: abd3ac7902fb ("watchdog: sbsa: Support architecture version 1")
 
-When we call xen_9pfs_front_remove to remove the driver, there
-may be a sequence as follows:
-
-Fix it by finishing the work before cleanup in xen_9pfs_front_free.
-
-Note that, this bug is found by static analysis, which might be
-false positive.
-
-CPU0                  CPU1
-
-                     |p9_xen_response
-xen_9pfs_front_remove|
-  xen_9pfs_front_free|
-kfree(priv)          |
-//free priv          |
-                     |p9_tag_lookup
-                     |//use priv->client
-
-Fixes: 71ebd71921e4 ("xen/9pfs: connect to the backend")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20230209021117.1512097-1-george.cherian@marvell.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_xen.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/watchdog/sbsa_gwdt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index c64050e839ac6..1fffe2bed5b02 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -280,6 +280,10 @@ static void xen_9pfs_front_free(struct xen_9pfs_front_priv *priv)
- 	write_unlock(&xen_9pfs_lock);
+--- a/drivers/watchdog/sbsa_gwdt.c
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -130,6 +130,7 @@ static int sbsa_gwdt_set_timeout(struct
+ 	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
  
- 	for (i = 0; i < priv->num_rings; i++) {
-+		struct xen_9pfs_dataring *ring = &priv->rings[i];
-+
-+		cancel_work_sync(&ring->work);
-+
- 		if (!priv->rings[i].intf)
- 			break;
- 		if (priv->rings[i].irq > 0)
--- 
-2.39.2
-
+ 	wdd->timeout = timeout;
++	timeout = clamp_t(unsigned int, timeout, 1, wdd->max_hw_heartbeat_ms / 1000);
+ 
+ 	if (action)
+ 		writel(gwdt->clk * timeout,
 
 
