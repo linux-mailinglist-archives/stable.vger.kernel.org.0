@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 548DF6E62A0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FC9E6E6312
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbjDRMeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:34:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47752 "EHLO
+        id S231756AbjDRMhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:37:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231622AbjDRMeF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:34:05 -0400
+        with ESMTP id S230507AbjDRMhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108E51258A
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D856B13844
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C8863243
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA267C433D2;
-        Tue, 18 Apr 2023 12:33:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E2696251D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EC95C433EF;
+        Tue, 18 Apr 2023 12:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821230;
-        bh=P+cjmz3N+35EthWgw6QC8iShUlhJZUC8R3JOUodUkx4=;
+        s=korg; t=1681821458;
+        bh=kJYfukdJ863JzUgQwEqwOLn1+LPDE3QziNMDK1i2+rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfbsjWTbdbgjp946Sg9hvsHQ0ws2ONM1B8dHgWDz7ewDMBRtuqgNr3yJP9mF0zYqw
-         K3HJWwyqnWJrakphWnbAZbZZHQu/CkIfyiKx2f+9THwBmzL/EV4h1YcMKV+48qfYRq
-         giStFAmsAlypuBt6V56uZCWTGQzhgfwHkSUvENx0=
+        b=bWZRjbOaeayUednbXQYxDmuqijR4oCJRi6i7vivclo4caVIAlo2br8J8X//+MwwUa
+         8A0KGGe07606g796tdrDtH8iIATKUwDT1VgnhK9pjOvVb8fXof0hYnsYhDL5PIQXIv
+         rfT9FLyVLJi5EbARWjJ+PEI1vzskNm1MAfvHE1e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Yongchen Yin <wb-yyc939293@alibaba-inc.com>,
-        Rongwei Wang <rongwei.wang@linux.alibaba.com>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Aaron Lu <aaron.lu@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 047/124] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 02/91] ALSA: emu10k1: fix capture interrupt handler unlinking
 Date:   Tue, 18 Apr 2023 14:21:06 +0200
-Message-Id: <20230418120311.545951804@linuxfoundation.org>
+Message-Id: <20230418120305.608410299@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,119 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 
-commit 6fe7d6b992113719e96744d974212df3fcddc76c upstream.
+commit b09c551c77c7e01dc6e4f3c8bf06b5ffa7b06db5 upstream.
 
-The si->lock must be held when deleting the si from the available list.
-Otherwise, another thread can re-add the si to the available list, which
-can lead to memory corruption.  The only place we have found where this
-happens is in the swapoff path.  This case can be described as below:
+Due to two copy/pastos, closing the MIC or EFX capture device would
+make a running ADC capture hang due to unsetting its interrupt handler.
+In principle, this would have also allowed dereferencing dangling
+pointers, but we're actually rather thorough at disabling and flushing
+the ints.
 
-core 0                       core 1
-swapoff
+While it may sound like one, this actually wasn't a hypothetical bug:
+PortAudio will open a capture stream at startup (and close it right
+away) even if not asked to. If the first device is busy, it will just
+proceed with the next one ... thus killing a concurrent capture.
 
-del_from_avail_list(si)      waiting
-
-try lock si->lock            acquire swap_avail_lock
-                             and re-add si into
-                             swap_avail_head
-
-acquire si->lock but missing si already being added again, and continuing
-to clear SWP_WRITEOK, etc.
-
-It can be easily found that a massive warning messages can be triggered
-inside get_swap_pages() by some special cases, for example, we call
-madvise(MADV_PAGEOUT) on blocks of touched memory concurrently, meanwhile,
-run much swapon-swapoff operations (e.g.  stress-ng-swap).
-
-However, in the worst case, panic can be caused by the above scene.  In
-swapoff(), the memory used by si could be kept in swap_info[] after
-turning off a swap.  This means memory corruption will not be caused
-immediately until allocated and reset for a new swap in the swapon path.
-A panic message caused: (with CONFIG_PLIST_DEBUG enabled)
-
-------------[ cut here ]------------
-top: 00000000e58a3003, n: 0000000013e75cda, p: 000000008cd4451a
-prev: 0000000035b1e58a, n: 000000008cd4451a, p: 000000002150ee8d
-next: 000000008cd4451a, n: 000000008cd4451a, p: 000000008cd4451a
-WARNING: CPU: 21 PID: 1843 at lib/plist.c:60 plist_check_prev_next_node+0x50/0x70
-Modules linked in: rfkill(E) crct10dif_ce(E)...
-CPU: 21 PID: 1843 Comm: stress-ng Kdump: ... 5.10.134+
-Hardware name: Alibaba Cloud ECS, BIOS 0.0.0 02/06/2015
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-pc : plist_check_prev_next_node+0x50/0x70
-lr : plist_check_prev_next_node+0x50/0x70
-sp : ffff0018009d3c30
-x29: ffff0018009d3c40 x28: ffff800011b32a98
-x27: 0000000000000000 x26: ffff001803908000
-x25: ffff8000128ea088 x24: ffff800011b32a48
-x23: 0000000000000028 x22: ffff001800875c00
-x21: ffff800010f9e520 x20: ffff001800875c00
-x19: ffff001800fdc6e0 x18: 0000000000000030
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0736076307640766 x14: 0730073007380731
-x13: 0736076307640766 x12: 0730073007380731
-x11: 000000000004058d x10: 0000000085a85b76
-x9 : ffff8000101436e4 x8 : ffff800011c8ce08
-x7 : 0000000000000000 x6 : 0000000000000001
-x5 : ffff0017df9ed338 x4 : 0000000000000001
-x3 : ffff8017ce62a000 x2 : ffff0017df9ed340
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- plist_check_prev_next_node+0x50/0x70
- plist_check_head+0x80/0xf0
- plist_add+0x28/0x140
- add_to_avail_list+0x9c/0xf0
- _enable_swap_info+0x78/0xb4
- __do_sys_swapon+0x918/0xa10
- __arm64_sys_swapon+0x20/0x30
- el0_svc_common+0x8c/0x220
- do_el0_svc+0x2c/0x90
- el0_svc+0x1c/0x30
- el0_sync_handler+0xa8/0xb0
- el0_sync+0x148/0x180
-irq event stamp: 2082270
-
-Now, si->lock locked before calling 'del_from_avail_list()' to make sure
-other thread see the si had been deleted and SWP_WRITEOK cleared together,
-will not reinsert again.
-
-This problem exists in versions after stable 5.10.y.
-
-Link: https://lkml.kernel.org/r/20230404154716.23058-1-rongwei.wang@linux.alibaba.com
-Fixes: a2468cc9bfdff ("swap: choose swap device according to numa node")
-Tested-by: Yongchen Yin <wb-yyc939293@alibaba-inc.com>
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Cc: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aaron Lu <aaron.lu@intel.com>
+Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/20230405201220.2197923-1-oswald.buddenhagen@gmx.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/swapfile.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/emu10k1/emupcm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -666,6 +666,7 @@ static void __del_from_avail_list(struct
+--- a/sound/pci/emu10k1/emupcm.c
++++ b/sound/pci/emu10k1/emupcm.c
+@@ -1236,7 +1236,7 @@ static int snd_emu10k1_capture_mic_close
  {
- 	int nid;
+ 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
  
-+	assert_spin_locked(&p->lock);
- 	for_each_node(nid)
- 		plist_del(&p->avail_lists[nid], &swap_avail_heads[nid]);
+-	emu->capture_interrupt = NULL;
++	emu->capture_mic_interrupt = NULL;
+ 	emu->pcm_capture_mic_substream = NULL;
+ 	return 0;
  }
-@@ -2611,8 +2612,8 @@ SYSCALL_DEFINE1(swapoff, const char __us
- 		spin_unlock(&swap_lock);
- 		goto out_dput;
- 	}
--	del_from_avail_list(p);
- 	spin_lock(&p->lock);
-+	del_from_avail_list(p);
- 	if (p->prio < 0) {
- 		struct swap_info_struct *si = p;
- 		int nid;
+@@ -1344,7 +1344,7 @@ static int snd_emu10k1_capture_efx_close
+ {
+ 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
+ 
+-	emu->capture_interrupt = NULL;
++	emu->capture_efx_interrupt = NULL;
+ 	emu->pcm_capture_efx_substream = NULL;
+ 	return 0;
+ }
 
 
