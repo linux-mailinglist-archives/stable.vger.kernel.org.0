@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92FCA6E66BC
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281886E66BD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 16:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231578AbjDROKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 10:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
+        id S231167AbjDROKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 10:10:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231514AbjDROKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:10:05 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CD883FE
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:10:04 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id he13so20606831wmb.2
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:10:04 -0700 (PDT)
+        with ESMTP id S230211AbjDROKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 10:10:07 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FC019EC7
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:10:05 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id o6-20020a05600c4fc600b003ef6e6754c5so13617877wmq.5
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 07:10:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20221208.gappssmtp.com; s=20221208; t=1681827002; x=1684419002;
+        d=layalina-io.20221208.gappssmtp.com; s=20221208; t=1681827004; x=1684419004;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ekao1vbWkoixOB74kYWyyN/3c+WurDIPKF0+QTmzG6o=;
-        b=uwi8x/LTOdm04UJk1BYANyv8qTb+RtEjp+ckuUpbNebBmOKO0PboRWkhpedYp80rQT
-         mKa3OT6UvE/cj/rD21Jr045ScpS/3C2+OftBkMTHKnsL5Ch/u70jyFhKgh26oIIAEtun
-         I8a+GzB4bNajXHgPQWCbhIon6YVBcbfqTzXL6Y10AYiG+KYFTKPs34rR5HmQ7LxQo4Yd
-         gZ6Yrm8TrBe/M+86Rmv3MYDqCZX7DYJQpMeM9YmbPit6epdRM0AeMUJR+tWiCl64syJ/
-         vJnYhx2t0yaVYF0TeMAW9zcUJ+bQlGjfj+/dPia3k49k2jqqsEsxq0oWja4fGlB6i7uH
-         VRhg==
+        bh=17j4Exk2Jb84C17Wpej1k19ljyW0hLgDgfMeqdB5duQ=;
+        b=wAi4VWS7MTleU9aD7dyttSZfEJJsXQKX/SESqLwytk0i+c7ct3LycRSriWR+cih0ej
+         rudjT8PPtIfjwp9mLMg2VYho4Tce98RIbKlmREsPSw7xEIyNWtbP0eCV5ihz1uROG3H2
+         +M03HOAdHukkUOk21XNEN79i1GqmdLVv5Z4aGGHFpQIgr/J49GBnGOR2azwOKRxYW7mt
+         bjXG91lAIlN3VWulUDx0UIfLQafZINMZBKnVjWPPlrFzjeKvOMdmt59UD3tK8QT6Ur3w
+         AYcNKnguRHlX9L4DMdSKROIZofqkJXCovJuKWZ1TixwUpkAwn+dz4YK2F7K7cs6OoteA
+         +eSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681827002; x=1684419002;
+        d=1e100.net; s=20221208; t=1681827004; x=1684419004;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ekao1vbWkoixOB74kYWyyN/3c+WurDIPKF0+QTmzG6o=;
-        b=WJNVS3LZMpNX+e7HU2mOVNLOzjyb0lsKFFWRfzwc2+FktbwPa/NArhaApMkcXfysU+
-         clKWfiDVkTwVe6TQ/lc6Bf+9OsOWkhJm2nqXGzdGyyx8ufKmuDmMGpYE2HKGka5+Y4/L
-         pQoVQkzAav2xG+gcegu+iHtw23v6MHGdVyVVBGa3xzvHXegKCR+huzSispBvzKdYORGD
-         lmjaJV8aidgzxWLD9SfRojkbLFemZVvKz/I8VuSNS2f80EexaVPxFK7QK/oztl8HrEOT
-         eDKxC3f8Qg5yMduteME6XuNbtzjL/0d+igI9NFxYa1yXWiwC5H0I44kc+nbkPZNtBHx5
-         l3iw==
-X-Gm-Message-State: AAQBX9f95io/g0KlIVfbpqQg/aSb3eCPg9ebyTLB9eoCBLFi9iXcpI+q
-        qC+uaV2tjFzMgCWOOCfTfExSvxZy3fr9OU/C/bY=
-X-Google-Smtp-Source: AKy350YM/PfJsT8wpgCtZQayviNbIpCoW6EkYegxWSWdL/m2jZb1XAflWj8NQv6H71+kXOSIN58aCQ==
-X-Received: by 2002:a7b:c848:0:b0:3f1:7343:8b49 with SMTP id c8-20020a7bc848000000b003f173438b49mr5329637wml.3.1681827002546;
-        Tue, 18 Apr 2023 07:10:02 -0700 (PDT)
+        bh=17j4Exk2Jb84C17Wpej1k19ljyW0hLgDgfMeqdB5duQ=;
+        b=U2TWNkOhrwWKI+s9V3aZGL/u/8wJlK6Tu+rz7I6z3UvvTlCShqKc46hgA1YvmNwfUb
+         miX+Bfsb3GAnGe3qkAHDWlNodPtmIpbt7GTf0RAZvkdHZ0L6VSdgUlNAuKJ2cGog183R
+         hMOPTRrN1DBjmOfxV/zsjIeepvU0Xdq9nYv5mC+4V0RMZ/muyl9wnJ4NrnjlwEMtkTk7
+         dZwOgMDE2jTMKD8+2K6XS5dkKO2Bbw77XmL/mTCaQgmjutAFcg1UgKBKQEXZpvK5kJP7
+         SWeyhwNpQssvRbSUBqCvbcRbmr0ehzdnXqIpr6uyLczFPmuPr7uRBcZN33anvQkT4JQN
+         rZtQ==
+X-Gm-Message-State: AAQBX9eSjmCHHlxyFY3QkjQAQVTlo5ESV7q5BN4VaiES5uEFHlVMRVFN
+        GbkWUwENN4PP0kbXU27JuT9nHAhSY7Dbjw8xRVA=
+X-Google-Smtp-Source: AKy350YjU2xIKK11AQpgtRo2hPufhOIDA4fK5ZopxBaWDSpdv2FSV2u3U4E2nXSALpizqtBVCEWCkg==
+X-Received: by 2002:a05:600c:3646:b0:3ed:bc83:3745 with SMTP id y6-20020a05600c364600b003edbc833745mr13406812wmq.25.1681827004203;
+        Tue, 18 Apr 2023 07:10:04 -0700 (PDT)
 Received: from airbuntu.lon.corp.google.com ([104.132.45.106])
-        by smtp.gmail.com with ESMTPSA id n16-20020a05600c4f9000b003f1712b1402sm7978018wmq.30.2023.04.18.07.10.02
+        by smtp.gmail.com with ESMTPSA id n16-20020a05600c4f9000b003f1712b1402sm7978018wmq.30.2023.04.18.07.10.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 07:10:02 -0700 (PDT)
+        Tue, 18 Apr 2023 07:10:03 -0700 (PDT)
 From:   Qais Yousef <qyousef@layalina.io>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -56,9 +56,9 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Qais Yousef <qais.yousef@arm.com>
-Subject: [PATCH v2 RESEND 03/10] sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
-Date:   Tue, 18 Apr 2023 15:09:36 +0100
-Message-Id: <20230418140943.90621-4-qyousef@layalina.io>
+Subject: [PATCH v2 RESEND 04/10] sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()
+Date:   Tue, 18 Apr 2023 15:09:37 +0100
+Message-Id: <20230418140943.90621-5-qyousef@layalina.io>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230418140943.90621-1-qyousef@layalina.io>
 References: <20230418140943.90621-1-qyousef@layalina.io>
@@ -75,54 +75,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-commit b759caa1d9f667b94727b2ad12589cbc4ce13a82 upstream.
+commit a2e7f03ed28fce26c78b985f87913b6ce3accf9d upstream.
 
 Use the new util_fits_cpu() to ensure migration margin and capacity
 pressure are taken into account correctly when uclamp is being used
 otherwise we will fail to consider CPUs as fitting in scenarios where
 they should.
 
+s/asym_fits_capacity/asym_fits_cpu/ to better reflect what it does now.
+
 Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-5-qais.yousef@arm.com
-(cherry picked from commit b759caa1d9f667b94727b2ad12589cbc4ce13a82)
+Link: https://lore.kernel.org/r/20220804143609.515789-6-qais.yousef@arm.com
+(cherry picked from commit a2e7f03ed28fce26c78b985f87913b6ce3accf9d)
+[Conflict in kernel/sched/fair.c due different name of static key
+wrapper function and slightly different if condition block in one of the
+asym_fits_cpu() call sites]
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 ---
- kernel/sched/fair.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ kernel/sched/fair.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 642869018e42..efbd1cdce508 100644
+index efbd1cdce508..b03633bc994f 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -6347,21 +6347,23 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
- static int
- select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
+@@ -6375,10 +6375,13 @@ select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
+ 	return best_cpu;
+ }
+ 
+-static inline bool asym_fits_capacity(unsigned long task_util, int cpu)
++static inline bool asym_fits_cpu(unsigned long util,
++				 unsigned long util_min,
++				 unsigned long util_max,
++				 int cpu)
  {
--	unsigned long task_util, best_cap = 0;
-+	unsigned long task_util, util_min, util_max, best_cap = 0;
- 	int cpu, best_cpu = -1;
- 	struct cpumask *cpus;
+ 	if (static_branch_unlikely(&sched_asym_cpucapacity))
+-		return fits_capacity(task_util, capacity_of(cpu));
++		return util_fits_cpu(util, util_min, util_max, cpu);
  
- 	cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
- 	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
+ 	return true;
+ }
+@@ -6389,7 +6392,7 @@ static inline bool asym_fits_capacity(unsigned long task_util, int cpu)
+ static int select_idle_sibling(struct task_struct *p, int prev, int target)
+ {
+ 	struct sched_domain *sd;
+-	unsigned long task_util;
++	unsigned long task_util, util_min, util_max;
+ 	int i, recent_used_cpu;
  
--	task_util = uclamp_task_util(p);
-+	task_util = task_util_est(p);
-+	util_min = uclamp_eff_value(p, UCLAMP_MIN);
-+	util_max = uclamp_eff_value(p, UCLAMP_MAX);
+ 	/*
+@@ -6398,11 +6401,13 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
+ 	 */
+ 	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
+ 		sync_entity_load_avg(&p->se);
+-		task_util = uclamp_task_util(p);
++		task_util = task_util_est(p);
++		util_min = uclamp_eff_value(p, UCLAMP_MIN);
++		util_max = uclamp_eff_value(p, UCLAMP_MAX);
+ 	}
  
- 	for_each_cpu_wrap(cpu, cpus, target) {
- 		unsigned long cpu_cap = capacity_of(cpu);
+ 	if ((available_idle_cpu(target) || sched_idle_cpu(target)) &&
+-	    asym_fits_capacity(task_util, target))
++	    asym_fits_cpu(task_util, util_min, util_max, target))
+ 		return target;
  
- 		if (!available_idle_cpu(cpu) && !sched_idle_cpu(cpu))
- 			continue;
--		if (fits_capacity(task_util, cpu_cap))
-+		if (util_fits_cpu(task_util, util_min, util_max, cpu))
- 			return cpu;
+ 	/*
+@@ -6410,7 +6415,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
+ 	 */
+ 	if (prev != target && cpus_share_cache(prev, target) &&
+ 	    (available_idle_cpu(prev) || sched_idle_cpu(prev)) &&
+-	    asym_fits_capacity(task_util, prev))
++	    asym_fits_cpu(task_util, util_min, util_max, prev))
+ 		return prev;
  
- 		if (cpu_cap > best_cap) {
+ 	/*
+@@ -6425,7 +6430,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
+ 	    in_task() &&
+ 	    prev == smp_processor_id() &&
+ 	    this_rq()->nr_running <= 1 &&
+-	    asym_fits_capacity(task_util, prev)) {
++	    asym_fits_cpu(task_util, util_min, util_max, prev)) {
+ 		return prev;
+ 	}
+ 
+@@ -6436,7 +6441,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
+ 	    cpus_share_cache(recent_used_cpu, target) &&
+ 	    (available_idle_cpu(recent_used_cpu) || sched_idle_cpu(recent_used_cpu)) &&
+ 	    cpumask_test_cpu(p->recent_used_cpu, p->cpus_ptr) &&
+-	    asym_fits_capacity(task_util, recent_used_cpu)) {
++	    asym_fits_cpu(task_util, util_min, util_max, recent_used_cpu)) {
+ 		/*
+ 		 * Replace recent_used_cpu with prev as it is a potential
+ 		 * candidate for the next wake:
 -- 
 2.25.1
 
