@@ -2,149 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B8386E63B3
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312186E61B1
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:26:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231925AbjDRMmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60274 "EHLO
+        id S231244AbjDRM0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231923AbjDRMmp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0C7146F0
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:42:24 -0700 (PDT)
+        with ESMTP id S231478AbjDRM00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:26:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999557ED1
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:26:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 339F16333F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:42:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E0DC433D2;
-        Tue, 18 Apr 2023 12:42:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B67B6311D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91E9DC43321;
+        Tue, 18 Apr 2023 12:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821743;
-        bh=1domRJC5oA8iw/412KgCkjLcJGiBLfTKxMBj5hryJ+4=;
+        s=korg; t=1681820759;
+        bh=cL22PBSYfvX7dAg/Rl+kGlkmW0y/CcpNb7L+1jRVj+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAw3pF9B1LUbN7ASVLgDI6uvfDfq43gql5fezlwEIoyLD//6SSOL7erlS2EdLjaym
-         THuPTnwU1Dixblgb5n+nxnh48vYqN+qNePCAC+AmZEgTQugH7BH6B6qHSPp7Dj04y4
-         g304x09q9JzbfEIevj44AfQxebrhNAqqZ4q7AqcM=
+        b=HKCa0tqNloporyMEW+Lcr8ebtmT5vC1r63heCEPsqJW5ITSG4B3b/krqk+e44IBdB
+         3u3DA3moMNOyemXNspSyhRbI+nYl6GYUBgavw9nnrywcB6eoxobc75PjcYHtLkSN/x
+         VBv/WWv4BsIFyGOWoJRKrvjFJdHgsCfw6cEkbuYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Vetter <daniel.vetter@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Helge Deller <deller@gmx.de>, Xingyuan Mo <hdthky0@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 6.1 025/134] fbcon: Fix error paths in set_con2fb_map
+        patches@lists.linux.dev,
+        syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 21/57] nilfs2: fix potential UAF of struct nilfs_sc_info in nilfs_segctor_thread()
 Date:   Tue, 18 Apr 2023 14:21:21 +0200
-Message-Id: <20230418120313.885437000@linuxfoundation.org>
+Message-Id: <20230418120259.494728727@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit edf79dd2172233452ff142dcc98b19d955fc8974 upstream.
+commit 6be49d100c22ffea3287a4b19d7639d259888e33 upstream.
 
-This is a regressoin introduced in b07db3958485 ("fbcon: Ditch error
-handling for con2fb_release_oldinfo"). I failed to realize what the if
-(!err) checks. The mentioned commit was dropping the
-con2fb_release_oldinfo() return value but the if (!err) was also
-checking whether the con2fb_acquire_newinfo() function call above
-failed or not.
+The finalization of nilfs_segctor_thread() can race with
+nilfs_segctor_kill_thread() which terminates that thread, potentially
+causing a use-after-free BUG as KASAN detected.
 
-Fix this with an early return statement.
+At the end of nilfs_segctor_thread(), it assigns NULL to "sc_task" member
+of "struct nilfs_sc_info" to indicate the thread has finished, and then
+notifies nilfs_segctor_kill_thread() of this using waitqueue
+"sc_wait_task" on the struct nilfs_sc_info.
 
-Note that there's still a difference compared to the orginal state of
-the code, the below lines are now also skipped on error:
+However, here, immediately after the NULL assignment to "sc_task", it is
+possible that nilfs_segctor_kill_thread() will detect it and return to
+continue the deallocation, freeing the nilfs_sc_info structure before the
+thread does the notification.
 
-	if (!search_fb_in_map(info_idx))
-		info_idx = newidx;
+This fixes the issue by protecting the NULL assignment to "sc_task" and
+its notification, with spinlock "sc_state_lock" of the struct
+nilfs_sc_info.  Since nilfs_segctor_kill_thread() does a final check to
+see if "sc_task" is NULL with "sc_state_lock" locked, this can eliminate
+the race.
 
-These are only needed when we've actually thrown out an old fb_info
-from the console mappings, which only happens later on.
-
-Also move the fbcon_add_cursor_work() call into the same if block,
-it's all protected by console_lock so doesn't matter when we set up
-the blinking cursor delayed work anyway. This further simplifies the
-control flow and allows us to ditch the found local variable.
-
-v2: Clarify commit message (Javier)
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Helge Deller <deller@gmx.de>
-Tested-by: Xingyuan Mo <hdthky0@gmail.com>
-Fixes: b07db3958485 ("fbcon: Ditch error handling for con2fb_release_oldinfo")
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Xingyuan Mo <hdthky0@gmail.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.19+
+Link: https://lkml.kernel.org/r/20230327175318.8060-1-konishi.ryusuke@gmail.com
+Reported-by: syzbot+b08ebcc22f8f3e6be43a@syzkaller.appspotmail.com
+Link: https://lkml.kernel.org/r/00000000000000660d05f7dfa877@google.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ fs/nilfs2/segment.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -823,7 +823,7 @@ static int set_con2fb_map(int unit, int
- 	int oldidx = con2fb_map[unit];
- 	struct fb_info *info = fbcon_registered_fb[newidx];
- 	struct fb_info *oldinfo = NULL;
--	int found, err = 0, show_logo;
-+	int err = 0, show_logo;
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2609,11 +2609,10 @@ static int nilfs_segctor_thread(void *ar
+ 	goto loop;
  
- 	WARN_CONSOLE_UNLOCKED();
- 
-@@ -841,26 +841,25 @@ static int set_con2fb_map(int unit, int
- 	if (oldidx != -1)
- 		oldinfo = fbcon_registered_fb[oldidx];
- 
--	found = search_fb_in_map(newidx);
+  end_thread:
+-	spin_unlock(&sci->sc_state_lock);
 -
--	if (!err && !found) {
-+	if (!search_fb_in_map(newidx)) {
- 		err = con2fb_acquire_newinfo(vc, info, unit);
--		if (!err)
--			con2fb_map[unit] = newidx;
-+		if (err)
-+			return err;
-+
-+		con2fb_map[unit] = newidx;
-+		fbcon_add_cursor_work(info);
- 	}
- 
- 	/*
- 	 * If old fb is not mapped to any of the consoles,
- 	 * fbcon should release it.
- 	 */
--	if (!err && oldinfo && !search_fb_in_map(oldidx))
-+	if (oldinfo && !search_fb_in_map(oldidx))
- 		con2fb_release_oldinfo(vc, oldinfo, info);
- 
- 	show_logo = (fg_console == 0 && !user &&
- 			 logo_shown != FBCON_LOGO_DONTSHOW);
- 
--	if (!found)
--		fbcon_add_cursor_work(info);
- 	con2fb_map_boot[unit] = newidx;
- 	con2fb_init_display(vc, info, unit, show_logo);
+ 	/* end sync. */
+ 	sci->sc_task = NULL;
+ 	wake_up(&sci->sc_wait_task); /* for nilfs_segctor_kill_thread() */
++	spin_unlock(&sci->sc_state_lock);
+ 	return 0;
+ }
  
 
 
