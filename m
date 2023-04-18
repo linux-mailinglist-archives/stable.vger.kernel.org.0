@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A2B6E644F
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CA36E62D2
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232089AbjDRMsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38868 "EHLO
+        id S231680AbjDRMfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:35:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232088AbjDRMsK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:48:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C473C24
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:48:01 -0700 (PDT)
+        with ESMTP id S230208AbjDRMfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:35:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D1D1CF94
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:35:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE02562B21
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F21C4339B;
-        Tue, 18 Apr 2023 12:47:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D7326326B
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F8EC433EF;
+        Tue, 18 Apr 2023 12:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822080;
-        bh=aXSOuYvmTIaGUJwOusY2pcfU4RwwyLNCWcxY7NsZPKo=;
+        s=korg; t=1681821340;
+        bh=Yhm+Z3ghf28Txu5U4EDPDvJCHdXz/Wi72geABR1nzsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ofc9t9SCq4ytg3w1P17YVULEbv9gVDHjW6LD0Du/y0aP93nrYisQiofYh9fXS8YbL
-         2YoCIVHx1A20HQ3/OVJWpZK3CcRIkd+O6D0+nUDLpSxmdKVhq9/70Ur5UbPLCufLeL
-         HF8ZJ1pMf87xUFNMF2G8FPeeu2Gs+ZJn95vlKiYc=
+        b=g8nCXTMb/fbO1hPUp/M1v/Z4QSfsxVsKEMTZaooIlZ3djbI4dgPW2YBTESrvNg0gH
+         IBIEpnHOrGYvyePqlk2U8rnH4m+aivX1jk4FPJpXhAcGAwyyM9VGJVSR99Cj9XlxGl
+         oD64a68i6gtKr5Wsw4YI19Mmdcsi7kUydbTn4Ltg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sasha Finkelstein <fnkl.kernel@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 6.2 015/139] bluetooth: btbcm: Fix logic error in forming the board name.
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 061/124] btrfs: print checksum type and implementation at mount time
 Date:   Tue, 18 Apr 2023 14:21:20 +0200
-Message-Id: <20230418120314.253949729@linuxfoundation.org>
+Message-Id: <20230418120312.076822318@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,32 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+From: David Sterba <dsterba@suse.com>
 
-commit b76abe4648c1acc791a207e7c08d1719eb9f4ea8 upstream.
+commit c8a5f8ca9a9c7d5c5bc31d54f47ea9d86f93ed69 upstream.
 
-This patch fixes an incorrect loop exit condition in code that replaces
-'/' symbols in the board name. There might also be a memory corruption
-issue here, but it is unlikely to be a real problem.
+Per user request, print the checksum type and implementation at mount
+time among the messages. The checksum is user configurable and the
+actual crypto implementation is useful to see for performance reasons.
+The same information is also available after mount in
+/sys/fs/FSID/checksum file.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Example:
+
+  [25.323662] BTRFS info (device vdb): using sha256 (sha256-generic) checksum algorithm
+
+Link: https://github.com/kdave/btrfs-progs/issues/483
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btbcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/bluetooth/btbcm.c
-+++ b/drivers/bluetooth/btbcm.c
-@@ -511,7 +511,7 @@ static const char *btbcm_get_board_name(
- 	len = strlen(tmp) + 1;
- 	board_type = devm_kzalloc(dev, len, GFP_KERNEL);
- 	strscpy(board_type, tmp, len);
--	for (i = 0; i < board_type[i]; i++) {
-+	for (i = 0; i < len; i++) {
- 		if (board_type[i] == '/')
- 			board_type[i] = '-';
- 	}
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2246,6 +2246,9 @@ static int btrfs_init_csum_hash(struct b
+ 
+ 	fs_info->csum_shash = csum_shash;
+ 
++	btrfs_info(fs_info, "using %s (%s) checksum algorithm",
++			btrfs_super_csum_name(csum_type),
++			crypto_shash_driver_name(csum_shash));
+ 	return 0;
+ }
+ 
 
 
