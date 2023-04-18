@@ -2,85 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6ED96E5AF0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 09:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A27796E5BC5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 10:13:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231334AbjDRHtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 03:49:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56698 "EHLO
+        id S229635AbjDRINS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 04:13:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231331AbjDRHsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 03:48:24 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432256A47;
-        Tue, 18 Apr 2023 00:48:16 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id dm2so70934571ejc.8;
-        Tue, 18 Apr 2023 00:48:16 -0700 (PDT)
+        with ESMTP id S231228AbjDRINQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 04:13:16 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AF6365B5
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 01:13:15 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-4ec8133c59eso1939588e87.0
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 01:13:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681804096; x=1684396096;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1681805593; x=1684397593;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1lVyO1SYBMr6W0537PjqdrmuSbOOyZSR3u+HScE/D6o=;
-        b=qUu7XSNfCvyBIn1vxrIKZuYJaBFIFsyIPsyLSjwO2FHMbpXn3KFltwfhqhw+rMCtTI
-         nrxLIOCzuunVLK/TAqeCH46lLv5VDGWZsap+Wy+KtM+et7vjOX2HAyUjmEfNppDE01WZ
-         ZP3vSDnN5wTYZLcMbx153kWX/PEBy3WOGDS6DznA5iVtqobXisucqH+9qg1+0xI7/X5c
-         xwcI0SGjLTQWxCyPRrV1RstIVmJs58lIn2eNVqrX6Sn2gXXYcQlOoVTxGSynUKe2Ovp1
-         gn+Q6tPxxsxJrcnk1aDX5YRmmPtftprF2uGe8JwshKqh7SDcq7hoCBdhxNFCQkX04IRR
-         +/aQ==
+        bh=5fuQkHKWI/lgpNcFt6ZdMNne2pX3w0YtDWS0YTqJBCI=;
+        b=bKYT1lQF+ceywACbQRsaGEYOk9yAX3tfN/xOqXX9bhvZZf6j6UTjmGixXbFHfp4+YE
+         zdw4u3y0ZPeZCUBFWtiwbwtX7p8OTfU3e1abCNbqqoa+GS8vK9GT6INbvWfqdfHipeNn
+         YSi24AcgUJfX86Cu9UFpPw+PyjT/J/ZYJ1Fh8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681804096; x=1684396096;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1681805593; x=1684397593;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1lVyO1SYBMr6W0537PjqdrmuSbOOyZSR3u+HScE/D6o=;
-        b=cqrHCSQz6CI4LBCiSg2Y3okrgsNtMM/xI0sZJILSb8T95PS1DT1gFbF55azIDOLL7Y
-         fwN8BOhtpjDeXAWY46LEGvc0rdnhzliebj0mb3E+8jlTJkRX195//zqKKgZRNk0hy0Xm
-         L8KJAlDkaQulgErA10xfNK8daJcJn2Lhp4brYnylcwXz1Vu8UtR1Ce2rCWTyZwLRFwh0
-         t0RAVUQEUVCeq1PNub3SymYX9aCi6eGmm+AeQgdCoB1cHGMx3IUMmO0750I45K81s/TB
-         iEm1uoGXHv6ZLCLeVt7mEi86au4TvAm6axKia8S025w+vdtyQ7Z4O1TwSCOsV1l/lTpy
-         ibIg==
-X-Gm-Message-State: AAQBX9ctefUGMecvhYsl3UUv9Tmp9OI7S/9vBkhQ3v0cvf0TYCIbEvVq
-        wo0GcLJCLTjI/uviyRlzX5g=
-X-Google-Smtp-Source: AKy350ajUWbsomQPoHsGOHcaodVySW3+FMBrhALdcwTdkwGPZi4aqkNlY9auHqUYa4foHg3CgZ6N8w==
-X-Received: by 2002:a17:906:b190:b0:94a:5911:b475 with SMTP id w16-20020a170906b19000b0094a5911b475mr11751268ejy.52.1681804095474;
-        Tue, 18 Apr 2023 00:48:15 -0700 (PDT)
-Received: from A13PC04R.einet.ad.eivd.ch ([193.134.219.72])
-        by smtp.googlemail.com with ESMTPSA id gs8-20020a1709072d0800b0094f694e4ecbsm3048545ejc.146.2023.04.18.00.48.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 00:48:15 -0700 (PDT)
-From:   Rick Wertenbroek <rick.wertenbroek@gmail.com>
-To:     alberto.dassatti@heig-vd.ch
-Cc:     xxm@rock-chips.com, dlemoal@kernel.org, stable@vger.kernel.org,
-        Rick Wertenbroek <rick.wertenbroek@gmail.com>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Rob Herring <robh@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Caleb Connolly <kc@postmarketos.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Johan Jonker <jbx6244@gmail.com>,
-        Judy Hsiao <judyhsiao@chromium.org>,
-        Hugh Cole-Baker <sigmaris@gmail.com>,
-        Arnaud Ferraris <arnaud.ferraris@collabora.com>,
-        linux-pci@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v5 11/11] PCI: rockchip: Set address alignment for endpoint mode
-Date:   Tue, 18 Apr 2023 09:46:58 +0200
-Message-Id: <20230418074700.1083505-12-rick.wertenbroek@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230418074700.1083505-1-rick.wertenbroek@gmail.com>
-References: <20230418074700.1083505-1-rick.wertenbroek@gmail.com>
+        bh=5fuQkHKWI/lgpNcFt6ZdMNne2pX3w0YtDWS0YTqJBCI=;
+        b=kjK5Iq7TugPYPgOiaHH14h840++JFLK4q/86YLErosOWYKRb5qvLdCAWhn8/TEp0/K
+         4qclSzq1+s10ALU8nZ2lb7fG8thNslweKrFHV3nb991XpK3FgDsJRwIQeY5ucE4dUeNq
+         83a+hvv7/9k0F0gv8yfzITq7KKDxeleOJVXT2zgsYC705WUmE5ixFfYQiRkusca5EOlQ
+         RHPmB0bSYraqh8DKPQhLho+lxzzsnrOfHqA4BEPEgH/DnpkE9LalCAOlrf6InBYQsEYs
+         ebh8GHseE3B9nhGbZP1uoVPty1v3ScG6GDAEeiVA958gLu43WdmQbCZ8KkgtW4pu+RgW
+         mp9Q==
+X-Gm-Message-State: AAQBX9fAqzo/r0yp9vpZ5Wn5NiSMPyF0wEkaelSFxTR+lAlovMn+kUHt
+        05AJe3noyw7FSI3RxwOSoGZ6yM6JFB+1Wb729PZcsADRXNbH712DI+8=
+X-Google-Smtp-Source: AKy350b6SrZ1TIvMFfizitLoXeV1f9MlUcZAN/8+gQQrtYTkDshwXQBWP3COlcIoKs6VFaiig0JHBR7o/686hWK9VRY=
+X-Received: by 2002:a19:f60d:0:b0:4ec:8ca6:65ad with SMTP id
+ x13-20020a19f60d000000b004ec8ca665admr2961873lfe.11.1681805593322; Tue, 18
+ Apr 2023 01:13:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+References: <20230418061933.3282785-1-stevensd@google.com>
+In-Reply-To: <20230418061933.3282785-1-stevensd@google.com>
+From:   David Stevens <stevensd@chromium.org>
+Date:   Tue, 18 Apr 2023 17:13:02 +0900
+Message-ID: <CAD=HUj5fhD3kcav5mbJ8Zegin-Bpb1cYChNzTUDLzUE5kbv9Ew@mail.gmail.com>
+Subject: Re: [PATCH] mm/shmem: Fix race in shmem_undo_range w/THP
+To:     linux-mm@kvack.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Suleiman Souhlal <suleiman@google.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -88,33 +67,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <dlemoal@kernel.org>
+On Tue, Apr 18, 2023 at 3:22=E2=80=AFPM David Stevens <stevensd@chromium.or=
+g> wrote:
+>
+> From: David Stevens <stevensd@chromium.org>
+>
+> Split folios during the second loop of shmem_undo_range. It's not
+> sufficient to only split folios when dealing with partial pages, since
+> it's possible for a THP to be faulted in after that point. Calling
+> truncate_inode_folio in that situation can result in throwing away data
+> outside of the range being targeted.
+>
+> Fixes: b9a8a4195c7d ("truncate,shmem: Handle truncates that split large f=
+olios")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: David Stevens <stevensd@chromium.org>
+> ---
+>  mm/shmem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/mm/shmem.c b/mm/shmem.c
+> index 9218c955f482..317cbeb0fb6b 100644
+> --- a/mm/shmem.c
+> +++ b/mm/shmem.c
+> @@ -1033,7 +1033,7 @@ static void shmem_undo_range(struct inode *inode, l=
+off_t lstart, loff_t lend,
+>                                 }
+>                                 VM_BUG_ON_FOLIO(folio_test_writeback(foli=
+o),
+>                                                 folio);
+> -                               truncate_inode_folio(mapping, folio);
+> +                               truncate_inode_partial_folio(folio, lstar=
+t, lend);
 
-The address translation unit of the rockchip EP controller does not use
-the lower 8 bits of a PCIe-space address to map local memory. Thus we
-must set the align feature field to 256 to let the user know about this
-constraint.
+It was pointed out to me that truncate_inode_partial_folio only
+sometimes frees the target pages. So this patch does fix the data
+loss, but it ends up making partial hole punches on a THP not actually
+free memory. I'll send out a v2 that properly calls
+truncate_inode_folio after splitting a THP.
 
-Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
-Signed-off-by: Rick Wertenbroek <rick.wertenbroek@gmail.com>
----
- drivers/pci/controller/pcie-rockchip-ep.c | 1 +
- 1 file changed, 1 insertion(+)
+-David
 
-diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
-index edfced311a9f..0af0e965fb57 100644
---- a/drivers/pci/controller/pcie-rockchip-ep.c
-+++ b/drivers/pci/controller/pcie-rockchip-ep.c
-@@ -442,6 +442,7 @@ static const struct pci_epc_features rockchip_pcie_epc_features = {
- 	.linkup_notifier = false,
- 	.msi_capable = true,
- 	.msix_capable = false,
-+	.align = 256,
- };
- 
- static const struct pci_epc_features*
--- 
-2.25.1
-
+>                         }
+>                         folio_unlock(folio);
+>                 }
+> --
+> 2.40.0.634.g4ca3ef3211-goog
+>
