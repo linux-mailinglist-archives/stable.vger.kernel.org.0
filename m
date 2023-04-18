@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6EF46E64FB
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FEE16E64FD
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbjDRMx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47382 "EHLO
+        id S232283AbjDRMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232277AbjDRMxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:52 -0400
+        with ESMTP id S232203AbjDRMxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67459167D7
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1E810272
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47E4663475
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 591ADC433A1;
-        Tue, 18 Apr 2023 12:53:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB19763437
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08006C433D2;
+        Tue, 18 Apr 2023 12:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822423;
-        bh=BnpTI779WI1w2wGOpeYuzWT85rD9L5WlTF20khLKvs0=;
+        s=korg; t=1681822426;
+        bh=5uplASErk8oGr242/E0GRk+7ABYv4I3xwKVE8UJ9AMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1HBktoLpqBgnl8ozkGI1pGToKQF/NmfDNDtByWCrDnw6X4PbxmJmqxMQ4c3mWDTzv
-         DOK6G4QeeQQ8KV3+wt3W0wvdwhBIOb8Lt6y/7QNsaud1XlloCCe7+TeXsp1TaiFFkp
-         dyc+QIGD5PiOglhrA5WadNLZKYYboGgxwN3w9jcU=
+        b=rCpmS/6FPT5e6d23Yj8ivnCNKFcaIgZyV6wTwDarHsZwjL6xj5Woy6NmzKX7ycdJF
+         8LW4MLwyTheRlqaNTtJNiz0NYBpjgU02Os3vl0nwWBM87S3e9xnNmzO90PJHWeeA4S
+         RGKv6aHlguufr+0CQRyIeTMwfIr0uAhm6S2O6/yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 137/139] purgatory: fix disabling debug info
-Date:   Tue, 18 Apr 2023 14:23:22 +0200
-Message-Id: <20230418120319.072981407@linuxfoundation.org>
+        patches@lists.linux.dev, Juraj Pecigos <kernel@juraj.dev>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 138/139] nvme-pci: mark Lexar NM760 as IGNORE_DEV_SUBNQN
+Date:   Tue, 18 Apr 2023 14:23:23 +0200
+Message-Id: <20230418120319.123041081@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -55,59 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Juraj Pecigos <kernel@juraj.dev>
 
-[ Upstream commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 ]
+[ Upstream commit 1231363aec86704a6b0467a12e3ca7bdf890e01d ]
 
-Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
--Wa versions of both of those if building with Clang and GNU as.  As a
-result, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+A system with more than one of these SSDs will only have one usable.
+The kernel fails to detect more than one nvme device due to duplicate
+cntlids.
 
-Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+before:
+[    9.395229] nvme 0000:01:00.0: platform quirk: setting simple suspend
+[    9.395262] nvme nvme0: pci function 0000:01:00.0
+[    9.395282] nvme 0000:03:00.0: platform quirk: setting simple suspend
+[    9.395305] nvme nvme1: pci function 0000:03:00.0
+[    9.409873] nvme nvme0: Duplicate cntlid 1 with nvme1, subsys nqn.2022-07.com.siliconmotion:nvm-subsystem-sn-                    , rejecting
+[    9.409982] nvme nvme0: Removing after probe failure status: -22
+[    9.427487] nvme nvme1: allocated 64 MiB host memory buffer.
+[    9.445088] nvme nvme1: 16/0/0 default/read/poll queues
+[    9.449898] nvme nvme1: Ignoring bogus Namespace Identifiers
+
+after:
+[    1.161890] nvme 0000:01:00.0: platform quirk: setting simple suspend
+[    1.162660] nvme nvme0: pci function 0000:01:00.0
+[    1.162684] nvme 0000:03:00.0: platform quirk: setting simple suspend
+[    1.162707] nvme nvme1: pci function 0000:03:00.0
+[    1.191354] nvme nvme0: allocated 64 MiB host memory buffer.
+[    1.193378] nvme nvme1: allocated 64 MiB host memory buffer.
+[    1.211044] nvme nvme1: 16/0/0 default/read/poll queues
+[    1.211080] nvme nvme0: 16/0/0 default/read/poll queues
+[    1.216145] nvme nvme0: Ignoring bogus Namespace Identifiers
+[    1.216261] nvme nvme1: Ignoring bogus Namespace Identifiers
+
+Adding the NVME_QUIRK_IGNORE_DEV_SUBNQN quirk to resolves the issue.
+
+Signed-off-by: Juraj Pecigos <kernel@juraj.dev>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Stable-dep-of: 74391b3e6985 ("nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/purgatory/Makefile | 7 +------
- arch/x86/purgatory/Makefile   | 3 +--
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
-index d16bf715a586b..5730797a6b402 100644
---- a/arch/riscv/purgatory/Makefile
-+++ b/arch/riscv/purgatory/Makefile
-@@ -84,12 +84,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
- 
--AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strcmp.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strlen.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strncmp.o		+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 17f09dc263811..82fec66d46d29 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- 
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index ea3f0806783a3..2e3fae6e1fb30 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3494,7 +3494,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 	{ PCI_DEVICE(0x1d97, 0x1d97), /* Lexar NM620 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1d97, 0x2269), /* Lexar NM760 */
+-		.driver_data = NVME_QUIRK_BOGUS_NID, },
++		.driver_data = NVME_QUIRK_BOGUS_NID |
++				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
 -- 
 2.39.2
 
