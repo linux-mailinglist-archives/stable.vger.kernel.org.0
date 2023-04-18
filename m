@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 023786E63FF
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE196E630C
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231997AbjDRMpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:45:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35042 "EHLO
+        id S231758AbjDRMhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:37:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231980AbjDRMpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:45:09 -0400
+        with ESMTP id S230507AbjDRMhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:37:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1E014F42;
-        Tue, 18 Apr 2023 05:45:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161DE19B4
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:37:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A01363387;
-        Tue, 18 Apr 2023 12:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67310C433EF;
-        Tue, 18 Apr 2023 12:45:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDA2163227
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:37:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C999FC433D2;
+        Tue, 18 Apr 2023 12:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821904;
-        bh=awSbJMtl69icfKm+n181Xun+4k6pIOSZgtNyGGaUfOk=;
+        s=korg; t=1681821448;
+        bh=sVLS87MKTMGR0jKmjTeBuGpWBuKDUPrjbBLZR5QEkBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjatmGZqc5pK6WoRWLlDAGSFhIw5thFTxCJy8p0T1207NYvdOshPZMdHReceMkeqN
-         +CNv56tkaBzRQtOemHEZN5GxmFqs7MCKsaLPBzxYpKpoPR0QqxsFJJyM39kY7RzU52
-         Ju3FXDHFOUz99ML4epNO215ZnzguCan/fBT0PtrE=
+        b=FEbRT3gQG3Z+xRRiUqCewNyt5MnZxU3dh2bkku2Ml35+D/hLTqFP1RKD9fW1gKpWc
+         EujrkkbD7cMHNW1grqC1gQ1KR9BBSlDVTusxolrV4QrSrorS6KfXCN2DKWoNtx4RN4
+         tmhxmch+qdKW5GO3omhpXYqLqDJ9tz5KoTzXj9NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 086/134] asymmetric_keys: log on fatal failures in PE/pkcs7
+        patches@lists.linux.dev, Valentin Schneider <vschneid@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>, Baoquan He <bhe@redhat.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Juri Lelli <jlelli@redhat.com>,
+        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Wen Yang <wenyang.linux@foxmail.com>
+Subject: [PATCH 5.10 123/124] panic, kexec: make __crash_kexec() NMI safe
 Date:   Tue, 18 Apr 2023 14:22:22 +0200
-Message-Id: <20230418120316.132614730@linuxfoundation.org>
+Message-Id: <20230418120314.227328165@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,158 +62,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Valentin Schneider <vschneid@redhat.com>
 
-[ Upstream commit 3584c1dbfffdabf8e3dc1dd25748bb38dd01cd43 ]
+commit 05c6257433b7212f07a7e53479a8ab038fc1666a upstream.
 
-These particular errors can be encountered while trying to kexec when
-secureboot lockdown is in place.  Without this change, even with a
-signed debug build, one still needs to reboot the machine to add the
-appropriate dyndbg parameters (since lockdown blocks debugfs).
+Attempting to get a crash dump out of a debug PREEMPT_RT kernel via an NMI
+panic() doesn't work.  The cause of that lies in the PREEMPT_RT definition
+of mutex_trylock():
 
-Accordingly, upgrade all pr_debug() before fatal error into pr_warn().
+	if (IS_ENABLED(CONFIG_DEBUG_RT_MUTEXES) && WARN_ON_ONCE(!in_task()))
+		return 0;
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://lore.kernel.org/r/20230220171254.592347-3-rharwood@redhat.com/ # v2
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This prevents an nmi_panic() from executing the main body of
+__crash_kexec() which does the actual kexec into the kdump kernel.  The
+warning and return are explained by:
+
+  6ce47fd961fa ("rtmutex: Warn if trylock is called from hard/softirq context")
+  [...]
+  The reasons for this are:
+
+      1) There is a potential deadlock in the slowpath
+
+      2) Another cpu which blocks on the rtmutex will boost the task
+	 which allegedly locked the rtmutex, but that cannot work
+	 because the hard/softirq context borrows the task context.
+
+Furthermore, grabbing the lock isn't NMI safe, so do away with kexec_mutex
+and replace it with an atomic variable.  This is somewhat overzealous as
+*some* callsites could keep using a mutex (e.g.  the sysfs-facing ones
+like crash_shrink_memory()), but this has the benefit of involving a
+single unified lock and preventing any future NMI-related surprises.
+
+Tested by triggering NMI panics via:
+
+  $ echo 1 > /proc/sys/kernel/panic_on_unrecovered_nmi
+  $ echo 1 > /proc/sys/kernel/unknown_nmi_panic
+  $ echo 1 > /proc/sys/kernel/panic
+
+  $ ipmitool power diag
+
+Link: https://lkml.kernel.org/r/20220630223258.4144112-3-vschneid@redhat.com
+Fixes: 6ce47fd961fa ("rtmutex: Warn if trylock is called from hard/softirq context")
+Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: "Eric W . Biederman" <ebiederm@xmission.com>
+Cc: Juri Lelli <jlelli@redhat.com>
+Cc: Luis Claudio R. Goncalves <lgoncalv@redhat.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Wen Yang <wenyang.linux@foxmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/asymmetric_keys/pkcs7_verify.c  | 10 +++++-----
- crypto/asymmetric_keys/verify_pefile.c | 24 ++++++++++++------------
- 2 files changed, 17 insertions(+), 17 deletions(-)
+ kernel/kexec.c          |   11 ++++-------
+ kernel/kexec_core.c     |   20 ++++++++++----------
+ kernel/kexec_file.c     |    4 ++--
+ kernel/kexec_internal.h |   15 ++++++++++++++-
+ 4 files changed, 30 insertions(+), 20 deletions(-)
 
-diff --git a/crypto/asymmetric_keys/pkcs7_verify.c b/crypto/asymmetric_keys/pkcs7_verify.c
-index f6321c785714c..3da32813e4412 100644
---- a/crypto/asymmetric_keys/pkcs7_verify.c
-+++ b/crypto/asymmetric_keys/pkcs7_verify.c
-@@ -79,16 +79,16 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
- 		}
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -112,13 +112,10 @@ static int do_kexec_load(unsigned long e
  
- 		if (sinfo->msgdigest_len != sig->digest_size) {
--			pr_debug("Sig %u: Invalid digest size (%u)\n",
--				 sinfo->index, sinfo->msgdigest_len);
-+			pr_warn("Sig %u: Invalid digest size (%u)\n",
-+				sinfo->index, sinfo->msgdigest_len);
- 			ret = -EBADMSG;
- 			goto error;
- 		}
- 
- 		if (memcmp(sig->digest, sinfo->msgdigest,
- 			   sinfo->msgdigest_len) != 0) {
--			pr_debug("Sig %u: Message digest doesn't match\n",
--				 sinfo->index);
-+			pr_warn("Sig %u: Message digest doesn't match\n",
-+				sinfo->index);
- 			ret = -EKEYREJECTED;
- 			goto error;
- 		}
-@@ -478,7 +478,7 @@ int pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
- 			       const void *data, size_t datalen)
- {
- 	if (pkcs7->data) {
--		pr_debug("Data already supplied\n");
-+		pr_warn("Data already supplied\n");
- 		return -EINVAL;
- 	}
- 	pkcs7->data = data;
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index fe1bb374239d7..22beaf2213a22 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -74,7 +74,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
- 		break;
- 
- 	default:
--		pr_debug("Unknown PEOPT magic = %04hx\n", pe32->magic);
-+		pr_warn("Unknown PEOPT magic = %04hx\n", pe32->magic);
- 		return -ELIBBAD;
- 	}
- 
-@@ -95,7 +95,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
- 	ctx->certs_size = ddir->certs.size;
- 
- 	if (!ddir->certs.virtual_address || !ddir->certs.size) {
--		pr_debug("Unsigned PE binary\n");
-+		pr_warn("Unsigned PE binary\n");
- 		return -ENODATA;
- 	}
- 
-@@ -127,7 +127,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	unsigned len;
- 
- 	if (ctx->sig_len < sizeof(wrapper)) {
--		pr_debug("Signature wrapper too short\n");
-+		pr_warn("Signature wrapper too short\n");
- 		return -ELIBBAD;
- 	}
- 
-@@ -142,16 +142,16 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	 * rounded up since 0.110.
+ 	/*
+ 	 * Because we write directly to the reserved memory region when loading
+-	 * crash kernels we need a mutex here to prevent multiple crash kernels
+-	 * from attempting to load simultaneously, and to prevent a crash kernel
+-	 * from loading over the top of a in use crash kernel.
+-	 *
+-	 * KISS: always take the mutex.
++	 * crash kernels we need a serialization here to prevent multiple crash
++	 * kernels from attempting to load simultaneously.
  	 */
- 	if (wrapper.length > ctx->sig_len) {
--		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
--			 ctx->sig_len, wrapper.length);
-+		pr_warn("Signature wrapper bigger than sig len (%x > %x)\n",
-+			ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
--		pr_debug("Signature is not revision 2.0\n");
-+		pr_warn("Signature is not revision 2.0\n");
- 		return -ENOTSUPP;
- 	}
- 	if (wrapper.cert_type != WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
--		pr_debug("Signature certificate type is not PKCS\n");
-+		pr_warn("Signature certificate type is not PKCS\n");
- 		return -ENOTSUPP;
- 	}
+-	if (!mutex_trylock(&kexec_mutex))
++	if (!kexec_trylock())
+ 		return -EBUSY;
  
-@@ -164,7 +164,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	ctx->sig_offset += sizeof(wrapper);
- 	ctx->sig_len -= sizeof(wrapper);
- 	if (ctx->sig_len < 4) {
--		pr_debug("Signature data missing\n");
-+		pr_warn("Signature data missing\n");
- 		return -EKEYREJECTED;
- 	}
+ 	if (flags & KEXEC_ON_CRASH) {
+@@ -184,7 +181,7 @@ out:
  
-@@ -198,7 +198,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 		return 0;
- 	}
- not_pkcs7:
--	pr_debug("Signature data not PKCS#7\n");
-+	pr_warn("Signature data not PKCS#7\n");
- 	return -ELIBBAD;
+ 	kimage_free(image);
+ out_unlock:
+-	mutex_unlock(&kexec_mutex);
++	kexec_unlock();
+ 	return ret;
  }
  
-@@ -341,8 +341,8 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
- 	digest_size = crypto_shash_digestsize(tfm);
+--- a/kernel/kexec_core.c
++++ b/kernel/kexec_core.c
+@@ -45,7 +45,7 @@
+ #include <crypto/sha.h>
+ #include "kexec_internal.h"
  
- 	if (digest_size != ctx->digest_len) {
--		pr_debug("Digest size mismatch (%zx != %x)\n",
--			 digest_size, ctx->digest_len);
-+		pr_warn("Digest size mismatch (%zx != %x)\n",
-+			digest_size, ctx->digest_len);
- 		ret = -EBADMSG;
- 		goto error_no_desc;
- 	}
-@@ -373,7 +373,7 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
- 	 * PKCS#7 certificate.
+-DEFINE_MUTEX(kexec_mutex);
++atomic_t __kexec_lock = ATOMIC_INIT(0);
+ 
+ /* Per cpu memory for storing cpu states in case of system crash. */
+ note_buf_t __percpu *crash_notes;
+@@ -943,7 +943,7 @@ int kexec_load_disabled;
+  */
+ void __noclone __crash_kexec(struct pt_regs *regs)
+ {
+-	/* Take the kexec_mutex here to prevent sys_kexec_load
++	/* Take the kexec_lock here to prevent sys_kexec_load
+ 	 * running on one cpu from replacing the crash kernel
+ 	 * we are using after a panic on a different cpu.
+ 	 *
+@@ -951,7 +951,7 @@ void __noclone __crash_kexec(struct pt_r
+ 	 * of memory the xchg(&kexec_crash_image) would be
+ 	 * sufficient.  But since I reuse the memory...
  	 */
- 	if (memcmp(digest, ctx->digest, ctx->digest_len) != 0) {
--		pr_debug("Digest mismatch\n");
-+		pr_warn("Digest mismatch\n");
- 		ret = -EKEYREJECTED;
- 	} else {
- 		pr_debug("The digests match!\n");
--- 
-2.39.2
-
+-	if (mutex_trylock(&kexec_mutex)) {
++	if (kexec_trylock()) {
+ 		if (kexec_crash_image) {
+ 			struct pt_regs fixed_regs;
+ 
+@@ -960,7 +960,7 @@ void __noclone __crash_kexec(struct pt_r
+ 			machine_crash_shutdown(&fixed_regs);
+ 			machine_kexec(kexec_crash_image);
+ 		}
+-		mutex_unlock(&kexec_mutex);
++		kexec_unlock();
+ 	}
+ }
+ STACK_FRAME_NON_STANDARD(__crash_kexec);
+@@ -993,13 +993,13 @@ ssize_t crash_get_memory_size(void)
+ {
+ 	ssize_t size = 0;
+ 
+-	if (!mutex_trylock(&kexec_mutex))
++	if (!kexec_trylock())
+ 		return -EBUSY;
+ 
+ 	if (crashk_res.end != crashk_res.start)
+ 		size = resource_size(&crashk_res);
+ 
+-	mutex_unlock(&kexec_mutex);
++	kexec_unlock();
+ 	return size;
+ }
+ 
+@@ -1019,7 +1019,7 @@ int crash_shrink_memory(unsigned long ne
+ 	unsigned long old_size;
+ 	struct resource *ram_res;
+ 
+-	if (!mutex_trylock(&kexec_mutex))
++	if (!kexec_trylock())
+ 		return -EBUSY;
+ 
+ 	if (kexec_crash_image) {
+@@ -1058,7 +1058,7 @@ int crash_shrink_memory(unsigned long ne
+ 	insert_resource(&iomem_resource, ram_res);
+ 
+ unlock:
+-	mutex_unlock(&kexec_mutex);
++	kexec_unlock();
+ 	return ret;
+ }
+ 
+@@ -1130,7 +1130,7 @@ int kernel_kexec(void)
+ {
+ 	int error = 0;
+ 
+-	if (!mutex_trylock(&kexec_mutex))
++	if (!kexec_trylock())
+ 		return -EBUSY;
+ 	if (!kexec_image) {
+ 		error = -EINVAL;
+@@ -1205,7 +1205,7 @@ int kernel_kexec(void)
+ #endif
+ 
+  Unlock:
+-	mutex_unlock(&kexec_mutex);
++	kexec_unlock();
+ 	return error;
+ }
+ 
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -343,7 +343,7 @@ SYSCALL_DEFINE5(kexec_file_load, int, ke
+ 
+ 	image = NULL;
+ 
+-	if (!mutex_trylock(&kexec_mutex))
++	if (!kexec_trylock())
+ 		return -EBUSY;
+ 
+ 	dest_image = &kexec_image;
+@@ -415,7 +415,7 @@ out:
+ 	if ((flags & KEXEC_FILE_ON_CRASH) && kexec_crash_image)
+ 		arch_kexec_protect_crashkres();
+ 
+-	mutex_unlock(&kexec_mutex);
++	kexec_unlock();
+ 	kimage_free(image);
+ 	return ret;
+ }
+--- a/kernel/kexec_internal.h
++++ b/kernel/kexec_internal.h
+@@ -15,7 +15,20 @@ int kimage_is_destination_range(struct k
+ 
+ int machine_kexec_post_load(struct kimage *image);
+ 
+-extern struct mutex kexec_mutex;
++/*
++ * Whatever is used to serialize accesses to the kexec_crash_image needs to be
++ * NMI safe, as __crash_kexec() can happen during nmi_panic(), so here we use a
++ * "simple" atomic variable that is acquired with a cmpxchg().
++ */
++extern atomic_t __kexec_lock;
++static inline bool kexec_trylock(void)
++{
++	return atomic_cmpxchg_acquire(&__kexec_lock, 0, 1) == 0;
++}
++static inline void kexec_unlock(void)
++{
++	atomic_set_release(&__kexec_lock, 0);
++}
+ 
+ #ifdef CONFIG_KEXEC_FILE
+ #include <linux/purgatory.h>
 
 
