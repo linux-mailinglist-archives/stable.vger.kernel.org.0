@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1361D6E62F6
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B69A6E6370
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231311AbjDRMg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:36:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51900 "EHLO
+        id S231831AbjDRMkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:40:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231598AbjDRMg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:36:56 -0400
+        with ESMTP id S231794AbjDRMkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:40:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420E612CA8
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:36:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E0713C15;
+        Tue, 18 Apr 2023 05:40:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D23EA63289
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B95C433D2;
-        Tue, 18 Apr 2023 12:36:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F65963307;
+        Tue, 18 Apr 2023 12:40:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F811C433EF;
+        Tue, 18 Apr 2023 12:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821414;
-        bh=Aq8vcejyKWuvLtlAKkoLOGG9pzuV4Z9p3791cnIrGFQ=;
+        s=korg; t=1681821634;
+        bh=VCwMMj2q4qUoHuODRqKDgoLte/T7yupow6Vv8LVr/gY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsLAEtR9TO7ay03JSHs1LE36WBTOgRHNiK9+B5W9/zTwYUOZrOuQxYYTVszW+qI8M
-         HLIiRJp01BaGa9NrIsgxFktRABdsZlY5wM/zwLjQEw+FukEJfNj2YXnAWBbZn5ikIu
-         PqDiAri5slyvhqsAR/to1qoQVFIj91dL0cr6fVyw=
+        b=l4xh4h+eCEXXX9Ut5/f/cU8rxt/OtwjyHQ3nlpmLoC9P8b6BZ3lBDHL5QWU+gGJQX
+         Mbo54vDNHCjUkL7y819xbfFN3VyQcKbqgSaBTTiou+f4x97NCz608EZTbcAoh0l5qU
+         mQNzZPT3VsW8HcYnR1kxQgKaxT1OSQ74TE7F6tuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/124] drm: panel-orientation-quirks: Add quirk for Lenovo Yoga Book X90F
+        patches@lists.linux.dev, Robbie Harwood <rharwood@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 45/91] verify_pefile: relax wrapper length check
 Date:   Tue, 18 Apr 2023 14:21:49 +0200
-Message-Id: <20230418120313.128567903@linuxfoundation.org>
+Message-Id: <20230418120307.142778932@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
-References: <20230418120309.539243408@linuxfoundation.org>
+In-Reply-To: <20230418120305.520719816@linuxfoundation.org>
+References: <20230418120305.520719816@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Robbie Harwood <rharwood@redhat.com>
 
-[ Upstream commit 03aecb1acbcd7a660f97d645ca6c09d9de27ff9d ]
+[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
 
-Like the Windows Lenovo Yoga Book X91F/L the Android Lenovo Yoga Book
-X90F/L has a portrait 1200x1920 screen used in landscape mode,
-add a quirk for this.
+The PE Format Specification (section "The Attribute Certificate Table
+(Image Only)") states that `dwLength` is to be rounded up to 8-byte
+alignment when used for traversal.  Therefore, the field is not required
+to be an 8-byte multiple in the first place.
 
-When the quirk for the X91F/L was initially added it was written to
-also apply to the X90F/L but this does not work because the Android
-version of the Yoga Book uses completely different DMI strings.
-Also adjust the X91F/L quirk to reflect that it only applies to
-the X91F/L models.
+Accordingly, pesign has not performed this alignment since version
+0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
+Signature wrapper len wrong".  Update the comment and relax the check.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230301095218.28457-1-hdegoede@redhat.com
+Signed-off-by: Robbie Harwood <rharwood@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Jarkko Sakkinen <jarkko@kernel.org>
+cc: Eric Biederman <ebiederm@xmission.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: keyrings@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: kexec@lists.infradead.org
+Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
+Link: https://github.com/rhboot/pesign
+Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 8768073794fbf..6106fa7c43028 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -284,10 +284,17 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "IdeaPad Duet 3 10IGL5"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
--	}, {	/* Lenovo Yoga Book X90F / X91F / X91L */
-+	}, {	/* Lenovo Yoga Book X90F / X90L */
- 		.matches = {
--		  /* Non exact match to match all versions */
--		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9"),
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
-+		},
-+		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Lenovo Yoga Book X91F / X91L */
-+		.matches = {
-+		  /* Non exact match to match F + L versions */
-+		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
- 	}, {	/* OneGX1 Pro */
+diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
+index 7553ab18db898..fe1bb374239d7 100644
+--- a/crypto/asymmetric_keys/verify_pefile.c
++++ b/crypto/asymmetric_keys/verify_pefile.c
+@@ -135,11 +135,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
+ 	pr_debug("sig wrapper = { %x, %x, %x }\n",
+ 		 wrapper.length, wrapper.revision, wrapper.cert_type);
+ 
+-	/* Both pesign and sbsign round up the length of certificate table
+-	 * (in optional header data directories) to 8 byte alignment.
++	/* sbsign rounds up the length of certificate table (in optional
++	 * header data directories) to 8 byte alignment.  However, the PE
++	 * specification states that while entries are 8-byte aligned, this is
++	 * not included in their length, and as a result, pesign has not
++	 * rounded up since 0.110.
+ 	 */
+-	if (round_up(wrapper.length, 8) != ctx->sig_len) {
+-		pr_debug("Signature wrapper len wrong\n");
++	if (wrapper.length > ctx->sig_len) {
++		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
++			 ctx->sig_len, wrapper.length);
+ 		return -ELIBBAD;
+ 	}
+ 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
 -- 
 2.39.2
 
