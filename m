@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 735E16E64E0
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE0F6E64E5
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232201AbjDRMxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46560 "EHLO
+        id S232209AbjDRMx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:53:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232210AbjDRMxT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:19 -0400
+        with ESMTP id S232203AbjDRMx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:53:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFF814F7F
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:52:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F0318383
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:53:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9FAE6340D
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70CEC433EF;
-        Tue, 18 Apr 2023 12:52:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C0FF6341D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:52:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2083DC433D2;
+        Tue, 18 Apr 2023 12:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822352;
-        bh=Ccltu1PcoEKzkESOapk0mk3Wx6xSUETR124XIwTptA0=;
+        s=korg; t=1681822357;
+        bh=5/GsWUizHK8E6bndtiZh6IjnMVuhsaW3BVQdLPuor+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJnqWscVAAYF1LOgeiTrgNl6Mn30BGkhSaJKZxOAWo5N8ky9ZLGu3l9YKJmBsWOYw
-         b8MXSvWTwW9yINHDx/GvcNpXfFKRTp2oCb4OaX8+dsNXgBLqHmwxh67mX+8RrqInGC
-         O03BI/9lNfyqV/rS1bgk4ZTMDNEvMOBqbX1WK5tY=
+        b=QvZHrSpbn84aDCQSNHXxXwDZmVY7N/gDS3iptmrEgScgXeYQL4vNPg3cn/xiSmezW
+         8d/xxoO4IJdpYtrbpV72kZ4hc6R6F0ylob+zMrlMUMd4tcUYE0a9IjISXbtQj/rU/X
+         0E5DOD+HIahb4x8J0oezAHkhKhHZcUqW2NKrKiZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
         Tejun Heo <tj@kernel.org>
-Subject: [PATCH 6.2 118/139] cgroup/cpuset: Fix partition roots cpuset.cpus update bug
-Date:   Tue, 18 Apr 2023 14:23:03 +0200
-Message-Id: <20230418120318.238615119@linuxfoundation.org>
+Subject: [PATCH 6.2 119/139] cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
+Date:   Tue, 18 Apr 2023 14:23:04 +0200
+Message-Id: <20230418120318.280512874@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
 References: <20230418120313.725598495@linuxfoundation.org>
@@ -55,66 +56,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Waiman Long <longman@redhat.com>
 
-commit 292fd843de26c551856e66faf134512c52dd78b4 upstream.
+commit ba9182a89626d5f83c2ee4594f55cb9c1e60f0e2 upstream.
 
-It was found that commit 7a2127e66a00 ("cpuset: Call
-set_cpus_allowed_ptr() with appropriate mask for task") introduced a bug
-that corrupted "cpuset.cpus" of a partition root when it was updated.
+After a successful cpuset_can_attach() call which increments the
+attach_in_progress flag, either cpuset_cancel_attach() or cpuset_attach()
+will be called later. In cpuset_attach(), tasks in cpuset_attach_wq,
+if present, will be woken up at the end. That is not the case in
+cpuset_cancel_attach(). So missed wakeup is possible if the attach
+operation is somehow cancelled. Fix that by doing the wakeup in
+cpuset_cancel_attach() as well.
 
-It is because the tmp->new_cpus field of the passed tmp parameter
-of update_parent_subparts_cpumask() should not be used at all as
-it contains important cpumask data that should not be overwritten.
-Fix it by using tmp->addmask instead.
-
-Also update update_cpumask() to make sure that trialcs->cpu_allowed
-will not be corrupted until it is no longer needed.
-
-Fixes: 7a2127e66a00 ("cpuset: Call set_cpus_allowed_ptr() with appropriate mask for task")
+Fixes: e44193d39e8d ("cpuset: let hotplug propagation work wait for task attaching")
 Signed-off-by: Waiman Long <longman@redhat.com>
-Cc: stable@vger.kernel.org # v6.2+
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: stable@vger.kernel.org # v3.11+
 Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ kernel/cgroup/cpuset.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 --- a/kernel/cgroup/cpuset.c
 +++ b/kernel/cgroup/cpuset.c
-@@ -1513,7 +1513,7 @@ static int update_parent_subparts_cpumas
- 	spin_unlock_irq(&callback_lock);
+@@ -2502,11 +2502,15 @@ out_unlock:
+ static void cpuset_cancel_attach(struct cgroup_taskset *tset)
+ {
+ 	struct cgroup_subsys_state *css;
++	struct cpuset *cs;
  
- 	if (adding || deleting)
--		update_tasks_cpumask(parent, tmp->new_cpus);
-+		update_tasks_cpumask(parent, tmp->addmask);
+ 	cgroup_taskset_first(tset, &css);
++	cs = css_cs(css);
  
- 	/*
- 	 * Set or clear CS_SCHED_LOAD_BALANCE when partcmd_update, if necessary.
-@@ -1770,10 +1770,13 @@ static int update_cpumask(struct cpuset
- 	/*
- 	 * Use the cpumasks in trialcs for tmpmasks when they are pointers
- 	 * to allocated cpumasks.
-+	 *
-+	 * Note that update_parent_subparts_cpumask() uses only addmask &
-+	 * delmask, but not new_cpus.
- 	 */
- 	tmp.addmask  = trialcs->subparts_cpus;
- 	tmp.delmask  = trialcs->effective_cpus;
--	tmp.new_cpus = trialcs->cpus_allowed;
-+	tmp.new_cpus = NULL;
- #endif
- 
- 	retval = validate_change(cs, trialcs);
-@@ -1838,6 +1841,11 @@ static int update_cpumask(struct cpuset
- 	}
- 	spin_unlock_irq(&callback_lock);
- 
-+#ifdef CONFIG_CPUMASK_OFFSTACK
-+	/* Now trialcs->cpus_allowed is available */
-+	tmp.new_cpus = trialcs->cpus_allowed;
-+#endif
-+
- 	/* effective_cpus will be updated here */
- 	update_cpumasks_hier(cs, &tmp, false);
+ 	percpu_down_write(&cpuset_rwsem);
+-	css_cs(css)->attach_in_progress--;
++	cs->attach_in_progress--;
++	if (!cs->attach_in_progress)
++		wake_up(&cpuset_attach_wq);
+ 	percpu_up_write(&cpuset_rwsem);
+ }
  
 
 
