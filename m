@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 169516E639B
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D426E6298
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231857AbjDRMmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:42:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59262 "EHLO
+        id S231730AbjDRMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231858AbjDRMmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:42:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6524A146C5
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:41:47 -0700 (PDT)
+        with ESMTP id S231686AbjDRMdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:33:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38A5CC1D
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:33:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3C746332E
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12319C433EF;
-        Tue, 18 Apr 2023 12:41:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3A60629EA
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:33:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2459C4339B;
+        Tue, 18 Apr 2023 12:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681821706;
-        bh=kJYfukdJ863JzUgQwEqwOLn1+LPDE3QziNMDK1i2+rY=;
+        s=korg; t=1681821209;
+        bh=4lD04OAjI3ZG8K6M4vFAQ14rVCyn7UTx7mUU/WP1TE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vPyI3Uxyg6PmE6HHSiTLnIEKvf2dHiDi9jeqgfh0M4Dgk0XmRDMJ+JO9ASjGYpmY
-         X+p4oTkK+HpPqbzlMkypNXtBMsLkNwZh0naV4RnwtxLC9DUSW8a9mEJgKeLzwT/0tq
-         jaeSTkupr5N0HvxNrlMLuP7YOoiYJagEpQpr/ROI=
+        b=NPLgtDzTP9BUMBXoJRieAemOj9HTpp0ZjYgCXPwdaU2SZd1WYL//WgMBCB3vfcMw6
+         P1DK3TGGi9DRLZoEiN2YWdNK6vLfJgY8HjUsuEN6AT9bWFc+HG5PdGsArpSVEBVm78
+         vPuGu3ClWmmjEYqcBauQChbuQMpaCD5JRT/kYDEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oswald Buddenhagen <oswald.buddenhagen@gmx.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 003/134] ALSA: emu10k1: fix capture interrupt handler unlinking
+        patches@lists.linux.dev, Shuangpeng Bai <sjb7183@psu.edu>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 040/124] can: j1939: j1939_tp_tx_dat_new(): fix out-of-bounds memory access
 Date:   Tue, 18 Apr 2023 14:20:59 +0200
-Message-Id: <20230418120313.134676891@linuxfoundation.org>
+Message-Id: <20230418120311.288989764@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.001025904@linuxfoundation.org>
-References: <20230418120313.001025904@linuxfoundation.org>
+In-Reply-To: <20230418120309.539243408@linuxfoundation.org>
+References: <20230418120309.539243408@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,49 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit b09c551c77c7e01dc6e4f3c8bf06b5ffa7b06db5 upstream.
+commit b45193cb4df556fe6251b285a5ce44046dd36b4a upstream.
 
-Due to two copy/pastos, closing the MIC or EFX capture device would
-make a running ADC capture hang due to unsetting its interrupt handler.
-In principle, this would have also allowed dereferencing dangling
-pointers, but we're actually rather thorough at disabling and flushing
-the ints.
+In the j1939_tp_tx_dat_new() function, an out-of-bounds memory access
+could occur during the memcpy() operation if the size of skb->cb is
+larger than the size of struct j1939_sk_buff_cb. This is because the
+memcpy() operation uses the size of skb->cb, leading to a read beyond
+the struct j1939_sk_buff_cb.
 
-While it may sound like one, this actually wasn't a hypothetical bug:
-PortAudio will open a capture stream at startup (and close it right
-away) even if not asked to. If the first device is busy, it will just
-proceed with the next one ... thus killing a concurrent capture.
+Updated the memcpy() operation to use the size of struct
+j1939_sk_buff_cb instead of the size of skb->cb. This ensures that the
+memcpy() operation only reads the memory within the bounds of struct
+j1939_sk_buff_cb, preventing out-of-bounds memory access.
 
-Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230405201220.2197923-1-oswald.buddenhagen@gmx.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Additionally, add a BUILD_BUG_ON() to check that the size of skb->cb
+is greater than or equal to the size of struct j1939_sk_buff_cb. This
+ensures that the skb->cb buffer is large enough to hold the
+j1939_sk_buff_cb structure.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Reported-by: Shuangpeng Bai <sjb7183@psu.edu>
+Tested-by: Shuangpeng Bai <sjb7183@psu.edu>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://groups.google.com/g/syzkaller/c/G_LL-C3plRs/m/-8xCi6dCAgAJ
+Link: https://lore.kernel.org/all/20230404073128.3173900-1-o.rempel@pengutronix.de
+Cc: stable@vger.kernel.org
+[mkl: rephrase commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/emu10k1/emupcm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/can/j1939/transport.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -1236,7 +1236,7 @@ static int snd_emu10k1_capture_mic_close
- {
- 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -600,7 +600,10 @@ sk_buff *j1939_tp_tx_dat_new(struct j193
+ 	/* reserve CAN header */
+ 	skb_reserve(skb, offsetof(struct can_frame, data));
  
--	emu->capture_interrupt = NULL;
-+	emu->capture_mic_interrupt = NULL;
- 	emu->pcm_capture_mic_substream = NULL;
- 	return 0;
- }
-@@ -1344,7 +1344,7 @@ static int snd_emu10k1_capture_efx_close
- {
- 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
- 
--	emu->capture_interrupt = NULL;
-+	emu->capture_efx_interrupt = NULL;
- 	emu->pcm_capture_efx_substream = NULL;
- 	return 0;
- }
+-	memcpy(skb->cb, re_skcb, sizeof(skb->cb));
++	/* skb->cb must be large enough to hold a j1939_sk_buff_cb structure */
++	BUILD_BUG_ON(sizeof(skb->cb) < sizeof(*re_skcb));
++
++	memcpy(skb->cb, re_skcb, sizeof(*re_skcb));
+ 	skcb = j1939_skb_to_cb(skb);
+ 	if (swap_src_dst)
+ 		j1939_skbcb_swap(skcb);
 
 
