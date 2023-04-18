@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 888A16E6498
-	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1026E61C2
+	for <lists+stable@lfdr.de>; Tue, 18 Apr 2023 14:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232138AbjDRMuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Apr 2023 08:50:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42440 "EHLO
+        id S231408AbjDRM1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Apr 2023 08:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232160AbjDRMua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:50:30 -0400
+        with ESMTP id S231440AbjDRM1b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Apr 2023 08:27:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B146816DF4
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:50:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B56B477
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 05:27:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E68863417
-        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:50:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D471C433EF;
-        Tue, 18 Apr 2023 12:50:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 481336318E
+        for <stable@vger.kernel.org>; Tue, 18 Apr 2023 12:27:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EB73C433EF;
+        Tue, 18 Apr 2023 12:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681822227;
-        bh=KrzmrwIHo3wcMb73M+apz+VRZfh8/zXhn/xH2hEaXSQ=;
+        s=korg; t=1681820825;
+        bh=0hE04+07KsqCXzxoXjt/mN/mZRkql1GIDC8f1lk8dD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCIT6rz67HkAZ12LrxFidE1Zhdf1R9EXBhVLQY5Q4s8cdO/oA2K9jAv6ndwk8whOD
-         P2ir/AUE86sD4lOrMGJn5G2gqEYli4oGzSF1qsMRSemN6ki7RY0ka1AOfPtd32rfKE
-         MXjHynbp1oZS7dGXz9iLr3G06JBW3Uv4hBPO/ppo=
+        b=STQYr7lAXFiKNFJ2rgj6Rib409VQf06/oK9wwlTadaj31kUxNhre1i0pUYxdWFTge
+         1C+JnxIWOOKMXtlPGaWm98VGAZg46uz4arsRfCGngqfR3mD8FA9U+yxqnMo1m/B28U
+         rmgnUhzcBwtDvpNmkr07U0WUmFzjsFNVLslubNSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+8fcbb77276d43cc8b693@syzkaller.appspotmail.com,
-        Mark Zhang <markzhang@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/139] RDMA/cma: Allow UD qp_type to join multicast only
+        patches@lists.linux.dev, Michal Kolar <mich.k@seznam.cz>,
+        Jiri Kosina <jkosina@suse.cz>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Ding Hui <dinghui@sangfor.com.cn>
+Subject: [PATCH 4.19 46/57] scsi: ses: Handle enclosure with just a primary component gracefully
 Date:   Tue, 18 Apr 2023 14:21:46 +0200
-Message-Id: <20230418120315.190390826@linuxfoundation.org>
+Message-Id: <20230418120300.350581445@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230418120313.725598495@linuxfoundation.org>
-References: <20230418120313.725598495@linuxfoundation.org>
+In-Reply-To: <20230418120258.713853188@linuxfoundation.org>
+References: <20230418120258.713853188@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,208 +55,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 58e84f6b3e84e46524b7e5a916b53c1ad798bc8f ]
+commit c8e22b7a1694bb8d025ea636816472739d859145 upstream.
 
-As for multicast:
-- The SIDR is the only mode that makes sense;
-- Besides PS_UDP, other port spaces like PS_IB is also allowed, as it is
-  UD compatible. In this case qkey also needs to be set [1].
+This reverts commit 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure
+has no components") and introduces proper handling of case where there are
+no detected secondary components, but primary component (enumerated in
+num_enclosures) does exist. That fix was originally proposed by Ding Hui
+<dinghui@sangfor.com.cn>.
 
-This patch allows only UD qp_type to join multicast, and set qkey to
-default if it's not set, to fix an uninit-value error: the ib->rec.qkey
-field is accessed without being initialized.
+Completely ignoring devices that have one primary enclosure and no
+secondary one results in ses_intf_add() bailing completely
 
-=====================================================
-BUG: KMSAN: uninit-value in cma_set_qkey drivers/infiniband/core/cma.c:510 [inline]
-BUG: KMSAN: uninit-value in cma_make_mc_event+0xb73/0xe00 drivers/infiniband/core/cma.c:4570
- cma_set_qkey drivers/infiniband/core/cma.c:510 [inline]
- cma_make_mc_event+0xb73/0xe00 drivers/infiniband/core/cma.c:4570
- cma_iboe_join_multicast drivers/infiniband/core/cma.c:4782 [inline]
- rdma_join_multicast+0x2b83/0x30a0 drivers/infiniband/core/cma.c:4814
- ucma_process_join+0xa76/0xf60 drivers/infiniband/core/ucma.c:1479
- ucma_join_multicast+0x1e3/0x250 drivers/infiniband/core/ucma.c:1546
- ucma_write+0x639/0x6d0 drivers/infiniband/core/ucma.c:1732
- vfs_write+0x8ce/0x2030 fs/read_write.c:588
- ksys_write+0x28c/0x520 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __ia32_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_32_irqs_on arch/x86/entry/common.c:114 [inline]
- __do_fast_syscall_32+0x96/0xf0 arch/x86/entry/common.c:180
- do_fast_syscall_32+0x34/0x70 arch/x86/entry/common.c:205
- do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:248
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+	scsi 2:0:0:254: enclosure has no enumerated components
+        scsi 2:0:0:254: Failed to bind enclosure -12ven in valid configurations such
 
-Local variable ib.i created at:
-cma_iboe_join_multicast drivers/infiniband/core/cma.c:4737 [inline]
-rdma_join_multicast+0x586/0x30a0 drivers/infiniband/core/cma.c:4814
-ucma_process_join+0xa76/0xf60 drivers/infiniband/core/ucma.c:1479
+even on valid configurations with 1 primary and 0 secondary enclosures as
+below:
 
-CPU: 0 PID: 29874 Comm: syz-executor.3 Not tainted 5.16.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-=====================================================
+	# sg_ses /dev/sg0
+	  3PARdata  SES               3321
+	Supported diagnostic pages:
+	  Supported Diagnostic Pages [sdp] [0x0]
+	  Configuration (SES) [cf] [0x1]
+	  Short Enclosure Status (SES) [ses] [0x8]
+	# sg_ses -p cf /dev/sg0
+	  3PARdata  SES               3321
+	Configuration diagnostic page:
+	  number of secondary subenclosures: 0
+	  generation code: 0x0
+	  enclosure descriptor list
+	    Subenclosure identifier: 0 [primary]
+	      relative ES process id: 0, number of ES processes: 1
+	      number of type descriptor headers: 1
+	      enclosure logical identifier (hex): 20000002ac02068d
+	      enclosure vendor: 3PARdata  product: VV                rev: 3321
+	  type descriptor header and text list
+	    Element type: Unspecified, subenclosure id: 0
+	      number of possible elements: 1
 
-[1] https://lore.kernel.org/linux-rdma/20220117183832.GD84788@nvidia.com/
+The changelog for the original fix follows
 
-Fixes: b5de0c60cc30 ("RDMA/cma: Fix use after free race in roce multicast join")
-Reported-by: syzbot+8fcbb77276d43cc8b693@syzkaller.appspotmail.com
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Link: https://lore.kernel.org/r/58a4a98323b5e6b1282e83f6b76960d06e43b9fa.1679309909.git.leon@kernel.org
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+=====
+We can get a crash when disconnecting the iSCSI session,
+the call trace like this:
+
+  [ffff00002a00fb70] kfree at ffff00000830e224
+  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
+  [ffff00002a00fbd0] device_del at ffff0000086b6a98
+  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
+  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
+  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
+  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
+  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
+  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
+  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
+  [ffff00002a00fe00] worker_thread at ffff00000810f648
+  [ffff00002a00fe70] kthread at ffff000008116e98
+
+In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
+but not saved in edev->component[i].scratch
+
+In this situation, edev->component[0].scratch is an invalid pointer,
+when kfree it in ses_intf_remove_enclosure, a crash like above would happen
+The call trace also could be other random cases when kfree cannot catch
+the invalid pointer
+
+We should not use edev->component[] array when the components count is 0
+We also need check index when use edev->component[] array in
+ses_enclosure_data_process
+=====
+
+Reported-by: Michal Kolar <mich.k@seznam.cz>
+Originally-by: Ding Hui <dinghui@sangfor.com.cn>
+Cc: stable@vger.kernel.org
+Fixes: 3fe97ff3d949 ("scsi: ses: Don't attach if enclosure has no components")
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2304042122270.29760@cbobk.fhfr.pm
+Tested-by: Michal Kolar <mich.k@seznam.cz>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c | 60 ++++++++++++++++++++---------------
- 1 file changed, 34 insertions(+), 26 deletions(-)
+ drivers/scsi/ses.c |   20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 7e508b15e7761..00c9529c3143f 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -624,22 +624,11 @@ static inline unsigned short cma_family(struct rdma_id_private *id_priv)
- 	return id_priv->id.route.addr.src_addr.ss_family;
- }
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -519,9 +519,6 @@ static int ses_enclosure_find_by_addr(st
+ 	int i;
+ 	struct ses_component *scomp;
  
--static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
-+static int cma_set_default_qkey(struct rdma_id_private *id_priv)
- {
- 	struct ib_sa_mcmember_rec rec;
- 	int ret = 0;
- 
--	if (id_priv->qkey) {
--		if (qkey && id_priv->qkey != qkey)
--			return -EINVAL;
+-	if (!edev->component[0].scratch)
 -		return 0;
--	}
 -
--	if (qkey) {
--		id_priv->qkey = qkey;
--		return 0;
--	}
--
- 	switch (id_priv->id.ps) {
- 	case RDMA_PS_UDP:
- 	case RDMA_PS_IB:
-@@ -659,6 +648,16 @@ static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
- 	return ret;
- }
+ 	for (i = 0; i < edev->components; i++) {
+ 		scomp = edev->component[i].scratch;
+ 		if (scomp->addr != efd->addr)
+@@ -612,8 +609,10 @@ static void ses_enclosure_data_process(s
+ 						components++,
+ 						type_ptr[0],
+ 						name);
+-				else
++				else if (components < edev->components)
+ 					ecomp = &edev->component[components++];
++				else
++					ecomp = ERR_PTR(-EINVAL);
  
-+static int cma_set_qkey(struct rdma_id_private *id_priv, u32 qkey)
-+{
-+	if (!qkey ||
-+	    (id_priv->qkey && (id_priv->qkey != qkey)))
-+		return -EINVAL;
-+
-+	id_priv->qkey = qkey;
-+	return 0;
-+}
-+
- static void cma_translate_ib(struct sockaddr_ib *sib, struct rdma_dev_addr *dev_addr)
- {
- 	dev_addr->dev_type = ARPHRD_INFINIBAND;
-@@ -1229,7 +1228,7 @@ static int cma_ib_init_qp_attr(struct rdma_id_private *id_priv,
- 	*qp_attr_mask = IB_QP_STATE | IB_QP_PKEY_INDEX | IB_QP_PORT;
- 
- 	if (id_priv->id.qp_type == IB_QPT_UD) {
--		ret = cma_set_qkey(id_priv, 0);
-+		ret = cma_set_default_qkey(id_priv);
- 		if (ret)
- 			return ret;
- 
-@@ -4558,7 +4557,10 @@ static int cma_send_sidr_rep(struct rdma_id_private *id_priv,
- 	memset(&rep, 0, sizeof rep);
- 	rep.status = status;
- 	if (status == IB_SIDR_SUCCESS) {
--		ret = cma_set_qkey(id_priv, qkey);
-+		if (qkey)
-+			ret = cma_set_qkey(id_priv, qkey);
-+		else
-+			ret = cma_set_default_qkey(id_priv);
- 		if (ret)
- 			return ret;
- 		rep.qp_num = id_priv->qp_num;
-@@ -4763,9 +4765,7 @@ static void cma_make_mc_event(int status, struct rdma_id_private *id_priv,
- 	enum ib_gid_type gid_type;
- 	struct net_device *ndev;
- 
--	if (!status)
--		status = cma_set_qkey(id_priv, be32_to_cpu(multicast->rec.qkey));
--	else
-+	if (status)
- 		pr_debug_ratelimited("RDMA CM: MULTICAST_ERROR: failed to join multicast. status %d\n",
- 				     status);
- 
-@@ -4793,7 +4793,7 @@ static void cma_make_mc_event(int status, struct rdma_id_private *id_priv,
+ 				if (!IS_ERR(ecomp)) {
+ 					if (addl_desc_ptr) {
+@@ -744,11 +743,6 @@ static int ses_intf_add(struct device *c
+ 			components += type_ptr[1];
  	}
  
- 	event->param.ud.qp_num = 0xFFFFFF;
--	event->param.ud.qkey = be32_to_cpu(multicast->rec.qkey);
-+	event->param.ud.qkey = id_priv->qkey;
- 
- out:
- 	if (ndev)
-@@ -4812,8 +4812,11 @@ static int cma_ib_mc_handler(int status, struct ib_sa_multicast *multicast)
- 	    READ_ONCE(id_priv->state) == RDMA_CM_DESTROYING)
- 		goto out;
- 
--	cma_make_mc_event(status, id_priv, multicast, &event, mc);
--	ret = cma_cm_event_handler(id_priv, &event);
-+	ret = cma_set_qkey(id_priv, be32_to_cpu(multicast->rec.qkey));
-+	if (!ret) {
-+		cma_make_mc_event(status, id_priv, multicast, &event, mc);
-+		ret = cma_cm_event_handler(id_priv, &event);
-+	}
- 	rdma_destroy_ah_attr(&event.param.ud.ah_attr);
- 	WARN_ON(ret);
- 
-@@ -4866,9 +4869,11 @@ static int cma_join_ib_multicast(struct rdma_id_private *id_priv,
- 	if (ret)
- 		return ret;
- 
--	ret = cma_set_qkey(id_priv, 0);
--	if (ret)
--		return ret;
-+	if (!id_priv->qkey) {
-+		ret = cma_set_default_qkey(id_priv);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	cma_set_mgid(id_priv, (struct sockaddr *) &mc->addr, &rec.mgid);
- 	rec.qkey = cpu_to_be32(id_priv->qkey);
-@@ -4945,9 +4950,6 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 	cma_iboe_set_mgid(addr, &ib.rec.mgid, gid_type);
- 
- 	ib.rec.pkey = cpu_to_be16(0xffff);
--	if (id_priv->id.ps == RDMA_PS_UDP)
--		ib.rec.qkey = cpu_to_be32(RDMA_UDP_QKEY);
+-	if (components == 0) {
+-		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
+-		goto err_free;
+-	}
 -
- 	if (dev_addr->bound_dev_if)
- 		ndev = dev_get_by_index(dev_addr->net, dev_addr->bound_dev_if);
- 	if (!ndev)
-@@ -4973,6 +4975,9 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 	if (err || !ib.rec.mtu)
- 		return err ?: -EINVAL;
+ 	ses_dev->page1 = buf;
+ 	ses_dev->page1_len = len;
+ 	buf = NULL;
+@@ -790,9 +784,11 @@ static int ses_intf_add(struct device *c
+ 		buf = NULL;
+ 	}
+ page2_not_supported:
+-	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
+-	if (!scomp)
+-		goto err_free;
++	if (components > 0) {
++		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
++		if (!scomp)
++			goto err_free;
++	}
  
-+	if (!id_priv->qkey)
-+		cma_set_default_qkey(id_priv);
-+
- 	rdma_ip2gid((struct sockaddr *)&id_priv->id.route.addr.src_addr,
- 		    &ib.rec.port_gid);
- 	INIT_WORK(&mc->iboe_join.work, cma_iboe_join_work_handler);
-@@ -4998,6 +5003,9 @@ int rdma_join_multicast(struct rdma_cm_id *id, struct sockaddr *addr,
- 			    READ_ONCE(id_priv->state) != RDMA_CM_ADDR_RESOLVED))
- 		return -EINVAL;
- 
-+	if (id_priv->id.qp_type != IB_QPT_UD)
-+		return -EINVAL;
-+
- 	mc = kzalloc(sizeof(*mc), GFP_KERNEL);
- 	if (!mc)
- 		return -ENOMEM;
--- 
-2.39.2
-
+ 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
+ 				  components, &ses_enclosure_callbacks);
 
 
