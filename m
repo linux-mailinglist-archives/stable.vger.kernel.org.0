@@ -2,130 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6969B6E73F2
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 09:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4000A6E73F6
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 09:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231877AbjDSHY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 03:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48938 "EHLO
+        id S232000AbjDSH00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 03:26:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232386AbjDSHYr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 03:24:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C7C7297;
-        Wed, 19 Apr 2023 00:24:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14D4363BD6;
-        Wed, 19 Apr 2023 07:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE019C433EF;
-        Wed, 19 Apr 2023 07:24:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681889069;
-        bh=NtB/YaSSbFgtba63lvz2IrrEcg0B/LAISTt/boARlY4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gukPGyPDjS0gQhYVPWX6QqeCDNEnfxeDNgmD68fJPort6oofFcDGyjB4Hzl74Io7X
-         2XHN840fKdDWSdmOKdRzRoSmIrLWtNzfxXRfVREIQXIZXxsjt2asIGhxctLH4jAbpe
-         j2+uT1E1s37vKiYtOl4wUVG2/ai+7vvWpMeu2HmE=
-Date:   Wed, 19 Apr 2023 09:24:26 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Waiman Long <longman@redhat.com>, stable@vger.kernel.org,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de, Tejun Heo <tj@kernel.org>,
-        Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
-        Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: Re: [PATCH 5.15 00/91] 5.15.108-rc1 review
-Message-ID: <2023041959-ammonia-subheader-0bce@gregkh>
-References: <20230418120305.520719816@linuxfoundation.org>
- <CA+G9fYs9sHnfhn4hSFP=AmOfgj-zvoK9vmBejRvzKPj4uXx+VA@mail.gmail.com>
+        with ESMTP id S231308AbjDSH0Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 03:26:25 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA5783F2
+        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 00:25:51 -0700 (PDT)
+Date:   Wed, 19 Apr 2023 09:25:46 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1681889148;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=puhDZ9O+Qj5gPpenARJZlMfM9hbc1gC4N4ICbzdxw1E=;
+        b=FQUbb8Fydsvph6HBlvrXDAbRic06NZYM+wbhKy5sa6dT3cEfe7VSMRVaVzVTCn39wEmavR
+        8HrhG3y5J6lzUyAQa/HG72Zq/4waPaAPAIh2U7dkMd/GbRWH6AZVU/VrnZ072nsz6uwngD
+        tiXa8tBR2Ukbc6bU23ctnUr8aCla0gZ6zSthRbB+nTQROIoXklFs7q50hDU8Rvv5zheGn9
+        l1E9zbthX3QgszcuZTXIhD0NSlOoGHscJN5qpt6l39cePSkOyDea0X8Yeu+ZlVGnANd4OB
+        ooB5kM6be6owOnojsTCKUxYHUoidqcyaegQjWOwyIEbI9SWOwHUvDXUKH/A+8Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1681889148;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=puhDZ9O+Qj5gPpenARJZlMfM9hbc1gC4N4ICbzdxw1E=;
+        b=YO1jfvsZqgp8tp1M9H0vySscokLpzQ1L4VW+TxHyMwvTpOoNB7wTiaoR9K3u+WHL73qpA7
+        9beliNLOeAqM0lBQ==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        Jan Kara <jack@suse.cz>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] rtmutex: Add acquire semantics for rtmutex lock
+ acquisition slow path
+Message-ID: <20230419072546.gD_YO2-K@linutronix.de>
+References: <20230418154315.9PD52J2N@linutronix.de>
+ <2023041854-cranium-prone-b9fa@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYs9sHnfhn4hSFP=AmOfgj-zvoK9vmBejRvzKPj4uXx+VA@mail.gmail.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <2023041854-cranium-prone-b9fa@gregkh>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 18, 2023 at 08:17:12PM +0530, Naresh Kamboju wrote:
-> On Tue, 18 Apr 2023 at 18:07, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.15.108 release.
-> > There are 91 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.108-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On 2023-04-18 18:25:48 [+0200], Greg KH wrote:
+> > Could this be please backported to 5.15 and earlier? It is already part
+> > of the 6.X kernels. I asked about this by the end of January and I'm
+> > kindly asking again ;)
 > 
-> 
-> Following patch causing build break on stable-rc 5.15
-> 
-> 
-> > Waiman Long <longman@redhat.com>
-> >     cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
-> 
-> cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
-> commit eee87853794187f6adbe19533ed79c8b44b36a91 upstream.
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> Build error:
-> kernel/cgroup/cpuset.c: In function 'cpuset_can_fork':
-> kernel/cgroup/cpuset.c:2979:30: error: 'cgroup_mutex' undeclared
-> (first use in this function); did you mean 'cgroup_put'?
->  2979 |         lockdep_assert_held(&cgroup_mutex);
->       |                              ^~~~~~~~~~~~
-> include/linux/lockdep.h:415:61: note: in definition of macro
-> 'lockdep_assert_held'
->   415 | #define lockdep_assert_held(l)                  do {
-> (void)(l); } while (0)
->       |                                                             ^
-> kernel/cgroup/cpuset.c:2979:30: note: each undeclared identifier is
-> reported only once for each function it appears in
->  2979 |         lockdep_assert_held(&cgroup_mutex);
->       |                              ^~~~~~~~~~~~
-> include/linux/lockdep.h:415:61: note: in definition of macro
-> 'lockdep_assert_held'
->   415 | #define lockdep_assert_held(l)                  do {
-> (void)(l); } while (0)
->       |                                                             ^
-> make[3]: *** [scripts/Makefile.build:289: kernel/cgroup/cpuset.o] Error 1
-> 
-> 
-> build log:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.105-280-g0b6a5617247c/testrun/16291026/suite/build/test/gcc-11-lkftconfig-kunit/log
-> 
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+> I thought this was only an issues when using the out-of-tree RT patches
+> with these kernels, right?  Or is it relevant for 5.15.y from kernel.org
+> without anything else?
 
-I've now dropped the offending patches and pushed out -rc2 releases for
-this, and the 5.10.y tree.
+The out-of-tree RT patches make extensive use of the code. Since it is
+upstream code, I assumed it should go via the official stable trees.
+Without RT, the code is limited the rt_mutex_lock() used by I2C and the
+RCU booster-mutex. 
+Since this might not be enough to trigger the problem, let me route this
+via rt-stable trees.
 
-thanks,
+> greg k-h
 
-greg k-h
+Sebastian
