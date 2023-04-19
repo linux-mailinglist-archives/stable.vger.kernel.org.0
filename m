@@ -2,149 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE896E82FC
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 23:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC306E830A
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 23:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbjDSVDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 17:03:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59170 "EHLO
+        id S229727AbjDSVIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 17:08:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbjDSVDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 17:03:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712BA618D;
-        Wed, 19 Apr 2023 14:03:38 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 099E8634B4;
-        Wed, 19 Apr 2023 21:03:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 624D6C433D2;
-        Wed, 19 Apr 2023 21:03:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1681938217;
-        bh=yogn+9PYSPxenmE3XWIOpB3TJhYbCs7RmCF72lQOlh0=;
-        h=Date:To:From:Subject:From;
-        b=xdpgEpNkmCxQpQDCOvAoPAHNyU2ykJ8LZ3j7GuF5Doeeu/c3ZhNMtziX6Uv9U6laj
-         lIHMJxLzsMLg+wioJOFwzBbcvNaN+NYJcjrPUBDLMtiQ2aE2JaPzSX1IZ0itMQd4Je
-         1+eVZKf3rbFts0R9v33piiKwWy12hU1SED5iAU1k=
-Date:   Wed, 19 Apr 2023 14:03:36 -0700
-To:     mm-commits@vger.kernel.org, zhou.kete@h3c.com,
-        zhao_lei1@hoperun.com, yangpc@wangsu.com, stable@vger.kernel.org,
-        axboe@kernel.dk, zhang.zhengming@h3c.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + relayfs-fix-out-of-bounds-access-in-relay_file_read.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230419210337.624D6C433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S231347AbjDSVIU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 17:08:20 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59ADE659F;
+        Wed, 19 Apr 2023 14:08:17 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id m39-20020a05600c3b2700b003f170e75bd3so2606459wms.1;
+        Wed, 19 Apr 2023 14:08:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681938496; x=1684530496;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ehYDxVU02fn2ZkXnUcD0JtMkdqmb9th/dYG75X055ng=;
+        b=JwRafYxks4ZW9UecZY4eqmo5FKHyDxwuYi5VAsPf6UWl4eR8eRczTFuc6KvqIPoc12
+         RbTqA4mT9JS0NlX7sCEvvhwWdGvWglMMZwc9juIZoL444AKX0vkKIXMfJ1t1YX/lmJoF
+         2m80rXDfg0ov2r4d2fCDUh/VwAvR0J+LQdrLvDxxn4uglHr2bMhNOpHSnDAhEWoEINAr
+         Sburf4C1ltCzrl/J8s9aoPYt0be7fxt/tg/K5aYaLbn975xzIPn0n49Hj8LSxN0NMhtf
+         KIqQdGQJSvt6VRD876+BSgsU6kZfxQbMQXT/9D6o9fKG7gnNtU5xUWUL1VIUpmNJJOVs
+         YknA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681938496; x=1684530496;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ehYDxVU02fn2ZkXnUcD0JtMkdqmb9th/dYG75X055ng=;
+        b=PBSss+wZkr9w8mwhJq4z3olMdQPqQteFDJWZ6v0Dyi8XGUekaZuU95pOOaDrmKNIul
+         TPBIZ5YAM6uipOFmttA+L/w2gsm/Y/vNsZJk0RxMcjP7zWGStXvvpds1gk3V0hYFzp8/
+         InH9DwBMwU3qBtfIQO3yj8csEWx8pXzfphSY+iOPkcsp4cPdQgusAmluFKUlhwDLSWCq
+         MKoYvKhL/JzW2lEOXm/azATacUyQcSXIHWff2lJd4AcLx+Uda+DjBG9pgWvYD1iyFSwM
+         jXpukn5NNb2eF02VwJOqDjoLKUy9VQWePYVc6fMZsSNyENPw911YG9t5eIrb0EukGq7O
+         68Og==
+X-Gm-Message-State: AAQBX9dAu0GtEHFNkb1nzHSdPm6dzNnL2Jg/TZ0HwJhYGWI5OrAFO5//
+        wdnSq712RBOjRbLNVx6mTFs=
+X-Google-Smtp-Source: AKy350bpR2ntMHwK5Uj+zwSpTPl5Escd1GXHcMe/lfkEefigenjs1F+0v7UETpJWgm+TbiA54PNpPw==
+X-Received: by 2002:a05:600c:221a:b0:3f0:a798:2757 with SMTP id z26-20020a05600c221a00b003f0a7982757mr17039715wml.25.1681938495512;
+        Wed, 19 Apr 2023 14:08:15 -0700 (PDT)
+Received: from localhost.localdomain (93-34-93-173.ip49.fastwebnet.it. [93.34.93.173])
+        by smtp.googlemail.com with ESMTPSA id g3-20020a5d5543000000b002fe254f6c33sm81295wrw.92.2023.04.19.14.08.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Apr 2023 14:08:15 -0700 (PDT)
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     Pavel Machek <pavel@ucw.cz>, Lee Jones <lee@kernel.org>,
+        Christian Marangi <ansuelsmth@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>, linux-leds@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/5] leds: trigger: netdev: recheck NETDEV_LED_MODE_LINKUP on dev rename
+Date:   Wed, 19 Apr 2023 23:07:39 +0200
+Message-Id: <20230419210743.3594-2-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230419210743.3594-1-ansuelsmth@gmail.com>
+References: <20230419210743.3594-1-ansuelsmth@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dev can be renamed also while up for supported device. We currently
+wrongly clear the NETDEV_LED_MODE_LINKUP flag on NETDEV_CHANGENAME
+event.
 
-The patch titled
-     Subject: relayfs: fix out-of-bounds access in relay_file_read
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     relayfs-fix-out-of-bounds-access-in-relay_file_read.patch
+Fix this by rechecking if the carrier is ok on NETDEV_CHANGENAME and
+correctly set the NETDEV_LED_MODE_LINKUP bit.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/relayfs-fix-out-of-bounds-access-in-relay_file_read.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Zhang Zhengming <zhang.zhengming@h3c.com>
-Subject: relayfs: fix out-of-bounds access in relay_file_read
-Date: Wed, 19 Apr 2023 12:02:03 +0800
-
-There is a crash in relay_file_read, as the var from
-point to the end of last subbuf.
-
-The oops looks something like:
-pc : __arch_copy_to_user+0x180/0x310
-lr : relay_file_read+0x20c/0x2c8
-Call trace:
- __arch_copy_to_user+0x180/0x310
- full_proxy_read+0x68/0x98
- vfs_read+0xb0/0x1d0
- ksys_read+0x6c/0xf0
- __arm64_sys_read+0x20/0x28
- el0_svc_common.constprop.3+0x84/0x108
- do_el0_svc+0x74/0x90
- el0_svc+0x1c/0x28
- el0_sync_handler+0x88/0xb0
- el0_sync+0x148/0x180
-
-We get the condition by analyzing the vmcore:
-
-1). The last produced byte and last consumed byte
-    both at the end of the last subbuf
-
-2). A softirq calls function(e.g __blk_add_trace)
-    to write relay buffer occurs when an program is calling
-    relay_file_read_avail().
-
-        relay_file_read
-                relay_file_read_avail
-                        relay_file_read_consume(buf, 0, 0);
-                        //interrupted by softirq who will write subbuf
-                        ....
-                        return 1;
-                //read_start point to the end of the last subbuf
-                read_start = relay_file_read_start_pos
-                //avail is equal to subsize
-                avail = relay_file_read_subbuf_avail
-                //from  points to an invalid memory address
-                from = buf->start + read_start
-                //system is crashed
-                copy_to_user(buffer, from, avail)
-
-Link: https://lkml.kernel.org/r/20230419040203.37676-1-zhang.zhengming@h3c.com
-Fixes: 341a7213e5c1 ("kernel/relay.c: fix read_pos error when multiple readers")
-Signed-off-by: Zhang Zhengming <zhang.zhengming@h3c.com>
-Reviewed-by: Zhao Lei <zhao_lei1@hoperun.com>
-Reviewed-by: Zhou Kete <zhou.kete@h3c.com>
-Cc: Pengcheng Yang <yangpc@wangsu.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 5f820ed52371 ("leds: trigger: netdev: fix handling on interface rename")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v5.5+
 ---
+ drivers/leds/trigger/ledtrig-netdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
- kernel/relay.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/kernel/relay.c~relayfs-fix-out-of-bounds-access-in-relay_file_read
-+++ a/kernel/relay.c
-@@ -989,7 +989,8 @@ static size_t relay_file_read_start_pos(
- 	size_t subbuf_size = buf->chan->subbuf_size;
- 	size_t n_subbufs = buf->chan->n_subbufs;
- 	size_t consumed = buf->subbufs_consumed % n_subbufs;
--	size_t read_pos = consumed * subbuf_size + buf->bytes_consumed;
-+	size_t read_pos = (consumed * subbuf_size + buf->bytes_consumed)
-+			% (n_subbufs * subbuf_size);
- 
- 	read_subbuf = read_pos / subbuf_size;
- 	padding = buf->padding[read_subbuf];
-_
-
-Patches currently in -mm which might be from zhang.zhengming@h3c.com are
-
-relayfs-fix-out-of-bounds-access-in-relay_file_read.patch
+diff --git a/drivers/leds/trigger/ledtrig-netdev.c b/drivers/leds/trigger/ledtrig-netdev.c
+index d5e774d83021..f4d670ec30bc 100644
+--- a/drivers/leds/trigger/ledtrig-netdev.c
++++ b/drivers/leds/trigger/ledtrig-netdev.c
+@@ -318,6 +318,9 @@ static int netdev_trig_notify(struct notifier_block *nb,
+ 	clear_bit(NETDEV_LED_MODE_LINKUP, &trigger_data->mode);
+ 	switch (evt) {
+ 	case NETDEV_CHANGENAME:
++		if (netif_carrier_ok(dev))
++			set_bit(NETDEV_LED_MODE_LINKUP, &trigger_data->mode);
++		fallthrough;
+ 	case NETDEV_REGISTER:
+ 		if (trigger_data->net_dev)
+ 			dev_put(trigger_data->net_dev);
+-- 
+2.39.2
 
