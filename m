@@ -2,117 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CC576E77F3
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 13:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD106E77FB
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 13:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231978AbjDSLC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 07:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33308 "EHLO
+        id S232453AbjDSLED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 07:04:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbjDSLCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 07:02:25 -0400
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A052944B7
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 04:02:24 -0700 (PDT)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 38C091003FAC7
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 11:02:24 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id p5ZwpmW4V4NB1p5ZwpK56R; Wed, 19 Apr 2023 11:02:24 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=Ab90o1bG c=1 sm=1 tr=0 ts=643fca40
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=dKHAf1wccvYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=eOi73x62LkhV4IJZnasM6icndQlbtQgv2vFcpJE8uIM=; b=KgAUyxBRpVshLoCo/YoyNc3+I0
-        PgFMxDCe/WNGPuiGt2Q4QSo0dl87k0R1m3wA+9ORpmLFeSm6ePhArq7853NqhLh7NwjTx4olq4Jbp
-        AaUpaAS4X+HrYgjXGtb5eOFgmTYzBaW0NlkqLFmBJzRs4jFjc4eh6mW8/B4DqPur57Ld5Xq0075UR
-        Dmzef8KBy0l7z91izdWyN4INSGRroBBQhk0sex3iKF1TxMsBpdVo6nfL3bgur0uKipiiUDEInASwS
-        vbsj7mrmKzP20O9e9OSFon0SQXjUH/d2pGhwaG+NzuFohk2n6EQ1S459KmEEi0yz8T7aL77bpb/It
-        ZPxa4b8Q==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:35344 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pp5Zv-001GLY-CI;
-        Wed, 19 Apr 2023 05:02:23 -0600
-Subject: Re: [PATCH 5.15 00/87] 5.15.108-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230419093700.102927265@linuxfoundation.org>
-In-Reply-To: <20230419093700.102927265@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <343f264b-55e9-815d-e163-0487db367c50@w6rz.net>
-Date:   Wed, 19 Apr 2023 04:02:21 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S232319AbjDSLEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 07:04:01 -0400
+Received: from mail-yw1-x1141.google.com (mail-yw1-x1141.google.com [IPv6:2607:f8b0:4864:20::1141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3760C4C19
+        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 04:04:00 -0700 (PDT)
+Received: by mail-yw1-x1141.google.com with SMTP id 00721157ae682-54fe82d8bf5so181225877b3.3
+        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 04:04:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681902239; x=1684494239;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :reply-to:mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=AZtZFW4Yu8/s9hisFwTitWaI2cjRerxPZcc9cSg2rPE=;
+        b=eCOranTvGfGyiJwKgEXRuNQIFb6eX/scj2FDRKgQHiCEeo40qDqFmH/fFqjo8zdK+H
+         df/2PnOVqqcqKd/WEvtC45s+QaVALEXDCnEAHIwxfjIgr/yTpsZ32ZfjyQqSzavy+DfD
+         pfi6/yjYE1uMe1Nsn3iFfdYny5Ln5NT2we4dDMZoGPJmRByVn8kB1DXx1pw8JRQ0nAEK
+         ihoVCmgL6ht4eRAmYF6LUIL7zig05FquaA1NDl2I5vQsf7dEHyWra9eReFfq7dTk8wBV
+         qA/RwmY70YBPwA+4FpHGFcsbG1xxFxqo2LVxuJMDGKzrD206c45xrMK+qWHvcUUEx/iu
+         EQgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681902239; x=1684494239;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :reply-to:mime-version:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AZtZFW4Yu8/s9hisFwTitWaI2cjRerxPZcc9cSg2rPE=;
+        b=inOhv63Z1KRnPhiW5KACzf0rVWaqguw9T8T+kfJu4HI59xe7ND/2nip53iyL5Bs0qu
+         p7eUL8Vbp/BxaB7NweE39xRRxhXW1dUN7vmaXR1nvSmpBLwXP/sL08IEBJyAhQMCmKEO
+         0F+IuZG+RoFLKYKipNBTJAXuSoqeh9SatrzyA8fg6qL1OrNSKiW0BxhFSygBrdQ+Uc0U
+         UhZFOz7nLNp5ozVCOew764+HX3tYPHIC9SQeOceYOlEGev6rgDgbzIpnmhbcX0VDGlM1
+         B6MF3LHuVgOzP2GJIgGm8mcSNc8pxqAJnnpNqNPc2z7NG35xusBEOSGL2sMMfC4hNOeP
+         SzYw==
+X-Gm-Message-State: AAQBX9cFPh1rlFevUOjgJOl4kJw1CKPyRkSdgame8s09g+Dtpe0TqE0E
+        m7IO8C/x9tvVqpQN4oRbbC+uK7Yqk0sPUuQH+QQ=
+X-Google-Smtp-Source: AKy350Z29lReMeohrwftgjANcVuqzBtykHw6roLtX6PekNbfJEpAsCVqFy31JekDOMjCwZSCUcoysgKLF+YkRiQ4pwc=
+X-Received: by 2002:a81:92d7:0:b0:546:2787:4b93 with SMTP id
+ j206-20020a8192d7000000b0054627874b93mr3199305ywg.35.1681902238676; Wed, 19
+ Apr 2023 04:03:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pp5Zv-001GLY-CI
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:35344
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Reply-To: mis.vera145@gmail.com
+Sender: adamsfrancis140@gmail.com
+Received: by 2002:a05:7010:218c:b0:344:4f01:f1f with HTTP; Wed, 19 Apr 2023
+ 04:03:58 -0700 (PDT)
+From:   Vera Wilfred <mis.vera145@gmail.com>
+Date:   Wed, 19 Apr 2023 12:03:58 +0100
+X-Google-Sender-Auth: 6BBMiGukeEzvluwqqcdLTH_RNkc
+Message-ID: <CAD3yhOVTx87Z5d4EZFchNzo6DGG4dE8i1jS0AEB1dJBWmYefAw@mail.gmail.com>
+Subject: Ich bin Mis Vera Wilfred
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,LOTS_OF_MONEY,
+        MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_MONEY_PERCENT,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ***
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/19/23 2:40 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.108 release.
-> There are 87 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 21 Apr 2023 09:36:40 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.108-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+--=20
+Hallo,
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Ich bin Mis Vera Wilfred aus Abidjan Cote D'Ivoire (Elfenbeink=C3=BCste)
+Ich bin 22 Jahre alt, M=C3=A4dchen, Waise, das hei=C3=9Ft, weil ich keine E=
+ltern
+habe, ich habe ungef=C3=A4hr (10.500.000,00 US-Dollar) Zehn Millionen,
+f=C3=BCnfhunderttausend vereint Staatsdollar.
 
-Tested-by: Ron Economos <re@w6rz.net>
+Was ich von meinem verstorbenen Vater geerbt habe, hat er den Fonds
+auf einem Fest- / Wechselkonto bei einer der besten Banken hier in
+Abidjan hinterlegt.
 
+mein Vater hat meinen Namen als seine einzige Tochter und einziges
+Kind f=C3=BCr die n=C3=A4chsten Angeh=C3=B6rigen des Fonds verwendet.
+
+Zweitens bekunden Sie mit Ihrer vollen Zustimmung, mit mir zu diesem
+Zweck zusammenzuarbeiten, Ihr Interesse, indem Sie mir antworten,
+damit ich Ihnen die notwendigen Informationen und die Details zum
+weiteren Vorgehen zukommen lassen kann. Ich werde Ihnen 20% des Geldes
+anbieten deine Hilfe f=C3=BCr mich.
+
+M=C3=B6ge Gott Sie f=C3=BCr Ihre schnelle Aufmerksamkeit segnen. Meine best=
+en
+und liebensw=C3=BCrdigen Gr=C3=BC=C3=9Fe an Sie und Ihre ganze Familie, wen=
+n Sie mich
+f=C3=BCr weitere Details kontaktieren.
+
+Ich brauche Ihre Assistentin, um mir zu helfen, diesen Fonds in Ihrem
+Land zu investieren. Kontaktieren Sie mich jetzt f=C3=BCr weitere Details.
+Vielen Dank
+
+Vera Wilfred.
