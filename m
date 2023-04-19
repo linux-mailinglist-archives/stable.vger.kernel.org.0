@@ -2,253 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1C16E7584
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 10:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B772A6E7593
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 10:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232178AbjDSIlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 04:41:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        id S232665AbjDSIof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 04:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231790AbjDSIln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 04:41:43 -0400
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662996E9D
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 01:41:41 -0700 (PDT)
-Received: by mail-ua1-x92f.google.com with SMTP id o2so21761071uao.11
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 01:41:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1681893700; x=1684485700;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=emy47ve69M61/H+lOFyGeFQpmRwakkEYlvCbnQMqfZc=;
-        b=ENnv+X68dCRBEv06msiX8E/szw1zR4jEO2EWzjTUvTeuOAAdhKX6tczSGLo6x3t+hv
-         73PlTnk0PUtOCULsF/s9pyuiddkUrgUR1CDZWe/q1jDJbj+5WUFURaQW610rQZZ3twru
-         m9Zz5oThv/KOTV+pyWaNb12SV8LTwk8dBR6WZHmIDB07gyhmOLjSptO+JCQU9vWFvfmZ
-         TDc8EGRIWixLk2vKpZeEprTKhGcSJHQhdeSiZPeRKA6Zv44QDXQiKR/o/R6GH4MsZ/Lm
-         UFObZ7UcA9iMzGcqC2MZfCsX8lO/APWIuo02j0lC2nlql/yBp3syxTi4bTPLp4XwwUtR
-         mUoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681893700; x=1684485700;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=emy47ve69M61/H+lOFyGeFQpmRwakkEYlvCbnQMqfZc=;
-        b=EYDF6hUdC1MtScSrgNIJyyDhuzM2QdXcHXvOdEOlA7r8B5XcvOGciuB9LbB2eo/B/x
-         O4xSyiZS8aX5UmWc5v8wIYjDFThZfqXzpJVC/dBh41AoWiOw4OMrAVib5DTVnQM6FSqE
-         K1sAeWXoqty0co3EJNnVXJo4PzMmuLDsQa4XTVb1lyM9gqxGotdkhYpbGg5uCMt4dX+/
-         OFQf6ouw4EpKSNykxhPKiVTrJNVdhSOG7Lnr87L11XNcINme0c7LiD4UH78t1sG2eJVQ
-         yLP1eFMsbyU3mMPtf/aylr2rWL69GRBo3BJAjdRrQWa/IOWOULjKB16nNcAyALtD34nE
-         Ygxw==
-X-Gm-Message-State: AAQBX9fr3eBljbAcWhU0xxg3+sF3kI77djifkQZiA4Q/hIF8m20y/JZw
-        L/HANNvnbpIAyUBwX/YteI8QwllLYDgn23BrxvBvCw==
-X-Google-Smtp-Source: AKy350Z3Ni0SSbMTDkN3mmzu1eRZR47Vg3M1yERQUS0xI3yjYTmv0WF06K5Cir25APo9u7T2XdG4FFNMTxTkCObeuhY=
-X-Received: by 2002:a1f:6045:0:b0:432:6ec5:69a5 with SMTP id
- u66-20020a1f6045000000b004326ec569a5mr7179757vkb.3.1681893700274; Wed, 19 Apr
- 2023 01:41:40 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230418120254.687480980@linuxfoundation.org>
-In-Reply-To: <20230418120254.687480980@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 19 Apr 2023 14:11:29 +0530
-Message-ID: <CA+G9fYvuJFV8bJNO5qObtZzvPDJwNdwjkgmPBo1GfCnL35GFtQ@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/37] 4.14.313-rc1 review
+        with ESMTP id S232535AbjDSIof (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 04:44:35 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76ACE7EDD;
+        Wed, 19 Apr 2023 01:44:33 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 843F81C0AB3; Wed, 19 Apr 2023 10:44:31 +0200 (CEST)
+Date:   Wed, 19 Apr 2023 10:44:30 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        LTP List <ltp@lists.linux.it>, chrubis <chrubis@suse.cz>,
-        Petr Vorel <pvorel@suse.cz>,
+Cc:     Yu Zhao <yuzhao@google.com>, Bagas Sanjaya <bagasdotme@gmail.com>,
+        Tom Saeger <tom.saeger@oracle.com>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Waiman Long <longman@redhat.com>, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de, Tejun Heo <tj@kernel.org>,
+        Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
+        Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>,
         Anders Roxell <anders.roxell@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        Darren Kenny <darren.kenny@oracle.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>
+Subject: Re: [PATCH 5.15 00/91] 5.15.108-rc1 review
+Message-ID: <ZD+p7rQoYoOa0e+T@duo.ucw.cz>
+References: <20230418120305.520719816@linuxfoundation.org>
+ <CA+G9fYs9sHnfhn4hSFP=AmOfgj-zvoK9vmBejRvzKPj4uXx+VA@mail.gmail.com>
+ <bd46521c-a167-2872-fecb-2b0f32855a24@oracle.com>
+ <20230418165105.q5s77yew2imkamsb@oracle.com>
+ <ZD9rfsteIrXIwezR@debian.me>
+ <CAOUHufa9-AKwwx7oVpQkV355TTmVSfi8roBKEsRjRNbeuGUkbw@mail.gmail.com>
+ <2023041918-gravitate-reformat-9a34@gregkh>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Os7mj2m62qSU4dtk"
+Content-Disposition: inline
+In-Reply-To: <2023041918-gravitate-reformat-9a34@gregkh>
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 18 Apr 2023 at 17:54, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.313 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.313-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
+--Os7mj2m62qSU4dtk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Recently we have upgraded the LTP test suite version and started noticing
-these test failures on 4.14, 4.19 and 5.4 only on arm64.
+Hi!
 
-Need to investigate test case issues or kernel issues.
+> I'm just going to drop all of these patches from the queues now, and let
+> the original submitter resend them after they are fixed up properly.
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Build errors are gone in 5.10.178-rc2:
 
-NOTE:
------
-creat09.c:73: TINFO: User nobody: uid = 65534, gid = 65534
-creat09.c:75: TINFO: Found unused GID 11: SUCCESS (0)
-creat09.c:120: TINFO: File created with umask(0)
-creat09.c:106: TPASS: mntpoint/testdir/creat.tmp: Owned by correct group
-creat09.c:112: TPASS: mntpoint/testdir/creat.tmp: Setgid bit not set
-creat09.c:106: TPASS: mntpoint/testdir/open.tmp: Owned by correct group
-creat09.c:112: TPASS: mntpoint/testdir/open.tmp: Setgid bit not set
-creat09.c:120: TINFO: File created with umask(S_IXGRP)
-creat09.c:106: TPASS: mntpoint/testdir/creat.tmp: Owned by correct group
-creat09.c:110: TFAIL: mntpoint/testdir/creat.tmp: Setgid bit is set
-creat09.c:106: TPASS: mntpoint/testdir/open.tmp: Owned by correct group
-creat09.c:110: TFAIL: mntpoint/testdir/open.tmp: Setgid bit is set
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/8=
+41747700
 
-links:
- - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.311-105-gcdc53f89dfa8/testrun/16316521/suite/ltp-syscalls/test/creat09/log
- - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.311-105-gcdc53f89dfa8/testrun/16316521/suite/ltp-syscalls/test/creat09/history/
+and 5.15108-rc2 is okay too:
 
-## Build
-* kernel: 4.14.313-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.14.y
-* git commit: cdc53f89dfa8e80182c9539a962df6c330a69931
-* git describe: v4.14.311-105-gcdc53f89dfa8
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.311-105-gcdc53f89dfa8
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/8=
+41747822
 
-## Test Regressions (compared to v4.14.311-67-gf4c3927dd933)
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,        Managing Director: Erika Unter
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-* qemu-arm64, ltp-cve
-  - cve-2018-13405 ( creat09 )
+--Os7mj2m62qSU4dtk
+Content-Type: application/pgp-signature; name="signature.asc"
 
-* qemu-arm64, ltp-syscalls
-  - creat09
+-----BEGIN PGP SIGNATURE-----
 
-## Metric Regressions (compared to v4.14.311-67-gf4c3927dd933)
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCZD+p7gAKCRAw5/Bqldv6
+8oz4AKDCesRM3AuO3l/WpQixZiluQjiW2ACfYbZAZja+eQ7wWdDWkc/bREMynp8=
+=V96E
+-----END PGP SIGNATURE-----
 
-## Test Fixes (compared to v4.14.311-67-gf4c3927dd933)
-
-## Metric Fixes (compared to v4.14.311-67-gf4c3927dd933)
-
-## Test result summary
-total: 65426, pass: 54434, fail: 2998, skip: 7868, xfail: 126
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 106 total, 104 passed, 2 failed
-* arm64: 33 total, 32 passed, 1 failed
-* i386: 20 total, 19 passed, 1 failed
-* mips: 21 total, 21 passed, 0 failed
-* parisc: 6 total, 6 passed, 0 failed
-* powerpc: 8 total, 7 passed, 1 failed
-* s390: 6 total, 5 passed, 1 failed
-* sh: 12 total, 12 passed, 0 failed
-* sparc: 6 total, 6 passed, 0 failed
-* x86_64: 25 total, 24 passed, 1 failed
-
-## Test suites summary
-* boot
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* kunit
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktBroadcast
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+--Os7mj2m62qSU4dtk--
