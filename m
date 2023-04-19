@@ -2,77 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4000A6E73F6
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 09:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7FEC6E73F9
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 09:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbjDSH00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 03:26:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50498 "EHLO
+        id S231262AbjDSH1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 03:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbjDSH0Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 03:26:25 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA5783F2
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 00:25:51 -0700 (PDT)
-Date:   Wed, 19 Apr 2023 09:25:46 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1681889148;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=puhDZ9O+Qj5gPpenARJZlMfM9hbc1gC4N4ICbzdxw1E=;
-        b=FQUbb8Fydsvph6HBlvrXDAbRic06NZYM+wbhKy5sa6dT3cEfe7VSMRVaVzVTCn39wEmavR
-        8HrhG3y5J6lzUyAQa/HG72Zq/4waPaAPAIh2U7dkMd/GbRWH6AZVU/VrnZ072nsz6uwngD
-        tiXa8tBR2Ukbc6bU23ctnUr8aCla0gZ6zSthRbB+nTQROIoXklFs7q50hDU8Rvv5zheGn9
-        l1E9zbthX3QgszcuZTXIhD0NSlOoGHscJN5qpt6l39cePSkOyDea0X8Yeu+ZlVGnANd4OB
-        ooB5kM6be6owOnojsTCKUxYHUoidqcyaegQjWOwyIEbI9SWOwHUvDXUKH/A+8Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1681889148;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=puhDZ9O+Qj5gPpenARJZlMfM9hbc1gC4N4ICbzdxw1E=;
-        b=YO1jfvsZqgp8tp1M9H0vySscokLpzQ1L4VW+TxHyMwvTpOoNB7wTiaoR9K3u+WHL73qpA7
-        9beliNLOeAqM0lBQ==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
-        Jan Kara <jack@suse.cz>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] rtmutex: Add acquire semantics for rtmutex lock
- acquisition slow path
-Message-ID: <20230419072546.gD_YO2-K@linutronix.de>
-References: <20230418154315.9PD52J2N@linutronix.de>
- <2023041854-cranium-prone-b9fa@gregkh>
+        with ESMTP id S231719AbjDSH1J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 03:27:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD1606E80
+        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 00:27:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C82B63BDC
+        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 07:27:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 272FEC433EF;
+        Wed, 19 Apr 2023 07:27:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1681889227;
+        bh=qBPs4oC4w1WBDc+Fi9gvrTzgv2/ZIaVa9SwRIdvOPhc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BuAcu3n9XOrGnzRT0bX584PCwyZp/zQ30+wKAKeYUVBWytmUaBpNEqznDbbn2n5aw
+         deew7TbcrNO2FHjJT9bqm7gaNdyxBbygDnB6OAlSSFx843ZEviojksrFL+PJo3b5FX
+         EauNbMP9ASd5UZ0hhq766K+dP3AS7yPHfdc/iVU0=
+Date:   Wed, 19 Apr 2023 09:27:04 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Conor Dooley <conor.dooley@microchip.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 6.1 129/134] riscv: Move early dtb mapping into the
+ fixmap region
+Message-ID: <2023041948-overthrow-debtor-289d@gregkh>
+References: <20230418120313.001025904@linuxfoundation.org>
+ <20230418120317.673170852@linuxfoundation.org>
+ <20230418-tactile-cocoa-4242e87bf994@wendy>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2023041854-cranium-prone-b9fa@gregkh>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20230418-tactile-cocoa-4242e87bf994@wendy>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023-04-18 18:25:48 [+0200], Greg KH wrote:
-> > Could this be please backported to 5.15 and earlier? It is already part
-> > of the 6.X kernels. I asked about this by the end of January and I'm
-> > kindly asking again ;)
+On Tue, Apr 18, 2023 at 02:10:54PM +0100, Conor Dooley wrote:
+> On Tue, Apr 18, 2023 at 02:23:05PM +0200, Greg Kroah-Hartman wrote:
+> > From: Alexandre Ghiti <alexghiti@rivosinc.com>
+> > 
+> > [ Upstream commit ef69d2559fe91f23d27a3d6fd640b5641787d22e ]
 > 
-> I thought this was only an issues when using the out-of-tree RT patches
-> with these kernels, right?  Or is it relevant for 5.15.y from kernel.org
-> without anything else?
+> Hey Greg,
+> 
+> Please check out <e3a6656c-0ec4-9d54-b262-1af08c292ed5@microchip.com>
+> (I can't find a lore link for stable-commit@vger stuff)
+> as I am not sure whether it is okay to backport this in isolation.
 
-The out-of-tree RT patches make extensive use of the code. Since it is
-upstream code, I assumed it should go via the official stable trees.
-Without RT, the code is limited the rt_mutex_lock() used by I2C and the
-RCU booster-mutex. 
-Since this might not be enough to trigger the problem, let me route this
-via rt-stable trees.
+I'm confused, what is needed to be done here?
 
-> greg k-h
+thanks,
 
-Sebastian
+greg "drowning in email" k-h
