@@ -2,105 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC306E830A
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 23:08:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6386D6E83B4
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 23:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbjDSVIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 17:08:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
+        id S230386AbjDSV1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 17:27:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231347AbjDSVIU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 17:08:20 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59ADE659F;
-        Wed, 19 Apr 2023 14:08:17 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id m39-20020a05600c3b2700b003f170e75bd3so2606459wms.1;
-        Wed, 19 Apr 2023 14:08:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681938496; x=1684530496;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ehYDxVU02fn2ZkXnUcD0JtMkdqmb9th/dYG75X055ng=;
-        b=JwRafYxks4ZW9UecZY4eqmo5FKHyDxwuYi5VAsPf6UWl4eR8eRczTFuc6KvqIPoc12
-         RbTqA4mT9JS0NlX7sCEvvhwWdGvWglMMZwc9juIZoL444AKX0vkKIXMfJ1t1YX/lmJoF
-         2m80rXDfg0ov2r4d2fCDUh/VwAvR0J+LQdrLvDxxn4uglHr2bMhNOpHSnDAhEWoEINAr
-         Sburf4C1ltCzrl/J8s9aoPYt0be7fxt/tg/K5aYaLbn975xzIPn0n49Hj8LSxN0NMhtf
-         KIqQdGQJSvt6VRD876+BSgsU6kZfxQbMQXT/9D6o9fKG7gnNtU5xUWUL1VIUpmNJJOVs
-         YknA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681938496; x=1684530496;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ehYDxVU02fn2ZkXnUcD0JtMkdqmb9th/dYG75X055ng=;
-        b=PBSss+wZkr9w8mwhJq4z3olMdQPqQteFDJWZ6v0Dyi8XGUekaZuU95pOOaDrmKNIul
-         TPBIZ5YAM6uipOFmttA+L/w2gsm/Y/vNsZJk0RxMcjP7zWGStXvvpds1gk3V0hYFzp8/
-         InH9DwBMwU3qBtfIQO3yj8csEWx8pXzfphSY+iOPkcsp4cPdQgusAmluFKUlhwDLSWCq
-         MKoYvKhL/JzW2lEOXm/azATacUyQcSXIHWff2lJd4AcLx+Uda+DjBG9pgWvYD1iyFSwM
-         jXpukn5NNb2eF02VwJOqDjoLKUy9VQWePYVc6fMZsSNyENPw911YG9t5eIrb0EukGq7O
-         68Og==
-X-Gm-Message-State: AAQBX9dAu0GtEHFNkb1nzHSdPm6dzNnL2Jg/TZ0HwJhYGWI5OrAFO5//
-        wdnSq712RBOjRbLNVx6mTFs=
-X-Google-Smtp-Source: AKy350bpR2ntMHwK5Uj+zwSpTPl5Escd1GXHcMe/lfkEefigenjs1F+0v7UETpJWgm+TbiA54PNpPw==
-X-Received: by 2002:a05:600c:221a:b0:3f0:a798:2757 with SMTP id z26-20020a05600c221a00b003f0a7982757mr17039715wml.25.1681938495512;
-        Wed, 19 Apr 2023 14:08:15 -0700 (PDT)
-Received: from localhost.localdomain (93-34-93-173.ip49.fastwebnet.it. [93.34.93.173])
-        by smtp.googlemail.com with ESMTPSA id g3-20020a5d5543000000b002fe254f6c33sm81295wrw.92.2023.04.19.14.08.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Apr 2023 14:08:15 -0700 (PDT)
-From:   Christian Marangi <ansuelsmth@gmail.com>
-To:     Pavel Machek <pavel@ucw.cz>, Lee Jones <lee@kernel.org>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>, linux-leds@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 1/5] leds: trigger: netdev: recheck NETDEV_LED_MODE_LINKUP on dev rename
-Date:   Wed, 19 Apr 2023 23:07:39 +0200
-Message-Id: <20230419210743.3594-2-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230419210743.3594-1-ansuelsmth@gmail.com>
-References: <20230419210743.3594-1-ansuelsmth@gmail.com>
+        with ESMTP id S230170AbjDSV1B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 17:27:01 -0400
+Received: from mail.antaris-organics.com (mail.antaris-organics.com [91.227.220.155])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8523046AE;
+        Wed, 19 Apr 2023 14:26:55 -0700 (PDT)
+Received: by mail.antaris-organics.com (Postfix, from userid 200)
+        id 04FBC45BD4; Wed, 19 Apr 2023 23:28:06 +0200 (CEST)
+Date:   Wed, 19 Apr 2023 23:22:35 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mareichelt.com;
+        s=202107; t=1681939356;
+        bh=CNwHvJhep2rCN7e2S9ZMgUs0dpxJi4R9pffDoLTm29g=;
+        h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+         Content-Type:In-Reply-To:Cc:Cc:content-type:content-type:date:date:
+         From:from:in-reply-to:in-reply-to:message-id:mime-version:
+         references:reply-to:Sender:Subject:Subject:To:To;
+        b=ty+x6MKThPR8IYffFHuxXMPuXzEI98Xrq9xDR6d324HQhk0APk5bsFM6PBQQAN5T9
+         MGXJKHepYCgZe59he0/BI1feikX+rMRqNpw/uv6P1Gq4GqAjWOWY5GAYaL97hJhKHR
+         D2Np8A8rnJFpF05xPeLF3CQj1CGILJSmNQdr05Rb2PY3tSac8HjG93gwYl4u8bMTqD
+         vS6Z4HfdGjQx+yWxqQqNTOwuxaJYLjQYW9mke+BvthMzvTsfLLpu7XdYeOeIflIKi3
+         P8HB+ryKP5L8gh7nL+7SF9sEKD1Q6frQ5yIc3wiS7F83FThQUxFPg0mGVtjZhWp3VN
+         d6EkIo/FL56gA==
+From:   Markus Reichelt <lkt+2023@mareichelt.com>
+To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6.1 000/129] 6.1.25-rc3 review
+Message-ID: <20230419212235.GF3871@pc21.mareichelt.com>
+Mail-Followup-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230419132048.193275637@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230419132048.193275637@linuxfoundation.org>
+Organization: still stuck in reorganization mode
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dev can be renamed also while up for supported device. We currently
-wrongly clear the NETDEV_LED_MODE_LINKUP flag on NETDEV_CHANGENAME
-event.
+* Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-Fix this by rechecking if the carrier is ok on NETDEV_CHANGENAME and
-correctly set the NETDEV_LED_MODE_LINKUP bit.
+> This is the start of the stable review cycle for the 6.1.25 release.
+> There are 129 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 21 Apr 2023 13:20:20 +0000.
+> Anything received after that time might be too late.
 
-Fixes: 5f820ed52371 ("leds: trigger: netdev: fix handling on interface rename")
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v5.5+
----
- drivers/leds/trigger/ledtrig-netdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+Hi Greg
 
-diff --git a/drivers/leds/trigger/ledtrig-netdev.c b/drivers/leds/trigger/ledtrig-netdev.c
-index d5e774d83021..f4d670ec30bc 100644
---- a/drivers/leds/trigger/ledtrig-netdev.c
-+++ b/drivers/leds/trigger/ledtrig-netdev.c
-@@ -318,6 +318,9 @@ static int netdev_trig_notify(struct notifier_block *nb,
- 	clear_bit(NETDEV_LED_MODE_LINKUP, &trigger_data->mode);
- 	switch (evt) {
- 	case NETDEV_CHANGENAME:
-+		if (netif_carrier_ok(dev))
-+			set_bit(NETDEV_LED_MODE_LINKUP, &trigger_data->mode);
-+		fallthrough;
- 	case NETDEV_REGISTER:
- 		if (trigger_data->net_dev)
- 			dev_put(trigger_data->net_dev);
--- 
-2.39.2
+6.1.25-rc3
 
+compiles, boots and runs here on x86_64
+(AMD Ryzen 5 PRO 4650G, Slackware64-15.0)
+
+Tested-by: Markus Reichelt <lkt+2023@mareichelt.com>
