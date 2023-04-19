@@ -2,100 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6CA6E7E37
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 17:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B1A6E7E77
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 17:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233331AbjDSPZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 11:25:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49076 "EHLO
+        id S232975AbjDSPiF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 19 Apr 2023 11:38:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233624AbjDSPZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 11:25:32 -0400
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07CCF8A45;
-        Wed, 19 Apr 2023 08:24:57 -0700 (PDT)
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-3f178da21b2so16632345e9.1;
-        Wed, 19 Apr 2023 08:24:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681917524; x=1684509524;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=/ELqnbwuz+LrPiogbtSnG5EdZLRNbC7Jdxy/V2VEh/U=;
-        b=Tmi1e9er1PHK+cUx+o2H3KvZIM2wvYkDy13ATzQXMA75vq1TdjFCM2eaO8eDzHPQT2
-         eRXUc3PU9Mjhnla0cDYgBNGrhfOvPujed9e7/nGpaqJQgNgbjkXAyMpj1k5e3EHh2MAD
-         RDGIQNrv3UClpZck9dC6lMfyo5h2nqtQhZCSmaPJxgXpXUKcaqliNBGc5f6ZnDewoENc
-         MCxMJFmPlEj0o3opkp6KbmH/isyGGbzK0SVNiOWjV39rsVqHdjQdlzuTI2B5075t7erY
-         uHmeA+aYIumtIc/MnLYzl+LMJBzBuJ+4eT4SbnddCY14fCPuA7GlNKR9JAsHhFSIeg6z
-         j2xA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681917524; x=1684509524;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/ELqnbwuz+LrPiogbtSnG5EdZLRNbC7Jdxy/V2VEh/U=;
-        b=FSl/TX+Y3jfiC9pmIdUVgrgtFs1EejNZa6j//FWdFVPCnk9Kkbtzt2Z2ZeJzD1XYg0
-         5mz9dt+lBRv+ajD9KXLN0PfERlp+VVSC1ZR201fyUnukjAYWVfnvSWRHlt5IeWYarQf7
-         ngT1wEKDDmyyXZ9K2V4TIdL1KfbtEY30Q7okCxmkE3LcvskGpzUEARSdQObuzEXh/2kx
-         vuTiTP+QEKjElxcSbpP8SSvHc63kavxFq8fVgDugJVBcVuvq9AHiGIu40OstvOUp8eGp
-         J076/pST5wid3RCr44U6VQNfHAMkMx6oHb2LDn5/ivFltDIZJ4kx04DZzfzIr4NI98BH
-         Fddw==
-X-Gm-Message-State: AAQBX9dhfKIZbJNZ9yIOIGJ05yp9JgpLQ8RN8W0xsM22Q3gnuskjzkJz
-        2i6or8/rQCF8eJCckJHbnnR1UR5xocZssw==
-X-Google-Smtp-Source: AKy350Ztu3EFW2CXOSKYzHUVRn8id3ZeWU2ThLFlpgBpRIA6d5tVt9OaKuZlVu5ZwECO1K6NtNGUNQ==
-X-Received: by 2002:adf:da48:0:b0:2fd:1a81:6b0e with SMTP id r8-20020adfda48000000b002fd1a816b0emr5157012wrl.33.1681917523760;
-        Wed, 19 Apr 2023 08:18:43 -0700 (PDT)
-Received: from [192.168.0.210] (cpc154979-craw9-2-0-cust193.16-3.cable.virginm.net. [80.193.200.194])
-        by smtp.googlemail.com with ESMTPSA id b15-20020adfe64f000000b002f00793bd7asm15977174wrn.27.2023.04.19.08.18.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Apr 2023 08:18:43 -0700 (PDT)
-Message-ID: <c8be79ff-6296-c365-5422-02c6746f78fb@gmail.com>
-Date:   Wed, 19 Apr 2023 16:18:42 +0100
+        with ESMTP id S233103AbjDSPiE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 11:38:04 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909449775
+        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 08:38:01 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-135-8VMVLINFM4iofKKNHiZ6yw-1; Wed, 19 Apr 2023 16:37:58 +0100
+X-MC-Unique: 8VMVLINFM4iofKKNHiZ6yw-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Wed, 19 Apr
+ 2023 16:37:57 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Wed, 19 Apr 2023 16:37:57 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Louis Peens' <louis.peens@corigine.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+CC:     Leon Romanovsky <leon@kernel.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "oss-drivers@corigine.com" <oss-drivers@corigine.com>
+Subject: RE: [PATCH net v2] nfp: correct number of MSI vectors requests
+ returned
+Thread-Topic: [PATCH net v2] nfp: correct number of MSI vectors requests
+ returned
+Thread-Index: AQHZcpcs9qwN2O/UuUKbylF4iYea3K8yxA+Q
+Date:   Wed, 19 Apr 2023 15:37:57 +0000
+Message-ID: <36322e3475804855a28c7e91a7ccdf3e@AcuMS.aculab.com>
+References: <20230419081520.17971-1-louis.peens@corigine.com>
+In-Reply-To: <20230419081520.17971-1-louis.peens@corigine.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH] wifi: ath9k: Don't mark channelmap stack variable
- read-only in ath9k_mci_update_wlan_channels()
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-To:     Kalle Valo <kvalo@kernel.org>,
-        =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgense?= =?UTF-8?Q?n?= 
-        <toke@toke.dk>
-Cc:     Kalle Valo <quic_kvalo@quicinc.com>,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org
-References: <20230413214118.153781-1-toke@toke.dk>
- <168191429286.18451.14816485203241143280.kvalo@kernel.org>
-From:   "Colin King (gmail)" <colin.i.king@gmail.com>
-In-Reply-To: <168191429286.18451.14816485203241143280.kvalo@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,PDS_BAD_THREAD_QP_64,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19/04/2023 15:24, Kalle Valo wrote:
-> Toke Høiland-Jørgensen <toke@toke.dk> wrote:
+From: Louis Peens
+> Sent: 19 April 2023 09:15
 > 
->> This partially reverts commit e161d4b60ae3a5356e07202e0bfedb5fad82c6aa.
->>
->> Turns out the channelmap variable is not actually read-only, it's modified
->> through the MCI_GPM_CLR_CHANNEL_BIT() macro further down in the function,
->> so making it read-only causes page faults when that code is hit.
->>
->> Link: https://bugzilla.kernel.org/show_bug.cgi?id=217183
->> Fixes: e161d4b60ae3 ("wifi: ath9k: Make arrays prof_prio and channelmap static const")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
->> Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+> From: Xiaoyu Li <xiaoyu.li@corigine.com>
 > 
-> Patch applied to ath-next branch of ath.git, thanks.
-> 
-> b956e3110a79 wifi: ath9k: Don't mark channelmap stack variable read-only in ath9k_mci_update_wlan_channels()
-> 
+> Before the referenced commit, if fewer interrupts are supported by
+> hardware than requested, then pci_msix_vec_count() returned the
+> former. However, after the referenced commit, an error is returned
+> for this condition. This causes a regression in the NFP driver
+> preventing probe from completing.
 
-Thanks. Apologies for the regression. My bad.
+I believe the relevant change to the msix vector allocation
+function has been reverted.
+(Or at least, the over-zealous check of nvec removed.)
+
+So this change to bound the number of interrupts
+isn't needed.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
