@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E04BE6E7A75
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 15:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258966E7A82
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 15:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233394AbjDSNRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 09:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54864 "EHLO
+        id S233429AbjDSNVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 09:21:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233378AbjDSNRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 09:17:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6ED614472;
-        Wed, 19 Apr 2023 06:17:16 -0700 (PDT)
+        with ESMTP id S233426AbjDSNVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 09:21:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F54C15454;
+        Wed, 19 Apr 2023 06:21:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 647ED63EF8;
-        Wed, 19 Apr 2023 13:17:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAF6C433EF;
-        Wed, 19 Apr 2023 13:17:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF0C9613E9;
+        Wed, 19 Apr 2023 13:21:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC009C433D2;
+        Wed, 19 Apr 2023 13:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681910235;
-        bh=iE7BNBBGCWRG/2DR7rqlRVpNkn0RTXZ5B8iTUcViCog=;
+        s=korg; t=1681910467;
+        bh=F2isO/QKnkvIpjuuplfhWUvWAW759gjEsSZjf0jaC4E=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zX7S8a/WgHEoKpcRqqD6SDeDIrdWec864eScvaqoe3B4l5rzaOPva3GpR+tItx9Db
-         pycPlfBlZB1rV6iU/axHMsT2835GsNywfyoZifIOZtiOnvrDp+GikxLn30HdeoXYbi
-         aDrifpdRkpLG+8RCUDsGP8a3JurjkXzvmsSLLCQg=
-Date:   Wed, 19 Apr 2023 15:17:13 +0200
+        b=qSb/MxQoYsulH9ffzce/FxSABP8NkhdoR3ZvlrN7mbh5/0AADmwDa4C6sc2LuRmxU
+         wOfOR1UPIE8dabQiccWTIKVMoOloICQJu6thqBtuRXxPsRbhv6T448d1JKmxI/cM6f
+         j1bE/N9rJiK4hK49mkOzX2PU5IJK+GAS1yzOrXVM=
+Date:   Wed, 19 Apr 2023 15:21:05 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Conor.Dooley@microchip.com
-Cc:     stable@vger.kernel.org, hi@alyssa.is, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/138] 6.2.12-rc2 review
-Message-ID: <2023041957-sector-purposely-859f@gregkh>
-References: <20230419093655.693770727@linuxfoundation.org>
- <b6e0cc8b-eb4b-4906-9697-a1dab4741745@microchip.com>
+To:     Ron Economos <re@w6rz.net>
+Cc:     Conor.Dooley@microchip.com, stable@vger.kernel.org, hi@alyssa.is,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/132] 6.1.25-rc2 review
+Message-ID: <2023041956-overhaul-uncrushed-2415@gregkh>
+References: <20230419093701.194867488@linuxfoundation.org>
+ <306005cd-b4a0-44d3-c9b4-f3c238e1cde7@microchip.com>
+ <5e3d78ec-40fb-70fa-2d25-a465c823fb1c@w6rz.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b6e0cc8b-eb4b-4906-9697-a1dab4741745@microchip.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+In-Reply-To: <5e3d78ec-40fb-70fa-2d25-a465c823fb1c@w6rz.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,53 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 19, 2023 at 12:26:26PM +0000, Conor.Dooley@microchip.com wrote:
-> On 19/04/2023 10:40, Greg Kroah-Hartman wrote:
-> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+On Wed, Apr 19, 2023 at 05:46:50AM -0700, Ron Economos wrote:
+> On 4/19/23 4:58 AM, Conor.Dooley@microchip.com wrote:
+> > On 19/04/2023 10:40, Greg Kroah-Hartman wrote:
 > > 
-> > This is the start of the stable review cycle for the 6.2.12 release.
-> > There are 138 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+> > > This is the start of the stable review cycle for the 6.1.25 release.
+> > > There are 132 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Fri, 21 Apr 2023 09:36:33 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > >           https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.25-rc2.gz
+> > > or in the git tree and branch at:
+> > >           git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > > 
+> > > Alyssa Ross <hi@alyssa.is>
+> > >       purgatory: fix disabling debug info
+> > Alyssa provided a custom backport of this that did not require
+> > picking up Heiko's patch below, but it did not seem to get
+> > picked up.
+> > Lore is ~dead for me, so all I can give you here is her message-id
+> > for the custom backport: <20230418155237.2ubcusqc52nufmow@x220>
 > > 
-> > Responses should be made by Fri, 21 Apr 2023 09:36:26 +0000.
-> > Anything received after that time might be too late.
+> > Heiko's patch is dead code as you've (rightly) not backported
+> > any of the users.
+> > > Heiko Stuebner <heiko.stuebner@vrull.eu>
+> > >       RISC-V: add infrastructure to allow different str* implementations
 > > 
-> > The whole patch series can be found in one patch at:
-> >          https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.12-rc2.gz
-> > or in the git tree and branch at:
-> >          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> > and the diffstat can be found below.
 > > 
-> > thanks,
+> > > Alexandre Ghiti <alexghiti@rivosinc.com>
+> > >       riscv: Do not set initial_boot_params to the linear address of the dtb
+> > This one should also be dropped, either the whole series or
+> > none of it please!
 > > 
-> > greg k-h
+> > Alex has said he'll send the lot in a way that avoids confusion.
+> > 
+> > Otherwise, my testing passed.
+> > 
+> > Thanks,
+> > Conor.
 > 
-> 
-> > Alyssa Ross <hi@alyssa.is>
-> >      purgatory: fix disabling debug info
-> > 
-> > Heiko Stuebner <heiko.stuebner@vrull.eu>
-> >      RISC-V: add infrastructure to allow different str* implementations
-> 
-> Lore is ~dead for me right now, but there should be a custom backport of
-> Alyssa's commit, submitted by her, here:
-> https://lore.kernel.org/all/20230417134044.1821014-1-hi@alyssa.is/
-> 
-> Perhaps the reason is just the quantity of email, but that was
-> submitted against the "fail" email (and within a few hours), so why
-> was another commit pulled back instead of using what she provided?
+> The "riscv: Do not set initial_boot_params to the linear address of the dtb"
+> patch is fatal. Definitely needs to be dropped.
 
-Ok, now both dropped, this got confusing fast.
-
-> > Alexandre Ghiti <alexghiti@rivosinc.com>
-> >      riscv: Do not set initial_boot_params to the linear address of the dtb
-> 
-> Same as 6.1.y, Alex said he'll provide a backport for the whole
-> series, so just drop this here too please.
-
-Ok, will drop it from this tree too.
-
-thanks for the quick review.
+Now dropped, thanks,
 
 greg k-h
