@@ -2,114 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DDC6E76C4
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 11:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59BFF6E76D4
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 11:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232490AbjDSJv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 05:51:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
+        id S232760AbjDSJyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 05:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232708AbjDSJv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 05:51:26 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36E64C15
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 02:51:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1681897884; x=1713433884;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=2++nSSrT5nniK9fpVTuV0DgPyzRh8rJXu8hMOLI8idU=;
-  b=d9ZbFU351Fyo4YMqIoTKVAYR/PHPwkxvJt3+6qHd3cpg0Kt910EvwYvi
-   /zIjYiABDdSfkodO25kd194RSjOTny3xHBds98NDoA1KJTnkDaB8jmwQ3
-   M/53vNvNOv3nnBArTm1Yy2m9/oibt9zyNYHCVAkial70RQ+WleaLAdztE
-   Ix1LX9CuBPwTObVW86He+Cl9W8Ztt/pmS7k4bDAiFlSKEdSlU6Dn7NJT7
-   nEfxIi7XVg+TlQ5cMRKpuABzfeQIuQHTolq3e+wad6ie1FonDCTdWbfoV
-   DpG3uL2daYBdgUuNF4ct4G46SEB6NK3KKlhoczrKWhfwWCuaRQKiKSrLu
-   g==;
-X-IronPort-AV: E=Sophos;i="5.99,208,1677567600"; 
-   d="asc'?scan'208";a="147827089"
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 19 Apr 2023 02:51:23 -0700
-Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Wed, 19 Apr 2023 02:51:23 -0700
-Received: from wendy (10.10.115.15) by chn-vm-ex03.mchp-main.com
- (10.10.85.151) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21 via Frontend
- Transport; Wed, 19 Apr 2023 02:51:22 -0700
-Date:   Wed, 19 Apr 2023 10:51:05 +0100
-From:   Conor Dooley <conor.dooley@microchip.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>, <patches@lists.linux.dev>,
-        Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 6.1 129/134] riscv: Move early dtb mapping into the
- fixmap region
-Message-ID: <20230419-unpeeled-squabble-986a9e40e4d5@wendy>
-References: <20230418120313.001025904@linuxfoundation.org>
- <20230418120317.673170852@linuxfoundation.org>
- <20230418-tactile-cocoa-4242e87bf994@wendy>
- <2023041948-overthrow-debtor-289d@gregkh>
- <20230419-uninstall-fragile-51c326b1adbc@wendy>
- <2023041918-stammer-subgroup-fbd1@gregkh>
+        with ESMTP id S232727AbjDSJye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 05:54:34 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA202103;
+        Wed, 19 Apr 2023 02:54:33 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id d2e1a72fcca58-63b5c4c76aaso2254256b3a.2;
+        Wed, 19 Apr 2023 02:54:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681898072; x=1684490072;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Sn8DC1a+4oEP4fiEhmaj5iHyEJtTI9FfNP7JPjQuiDY=;
+        b=j8m+YE/A0/smvJYIZ/kppW4kuvk3JEEmwr0xHyBAU6F2KqtgXFztHwR66rQ6aqVHfB
+         mHbsLbO3mNuugcpRVJ+HI0E+or/CLmSfK2e7YmQNosKEfjv5f28emZsA5a7SAwm4cPmQ
+         d9L1kRgVLwdGP9YuFR64bI1Asi3/BX+1TVPHyztrp2zNqSrYCqIxqESDRvfcC3bHSuOy
+         Etpc9ybPJnILEivPwDABhHITmDZCRlmxNKFXoBbbrqKMFB+smSzW/UFF69ZKw2bxVZdO
+         miKh91pkTts/vih4F+nxHgK4j2E8lJG2WevRxpmS3wwvFF0+l/5gnwoLpQDZ9uKl3DCb
+         FCKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681898072; x=1684490072;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Sn8DC1a+4oEP4fiEhmaj5iHyEJtTI9FfNP7JPjQuiDY=;
+        b=SP29zuQj2I7IZL6Z/kJ/ol6f88CaYHDUgwoNNQW3Y4Tzu+tt19eyOARm5582Rrj/7a
+         nbBdiarlHo5Rq+2P++GH394Ug9BAU7sFRCnjU/ynoa7xRDnu44Bx1nKzEYhvlm0jOHjj
+         KeudzzacPB2j3zF8sS7BSTp0tOqfaXmVWVQX8tpIlhnUaP30CknqEzkPKwCN1yUFPIBf
+         8/fx0tPZT4ayVElDV9Sz0GwBcfEQjNqYpWh51Z3KrrTZC8UXqaXxyf6+kPU27qZb0zxC
+         NAzb8brzE/Q0FGSWU6TzDTHVhUXamIU4mtin2XMZ3w+3nzsvY9kCc4sYgAP9SnGGdPzX
+         gq2Q==
+X-Gm-Message-State: AAQBX9fUpyPH+BpoU/nku6fZ4yqYDD6dAluqCYYDD6HTBGdGjnh4Ah0T
+        YfSCtCwNZUkdNiRk6c5FsA/rMT8jZIJPRA==
+X-Google-Smtp-Source: AKy350YvGej2S7/mIHMNE4yC8W+UwPTFUgZlKEp29Ed3QMkuANd1wp7Eq+s1H6oh1uJhv8ntIqrkeQ==
+X-Received: by 2002:a17:902:d4c6:b0:1a6:523c:8583 with SMTP id o6-20020a170902d4c600b001a6523c8583mr5496874plg.68.1681898072090;
+        Wed, 19 Apr 2023 02:54:32 -0700 (PDT)
+Received: from localhost.localdomain ([47.96.236.37])
+        by smtp.gmail.com with ESMTPSA id h12-20020a170902f7cc00b0019f9fd10f62sm11108357plw.70.2023.04.19.02.54.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Apr 2023 02:54:31 -0700 (PDT)
+From:   Yang Bo <yyyeer.bo@gmail.com>
+X-Google-Original-From: Yang Bo <yb203166@antfin.com>
+To:     stable@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, mszeredi@redhat.com,
+        Yang Bo <yb203166@antfin.com>
+Subject: [PATCH 0/3] Backport several fuse patches for 5.15.y
+Date:   Wed, 19 Apr 2023 17:54:21 +0800
+Message-Id: <20230419095424.51328-1-yb203166@antfin.com>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mUfhQeVO79oV2LO/"
-Content-Disposition: inline
-In-Reply-To: <2023041918-stammer-subgroup-fbd1@gregkh>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,HK_RANDOM_ENVFROM,
+        HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---mUfhQeVO79oV2LO/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Antgroup is using 5.10.y in product environment, we found several patches are
+missing in 5.10.y tree. These patches are needed for us. So we backported them
+to 5.10.y. Also backport to 5.15.y and 6.1.y to prevent regression.
 
-On Wed, Apr 19, 2023 at 11:36:43AM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Apr 19, 2023 at 08:55:34AM +0100, Conor Dooley wrote:
+Jiachen Zhang (1):
+  fuse: always revalidate rename target dentry
 
-> > However, this patch ("riscv: Move early dtb mapping into the fixmap
-> > region") did end up getting applied to 6.1.y and 6.2.y, despite what the
-> > email I got said for 6.1.y!
->=20
-> That's because Sasha backported the dependent patches to get it to
-> apply.
+Miklos Szeredi (2):
+  fuse: fix attr version comparison in fuse_read_update_size()
+  fuse: fix deadlock between atomic O_TRUNC and page invalidation
 
-Should probably send out a notification of success then, no?
-At least, I didn't see one land in my inbox.
+ fs/fuse/dir.c  |  9 +++++++--
+ fs/fuse/file.c | 31 ++++++++++++++++++-------------
+ 2 files changed, 25 insertions(+), 15 deletions(-)
 
-> Let me just drop all of them, that makes it simpler and then if anyone
-> wants them applied, then they can send us an explicit set of patches.
+-- 
+2.40.0
 
-Perfect, I should be able to do that.
-Some time here might actually work in our favour, as I don't think this
-stuff has been tested yet by anyone using XIP and I had expressed some
-concerns that we would cause them issues.
-I already owe you one set of non-urgent backports that I have yet to
-get around to...
-
-Cheers,
-Conor.
-
---mUfhQeVO79oV2LO/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZD+5iQAKCRB4tDGHoIJi
-0k8PAP9Ga8BokGT94OnNEo5zIe3wIG15iuTSZOPBTQU0v2hREAD/f6iO7wunKFqW
-Mp64sgBtnDTckllraDvN0Zj8h06JeQE=
-=ddbG
------END PGP SIGNATURE-----
-
---mUfhQeVO79oV2LO/--
