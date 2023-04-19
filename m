@@ -2,59 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C606E7C1F
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 16:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 887886E7C88
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 16:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232605AbjDSOQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 10:16:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
+        id S232333AbjDSOZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 10:25:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232634AbjDSOP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 10:15:56 -0400
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E3616F9B
-        for <stable@vger.kernel.org>; Wed, 19 Apr 2023 07:15:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=PwVq/qutJNHYdGyaN2pFZpUUGRnNT+OajhbfjI6fupE=; b=JZD7OMRk62qwBM4VOvDjO+3RlN
-        dG32QY6u50xWg5HL9O92ZtTSv6IT4OlHw4RzHMTJVoKaZunJBk9GCl1WpgpaRA2TDSPYxcmOJvksL
-        uXUVppUWH/2L6E20giQPjgswCASUstOeXEYYsXTMJ2uxM8oNsxc2AKPfFCGCF7ifP+LuBHo7n0DGw
-        TgFDevFu2JzhUZNhrPqdiFrx33XouA8GZT3aoDe0/Yl0l88lUP8+99pJK79jzTC10aGJEWPdKMc2Z
-        qmgBjnEfez4MixEvwVXcaPAvH/VxEp7XZd9sy4pouieeCfsXeDF0S+U3ghHWoscV3zH0hDpNMP02+
-        8GT0xFvA==;
-Received: from 201-92-79-199.dsl.telesp.net.br ([201.92.79.199] helo=[192.168.1.60])
-        by fanzine2.igalia.com with esmtpsa 
-        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-        id 1pp8aN-005PWp-TI; Wed, 19 Apr 2023 16:15:04 +0200
-Message-ID: <be4babae-4791-11f3-1f0f-a46480ce3db2@igalia.com>
-Date:   Wed, 19 Apr 2023 11:14:58 -0300
+        with ESMTP id S232634AbjDSOZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 10:25:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C487DAD;
+        Wed, 19 Apr 2023 07:25:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC498612F2;
+        Wed, 19 Apr 2023 14:24:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E12C433EF;
+        Wed, 19 Apr 2023 14:24:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681914296;
+        bh=ECQupXum7C5csYm6oCBpT9WEdJx57UL7F89LUbZpf/M=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=pOXXGT1V+govUKL15SCaz62C2cqZS+y3ZMw4s8AMqTGDYirqkPAxqIsig4OmQIdrn
+         OwUFQ6Pvn+sw2nN51JebIMaFqfsuKqM0LGx9DZ4pj1knSDZtcnEyqrfcQd3p9uSBkG
+         po4MVYPuX95g8/HA5F0l4TXJ5wdXZ6nA8S3eWt4cCaEH/KyLDhW6VxDiS1mDDzxk+7
+         vcsRUf4EcocYYXuSxe9yK+YLsxGRuymFELud/gnxVkizROkB8aUI8u5obUIl6bzm1d
+         x/TNdaQBHZXEicJahYskC3nVXoTAqXsdjpaiZJmAZqjEpju5ee5tki6BVdfB9wD1Xb
+         VseyQkuQ4hZwQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 6.1.y] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh
- broken BIOSes
-Content-Language: en-US
-To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "sashal@kernel.org" <sashal@kernel.org>,
-        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
-        "Zhu, James" <James.Zhu@amd.com>, "Liu, Leo" <Leo.Liu@amd.com>,
-        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
-        "kernel-dev@igalia.com" <kernel-dev@igalia.com>
-References: <20230418221522.1287942-1-gpiccoli@igalia.com>
- <BL1PR12MB514405B37FC8691CB24F9DADF7629@BL1PR12MB5144.namprd12.prod.outlook.com>
-From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <BL1PR12MB514405B37FC8691CB24F9DADF7629@BL1PR12MB5144.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] wifi: ath9k: Don't mark channelmap stack variable
+ read-only
+ in ath9k_mci_update_wlan_channels()
+From:   Kalle Valo <kvalo@kernel.org>
+In-Reply-To: <20230413214118.153781-1-toke@toke.dk>
+References: <20230413214118.153781-1-toke@toke.dk>
+To:     =?utf-8?q?Toke_H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
+Cc:     =?utf-8?q?Toke_H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Colin Ian King <colin.i.king@gmail.com>,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org
+User-Agent: pwcli/0.1.1-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-ID: <168191429286.18451.14816485203241143280.kvalo@kernel.org>
+Date:   Wed, 19 Apr 2023 14:24:54 +0000 (UTC)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,42 +58,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19/04/2023 10:16, Deucher, Alexander wrote:
-> [...]
->> This is quite strange for me, we have 2 commit hashes pointing to the
->> *same* commit, and each one is present..in a different release !!?!
->> Since I've marked this patch as fixing 82132ecc5432 originally, 6.1.y stable
->> misses it, since it only contains 9a8cc8cabc1e (which is the same patch!).
->>
->> Alex, do you have an idea why sometimes commits from the AMD tree
->> appear duplicate in mainline? Specially in different releases, this could cause
->> some confusion I guess.
+Toke Høiland-Jørgensen <toke@toke.dk> wrote:
+
+> This partially reverts commit e161d4b60ae3a5356e07202e0bfedb5fad82c6aa.
 > 
-> This is pretty common in the drm.  The problem is there is not a good way to get bug fixes into both -next and -fixes without constant back merges.  So the patches end up in -next and if they are important for stable, they go to -fixes too.  We don't want -next to be broken, but we can't wait until the next kernel cycle to get the bug fixes into the current kernel and stable.  I don't know of a good way to make this smoother.
+> Turns out the channelmap variable is not actually read-only, it's modified
+> through the MCI_GPM_CLR_CHANNEL_BIT() macro further down in the function,
+> so making it read-only causes page faults when that code is hit.
 > 
-> Alex
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=217183
+> Fixes: e161d4b60ae3 ("wifi: ath9k: Make arrays prof_prio and channelmap static const")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+> Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
 
-Thanks Alex, seems quite complicated indeed.
+Patch applied to ath-next branch of ath.git, thanks.
 
-So, let me check if I understood properly: there are 2 trees (-fixes and
--next), and the problem is that their merge onto mainline happens apart
-and there are kind of duplicate commits, that were first merged on
--fixes, then "re-merged" on -next, right?
+b956e3110a79 wifi: ath9k: Don't mark channelmap stack variable read-only in ath9k_mci_update_wlan_channels()
 
-Would be possible to clean the -next tree right before the merge, using
-some script to find commits there that are going to be merged but are
-already present? Then you'd have a -next-to-merge tree that is clean and
-doesn't present dups, avoiding this.
+-- 
+https://patchwork.kernel.org/project/linux-wireless/patch/20230413214118.153781-1-toke@toke.dk/
 
-Disclaimer: I'm not a maintainer, maybe there are smart ways of doing
-that or perhaps my suggestion is silly and unfeasible heh
-But seems likely that other maintainers face this problem as well and
-came up with some solution - avoiding the dups would be a good thing,
-IMO, if possible.
-
-Cheers,
-
-
-Guilherme
-
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
