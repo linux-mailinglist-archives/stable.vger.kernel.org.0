@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C821A6E7A8C
-	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 15:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88FC16E7A8E
+	for <lists+stable@lfdr.de>; Wed, 19 Apr 2023 15:22:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233108AbjDSNWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 09:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58694 "EHLO
+        id S233476AbjDSNWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 09:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233023AbjDSNWO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 09:22:14 -0400
+        with ESMTP id S233455AbjDSNWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 09:22:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6729146F1;
-        Wed, 19 Apr 2023 06:22:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE601FD2;
+        Wed, 19 Apr 2023 06:22:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55627614D9;
-        Wed, 19 Apr 2023 13:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12693C433D2;
-        Wed, 19 Apr 2023 13:22:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBF5E63F0D;
+        Wed, 19 Apr 2023 13:22:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5194C433EF;
+        Wed, 19 Apr 2023 13:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1681910524;
-        bh=sRenTGUoV0VIaE4ifZ0ul5rijGrPRiOFMKQVex7AFXg=;
+        s=korg; t=1681910532;
+        bh=vJeTI4nYBXXgFz1KFmoE87iUElfVSmKxPKQSQcZPY5A=;
         h=From:To:Cc:Subject:Date:From;
-        b=AQQbbduU6Y1JSaIONLaslWfjiJ8U02Ygb6WFQyAiny2OC0Sq/P540e0z4Nh6+sChj
-         ENLE4MAPqhN3xOV2d5OcGwE6y7qc52VuVOba9DKHGkZ0t1ktcP/71DElom+1qe6+T4
-         cMSmojVqtXwJeT67Lgevbja5p2xksl54QFKIlRLs=
+        b=qww0fpPH/5yL0dMPKOXCaiDV0oQ305gX2UtVC9QzOLRZi5xGgv52+cs1kmYrW9M8g
+         CYxHZeO3XHr6H+LKGBIKtyomprnza/gJqCEHRp56zUvkmRzSJVCDJ1p5c43wgDJhYa
+         F8jmt+JKoxu5JmqZIJqYsi8TGqbrYPvdhKPtmqX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,20 +37,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 6.2 000/135] 6.2.12-rc3 review
-Date:   Wed, 19 Apr 2023 15:22:02 +0200
-Message-Id: <20230419132054.228391649@linuxfoundation.org>
+Subject: [PATCH 5.15 00/84] 5.15.108-rc4 review
+Date:   Wed, 19 Apr 2023 15:22:09 +0200
+Message-Id: <20230419132034.475843587@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.12-rc3.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.108-rc4.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-6.2.y
+X-KernelTest-Branch: linux-5.15.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 6.2.12-rc3
-X-KernelTest-Deadline: 2023-04-21T13:21+00:00
+X-KernelTest-Version: 5.15.108-rc4
+X-KernelTest-Deadline: 2023-04-21T13:20+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -63,18 +63,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 6.2.12 release.
-There are 135 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.15.108 release.
+There are 84 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Fri, 21 Apr 2023 13:20:25 +0000.
+Responses should be made by Fri, 21 Apr 2023 13:20:15 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.12-rc3.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.108-rc4.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
 and the diffstat can be found below.
 
 thanks,
@@ -85,7 +85,22 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 6.2.12-rc3
+    Linux 5.15.108-rc4
+
+Xi Ruoyao <xry111@xry111.site>
+    nvme-pci: avoid the deepest sleep state on ZHITAI TiPro5000 SSDs
+
+Yanteng Si <siyanteng01@gmail.com>
+    counter: Add the necessary colons and indents to the comments of counter_compi
+
+Randy Dunlap <rdunlap@infradead.org>
+    counter: fix docum. build problems after filename change
+
+Valentin Schneider <vschneid@redhat.com>
+    panic, kexec: make __crash_kexec() NMI safe
+
+Valentin Schneider <vschneid@redhat.com>
+    kexec: turn all kexec_mutex acquisitions into trylocks
 
 Duy Truong <dory@dory.moe>
     nvme-pci: add NVME_QUIRK_BOGUS_NID for T-FORCE Z330 SSD
@@ -93,8 +108,20 @@ Duy Truong <dory@dory.moe>
 Juraj Pecigos <kernel@juraj.dev>
     nvme-pci: mark Lexar NM760 as IGNORE_DEV_SUBNQN
 
-David Disseldorp <ddiss@suse.de>
-    cifs: fix negotiate context parsing
+Abhijit <abhijit@abhijittomar.com>
+    nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM760
+
+Shyamin Ayesh <me@shyamin.com>
+    nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM610
+
+Tobias Gruetzmacher <tobias-git@23.gs>
+    nvme-pci: Crucial P2 has bogus namespace ids
+
+Ning Wang <ningwang35@outlook.com>
+    nvme-pci: avoid the deepest sleep state on ZHITAI TiPro7000 SSDs
+
+Stefan Reiter <stefan@pimaker.at>
+    nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG GAMMIX S50
 
 Gregor Herburger <gregor.herburger@tq-group.com>
     i2c: ocores: generate stop condition after timeout in polling mode
@@ -105,11 +132,11 @@ Matija Glavinic Pecotic <matija.glavinic-pecotic.ext@nokia.com>
 Vincent Guittot <vincent.guittot@linaro.org>
     sched/fair: Fix imbalance overflow
 
+zgpeng <zgpeng.linux@gmail.com>
+    sched/fair: Move calculate of avg_load to a better location
+
 Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
     powerpc/papr_scm: Update the NUMA distance table for the target node
-
-Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
-    i2c: mchp-pci1xxxx: Update Timing registers
 
 ZhaoLong Wang <wangzhaolong1@huawei.com>
     ubi: Fix deadlock caused by recursively holding work_sem
@@ -117,53 +144,17 @@ ZhaoLong Wang <wangzhaolong1@huawei.com>
 Zhihao Cheng <chengzhihao1@huawei.com>
     ubi: Fix failure attaching when vid_hdr offset equals to (sub)page size
 
-Matthieu Baerts <matthieu.baerts@tessares.net>
-    selftests: mptcp: userspace pm: uniform verify events
-
-Paolo Abeni <pabeni@redhat.com>
-    mptcp: fix NULL pointer dereference on fastopen early fallback
-
 Paolo Abeni <pabeni@redhat.com>
     mptcp: stricter state check in mptcp_worker
 
 Paolo Abeni <pabeni@redhat.com>
     mptcp: use mptcp_schedule_work instead of open-coding it
 
-Horatio Zhang <Hongkun.Zhang@amd.com>
-    drm/amd/pm: correct SMU13.0.7 max shader clock reporting
-
-Horatio Zhang <Hongkun.Zhang@amd.com>
-    drm/amd/pm: correct SMU13.0.7 pstate profiling clock settings
-
-Waiman Long <longman@redhat.com>
-    cgroup/cpuset: Add cpuset_can_fork() and cpuset_cancel_fork() methods
-
-Waiman Long <longman@redhat.com>
-    cgroup/cpuset: Make cpuset_fork() handle CLONE_INTO_CGROUP properly
-
 Waiman Long <longman@redhat.com>
     cgroup/cpuset: Wake up cpuset_attach_wq tasks in cpuset_cancel_attach()
 
-Waiman Long <longman@redhat.com>
-    cgroup/cpuset: Fix partition root's cpuset.cpus update bug
-
-Josh Don <joshdon@google.com>
-    cgroup: fix display of forceidle time at root
-
 Basavaraj Natikar <Basavaraj.Natikar@amd.com>
     x86/PCI: Add quirk for AMD XHCI controller that loses MSI-X state in D3hot
-
-Reinette Chatre <reinette.chatre@intel.com>
-    PCI/MSI: Provide missing stub for pci_msix_can_alloc_dyn()
-
-Rob Herring <robh@kernel.org>
-    PCI: Fix use-after-free in pci_bus_release_domain_nr()
-
-Evan Quan <evan.quan@amd.com>
-    drm/amd/pm: correct the pcie link state check for SMU13
-
-Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-    thermal: intel: Avoid updating unsupported THERM_STATUS_CLEAR mask bits
 
 Jiri Kosina <jkosina@suse.cz>
     scsi: ses: Handle enclosure with just a primary component gracefully
@@ -177,17 +168,14 @@ Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 Ivan Bornyakov <i.bornyakov@metrotek.ru>
     net: sfp: initialize sfp->i2c_block_size at sfp allocation
 
-Tanu Malhotra <tanu.malhotra@intel.com>
-    HID: intel-ish-hid: Fix kernel panic during warm reset
-
 Mathis Salmen <mathis.salmen@matsal.de>
     riscv: add icache flush for nommu sigreturn trampoline
 
-David Disseldorp <ddiss@suse.de>
-    ksmbd: avoid out of bounds access in decode_preauth_ctxt()
+Min Li <lm0963hack@gmail.com>
+    drm/i915: fix race condition UAF in i915_perf_add_config_ioctl
 
-Liam R. Howlett <Liam.Howlett@oracle.com>
-    maple_tree: fix write memory barrier of nodes once dead for RCU mode
+Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+    i915/perf: Replace DRM_DEBUG with driver specific drm_dbg call
 
 Steven Rostedt (Google) <rostedt@goodmis.org>
     tracing: Have tracing_snapshot_instance_cond() write errors to the appropriate instance
@@ -195,26 +183,23 @@ Steven Rostedt (Google) <rostedt@goodmis.org>
 Steven Rostedt (Google) <rostedt@goodmis.org>
     tracing: Add trace_array_puts() to write into instance
 
+William Breathitt Gray <william.gray@linaro.org>
+    counter: 104-quad-8: Fix Synapse action reported for Index signals
+
+William Breathitt Gray <vilhelm.gray@gmail.com>
+    counter: Internalize sysfs interface code
+
+William Breathitt Gray <vilhelm.gray@gmail.com>
+    counter: stm32-timer-cnt: Provide defines for slave mode selection
+
+William Breathitt Gray <vilhelm.gray@gmail.com>
+    counter: stm32-lptimer-cnt: Provide defines for clock polarities
+
 Aymeric Wibo <obiwac@gmail.com>
     ACPI: resource: Add Medion S17413 to IRQ override quirk
 
-Jane Jian <Jane.Jian@amd.com>
-    drm/amdgpu/gfx: set cg flags to enter/exit safe mode
-
-YuBiao Wang <YuBiao.Wang@amd.com>
-    drm/amdgpu: Force signal hw_fences that are embedded in non-sched jobs
-
-Tong Liu01 <Tong.Liu01@amd.com>
-    drm/amdgpu: add mes resume when do gfx post soft reset
-
-Johannes Berg <johannes.berg@intel.com>
-    wifi: iwlwifi: mvm: protect TXQ list manipulation
-
 Johannes Berg <johannes.berg@intel.com>
     wifi: iwlwifi: mvm: fix mvmtxq->stopped handling
-
-Martin George <martinus.gpy@gmail.com>
-    nvme: send Identify with CNS 06h only to I/O controllers
 
 Robbie Harwood <rharwood@redhat.com>
     asymmetric_keys: log on fatal failures in PE/pkcs7
@@ -222,20 +207,8 @@ Robbie Harwood <rharwood@redhat.com>
 Robbie Harwood <rharwood@redhat.com>
     verify_pefile: relax wrapper length check
 
-Tianyi Jing <jingfelix@hust.edu.cn>
-    hwmon: (xgene) Fix ioremap and memremap leak
-
-Iwona Winiarska <iwona.winiarska@intel.com>
-    hwmon: (peci/cputemp) Fix miscalculated DTS for SKX
-
 Hans de Goede <hdegoede@redhat.com>
     drm: panel-orientation-quirks: Add quirk for Lenovo Yoga Book X90F
-
-Hans de Goede <hdegoede@redhat.com>
-    ACPI: video: Add backlight=native DMI quirk for Acer Aspire 3830TG
-
-Ming Lei <ming.lei@redhat.com>
-    block: ublk_drv: mark device as LIVE before adding disk
 
 Hans de Goede <hdegoede@redhat.com>
     efi: sysfb_efi: Add quirk for Lenovo Yoga Book X91F/L
@@ -249,26 +222,14 @@ Alexander Stein <alexander.stein@ew.tq-group.com>
 Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
     wifi: mwifiex: mark OF related data as maybe unused
 
-Alexei Starovoitov <ast@kernel.org>
-    selftests/bpf: Fix progs/find_vma_fail1.c build error.
-
-Denis Arefev <arefev@swemel.ru>
-    power: supply: axp288_fuel_gauge: Added check for negative values
-
 Grant Grundler <grundler@chromium.org>
     power: supply: cros_usbpd: reclassify "default case!" as debug
 
-Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-    power: supply: rk817: Fix unsigned comparison with less than zero
-
-Brian Masney <bmasney@redhat.com>
-    arm64: dts: qcom: sa8540p-ride: correct name of remoteproc_nsp0 firmware
-
-Luca Weiss <luca@z3ntu.xyz>
-    ARM: dts: qcom: apq8026-lg-lenok: add missing reserved memory
-
 Andrew Jeffery <andrew@aj.id.au>
     ARM: 9290/1: uaccess: Fix KASAN false-positives
+
+Andrii Nakryiko <andrii@kernel.org>
+    libbpf: Fix single-line struct definition output in btf_dump
 
 Liang Chen <liangchen.linux@gmail.com>
     skbuff: Fix a race between coalescing and releasing SKBs
@@ -276,14 +237,8 @@ Liang Chen <liangchen.linux@gmail.com>
 Roman Gushchin <roman.gushchin@linux.dev>
     net: macb: fix a memory corruption in extended buffer descriptor mode
 
-Xin Long <lucien.xin@gmail.com>
-    selftests: add the missing CONFIG_IP_SCTP in net config
-
 Eric Dumazet <edumazet@google.com>
     udp6: fix potential access to stale information
-
-Aaron Conole <aconole@redhat.com>
-    selftests: openvswitch: adjust datapath NL message declaration
 
 Saravanan Vajravel <saravanan.vajravel@broadcom.com>
     RDMA/core: Fix GID entry ref leak when create_ah fails
@@ -294,50 +249,11 @@ Xin Long <lucien.xin@gmail.com>
 Ziyang Xuan <william.xuanziyang@huawei.com>
     net: qrtr: Fix an uninit variable access bug in qrtr_tx_resume()
 
-Martin Willi <martin@strongswan.org>
-    rtnetlink: Restore RTM_NEW/DELLINK notification behavior
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    cgroup,freezer: hold cpu_hotplug_lock before freezer_mutex
-
-Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-    net: wwan: iosm: Fix error handling path in ipc_pcie_probe()
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    smc: Fix use-after-free in tcp_write_timer_handler().
-
 Denis Plotnikov <den-plotnikov@yandex-team.ru>
     qlcnic: check pci_reset_function result
 
 Christophe JAILLET <christophe.jaillet@wanadoo.fr>
     drm/armada: Fix a potential double free in an error handling path
-
-Karol Herbst <kherbst@redhat.com>
-    drm/nouveau/fb: add missing sysmen flush callbacks
-
-Claudia Draghicescu <claudia.rosu@nxp.com>
-    Bluetooth: Set ISO Data Path on broadcast sink
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: SCO: Fix possible circular locking dependency sco_sock_getsockopt
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: Fix printing errors if LE Connection times out
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: hci_conn: Fix not cleaning up on LE Connection failure
-
-Felix Huettner <felix.huettner@mail.schwarz>
-    net: openvswitch: fix race on port output
-
-Ahmed Zaki <ahmed.zaki@intel.com>
-    iavf: remove active_cvlans and active_svlans bitmaps
-
-Ahmed Zaki <ahmed.zaki@intel.com>
-    iavf: refactor VLAN filter states
-
-Hangbin Liu <liuhangbin@gmail.com>
-    bonding: fix ns validation on backup slaves
 
 YueHaibing <yuehaibing@huawei.com>
     tcp: restrict net.ipv4.tcp_app_win
@@ -345,47 +261,14 @@ YueHaibing <yuehaibing@huawei.com>
 Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
     niu: Fix missing unwind goto in niu_alloc_channels()
 
-Fuad Tabba <tabba@google.com>
-    KVM: arm64: Advertise ID_AA64PFR0_EL1.CSV2/3 to protected VMs
-
-Xu Kuohai <xukuohai@huawei.com>
-    bpf, arm64: Fixed a BTI error on returning to patched function
-
 Zheng Wang <zyytlz.wz@163.com>
     9p/xen : Fix use after free bug in xen_9pfs_front_remove due to race condition
-
-Martin Povišer <povik+lin@cutebit.org>
-    dmaengine: apple-admac: Fix 'current_tx' not getting freed
-
-Martin Povišer <povik+lin@cutebit.org>
-    dmaengine: apple-admac: Set src_addr_widths capability
-
-Martin Povišer <povik+lin@cutebit.org>
-    dmaengine: apple-admac: Handle 'global' interrupt flags
-
-George Guo <guodongtai@kylinos.cn>
-    LoongArch, bpf: Fix jit to skip speculation barrier opcode
 
 Martin KaFai Lau <martin.lau@kernel.org>
     bpf: tcp: Use sock_gen_put instead of sock_put in bpf_iter_tcp
 
 Mark Zhang <markzhang@nvidia.com>
     RDMA/cma: Allow UD qp_type to join multicast only
-
-Alexander Stein <alexander.stein@ew.tq-group.com>
-    clk: rs9: Fix suspend/resume
-
-Cheng Xu <chengyou@linux.alibaba.com>
-    RDMA/erdma: Defer probing if netdevice can not be found
-
-Cheng Xu <chengyou@linux.alibaba.com>
-    RDMA/erdma: Inline mtt entries into WQE if supported
-
-Cheng Xu <chengyou@linux.alibaba.com>
-    RDMA/erdma: Update default EQ depth to 4096 and max_send_wr to 8192
-
-Cheng Xu <chengyou@linux.alibaba.com>
-    RDMA/erdma: Fix some typos
 
 Maher Sanalla <msanalla@nvidia.com>
     IB/mlx5: Add support for 400G_8X lane speed
@@ -399,23 +282,11 @@ Mustafa Ismail <mustafa.ismail@intel.com>
 Mustafa Ismail <mustafa.ismail@intel.com>
     RDMA/irdma: Fix memory leak of PBLE objects
 
-Mustafa Ismail <mustafa.ismail@intel.com>
-    RDMA/irdma: Do not generate SW completions for NOPs
-
 Chunyan Zhang <chunyan.zhang@unisoc.com>
     clk: sprd: set max_register according to mapping range
 
-Ming Lei <ming.lei@redhat.com>
-    io_uring: complete request via task work in case of DEFER_TASKRUN
-
 Jani Nikula <jani.nikula@intel.com>
     drm/i915/dsi: fix DSS CTL register offsets for TGL+
-
-Daniel Vetter <daniel.vetter@ffwll.ch>
-    fbcon: set_con2fb_map needs to set con2fb_map!
-
-Daniel Vetter <daniel.vetter@ffwll.ch>
-    fbcon: Fix error paths in set_con2fb_map
 
 Reiji Watanabe <reijiw@google.com>
     KVM: arm64: PMU: Restore the guest's EL0 event counting after migration
@@ -438,26 +309,14 @@ Daniel Vetter <daniel.vetter@ffwll.ch>
 Christoph Hellwig <hch@lst.de>
     btrfs: fix fast csum implementation detection
 
-Christoph Hellwig <hch@lst.de>
-    btrfs: restore the thread_pool= behavior in remount for the end I/O workqueues
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: hci_conn: Fix possible UAF
-
-Archie Pusaka <apusaka@chromium.org>
-    Bluetooth: Free potentially unfreed SCO connection
-
-Sasha Finkelstein <fnkl.kernel@gmail.com>
-    bluetooth: btbcm: Fix logic error in forming the board name.
+David Sterba <dsterba@suse.com>
+    btrfs: print checksum type and implementation at mount time
 
 Min Li <lm0963hack@gmail.com>
     Bluetooth: Fix race condition in hidp_session_thread
 
 Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
     Bluetooth: L2CAP: Fix use-after-free in l2cap_disconnect_{req,rsp}
-
-Kai Vehmanen <kai.vehmanen@linux.intel.com>
-    ALSA: hda/hdmi: disable KAE for Intel DG2
 
 Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
     ALSA: hda/sigmatel: fix S/PDIF out on Intel D*45* motherboards
@@ -468,12 +327,6 @@ Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 Xu Biang <xubiang@hust.edu.cn>
     ALSA: firewire-tascam: add missing unwind goto in snd_tscm_stream_start_duplex()
 
-Stefan Binding <sbinding@opensource.cirrus.com>
-    ALSA: hda/realtek: Add quirks for Lenovo Z13/Z16 Gen2
-
-Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-    ALSA: hda: patch_realtek: add quirk for Asus N7601ZM
-
 Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
     ALSA: i2c/cs8427: fix iec958 mixer control deactivation
 
@@ -483,12 +336,6 @@ Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
     ALSA: emu10k1: fix capture interrupt handler unlinking
 
-Ville Syrjälä <ville.syrjala@linux.intel.com>
-    drm/i915: Workaround ICL CSC_MODE sticky arming
-
-Wayne Lin <Wayne.Lin@amd.com>
-    drm/amd/display: Pass the right info to drm_dp_remove_payload
-
 Kornel Dulęba <korneld@chromium.org>
     Revert "pinctrl: amd: Disable and mask interrupts on resume"
 
@@ -497,148 +344,104 @@ Kornel Dulęba <korneld@chromium.org>
 
 Diffstat:
 
- Documentation/networking/ip-sysctl.rst             |   2 +
- Documentation/sound/hd-audio/models.rst            |   2 +-
- Makefile                                           |   4 +-
- arch/arm/boot/dts/qcom-apq8026-lg-lenok.dts        |  10 ++
- arch/arm/lib/uaccess_with_memcpy.c                 |   4 +-
- arch/arm64/boot/dts/qcom/sa8540p-ride.dts          |   2 +-
- arch/arm64/kvm/arm.c                               |  26 ++-
- arch/arm64/kvm/hyp/include/nvhe/fixed_config.h     |   5 +-
- arch/arm64/kvm/hyp/nvhe/sys_regs.c                 |   7 -
- arch/arm64/kvm/pmu-emul.c                          |   1 +
- arch/arm64/kvm/sys_regs.c                          |   1 -
- arch/arm64/net/bpf_jit.h                           |   4 +
- arch/arm64/net/bpf_jit_comp.c                      |   3 +-
- arch/loongarch/net/bpf_jit.c                       |   4 +
- arch/powerpc/mm/numa.c                             |   1 +
- arch/powerpc/platforms/pseries/papr_scm.c          |   7 +
- arch/riscv/kernel/signal.c                         |   9 +-
- arch/x86/kernel/x86_init.c                         |   4 +-
- arch/x86/pci/fixup.c                               |  21 +++
- crypto/asymmetric_keys/pkcs7_verify.c              |  10 +-
- crypto/asymmetric_keys/verify_pefile.c             |  32 ++--
- drivers/acpi/resource.c                            |   7 +
- drivers/acpi/video_detect.c                        |   8 +
- drivers/block/ublk_drv.c                           |   3 +-
- drivers/bluetooth/btbcm.c                          |   2 +-
- drivers/clk/clk-renesas-pcie.c                     |   3 +-
- drivers/clk/sprd/common.c                          |   9 +-
- drivers/dma/apple-admac.c                          |  20 ++-
- drivers/firmware/efi/sysfb_efi.c                   |   8 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c          |   9 ++
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c             |  14 ++
- .../drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c  |  57 ++++++-
- drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h       |   6 +
- .../gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c   |   4 +-
- .../gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c   |  87 ++++++++--
- drivers/gpu/drm/armada/armada_drv.c                |   1 -
- drivers/gpu/drm/drm_panel_orientation_quirks.c     |  13 +-
- drivers/gpu/drm/i915/display/icl_dsi.c             |  20 ++-
- drivers/gpu/drm/i915/display/intel_color.c         |  43 ++++-
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gf108.c     |   1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk104.c     |   1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gk110.c     |   1 +
- drivers/gpu/drm/nouveau/nvkm/subdev/fb/gm107.c     |   1 +
- drivers/hid/intel-ish-hid/ishtp/bus.c              |   4 +-
- drivers/hwmon/peci/cputemp.c                       |   8 +-
- drivers/hwmon/xgene-hwmon.c                        |  14 +-
- drivers/i2c/busses/i2c-hisi.c                      |   7 +
- drivers/i2c/busses/i2c-imx-lpi2c.c                 |   2 +
- drivers/i2c/busses/i2c-mchp-pci1xxxx.c             |  60 +++----
- drivers/i2c/busses/i2c-ocores.c                    |  35 ++--
- drivers/infiniband/core/cma.c                      |  60 ++++---
- drivers/infiniband/core/verbs.c                    |   2 +
- drivers/infiniband/hw/erdma/erdma_cq.c             |   2 +-
- drivers/infiniband/hw/erdma/erdma_hw.h             |   4 +-
- drivers/infiniband/hw/erdma/erdma_main.c           |   2 +-
- drivers/infiniband/hw/erdma/erdma_qp.c             |   4 +-
- drivers/infiniband/hw/erdma/erdma_verbs.h          |   2 +-
- drivers/infiniband/hw/irdma/cm.c                   |  16 +-
- drivers/infiniband/hw/irdma/cm.h                   |   2 +-
- drivers/infiniband/hw/irdma/hw.c                   |   3 +
- drivers/infiniband/hw/irdma/utils.c                |   5 +-
- drivers/infiniband/hw/mlx5/main.c                  |   4 +
- drivers/mtd/mtdblock.c                             |  12 +-
- drivers/mtd/nand/raw/meson_nand.c                  |   6 +-
- drivers/mtd/nand/raw/stm32_fmc2_nand.c             |   3 +
- drivers/mtd/ubi/build.c                            |  21 ++-
- drivers/mtd/ubi/wl.c                               |   4 +-
- drivers/net/bonding/bond_main.c                    |   5 +-
- drivers/net/ethernet/cadence/macb_main.c           |   4 +
- drivers/net/ethernet/intel/iavf/iavf.h             |  20 ++-
- drivers/net/ethernet/intel/iavf/iavf_main.c        |  44 +++--
- drivers/net/ethernet/intel/iavf/iavf_virtchnl.c    |  68 ++++----
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c    |   8 +-
- drivers/net/ethernet/sun/niu.c                     |   2 +-
- drivers/net/phy/nxp-c45-tja11xx.c                  |  14 +-
- drivers/net/phy/sfp.c                              |  13 +-
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c  |  50 +++---
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h       |   6 +-
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c       |   6 +-
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c       |  29 +++-
- drivers/net/wireless/marvell/mwifiex/pcie.c        |   2 +-
- drivers/net/wireless/marvell/mwifiex/sdio.c        |   2 +-
- drivers/net/wwan/iosm/iosm_ipc_pcie.c              |   3 +-
- drivers/nvme/host/core.c                           |   3 +-
- drivers/nvme/host/pci.c                            |   3 +
- drivers/pci/remove.c                               |   5 +-
- drivers/pinctrl/pinctrl-amd.c                      |  36 ++---
- drivers/power/supply/axp288_fuel_gauge.c           |   2 +
- drivers/power/supply/cros_usbpd-charger.c          |   2 +-
- drivers/power/supply/rk817_charger.c               |   4 -
- drivers/scsi/ses.c                                 |  20 +--
- drivers/thermal/intel/therm_throt.c                |  73 ++++++++-
- drivers/video/fbdev/core/fbcon.c                   |  18 +--
- drivers/video/fbdev/core/fbmem.c                   |   2 +
- fs/btrfs/disk-io.c                                 |  14 ++
- fs/btrfs/super.c                                   |   4 +-
- fs/cifs/smb2pdu.c                                  |  41 +++--
- fs/ksmbd/smb2pdu.c                                 |  23 +--
- include/linux/pci.h                                |   2 +
- include/linux/rtnetlink.h                          |   3 +-
- include/linux/trace.h                              |  12 ++
- include/net/bluetooth/hci_core.h                   |   1 +
- include/net/bonding.h                              |   8 +-
- io_uring/io_uring.c                                |   2 +-
- kernel/cgroup/cpuset.c                             | 177 +++++++++++++++++----
- kernel/cgroup/legacy_freezer.c                     |   7 +-
- kernel/cgroup/rstat.c                              |   4 +-
- kernel/sched/fair.c                                |  10 ++
- kernel/trace/trace.c                               |  41 +++--
- lib/maple_tree.c                                   |   7 +-
- net/9p/trans_xen.c                                 |   4 +
- net/bluetooth/hci_conn.c                           |  92 +++++++----
- net/bluetooth/hci_event.c                          |  18 +--
- net/bluetooth/hci_sync.c                           |  13 +-
- net/bluetooth/hidp/core.c                          |   2 +-
- net/bluetooth/l2cap_core.c                         |  24 +--
- net/bluetooth/sco.c                                |  16 +-
- net/core/dev.c                                     |   3 +-
- net/core/rtnetlink.c                               |  11 +-
- net/core/skbuff.c                                  |  16 +-
- net/ipv4/sysctl_net_ipv4.c                         |   3 +
- net/ipv4/tcp_ipv4.c                                |   4 +-
- net/ipv6/udp.c                                     |   8 +-
- net/mptcp/fastopen.c                               |  11 +-
- net/mptcp/options.c                                |   5 +-
- net/mptcp/protocol.c                               |   2 +-
- net/mptcp/subflow.c                                |  18 +--
- net/openvswitch/actions.c                          |   2 +-
- net/qrtr/af_qrtr.c                                 |   8 +-
- net/sctp/stream_interleave.c                       |   3 +-
- net/smc/af_smc.c                                   |  11 ++
- sound/firewire/tascam/tascam-stream.c              |   2 +-
- sound/i2c/cs8427.c                                 |   7 +-
- sound/pci/emu10k1/emupcm.c                         |  14 +-
- sound/pci/hda/patch_hdmi.c                         |   2 +-
- sound/pci/hda/patch_realtek.c                      |  29 ++++
- sound/pci/hda/patch_sigmatel.c                     |  10 ++
- tools/testing/radix-tree/maple.c                   |  16 ++
- tools/testing/selftests/bpf/progs/find_vma_fail1.c |   1 +
- tools/testing/selftests/net/config                 |   1 +
- tools/testing/selftests/net/mptcp/userspace_pm.sh  |   2 +
- .../testing/selftests/net/openvswitch/ovs-dpctl.py |   2 +-
- 142 files changed, 1351 insertions(+), 568 deletions(-)
+ Documentation/driver-api/generic-counter.rst      |    2 +-
+ Documentation/networking/ip-sysctl.rst            |    2 +
+ Documentation/sound/hd-audio/models.rst           |    2 +-
+ MAINTAINERS                                       |    1 -
+ Makefile                                          |    4 +-
+ arch/arm/lib/uaccess_with_memcpy.c                |    4 +-
+ arch/arm64/kvm/pmu-emul.c                         |    1 +
+ arch/arm64/kvm/sys_regs.c                         |    1 -
+ arch/powerpc/mm/numa.c                            |    1 +
+ arch/powerpc/platforms/pseries/papr_scm.c         |    7 +
+ arch/riscv/kernel/signal.c                        |    9 +-
+ arch/x86/kernel/x86_init.c                        |    4 +-
+ arch/x86/pci/fixup.c                              |   21 +
+ crypto/asymmetric_keys/pkcs7_verify.c             |   10 +-
+ crypto/asymmetric_keys/verify_pefile.c            |   32 +-
+ drivers/acpi/resource.c                           |    7 +
+ drivers/clk/sprd/common.c                         |    9 +-
+ drivers/counter/104-quad-8.c                      |  451 +++----
+ drivers/counter/Makefile                          |    1 +
+ drivers/counter/counter-core.c                    |  142 ++
+ drivers/counter/counter-sysfs.c                   |  849 ++++++++++++
+ drivers/counter/counter-sysfs.h                   |   13 +
+ drivers/counter/counter.c                         | 1496 ---------------------
+ drivers/counter/ftm-quaddec.c                     |   60 +-
+ drivers/counter/intel-qep.c                       |  146 +-
+ drivers/counter/interrupt-cnt.c                   |   62 +-
+ drivers/counter/microchip-tcb-capture.c           |   91 +-
+ drivers/counter/stm32-lptimer-cnt.c               |  212 ++-
+ drivers/counter/stm32-timer-cnt.c                 |  195 ++-
+ drivers/counter/ti-eqep.c                         |  180 +--
+ drivers/firmware/efi/sysfb_efi.c                  |    8 +
+ drivers/gpu/drm/armada/armada_drv.c               |    1 -
+ drivers/gpu/drm/drm_panel_orientation_quirks.c    |   13 +-
+ drivers/gpu/drm/i915/display/icl_dsi.c            |   20 +-
+ drivers/gpu/drm/i915/i915_perf.c                  |  155 ++-
+ drivers/i2c/busses/i2c-hisi.c                     |    7 +
+ drivers/i2c/busses/i2c-imx-lpi2c.c                |    2 +
+ drivers/i2c/busses/i2c-ocores.c                   |   35 +-
+ drivers/infiniband/core/cma.c                     |   60 +-
+ drivers/infiniband/core/verbs.c                   |    2 +
+ drivers/infiniband/hw/irdma/cm.c                  |   16 +-
+ drivers/infiniband/hw/irdma/cm.h                  |    2 +-
+ drivers/infiniband/hw/irdma/hw.c                  |    3 +
+ drivers/infiniband/hw/mlx5/main.c                 |    4 +
+ drivers/mtd/mtdblock.c                            |   12 +-
+ drivers/mtd/nand/raw/meson_nand.c                 |    6 +-
+ drivers/mtd/nand/raw/stm32_fmc2_nand.c            |    3 +
+ drivers/mtd/ubi/build.c                           |   21 +-
+ drivers/mtd/ubi/wl.c                              |    4 +-
+ drivers/net/ethernet/cadence/macb_main.c          |    4 +
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ctx.c   |    8 +-
+ drivers/net/ethernet/sun/niu.c                    |    2 +-
+ drivers/net/phy/nxp-c45-tja11xx.c                 |   14 +-
+ drivers/net/phy/sfp.c                             |   13 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c |    5 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      |    4 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c      |    5 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c      |    4 +-
+ drivers/net/wireless/marvell/mwifiex/pcie.c       |    2 +-
+ drivers/net/wireless/marvell/mwifiex/sdio.c       |    2 +-
+ drivers/nvme/host/pci.c                           |   15 +
+ drivers/pinctrl/pinctrl-amd.c                     |   36 +-
+ drivers/power/supply/cros_usbpd-charger.c         |    2 +-
+ drivers/scsi/ses.c                                |   20 +-
+ drivers/video/fbdev/core/fbmem.c                  |    2 +
+ fs/btrfs/disk-io.c                                |   17 +
+ fs/btrfs/super.c                                  |    2 -
+ include/linux/counter.h                           |  658 ++++-----
+ include/linux/counter_enum.h                      |   45 -
+ include/linux/kexec.h                             |    2 +-
+ include/linux/mfd/stm32-lptimer.h                 |    5 +
+ include/linux/mfd/stm32-timers.h                  |    4 +
+ include/linux/trace.h                             |   12 +
+ kernel/cgroup/cpuset.c                            |    6 +-
+ kernel/kexec.c                                    |   11 +-
+ kernel/kexec_core.c                               |   28 +-
+ kernel/kexec_file.c                               |    4 +-
+ kernel/kexec_internal.h                           |   15 +-
+ kernel/ksysfs.c                                   |    7 +-
+ kernel/sched/fair.c                               |   15 +-
+ kernel/trace/trace.c                              |   41 +-
+ net/9p/trans_xen.c                                |    4 +
+ net/bluetooth/hidp/core.c                         |    2 +-
+ net/bluetooth/l2cap_core.c                        |   24 +-
+ net/core/skbuff.c                                 |   16 +-
+ net/ipv4/sysctl_net_ipv4.c                        |    3 +
+ net/ipv4/tcp_ipv4.c                               |    4 +-
+ net/ipv6/udp.c                                    |    8 +-
+ net/mptcp/options.c                               |    5 +-
+ net/mptcp/protocol.c                              |    2 +-
+ net/mptcp/subflow.c                               |   18 +-
+ net/qrtr/af_qrtr.c                                |    8 +-
+ net/sctp/stream_interleave.c                      |    3 +-
+ sound/firewire/tascam/tascam-stream.c             |    2 +-
+ sound/i2c/cs8427.c                                |    7 +-
+ sound/pci/emu10k1/emupcm.c                        |   14 +-
+ sound/pci/hda/patch_sigmatel.c                    |   10 +
+ tools/lib/bpf/btf_dump.c                          |    7 +-
+ 98 files changed, 2580 insertions(+), 2956 deletions(-)
 
 
