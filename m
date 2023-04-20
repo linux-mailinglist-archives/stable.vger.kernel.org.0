@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0021C6E91EB
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E646E9201
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235150AbjDTLH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
+        id S235063AbjDTLHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234063AbjDTLFR (ORCPT
+        with ESMTP id S234144AbjDTLFR (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:05:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5526EA5;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC0F45FF4;
         Thu, 20 Apr 2023 04:03:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0041647A6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE70B647D4;
+        Thu, 20 Apr 2023 11:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 826EAC433A0;
         Thu, 20 Apr 2023 11:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E22CAC4339B;
-        Thu, 20 Apr 2023 11:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988585;
-        bh=jpupAkuoIR9JZhgmPqEtxcQHV2WSoE1rm0Idsw6o3cc=;
+        s=k20201202; t=1681988586;
+        bh=BxEpKquUAqaTHU2HUWRxzVwEbGcW5EywGMyl4xgY+ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWk+tGb5SNwaYu2dCnSFjN6Zw8QyUEXjboVKhxmv5GiOhbxhv7AMtbLQmlqwIlbal
-         +KZbrrL1II042orlvzRDZ/eI4wOAex+d/90L/7ayvIR03dM9xM+S1jUvY4epzBd0XU
-         CBex9yzgecOTcyqbDEQmRONlqGfYLWfVyMVvtvf9YZOtxXl4YJAs4ZUs2LWVCwTWbE
-         a7gMaDI3+gU8BAavznsTblzs21MTHyCpZAFinsWH4FaX2GkezonI7qkm9dEwb9cA7n
-         oOna4vS1A31/Ah8a8GzolhFmLe6zMc9ylPTXJwpfHxY0m2jCMDSve4FMbAn+mkPrS/
-         q7/WuIvsFlH6A==
+        b=h+cBk2Y3zupAXSHEjfLUnZ1XrpAZcjEptORxMHjkJAlYTQvoGc3H0ACQ7GjvnM6GD
+         49Vg+EaWHWNWmO+PJCjxh78hu2oiL2RUXbzdLaE21X2cze6uGGFVn1XWz6GPsBtF3E
+         UbxQ83SvC1aUxxq2FadjpuI9C5uA4+U9AKLny3va3Ed9pl1JrDaLNKe6ffcBS3KGIH
+         3tfZBQAKI6miL21CvzmefptICMrotbbQYnHDakwYc3+JFZ6Y2k4XXJo/m8yCXK/6cf
+         8Ck6QKsi8C2gnnWj4zW9LKNKKtHcEtUQkKAW5ODtEgouNL4ZceBDlMalrvNXKAcUhi
+         3Kt56GPrEse3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kalle Valo <quic_kvalo@quicinc.com>, Kalle Valo <kvalo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 14/15] wifi: ath11k: reduce the MHI timeout to 20s
-Date:   Thu, 20 Apr 2023 07:02:28 -0400
-Message-Id: <20230420110231.505992-14-sashal@kernel.org>
+Cc:     Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Sasha Levin <sashal@kernel.org>, x86@kernel.org,
+        tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com
+Subject: [PATCH AUTOSEL 6.1 15/15] x86/cpu: Add model number for Intel Arrow Lake processor
+Date:   Thu, 20 Apr 2023 07:02:29 -0400
+Message-Id: <20230420110231.505992-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230420110231.505992-1-sashal@kernel.org>
 References: <20230420110231.505992-1-sashal@kernel.org>
@@ -58,50 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalle Valo <quic_kvalo@quicinc.com>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit cf5fa3ca0552f1b7ba8490de40700bbfb6979b17 ]
+[ Upstream commit 81515ecf155a38f3532bf5ddef88d651898df6be ]
 
-Currently ath11k breaks after hibernation, the reason being that ath11k expects
-that the wireless device will have power during suspend and the firmware will
-continue running. But of course during hibernation the power from the device is
-cut off and firmware is not running when resuming, so ath11k will fail.
+Successor to Lunar Lake.
 
-(The reason why ath11k needs the firmware running is the interaction between
-mac80211 and MHI stack, it's a long story and more info in the bugzilla report.)
-
-In SUSE kernels the watchdog timeout is reduced from the default 120 to 60 seconds:
-
-CONFIG_DPM_WATCHDOG_TIMEOUT=60
-
-But as the ath11k MHI timeout is 90 seconds the kernel will crash before will
-ath11k will recover in resume callback. To avoid the crash reduce the MHI
-timeout to just 20 seconds.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.9
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214649
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230329162038.8637-1-kvalo@kernel.org
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/20230404174641.426593-1-tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mhi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/intel-family.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
-index 86995e8dc9135..a62ee05c54097 100644
---- a/drivers/net/wireless/ath/ath11k/mhi.c
-+++ b/drivers/net/wireless/ath/ath11k/mhi.c
-@@ -16,7 +16,7 @@
- #include "pci.h"
- #include "pcic.h"
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index cbaf174d8efd9..b3af2d45bbbb5 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -125,6 +125,8 @@
  
--#define MHI_TIMEOUT_DEFAULT_MS	90000
-+#define MHI_TIMEOUT_DEFAULT_MS	20000
- #define RDDM_DUMP_SIZE	0x420000
+ #define INTEL_FAM6_LUNARLAKE_M		0xBD
  
- static struct mhi_channel_config ath11k_mhi_channels_qca6390[] = {
++#define INTEL_FAM6_ARROWLAKE		0xC6
++
+ /* "Small Core" Processors (Atom/E-Core) */
+ 
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
 -- 
 2.39.2
 
