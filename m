@@ -2,85 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F136E99AD
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 18:38:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F391E6E99D2
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 18:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbjDTQiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 12:38:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53944 "EHLO
+        id S230490AbjDTQpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 12:45:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232605AbjDTQiW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 12:38:22 -0400
-Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA09106;
-        Thu, 20 Apr 2023 09:38:21 -0700 (PDT)
-Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-54fbee98814so49745417b3.8;
-        Thu, 20 Apr 2023 09:38:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682008700; x=1684600700;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=ccpsSY3ERk1URSjttzJeLZAr0vtyarq8vGkCgMh7vJY=;
-        b=U8VyXZT3Urf/8X3F/z5mG98Iz+q4i+kqOk4R4APRrwyGB7HGN1zBZxU9aFSA/aTvN/
-         B0eVoN26FrP8tIjaRL8/DT2eRgEAuhT1Eu0UoZHbGTyRFa0n+wAmNBCsE5uc56U0fYkE
-         +j307x0YYQMQuV1uxJ6hPRgu1uULZZz7l1VgtQ4tcDBMfqZAqzpr08p1+F4GmpRwdDYB
-         TFWl1lGKt++kpdg56RGSzApgVDWmItey12mMO2CHOE2EVaYlyrm8nw1V1U650j0+tG81
-         21cNNFWVCuYP7A6vpppN1JHZtf+O1BFq7kSxPt0BycgVwLRe/H7avfbU4/pIyd+vwZr4
-         Mlbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682008700; x=1684600700;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ccpsSY3ERk1URSjttzJeLZAr0vtyarq8vGkCgMh7vJY=;
-        b=lsJSbPSfHIQtgaHd+G5ioRMtJld3JCbvxz5A/xDKAVZCl6bDub54J/euYs+WMqu6Uf
-         FpLA8axtHmH/lXH+oaiey09k0XIiFfkKVTu5Tr8GKPg4uLQ2Q3i62SiSIeOf6K3u5kHz
-         eqePcxj4PY1RF/GXSgxA+hUjIsI5rKnGBERi0/sABVL9y4uIqfJC+SW21jNd1ogTgiE3
-         2baht87/mbj90d8+ERTC9MPIXnk29vplRREjUjDPtzO4HxLyZuzxzLsa30VFnYf6bdvt
-         baRc9hzH5pkyegoEGzmWMlKUHl1DvNRQoSq0UIYtsd3ytNOb9zw44UXCaGR+2jqMguRf
-         XiKw==
-X-Gm-Message-State: AAQBX9dYTuGoKI4rI6mledYIL595U1jekJwUrlv0f/a/y2OSmpE8c0KI
-        86i6Q0p7zN7O3EQRamQIHq31JgMxSD9VMj3ikmA84tvL
-X-Google-Smtp-Source: AKy350ZW06n8Nzw/xL/+2RhdtLXQJA+RXEwLeFZJPvdO/1WRzQTuUQ4hfo4Gz4ZhNgx+cNe4C8XwTi5UyV7m54AGX6U=
-X-Received: by 2002:a81:6d81:0:b0:54f:8b2b:adec with SMTP id
- i123-20020a816d81000000b0054f8b2badecmr1335945ywc.33.1682008700162; Thu, 20
- Apr 2023 09:38:20 -0700 (PDT)
+        with ESMTP id S230350AbjDTQpu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 12:45:50 -0400
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F6E35B5
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 09:45:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=b5kcCTYB3xWmqfX++7dBuiTmOPd0bSp1WV/38bxkqE4=; b=ZY3ALqg32CEncgrK2yAZHjjH+T
+        a+CsSIU8/wzt/T82kIdy93XPQYBAdL3B1Mfecduvsk64zM2gGSM0JPRvl/Q11ibHS+qXU/st0nHUv
+        LZTkJ9WQRobenG/m/ATfiF4zDxKoR8Lc8llAd9tlyENipnfSHBFTZwWpWEl/+qeYTyD5CvuOr8OjF
+        +Gl97Ru83vGHpawyQeR2U+nf1kw8JHglNUILCz+IJiizB52ZgF/RYAQQHK3DmeH7Fv3TEoRtrCQQK
+        WHjJ6Hk2Tez8GuQzuEBEbz9IDOGbJFR19jQchtR6WUJRrdsZJDdeMeYBIhBalgVFpajSnS8y+ssG3
+        P/PM30OQ==;
+Received: from 201-92-79-199.dsl.telesp.net.br ([201.92.79.199] helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1ppXPj-0076s7-OB; Thu, 20 Apr 2023 18:45:44 +0200
+Message-ID: <2bd00709-02b3-c63c-3970-10d8906b5b1a@igalia.com>
+Date:   Thu, 20 Apr 2023 13:45:36 -0300
 MIME-Version: 1.0
-References: <CAK4BXn0ngZRmzx1bodAF8nmYj0PWdUXzPGHofRrsyZj8MBpcVA@mail.gmail.com>
- <2023041711-overcoat-fantastic-c817@gregkh>
-In-Reply-To: <2023041711-overcoat-fantastic-c817@gregkh>
-From:   =?UTF-8?B?0KDRg9GB0LXQsiDQn9GD0YLQuNC9?= 
-        <rockeraliexpress@gmail.com>
-Date:   Thu, 20 Apr 2023 22:08:09 +0530
-Message-ID: <CAK4BXn30dd3oCwcF2yVb5nNnjR21=8J2_po-gSUuArd5y=f9Ww@mail.gmail.com>
-Subject: Re: REGRESSION: ThinkPad W530 dim backlight with recent changes
- introduced in Linux 6.1.24
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-acpi@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 6.1.y] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh
+ broken BIOSes
+Content-Language: en-US
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc:     "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "sashal@kernel.org" <sashal@kernel.org>,
+        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
+        "Zhu, James" <James.Zhu@amd.com>, "Liu, Leo" <Leo.Liu@amd.com>,
+        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
+        "kernel-dev@igalia.com" <kernel-dev@igalia.com>
+References: <20230418221522.1287942-1-gpiccoli@igalia.com>
+ <BL1PR12MB514405B37FC8691CB24F9DADF7629@BL1PR12MB5144.namprd12.prod.outlook.com>
+ <be4babae-4791-11f3-1f0f-a46480ce3db2@igalia.com>
+ <BL1PR12MB51443694A5FEFA899704B3EBF7629@BL1PR12MB5144.namprd12.prod.outlook.com>
+ <9b9a28f5-a71f-bb17-8783-314b1d30c51f@igalia.com>
+ <ZEEzNSEq-15PxS8r@kroah.com>
+ <94b63d19-4151-c294-50eb-c325ea9c699f@igalia.com>
+ <ZEFUGSlqQu3v8ryf@kroah.com>
+ <caf5bfc9-89d2-1320-4386-2c026ec3afcc@igalia.com>
+ <ZEFgn4iY_swFKnc0@kroah.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <ZEFgn4iY_swFKnc0@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->Any reason why you didn't cc: the developers of that commit?
-Sorry I did not realise I should have done that.
+On 20/04/2023 12:56, gregkh@linuxfoundation.org wrote:
+> [...]
+> That's 3000+ emails ago for me :)
 
->Do you also have this issue on the latest 6.3-rc release?
-Yes I have tested it recently by installing the latest 6.3-rc7 kernel
-, and I do encounter the same issue there. I have linked the
-screenshots below referring the same.
-Kernel 6.3.0-rc7 with 43% brightness - https://i.imgur.com/5LqsEJb.jpg
+/head_exploding
 
-> That's what this commit does, right?
-According to the commit , it was pushed to fix backlight controls
-which were broken on Lenovo Thinkpad W530 while using NVIDIA. It was
-not intended to reduce the backlight intensity on W530. Backlight is
-dimmer than before even when using the laptop in Intel iGPU mode.
+this is > 1000 emails per day, wow...my sympathies to you heh
 
-Thanks
+> [...]
+>> tl;dr: the offender is present on 6.1.y, but this fix is not, hence I'm
+>> hereby requesting the merge. Some backport/context adjustment was
+>> necessary and it was properly tested in the Steam Deck.
+> 
+> Ok, we'll queue it up soon, thanks.
+> 
+> greg k-h
+
+Thanks =)
