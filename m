@@ -2,59 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA8C6E91CA
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FE96E91A1
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235189AbjDTLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:05:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54612 "EHLO
+        id S234884AbjDTLFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:05:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235116AbjDTLEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:04:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A81776BB;
-        Thu, 20 Apr 2023 04:03:14 -0700 (PDT)
+        with ESMTP id S234160AbjDTLEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:04:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748F0902E;
+        Thu, 20 Apr 2023 04:03:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 190D6647C3;
-        Thu, 20 Apr 2023 11:02:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 850AFC433D2;
-        Thu, 20 Apr 2023 11:02:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77D2964773;
+        Thu, 20 Apr 2023 11:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E666AC433A1;
+        Thu, 20 Apr 2023 11:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988539;
-        bh=hw4xNWiwp8slyxeG+kC8WnPTYTvoQBMrOBS9+9t7ozY=;
+        s=k20201202; t=1681988540;
+        bh=3mEJP8tmz/XW5HcFioTquKyOJJLG48D3oWkCAML/yZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0J8tkYUjcx9zrUeI+yQC7z7JQ00pXcrF7kWoBo9EyUIAmFRSpyJHaQrpSiFET/eE
-         b9OeOlABXdPQLrh7HVA+mkCuGBzHJmqd7kR9TQW7lCavtgOC6nifgjMjbnZW+4407t
-         3oqG1kT/dZoqqvh1hTLoZZlhlnigmZurkFfynfJIfs5FJOpLTxs9D3LOetofozcGDD
-         S+1+enaNoYiC0YnU95M85DdvxB7PCwU/T22kLYR0L3xtSGcB9qpUSNvMcBx6V6qL/z
-         Rb5ueq50DcD4orp2f6fTMgpn1OsqAbjXX8o9U1E3Lh1gGIPJzcNtSRzOaMy1QNHp42
-         MYSlPY7SeZ8MA==
+        b=IhlYi9M9WLOFJoRVAycMcB+S4ThVr3rLXD3XPiFHOAjzLWuIX6OFHZgpC7McmpUEP
+         1CgQFafVT2qPjyuiSJD2lubarVZpAZ3hpnjbMfRMogKqvWZPioOptJR4tE3+jZQ3MY
+         3BNcd0Z9j+UUYoBxU79XjhoP/nK3HsafIhB0O0cSA0ZeFL/cCMuDm0kerRqMBd3Kuu
+         ZtItaIJxD3J9GyV4Uc1ScXubjY+siKe574Qxrz15oU4ATWAmZkcc1BT/vHohtUGCw5
+         gicvTnfbkhq0umX8jFT0rtVV6vgDBlOUPhQh0cdslfAslNDiiO6VWOfNk1KDMmdvzf
+         hnCu4wZy/YT3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Greear <greearb@candelatech.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, ryder.lee@mediatek.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, matthias.bgg@gmail.com, deren.wu@mediatek.com,
-        sean.wang@mediatek.com, mingyen.hsieh@mediatek.com,
-        yn.chen@mediatek.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.2 11/17] wifi: mt76: mt7921: Fix use-after-free in fw features query.
-Date:   Thu, 20 Apr 2023 07:01:40 -0400
-Message-Id: <20230420110148.505779-11-sashal@kernel.org>
+Cc:     Anh Tuan Phan <tuananhlfc@gmail.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, sforshee@kernel.org,
+        shuah@kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 12/17] selftests mount: Fix mount_setattr_test builds failed
+Date:   Thu, 20 Apr 2023 07:01:41 -0400
+Message-Id: <20230420110148.505779-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230420110148.505779-1-sashal@kernel.org>
 References: <20230420110148.505779-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,65 +60,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: Anh Tuan Phan <tuananhlfc@gmail.com>
 
-[ Upstream commit 2ceb76f734e37833824b7fab6af17c999eb48d2b ]
+[ Upstream commit f1594bc676579133a3cd906d7d27733289edfb86 ]
 
-Stop referencing 'features' memory after release_firmware is called.
+When compiling selftests with target mount_setattr I encountered some errors with the below messages:
+mount_setattr_test.c: In function ‘mount_setattr_thread’:
+mount_setattr_test.c:343:16: error: variable ‘attr’ has initializer but incomplete type
+  343 |         struct mount_attr attr = {
+      |                ^~~~~~~~~~
 
-Fixes this crash:
+These errors might be because of linux/mount.h is not included. This patch resolves that issue.
 
-RIP: 0010:mt7921_check_offload_capability+0x17d
-mt7921_pci_probe+0xca/0x4b0
-...
-
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/51fd8f76494348aa9ecbf0abc471ebe47a983dfd.1679502607.git.lorenzo@kernel.org
+Signed-off-by: Anh Tuan Phan <tuananhlfc@gmail.com>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/init.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/testing/selftests/mount_setattr/mount_setattr_test.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-index d4b681d7e1d22..f2c6ec4d8e2ee 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-@@ -162,12 +162,12 @@ mt7921_mac_init_band(struct mt7921_dev *dev, u8 band)
+diff --git a/tools/testing/selftests/mount_setattr/mount_setattr_test.c b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
+index 8c5fea68ae677..969647228817b 100644
+--- a/tools/testing/selftests/mount_setattr/mount_setattr_test.c
++++ b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
+@@ -18,6 +18,7 @@
+ #include <grp.h>
+ #include <stdbool.h>
+ #include <stdarg.h>
++#include <linux/mount.h>
  
- u8 mt7921_check_offload_capability(struct device *dev, const char *fw_wm)
- {
--	struct mt7921_fw_features *features = NULL;
- 	const struct mt76_connac2_fw_trailer *hdr;
- 	struct mt7921_realease_info *rel_info;
- 	const struct firmware *fw;
- 	int ret, i, offset = 0;
- 	const u8 *data, *end;
-+	u8 offload_caps = 0;
- 
- 	ret = request_firmware(&fw, fw_wm, dev);
- 	if (ret)
-@@ -199,7 +199,10 @@ u8 mt7921_check_offload_capability(struct device *dev, const char *fw_wm)
- 		data += sizeof(*rel_info);
- 
- 		if (rel_info->tag == MT7921_FW_TAG_FEATURE) {
-+			struct mt7921_fw_features *features;
-+
- 			features = (struct mt7921_fw_features *)data;
-+			offload_caps = features->data;
- 			break;
- 		}
- 
-@@ -209,7 +212,7 @@ u8 mt7921_check_offload_capability(struct device *dev, const char *fw_wm)
- out:
- 	release_firmware(fw);
- 
--	return features ? features->data : 0;
-+	return offload_caps;
- }
- EXPORT_SYMBOL_GPL(mt7921_check_offload_capability);
+ #include "../kselftest_harness.h"
  
 -- 
 2.39.2
