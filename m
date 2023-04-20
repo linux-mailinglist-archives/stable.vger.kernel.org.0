@@ -2,123 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D1F96E9DD7
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 23:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E5C6E9E11
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 23:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232163AbjDTV2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 17:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
+        id S232347AbjDTVnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 17:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbjDTV23 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 17:28:29 -0400
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D806559E;
-        Thu, 20 Apr 2023 14:28:26 -0700 (PDT)
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33KLHdMf020200;
-        Thu, 20 Apr 2023 21:28:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type; s=qcppdkim1;
- bh=E4WRIbiPJ+c0ww+ET8b+VeBOgy8qXQW/56nTRsr7oac=;
- b=W5TP+j81lYWfk89bg3vLakJYCshHUyskI9mp1ApUUzruhhSSKrvIin1KmdJANZcP3EzA
- /Q7CSggjkITJwS3eP7nZyOnIlE/bTwAuD9aADiBD64UxVhRWDnFiqGPhXftduUzHs52V
- M9j9UAGeihijt1KKMDUY91MENC6PE+249bSleHOTEGAl027jlgOIVya5WQZYyyFfNDNG
- XG6VxkvgkapuVbmpMhkvwm40eCqYvQVSV7Ue5nqWR8YQ1bdhIb8yU/3k4kWtFTBFQEnb
- VXpdVqlFoalxhevfJxOgB/sxwkC539gem4vHE7wya6ybQDA3PN3hEstsWFX0O4eAf+u1 qA== 
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3q2xuht87a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Apr 2023 21:28:12 +0000
-Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-        by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 33KLSBi0018090
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Apr 2023 21:28:11 GMT
-Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
- nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.42; Thu, 20 Apr 2023 14:28:11 -0700
-From:   Wesley Cheng <quic_wcheng@quicinc.com>
-To:     <gregkh@linuxfoundation.org>, <Thinh.Nguyen@synopsys.com>
-CC:     <linux-kernel@vger.kernel.org>, <linux-usb@vger.kernel.org>,
-        <quic_jackp@quicinc.com>, Wesley Cheng <quic_wcheng@quicinc.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v6 1/2] usb: dwc3: gadget: Execute gadget stop after halting the controller
-Date:   Thu, 20 Apr 2023 14:27:58 -0700
-Message-ID: <20230420212759.29429-2-quic_wcheng@quicinc.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230420212759.29429-1-quic_wcheng@quicinc.com>
-References: <20230420212759.29429-1-quic_wcheng@quicinc.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.49.16.6]
-X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: 1nnMtQUqeBs3Kj6D9BF_cIfcwp9btCkY
-X-Proofpoint-GUID: 1nnMtQUqeBs3Kj6D9BF_cIfcwp9btCkY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-20_15,2023-04-20_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- phishscore=0 spamscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 adultscore=0 priorityscore=1501
- mlxlogscore=739 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304200180
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229736AbjDTVnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 17:43:32 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA207B3
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 14:43:31 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-b8c875f2eb9so1973607276.0
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 14:43:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1682027011; x=1684619011;
+        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=EPJuk2RlKQF5rplKbsjJK9PAjVUfFiyP3bT14lsF7K8=;
+        b=fmPg674BTKUN2oub2+nb9wQQoygkYpn6h+vAxLJOP3QX27gct75QuGg2ougN0gC/OM
+         GE30DrVbbbt17XVy68xXvBSNrb9hMtoT726Vu30eWQoCs7K24p1MX7wAs4S3tNehrv6e
+         Qe4lX63kCJi1hKBG3MTAtuXyJD7qtJrt2uxJTZGV2Ap/eE491NvAtLfW4ridFAFmixjS
+         LAbmKMoEruHCXk9nFoWIyBZPXLkjSw5gyx5WQchkdj/5mbrSUENlBar/s0gaWIVdryMo
+         Dg32zaC1aBp1+DoZIuH2fWdy6NKicIVEAklhCwU9/dMYmoxP6aANfb/qnexN+uYM0llX
+         NdNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682027011; x=1684619011;
+        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=EPJuk2RlKQF5rplKbsjJK9PAjVUfFiyP3bT14lsF7K8=;
+        b=dmmX+zGqUkJtesgefDnIJFMWcGJA3nxNeRJ+4E9qpJcOj1juSqB/7SYeY9euH484QE
+         6X1NbU3mmuiGQXKbrijrsTOUZMmRCKz8KCBJOFbCHNYFzABP/F2JaNjMouqpj8KBQTur
+         xDEZL2PTHxpuyvfLeQXaI8MMRRO4/oAU68oMmnlXNLcwIOwpuC+HHTWlBqbCtgyDfCyC
+         e8QlFrKWhrJf2S0rC+48uzzHPbZk19pVrJRPg7qsJoWpepb+HNMbN8onUOJOUe1g4R34
+         9c/Ysy6g/v4BhcXKNQ6BFS+vJtNYaoueeLGkhWto7lqOp+i7G1jyLH+daj0inEdrix+R
+         bCQw==
+X-Gm-Message-State: AAQBX9fQ32bxa9vgYfMTbk+Esz4hCeuuTVPwzfKdaDqvPfaOAqS4WZTU
+        NFiZBqS3oSOlKeGOGJZcK0HrJAQ=
+X-Google-Smtp-Source: AKy350ZGowUjD2oNzGIQ3zGuwTVrIdWfjJeCh71ZWLiGoZvKEWoG8xY6aER2YSQZqr2VBs16IpEktxs=
+X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2d3:205:651e:f743:4850:3ce])
+ (user=pcc job=sendgmr) by 2002:a25:d246:0:b0:b98:6352:be22 with SMTP id
+ j67-20020a25d246000000b00b986352be22mr220549ybg.8.1682027011012; Thu, 20 Apr
+ 2023 14:43:31 -0700 (PDT)
+Date:   Thu, 20 Apr 2023 14:43:27 -0700
+Message-Id: <20230420214327.2357985-1-pcc@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.40.0.634.g4ca3ef3211-goog
+Subject: [PATCH] arm64: mte: Do not set PG_mte_tagged if tags were not initialized
+From:   Peter Collingbourne <pcc@google.com>
+To:     catalin.marinas@arm.com
+Cc:     Peter Collingbourne <pcc@google.com>,
+        linux-arm-kernel@lists.infradead.org, vincenzo.frascino@arm.com,
+        will@kernel.org, eugenis@google.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Do not call gadget stop until the poll for controller halt is
-completed.  DEVTEN is cleared as part of gadget stop, so the intention to
-allow ep0 events to continue while waiting for controller halt is not
-happening.
+The mte_sync_page_tags() function sets PG_mte_tagged if it initializes
+page tags. Then we return to mte_sync_tags(), which sets PG_mte_tagged
+again. At best, this is redundant. However, it is possible for
+mte_sync_page_tags() to return without having initialized tags for the
+page, i.e. in the case where check_swap is true (non-compound page),
+is_swap_pte(old_pte) is false and pte_is_tagged is false. So at worst,
+we set PG_mte_tagged on a page with uninitialized tags. This can happen
+if, for example, page migration causes a PTE for an untagged page to
+be replaced. If the userspace program subsequently uses mprotect() to
+enable PROT_MTE for that page, the uninitialized tags will be exposed
+to userspace.
 
-Fixes: c96683798e27 ("usb: dwc3: ep0: Don't prepare beyond Setup stage")
-Cc: stable@vger.kernel.org
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+Fix it by removing the redundant call to set_page_mte_tagged().
+
+Fixes: e059853d14ca ("arm64: mte: Fix/clarify the PG_mte_tagged semantics")
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 6.1
+Link: https://linux-review.googlesource.com/id/Ib02d004d435b2ed87603b858ef7480f7b1463052
 ---
- drivers/usb/dwc3/gadget.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/mte.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 9f492c8a7d0b..dd6057bad37e 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2637,7 +2637,6 @@ static int dwc3_gadget_soft_disconnect(struct dwc3 *dwc)
- 	 * bit.
- 	 */
- 	dwc3_stop_active_transfers(dwc);
--	__dwc3_gadget_stop(dwc);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
+diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+index f5bcb0dc6267..7e89968bd282 100644
+--- a/arch/arm64/kernel/mte.c
++++ b/arch/arm64/kernel/mte.c
+@@ -66,13 +66,10 @@ void mte_sync_tags(pte_t old_pte, pte_t pte)
+ 		return;
  
- 	/*
-@@ -2674,7 +2673,19 @@ static int dwc3_gadget_soft_disconnect(struct dwc3 *dwc)
- 	 * remaining event generated by the controller while polling for
- 	 * DSTS.DEVCTLHLT.
- 	 */
--	return dwc3_gadget_run_stop(dwc, false);
-+	ret = dwc3_gadget_run_stop(dwc, false);
-+
-+	/*
-+	 * Stop the gadget after controller is halted, so that if needed, the
-+	 * events to update EP0 state can still occur while the run/stop
-+	 * routine polls for the halted state.  DEVTEN is cleared as part of
-+	 * gadget stop.
-+	 */
-+	spin_lock_irqsave(&dwc->lock, flags);
-+	__dwc3_gadget_stop(dwc);
-+	spin_unlock_irqrestore(&dwc->lock, flags);
-+
-+	return ret;
- }
+ 	/* if PG_mte_tagged is set, tags have already been initialised */
+-	for (i = 0; i < nr_pages; i++, page++) {
+-		if (!page_mte_tagged(page)) {
++	for (i = 0; i < nr_pages; i++, page++)
++		if (!page_mte_tagged(page))
+ 			mte_sync_page_tags(page, old_pte, check_swap,
+ 					   pte_is_tagged);
+-			set_page_mte_tagged(page);
+-		}
+-	}
  
- static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+ 	/* ensure the tags are visible before the PTE is set */
+ 	smp_wmb();
+-- 
+2.40.0.634.g4ca3ef3211-goog
+
