@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BF46E917A
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:03:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7242A6E9194
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235161AbjDTLDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54434 "EHLO
+        id S234489AbjDTLEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235249AbjDTLDb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:03:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 598C17AA1;
-        Thu, 20 Apr 2023 04:02:16 -0700 (PDT)
+        with ESMTP id S234261AbjDTLEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:04:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5995C8A71;
+        Thu, 20 Apr 2023 04:03:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA5A647C9;
-        Thu, 20 Apr 2023 11:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B43C433D2;
-        Thu, 20 Apr 2023 11:01:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26BF7647BF;
+        Thu, 20 Apr 2023 11:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB23EC4339E;
+        Thu, 20 Apr 2023 11:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988519;
-        bh=cYB8dYmQ3UNJkOvpgxP/yqPHG6N3B6FRg4wFSXEn2Lk=;
+        s=k20201202; t=1681988523;
+        bh=d0X3yg7haQvgsR2Vxh0jBkmYqiZKufzWZYdFlrBGUqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m89ytpb9ETqDSJjaImx+3EcIWj2KupWKS1KBKCIExQDaEo3vI58EMCG9Qpb1mHNe3
-         NnO/ChWxGA3IqPry7U8FLqXEuU22NCAG1Bq7Tlq9CRHX299Tmyv+lqP/dnPedryfPU
-         jdazK0vZXOWyUMirAA0srU886XL1qZ4aRTHL1h99NH4RkWzGUkYiPa8xnSJikS6TA+
-         b3oqw1tZ6GT4rupuOWul2wN9fXEzGwVZMq74/TtDnan6RhwLL5LhICsgfsLDXvbxRG
-         Gy7PEkvFNuEr94cGCjaEq1y2KQQozxrJW3VJsmTsrJKQmLPwKJOVxkEQf4YP0vgV3h
-         +0JFOa5iR7JDA==
+        b=ezVcqUeSR9dSgjLSw0n3Eyt5elJqr6yOtX3KDYBdWsoxx6c7UgQxRdoH0uNeQuNkA
+         JRHzvXIUC7tzi6UqVlqsK5nZ7QkIQ/ZFy++V/reMU498Bf0NZyPnd2ChmboL6X0cF0
+         N1Rh92yHxRsrSMigJwrBb7rsq0RpNJI2kE3YGqv+oKrp8Cog06VJKlys3garPYtpJr
+         wtF5avOnOYI+VhlGckmNwgCHfCv35pHQVHz9gcnRs/IyKmEfWqH0Yjrrv59d1FLcBG
+         tOwSGzRQvI3jBseeY2n39Iz0xnTVHkcj3W9z0ErK/0LyqVkeUI8lTw+oQc7ezq6hUV
+         vzhlz+OzBtcnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 04/17] x86/hyperv: Block root partition functionality in a Confidential VM
-Date:   Thu, 20 Apr 2023 07:01:33 -0400
-Message-Id: <20230420110148.505779-4-sashal@kernel.org>
+Cc:     Ge-org Brohammer <gbrohammer@outlook.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, mario.limonciello@amd.com,
+        Syed.SabaKareem@amd.com, lxy.lixiaoyan@gmail.com,
+        fengwk94@gmail.com, leohearts@leohearts.com, mendiebm@gmail.com,
+        aniol@aniolmarti.cat, wimvanboven@gmail.com, xazrael@hotmail.com,
+        dukzcry@ya.ru, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 05/17] ASoC: amd: yc: Add DMI entries to support Victus by HP Laptop 16-e1xxx (8A22)
+Date:   Thu, 20 Apr 2023 07:01:34 -0400
+Message-Id: <20230420110148.505779-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230420110148.505779-1-sashal@kernel.org>
 References: <20230420110148.505779-1-sashal@kernel.org>
@@ -49,8 +51,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,50 +61,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Ge-org Brohammer <gbrohammer@outlook.com>
 
-[ Upstream commit f8acb24aaf89fc46cd953229462ea8abe31b395f ]
+[ Upstream commit 205efd4619b860404ebb5882e5a119eb3b3b3716 ]
 
-Hyper-V should never specify a VM that is a Confidential VM and also
-running in the root partition.  Nonetheless, explicitly block such a
-combination to guard against a compromised Hyper-V maliciously trying to
-exploit root partition functionality in a Confidential VM to expose
-Confidential VM secrets. No known bug is being fixed, but the attack
-surface for Confidential VMs on Hyper-V is reduced.
+This model requires an additional detection quirk to
+enable the internal microphone.
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1678894453-95392-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Tried to use git send-email this time.
+
+Signed-off-by: Ge-org Brohammer <gbrohammer@outlook.com>
+Link: https://lore.kernel.org/r/PAVP195MB2261322C220E95D7F4B2732ADABC9@PAVP195MB2261.EURP195.PROD.OUTLOOK.COM
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mshyperv.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index 46668e2554210..1ce228dc267ae 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -291,12 +291,16 @@ static void __init ms_hyperv_init_platform(void)
- 	 * To mirror what Windows does we should extract CPU management
- 	 * features and use the ReservedIdentityBit to detect if Linux is the
- 	 * root partition. But that requires negotiating CPU management
--	 * interface (a process to be finalized).
-+	 * interface (a process to be finalized). For now, use the privilege
-+	 * flag as the indicator for running as root.
- 	 *
--	 * For now, use the privilege flag as the indicator for running as
--	 * root.
-+	 * Hyper-V should never specify running as root and as a Confidential
-+	 * VM. But to protect against a compromised/malicious Hyper-V trying
-+	 * to exploit root behavior to expose Confidential VM memory, ignore
-+	 * the root partition setting if also a Confidential VM.
- 	 */
--	if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_CPU_MANAGEMENT) {
-+	if ((ms_hyperv.priv_high & HV_CPU_MANAGEMENT) &&
-+	    !(ms_hyperv.priv_high & HV_ISOLATION)) {
- 		hv_root_partition = true;
- 		pr_info("Hyper-V: running as root partition\n");
- 	}
+diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
+index 4a69ce702360c..0acdf0156f075 100644
+--- a/sound/soc/amd/yc/acp6x-mach.c
++++ b/sound/soc/amd/yc/acp6x-mach.c
+@@ -269,6 +269,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "8A43"),
+ 		}
+ 	},
++	{
++		.driver_data = &acp6x_card,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
++			DMI_MATCH(DMI_BOARD_NAME, "8A22"),
++		}
++	},
+ 	{}
+ };
+ 
 -- 
 2.39.2
 
