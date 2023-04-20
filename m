@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8ED6E9181
+	by mail.lfdr.de (Postfix) with ESMTP id 9897E6E9180
 	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235129AbjDTLEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:04:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
+        id S235307AbjDTLEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:04:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235118AbjDTLDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:03:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E49272C;
-        Thu, 20 Apr 2023 04:02:32 -0700 (PDT)
+        with ESMTP id S234917AbjDTLDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:03:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FCB8A65;
+        Thu, 20 Apr 2023 04:02:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DED2647A6;
-        Thu, 20 Apr 2023 11:01:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D5AC433D2;
-        Thu, 20 Apr 2023 11:01:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6959A647A7;
+        Thu, 20 Apr 2023 11:01:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D270AC4339B;
+        Thu, 20 Apr 2023 11:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988513;
-        bh=vxYpiowukmD12f1AvqoxGgUi+Xl6hpB2XU99StdEHIw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=uNqgZ8DAQOkkf2hX93QUzs2PMzx3j9tgiCCVGsGckosOJLNf/paEzH+dK86HVSD+E
-         QvE+0dMT87nlGUyYfdjcHIvUeAUUIBFW7ikGTv60rrhkIcQBV7hhshIuZ9S9OBO2xz
-         4eaHQw6eMriykf5IQaJ90W9GiY84cQL080ePvtREjOSLdfFosw1K6ltobxHpO1qf2s
-         H5VEfbywUldjoKi8/45nQa/bmY87/QwqiyuNUqZWFj2NEozCg9CdelUPRfFpVvQWgU
-         DsDrgJQHHNzsq9jiPMCkvjrkj6hhdkQDYNaMt7MNGmY6bwS0XGFioXgkb381WB+nKP
-         hCxTBYwQhSYWQ==
+        s=k20201202; t=1681988516;
+        bh=/yFPLacZ5zD4cyBBeXXj/glDEj/Gpj3zZaG5dwMznfI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Prm1BP10aQ3bpuPLAtibOy+7ItOH3LGZH19vew1uTF+25abuzsleLvzovMMBo8Sde
+         JeT9xBQIQuQ8BKLWGcu01AApcmd8vEX4qqc/VOZcFIXUC+iLJLVvnODohT+wTT16Ps
+         /124A6Bm5QbYQC/e00KokbnvAFS4z42nULQ+7vrgQu+LG/ipgOG/eoLnuxpKlRi1wE
+         /oS3cbq5R66rJQ3v1Kh3j1oGButXviZTFH7uRZo5Z1X4TUvrh23vhMwqQJUiO5jJHy
+         Si7vija5VkzWfw1n5X6n3fp0oUaZWtUOkwJUaiRkciioROf5Q1C5biw/+7l0mDLwOg
+         I9b7v7IyOxb9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Eugene Huang <eugene.huang99@gmail.com>,
@@ -41,19 +41,22 @@ Cc:     Eugene Huang <eugene.huang99@gmail.com>,
         Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
         liam.r.girdwood@linux.intel.com, ranjani.sridharan@linux.intel.com,
         kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        gongjun.song@intel.com, shumingf@realtek.com, yong.zhi@intel.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 01/17] ASOC: Intel: sof_sdw: add quirk for Intel 'Rooks County' NUC M15
-Date:   Thu, 20 Apr 2023 07:01:30 -0400
-Message-Id: <20230420110148.505779-1-sashal@kernel.org>
+        brent.lu@intel.com, muralidhar.reddy@intel.com,
+        ajye_huang@compal.corp-partner.google.com, arnd@arndb.de,
+        CTLIN0@nuvoton.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 02/17] ASoC: Intel: soc-acpi: add table for Intel 'Rooks County' NUC M15
+Date:   Thu, 20 Apr 2023 07:01:31 -0400
+Message-Id: <20230420110148.505779-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230420110148.505779-1-sashal@kernel.org>
+References: <20230420110148.505779-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -64,45 +67,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eugene Huang <eugene.huang99@gmail.com>
 
-[ Upstream commit 3c728b1bc5b99c5275ac5c7788ef814c0e51ef54 ]
+[ Upstream commit 9c691a42b8926c8966561265cdae3ddc7464d3a2 ]
 
-Same quirks as the 'Bishop County' NUC M15, except the rt711 is in the
-'JD2 100K' jack detection mode.
+Same topology as the HP Omen 16-k0005TX, except with the rt1316 amp
+on link2.
 
 Link: https://github.com/thesofproject/linux/issues/4088
 Signed-off-by: Eugene Huang <eugene.huang99@gmail.com>
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
 Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20230314090553.498664-2-yung-chuan.liao@linux.intel.com
+Link: https://lore.kernel.org/r/20230314090553.498664-3-yung-chuan.liao@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ .../intel/common/soc-acpi-intel-adl-match.c   | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index d2ed807abde95..767fa89d08708 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -213,6 +213,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_SDW_PCH_DMIC |
- 					RT711_JD1),
+diff --git a/sound/soc/intel/common/soc-acpi-intel-adl-match.c b/sound/soc/intel/common/soc-acpi-intel-adl-match.c
+index 28dd2046e4ac5..d8c80041388a7 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-adl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-adl-match.c
+@@ -354,6 +354,20 @@ static const struct snd_soc_acpi_link_adr adl_sdw_rt711_link0_rt1316_link3[] = {
+ 	{}
+ };
+ 
++static const struct snd_soc_acpi_link_adr adl_sdw_rt711_link0_rt1316_link2[] = {
++	{
++		.mask = BIT(0),
++		.num_adr = ARRAY_SIZE(rt711_sdca_0_adr),
++		.adr_d = rt711_sdca_0_adr,
++	},
++	{
++		.mask = BIT(2),
++		.num_adr = ARRAY_SIZE(rt1316_2_single_adr),
++		.adr_d = rt1316_2_single_adr,
++	},
++	{}
++};
++
+ static const struct snd_soc_acpi_adr_device mx8373_2_adr[] = {
+ 	{
+ 		.adr = 0x000223019F837300ull,
+@@ -624,6 +638,12 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_adl_sdw_machines[] = {
+ 		.drv_name = "sof_sdw",
+ 		.sof_tplg_filename = "sof-adl-rt711-l0-rt1316-l3.tplg",
  	},
 +	{
-+		/* NUC15 'Rooks County' LAPRC510 and LAPRC710 skews */
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel(R) Client Systems"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LAPRC"),
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					SOF_SDW_PCH_DMIC |
-+					RT711_JD2_100K),
++		.link_mask = 0x5, /* 2 active links required */
++		.links = adl_sdw_rt711_link0_rt1316_link2,
++		.drv_name = "sof_sdw",
++		.sof_tplg_filename = "sof-adl-rt711-l0-rt1316-l2.tplg",
 +	},
- 	/* TigerLake-SDCA devices */
  	{
- 		.callback = sof_sdw_quirk_cb,
+ 		.link_mask = 0x1, /* link0 required */
+ 		.links = adl_rvp,
 -- 
 2.39.2
 
