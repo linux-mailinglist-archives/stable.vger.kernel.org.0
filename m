@@ -2,133 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F098B6E9B8F
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 20:24:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2276E6E9BC5
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 20:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230500AbjDTSYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 14:24:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40254 "EHLO
+        id S231913AbjDTShZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 14:37:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230228AbjDTSYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 14:24:31 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A23A40FE
-        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:24:30 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-517c57386f6so935157a12.2
-        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:24:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1682015069; x=1684607069;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=W2Q4iIjOWvyJFTvXo6EByLNSHrXgPTMrz47UjuX1XFA=;
-        b=sUMWeJdlD5N8oAZ/A+H12d36PuymhXNTfcZuFiOc3bkEZoUUn5D8kWzrNLArJuoMx5
-         4fGCDfscE9dHjinDCPRShcQ/DiFNkedbv2Z4VrcE1rlcl5uRRg/rzrRIjZMStodRKfcz
-         +01PoJaqtKjKqWWlDoiK/BNJImIBXhumAXww8O2jTFdi27urJ+qxyKRHgWU1DZ3Pde63
-         W3hfkLOeIAqS4wS2XS+/KKxKuEMBGi0AIrnF8u4+GO85UEe8zwkm5fQTYXviYnElQ6m3
-         uaM3fqtOaoNGLEJdSSMKAYASq+3CldQROUmwxB0bxBjwSdwN8jS9Vu/vYl43gkbHP6Fq
-         1xUg==
+        with ESMTP id S231744AbjDTShK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 14:37:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB1A448F
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:36:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1682015726;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=i2wRdZ+8GU0h9nhejVFwROoPzrvBAI9DH4/tBbL3MBw=;
+        b=gX8GzmHNSIvY1AVTnB/s0slenEd31K3jUltTy4nQnX9bZak+dsP8juRg4ccl+fIWCxrUAu
+        pw3cCb5Dn57iIq4E6Pfm9KxmCcuow6nVLrC+ICNCuvZpIdnFRX+RN5lNjnv9UMh6g+2W0z
+        wTElbN6/Zh/B9kHKJt36vRILqFXCmXM=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-140-uua5S-W-MpK90Q84eo6YCw-1; Thu, 20 Apr 2023 14:35:24 -0400
+X-MC-Unique: uua5S-W-MpK90Q84eo6YCw-1
+Received: by mail-ej1-f69.google.com with SMTP id tj1-20020a170907c24100b009539629a2b5so1237462ejc.8
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:35:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682015069; x=1684607069;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=W2Q4iIjOWvyJFTvXo6EByLNSHrXgPTMrz47UjuX1XFA=;
-        b=QjIBqsNrlNAEB+DnJCkb726teVP3TFZmBenRkytoMGe8+JhK397ZHAQbEirJG8wxgT
-         W56kyRTvJHy+GDhNN2AQp+n6r3yCvFK6b02cPVMBlL1O15EOi6nt236jV1agQAWCooUS
-         ib3Kj28Zi3paDFsVXXfMTnJOLtfMmrN7Ol5nOofu2vGxvLhnb1AgEh3vB6PNQ0WoNXqH
-         2nMHv+nt2Qj73UwwwL4GoWC+Q12XZDZfxsIJKIw2gtOpahpXu/XCsKR+A5EQ3vIXH7Pa
-         4SFbOTnbDqLUtXC8s2S6nXZQwkZJvHeMuwMJjsZBbSuAOdzca0KJpaveXjq2r4nRTXL9
-         7hqQ==
-X-Gm-Message-State: AAQBX9fAfle5cTIwoEGyh3HAhqwcITdG3Yu46ZuUGpa6Lnyf/lBRZH2X
-        UNQnugctez1+UAYggtenOnEH2WztVuMp46qOOwIswQ==
-X-Google-Smtp-Source: AKy350ZHDZutJ5uEYOl/hvKn3fUhSa6Fnj8CRgHHHC7sw+tjdv82826lI/F0qrx4LZOQ12NVlEu7a/2luSMwkds1O5E=
-X-Received: by 2002:a17:90a:bf10:b0:23e:fc9c:930 with SMTP id
- c16-20020a17090abf1000b0023efc9c0930mr2569162pjs.36.1682015069459; Thu, 20
- Apr 2023 11:24:29 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1682015722; x=1684607722;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=i2wRdZ+8GU0h9nhejVFwROoPzrvBAI9DH4/tBbL3MBw=;
+        b=WAO/U+hj4O9zFzphfNUGgC9dHh+YY5AAVlqyvWuzPRxf9RGZoximqqPgtqLW4anFSO
+         WFjjZen9uhEbXAaDbmUklKtcBY7m5LIPyc9fQAbzUxITEIfRhyb5ZGeVVnZ2I2/rxkFG
+         7kfYuL0XeNlt7YYIT2gWfRCW9oWMUjD1bnXWxayckixWuwyhFqUNdalu5m47hgUxa10J
+         B0aFaqvy7kiC6r9rVH3RmtK1Au6KXKP38xPD7hWM0IvcgbhbAhrnOWAtDmUx4q/bR+XC
+         0FHSBLsqmoFo7owJ9W6L+gRu9z/TjTLD0ymLdCuBYr5zik2y8EGlMObhpjBzq71pvoz2
+         bM5g==
+X-Gm-Message-State: AAQBX9ciqFg0/wein0GMNdgvv3Q8o8feWPVdJ4B1GOuW7EOjBHG6bHme
+        9Dyycg3d1JljOQXS9Z9HZRQn1KBoTgPkd0EVoZ8FhblswUqiB8zye/Q//5TCEJaRvTNvGqTk84u
+        pD/ZzM2v2JD7pzj/4qAFEGD5g
+X-Received: by 2002:a17:906:4bd4:b0:94f:8118:d74b with SMTP id x20-20020a1709064bd400b0094f8118d74bmr2493054ejv.40.1682015722631;
+        Thu, 20 Apr 2023 11:35:22 -0700 (PDT)
+X-Google-Smtp-Source: AKy350Yz3lXIye/bwYWyg0ojtNrbS7wvGGhxIJNtgOt6szZpNtb1wZy8XJVvzzZZXy/1SiQyGj3VgA==
+X-Received: by 2002:a17:906:4bd4:b0:94f:8118:d74b with SMTP id x20-20020a1709064bd400b0094f8118d74bmr2493037ejv.40.1682015722307;
+        Thu, 20 Apr 2023 11:35:22 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
+        by smtp.gmail.com with ESMTPSA id g23-20020a17090670d700b0094f7acbafe0sm1017911ejk.177.2023.04.20.11.35.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Apr 2023 11:35:21 -0700 (PDT)
+Message-ID: <a3b89478-2d37-1b25-94e0-0e12396f6fd4@redhat.com>
+Date:   Thu, 20 Apr 2023 20:35:21 +0200
 MIME-Version: 1.0
-References: <20230417122943.2155502-1-anders.roxell@linaro.org> <2023041848-basil-plop-145c@gregkh>
-In-Reply-To: <2023041848-basil-plop-145c@gregkh>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Thu, 20 Apr 2023 20:24:18 +0200
-Message-ID: <CADYN=9L40BxnPiMAnCr=Ha4PPt2dWDO+anE9ev0sQPjbJyvBSQ@mail.gmail.com>
-Subject: Re: [backport PATCH 0/2] stable v5.15, v5.10 and v5.4: fix perf build errors
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, acme@redhat.com, andres@anarazel.de,
-        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: REGRESSION: ThinkPad W530 dim backlight with recent changes
+ introduced in Linux 6.1.24
+Content-Language: en-US, nl
+To:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        =?UTF-8?B?0KDRg9GB0LXQsiDQn9GD0YLQuNC9?= 
+        <rockeraliexpress@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org,
+        stable@vger.kernel.org
+References: <CAK4BXn0ngZRmzx1bodAF8nmYj0PWdUXzPGHofRrsyZj8MBpcVA@mail.gmail.com>
+ <2023041711-overcoat-fantastic-c817@gregkh>
+ <CAK4BXn30dd3oCwcF2yVb5nNnjR21=8J2_po-gSUuArd5y=f9Ww@mail.gmail.com>
+ <CAJZ5v0g+PAOZs47LCrxRswZoCmHbGfBg3_cr13Y8zWPXDjgm3A@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <CAJZ5v0g+PAOZs47LCrxRswZoCmHbGfBg3_cr13Y8zWPXDjgm3A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 18 Apr 2023 at 11:04, Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Apr 17, 2023 at 02:29:41PM +0200, Anders Roxell wrote:
-> > Hi,
-> >
-> > I would like to see these patches backported. They are needed so perf
-> > can be cross compiled with gcc on v5.15, v5.10 and v5.4.
-> > I built it with tuxmake [1] here are two example commandlines:
-> > tuxmake --runtime podman --target-arch arm64 --toolchain gcc-12 --kconfig defconfig perf
-> > tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-12 --kconfig defconfig perf
-> >
-> > Tried to build perf with both gcc-11 and gcc-12.
-> >
-> > Patch 'tools perf: Fix compilation error with new binutils'
-> > and 'tools build: Add feature test for init_disassemble_info API changes'
-> > didn't apply cleanly, thats why I send these in a patchset.
-> >
-> > When apply 'tools build: Add feature test for
-> > init_disassemble_info API changes' to 5.4 it will be a minor merge
-> > conflict, do you want me to send this patch in two separate patches one
-> > for 5.4 and another for v5.10?
-> >
-> > The sha for these two patches in mainline are.
-> > cfd59ca91467 tools build: Add feature test for init_disassemble_info API changes
-> > 83aa0120487e tools perf: Fix compilation error with new binutils
-> >
-> > The above patches solves these:
-> > util/annotate.c: In function 'symbol__disassemble_bpf':
-> > util/annotate.c:1729:9: error: too few arguments to function 'init_disassemble_info'
-> >  1729 |         init_disassemble_info(&info, s,
-> >       |         ^~~~~~~~~~~~~~~~~~~~~
-> >
-> >
-> > Please apply these to v5.10 and v5.4
-> > a45b3d692623 tools include: add dis-asm-compat.h to handle version differences
-> > d08c84e01afa perf sched: Cast PTHREAD_STACK_MIN to int as it may turn into sysconf(__SC_THREAD_STACK>
-> >
-> > The above patches solves these:
-> > /home/anders/src/kernel/stable-5.10/tools/include/linux/kernel.h:43:24: error: comparison of distinct pointer types lacks a cast [-Werror]
-> >    43 |         (void) (&_max1 == &_max2);              \
-> >       |                        ^~
-> > builtin-sched.c:673:34: note: in expansion of macro 'max'
-> >   673 |                         (size_t) max(16 * 1024, PTHREAD_STACK_MIN));
-> >       |                                  ^~~
-> >
-> >
-> > Please apply these to v5.15, v5.10 and v5.4
-> > 8e8bf60a6754 perf build: Fixup disabling of -Wdeprecated-declarations for the python scripting engine
-> > 4ee3c4da8b1b perf scripting python: Do not build fail on deprecation warnings
-> > 63a4354ae75c perf scripting perl: Ignore some warnings to keep building with perl headers
->
-> Can you please provide patch series of these upstream commits backported
-> to the relevant branchs that you wish to see them in?  You have 2
-> patches in this series without git commit ids, and I have no idea where
-> to apply them, or not apply them...
+Hi Русев Путин,
 
-Yes, apologies, I will get that fixed up.
+On 4/20/23 19:02, Rafael J. Wysocki wrote:
+> CC: Hans
+> 
+> On Thu, Apr 20, 2023 at 6:38 PM Русев Путин <rockeraliexpress@gmail.com> wrote:
+>>
+>>> Any reason why you didn't cc: the developers of that commit?
+>> Sorry I did not realise I should have done that.
+>>
+>>> Do you also have this issue on the latest 6.3-rc release?
+>> Yes I have tested it recently by installing the latest 6.3-rc7 kernel
+>> , and I do encounter the same issue there. I have linked the
+>> screenshots below referring the same.
+>> Kernel 6.3.0-rc7 with 43% brightness - https://i.imgur.com/5LqsEJb.jpg
+>>
+>>> That's what this commit does, right?
+>> According to the commit , it was pushed to fix backlight controls
+>> which were broken on Lenovo Thinkpad W530 while using NVIDIA. It was
+>> not intended to reduce the backlight intensity on W530. Backlight is
+>> dimmer than before even when using the laptop in Intel iGPU mode.
 
->
-> Or better yet, just use the latest version of perf as was pointed out,
-> on these old kernel releases.
+This patch should not change the maximum brightness. But you may need
+to adjust the brightness once after changing to a new kernel with
+the patch because the range / brightness-curve may be different.
 
-Makes sense, we can do this. Is this the preferred way going forward?
+On the imgur URL your display brightness shows as being at 43%,
+what happens if you use e.g. Fn + F9 to increase the brightness ?
 
-Cheers,
-Anders
+I would expect you to be able to get back your old brightness level
+then and this should persist over reboots after you have adjusted
+it once.
+
+If adjusting it does not help / work then we will need to revert
+the patch causing this.
+
+Regards,
+
+Hans
+
+
