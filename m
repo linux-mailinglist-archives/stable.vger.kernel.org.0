@@ -2,75 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 918996E9B71
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 20:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F098B6E9B8F
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 20:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbjDTSRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 14:17:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35848 "EHLO
+        id S230500AbjDTSYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 14:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231254AbjDTSRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 14:17:33 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414F94218
-        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:17:28 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id 4fb4d7f45d1cf-506bf4cbecbso1067580a12.1
-        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:17:28 -0700 (PDT)
+        with ESMTP id S230228AbjDTSYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 14:24:31 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A23A40FE
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:24:30 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-517c57386f6so935157a12.2
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 11:24:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1682014646; x=1684606646;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NzocEjSvrz85xEKE5MWcbLv/boctI2KKwjYq7LHKyz4=;
-        b=S2ctvNqMIvOioIiHZwWJbdVQexXnEJfkUsuEM04PMllQQAq/sE8IIOM0eDrdZYpgEJ
-         xYvvOg1SKcnNSA1ne7Anfer1mqpLaVnAcBhSp+ghH7N/HQ8XDHIwRGXapE+PvHn+SSWd
-         4oiG653PvBxwj57BngCB9Qxok+vr5fsaip9T4=
+        d=linaro.org; s=google; t=1682015069; x=1684607069;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=W2Q4iIjOWvyJFTvXo6EByLNSHrXgPTMrz47UjuX1XFA=;
+        b=sUMWeJdlD5N8oAZ/A+H12d36PuymhXNTfcZuFiOc3bkEZoUUn5D8kWzrNLArJuoMx5
+         4fGCDfscE9dHjinDCPRShcQ/DiFNkedbv2Z4VrcE1rlcl5uRRg/rzrRIjZMStodRKfcz
+         +01PoJaqtKjKqWWlDoiK/BNJImIBXhumAXww8O2jTFdi27urJ+qxyKRHgWU1DZ3Pde63
+         W3hfkLOeIAqS4wS2XS+/KKxKuEMBGi0AIrnF8u4+GO85UEe8zwkm5fQTYXviYnElQ6m3
+         uaM3fqtOaoNGLEJdSSMKAYASq+3CldQROUmwxB0bxBjwSdwN8jS9Vu/vYl43gkbHP6Fq
+         1xUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682014646; x=1684606646;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NzocEjSvrz85xEKE5MWcbLv/boctI2KKwjYq7LHKyz4=;
-        b=BZd07Z0n2pVuM9emxccxsRaqIpq3sjdUPV1UlfwdCjAeDQOw1RtSrFRNUt+9H1r4Uj
-         uoOZdbuBrZLPTFMjzTj1SWkyw7+9k0iRoZWrejhljyvsc6+ZbUnQ6dhMgT4a6EmzUpIE
-         qPQIK7bhM9/81dZl3ywp8sWl4zxDnrrNXYo4DrFRWwJQGaQDPVnXHDpLm9Bfz530yBE7
-         bWfe7dioxIjoW4ltG7riTcbRbYrdM9WybI+gI3G1bMOgAucBnxhoKxPOVGHxXClOuYi5
-         dZGlfzEVaHxutgpKw9MEtfvVcSlQLJo7f5LME6XQzh9BLgKTfQegKbkQzir+QPWPdLGr
-         pRvA==
-X-Gm-Message-State: AAQBX9cDiccSLpBMmAoo8iHRM1mShYDj6T6p8/aMwDjF8yqdvVbynFtk
-        UPusgw33HqpK+MNKChKx2v3haXvfvFxDS6zKcZnN6g==
-X-Google-Smtp-Source: AKy350bUbgX+6BAetL35DQRlN+iICSaVw+B/jOXdxmTlFH/Y/a2lnx/qR3DkR104XRtbf49FVqzsbMMtZaekb6roEd8=
-X-Received: by 2002:aa7:c592:0:b0:508:3f08:ea0f with SMTP id
- g18-20020aa7c592000000b005083f08ea0fmr2514672edq.28.1682014646672; Thu, 20
- Apr 2023 11:17:26 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1682015069; x=1684607069;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=W2Q4iIjOWvyJFTvXo6EByLNSHrXgPTMrz47UjuX1XFA=;
+        b=QjIBqsNrlNAEB+DnJCkb726teVP3TFZmBenRkytoMGe8+JhK397ZHAQbEirJG8wxgT
+         W56kyRTvJHy+GDhNN2AQp+n6r3yCvFK6b02cPVMBlL1O15EOi6nt236jV1agQAWCooUS
+         ib3Kj28Zi3paDFsVXXfMTnJOLtfMmrN7Ol5nOofu2vGxvLhnb1AgEh3vB6PNQ0WoNXqH
+         2nMHv+nt2Qj73UwwwL4GoWC+Q12XZDZfxsIJKIw2gtOpahpXu/XCsKR+A5EQ3vIXH7Pa
+         4SFbOTnbDqLUtXC8s2S6nXZQwkZJvHeMuwMJjsZBbSuAOdzca0KJpaveXjq2r4nRTXL9
+         7hqQ==
+X-Gm-Message-State: AAQBX9fAfle5cTIwoEGyh3HAhqwcITdG3Yu46ZuUGpa6Lnyf/lBRZH2X
+        UNQnugctez1+UAYggtenOnEH2WztVuMp46qOOwIswQ==
+X-Google-Smtp-Source: AKy350ZHDZutJ5uEYOl/hvKn3fUhSa6Fnj8CRgHHHC7sw+tjdv82826lI/F0qrx4LZOQ12NVlEu7a/2luSMwkds1O5E=
+X-Received: by 2002:a17:90a:bf10:b0:23e:fc9c:930 with SMTP id
+ c16-20020a17090abf1000b0023efc9c0930mr2569162pjs.36.1682015069459; Thu, 20
+ Apr 2023 11:24:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <ZEFmS9h81Wwlv9+/@redhat.com> <20230420172807.323150-1-sarthakkukreti@chromium.org>
-In-Reply-To: <20230420172807.323150-1-sarthakkukreti@chromium.org>
-From:   Sarthak Kukreti <sarthakkukreti@chromium.org>
-Date:   Thu, 20 Apr 2023 11:17:15 -0700
-Message-ID: <CAG9=OMO7LtYRMurR4t4P5Tcb00-ob21eg4jm0aUXry2mcgOMfw@mail.gmail.com>
-Subject: Re: [PATCH v5-fix 1/5] block: Don't invalidate pagecache for invalid
- falloc modes
-To:     dm-devel@redhat.com, linux-block@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Brian Foster <bfoster@redhat.com>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Bart Van Assche <bvanassche@google.com>,
-        Daniil Lunev <dlunev@google.com>,
-        "Darrick J. Wong" <djwong@kernel.org>, stable@vger.kernel.org
+References: <20230417122943.2155502-1-anders.roxell@linaro.org> <2023041848-basil-plop-145c@gregkh>
+In-Reply-To: <2023041848-basil-plop-145c@gregkh>
+From:   Anders Roxell <anders.roxell@linaro.org>
+Date:   Thu, 20 Apr 2023 20:24:18 +0200
+Message-ID: <CADYN=9L40BxnPiMAnCr=Ha4PPt2dWDO+anE9ev0sQPjbJyvBSQ@mail.gmail.com>
+Subject: Re: [backport PATCH 0/2] stable v5.15, v5.10 and v5.4: fix perf build errors
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, acme@redhat.com, andres@anarazel.de,
+        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -79,83 +66,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch had a slight typo; fixed in the most recent patch.
+On Tue, 18 Apr 2023 at 11:04, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Apr 17, 2023 at 02:29:41PM +0200, Anders Roxell wrote:
+> > Hi,
+> >
+> > I would like to see these patches backported. They are needed so perf
+> > can be cross compiled with gcc on v5.15, v5.10 and v5.4.
+> > I built it with tuxmake [1] here are two example commandlines:
+> > tuxmake --runtime podman --target-arch arm64 --toolchain gcc-12 --kconfig defconfig perf
+> > tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-12 --kconfig defconfig perf
+> >
+> > Tried to build perf with both gcc-11 and gcc-12.
+> >
+> > Patch 'tools perf: Fix compilation error with new binutils'
+> > and 'tools build: Add feature test for init_disassemble_info API changes'
+> > didn't apply cleanly, thats why I send these in a patchset.
+> >
+> > When apply 'tools build: Add feature test for
+> > init_disassemble_info API changes' to 5.4 it will be a minor merge
+> > conflict, do you want me to send this patch in two separate patches one
+> > for 5.4 and another for v5.10?
+> >
+> > The sha for these two patches in mainline are.
+> > cfd59ca91467 tools build: Add feature test for init_disassemble_info API changes
+> > 83aa0120487e tools perf: Fix compilation error with new binutils
+> >
+> > The above patches solves these:
+> > util/annotate.c: In function 'symbol__disassemble_bpf':
+> > util/annotate.c:1729:9: error: too few arguments to function 'init_disassemble_info'
+> >  1729 |         init_disassemble_info(&info, s,
+> >       |         ^~~~~~~~~~~~~~~~~~~~~
+> >
+> >
+> > Please apply these to v5.10 and v5.4
+> > a45b3d692623 tools include: add dis-asm-compat.h to handle version differences
+> > d08c84e01afa perf sched: Cast PTHREAD_STACK_MIN to int as it may turn into sysconf(__SC_THREAD_STACK>
+> >
+> > The above patches solves these:
+> > /home/anders/src/kernel/stable-5.10/tools/include/linux/kernel.h:43:24: error: comparison of distinct pointer types lacks a cast [-Werror]
+> >    43 |         (void) (&_max1 == &_max2);              \
+> >       |                        ^~
+> > builtin-sched.c:673:34: note: in expansion of macro 'max'
+> >   673 |                         (size_t) max(16 * 1024, PTHREAD_STACK_MIN));
+> >       |                                  ^~~
+> >
+> >
+> > Please apply these to v5.15, v5.10 and v5.4
+> > 8e8bf60a6754 perf build: Fixup disabling of -Wdeprecated-declarations for the python scripting engine
+> > 4ee3c4da8b1b perf scripting python: Do not build fail on deprecation warnings
+> > 63a4354ae75c perf scripting perl: Ignore some warnings to keep building with perl headers
+>
+> Can you please provide patch series of these upstream commits backported
+> to the relevant branchs that you wish to see them in?  You have 2
+> patches in this series without git commit ids, and I have no idea where
+> to apply them, or not apply them...
 
-- Sarthak
+Yes, apologies, I will get that fixed up.
 
-On Thu, Apr 20, 2023 at 10:28=E2=80=AFAM Sarthak Kukreti
-<sarthakkukreti@chromium.org> wrote:
 >
-> Only call truncate_bdev_range() if the fallocate mode is
-> supported. This fixes a bug where data in the pagecache
-> could be invalidated if the fallocate() was called on the
-> block device with an invalid mode.
->
-> Fixes: 25f4c41415e5 ("block: implement (some of) fallocate for block devi=
-ces")
-> Cc: stable@vger.kernel.org
-> Reported-by: Darrick J. Wong <djwong@kernel.org>
-> Signed-off-by: Sarthak Kukreti <sarthakkukreti@chromium.org>
-> ---
->  block/fops.c | 21 ++++++++++++++++-----
->  1 file changed, 16 insertions(+), 5 deletions(-)
->
-> diff --git a/block/fops.c b/block/fops.c
-> index d2e6be4e3d1c..20b1eddcbe25 100644
-> --- a/block/fops.c
-> +++ b/block/fops.c
-> @@ -648,24 +648,35 @@ static long blkdev_fallocate(struct file *file, int=
- mode, loff_t start,
->
->         filemap_invalidate_lock(inode->i_mapping);
->
-> -       /* Invalidate the page cache, including dirty pages. */
-> -       error =3D truncate_bdev_range(bdev, file->f_mode, start, end);
-> -       if (error)
-> -               goto fail;
-> -
-> +       /*
-> +        * Invalidate the page cache, including dirty pages, for valid
-> +        * de-allocate mode calls to fallocate().
-> +        */
->         switch (mode) {
->         case FALLOC_FL_ZERO_RANGE:
->         case FALLOC_FL_ZERO_RANGE | FALLOC_FL_KEEP_SIZE:
-> +               error =3D truncate_bdev_range(bdev, file->f_mode, start, =
-end);
-> +               if (error)
-> +                       goto fail;
-> +
->                 error =3D blkdev_issue_zeroout(bdev, start >> SECTOR_SHIF=
-T,
->                                              len >> SECTOR_SHIFT, GFP_KER=
-NEL,
->                                              BLKDEV_ZERO_NOUNMAP);
->                 break;
->         case FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE:
-> +               error =3D truncate_bdev_range(bdev, file->f_mode, start, =
-end);
-> +               if (error)
-> +                       goto fail;
-> +
->                 error =3D blkdev_issue_zeroout(bdev, start >> SECTOR_SHIF=
-T,
->                                              len >> SECTOR_SHIFT, GFP_KER=
-NEL,
->                                              BLKDEV_ZERO_NOFALLBACK);
->                 break;
->         case FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE | FALLOC_FL_NO_HI=
-DE_STALE:
-> +               error =3D truncate_bdev_range(bdev, file->f_mode, start, =
-end);
-> +               if (!error)
-> +                       goto fail;
-> +
->                 error =3D blkdev_issue_discard(bdev, start >> SECTOR_SHIF=
-T,
->                                              len >> SECTOR_SHIFT, GFP_KER=
-NEL);
->                 break;
-> --
-> 2.40.0.396.gfff15efe05-goog
->
+> Or better yet, just use the latest version of perf as was pointed out,
+> on these old kernel releases.
+
+Makes sense, we can do this. Is this the preferred way going forward?
+
+Cheers,
+Anders
