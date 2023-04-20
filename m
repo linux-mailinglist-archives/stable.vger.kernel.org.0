@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CE86E920F
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F736E9213
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234831AbjDTLG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:06:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54612 "EHLO
+        id S235088AbjDTLHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235512AbjDTLFO (ORCPT
+        with ESMTP id S235516AbjDTLFO (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:05:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE1F9EF5;
-        Thu, 20 Apr 2023 04:03:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44DB9A243;
+        Thu, 20 Apr 2023 04:03:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EB68647A7;
-        Thu, 20 Apr 2023 11:02:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D009C4339C;
-        Thu, 20 Apr 2023 11:02:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6C4363EA6;
+        Thu, 20 Apr 2023 11:03:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04C67C433A7;
+        Thu, 20 Apr 2023 11:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988578;
-        bh=3mEJP8tmz/XW5HcFioTquKyOJJLG48D3oWkCAML/yZA=;
+        s=k20201202; t=1681988580;
+        bh=bu8vS+mCAOz4URE9Wdvm46xUj8MlgItfn6idQuIEVNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JH2ONnYHzejuPv4Zn2H+mK0BaLoXlRcF7vpssXeuQoiFZ62PJppAn8bQyVdxljDMi
-         nbxZrFoYUicowpUo2YGKNS+narcvBYgx4GewZrAqZnFxn1rXXvUrfRV43I2HG4unE3
-         WLhtNpPxSAX/b0mq9e22E98Fq5sml2Ku/b968wuEGp2rFN3f1A1r5JyE1y6vdWj9w6
-         +582USBbBtCyFqBgVfsLS08gRbfC4ThOGxsGDs6SkryLiEXQ/eUx9myVuwdGxQfzs0
-         pUO+bgoTqS4RGalu2+uc4AZVjm+vee+cbkMMTz2mCo1p4BoXiOMvRzXfBD4JFtAjip
-         lydq9JecgcjXQ==
+        b=YiYDEiN/ZrkNsno/vB5fyh0UDxDRVcXV0GrmDZ2uYjaFGHS1aKwp2sTH2J/KeH0jf
+         Iy9DjHHsLrd2YTGVUdJesS8L8xTmYHPB560OZUpxn0ntfXyrQ2qJL1LT4+pzoVhP2f
+         CFLur97IRxFFQ6Efb6YIeBfw3cKboYeKp1Pge8sh2TwRfBnemhFMGRWCOsnWot7LTG
+         ZqsjfFSCMKV7Zu6CjAba8m2R+nDyUhKZXvd2AkUcMpqf/667L64bKExReAJCp9oBZX
+         fYmPeBzm8smRjoWyv/4fn5Jhsfxl8FgA/9TvpFYLBtQTKopapZzZnDMlLYD5Vc1SAZ
+         49e62Lh90RGRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anh Tuan Phan <tuananhlfc@gmail.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, sforshee@kernel.org,
-        shuah@kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 10/15] selftests mount: Fix mount_setattr_test builds failed
-Date:   Thu, 20 Apr 2023 07:02:24 -0400
-Message-Id: <20230420110231.505992-10-sashal@kernel.org>
+Cc:     Ranjan Kumar <ranjan.kumar@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, sathya.prakash@broadcom.com,
+        kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
+        sreekanth.reddy@broadcom.com, jejb@linux.ibm.com,
+        mpi3mr-linuxdrv.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 11/15] scsi: mpi3mr: Handle soft reset in progress fault code (0xF002)
+Date:   Thu, 20 Apr 2023 07:02:25 -0400
+Message-Id: <20230420110231.505992-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230420110231.505992-1-sashal@kernel.org>
 References: <20230420110231.505992-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,38 +59,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anh Tuan Phan <tuananhlfc@gmail.com>
+From: Ranjan Kumar <ranjan.kumar@broadcom.com>
 
-[ Upstream commit f1594bc676579133a3cd906d7d27733289edfb86 ]
+[ Upstream commit a3d27dfdcfc27ac3f46de5391bb6d24f04af7941 ]
 
-When compiling selftests with target mount_setattr I encountered some errors with the below messages:
-mount_setattr_test.c: In function ‘mount_setattr_thread’:
-mount_setattr_test.c:343:16: error: variable ‘attr’ has initializer but incomplete type
-  343 |         struct mount_attr attr = {
-      |                ^~~~~~~~~~
+The driver is exiting from the fault watchdog thread if it sees the 0xF002
+(Soft reset in progress) fault code.
 
-These errors might be because of linux/mount.h is not included. This patch resolves that issue.
+If the driver initiates the soft reset, then the driver restarts the
+watchdog at the end of the soft reset completion.  However, if the soft
+reset is initiated by the firmware asynchronously, then the driver will
+never restart the watchdog and never re-initialize the controller after the
+asynchronous soft reset completion.
 
-Signed-off-by: Anh Tuan Phan <tuananhlfc@gmail.com>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
+Link: https://lore.kernel.org/r/20230331122317.11391-1-ranjan.kumar@broadcom.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/mount_setattr/mount_setattr_test.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/mpi3mr/mpi3mr_fw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/mount_setattr/mount_setattr_test.c b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-index 8c5fea68ae677..969647228817b 100644
---- a/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-+++ b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-@@ -18,6 +18,7 @@
- #include <grp.h>
- #include <stdbool.h>
- #include <stdarg.h>
-+#include <linux/mount.h>
- 
- #include "../kselftest_harness.h"
- 
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+index ea9e69fb62826..64355d0baa5fb 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+@@ -2526,7 +2526,7 @@ static void mpi3mr_watchdog_work(struct work_struct *work)
+ 		mrioc->unrecoverable = 1;
+ 		goto schedule_work;
+ 	case MPI3_SYSIF_FAULT_CODE_SOFT_RESET_IN_PROGRESS:
+-		return;
++		goto schedule_work;
+ 	case MPI3_SYSIF_FAULT_CODE_CI_ACTIVATION_RESET:
+ 		reset_reason = MPI3MR_RESET_FROM_CIACTIV_FAULT;
+ 		break;
 -- 
 2.39.2
 
