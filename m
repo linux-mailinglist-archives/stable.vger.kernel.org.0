@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9506E919A
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9F46E91B8
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234353AbjDTLFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:05:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55384 "EHLO
+        id S234871AbjDTLF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235395AbjDTLE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:04:58 -0400
+        with ESMTP id S235421AbjDTLFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:05:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA7FF65B8;
-        Thu, 20 Apr 2023 04:03:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81FCC2D43;
+        Thu, 20 Apr 2023 04:03:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9CDC647D8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9627363BAD;
+        Thu, 20 Apr 2023 11:02:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A40ADC433D2;
         Thu, 20 Apr 2023 11:02:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437E3C433A0;
-        Thu, 20 Apr 2023 11:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988560;
-        bh=P1RJ20QJirQyRF3HhoWwKz3CHgv5xWwc6aSBD4SJCo4=;
+        s=k20201202; t=1681988562;
+        bh=H65d8sQvz6pQgFW8AVz+EIIZlzDYoiKDmQ8UkJSsJ4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5B0E5g8nYsnECEv4VvhTdTahIyRZmgcTPvrSDRacLogSKHCZgL4sanBqINZGywoH
-         7X5yuEk4HtUHxa3cwv23cu3UIuEOGzR9EVezpsRz0oy+BCKnKXOGsNjGBIbVeDwdXv
-         EvahkTJ33UQ0AqDZSYIX+B7G1GqrSUPody429aGEKgL6Nzq+xJIRcy/U8miePxuiUt
-         Dn2Au9+HhWI+A0krZRkCu6cuCrrBumbjpBAddccCYgtZJyXNv6PAqi5dFV06Q4vXOY
-         BhBUxEIHEVMH60b9cXpaDuJb/HMOYLEcyk06w2BUasRZoGVLanmXvluLIDS34z7otk
-         3uQRkG6Ho+HVA==
+        b=QbEVM1EFr03MUDHeWyf+308r9lhred5z/AfD/hrwbV8YzbdAp2HDpfdHq+Zr5kVkG
+         VTht5u1l2to+/+u4Z1gXV6VmBH7Va5pIYA3kYFA7ELv5ku2a8tRGz4auOrgnVptAYp
+         nndK08mVGZQUBRnRY0fdm7HSd2/AuP0fhuS1zPsDXzsSHizMdK9GBXU5ZfbBAIYeQZ
+         XVSsccaeEfGk28Ecl9pYLn2fTs3Vj+1GadxS+3h3fLbCcb/OlutZQbjWg5yjZZeosa
+         3ZNaUC6JMt00zAK9IhCUBIQJYPQwaVnoGfMhw7cybbe/rUYXXw0kuxlbD9C+Y0UoB7
+         ZdfONcHbKfR3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 03/15] ASoC: soc-pcm: fix hw->formats cleared by soc_pcm_hw_init() for dpcm
-Date:   Thu, 20 Apr 2023 07:02:17 -0400
-Message-Id: <20230420110231.505992-3-sashal@kernel.org>
+Cc:     Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 04/15] x86/hyperv: Block root partition functionality in a Confidential VM
+Date:   Thu, 20 Apr 2023 07:02:18 -0400
+Message-Id: <20230420110231.505992-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230420110231.505992-1-sashal@kernel.org>
 References: <20230420110231.505992-1-sashal@kernel.org>
@@ -57,45 +59,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit 083a25b18d6ad9f1f540e629909aa3eaaaf01823 ]
+[ Upstream commit f8acb24aaf89fc46cd953229462ea8abe31b395f ]
 
-The hw->formats may be set by snd_dmaengine_pcm_refine_runtime_hwparams()
-in component's startup()/open(), but soc_pcm_hw_init() will init
-hw->formats in dpcm_runtime_setup_fe() after component's startup()/open(),
-which causes the valuable hw->formats to be cleared.
+Hyper-V should never specify a VM that is a Confidential VM and also
+running in the root partition.  Nonetheless, explicitly block such a
+combination to guard against a compromised Hyper-V maliciously trying to
+exploit root partition functionality in a Confidential VM to expose
+Confidential VM secrets. No known bug is being fixed, but the attack
+surface for Confidential VMs on Hyper-V is reduced.
 
-So need to store the hw->formats before initialization, then restore
-it after initialization.
-
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1678346017-3660-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1678894453-95392-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/cpu/mshyperv.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 35a16c3f9591b..7a486ca9633c1 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1649,10 +1649,14 @@ static void dpcm_runtime_setup_fe(struct snd_pcm_substream *substream)
- 	struct snd_pcm_hardware *hw = &runtime->hw;
- 	struct snd_soc_dai *dai;
- 	int stream = substream->stream;
-+	u64 formats = hw->formats;
- 	int i;
- 
- 	soc_pcm_hw_init(hw);
- 
-+	if (formats)
-+		hw->formats &= formats;
-+
- 	for_each_rtd_cpu_dais(fe, i, dai) {
- 		struct snd_soc_pcm_stream *cpu_stream;
- 
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 831613959a92a..34d9e899e471e 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -291,12 +291,16 @@ static void __init ms_hyperv_init_platform(void)
+ 	 * To mirror what Windows does we should extract CPU management
+ 	 * features and use the ReservedIdentityBit to detect if Linux is the
+ 	 * root partition. But that requires negotiating CPU management
+-	 * interface (a process to be finalized).
++	 * interface (a process to be finalized). For now, use the privilege
++	 * flag as the indicator for running as root.
+ 	 *
+-	 * For now, use the privilege flag as the indicator for running as
+-	 * root.
++	 * Hyper-V should never specify running as root and as a Confidential
++	 * VM. But to protect against a compromised/malicious Hyper-V trying
++	 * to exploit root behavior to expose Confidential VM memory, ignore
++	 * the root partition setting if also a Confidential VM.
+ 	 */
+-	if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_CPU_MANAGEMENT) {
++	if ((ms_hyperv.priv_high & HV_CPU_MANAGEMENT) &&
++	    !(ms_hyperv.priv_high & HV_ISOLATION)) {
+ 		hv_root_partition = true;
+ 		pr_info("Hyper-V: running as root partition\n");
+ 	}
 -- 
 2.39.2
 
