@@ -2,143 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A0D6E88DE
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 05:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F06706E88E4
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 05:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233023AbjDTDrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Apr 2023 23:47:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41820 "EHLO
+        id S230081AbjDTDwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Apr 2023 23:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232470AbjDTDrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 23:47:00 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194DE44AE;
-        Wed, 19 Apr 2023 20:46:59 -0700 (PDT)
-Received: from canpemm500006.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Q23Qm4FX0zncw3;
-        Thu, 20 Apr 2023 11:43:12 +0800 (CST)
-Received: from localhost.localdomain (10.175.104.82) by
- canpemm500006.china.huawei.com (7.192.105.130) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Thu, 20 Apr 2023 11:46:57 +0800
-From:   Ziyang Xuan <william.xuanziyang@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
-        <davem@davemloft.net>, <kuznet@ms2.inr.ac.ru>,
-        <yoshfuji@linux-ipv6.org>, <dsahern@kernel.org>, <kuba@kernel.org>,
-        <kuniyu@amazon.com>
-CC:     <netdev@vger.kernel.org>
-Subject: [PATCH 5.15 5/5] sctp: Call inet6_destroy_sock() via sk->sk_destruct().
-Date:   Thu, 20 Apr 2023 11:46:11 +0800
-Message-ID: <d825452372d3eb46c1feda40b13081b044e76e16.1681952662.git.william.xuanziyang@huawei.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <cover.1681952661.git.william.xuanziyang@huawei.com>
-References: <cover.1681952661.git.william.xuanziyang@huawei.com>
+        with ESMTP id S229520AbjDTDwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Apr 2023 23:52:10 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E121110F;
+        Wed, 19 Apr 2023 20:52:07 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-63b5c48ea09so537700b3a.1;
+        Wed, 19 Apr 2023 20:52:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681962727; x=1684554727;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=w1FVwpm//7EWGjghRNYvD8w7GqajWducsGw/6kvzTVA=;
+        b=BzQ1UtsxhBck6ucDpFGCJgIgDed9yrUMGTI9yMsZiIKN7Vy22W/aKPhYjdhXuYs9ZV
+         ERDP3B8Spk55sx6apOu3z9zfoFeEoSxZ/K87wGy7amdIRGQy9UMt3gYo6ugOVc7PR87n
+         HZx8QSTKCO5phk/nTCvf5ICcffV8es5BhHMA/Ay4Pz5d/ME4LI+CMTdjPPXmNLVmczwl
+         rvAobjeoZOXlZKy10tWcXG9XmEdoO6ClEA6o1JWnoVJB8SIU/NGOwydiymVMfrA/3xCb
+         9aM1WHabVGQ2Vm7HNbDRSE/Jya7zvJfydwg0865KjrIMIyKP5L/TR/K1kwd7K+tszXvz
+         woIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681962727; x=1684554727;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=w1FVwpm//7EWGjghRNYvD8w7GqajWducsGw/6kvzTVA=;
+        b=G6r+FlidmvH9W9kupnV7Ih3e2YvCM8PeVOf9azEDHlPMSHM2Ld9RPQQKW5dbPGQsjl
+         TsqyAcZbWl2jqc0hW4hOqDEh6Eapqk8hnw6ByH631XlWDrPa2rvmbtqIIeOlEJjeIck+
+         r9DlWl6kNPHo7J6f4EvUYYcXgm2M2FJOdRQJpn0zoQ6q45v1XoIwpfSGXjxv+6Jamjcq
+         t9/v41qLRwOH4Aon+4MRlgmm7ZTly5ESsZvaquXHhwNSYuSmWvgPT0XttRl/ZfVzaUHt
+         Ir4ZEwDJQOJzqy39LurdH1M+8U9zQV23wnGtC5/L5PTFhLrIcKJeWvJTXKysCd9Dukgk
+         NgUg==
+X-Gm-Message-State: AAQBX9eycItMJd7aiP/sBWKyDNR4IJHuJwND+jV/4cT85F2L8GwIpSox
+        WxsRHyxjLakj7mqJgFeOC2o=
+X-Google-Smtp-Source: AKy350ZSZhLNPS4nORKG8s7eLG/Lj92AeETj3ZRbNRnBnge97bQWaxx+5yNBqgizAaNq9zC2vlzJ2w==
+X-Received: by 2002:a05:6a00:1356:b0:63b:594f:bd1b with SMTP id k22-20020a056a00135600b0063b594fbd1bmr7594108pfu.3.1681962727289;
+        Wed, 19 Apr 2023 20:52:07 -0700 (PDT)
+Received: from debian.me (subs03-180-214-233-6.three.co.id. [180.214.233.6])
+        by smtp.gmail.com with ESMTPSA id x35-20020a056a0018a300b0063b6cccd5dfsm136556pfh.195.2023.04.19.20.52.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Apr 2023 20:52:06 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id 6905C106852; Thu, 20 Apr 2023 10:52:03 +0700 (WIB)
+Date:   Thu, 20 Apr 2023 10:52:02 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.2 000/135] 6.2.12-rc3 review
+Message-ID: <ZEC24ukqNNbLaywF@debian.me>
+References: <20230419132054.228391649@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.104.82]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- canpemm500006.china.huawei.com (7.192.105.130)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wwtHWNsJSpGMTGlt"
+Content-Disposition: inline
+In-Reply-To: <20230419132054.228391649@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 6431b0f6ff1633ae598667e4cdd93830074a03e8 upstream.
+--wwtHWNsJSpGMTGlt
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
-in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
-sk->sk_destruct() by setting inet6_sock_destruct() to it to make
-sure we do not leak inet6-specific resources.
+On Wed, Apr 19, 2023 at 03:22:02PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.2.12 release.
+> There are 135 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-SCTP sets its own sk->sk_destruct() in the sctp_init_sock(), and
-SCTPv6 socket reuses it as the init function.
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-To call inet6_sock_destruct() from SCTPv6 sk->sk_destruct(), we
-set sctp_v6_destruct_sock() in a new init function.
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
----
- net/sctp/socket.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+--=20
+An old man doll... just what I always wanted! - Clara
 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index a5344fddddbb..2bbc81ddb9e0 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -5110,13 +5110,17 @@ static void sctp_destroy_sock(struct sock *sk)
- }
- 
- /* Triggered when there are no references on the socket anymore */
--static void sctp_destruct_sock(struct sock *sk)
-+static void sctp_destruct_common(struct sock *sk)
- {
- 	struct sctp_sock *sp = sctp_sk(sk);
- 
- 	/* Free up the HMAC transform. */
- 	crypto_free_shash(sp->hmac);
-+}
- 
-+static void sctp_destruct_sock(struct sock *sk)
-+{
-+	sctp_destruct_common(sk);
- 	inet_sock_destruct(sk);
- }
- 
-@@ -9443,7 +9447,7 @@ void sctp_copy_sock(struct sock *newsk, struct sock *sk,
- 	sctp_sk(newsk)->reuse = sp->reuse;
- 
- 	newsk->sk_shutdown = sk->sk_shutdown;
--	newsk->sk_destruct = sctp_destruct_sock;
-+	newsk->sk_destruct = sk->sk_destruct;
- 	newsk->sk_family = sk->sk_family;
- 	newsk->sk_protocol = IPPROTO_SCTP;
- 	newsk->sk_backlog_rcv = sk->sk_prot->backlog_rcv;
-@@ -9675,11 +9679,20 @@ struct proto sctp_prot = {
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 
--#include <net/transp_v6.h>
--static void sctp_v6_destroy_sock(struct sock *sk)
-+static void sctp_v6_destruct_sock(struct sock *sk)
-+{
-+	sctp_destruct_common(sk);
-+	inet6_sock_destruct(sk);
-+}
-+
-+static int sctp_v6_init_sock(struct sock *sk)
- {
--	sctp_destroy_sock(sk);
--	inet6_destroy_sock(sk);
-+	int ret = sctp_init_sock(sk);
-+
-+	if (!ret)
-+		sk->sk_destruct = sctp_v6_destruct_sock;
-+
-+	return ret;
- }
- 
- struct proto sctpv6_prot = {
-@@ -9689,8 +9702,8 @@ struct proto sctpv6_prot = {
- 	.disconnect	= sctp_disconnect,
- 	.accept		= sctp_accept,
- 	.ioctl		= sctp_ioctl,
--	.init		= sctp_init_sock,
--	.destroy	= sctp_v6_destroy_sock,
-+	.init		= sctp_v6_init_sock,
-+	.destroy	= sctp_destroy_sock,
- 	.shutdown	= sctp_shutdown,
- 	.setsockopt	= sctp_setsockopt,
- 	.getsockopt	= sctp_getsockopt,
--- 
-2.25.1
+--wwtHWNsJSpGMTGlt
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZEC23QAKCRD2uYlJVVFO
+o7FNAPsFeZ9Tzof2z+T5F2RsXY77z631QwX1ummWyk4TIGqutwD8DmzwgJHqST1I
+MKKVpx1LRKdaDp5bi3nZrfn8YdVdFQo=
+=l0Q5
+-----END PGP SIGNATURE-----
+
+--wwtHWNsJSpGMTGlt--
