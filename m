@@ -2,142 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 247616E8B57
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 09:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644966E8B70
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 09:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233174AbjDTHZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 03:25:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38758 "EHLO
+        id S234076AbjDTH2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 03:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbjDTHZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 03:25:28 -0400
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2101.outbound.protection.outlook.com [40.107.212.101])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75FA540D3;
-        Thu, 20 Apr 2023 00:25:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=GDnN+6CGsi7XqN79rZxfxxydwVrtBzj9d/Afedt/VoIBfNbkKCbneiRop2I9CHCoQU5+MP9wI5B+Cs7ok76c8XVJ98MndX/aBaTNzlvoMCFW9OxHqu/vEGPRL1Q0qCDanjKou0MCAk+Y/0h6qA/CLzWcwBbimky3oBgvLrkDVIzGZChbxBTbXVvGpXZ+KU/pzZeWaeGm+8DnK+xlmH1nrbkpN06GSTIG+DyY3z6eMG/fnT8VOhJhK28eHb3k1gvR6zYorVX9Tx9NjKFwHQeBsYN2MTHH52c+u/vQdD6ZC3J0SmWRzV8PvutBljNRgBAXYqg51q8h7t7P07iLZFo4xw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OJncPnZfGx26ibcNgrN6khjFoi0fTewiqwy+Jv8IK/s=;
- b=b6M+wEoY507WmbZpSujqv/Tn5FT89KxVkD48kce3sn+x/SUUBjF6iO4HPJ3I708nqYo9WSVnZCwSNqOXh8BwxTSC805EqP0lc2La+zXMepMQfEKITPG1x5sil1YwcrtZPmvVFEAFpmXlyF89b6D3QbcFWqZtL5dsZxliRBFq8HLruotSamNgKgZn5fI57Q9ZEQFix6A1Z9axvf70pcnM7cOWcIqFzfTFfztbXm4j10CvxHq5afkh6g62wLwH9qm39zSOcUpD5qwR0H2iv/JTOoIbAD4+1DxgvpCsh1deo6h8aCVV/fs3H6hMouSHdcp42iuOUj1HXYGPsTDMK3uQ0w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
+        with ESMTP id S234087AbjDTH2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 03:28:50 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41245245
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 00:28:21 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id dm2so4187068ejc.8
+        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 00:28:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OJncPnZfGx26ibcNgrN6khjFoi0fTewiqwy+Jv8IK/s=;
- b=kksay2qkcKHJ2uxqJ3zQbcPvgf1+GRWAHR7f9IhG+xocOo/1jRlDASOrOTN/H/QYIdAfXwwX4KGTzg4CtM7HY4C5tO5UodCvZ1/Kqxdx3tPqimFuRAa7oMP9HIn4Hb4UUiU/QsaU/zmgjFMKnd8zmV1kcPsZPITfeT5Si05xVlo=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
- by CO1PR13MB4837.namprd13.prod.outlook.com (2603:10b6:303:d6::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Thu, 20 Apr
- 2023 07:25:13 +0000
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::f416:544d:18b7:bb34]) by PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::f416:544d:18b7:bb34%4]) with mapi id 15.20.6319.022; Thu, 20 Apr 2023
- 07:25:13 +0000
-Date:   Thu, 20 Apr 2023 09:25:05 +0200
-From:   Simon Horman <simon.horman@corigine.com>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     David Laight <David.Laight@aculab.com>,
-        'Louis Peens' <louis.peens@corigine.com>,
-        David Miller <davem@davemloft.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "oss-drivers@corigine.com" <oss-drivers@corigine.com>
-Subject: Re: [PATCH net v2] nfp: correct number of MSI vectors requests
- returned
-Message-ID: <ZEDo0RrtX5okUTN2@corigine.com>
-References: <20230419081520.17971-1-louis.peens@corigine.com>
- <36322e3475804855a28c7e91a7ccdf3e@AcuMS.aculab.com>
- <20230419183409.1fba81b7@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230419183409.1fba81b7@kernel.org>
-X-ClientProxiedBy: AS4PR10CA0021.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:20b:5d8::9) To PH0PR13MB4842.namprd13.prod.outlook.com
- (2603:10b6:510:78::6)
+        d=linaro.org; s=google; t=1681975693; x=1684567693;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5gylQokwHrbKYZEvA2K7+6XwCFe14DDzlgchEo04KvA=;
+        b=PutHU7bS6zImLQPyXAcvT5qTwrDitmhfAm5VM1+biikonfodBkAl+VjkfwYnfuDbnr
+         8DABuf5pRWz4qsEN5FJr/iEZW/KlsYhRmn7Apoj12ZPet64lIiCBhz8KDwA3PLzGuTwf
+         ZOtuwuGepUi9L22adCrN1IVo8Q4r5vfmiIb7RqpHG5yzZkc5LfDuqnwFpN8CeTOLP2pI
+         UdAzq7jL2e73KouKLIjISvE2g5W3gNBMKpN3LCCqnDuZ6np0h/opk1L2+gzWfegQJOvt
+         Ak3rVuqinaeEcG3E8tT6KeMnXd7bz2hZpwYPAr9bf6beTjSDMfsNTLEmYq65ikpAimQ1
+         xeFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681975693; x=1684567693;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5gylQokwHrbKYZEvA2K7+6XwCFe14DDzlgchEo04KvA=;
+        b=JwCmnztBelzdx3C+CGtUWcXz64b7ZHofLR5gNd5J65u4ONmnHWghu3PPuQ5pKfkLgR
+         qQ/6dJjcbH8X52IFgj9/aDJAQPapxJ6v1iQ8vmxrKiTL1Zcdeq37K4Cc469bNb5Rxfru
+         lODe4Hkgl1G1C3Kefxu5aXhHQSFqBYrsTFuwUpP/5hqiWMQd4jd68tN5quSV+gNCxmbw
+         tZ31QWG0qrUmez7Uw98d2YcPEW6JIubNHvvPr+sdgH+CqJllMIbXgXSxaDwBtEgxd/vl
+         KziU8PZAY+X8YaQS552+WEFKIf0NF1TxUB4ywL1bile8L9qdJNYkI0Qm3p1g2+XLGD0Q
+         ArRA==
+X-Gm-Message-State: AAQBX9cMoo6z0+s8O8nl46lBZRukzGPu/0G2apIg8TJrP+FQHX3L00y8
+        YXlUhG5QtJ1c010Hyfx4UJKH6A==
+X-Google-Smtp-Source: AKy350Z2Pe07K6VAQBdXbOWfVpcV85qsOc3+ruWuxMJ8aAHh/6Nhgchll3UoLIwNDYYAPVPdf4QCtg==
+X-Received: by 2002:a17:906:1055:b0:94f:6218:191e with SMTP id j21-20020a170906105500b0094f6218191emr517129ejj.20.1681975693177;
+        Thu, 20 Apr 2023 00:28:13 -0700 (PDT)
+Received: from krzk-bin.. ([2a02:810d:15c0:828:bcb8:77e6:8f45:4771])
+        by smtp.gmail.com with ESMTPSA id oz5-20020a170906cd0500b0094f58a85bc5sm390396ejb.180.2023.04.20.00.28.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Apr 2023 00:28:12 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] ARM: dts: qcom: ipq4019: fix broken NAND controller properties override
+Date:   Thu, 20 Apr 2023 09:28:11 +0200
+Message-Id: <20230420072811.36947-1-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|CO1PR13MB4837:EE_
-X-MS-Office365-Filtering-Correlation-Id: b309917f-7a1d-4c27-0a8b-08db41706114
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HK70SOm4/xtwJi5Sk310r86gzfn8VHKnT3WzuRIMss7Mz3kKi6J1vq2ly7IdSxrtYBD3mhWkPFUT1Lth/XWbVOSp5ZJf6CmXHWqszs+3Ivn3rTyF5vXMRD8mri2dIOWZVP9Hi0sAlIzmPTSCCfUDG+2naE5x2ckHV23f8ODObznUlrCSssO8AQ+Jdn5WYjORoF7J93gRd00xRdCs2yZA+Kb9jBCUel1gzur506lvcEgGSjYOjkxyA+Q5eOlLJWnnBjNZCtAYtivGi1KcIgld2P+Towe37uyw9FGf1I70cTnQZA3O2tF7mioFIiv5yce16HO68uW37Mafw86Q1wnZcTM8lOc9X6Dl+MkIbX2B5mVCBzV3RdDUgp2P2tcKO4TCLqjJ51TWIAkvZkfNOoE9+FbvQXpxDHzCW7vWwghYcb6isajTL0hX4/kTT8uX2QgP1eM1Jv9vkZSss1dnX3nciaSWKmkMQId0UH3WpT5l/6zyN5PWWDmez556wFpsSn9TfRXnTM9QTfX2gM0EneV3aFDVzWmcPlRH9m9jq383az5SkHDI1ZNlrgQ1UHVbF9Vl
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(39840400004)(136003)(396003)(366004)(376002)(451199021)(38100700002)(36756003)(8936002)(8676002)(5660300002)(4744005)(44832011)(2906002)(86362001)(478600001)(6486002)(6666004)(54906003)(186003)(107886003)(2616005)(6506007)(66946007)(66476007)(6512007)(316002)(6916009)(83380400001)(66556008)(4326008)(41300700001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?i0Y613hSB0y2l9ePfho5UCv2mWuBIJV/t8QreCIZYeUMzb2k6VHql0qXm3d6?=
- =?us-ascii?Q?4zkCozRmG48e+9uRTsIQbzzuK27tiGNOuKxzf0ToljX6U5m6/eRwHPjBM2Dd?=
- =?us-ascii?Q?w0Y64Wrh0BEHbXhlw7le7u8S97hAorFfZ5O0Z0Q2PmZyDHk2lU0fEiDgnAGX?=
- =?us-ascii?Q?7YgSxl9KI3dTmuYsljSXn5WqA+qWj20FU35wDKoPwBgtUAurAovkvoCypR8E?=
- =?us-ascii?Q?47Vuul0rF1v1SUmbIzQeCanx50hTMJ6FCCEtrIzbuDtWL4xc3wthm1gPTPZQ?=
- =?us-ascii?Q?VQ1JgGQHcoOEttPJq66oZYo2CeIAnByc8KDBDx0KR4jmKYyeX7etv1tb/Wpc?=
- =?us-ascii?Q?Ln+vIKwKbFSs/K9Zjgst9TrAZvjR+sXMoDAzV/PsC2pxDf8Yb3WkHAGBLR63?=
- =?us-ascii?Q?+8pf+hogMFMG789+ZrTuiKdlnAbp7Qbe64by5d6m653zBa/Fb+joYntDRy0o?=
- =?us-ascii?Q?2ckxV3CBNqJi1tL8dIHG8WXT5FAF46BALaMSRJMmgc0++tyT7vDviI+us8Mr?=
- =?us-ascii?Q?AzHw6zPCStb9BHjTGZuxBmaeCy5va5KbehJTJBw0d3L/PR8B8EAC21mMmSOd?=
- =?us-ascii?Q?1A4SMOww9hgBir1693DLe89Sl5ScJNYxopFQocl0AUsfKRBrQyaVHQ7ofkfn?=
- =?us-ascii?Q?oFTq4RCB+PSCho8u37nJNGq6zS4ZkGimvMhqQrsRPDYuNGJS5RUrXSkCJAFW?=
- =?us-ascii?Q?rWT/SbALHFCF9eWN6PpF7wCoJVxmc5XfZcGVBxDvTkBPk4lEQGHnbh1uqwkq?=
- =?us-ascii?Q?2DwcbrXkRS4IMaIH8Hh5f57X7vrfXovatpuRrO5D2sTwKYtMP0Qpsz8S38s4?=
- =?us-ascii?Q?MJMl/PQkXsJLIDgFoAZiTRlBMFkTVL2RmII6pFEM84c/JLZicF2s67vM2wIF?=
- =?us-ascii?Q?s7alkRDDlDsOC3vlxLavxonP8CxIg2qOnKY/HbRLQW4Eujzl4GX+qoTssFjs?=
- =?us-ascii?Q?9Pb41pPsNIpMC7lMfhgss+gwsb+stid7uTGh1uVE1lp4pVI4VTGeFbOppKO8?=
- =?us-ascii?Q?zXTHocc0ENA3tBb3ys5PtC+MdacFkv6Qfv8aCCB7XFMo6wj7s45r3jTwYAlR?=
- =?us-ascii?Q?AMDj0wRpAJsNNTx7cYuq5HfB8TQCH17l9MmX5keVWSpr6vbuzajhc2XoPkGh?=
- =?us-ascii?Q?pYQhwbpLrb31Vr5lLMtzp9auC8Te3vGFa1tBK5sNAYg7iPWbVPaptLqzgeAN?=
- =?us-ascii?Q?8JAK5wzIn+ELjeMufTuAAxijYPnEKVqSjxAlLbWrm6arEci4lW4fx3hlNXiM?=
- =?us-ascii?Q?slLZpB6/EdgCKHMZauyVALVEas/7ee/xrpAMxEQOgizv6STu0URa5xs81KX+?=
- =?us-ascii?Q?jqTd3IkYWcX+XtcofiNBlYQXi3R2cnTr0rTNjMTzcWRjgNPqMKPEvOUmFYrQ?=
- =?us-ascii?Q?OociBQ53NOgMuWb+pOGAMmiI5wo1yF2mjh6o1dGbKi5dbgxVpFfVrImpt5Vk?=
- =?us-ascii?Q?NleVmOKGSKCgHnpEMCdKszY5VED56HEOTyp9NJEyXwcHSwh7gIKsO+Bgm9+Q?=
- =?us-ascii?Q?2qjS5NgeNlDfuijzMamlhT/ySmkmpHIfdtqavVKYoVYzwq19kjn1BmMKtvfa?=
- =?us-ascii?Q?aD5VqmiH+5RoIlN6dtJhElV4bCSiwgAtSQ4aeL4ok7C7zqxNvieEGdMAcOLt?=
- =?us-ascii?Q?1oMVipSsA61Yqxb7ZmJImDghF8ee/ZC4pkfYyVwyIqYbs9jYeD2RJOiSSext?=
- =?us-ascii?Q?sOfSpA=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b309917f-7a1d-4c27-0a8b-08db41706114
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Apr 2023 07:25:12.8622
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PO+2y/A9YsyhHJrvxc9+7f38zyNo5ZAVQbzOanbT3FodHgoKiBmwJ8g3S/UF/UDRM/FHFUOc/SdkMmQFsn1RL+2g/ab41DWHaWgF1GlJH7I=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR13MB4837
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 19, 2023 at 06:34:09PM -0700, Jakub Kicinski wrote:
-> On Wed, 19 Apr 2023 15:37:57 +0000 David Laight wrote:
-> > > Before the referenced commit, if fewer interrupts are supported by
-> > > hardware than requested, then pci_msix_vec_count() returned the
-> > > former. However, after the referenced commit, an error is returned
-> > > for this condition. This causes a regression in the NFP driver
-> > > preventing probe from completing.  
-> > 
-> > I believe the relevant change to the msix vector allocation
-> > function has been reverted.
-> > (Or at least, the over-zealous check of nvec removed.)
-> > 
-> > So this change to bound the number of interrupts
-> > isn't needed.
-> 
-> Great, thanks, I was about to ask!
+After renaming NAND controller node name from "qpic-nand" to
+"nand-controller", the board DTS/DTSI also have to be updated:
 
-Likewise, thanks.
-We'll look into this.
+  Warning (unit_address_vs_reg): /soc/qpic-nand@79b0000: node has a unit name, but no reg or ranges property
+
+Cc: <stable@vger.kernel.org>
+Fixes: 9e1e00f18afc ("ARM: dts: qcom: Fix node name for NAND controller node")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts |  8 ++++----
+ arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi   | 10 +++++-----
+ arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi   | 12 ++++++------
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts
+index 79b0c6318e52..0993f840d1fc 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts
++++ b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts
+@@ -11,9 +11,9 @@ soc {
+ 		dma-controller@7984000 {
+ 			status = "okay";
+ 		};
+-
+-		qpic-nand@79b0000 {
+-			status = "okay";
+-		};
+ 	};
+ };
++
++&nand {
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi
+index a63b3778636d..468ebc40d2ad 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi
+@@ -102,10 +102,10 @@ pci@40000000 {
+ 			status = "okay";
+ 			perst-gpios = <&tlmm 38 GPIO_ACTIVE_LOW>;
+ 		};
+-
+-		qpic-nand@79b0000 {
+-			pinctrl-0 = <&nand_pins>;
+-			pinctrl-names = "default";
+-		};
+ 	};
+ };
++
++&nand {
++	pinctrl-0 = <&nand_pins>;
++	pinctrl-names = "default";
++};
+diff --git a/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi b/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi
+index 0107f552f520..7ef635997efa 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi
+@@ -65,11 +65,11 @@ i2c@78b7000 { /* BLSP1 QUP2 */
+ 		dma-controller@7984000 {
+ 			status = "okay";
+ 		};
+-
+-		qpic-nand@79b0000 {
+-			pinctrl-0 = <&nand_pins>;
+-			pinctrl-names = "default";
+-			status = "okay";
+-		};
+ 	};
+ };
++
++&nand {
++	pinctrl-0 = <&nand_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
+-- 
+2.34.1
+
