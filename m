@@ -2,78 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1650D6E9093
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 12:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8ED6E9181
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235005AbjDTKnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 06:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56270 "EHLO
+        id S235129AbjDTLEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234874AbjDTKnJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 06:43:09 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5613544BB
-        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 03:42:53 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-4ecb137af7eso445615e87.2
-        for <stable@vger.kernel.org>; Thu, 20 Apr 2023 03:42:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1681987371; x=1684579371;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=QEsmrbfMQN/JXvUF1ulBijNIHsKEdCSMUCm9R17GjWQ=;
-        b=Fkzqo0AGlr6VdOiAc8dcd95zCeNR+k5Uk5VIe3VPT7hKV2Fdq46e/0QZz83dQBWIYh
-         KpZ2oxVpzxfbQysDRXhwOE2lDb1FLrNbJ31jG8iaE0NDWIk5Hjp9Z2flDnmUC6VGavZb
-         BCR510M9AcYin2pwwOady6OThZIk8cRSHuP+C8ER30RjwHQP1MqA/ag8DkAJb1sekutu
-         2kMz5CZAAUueuo5QJJ4ul5tRqFZZIKvKEowGuuQNWrw6QOwCbMZfSgtioYPfJYO6vreu
-         Mw8v5u9ovJ+xliWcPVsfsxXamQM+DokI0+RZCh9cKELJVD7PP2JHOHdhYBkrr92irdz8
-         pxSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681987371; x=1684579371;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QEsmrbfMQN/JXvUF1ulBijNIHsKEdCSMUCm9R17GjWQ=;
-        b=VWiTtZWiwQY2vsY/hKgVIYtIZgcns6PjEon+ymCbOnwfQOr7jGooedh53xwRfbT55P
-         t/BLykYxxRrTYVCNQcAsYv7Mr9rabem1gJEf/MP29WTE/RJVAUZzbx950r4nctKDCDIO
-         ZhZmw92Z+gFLMcBvBudPN+7F1GPVa+OxIrzZtoHavalYo8OK6uxScixM0vJWHEOIKqgN
-         HWdKmcAzCfuFKBEhB2iiR9LsWajgy8Sy6ry8fisejr1gy9al73JH/SRCG+h/RCqmLNDR
-         znUm/DO4Y+SHi4yrQxiGM4PMpSEVEAEc5oaq4zHmzIWHKREv12FkWNTw0cgVnt/AEbt2
-         TsNw==
-X-Gm-Message-State: AAQBX9fWeZW2lXZheeT92Krg80ZyQsN4glr065y9UnUsp/Vr0MsnMZWD
-        6edKlXAkn+Lg3+EoRjKLM1cgow==
-X-Google-Smtp-Source: AKy350a9MHJP/69yicnIr0zBPV16YrN9+chssnDFvD55/MbOZPQ0j9d7bZHmTEB2owx+mZblN8KyQw==
-X-Received: by 2002:ac2:55ba:0:b0:4db:2ab7:43e6 with SMTP id y26-20020ac255ba000000b004db2ab743e6mr378273lfg.44.1681987371425;
-        Thu, 20 Apr 2023 03:42:51 -0700 (PDT)
-Received: from [192.168.1.101] (abyj144.neoplus.adsl.tpnet.pl. [83.9.29.144])
-        by smtp.gmail.com with ESMTPSA id y21-20020ac24215000000b004ece331c830sm175082lfh.206.2023.04.20.03.42.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Apr 2023 03:42:50 -0700 (PDT)
-Message-ID: <ab7c0eab-4b80-2186-de92-dea3df58c298@linaro.org>
-Date:   Thu, 20 Apr 2023 12:42:49 +0200
+        with ESMTP id S235118AbjDTLDq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:03:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E49272C;
+        Thu, 20 Apr 2023 04:02:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DED2647A6;
+        Thu, 20 Apr 2023 11:01:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D5AC433D2;
+        Thu, 20 Apr 2023 11:01:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681988513;
+        bh=vxYpiowukmD12f1AvqoxGgUi+Xl6hpB2XU99StdEHIw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=uNqgZ8DAQOkkf2hX93QUzs2PMzx3j9tgiCCVGsGckosOJLNf/paEzH+dK86HVSD+E
+         QvE+0dMT87nlGUyYfdjcHIvUeAUUIBFW7ikGTv60rrhkIcQBV7hhshIuZ9S9OBO2xz
+         4eaHQw6eMriykf5IQaJ90W9GiY84cQL080ePvtREjOSLdfFosw1K6ltobxHpO1qf2s
+         H5VEfbywUldjoKi8/45nQa/bmY87/QwqiyuNUqZWFj2NEozCg9CdelUPRfFpVvQWgU
+         DsDrgJQHHNzsq9jiPMCkvjrkj6hhdkQDYNaMt7MNGmY6bwS0XGFioXgkb381WB+nKP
+         hCxTBYwQhSYWQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Eugene Huang <eugene.huang99@gmail.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
+        gongjun.song@intel.com, shumingf@realtek.com, yong.zhi@intel.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 01/17] ASOC: Intel: sof_sdw: add quirk for Intel 'Rooks County' NUC M15
+Date:   Thu, 20 Apr 2023 07:01:30 -0400
+Message-Id: <20230420110148.505779-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [PATCH] ARM: dts: qcom: ipq4019: fix broken NAND controller
- properties override
-Content-Language: en-US
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20230420072811.36947-1-krzysztof.kozlowski@linaro.org>
-From:   Konrad Dybcio <konrad.dybcio@linaro.org>
-In-Reply-To: <20230420072811.36947-1-krzysztof.kozlowski@linaro.org>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -81,88 +62,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eugene Huang <eugene.huang99@gmail.com>
 
+[ Upstream commit 3c728b1bc5b99c5275ac5c7788ef814c0e51ef54 ]
 
-On 20.04.2023 09:28, Krzysztof Kozlowski wrote:
-> After renaming NAND controller node name from "qpic-nand" to
-> "nand-controller", the board DTS/DTSI also have to be updated:
-> 
->   Warning (unit_address_vs_reg): /soc/qpic-nand@79b0000: node has a unit name, but no reg or ranges property
-> 
-> Cc: <stable@vger.kernel.org>
-Cc: <stable@vger.kernel.org> # 5.12
+Same quirks as the 'Bishop County' NUC M15, except the rt711 is in the
+'JD2 100K' jack detection mode.
 
-(g show 9e1e00f18afc:Makefile | head, rounded up to first release)
+Link: https://github.com/thesofproject/linux/issues/4088
+Signed-off-by: Eugene Huang <eugene.huang99@gmail.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20230314090553.498664-2-yung-chuan.liao@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index d2ed807abde95..767fa89d08708 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -213,6 +213,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 					SOF_SDW_PCH_DMIC |
+ 					RT711_JD1),
+ 	},
++	{
++		/* NUC15 'Rooks County' LAPRC510 and LAPRC710 skews */
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Intel(R) Client Systems"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LAPRC"),
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_SDW_PCH_DMIC |
++					RT711_JD2_100K),
++	},
+ 	/* TigerLake-SDCA devices */
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
+-- 
+2.39.2
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-
-Konrad
-> Fixes: 9e1e00f18afc ("ARM: dts: qcom: Fix node name for NAND controller node")
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> ---
->  arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts |  8 ++++----
->  arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi   | 10 +++++-----
->  arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi   | 12 ++++++------
->  3 files changed, 15 insertions(+), 15 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts
-> index 79b0c6318e52..0993f840d1fc 100644
-> --- a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts
-> +++ b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1-c1.dts
-> @@ -11,9 +11,9 @@ soc {
->  		dma-controller@7984000 {
->  			status = "okay";
->  		};
-> -
-> -		qpic-nand@79b0000 {
-> -			status = "okay";
-> -		};
->  	};
->  };
-> +
-> +&nand {
-> +	status = "okay";
-> +};
-> diff --git a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi
-> index a63b3778636d..468ebc40d2ad 100644
-> --- a/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi
-> +++ b/arch/arm/boot/dts/qcom-ipq4019-ap.dk04.1.dtsi
-> @@ -102,10 +102,10 @@ pci@40000000 {
->  			status = "okay";
->  			perst-gpios = <&tlmm 38 GPIO_ACTIVE_LOW>;
->  		};
-> -
-> -		qpic-nand@79b0000 {
-> -			pinctrl-0 = <&nand_pins>;
-> -			pinctrl-names = "default";
-> -		};
->  	};
->  };
-> +
-> +&nand {
-> +	pinctrl-0 = <&nand_pins>;
-> +	pinctrl-names = "default";
-> +};
-> diff --git a/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi b/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi
-> index 0107f552f520..7ef635997efa 100644
-> --- a/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi
-> +++ b/arch/arm/boot/dts/qcom-ipq4019-ap.dk07.1.dtsi
-> @@ -65,11 +65,11 @@ i2c@78b7000 { /* BLSP1 QUP2 */
->  		dma-controller@7984000 {
->  			status = "okay";
->  		};
-> -
-> -		qpic-nand@79b0000 {
-> -			pinctrl-0 = <&nand_pins>;
-> -			pinctrl-names = "default";
-> -			status = "okay";
-> -		};
->  	};
->  };
-> +
-> +&nand {
-> +	pinctrl-0 = <&nand_pins>;
-> +	pinctrl-names = "default";
-> +	status = "okay";
-> +};
