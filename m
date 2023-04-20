@@ -2,47 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0356E91FE
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 284476E91E3
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235376AbjDTLHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:07:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54988 "EHLO
+        id S229612AbjDTLHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235253AbjDTLF2 (ORCPT
+        with ESMTP id S235260AbjDTLF2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:05:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1A47D85;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0CEE52;
         Thu, 20 Apr 2023 04:04:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7854647E6;
-        Thu, 20 Apr 2023 11:03:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF1BC433A1;
-        Thu, 20 Apr 2023 11:03:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52DAB647C7;
+        Thu, 20 Apr 2023 11:03:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11CEFC4339B;
+        Thu, 20 Apr 2023 11:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988604;
-        bh=vC7xAvcNK/5F12cP1kHH0jxs8tc0Uao6TcKhF+rlFzc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9fR+O+tY6+HpoxW8cO5Z7Vr2yjNK9xX7fWSl9RXZlN75zipxidw2Q39UBjsl0mWE
-         JOLk9xTUxuaMgiPYzQfcQmSIMMYyBwnJKWhNkER2ojev3m56+lVWZJzYRwft6WU9co
-         c4BXW9tYGoz28UEiU9FRQQvZKqFYVqRNNAxDc4fnldQlFqefizT9Ww7gBo0LIqh3t6
-         HwrRRo/OrIEOh6KRKkfIPRwWQYn9LeEHeCuxvCCQWVm34As32PuPTHusHXSXx23gGB
-         1orSas2h+W30upr/iqNfWPox3ZfkVY8x1AGgG+V94p9zk5tGfI1/W7Pf85t3ti5hir
-         lylTcjAiYF33w==
+        s=k20201202; t=1681988609;
+        bh=uK35DXXbqaB+kOQBB45RdJHPlNvqSa2wIBInCt6wZsU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OjbqFRrLCA/qj8CgM5hSMt0hvC+LDliRCbC9uIht4yLpRPikSSOLqdQra1hoxproY
+         kJO4Qg1o/UikyvZbrCsnWA7t8oKspg7hRFkuipcFiWZehmHe8zQIw9gHXw7Lb+fu47
+         qoFZBlgeArSceIR6q0xgW6YcMKkHf4WIDMj7kLWBkuVfK0hqLd/zc7vX09oLzM+sBA
+         nJs8yWRXVa1+ierX/YQAAXE3/mZkRNtEtcPrY+pFIGKAiNaw8CW+bwHu6qqFaBd1o3
+         XXAbpusd1oDCyvofqfwJNtCvRoPU3jKsPKB2ltmgnRXT2Zi1Wm3kc4fn8PG0DI23hZ
+         +VCUQ+OR1JQ+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Sasha Levin <sashal@kernel.org>, x86@kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com
-Subject: [PATCH AUTOSEL 5.15 7/7] x86/cpu: Add model number for Intel Arrow Lake processor
-Date:   Thu, 20 Apr 2023 07:03:07 -0400
-Message-Id: <20230420110308.506181-7-sashal@kernel.org>
+Cc:     Eugene Huang <eugene.huang99@gmail.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
+        gongjun.song@intel.com, shumingf@realtek.com, yong.zhi@intel.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 1/3] ASOC: Intel: sof_sdw: add quirk for Intel 'Rooks County' NUC M15
+Date:   Thu, 20 Apr 2023 07:03:22 -0400
+Message-Id: <20230420110326.506279-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230420110308.506181-1-sashal@kernel.org>
-References: <20230420110308.506181-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,33 +62,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Eugene Huang <eugene.huang99@gmail.com>
 
-[ Upstream commit 81515ecf155a38f3532bf5ddef88d651898df6be ]
+[ Upstream commit 3c728b1bc5b99c5275ac5c7788ef814c0e51ef54 ]
 
-Successor to Lunar Lake.
+Same quirks as the 'Bishop County' NUC M15, except the rt711 is in the
+'JD2 100K' jack detection mode.
 
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230404174641.426593-1-tony.luck@intel.com
+Link: https://github.com/thesofproject/linux/issues/4088
+Signed-off-by: Eugene Huang <eugene.huang99@gmail.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20230314090553.498664-2-yung-chuan.liao@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index b8e7ea9e71e20..fc12d970a07c0 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -115,6 +115,8 @@
- 
- #define INTEL_FAM6_LUNARLAKE_M		0xBD
- 
-+#define INTEL_FAM6_ARROWLAKE		0xC6
-+
- /* "Small Core" Processors (Atom/E-Core) */
- 
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index f5d8f7951cfc3..eb713e9c2bd22 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -175,6 +175,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 					SOF_SDW_PCH_DMIC |
+ 					SOF_RT711_JD_SRC_JD2),
+ 	},
++	{
++		/* NUC15 'Rooks County' LAPRC510 and LAPRC710 skews */
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Intel(R) Client Systems"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LAPRC"),
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_SDW_PCH_DMIC |
++					RT711_JD2_100K),
++	},
+ 	/* TigerLake-SDCA devices */
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
 -- 
 2.39.2
 
