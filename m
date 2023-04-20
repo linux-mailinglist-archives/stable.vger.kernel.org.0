@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 284476E91E3
-	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC1C6E91F9
+	for <lists+stable@lfdr.de>; Thu, 20 Apr 2023 13:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbjDTLHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Apr 2023 07:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54434 "EHLO
+        id S235280AbjDTLHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Apr 2023 07:07:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235260AbjDTLF2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:05:28 -0400
+        with ESMTP id S234611AbjDTLFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Apr 2023 07:05:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0CEE52;
-        Thu, 20 Apr 2023 04:04:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7E4283F5;
+        Thu, 20 Apr 2023 04:04:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52DAB647C7;
-        Thu, 20 Apr 2023 11:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11CEFC4339B;
-        Thu, 20 Apr 2023 11:03:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E5D9647CD;
+        Thu, 20 Apr 2023 11:03:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3B58C433EF;
+        Thu, 20 Apr 2023 11:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681988609;
-        bh=uK35DXXbqaB+kOQBB45RdJHPlNvqSa2wIBInCt6wZsU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=OjbqFRrLCA/qj8CgM5hSMt0hvC+LDliRCbC9uIht4yLpRPikSSOLqdQra1hoxproY
-         kJO4Qg1o/UikyvZbrCsnWA7t8oKspg7hRFkuipcFiWZehmHe8zQIw9gHXw7Lb+fu47
-         qoFZBlgeArSceIR6q0xgW6YcMKkHf4WIDMj7kLWBkuVfK0hqLd/zc7vX09oLzM+sBA
-         nJs8yWRXVa1+ierX/YQAAXE3/mZkRNtEtcPrY+pFIGKAiNaw8CW+bwHu6qqFaBd1o3
-         XXAbpusd1oDCyvofqfwJNtCvRoPU3jKsPKB2ltmgnRXT2Zi1Wm3kc4fn8PG0DI23hZ
-         +VCUQ+OR1JQ+Q==
+        s=k20201202; t=1681988612;
+        bh=NZrnd8QS9D7YxLacsJYmOPmK2ytxRfYPCgRmL+pnBik=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BPkd7qxcY/+BMgd3Myt8m284Agj0tSZJ33KrcZ6CCL4xCKNlDvfHPZMGqSrkN/jpO
+         o0nD9I8f/FB6ANIltnIJUDynKRbQZXsviRlU/PRY1/UfGO6JLl/oBq/k/xrzua+PKK
+         uxsjK7Lb77JPyPwzFDIYOaGA9TaxdJtwGKuM+TMBC+ja9fWMCWdA7cM6aps5OXH6aX
+         tWL6fXL4hHro+x249UAjJTE+Aq3+ozxZYmQlPpc6c2sRXZaH1VaInDvKWm2IiCRmAP
+         jraN8bEIakaeLDltFIxuGv5T3nhZVUYDvcXOzik57g5FbEm3OvT7iTdmOxAyBdF8xZ
+         KgXCD6b9jBD8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugene Huang <eugene.huang99@gmail.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, ranjani.sridharan@linux.intel.com,
-        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        gongjun.song@intel.com, shumingf@realtek.com, yong.zhi@intel.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 1/3] ASOC: Intel: sof_sdw: add quirk for Intel 'Rooks County' NUC M15
-Date:   Thu, 20 Apr 2023 07:03:22 -0400
-Message-Id: <20230420110326.506279-1-sashal@kernel.org>
+Cc:     =?UTF-8?q?Patrik=20Dahlstr=C3=B6m?= <risca@dalakolonin.se>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 2/3] iio: adc: palmas_gpadc: fix NULL dereference on rmmod
+Date:   Thu, 20 Apr 2023 07:03:23 -0400
+Message-Id: <20230420110326.506279-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230420110326.506279-1-sashal@kernel.org>
+References: <20230420110326.506279-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -62,47 +58,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Huang <eugene.huang99@gmail.com>
+From: Patrik Dahlström <risca@dalakolonin.se>
 
-[ Upstream commit 3c728b1bc5b99c5275ac5c7788ef814c0e51ef54 ]
+[ Upstream commit 49f76c499d38bf67803438eee88c8300d0f6ce09 ]
 
-Same quirks as the 'Bishop County' NUC M15, except the rt711 is in the
-'JD2 100K' jack detection mode.
+Calling dev_to_iio_dev() on a platform device pointer is undefined and
+will make adc NULL.
 
-Link: https://github.com/thesofproject/linux/issues/4088
-Signed-off-by: Eugene Huang <eugene.huang99@gmail.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20230314090553.498664-2-yung-chuan.liao@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Patrik Dahlström <risca@dalakolonin.se>
+Link: https://lore.kernel.org/r/20230313205029.1881745-1-risca@dalakolonin.se
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/iio/adc/palmas_gpadc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index f5d8f7951cfc3..eb713e9c2bd22 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -175,6 +175,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_SDW_PCH_DMIC |
- 					SOF_RT711_JD_SRC_JD2),
- 	},
-+	{
-+		/* NUC15 'Rooks County' LAPRC510 and LAPRC710 skews */
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel(R) Client Systems"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LAPRC"),
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					SOF_SDW_PCH_DMIC |
-+					RT711_JD2_100K),
-+	},
- 	/* TigerLake-SDCA devices */
- 	{
- 		.callback = sof_sdw_quirk_cb,
+diff --git a/drivers/iio/adc/palmas_gpadc.c b/drivers/iio/adc/palmas_gpadc.c
+index f4756671cddb6..6ed0d151ad21a 100644
+--- a/drivers/iio/adc/palmas_gpadc.c
++++ b/drivers/iio/adc/palmas_gpadc.c
+@@ -628,7 +628,7 @@ static int palmas_gpadc_probe(struct platform_device *pdev)
+ 
+ static int palmas_gpadc_remove(struct platform_device *pdev)
+ {
+-	struct iio_dev *indio_dev = dev_to_iio_dev(&pdev->dev);
++	struct iio_dev *indio_dev = dev_get_drvdata(&pdev->dev);
+ 	struct palmas_gpadc *adc = iio_priv(indio_dev);
+ 
+ 	if (adc->wakeup1_enable || adc->wakeup2_enable)
 -- 
 2.39.2
 
