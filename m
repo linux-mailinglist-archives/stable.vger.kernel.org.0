@@ -2,54 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D45B86EAEA7
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 18:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6C26EAECB
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 18:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232735AbjDUQEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 12:04:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54598 "EHLO
+        id S232630AbjDUQJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 12:09:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232591AbjDUQEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 12:04:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527B1D32A;
-        Fri, 21 Apr 2023 09:04:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE837619FD;
-        Fri, 21 Apr 2023 16:04:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 414FFC433D2;
-        Fri, 21 Apr 2023 16:04:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1682093046;
-        bh=XKlPr6uDvxCV6++QaXDCvxgmIhxfSV6g1aBX1EDd6/E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YvOY8ukU7+89A+/bW+xfR21Kl2zYpreIqu7qiwMDDw3oP3guG1sgT4M4ee/cPip2V
-         bVmW+VAswwC5z2Tpo/QrUcc94O/lM9rs7HsK5WX4AEfIpJWzG8o8zs4OFg9v379omw
-         0GNTrq8WF7O991DEV5vXmnLqjgmR2Y5KHgd+MAPG0/CM7qtZNKHPpJpDXrfVuGQA9r
-         EiOrlGeh1s8ljzG5pAY0oJRc+QjqtXcmeMZ147lcMcO15CZrMVSHC6edPyYwDjv8tO
-         rzp5ozZ29BJN9derrw+IuZWJa8aA02dB+ccKn5yRzqqCaG/Mo3HjSQmAWEVM4/YHiZ
-         JrAJYWp0s5Q1g==
-From:   broonie@kernel.org
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-arm-kernel@lists.infradead.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Next Mailing List <linux-next@vger.kernel.org>
-Subject: linux-next: build failure after merge of the tip tree
-Date:   Fri, 21 Apr 2023 17:03:53 +0100
-Message-Id: <20230421160353.106874-1-broonie@kernel.org>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S232950AbjDUQJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 12:09:51 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF4C14444
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 09:09:49 -0700 (PDT)
+Date:   Fri, 21 Apr 2023 18:09:47 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1682093388;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ViNQP6CsrTcmgIE0qeBt0ai+rJeTUoRrSX8qSVMo9Fo=;
+        b=t/Km1koCRuEPSHIZ0M2kyZ0z8Op3/09aohaWj/8fNWtBMy46IFxE6OSLH3epiWwCQ+Euhr
+        fwA/2uJnGCcDhTo9qoiwY0qnaKHdTS69daxBsxxQNcXmRYb3bZ3ieJP8xSYjlK9x5aKz6C
+        jcqcEB8JJzd4S5geyeSG91il8Mk6U/xj7uTBC2KbkygZ68XZ1Zpm8soTrCgMpuaRiOviSB
+        C2GgCCxV12C2VBLbxv5JBrDpPPgHzL8t70TDYMeiDF4tS5DQ5irXCRgYfhunWk10uEdK8Q
+        6E1e12azbkwxpOQRVlALDJ4WCynfuSjgZLKSQpaqb3IPjAW7LOuvxUBLTJC9ew==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1682093388;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ViNQP6CsrTcmgIE0qeBt0ai+rJeTUoRrSX8qSVMo9Fo=;
+        b=/m6tIWRiUGueJJ/p4L9R01LQe2ivTsBRcq/UfU2AzfMkceIH5gcG2JkgUG5T5XWBPG04+W
+        ZUm91pmSYCn8saAw==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH] rtmutex: Add acquire semantics for rtmutex lock
+ acquisition slow path
+Message-ID: <20230421160947.Sh0eyEWC@linutronix.de>
+References: <20230418154315.9PD52J2N@linutronix.de>
+ <2023041854-cranium-prone-b9fa@gregkh>
+ <20230419072546.gD_YO2-K@linutronix.de>
+ <87pm7x3d8b.ffs@tglx>
+ <ZEKFWx_68PX3pk3g@kroah.com>
+ <87ildp2qy7.ffs@tglx>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <87ildp2qy7.ffs@tglx>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,25 +62,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi all,
+On 2023-04-21 17:30:24 [+0200], Thomas Gleixner wrote:
+> >> > The out-of-tree RT patches make extensive use of the code. Since it is
+> >> > upstream code, I assumed it should go via the official stable trees.
+> >> > Without RT, the code is limited the rt_mutex_lock() used by I2C and the
+> >> > RCU booster-mutex.
+> >> 
+> >> Which is a reason to route it through the upstream stable trees, no?
+> >
+> > I do not understand.  Why would we take a patch in the stable tree
+> > because an out-of-tree change requires it?
+> 
+> The change is to the rtmutex core which _IS_ used in tree by futex, RCU
+> and some drivers.
 
-After merging the tip tree, today's linux-next build (arm
-multi_v7_defconfig) failed like this:
+not back stab but to clarify: futex does not use the annotation (it does
+not use the fastpath) but RCU-boosting _and_ I2C-bus code does use it.
 
-/tmp/next/build/kernel/time/posix-cpu-timers.c: In function 'posix_cpu_timer_wait_running_nsleep':
-/tmp/next/build/kernel/time/posix-cpu-timers.c:1310:30: error: 'timr' is a pointer; did you mean to use '->'?
- 1310 |         spin_unlock_irq(&timr.it_lock);
-      |                              ^
-      |                              ->
-/tmp/next/build/kernel/time/posix-cpu-timers.c:1312:28: error: 'timr' is a pointer; did you mean to use '->'?
- 1312 |         spin_lock_irq(&timr.it_lock);
-      |                            ^
-      |                            ->
+So both mainline users users of the rtmutex code are affected.
 
+> Just because the problem was observed on RT it does not make the
+> mainline usage of RTMUTEXes magically unaffected. The missing acquire
+> semantics are required there too.
+> 
+> Thanks,
+> 
+>         tglx
 
-Caused by commit
-
-  2aaae4bf41b101f7e ("posix-cpu-timers: Implement the missing timer_wait_running callback")
-
-The !POSIX_CPU_TIMERS_TASK_WORK case wasn't fully updated.  I've used
-the version of the tip tree from next-20230420 instead.
+Sebastian
