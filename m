@@ -2,83 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2BE6EB1CA
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 20:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A252D6EAA83
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 14:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232592AbjDUSnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 14:43:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
+        id S232012AbjDUMjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 08:39:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233372AbjDUSmz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 14:42:55 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 138982728
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 11:42:53 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id ca18e2360f4ac-7606e2d0376so213376039f.3
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 11:42:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1682102572; x=1684694572;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=QGmpVDlM7szKPAXBXr0QOtmzbtyw9J0tZvTkPv2CLvY=;
-        b=Iqd+gRMXC8bIX/PnDbdUnywKo9Baed3b7i7SrvbMxaJ8isr0Drob0XeYPnn6fRpnjx
-         lFgVwRKjbnx5Qn08D60ETTUwj8eeEOnu7enlsx3/AB1/hPtgnrEB4kIoN0M7ahcBhVQh
-         FIGDtiHcKoMohGNNcAUt9zXQhZKaUAucA8Kz0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682102572; x=1684694572;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=QGmpVDlM7szKPAXBXr0QOtmzbtyw9J0tZvTkPv2CLvY=;
-        b=IO5/AxxEMSigaTlJ7xV5oZEPNgwlEjEJfxFhmaQQAale2uL7MYIgvueHlFfZI3ap7w
-         /cX2tzoPFlQZH/yfqUcK3SD8mnl9dqptuef57ofYRgRgwyxzTD4gWYvu4ZzwKinud2gg
-         NqT67A8TZ8CNHEE5FH4swYcTFAIo1u9u93p9xrJwP1VLUswxWtzPgDHMDO0kPBnW1/1g
-         wmU8rrhcHUa/YRgk1Z9+VL+U3qvOQgDJAwQpVNQLakjPP2n/gneLn7VfE8J9CplXl4u/
-         vGzAxZlc2uVVclmW1Xv0YhBPtImfHIuAOQckkcQXV6teeNVLLBZjMT4kgctOiBi/Qy3W
-         optw==
-X-Gm-Message-State: AAQBX9dgndhia26kvxAtQyuQy/aK5japwcvrDt0ZEGjUGARsOJgxHiKG
-        ViifNBjoQLIGKAsZtubOAS8z0iF/fViWtXjLi94=
-X-Google-Smtp-Source: AKy350YocU+4MXJDH09PteCY46AW8J8CSCMx1Q4upKddyigRY7hAmDGOdYGCKWyMbAC46QipJ27lxg==
-X-Received: by 2002:a92:c992:0:b0:328:adff:570a with SMTP id y18-20020a92c992000000b00328adff570amr5749376iln.3.1682102572195;
-        Fri, 21 Apr 2023 11:42:52 -0700 (PDT)
-Received: from markhas1.lan (71-218-48-220.hlrn.qwest.net. [71.218.48.220])
-        by smtp.gmail.com with ESMTPSA id k32-20020a056638372000b0040da046d6fasm1444249jav.146.2023.04.21.11.42.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Apr 2023 11:42:51 -0700 (PDT)
-From:   Mark Hasemeyer <markhas@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     bhelgaas@google.com, kai.heng.feng@canonical.com
-Subject: [PATCH] PCI:ASPM: Remove pcie_aspm_pm_state_change()
-Date:   Fri, 21 Apr 2023 12:42:30 -0600
-Message-ID: <20230421184230.1468609-1-markhas@chromium.org>
-X-Mailer: git-send-email 2.40.0.634.g4ca3ef3211-goog
+        with ESMTP id S232066AbjDUMjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 08:39:04 -0400
+Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 072F1B74F
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 05:38:58 -0700 (PDT)
+X-ASG-Debug-ID: 1682080734-1eb14e6388386f0002-OJig3u
+Received: from ZXSHMBX1.zhaoxin.com (ZXSHMBX1.zhaoxin.com [10.28.252.163]) by mx2.zhaoxin.com with ESMTP id 4mOIhBGDnUpGCazL (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Fri, 21 Apr 2023 20:38:55 +0800 (CST)
+X-Barracuda-Envelope-From: WeitaoWang-oc@zhaoxin.com
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
+Received: from zxbjmbx1.zhaoxin.com (10.29.252.163) by ZXSHMBX1.zhaoxin.com
+ (10.28.252.163) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.16; Fri, 21 Apr
+ 2023 20:38:54 +0800
+Received: from L440.zhaoxin.com (10.29.8.21) by zxbjmbx1.zhaoxin.com
+ (10.29.252.163) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.16; Fri, 21 Apr
+ 2023 20:38:54 +0800
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
+From:   Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.163
+To:     <gregkh@linuxfoundation.org>, <mathias.nyman@intel.com>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <tonywwang@zhaoxin.com>, <weitaowang@zhaoxin.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2 1/4] xhci: Add some quirks for zhaoxin xhci to fix issues
+Date:   Sat, 22 Apr 2023 04:38:50 +0800
+X-ASG-Orig-Subj: [PATCH v2 1/4] xhci: Add some quirks for zhaoxin xhci to fix issues
+Message-ID: <20230421203853.387210-2-WeitaoWang-oc@zhaoxin.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20230421203853.387210-1-WeitaoWang-oc@zhaoxin.com>
+References: <20230421203853.387210-1-WeitaoWang-oc@zhaoxin.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.29.8.21]
+X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
+ zxbjmbx1.zhaoxin.com (10.29.252.163)
+X-Barracuda-Connect: ZXSHMBX1.zhaoxin.com[10.28.252.163]
+X-Barracuda-Start-Time: 1682080734
+X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
+X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
+X-Virus-Scanned: by bsmtpd at zhaoxin.com
+X-Barracuda-Scan-Msg-Size: 2170
+X-Barracuda-BRTS-Status: 1
+X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
+X-Barracuda-Spam-Score: 1.09
+X-Barracuda-Spam-Status: No, SCORE=1.09 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=DATE_IN_FUTURE_06_12, DATE_IN_FUTURE_06_12_2
+X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.107724
+        Rule breakdown below
+         pts rule name              description
+        ---- ---------------------- --------------------------------------------------
+        0.01 DATE_IN_FUTURE_06_12   Date: is 6 to 12 hours after Received: date
+        3.10 DATE_IN_FUTURE_06_12_2 DATE_IN_FUTURE_06_12_2
+X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_00,DATE_IN_FUTURE_06_12,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 08d0cc5f34265d1a1e3031f319f594bd1970976c upstream.
+Add a quirk XHCI_ZHAOXIN_HOST for zhaoxin xhci to fix issues,
+there are two cases will be used.
+- add u1/u2 support.
+- fix xHCI root hub speed show issue in zhaoxin platform.
 
-This change is desired because without it, it has been observed that
-re-applying aspm settings can cause the system to crash with certain pci
-devices (ie. Genesys GL9755).
+Add a quirk XHCI_ZHAOXIN_TRB_FETCH to fix TRB prefetch issue.
 
-Tested by issuing 100 suspend/resume cycles on a symptomatic system running
-5.15.107.
+On Zhaoxin ZX-100 project, xHCI can't work normally after resume
+from system Sx state. To fix this issue, when resume from system
+sx state, reinitialize xHCI instead of restore.
+So, Add XHCI_RESET_ON_RESUME quirk for zx-100 to fix issue of
+resuming from system sx state.
 
-L1 settings looked identical before and after:
-```
-localhost ~ # lspci -vvv -d 0x17a0: | grep L1Sub
-                L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
-                L1SubCtl1: PCI-PM_L1.2- PCI-PM_L1.1+ ASPM_L1.2- ASPM_L1.1+
-                L1SubCtl2: T_PwrOn=3100us
-```
+Cc: stable@vger.kernel.org
+Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+---
+v1->v2
+ - Add more quirks of xhci for zhaoxin.
 
-Cc: <stable@vger.kernel.org> # 5.15.y
+ drivers/usb/host/xhci-pci.c | 11 +++++++++++
+ drivers/usb/host/xhci.h     |  2 ++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 6db07ca419c3..53b7d8a1ed0a 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -334,6 +334,17 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
+ 		xhci->quirks |= XHCI_NO_SOFT_RETRY;
+ 
++	if (pdev->vendor == PCI_VENDOR_ID_ZHAOXIN) {
++		xhci->quirks |= XHCI_LPM_SUPPORT;
++		xhci->quirks |= XHCI_ZHAOXIN_HOST;
++		if (pdev->device == 0x9202) {
++			xhci->quirks |= XHCI_RESET_ON_RESUME;
++			xhci->quirks |= XHCI_ZHAOXIN_TRB_FETCH;
++		}
++		if (pdev->device == 0x9203)
++			xhci->quirks |= XHCI_ZHAOXIN_TRB_FETCH;
++	}
++
+ 	/* xHC spec requires PCI devices to support D3hot and D3cold */
+ 	if (xhci->hci_version >= 0x120)
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 786002bb35db..8f8f0e91b0dc 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1905,6 +1905,8 @@ struct xhci_hcd {
+ #define XHCI_EP_CTX_BROKEN_DCS	BIT_ULL(42)
+ #define XHCI_SUSPEND_RESUME_CLKS	BIT_ULL(43)
+ #define XHCI_RESET_TO_DEFAULT	BIT_ULL(44)
++#define XHCI_ZHAOXIN_HOST	BIT_ULL(45)
++#define XHCI_ZHAOXIN_TRB_FETCH	BIT_ULL(46)
+ 
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
+-- 
+2.32.0
+
