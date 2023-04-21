@@ -2,137 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D39896EB496
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B5646EB49C
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233640AbjDUWSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 18:18:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56476 "EHLO
+        id S232286AbjDUWVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 18:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233523AbjDUWSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:18:42 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4783E9C;
-        Fri, 21 Apr 2023 15:18:40 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-94f109b1808so371781866b.1;
-        Fri, 21 Apr 2023 15:18:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682115519; x=1684707519;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=MEnCPg1EFSOasyZ2aQqOsmZFBO94tsOHO08kL7eK93E=;
-        b=b4FqO+JggWqnbHc1FJY56EO5LhLJQl3EN4Nfzi55AhLahmYvTKax3l09eGHuY2Hstt
-         2MRFQPuSJzLIqLdLFEMfCtXkuQM2uV2VM3riraCJtFr1B3nOimVIeCYZQ0CUKG9Afa+J
-         8MjcG72nD0d3yrA5IZy6U7URN2SfZZx9bUFv940fW54W352GdNpjvN6B8Cb9wMm0ON9C
-         JmJi0c/RCSDiRYeKI7ol3z8PNXuIM/aG8JTZiNRhYEnlqedV0YWbtB3HhllyTPjGykww
-         EKDtfiytvafVoBZF0XsD43+Ne9pBnB1LI78gxIV/ItThrMBGKx43/jzF1IVR1l7wk/se
-         w+UA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682115519; x=1684707519;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:sender:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MEnCPg1EFSOasyZ2aQqOsmZFBO94tsOHO08kL7eK93E=;
-        b=aUSSthycCxksJjAiP017/hfPmbqKyJCkeFH742F5QcV7VywoVBqQdQNwPYSJpB6GYs
-         StLd296djMgGx7LV/QbaoZOkod+lzaJGE2pYEnpCFUv7NdQgs0ltbUkxWmk+S16vSGD4
-         9U707IyT7YguJ9c0YJZVRFIiKSc1kNVI5prN70M5IdEhzWj3Q4E0b79Zl5d/tonYwyct
-         nfEvB2U0gLM1LQKpbXFaMn+1HpOvtLC2QpkyfAXtnKBcmCUyq5+m/zxvc85EEWkseNQM
-         aTfTzLZSz3PeJfgFnq8Fvpw6SO3wRMMLcN2msETAy60/P7D4icS3QU77pgToJoDXrqsp
-         uE8g==
-X-Gm-Message-State: AAQBX9dIrFi2OyhU5Jm5cY78TACCdmH9D8CwE1ZGmmhoS0IKRaRh3pWJ
-        nQL0ivm/F6M35S/3ewTwnsk=
-X-Google-Smtp-Source: AKy350aTnGNi+48nikoYbsQNtqheZwrv0gOWvCFN4rRl31/ubfbpj+6JJsD9ukwHUBz1N4l4UY4aEA==
-X-Received: by 2002:a17:906:90c8:b0:92b:e1ff:be30 with SMTP id v8-20020a17090690c800b0092be1ffbe30mr3111949ejw.4.1682115518696;
-        Fri, 21 Apr 2023 15:18:38 -0700 (PDT)
-Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
-        by smtp.gmail.com with ESMTPSA id va2-20020a17090711c200b0093a0e5977e2sm2569188ejb.225.2023.04.21.15.18.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Apr 2023 15:18:37 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-        id 198F2BE2DE0; Sat, 22 Apr 2023 00:18:37 +0200 (CEST)
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH v2 stable-5.10.y stable-5.15.y] docs: futex: Fix kernel-doc references after code split-up preparation
-Date:   Sat, 22 Apr 2023 00:17:42 +0200
-Message-Id: <20230421221741.1827866-1-carnil@debian.org>
-X-Mailer: git-send-email 2.40.0
+        with ESMTP id S229543AbjDUWVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:21:48 -0400
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3D29C
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:21:46 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 70FE33200B52;
+        Fri, 21 Apr 2023 18:21:43 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Fri, 21 Apr 2023 18:21:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+        :cc:content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to; s=fm2; t=1682115703; x=1682202103; bh=aNaKZWZqcP
+        1mgR737J1C1Uhoipi+ssCjzHB/2HrpYa8=; b=ctcAwwQu/wQB1V7WepIj4l9pEo
+        JuDb10j2pbFgaXGZLt/HqZCJc1dixfchBYlpJhxRriNxC9smunzMCjUhHpA54V9R
+        64zEVWTIseZXp2XA7ER1yv9JmybKV/CHSYNZnTbqgM+r2FffqwWb6i0tmCueXfeA
+        bk3Nq9lreqDGm3tnoWi7J240/Wzpqn7zwNqkogz5oVzFHwVhFU2+W7nqwWoUZtOR
+        YRbHDGgfxk6Sog1I/MPF0onyj+pBj4IbR+C8eL5Cd7eHlXJBOLdxijZZD4RkrfXU
+        c98H0qXMSKmhrXFymmjlssh7rS52NCV92p0sbSxPSMYtMCcBMigIJidmmfjQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:date:date:feedback-id:feedback-id:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; t=1682115703; x=1682202103; bh=aNaKZWZqcP1mg
+        R737J1C1Uhoipi+ssCjzHB/2HrpYa8=; b=JWRAWVxQ2Z7N/v+8YVXEtH8AcQe2Z
+        C6nqL6WwhkhgXvfqlg/damCYkSfBoY14XPPXcT2yBIkPZxw7lnNN/xuWQJ6OzMCv
+        YoOtEoT+UjtiPh5iBI5krQkbjV+vY9BSxWHuQR8ky9M7RMN/2zx/xx4xyFrrYkb1
+        5rg83JKdepdgZ9DrWxgVJAQ7/AYI0RYTo+wwDPFIvmmKqzIZ25tYMQtLQcOuPHes
+        oRnusZg/YqkW+nau4dXxv3Ln4/OHLljU+2lFdRPpzoajTtVh3gFV22AJEz8DLudq
+        HLl5eeotRDLxe/BwZUGoJuv5bzVx3SC9+dIviwC9HSotO4tnB9oGp1ldg==
+X-ME-Sender: <xms:dgxDZIIi2UABL1vycobwQq371IpJaEI3HGAx6C51E7nNwRGM-RUfOw>
+    <xme:dgxDZIKZQoVFt8nIw0rKzMIQoI1pOT-NN5TKNb_emR4UXXonmB6Wv5T3kKt5MkaIV
+    W6l04mG4pWBLsIFMg>
+X-ME-Received: <xmr:dgxDZIuAfsqLtP7ga4_wDd5s_JB5It0PgNjy2Dwtv31TbhxI8qimy63o3gHwfdsKwkQkak52IfrDTG1Vy4jWcvs4OFsogSc90A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedthedgtdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehlhihsshgr
+    ucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecuggftrfgrthhtvghrnhepheekgf
+    dtveettdekuddugeeugfdujeehuefgleegtedthfffudfhheduhfduuefhnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrg
+    drihhs
+X-ME-Proxy: <xmx:dgxDZFYJYS6geXhAtXegFjnGAk2CGtMDpf55ddLXfqMsanhaXg0OfA>
+    <xmx:dgxDZPYBQFlD9UWbGHvUWCyhMIHrZgVHvBBUhYUPG_2pi6xIBE0jEw>
+    <xmx:dgxDZBB2siVJcMeYVDU4x0D2CnotPn-OTEQ0HzhGEQEbkh2soCyS5Q>
+    <xmx:dwxDZOX5Een6TGvgkBc6F1A-zSAWh0IgsqJSvA3mLFOjXhnzngYMCg>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 21 Apr 2023 18:21:42 -0400 (EDT)
+Received: by x220.qyliss.net (Postfix, from userid 1000)
+        id 4F3533592; Fri, 21 Apr 2023 22:21:39 +0000 (UTC)
+From:   Alyssa Ross <hi@alyssa.is>
+To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+Cc:     Alyssa Ross <hi@alyssa.is>, Nick Cao <nickcao@nichi.co>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Conor.Dooley@microchip.com
+Subject: [PATCH RESEND 6.1.y,6.2.y] purgatory: fix disabling debug info
+Date:   Fri, 21 Apr 2023 22:20:56 +0000
+Message-Id: <20230421222056.1213099-1-hi@alyssa.is>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
-futex code from kernel/futex.c was moved into kernel/futex/core.c in
-preparation of the split-up of the implementation in various files.
+Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
+Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
+-Wa versions of both of those if building with Clang and GNU as.  As a
+result, debug info was being generated for the purgatory objects, even
+though the intention was that it not be.
 
-Point kernel-doc references to the new files as otherwise the
-documentation shows errors on build:
-
-    [...]
-    Error: Cannot open file ./kernel/futex.c
-    Error: Cannot open file ./kernel/futex.c
-    [...]
-    WARNING: kernel-doc './scripts/kernel-doc -rst -enable-lineno -sphinx-version 3.4.3 -internal ./kernel/futex.c' failed with return code 2
-
-There is no direct upstream commit for this change. It is made in
-analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
-references") applied as consequence of the restructuring of the futex
-code.
-
-Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Cc: stable@vger.kernel.org
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+(cherry picked from commit d83806c4c0cccc0d6d3c3581a11983a9c186a138)
 ---
-v1->v2:
- - Fix typo in description about new target file for futex.c code
- - Indent block with build log output
+ arch/riscv/purgatory/Makefile | 4 +---
+ arch/x86/purgatory/Makefile   | 3 +--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
- Documentation/kernel-hacking/locking.rst                    | 2 +-
- Documentation/translations/it_IT/kernel-hacking/locking.rst | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
+index dd58e1d99397..659e21862077 100644
+--- a/arch/riscv/purgatory/Makefile
++++ b/arch/riscv/purgatory/Makefile
+@@ -74,9 +74,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+ 
+-AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
++asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
+ 
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 17f09dc26381..82fec66d46d2 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ 
+-AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
++asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
+ 
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
 
-diff --git a/Documentation/kernel-hacking/locking.rst b/Documentation/kernel-hacking/locking.rst
-index 6ed806e6061b..a6d89efede79 100644
---- a/Documentation/kernel-hacking/locking.rst
-+++ b/Documentation/kernel-hacking/locking.rst
-@@ -1358,7 +1358,7 @@ Mutex API reference
- Futex API reference
- ===================
- 
--.. kernel-doc:: kernel/futex.c
-+.. kernel-doc:: kernel/futex/core.c
-    :internal:
- 
- Further reading
-diff --git a/Documentation/translations/it_IT/kernel-hacking/locking.rst b/Documentation/translations/it_IT/kernel-hacking/locking.rst
-index bf1acd6204ef..192ab8e28125 100644
---- a/Documentation/translations/it_IT/kernel-hacking/locking.rst
-+++ b/Documentation/translations/it_IT/kernel-hacking/locking.rst
-@@ -1400,7 +1400,7 @@ Riferimento per l'API dei Mutex
- Riferimento per l'API dei Futex
- ===============================
- 
--.. kernel-doc:: kernel/futex.c
-+.. kernel-doc:: kernel/futex/core.c
-    :internal:
- 
- Approfondimenti
+base-commit: cdc7aff9ed012801e62eedd99e4a5573eccac4db
 -- 
-2.40.0
+2.37.1
 
