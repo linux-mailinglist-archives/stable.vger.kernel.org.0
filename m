@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 489C16EAC25
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 15:59:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB916EAC29
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 16:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230248AbjDUN7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 09:59:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40482 "EHLO
+        id S230042AbjDUN7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 09:59:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232596AbjDUN7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 09:59:00 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBCF1BF5
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 06:58:58 -0700 (PDT)
+        with ESMTP id S232607AbjDUN7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 09:59:04 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2819C
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 06:59:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1682085539; x=1713621539;
+  t=1682085542; x=1713621542;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=IeRP5brmXrJ/qHqGp5c6mSGYHDExvn7ZiCuTJTLaXk0=;
-  b=pbsFnVwLe/ZdimBR2ajRmDwixNQkRI//mp0ht4JqtQVjXs7r9kBk3sxI
-   n8kc1ZDq6o6cawlxdn2Ri8MFRHVj67KdgYoq4qEJiIDrhsRAMGAXF1KCI
-   +xGxf9E6yYxh4MtFjyQC3rx0Xyi6NrnTG8CFw6pF38bBFOEbtzK4drVpN
-   Mkqf/Ez1xglK5EVKjAaP/xGUsECiAvlfT9BqaWXskA9d/CGerNDNYoNIe
-   mej1+xCmNKtj4C8RMPjdP0d2LrNJxrUkaGyxOUHFtKWlQYW/5xmdMO3W8
-   Q0JklTZXLbBV4gNVzR2O7dLJUFGXqjo0BkvhIjky/8oXv1UuCUOxQEkko
-   g==;
+  bh=iwPdPGtyXi+Lmp8PNlswmnwvTreB81pD477kVU0ht4Q=;
+  b=zL7yg//aH8JZuiaGs+kX16RR0O/N2PDNOHLwTJTPZYz5srR1S3JpCaqo
+   pCL9GgPqHmtdHZNdqdZLiNRBL9aCG6PdOjrimbOpcqbeLLOP6AYVaY3Ww
+   KYAJ/fmLKDb1jGUFy/ykx41z1xxo5TwcUY4sgfMSfwJ9NKz+VHgvK2HoQ
+   2f3V5jWOhYZrUcsx0/Og0E4WEiwMWs07owxRkQ1IWQzzVNQx6PDVxnDLi
+   OaDkuf1I/YgspkUEXO95gmfKtZ/SeaFw5hRZfhzW4V8xLF6sCj78XoUAX
+   AB5G1I4TG1ZPu5ialVEFS8TLgKj021jWCaMRlYI9tUuUg3d/L279GB3jV
+   A==;
 X-IronPort-AV: E=Sophos;i="5.99,214,1677567600"; 
-   d="scan'208";a="210133220"
+   d="scan'208";a="211663609"
 Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 21 Apr 2023 06:58:58 -0700
+  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 21 Apr 2023 06:59:01 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Fri, 21 Apr 2023 06:58:57 -0700
+ 15.1.2507.21; Fri, 21 Apr 2023 06:58:59 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2507.21 via Frontend
- Transport; Fri, 21 Apr 2023 06:58:55 -0700
+ Transport; Fri, 21 Apr 2023 06:58:57 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <stable@vger.kernel.org>
 CC:     <conor@kernel.org>, <conor.dooley@microchip.com>,
@@ -47,14 +47,14 @@ CC:     <conor@kernel.org>, <conor.dooley@microchip.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>,
         Yang Yingliang <yangyingliang@huawei.com>
-Subject: [PATCH 5.15 2/3] soc: sifive: l2_cache: fix missing free_irq() in error path in sifive_l2_init()
-Date:   Fri, 21 Apr 2023 14:58:17 +0100
-Message-ID: <20230421-dole-ignition-10fe81114811@wendy>
+Subject: [PATCH 5.15 3/3] soc: sifive: l2_cache: fix missing of_node_put() in sifive_l2_init()
+Date:   Fri, 21 Apr 2023 14:58:18 +0100
+Message-ID: <20230421-legibly-unbeaten-45bc950de85e@wendy>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230421-scam-karma-3de5bf7904b3@wendy>
 References: <20230421-scam-karma-3de5bf7904b3@wendy>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1284; i=conor.dooley@microchip.com; h=from:subject:message-id; bh=bSxywki0QH7dxAMrS4xJZCvvsAqjCjHPd3qWoQ4+Vm4=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDClO0yqcp079/P5W48u86Xp3Q9liD0/h/f3BLKCF88+XpAc8 xjNNO0pZGMQ4GGTFFFkSb/e1SK3/47LDuectzBxWJpAhDFycAjCRlqMMfyX39KkpPuXV28v3xy/cM/ 6g0w9pi032Ex2OH7HPm+f5cArDH26m07vsNI1uzfq8UzlmktICFiF10f8R9c0uisv2Mk24xAMA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1763; i=conor.dooley@microchip.com; h=from:subject:message-id; bh=cEpCplfBV8wFwxhrzywZfL+cTKvEcv4IgTDKx7wcl04=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDClO0yoLCs0tHn2U23KlWO7CyYbXXAUBi4yLY1/8+njt5rVn JSt2dZSyMIhxMMiKKbIk3u5rkVr/x2WHc89bmDmsTCBDGLg4BeAizxkZjk/vUXlr/0C5Zp96/EvFhX X7z/NZfMgNKXo0689Szz3Xixn+17/z3yt/5cbuBI+gEz33V5fYvZL1jz/1Y6dsSvI9VwEfXgA=
 X-Developer-Key: i=conor.dooley@microchip.com; a=openpgp; fpr=F9ECA03CF54F12CD01F1655722E2C55B37CF380C
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -70,43 +70,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 73e770f085023da327dc9ffeb6cd96b0bb22d97e upstream.
+commit 8fbf94fea0b4e187ca9100936c5429f96b8a4e44 upstream.
 
-Add missing free_irq() before return error from sifive_l2_init().
+The device_node pointer returned by of_find_matching_node() with
+refcount incremented, when finish using it, the refcount need be
+decreased.
 
 Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-[conor: ccache -> l2_cache]
+[conor: cache -> l2_cache]
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- drivers/soc/sifive/sifive_l2_cache.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/soc/sifive/sifive_l2_cache.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/soc/sifive/sifive_l2_cache.c b/drivers/soc/sifive/sifive_l2_cache.c
-index 483aeaf0d405..1248127009f6 100644
+index 1248127009f6..783158070490 100644
 --- a/drivers/soc/sifive/sifive_l2_cache.c
 +++ b/drivers/soc/sifive/sifive_l2_cache.c
-@@ -221,7 +221,7 @@ static int __init sifive_l2_init(void)
- 		rc = request_irq(g_irq[i], l2_int_handler, 0, "l2_ecc", NULL);
- 		if (rc) {
- 			pr_err("L2CACHE: Could not request IRQ %d\n", g_irq[i]);
--			goto err_unmap;
-+			goto err_free_irq;
+@@ -202,12 +202,16 @@ static int __init sifive_l2_init(void)
+ 	if (!np)
+ 		return -ENODEV;
+ 
+-	if (of_address_to_resource(np, 0, &res))
+-		return -ENODEV;
++	if (of_address_to_resource(np, 0, &res)) {
++		rc = -ENODEV;
++		goto err_node_put;
++	}
+ 
+ 	l2_base = ioremap(res.start, resource_size(&res));
+-	if (!l2_base)
+-		return -ENOMEM;
++	if (!l2_base) {
++		rc = -ENOMEM;
++		goto err_node_put;
++	}
+ 
+ 	intr_num = of_property_count_u32_elems(np, "interrupts");
+ 	if (!intr_num) {
+@@ -224,6 +228,7 @@ static int __init sifive_l2_init(void)
+ 			goto err_free_irq;
  		}
  	}
++	of_node_put(np);
  
-@@ -235,6 +235,9 @@ static int __init sifive_l2_init(void)
- #endif
- 	return 0;
+ 	l2_config_read();
  
-+err_free_irq:
-+	while (--i >= 0)
-+		free_irq(g_irq[i], NULL);
+@@ -240,6 +245,8 @@ static int __init sifive_l2_init(void)
+ 		free_irq(g_irq[i], NULL);
  err_unmap:
  	iounmap(l2_base);
++err_node_put:
++	of_node_put(np);
  	return rc;
+ }
+ device_initcall(sifive_l2_init);
 -- 
 2.39.2
 
