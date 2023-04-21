@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1835C6EB4AC
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C676EB514
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232120AbjDUW0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 18:26:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
+        id S233773AbjDUWmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 18:42:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229543AbjDUWZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:25:59 -0400
+        with ESMTP id S233763AbjDUWmb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:42:31 -0400
 Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 725D41BD7
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:25:58 -0700 (PDT)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id A8C3B3200AF6;
-        Fri, 21 Apr 2023 18:25:57 -0400 (EDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77AB81725
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:42:30 -0700 (PDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id A258E3200AB7;
+        Fri, 21 Apr 2023 18:33:52 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 21 Apr 2023 18:25:58 -0400
+  by compute2.internal (MEProxy); Fri, 21 Apr 2023 18:33:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
         :cc:content-transfer-encoding:content-type:date:date:from:from
         :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1682115957; x=1682202357; bh=Z0vFfCVn+b
-        oTFOrHz2PQ9uJfUr6+u7/+DnajHncB1Vo=; b=Y0DsA077gqjK3DlJiWgazlpCSU
-        oA5CCbSXHCdWlNR46PBPnQnwdMCnb/qNvZWXvoXPSKSg/WpfdCA0ruLonH5vOdVO
-        1F6zhn84qt5heWtUC/r4VEMs+jqJhS+cLkdbn7+X04XMtOTTojvODOfDAk8ukHtJ
-        UJk93QjN9v258BgDr3/X7VrtrH3NXBARst5UNtXLxZGz0ezlpaqgOvh40noM7h5M
-        KjQJD9ys4tjPEiToSx/XCzncG8Wk4dal5XPqP4BwVCxVk0EPz5qWxzpg/QRJMiG0
-        y97s4dRKpkgXtn8cRNvYEXsAlnDGTBBjFLMiC0/YwzWM3vrVTV43Ue358SJw==
+        :subject:to:to; s=fm2; t=1682116432; x=1682202832; bh=EPIxBjWukU
+        6SKb2BNCKjEgPXaYGqNdyR8YDlqlKxyKA=; b=jCZziuFTutgIZogPuGyDx8kB3K
+        IjF1FVgR3fJN4Rr0lyWUl1RZ2x+VOojxxyUXeQupyHMule77y5TpQkBzGvuq2nxo
+        38upF5tJ/dfbzeVCLd4GrSURtBAHInF7YhtZJiLVZGaKpnNrhS8Zuz6vypGNMtw8
+        FB8gOdXZ7NX6p/+my9eNiwkxmTUdLfvwzm6UHZf7G5R3FJ+3OpDowqw58OUawbsH
+        DXwRc9oA0b25IcA8VvFCqm8r2Nl12EQV748R1Y0899L1W+29F6deRP4FGHhqvxS8
+        J8HSECff5wcKyU4Z1kD1spcQzj3GWBOw+RcxVtpZ5GYdvCzyNR4/fQ1lM+vQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding
         :content-type:date:date:feedback-id:feedback-id:from:from
         :in-reply-to:message-id:mime-version:reply-to:sender:subject
         :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; t=1682115957; x=1682202357; bh=Z0vFfCVn+boTF
-        OrHz2PQ9uJfUr6+u7/+DnajHncB1Vo=; b=SQGbibEmZqiyRrJON2hVpB3sqkRCh
-        DPStr78voPK8kawzCjbWasAO1dnR50AE5lgUieCVZkaEIdFtPCMRmYJlKjMII8w9
-        pT9H/orHRvwaDvVXCrGeDdrcIQOfEXcSids3tb0wQwW+RzGNBfPVa/Ay42Tu/HaQ
-        nzvkTWAbNrWiGDjg97IK1Qq/+OMOM8kFQfJKTAtN772KWA3Q0F0Nmgkz1mSwZNf/
-        Q67hK2u5luqzyaXD3T4C/cwnLyXBKNUBZvRA7gH9iZ2DhJF1+TuAC0T/Ti14GXlV
-        vZiLSDrLYNoG3OT0LAAmakw8DFZ2gyOINTXNITeLdnRs0Zi3gszSVz1Vg==
-X-ME-Sender: <xms:dA1DZAXlFggQMcq4vywRqKb9h2m7I-A9YoY7_j3v60Eiqu88KMNmuw>
-    <xme:dA1DZEkdFMI7LlXscSUH8x9sf5vt6_NuF2gZDjKC82GjYPasU3TV_1FNGgWBfWPPS
-    eNoofJ6O0cAgTSp-Q>
-X-ME-Received: <xmr:dA1DZEZmjPmgZW_XMitP5xXe04wNpRhQpxxwMH4I9HS31Gb5fHamUcXgPOmPZj2wuq0Wp_K3Bq2OazQ6vDFeRP15HlBJa0e6AA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedthedguddtucetufdoteggodetrfdotf
+        :x-sasl-enc; s=fm3; t=1682116432; x=1682202832; bh=EPIxBjWukU6SK
+        b2BNCKjEgPXaYGqNdyR8YDlqlKxyKA=; b=Q4fzqVyGGm2l66/rTZNyb8M0NdFy5
+        rAzOTIYwW5ffBVFKMHaXVCkiYxr3Eo25TJg3aX6IZ2T5rhpT+xz0rf7fwNJ6+o/x
+        xCTLJKZPmDb5URmgd0O8AHa3vVf2ay9DLohMriQo3SqkxJwqXrcMVN+2KmZ4InSl
+        +PBCYispUiaRzwR4mZTEkKKprDoGhL+6awZBnTnohVtzI7iDoQg8HdtXZRDZO+Bb
+        dFeGHwde/qtgvNWMRcNdJ9vAzJIhafVl417OIXAHqAOkNmidK9CcTFvekQ4bA3e7
+        wJIGOrIChCACvFgcNSFrHjuf0GREE23pSWr/WDHICIJ+EA+vxuzz1SPYw==
+X-ME-Sender: <xms:Tw9DZNovVCWHFxOVSqrYvqzS92Ttu5Qc6Xdfco75o61XHVwwMSbs-g>
+    <xme:Tw9DZPpXxPjYoMbySsLQwRvg_v0Ucckfqmf8ApWonss73rDTgH5Jj5NzwD4JczUVh
+    sEEyGVLE7KmtmdpUw>
+X-ME-Received: <xmr:Tw9DZKNpfDA81uGfu7bMqYBVHz23HGHSKtkBVehAXc2X9RPKUMz7lDpxpGc19XSxpq6lNPruRdVPsRGgckmli8mG7AV4Ah4mMA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedthedgudduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehlhihsshgr
@@ -53,24 +53,24 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedthedguddtucetufdoteggod
     dtveettdekuddugeeugfdujeehuefgleegtedthfffudfhheduhfduuefhnecuvehluhhs
     thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrg
     drihhs
-X-ME-Proxy: <xmx:dQ1DZPXbFaZbyRuRg4ThGMB20KBAfx9ibLEcL6P4usmtyfsfoCd0kw>
-    <xmx:dQ1DZKmJDNOqvGPy_77_S6j2CcHbDRKDXS_Jry1zjtjYwWO3EBuC8g>
-    <xmx:dQ1DZEcPtxZLrL9HWypTppAzHWcbqXCRb8TK3WG35kBvlzAfFLr_2A>
-    <xmx:dQ1DZMh2AdT75_C0NZQgTdT7Ot_F6tAxcJ_0kexxoRu1wcZUNFv-Hg>
+X-ME-Proxy: <xmx:Tw9DZI7YCG3C0qkTZa_sUVjS-30UjSOu-Ba1qkXIKMtHWtjaepnz_A>
+    <xmx:Tw9DZM6Mf2I--D0G2xh6PosAB2HUmJ8wchb6aCE4kRnt98c3MZ6N_w>
+    <xmx:Tw9DZAiknnvxPtzMcRSo5EempFCFiMKS2h7rvXr2N-gJKFAPR3FK4Q>
+    <xmx:UA9DZKmCJAoBpQfapZJ_vG0PPJDTNKyj_5T4NGvT6y1HW049SWLp0g>
 Feedback-ID: i12284293:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 21 Apr 2023 18:25:56 -0400 (EDT)
+ 21 Apr 2023 18:33:51 -0400 (EDT)
 Received: by x220.qyliss.net (Postfix, from userid 1000)
-        id 6CAA13594; Fri, 21 Apr 2023 22:25:55 +0000 (UTC)
+        id 4E28B3596; Fri, 21 Apr 2023 22:33:50 +0000 (UTC)
 From:   Alyssa Ross <hi@alyssa.is>
 To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
 Cc:     Nick Cao <nickcao@nichi.co>,
         Masahiro Yamada <masahiroy@kernel.org>,
         Alyssa Ross <hi@alyssa.is>,
         Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.15.y] x86/purgatory: fix disabling debug info
-Date:   Fri, 21 Apr 2023 22:25:16 +0000
-Message-Id: <20230421222516.1216640-1-hi@alyssa.is>
+Subject: [PATCH 5.10.y] x86/purgatory: fix disabling debug info
+Date:   Fri, 21 Apr 2023 22:33:33 +0000
+Message-Id: <20230421223333.1229240-1-hi@alyssa.is>
 X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -86,14 +86,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is based on upstream commit
 d83806c4c0cc ("purgatory: fix disabling debug info"), but adapted to
-the linker flags used in 5.15.y.
+the linker flags used in 5.10.y.
 
-Since 0ee2f0567a56, the linker flags can contain -g instead of
+Since 3a260e9844c9, the linker flags can contain -g instead of
 -Wa,-gdwarf-2 (when using the LLVM assembler).  As a result, in that
 case, debug info was being generated for the purgatory objects, even
 though the intention was that it not be.
 
-Fixes: 0ee2f0567a56 ("Makefile.debug: re-enable debug info for .S files")
+Fixes: 3a260e9844c9 ("Makefile.debug: re-enable debug info for .S files")
 Signed-off-by: Alyssa Ross <hi@alyssa.is>
 Cc: stable@vger.kernel.org
 Cc: Nick Desaulniers <ndesaulniers@google.com>
