@@ -2,169 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F34506EAA81
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 14:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC406EB34B
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 23:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbjDUMjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 08:39:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
+        id S233395AbjDUVF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 17:05:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjDUMjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 08:39:04 -0400
-Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40B3CC3B
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 05:39:00 -0700 (PDT)
-X-ASG-Debug-ID: 1682080734-1eb14e6388386f0005-OJig3u
-Received: from ZXSHMBX1.zhaoxin.com (ZXSHMBX1.zhaoxin.com [10.28.252.163]) by mx2.zhaoxin.com with ESMTP id NYfORPVgddCDGJOK (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Fri, 21 Apr 2023 20:38:56 +0800 (CST)
-X-Barracuda-Envelope-From: WeitaoWang-oc@zhaoxin.com
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
-Received: from zxbjmbx1.zhaoxin.com (10.29.252.163) by ZXSHMBX1.zhaoxin.com
- (10.28.252.163) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.16; Fri, 21 Apr
- 2023 20:38:55 +0800
-Received: from L440.zhaoxin.com (10.29.8.21) by zxbjmbx1.zhaoxin.com
- (10.29.252.163) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.16; Fri, 21 Apr
- 2023 20:38:54 +0800
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
-From:   Weitao Wang <WeitaoWang-oc@zhaoxin.com>
-X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.163
-To:     <gregkh@linuxfoundation.org>, <mathias.nyman@intel.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <tonywwang@zhaoxin.com>, <weitaowang@zhaoxin.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2 4/4] xhci: Add zhaoxin xHCI U1/U2 feature support
-Date:   Sat, 22 Apr 2023 04:38:53 +0800
-X-ASG-Orig-Subj: [PATCH v2 4/4] xhci: Add zhaoxin xHCI U1/U2 feature support
-Message-ID: <20230421203853.387210-5-WeitaoWang-oc@zhaoxin.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20230421203853.387210-1-WeitaoWang-oc@zhaoxin.com>
-References: <20230421203853.387210-1-WeitaoWang-oc@zhaoxin.com>
+        with ESMTP id S232081AbjDUVF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 17:05:58 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 553FA2106;
+        Fri, 21 Apr 2023 14:05:51 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id a640c23a62f3a-956ff2399c9so285412566b.3;
+        Fri, 21 Apr 2023 14:05:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682111150; x=1684703150;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=BHJwicqGedpG3F45WxlpSv7ibTlnrQxRCpEjPy9k+UY=;
+        b=EiPNTj7FOsR9jYvy+BFpZTnvmGPO4T7ZLWayDyxqY16yij1n9HDhbp88L7y06tCI5b
+         nUd4P1R/bgRrFPMtRRI0HMglmnN3cPH2rFPbJJydzo8th11izdn/GyVshi500Y4aw6Kp
+         CywzdQpkjiiMexX7RzdouqPOKnfS99OvR+0SdR0QaIt3eHslE5BveF7ox9fBSn+pCZbP
+         afohXYrnB0Yw3Jp5sDDPUtMfoaaYsyEeqhTft61E30KTrTz1Q0RzGDqIitULtMHIJzGL
+         vEEMTvc5y8h/mfByQg3zcFZpRrnLE7H6rluQ+b2uuiURpDXVCIJvk1K5Ofpf0NDE2nZ5
+         xv1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682111150; x=1684703150;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BHJwicqGedpG3F45WxlpSv7ibTlnrQxRCpEjPy9k+UY=;
+        b=em1Ze3MEfhQkuLKcN8RALlcO/N3L/qIJYxs6FR4mDj0RSjj5ltT5cYUS6+5afC6z88
+         9ybdVvd1REsp3AbT/RjT3qaOYHUmhldewT4q+9AwUT6if0XkZ3KLgN5MndyDOKAklt8y
+         +4CnJODY14/3A9wqI//3kO6YAu5iVSKtNxljz9T1HdGPunlyEu+1CX4hE6Ds9YLCX/BV
+         e2pguUGURQKBYFylqzWNkFm1G9pfGcKMqu0imPIAh8qAG9WlIuIYq8mP2GfUaipJlCOp
+         kSO5HxiwvRNYexJUyyAVWw/5+AH/sJnztorqlAmG+CJv9F9Ys+v8dQpTBhvEEUw1o5Tz
+         uZYQ==
+X-Gm-Message-State: AAQBX9cjgJpdW6oHdf+W9O8ffn0d7K7EBfBT0Im7k1tdCoV7sulpTejF
+        TbOz8NnQc312feXBQH0Q+r+mIyoJ/Pxb2g==
+X-Google-Smtp-Source: AKy350anXib8Ph/A8pReLEBo7X/Uzp+usxKrbTsnYo4I6jmCBLdfVNd29+URbjAWOlmML79yWrzykQ==
+X-Received: by 2002:a17:906:e090:b0:94f:5a9:9fdb with SMTP id gh16-20020a170906e09000b0094f05a99fdbmr3415173ejb.67.1682111149740;
+        Fri, 21 Apr 2023 14:05:49 -0700 (PDT)
+Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
+        by smtp.gmail.com with ESMTPSA id lh21-20020a170906f8d500b0094eeab34ad5sm2460104ejb.124.2023.04.21.14.05.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Apr 2023 14:05:48 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Received: by eldamar.lan (Postfix, from userid 1000)
+        id 4F7C2BE2DE0; Fri, 21 Apr 2023 23:05:47 +0200 (CEST)
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
+        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: [PATCH] docs: futex: Fix kernel-doc references after code split-up preparation
+Date:   Fri, 21 Apr 2023 23:05:31 +0200
+Message-Id: <20230421210531.1816665-1-carnil@debian.org>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.29.8.21]
-X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
- zxbjmbx1.zhaoxin.com (10.29.252.163)
-X-Barracuda-Connect: ZXSHMBX1.zhaoxin.com[10.28.252.163]
-X-Barracuda-Start-Time: 1682080736
-X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
-X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
-X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 3160
-X-Barracuda-BRTS-Status: 1
-X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
-X-Barracuda-Spam-Score: 1.09
-X-Barracuda-Spam-Status: No, SCORE=1.09 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=DATE_IN_FUTURE_06_12, DATE_IN_FUTURE_06_12_2
-X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.107724
-        Rule breakdown below
-         pts rule name              description
-        ---- ---------------------- --------------------------------------------------
-        0.01 DATE_IN_FUTURE_06_12   Date: is 6 to 12 hours after Received: date
-        3.10 DATE_IN_FUTURE_06_12_2 DATE_IN_FUTURE_06_12_2
-X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_00,DATE_IN_FUTURE_06_12,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add U1/U2 feature support of xHCI for zhaoxin.
-Since both Intel and Zhaoxin need to check the tier where the device is
-located to determine whether to enabled U1/U2, remove the previous Intel
-U1/U2 tier policy and add common policy in xhci_check_tier_policy.
-If vendor has specific U1/U2 enable policy,quirks can be add to declare.
+In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
+futex code from kernel/futex.c was moved into kernel/futex/core in
+preparation of the split-up of the implementation in various files.
 
-Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+Point kernel-doc references to the new files as otherwise the
+documentation shows errors on build:
+
+[...]
+Error: Cannot open file ./kernel/futex.c
+Error: Cannot open file ./kernel/futex.c
+[...]
+WARNING: kernel-doc './scripts/kernel-doc -rst -enable-lineno -sphinx-version 3.4.3 -internal ./kernel/futex.c' failed with return code 2
+
+There is no direct upstream commit for this change. It is made in
+analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
+references") applied as consequence of the restructuring of the futex
+code.
+
+Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
 ---
- v1->v2
- - Modify the description.
- - Adjust U1/U2 tier enable policy.
+ Documentation/kernel-hacking/locking.rst                    | 2 +-
+ Documentation/translations/it_IT/kernel-hacking/locking.rst | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
- drivers/usb/host/xhci.c | 43 +++++++++++++++++------------------------
- 1 file changed, 18 insertions(+), 25 deletions(-)
-
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 31d6ace9cace..b81a69126188 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4802,7 +4802,7 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
- 		}
- 	}
+diff --git a/Documentation/kernel-hacking/locking.rst b/Documentation/kernel-hacking/locking.rst
+index 6ed806e6061b..a6d89efede79 100644
+--- a/Documentation/kernel-hacking/locking.rst
++++ b/Documentation/kernel-hacking/locking.rst
+@@ -1358,7 +1358,7 @@ Mutex API reference
+ Futex API reference
+ ===================
  
--	if (xhci->quirks & XHCI_INTEL_HOST)
-+	if (xhci->quirks & (XHCI_INTEL_HOST | XHCI_ZHAOXIN_HOST))
- 		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
- 	else
- 		timeout_ns = udev->u1_params.sel;
-@@ -4866,7 +4866,7 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
- 		}
- 	}
+-.. kernel-doc:: kernel/futex.c
++.. kernel-doc:: kernel/futex/core.c
+    :internal:
  
--	if (xhci->quirks & XHCI_INTEL_HOST)
-+	if (xhci->quirks & (XHCI_INTEL_HOST | XHCI_ZHAOXIN_HOST))
- 		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
- 	else
- 		timeout_ns = udev->u2_params.sel;
-@@ -4938,37 +4938,30 @@ static int xhci_update_timeout_for_interface(struct xhci_hcd *xhci,
- 	return 0;
- }
+ Further reading
+diff --git a/Documentation/translations/it_IT/kernel-hacking/locking.rst b/Documentation/translations/it_IT/kernel-hacking/locking.rst
+index bf1acd6204ef..192ab8e28125 100644
+--- a/Documentation/translations/it_IT/kernel-hacking/locking.rst
++++ b/Documentation/translations/it_IT/kernel-hacking/locking.rst
+@@ -1400,7 +1400,7 @@ Riferimento per l'API dei Mutex
+ Riferimento per l'API dei Futex
+ ===============================
  
--static int xhci_check_intel_tier_policy(struct usb_device *udev,
-+static int xhci_check_tier_policy(struct xhci_hcd *xhci,
-+		struct usb_device *udev,
- 		enum usb3_link_state state)
- {
--	struct usb_device *parent;
--	unsigned int num_hubs;
-+	struct usb_device *parent = udev->parent;
-+	int tier = 1; /* roothub is tier1 */
+-.. kernel-doc:: kernel/futex.c
++.. kernel-doc:: kernel/futex/core.c
+    :internal:
  
--	/* Don't enable U1 if the device is on a 2nd tier hub or lower. */
--	for (parent = udev->parent, num_hubs = 0; parent->parent;
--			parent = parent->parent)
--		num_hubs++;
-+	while (parent) {
-+		parent = parent->parent;
-+		tier++;
-+	}
- 
--	if (num_hubs < 2)
--		return 0;
-+	if (xhci->quirks & XHCI_INTEL_HOST && tier > 3)
-+		goto fail;
-+	if (xhci->quirks & XHCI_ZHAOXIN_HOST && tier > 2)
-+		goto fail;
- 
--	dev_dbg(&udev->dev, "Disabling U1/U2 link state for device"
--			" below second-tier hub.\n");
--	dev_dbg(&udev->dev, "Plug device into first-tier hub "
--			"to decrease power consumption.\n");
-+	return 0;
-+fail:
-+	dev_dbg(&udev->dev, "Tier policy prevents U1/U2 LPM states for devices at tier %d\n",
-+			tier);
- 	return -E2BIG;
- }
- 
--static int xhci_check_tier_policy(struct xhci_hcd *xhci,
--		struct usb_device *udev,
--		enum usb3_link_state state)
--{
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		return xhci_check_intel_tier_policy(udev, state);
--	else
--		return 0;
--}
--
- /* Returns the U1 or U2 timeout that should be enabled.
-  * If the tier check or timeout setting functions return with a non-zero exit
-  * code, that means the timeout value has been finalized and we shouldn't look
+ Approfondimenti
 -- 
-2.32.0
+2.40.0
 
