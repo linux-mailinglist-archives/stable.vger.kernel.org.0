@@ -2,80 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A83616EA588
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 10:05:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E1AE6EA6F2
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 11:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229900AbjDUIFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 04:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
+        id S231928AbjDUJ3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 05:29:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231681AbjDUIE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 04:04:58 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38869903B;
-        Fri, 21 Apr 2023 01:04:52 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S231148AbjDUJ3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 05:29:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496E29EE4
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 02:29:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 963E721A36;
-        Fri, 21 Apr 2023 08:04:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1682064290;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5StWWj+w1KUl4+HyVtWVGj32yDGQYLskTdzziZvHcn0=;
-        b=tBma7/5H8UACRRP4uhvJ1XFPn0cH5j87T3qGW5EBO+mjIS+UpgC6Kp9CbIvkuVFxcv3HmV
-        mpHfUxgxr0jYLovLDfdbyF2fd6WThEelBW3YH29mk338JQ93PhOwS/7vjbaOXtNMkUr/ay
-        TaVk9Jd3URPZ+G/Nd/RK5XnhqPwimCY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1682064290;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5StWWj+w1KUl4+HyVtWVGj32yDGQYLskTdzziZvHcn0=;
-        b=pGOhMt1TaBvJ2SFwx/cL7Fyxn0YXubuwyXUcqKRDAcHN9jWU1b/vMviKlXpPOJNcY8f2Gm
-        gzSYk5p9bYsSTACQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F09DB1390E;
-        Fri, 21 Apr 2023 08:04:49 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id FPpMOaFDQmQUJAAAMHmgww
-        (envelope-from <pvorel@suse.cz>); Fri, 21 Apr 2023 08:04:49 +0000
-Date:   Fri, 21 Apr 2023 10:04:55 +0200
-From:   Petr Vorel <pvorel@suse.cz>
-To:     Cyril Hrubis <chrubis@suse.cz>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        LTP List <ltp@lists.linux.it>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Yang Xu <xuyang2018.jy@fujitsu.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: Re: [PATCH 5.4 00/92] 5.4.241-rc1 review
-Message-ID: <20230421080455.GB2747101@pevik>
-Reply-To: Petr Vorel <pvorel@suse.cz>
-References: <20230418120304.658273364@linuxfoundation.org>
- <CA+G9fYuT3N0LFaJGzQW2SYPJxEbEWLONDZO2OfBbeHNrsowy2w@mail.gmail.com>
- <ZD+fDeWVOXklD01f@yuki>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZD+fDeWVOXklD01f@yuki>
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAEEE64F22
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 09:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26537C4339E;
+        Fri, 21 Apr 2023 09:29:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1682069341;
+        bh=ccGhLRs1icGLi7kQuPSgNhARIAKONq9YbCuDqqPeciU=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Zt6w60VmB2uV2fQUCeE9vt+wkrY4KdID+gCpPv6aqyiZXCraMGHBtgkU7RhfJYKi8
+         c5enoul3M5msaOBK0l97xlTQCZeK2d4fVvGQ7gw9sLMbaUy7RTidf2RaSMB358Wrn4
+         4CFlEZxae4afxuO1ou75sqiDq6nQmTUjl1lgnNtTdSj36hEp0Tyt+hLgpGLggWA4xH
+         G1OtCNSrpQsBvEfnsDKInFoVFw+9GUXI2RbNwUeBINPYT4UUcscX3iKtRnbP+cWo6W
+         ocF2lmSZD+OZRy/x1ZL8ER6aHLiM8nmHMnkHuNPcsO3AkqVzn8hxtRAhmLEMkds5bx
+         HWil/g7PgEsPg==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1ppn4d-00A7gl-3V;
+        Fri, 21 Apr 2023 10:28:59 +0100
+Date:   Fri, 21 Apr 2023 10:28:58 +0100
+Message-ID: <86r0sdk2hx.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Oliver Upton <oliver.upton@linux.dev>
+Cc:     kvmarm@lists.linux.dev, James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        David Matlack <dmatlack@google.com>,
+        Reiji Watanabe <reijiw@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] KVM: arm64: Infer the PA offset from IPA in stage-2 map walker
+In-Reply-To: <20230421071606.1603916-2-oliver.upton@linux.dev>
+References: <20230421071606.1603916-1-oliver.upton@linux.dev>
+        <20230421071606.1603916-2-oliver.upton@linux.dev>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: oliver.upton@linux.dev, kvmarm@lists.linux.dev, james.morse@arm.com, suzuki.poulose@arm.com, yuzenghui@huawei.com, dmatlack@google.com, reijiw@google.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -83,110 +70,231 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Hi!
-> > > This is the start of the stable review cycle for the 5.4.241 release.
-> > > There are 92 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
+On Fri, 21 Apr 2023 08:16:05 +0100,
+Oliver Upton <oliver.upton@linux.dev> wrote:
+>=20
+> Until now, the page table walker counted increments to the PA and IPA
+> of a walk in two separate places. While the PA is incremented as soon as
+> a leaf PTE is installed in stage2_map_walker_try_leaf(), the IPA is
+> actually bumped in the generic table walker context. Critically,
+> __kvm_pgtable_visit() rereads the PTE after the LEAF callback returns
+> to work out if a table or leaf was installed, and only bumps the IPA for
+> a leaf PTE.
+>=20
+> This arrangement worked fine when we handled faults behind the write lock,
+> as the walker had exclusive access to the stage-2 page tables. However,
+> commit 1577cb5823ce ("KVM: arm64: Handle stage-2 faults in parallel")
+> started handling all stage-2 faults behind the read lock, opening up a
+> race where a walker could increment the PA but not the IPA of a walk.
+> Nothing good ensues, as the walker starts mapping with the incorrect
+> IPA -> PA relationship.
+>=20
+> For example, assume that two vCPUs took a data abort on the same IPA.
+> One observes that dirty logging is disabled, and the other observed that
+> it is enabled:
+>=20
+>   vCPU attempting PMD mapping		  vCPU attempting PTE mapping
+>   =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D
+>   /* install PMD */
+>   stage2_make_pte(ctx, leaf);
+>   data->phys +=3D granule;
+>   					  /* replace PMD with a table */
+>   					  stage2_try_break_pte(ctx, data->mmu);
+> 					  stage2_make_pte(ctx, table);
+>   /* table is observed */
+>   ctx.old =3D READ_ONCE(*ptep);
+>   table =3D kvm_pte_table(ctx.old, level);
+>=20
+>   /*
+>    * map walk continues w/o incrementing
+>    * IPA.
+>    */
+>    __kvm_pgtable_walk(..., level + 1);
+>=20
+> Bring an end to the whole mess by using the IPA as the single source of
+> truth for how far along a walk has gotten. Work out the correct PA to
+> map by calculating the IPA offset from the beginning of the walk and add
+> that to the starting physical address.
+>=20
+> Cc: stable@vger.kernel.org
+> Fixes: 1577cb5823ce ("KVM: arm64: Handle stage-2 faults in parallel")
+> Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
+> ---
+>  arch/arm64/include/asm/kvm_pgtable.h |  1 +
+>  arch/arm64/kvm/hyp/pgtable.c         | 32 ++++++++++++++++++++++++----
+>  2 files changed, 29 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/arch/arm64/include/asm/kvm_pgtable.h b/arch/arm64/include/as=
+m/kvm_pgtable.h
+> index 4cd6762bda80..dc3c072e862f 100644
+> --- a/arch/arm64/include/asm/kvm_pgtable.h
+> +++ b/arch/arm64/include/asm/kvm_pgtable.h
+> @@ -209,6 +209,7 @@ struct kvm_pgtable_visit_ctx {
+>  	kvm_pte_t				old;
+>  	void					*arg;
+>  	struct kvm_pgtable_mm_ops		*mm_ops;
+> +	u64					start;
+>  	u64					addr;
+>  	u64					end;
+>  	u32					level;
+> diff --git a/arch/arm64/kvm/hyp/pgtable.c b/arch/arm64/kvm/hyp/pgtable.c
+> index 3d61bd3e591d..140f82300db5 100644
+> --- a/arch/arm64/kvm/hyp/pgtable.c
+> +++ b/arch/arm64/kvm/hyp/pgtable.c
+> @@ -58,6 +58,7 @@
+>  struct kvm_pgtable_walk_data {
+>  	struct kvm_pgtable_walker	*walker;
+> =20
+> +	u64				start;
+>  	u64				addr;
+>  	u64				end;
+>  };
+> @@ -201,6 +202,7 @@ static inline int __kvm_pgtable_visit(struct kvm_pgta=
+ble_walk_data *data,
+>  		.old	=3D READ_ONCE(*ptep),
+>  		.arg	=3D data->walker->arg,
+>  		.mm_ops	=3D mm_ops,
+> +		.start	=3D data->start,
+>  		.addr	=3D data->addr,
+>  		.end	=3D data->end,
+>  		.level	=3D level,
+> @@ -293,6 +295,7 @@ int kvm_pgtable_walk(struct kvm_pgtable *pgt, u64 add=
+r, u64 size,
+>  		     struct kvm_pgtable_walker *walker)
+>  {
+>  	struct kvm_pgtable_walk_data walk_data =3D {
+> +		.start	=3D ALIGN_DOWN(addr, PAGE_SIZE),
+>  		.addr	=3D ALIGN_DOWN(addr, PAGE_SIZE),
+>  		.end	=3D PAGE_ALIGN(walk_data.addr + size),
+>  		.walker	=3D walker,
+> @@ -794,20 +797,43 @@ static bool stage2_pte_executable(kvm_pte_t pte)
+>  	return !(pte & KVM_PTE_LEAF_ATTR_HI_S2_XN);
+>  }
+> =20
+> +static u64 stage2_map_walker_phys_addr(const struct kvm_pgtable_visit_ct=
+x *ctx,
+> +				       const struct stage2_map_data *data)
+> +{
+> +	u64 phys =3D data->phys;
+> +
+> +	/*
+> +	 * Stage-2 walks to update ownership data are communicated to the map
+> +	 * walker using an invalid PA. Avoid offsetting an already invalid PA,
+> +	 * which could overflow and make the address valid again.
+> +	 */
+> +	if (!kvm_phys_is_valid(phys))
+> +		return phys;
+> +
+> +	/*
+> +	 * Otherwise, work out the correct PA based on how far the walk has
+> +	 * gotten.
+> +	 */
+> +	return phys + (ctx->addr - ctx->start);
+> +}
+> +
+>  static bool stage2_leaf_mapping_allowed(const struct kvm_pgtable_visit_c=
+tx *ctx,
+>  					struct stage2_map_data *data)
+>  {
+> +	u64 phys =3D stage2_map_walker_phys_addr(ctx, data);
+> +
+>  	if (data->force_pte && (ctx->level < (KVM_PGTABLE_MAX_LEVELS - 1)))
+>  		return false;
+> =20
+> -	return kvm_block_mapping_supported(ctx, data->phys);
+> +	return kvm_block_mapping_supported(ctx, phys);
+>  }
+> =20
+>  static int stage2_map_walker_try_leaf(const struct kvm_pgtable_visit_ctx=
+ *ctx,
+>  				      struct stage2_map_data *data)
+>  {
+>  	kvm_pte_t new;
+> -	u64 granule =3D kvm_granule_size(ctx->level), phys =3D data->phys;
+> +	u64 phys =3D stage2_map_walker_phys_addr(ctx, data);
+> +	u64 granule =3D kvm_granule_size(ctx->level);
+>  	struct kvm_pgtable *pgt =3D data->mmu->pgt;
+>  	struct kvm_pgtable_mm_ops *mm_ops =3D ctx->mm_ops;
+> =20
+> @@ -841,8 +867,6 @@ static int stage2_map_walker_try_leaf(const struct kv=
+m_pgtable_visit_ctx *ctx,
+> =20
+>  	stage2_make_pte(ctx, new);
+> =20
+> -	if (kvm_phys_is_valid(phys))
+> -		data->phys +=3D granule;
+>  	return 0;
+>  }
+> =20
 
-> > > Responses should be made by Thu, 20 Apr 2023 12:02:44 +0000.
-> > > Anything received after that time might be too late.
+So my conclusion is that after these two patches, data->phys should
+never be updated, right? Then I'd suggest an additional patch to
+constify a couple of things and make sure we don't accidentally update
+them. Something like the patch below (compile-tested only).
 
-> > > The whole patch series can be found in one patch at:
-> > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.241-rc1.gz
-> > > or in the git tree and branch at:
-> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > > and the diffstat can be found below.
+Thanks,
 
-> > > thanks,
+	M.
 
-> > > greg k-h
+=46rom a2eb08ce793c1cf01c79df13a619815e9d7c1d41 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Fri, 21 Apr 2023 10:18:34 +0100
+Subject: [PATCH] KVM: arm64: Constify start/end/phys fields of the pgtable
+ walker data
 
+As we are revamping the way the pgtable walker evaluates some of the
+data, make it clear that we rely on somew of the fields to be constant
+across the lifetime of a walk.
 
-> > Recently we have upgraded the LTP test suite version and started noticing
-> > these test failures on 5.4.
-> > Test getting skipped on 4.19 and 4.14 as not supported features.
+For this, flag the start, end and pjys fields of the walk data as
+'const', which will generate an error if we were to accidentally
+update these fields again.
 
-> > Need to investigate test case issues or kernel issues.
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+ arch/arm64/kvm/hyp/pgtable.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+diff --git a/arch/arm64/kvm/hyp/pgtable.c b/arch/arm64/kvm/hyp/pgtable.c
+index 356a3fd5220c..5282cb9ca4cf 100644
+--- a/arch/arm64/kvm/hyp/pgtable.c
++++ b/arch/arm64/kvm/hyp/pgtable.c
+@@ -58,9 +58,9 @@
+ struct kvm_pgtable_walk_data {
+ 	struct kvm_pgtable_walker	*walker;
+=20
+-	u64				start;
++	const u64			start;
+ 	u64				addr;
+-	u64				end;
++	const u64			end;
+ };
+=20
+ static bool kvm_phys_is_valid(u64 phys)
+@@ -352,7 +352,7 @@ int kvm_pgtable_get_leaf(struct kvm_pgtable *pgt, u64 a=
+ddr,
+ }
+=20
+ struct hyp_map_data {
+-	u64				phys;
++	const u64			phys;
+ 	kvm_pte_t			attr;
+ };
+=20
+@@ -578,7 +578,7 @@ void kvm_pgtable_hyp_destroy(struct kvm_pgtable *pgt)
+ }
+=20
+ struct stage2_map_data {
+-	u64				phys;
++	const u64			phys;
+ 	kvm_pte_t			attr;
+ 	u8				owner_id;
+=20
+--=20
+2.34.1
 
-> > NOTE:
-
-> > ---
-> > creat09.c:73: TINFO: User nobody: uid = 65534, gid = 65534
-> > creat09.c:75: TINFO: Found unused GID 11: SUCCESS (0)
-> > creat09.c:120: TINFO: File created with umask(0)
-> > creat09.c:106: TPASS: mntpoint/testdir/creat.tmp: Owned by correct group
-> > creat09.c:112: TPASS: mntpoint/testdir/creat.tmp: Setgid bit not set
-> > creat09.c:106: TPASS: mntpoint/testdir/open.tmp: Owned by correct group
-> > creat09.c:112: TPASS: mntpoint/testdir/open.tmp: Setgid bit not set
-> > creat09.c:120: TINFO: File created with umask(S_IXGRP)
-> > creat09.c:106: TPASS: mntpoint/testdir/creat.tmp: Owned by correct group
-> > creat09.c:110: TFAIL: mntpoint/testdir/creat.tmp: Setgid bit is set
-> > creat09.c:106: TPASS: mntpoint/testdir/open.tmp: Owned by correct group
-> > creat09.c:110: TFAIL: mntpoint/testdir/open.tmp: Setgid bit is set
-
-> > Test history links,
-> >  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.238-199-g230f1bde44b6/testrun/16338751/suite/ltp-syscalls/test/creat09/history/
-> >  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.238-199-g230f1bde44b6/testrun/16337895/suite/ltp-cve/test/cve-2018-13405/history/
-> >  - https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.238-199-g230f1bde44b6/testrun/16338751/suite/ltp-syscalls/test/creat09/log
-
-> That's likely a missing kernel patch, as this is a regression test there
-> should have been links to the patches and CVE referencies in the test
-> output as the test is tagged with kernel commits and CVE numbers:
-
->         .tags = (const struct tst_tag[]) {
->                 {"linux-git", "0fa3ecd87848"},
->                 {"CVE", "2018-13405"},
->                 {"CVE", "2021-4037"},
->                 {"linux-git", "01ea173e103e"},
-Only this one has been backported (as
-e76bd6da51235ce86f5a8017dd6c056c76da64f9), the other two are missing.
->                 {"linux-git", "1639a49ccdce"},
->                 {"linux-git", "426b4ca2d6a5"},
-The last one is merge tag, I wonder if it's correct:
-426b4ca2d6a5 ("Merge tag 'fs.setgid.v6.0' of git://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux")
-Maybe just 1639a49ccdce would be ok.
-
-@Yang Xu
-1) why 1639a49ccdce has not been merged to stable tree? It does not apply now,
-was that the only reason? Or is it not applicable?
-
-@Yang Xu is really 426b4ca2d6a5 needed? Was it easier to list merge commit than
-particular fixes? Merge commit contains:
-
-5fadbd992996 ("ceph: rely on vfs for setgid stripping")
-1639a49ccdce ("fs: move S_ISGID stripping into the vfs_*() helpers")
-ac6800e279a2 ("fs: Add missing umask strip in vfs_tmpfile")
-2b3416ceff5e ("fs: add mode_strip_sgid() helper")
-
-They have not been backported to 5.4 stable, nor to the older releases.
-Again, they don't apply.
-
-
->                 {}
->         },
-
-> > ---
-
-> > fanotify14.c:161: TCONF: FAN_REPORT_TARGET_FID not supported in kernel?
-> > fanotify14.c:157: TINFO: Test case 7: fanotify_init(FAN_CLASS_NOTIF |
-> > FAN_REPORT_TARGET_FID | FAN_REPORT_DFID_FID, O_RDONLY)
-> > fanotify14.c:161: TCONF: FAN_REPORT_TARGET_FID not supported in kernel?
-> > [  377.081993] EXT4-fs (loop0): mounting ext3 file system using the
-> > ext4 subsystem
-> > fanotify14.c:157: TINFO: Test case 8: fanotify_init(FAN_CLASS_NOTIF |
-> > FAN_REPORT_DFID_FID, O_RDONLY)
-> > [  377.099137] EXT4-fs (loop0): mounted filesystem with ordered data
-> > mode. Opts: (null)
-> > fanotify14.c:175: TFAIL: fanotify_init(tc->init.flags, O_RDONLY)
-> > failed: EINVAL (22)
-
-> Possibly like the test may be missing check for a FAN_REPORT_DFID_FID
-> support.
-
-@Amir could you please look at this fanotify14.c failure on 5.4.241-rc1?
-
-Kind regards,
-Petr
+--=20
+Without deviation from the norm, progress is not possible.
