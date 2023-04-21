@@ -2,70 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 963216EAC96
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 16:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E1A56EAD9F
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 16:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbjDUOPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 10:15:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52776 "EHLO
+        id S233005AbjDUO7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 10:59:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232228AbjDUOPl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 10:15:41 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54626273D
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 07:15:28 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id 41be03b00d2f7-5208be24dcbso1741936a12.1
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 07:15:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682086528; x=1684678528;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xQIffIkqtd6hNHJB4rxz+31IegGCQwc44vhkiOJj92s=;
-        b=B9CDg+mAanyuJ/GTREV7M7ajQ1R5M2usBideh+oERsMhmNhcG96ked6zz/sZGjI8SS
-         O7XuJXf6raeQO4dyljf2GeZBIY2U74aZhWT4ANloSRrLstp7Pb81MUmum4KdXt4wzB0t
-         kaEr6OrWyiLHX83O8egJHD0t913MIqLIxJfcqoBimufYkD/OyhA0ufzUS+QViGoOEsVA
-         YUVPIETg1ZZcyVOUSXwUFrW9UX5RgndrG72Kdg73j3t10go4FaG4vnJkIrarQ0+k1nBn
-         q1IRVxfchu9RJF9d4dKaaDnN1pl5RdIIRIfLpnG+mlwnzqaT16JSje+oAVeKEL53jGfq
-         vKOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682086528; x=1684678528;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xQIffIkqtd6hNHJB4rxz+31IegGCQwc44vhkiOJj92s=;
-        b=dy8i+TmjHBsLPf8afZYMUnqZqVFye1nKMhCzjJ5yCei5Aj0j/+HsU3SJRYEzTqMm5S
-         +Q8xWvPKssWxFRxXaFi3VC8/u1+kafvfTMICUjLdf7Hb/BG2X1ZzyvCKfhfCobK+uUiR
-         m7GwV6KCbAwc/arlaU0oxO99mCZFs9MJhbSuLHEyN4/lGpEL5bvVLQiTZQUKlMksCcd2
-         53fqdDaIV7pdtIguSQVyMCLrEPELziKl2QfpHJsM9Twp3VcCqnAfrl5afZ030b5pknnV
-         kGKfuAl1atz5Pr3LBdIyIyMO2MangiWVD6UTKzRIBIv8Yk3HFLCxvHyoC895B/Fw9yaK
-         8CzQ==
-X-Gm-Message-State: AAQBX9ch2Jp0AySkQLe0Ivzo0BclYmrt6UG7OJRzEjVd2ICPLnp2AE8Z
-        YPdPEo4QnwZLcu1gRqhrpCEZN4KGXuL+Do9FSNs=
-X-Google-Smtp-Source: AKy350Z5vrxkv1N5+TJvxbboZT0gt8I15ekp4HCqBxpyf+nJsdCNpNJDQQAWLnauDOJHhFiA1W7Lh891qckzbXXigpU=
-X-Received: by 2002:a17:90b:156:b0:246:fdcc:f84c with SMTP id
- em22-20020a17090b015600b00246fdccf84cmr4865224pjb.35.1682086527853; Fri, 21
- Apr 2023 07:15:27 -0700 (PDT)
+        with ESMTP id S232713AbjDUO7q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 10:59:46 -0400
+Received: from netrider.rowland.org (netrider.rowland.org [192.131.102.5])
+        by lindbergh.monkeyblade.net (Postfix) with SMTP id 26C18A257
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 07:59:42 -0700 (PDT)
+Received: (qmail 546476 invoked by uid 1000); 21 Apr 2023 10:59:41 -0400
+Date:   Fri, 21 Apr 2023 10:59:41 -0400
+From:   Alan Stern <stern@rowland.harvard.edu>
+To:     Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, tonywwang@zhaoxin.com,
+        weitaowang@zhaoxin.com, stable@vger.kernel.org
+Subject: Re: [PATCH v2] UHCI:adjust zhaoxin UHCI controllers OverCurrent bit
+ value
+Message-ID: <a55aa38d-0fbf-4a95-a2b2-40821815275f@rowland.harvard.edu>
+References: <20230421174142.382602-1-WeitaoWang-oc@zhaoxin.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6a20:8b18:b0:bc:a2ba:b35f with HTTP; Fri, 21 Apr 2023
- 07:15:27 -0700 (PDT)
-Reply-To: jennifertrujillo735@gmail.com
-From:   Jennifer Trujillo <edithbrown003@gmail.com>
-Date:   Fri, 21 Apr 2023 15:15:27 +0100
-Message-ID: <CANxB1fec9iC+yGYvYfemx4jij6BTaF9CaMnBfO3J969OdTKyew@mail.gmail.com>
-Subject: HALLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230421174142.382602-1-WeitaoWang-oc@zhaoxin.com>
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hallo,
-Wie geht es dir?
+On Sat, Apr 22, 2023 at 01:41:42AM +0800, Weitao Wang wrote:
+> OverCurrent condition is not standardized in the UHCI spec.
+> Zhaoxin UHCI controllers report OverCurrent bit active off.
+> In order to handle OverCurrent condition correctly, the uhci-hcd
+> driver needs to be told to expect the active-off behavior.
+> 
+> Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+> ---
+> v1->v2
+>  - Modify the description of this patch.
+>  - Let Zhaoxin and VIA share a common oc_low flag
+> 
+>  drivers/usb/host/uhci-pci.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/usb/host/uhci-pci.c b/drivers/usb/host/uhci-pci.c
+> index 3592f757fe05..034586911bb5 100644
+> --- a/drivers/usb/host/uhci-pci.c
+> +++ b/drivers/usb/host/uhci-pci.c
+> @@ -119,11 +119,12 @@ static int uhci_pci_init(struct usb_hcd *hcd)
+>  
+>  	uhci->rh_numports = uhci_count_ports(hcd);
+>  
+> -	/* Intel controllers report the OverCurrent bit active on.
+> -	 * VIA controllers report it active off, so we'll adjust the
+> -	 * bit value.  (It's not standardized in the UHCI spec.)
+> +	/* Intel controllers report the OverCurrent bit active on.  VIA
+> +	 * and ZHAOXIN controllers report it active off, so we'll adjust
+> +	 * the bit value.  (It's not standardized in the UHCI spec.)
+>  	 */
+
+The style we use now for multi-line comments is:
+
+	/*
+	 * Blah blah blah
+	 * blah blah blah
+	 */
+
+> -	if (to_pci_dev(uhci_dev(uhci))->vendor == PCI_VENDOR_ID_VIA)
+> +	if (to_pci_dev(uhci_dev(uhci))->vendor == PCI_VENDOR_ID_VIA ||
+> +		to_pci_dev(uhci_dev(uhci))->vendor == PCI_VENDOR_ID_ZHAOXIN)
+
+The indentation level of the continuation line should be different from 
+the indentation of the statement below.  Otherwise it looks like the 
+continuation line is part of the conditional block.
+
+Alan Stern
+
+>  		uhci->oc_low = 1;
+>  
+>  	/* HP's server management chip requires a longer port reset delay. */
+> -- 
+> 2.32.0
+> 
