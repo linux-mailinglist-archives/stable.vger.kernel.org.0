@@ -2,75 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C676EB514
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D33E56EB50F
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233773AbjDUWmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 18:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44566 "EHLO
+        id S233658AbjDUWkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 18:40:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233763AbjDUWmb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:42:31 -0400
+        with ESMTP id S234156AbjDUWkP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:40:15 -0400
 Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77AB81725
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:42:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0815C2109
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:39:59 -0700 (PDT)
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id A258E3200AB7;
-        Fri, 21 Apr 2023 18:33:52 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 024F43200B52;
+        Fri, 21 Apr 2023 18:39:57 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Fri, 21 Apr 2023 18:33:53 -0400
+  by compute2.internal (MEProxy); Fri, 21 Apr 2023 18:39:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
         :cc:content-transfer-encoding:content-type:date:date:from:from
         :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1682116432; x=1682202832; bh=EPIxBjWukU
-        6SKb2BNCKjEgPXaYGqNdyR8YDlqlKxyKA=; b=jCZziuFTutgIZogPuGyDx8kB3K
-        IjF1FVgR3fJN4Rr0lyWUl1RZ2x+VOojxxyUXeQupyHMule77y5TpQkBzGvuq2nxo
-        38upF5tJ/dfbzeVCLd4GrSURtBAHInF7YhtZJiLVZGaKpnNrhS8Zuz6vypGNMtw8
-        FB8gOdXZ7NX6p/+my9eNiwkxmTUdLfvwzm6UHZf7G5R3FJ+3OpDowqw58OUawbsH
-        DXwRc9oA0b25IcA8VvFCqm8r2Nl12EQV748R1Y0899L1W+29F6deRP4FGHhqvxS8
-        J8HSECff5wcKyU4Z1kD1spcQzj3GWBOw+RcxVtpZ5GYdvCzyNR4/fQ1lM+vQ==
+        :subject:to:to; s=fm2; t=1682116797; x=1682203197; bh=TmkOUny2H8
+        ZJBO5YzHpa8xVac29n/gccTrYoDX0+qRw=; b=AHGg2HyB7yxgMcbqjuFuR6Krlh
+        4ozgtggXt8mFtL1tpeUXuaDKG1Sfq6DGk+67X3424WTN1WT0Sm/ut8C0VyfW6FwQ
+        mo33ipKLCERbRjFoZN2MDlV1yLnW7x+8XAdlEbfpr6OttSV44b0O1ry5qx8Pc2qo
+        3OAKQQwlwKuHJlTjMc5W8O7rhuzUWbjzjMozdHKokDJxSZCLf0qRPyy6JtPeLI/x
+        wjAnHOk4PSFNHZ6fVP7LeVx22AnVoStticU54PyX0xbzq9RuhmL9MIWXbhd2CoPO
+        lDQQDkTrLEaIPIA3MIiIG9c+7Hg0Vy0gVcLke66QmlOiatcqdS/vaTaWqCUg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding
         :content-type:date:date:feedback-id:feedback-id:from:from
         :in-reply-to:message-id:mime-version:reply-to:sender:subject
         :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; t=1682116432; x=1682202832; bh=EPIxBjWukU6SK
-        b2BNCKjEgPXaYGqNdyR8YDlqlKxyKA=; b=Q4fzqVyGGm2l66/rTZNyb8M0NdFy5
-        rAzOTIYwW5ffBVFKMHaXVCkiYxr3Eo25TJg3aX6IZ2T5rhpT+xz0rf7fwNJ6+o/x
-        xCTLJKZPmDb5URmgd0O8AHa3vVf2ay9DLohMriQo3SqkxJwqXrcMVN+2KmZ4InSl
-        +PBCYispUiaRzwR4mZTEkKKprDoGhL+6awZBnTnohVtzI7iDoQg8HdtXZRDZO+Bb
-        dFeGHwde/qtgvNWMRcNdJ9vAzJIhafVl417OIXAHqAOkNmidK9CcTFvekQ4bA3e7
-        wJIGOrIChCACvFgcNSFrHjuf0GREE23pSWr/WDHICIJ+EA+vxuzz1SPYw==
-X-ME-Sender: <xms:Tw9DZNovVCWHFxOVSqrYvqzS92Ttu5Qc6Xdfco75o61XHVwwMSbs-g>
-    <xme:Tw9DZPpXxPjYoMbySsLQwRvg_v0Ucckfqmf8ApWonss73rDTgH5Jj5NzwD4JczUVh
-    sEEyGVLE7KmtmdpUw>
-X-ME-Received: <xmr:Tw9DZKNpfDA81uGfu7bMqYBVHz23HGHSKtkBVehAXc2X9RPKUMz7lDpxpGc19XSxpq6lNPruRdVPsRGgckmli8mG7AV4Ah4mMA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedthedgudduucetufdoteggodetrfdotf
+        :x-sasl-enc; s=fm3; t=1682116797; x=1682203197; bh=TmkOUny2H8ZJB
+        O5YzHpa8xVac29n/gccTrYoDX0+qRw=; b=LJeUVpNjBGwetpgufd52a/I8Scsc5
+        xQRXAORSHWkTByrC4PwesNpMNXhHB47flv6SMTLB2R0aWr3dEIKQsjKJsj/NnzOy
+        uUVvk48/fRm5VE7OFke4CmKW8pWwASGlf3wvAc983QyRRi4H1p9RliU888RqUcWp
+        fAVuXn5eBpQ0dsX8VZPzuMgF3jn5KcibyYCP1NFHpyYa8++yoxPm5Ws5ZIaJCpHi
+        KIgAT6TE4HoRWL0qoSgff36rnp8UDQ1y/AYd4HCPbA4nsqt5Mz5ny0ROhM/lHuSZ
+        m7oh0935PIHlMtLGZI/9yvu7N04Gajis7r+kbVYChDHlDo1uhDA7A6IvA==
+X-ME-Sender: <xms:vRBDZHUfkZqjHbNVLJofErEujGuVYI1ehWs16bL8xn6l5_8fpCCXMg>
+    <xme:vRBDZPme3--M_59L-xoqy8RQY-pq0pP_B-XyAI11dmBOQJ_6YrdJptSRKdZrys7eD
+    IXnP_fhRlxuVkytsA>
+X-ME-Received: <xmr:vRBDZDa-9n1fMdYbaQpa2MNmP9SdMzZ-s6UXVxuGxqNd7m3Li15KlAvIuMjxwNBLVcuJ5UWHk77boxm6eqdgjgQ-S89ZJrMiog>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedthedguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehlhihsshgr
-    ucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecuggftrfgrthhtvghrnhepheekgf
-    dtveettdekuddugeeugfdujeehuefgleegtedthfffudfhheduhfduuefhnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrg
-    drihhs
-X-ME-Proxy: <xmx:Tw9DZI7YCG3C0qkTZa_sUVjS-30UjSOu-Ba1qkXIKMtHWtjaepnz_A>
-    <xmx:Tw9DZM6Mf2I--D0G2xh6PosAB2HUmJ8wchb6aCE4kRnt98c3MZ6N_w>
-    <xmx:Tw9DZAiknnvxPtzMcRSo5EempFCFiMKS2h7rvXr2N-gJKFAPR3FK4Q>
-    <xmx:UA9DZKmCJAoBpQfapZJ_vG0PPJDTNKyj_5T4NGvT6y1HW049SWLp0g>
+    ucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecuggftrfgrthhtvghrnhepueefie
+    dvheffveegieejjeevgfejjeduveekffeiveeuvedvtedvhfelieeutdfgnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehhihesrghlhihsshgrrdhish
+X-ME-Proxy: <xmx:vRBDZCXtnsMjzCyMGlf-aqML8kSpfpF5lcCXDpqL0oULate36XhUjA>
+    <xmx:vRBDZBn7GQRuUqruPG0CiKJ7IgPe9GHOkElRlQHHnhKmx6UjoxJ3qg>
+    <xmx:vRBDZPf7msAUuc9uvMCQJVVPyTRUxf8x8SV7RnrMgqEXS56UhiFb6Q>
+    <xmx:vRBDZPZLiS0JBYJvaea-pkiESp6DX403f_SqGuUhZrcGxeKpn78vVw>
 Feedback-ID: i12284293:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 21 Apr 2023 18:33:51 -0400 (EDT)
+ 21 Apr 2023 18:39:56 -0400 (EDT)
 Received: by x220.qyliss.net (Postfix, from userid 1000)
-        id 4E28B3596; Fri, 21 Apr 2023 22:33:50 +0000 (UTC)
+        id 4DAE33598; Fri, 21 Apr 2023 22:39:55 +0000 (UTC)
 From:   Alyssa Ross <hi@alyssa.is>
 To:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
-Cc:     Nick Cao <nickcao@nichi.co>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alyssa Ross <hi@alyssa.is>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.10.y] x86/purgatory: fix disabling debug info
-Date:   Fri, 21 Apr 2023 22:33:33 +0000
-Message-Id: <20230421223333.1229240-1-hi@alyssa.is>
+Cc:     Nick Cao <nickcao@nichi.co>, Ingo Molnar <mingo@kernel.org>,
+        Pingfan Liu <kernelfans@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Steve Wahl <steve.wahl@hpe.com>,
+        Dave Young <dyoung@redhat.com>, Alyssa Ross <hi@alyssa.is>
+Subject: [PATCH 4.19.y,5.4.y] x86/purgatory: Don't generate debug info for purgatory.ro
+Date:   Fri, 21 Apr 2023 22:39:44 +0000
+Message-Id: <20230421223944.1236652-1-hi@alyssa.is>
 X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -84,37 +85,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is based on upstream commit
-d83806c4c0cc ("purgatory: fix disabling debug info"), but adapted to
-the linker flags used in 5.10.y.
+From: Pingfan Liu <kernelfans@gmail.com>
 
-Since 3a260e9844c9, the linker flags can contain -g instead of
--Wa,-gdwarf-2 (when using the LLVM assembler).  As a result, in that
-case, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+Purgatory.ro is a standalone binary that is not linked against the rest of
+the kernel.  Its image is copied into an array that is linked to the
+kernel, and from there kexec relocates it wherever it desires.
 
-Fixes: 3a260e9844c9 ("Makefile.debug: re-enable debug info for .S files")
+Unlike the debug info for vmlinux, which can be used for analyzing crash
+such info is useless in purgatory.ro. And discarding them can save about
+200K space.
+
+ Original:
+   259080  kexec-purgatory.o
+ Stripped debug info:
+    29152  kexec-purgatory.o
+
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Steve Wahl <steve.wahl@hpe.com>
+Acked-by: Dave Young <dyoung@redhat.com>
+Link: https://lore.kernel.org/r/1596433788-3784-1-git-send-email-kernelfans@gmail.com
+(cherry picked from commit 52416ffcf823ee11aa19792715664ab94757f111)
+[Alyssa: fixed for LLVM_IAS=1 by adding -g to AFLAGS_REMOVE_*]
 Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Cc: Nick Desaulniers <ndesaulniers@google.com>
 ---
- arch/x86/purgatory/Makefile | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/purgatory/Makefile | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 95ea17a9d20c..ebaf329a2368 100644
+index 9733d1cc791d..969d2b2eb7d7 100644
 --- a/arch/x86/purgatory/Makefile
 +++ b/arch/x86/purgatory/Makefile
-@@ -64,8 +64,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
+@@ -27,7 +27,7 @@ KCOV_INSTRUMENT := n
+ # make up the standalone purgatory.ro
+ 
+ PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
+-PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
++PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss -g0
+ PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN) -DDISABLE_BRANCH_PROFILING
+ 
+ # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
+@@ -58,6 +58,9 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
  CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
  CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
  
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-remove-y		+= -g -Wa,-gdwarf-2
- 
++AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -g -Wa,-gdwarf-2
++AFLAGS_REMOVE_entry64.o			+= -g -Wa,-gdwarf-2
++
  $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
  		$(call if_changed,ld)
+ 
 -- 
 2.37.1
 
