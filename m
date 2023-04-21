@@ -2,90 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E876EAA6F
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 14:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF146EAABA
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 14:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230188AbjDUMhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 08:37:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40196 "EHLO
+        id S232079AbjDUMqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 08:46:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232026AbjDUMhq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 08:37:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D892B74F
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 05:37:38 -0700 (PDT)
+        with ESMTP id S232132AbjDUMqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 08:46:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738CB974A
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 05:45:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6614661284
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 12:37:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8AD2C433D2;
-        Fri, 21 Apr 2023 12:37:35 +0000 (UTC)
-Date:   Fri, 21 Apr 2023 13:37:32 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Peter Collingbourne <pcc@google.com>
-Cc:     linux-arm-kernel@lists.infradead.org, vincenzo.frascino@arm.com,
-        will@kernel.org, eugenis@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: mte: Do not set PG_mte_tagged if tags were not
- initialized
-Message-ID: <ZEKDjDnrgDLKiZnK@arm.com>
-References: <20230420214327.2357985-1-pcc@google.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32B4465057
+        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 12:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C07FC4339B;
+        Fri, 21 Apr 2023 12:45:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1682081118;
+        bh=IXDbzOL35JEEwbdX7JLiDIJ5K6SKObjSzTQe/kbPoK0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NpLWxmL++RZtxjLPH7Xak4RKgE+XXRJ8yJzJrvFS6Bi4F1JsjZIjfKsFPdMAlP/Rj
+         ROTvtMPUfjgyEfoPkOX53E8aw/Dsz3EBveg1p0jVaqBDvIA+DxzPgizQdF4DVFuDM2
+         hfu9MOr3PsjaFMHCK0shMs3ziz4MlZg42Of69G7o=
+Date:   Fri, 21 Apr 2023 14:45:15 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH] rtmutex: Add acquire semantics for rtmutex lock
+ acquisition slow path
+Message-ID: <ZEKFWx_68PX3pk3g@kroah.com>
+References: <20230418154315.9PD52J2N@linutronix.de>
+ <2023041854-cranium-prone-b9fa@gregkh>
+ <20230419072546.gD_YO2-K@linutronix.de>
+ <87pm7x3d8b.ffs@tglx>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230420214327.2357985-1-pcc@google.com>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <87pm7x3d8b.ffs@tglx>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 20, 2023 at 02:43:27PM -0700, Peter Collingbourne wrote:
-> The mte_sync_page_tags() function sets PG_mte_tagged if it initializes
-> page tags. Then we return to mte_sync_tags(), which sets PG_mte_tagged
-> again. At best, this is redundant. However, it is possible for
-> mte_sync_page_tags() to return without having initialized tags for the
-> page, i.e. in the case where check_swap is true (non-compound page),
-> is_swap_pte(old_pte) is false and pte_is_tagged is false. So at worst,
-> we set PG_mte_tagged on a page with uninitialized tags. This can happen
-> if, for example, page migration causes a PTE for an untagged page to
-> be replaced. If the userspace program subsequently uses mprotect() to
-> enable PROT_MTE for that page, the uninitialized tags will be exposed
-> to userspace.
+On Fri, Apr 21, 2023 at 09:29:08AM +0200, Thomas Gleixner wrote:
+> On Wed, Apr 19 2023 at 09:25, Sebastian Andrzej Siewior wrote:
+> > On 2023-04-18 18:25:48 [+0200], Greg KH wrote:
+> >> > Could this be please backported to 5.15 and earlier? It is already part
+> >> > of the 6.X kernels. I asked about this by the end of January and I'm
+> >> > kindly asking again ;)
+> >> 
+> >> I thought this was only an issues when using the out-of-tree RT patches
+> >> with these kernels, right?  Or is it relevant for 5.15.y from kernel.org
+> >> without anything else?
+> >
+> > The out-of-tree RT patches make extensive use of the code. Since it is
+> > upstream code, I assumed it should go via the official stable trees.
+> > Without RT, the code is limited the rt_mutex_lock() used by I2C and the
+> > RCU booster-mutex.
 > 
-> Fix it by removing the redundant call to set_page_mte_tagged().
-> 
-> Fixes: e059853d14ca ("arm64: mte: Fix/clarify the PG_mte_tagged semantics")
-> Signed-off-by: Peter Collingbourne <pcc@google.com>
-> Cc: <stable@vger.kernel.org> # 6.1
-> Link: https://linux-review.googlesource.com/id/Ib02d004d435b2ed87603b858ef7480f7b1463052
-> ---
->  arch/arm64/kernel/mte.c | 7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-> index f5bcb0dc6267..7e89968bd282 100644
-> --- a/arch/arm64/kernel/mte.c
-> +++ b/arch/arm64/kernel/mte.c
-> @@ -66,13 +66,10 @@ void mte_sync_tags(pte_t old_pte, pte_t pte)
->  		return;
->  
->  	/* if PG_mte_tagged is set, tags have already been initialised */
-> -	for (i = 0; i < nr_pages; i++, page++) {
-> -		if (!page_mte_tagged(page)) {
-> +	for (i = 0; i < nr_pages; i++, page++)
-> +		if (!page_mte_tagged(page))
->  			mte_sync_page_tags(page, old_pte, check_swap,
->  					   pte_is_tagged);
-> -			set_page_mte_tagged(page);
-> -		}
-> -	}
+> Which is a reason to route it through the upstream stable trees, no?
 
-It makes sense, not sure why I added it here when mte_sync_page_tags()
-was already setting the flag if needed.
+I do not understand.  Why would we take a patch in the stable tree
+because an out-of-tree change requires it?
 
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+confused,
+
+greg k-h
