@@ -2,134 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C656EA751
-	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 11:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 204E46EA9F2
+	for <lists+stable@lfdr.de>; Fri, 21 Apr 2023 14:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbjDUJmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 05:42:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49942 "EHLO
+        id S230253AbjDUMGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 08:06:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229632AbjDUJmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 05:42:04 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEDB9A26F
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 02:42:02 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-94ed7e49541so190312466b.1
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 02:42:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682070121; x=1684662121;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HX575BlXr8Tc9OCPZPcQdraI0YKNu7CPcg2XL81p1LU=;
-        b=JX9GuLNj5GD5HPFWg84C+7Al12pUBzhVr4TzUcyS1zmDXjijCDORk/EHxHsGe3/UjH
-         3pxYHHXAWX6rRpPcbj3+1u8w37dfcbVZeZcB/5JwjiOeDgSLcuv2XxBYTf2G19eCrAH9
-         1UyET+18hyWdl+6dEMovXrTIK56+JVlDsOwo5PyjcVXdLe9AdGoDSuCV4N2S+Z8yhbs2
-         9GmfyU+5xx0m2qYnaM/NO0eFhH5KQ/uWl4x9vgFFgYIiUZjruxMTlj7SgW71wcPAUxhQ
-         iHXnFYh3kWZsZx3BH9xbMUwbpJS//Mb2u1Wuu7um33CrJ7IOhy7/NpC4H0tbjNlGql7D
-         gRaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682070121; x=1684662121;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HX575BlXr8Tc9OCPZPcQdraI0YKNu7CPcg2XL81p1LU=;
-        b=K3W9EIWw6x+NTPOrMHxw2Sqv+1c0y6hoGHlmtkyiU8SaRzWg17HZ2etfq76dv44/vf
-         n6RT4tX6ii9y8K4USrwMA8S2XP9u34LJEDoAy3zQ6BGeOW91jdnYZBBob/p6L3SLl77d
-         PhP2FHiOuKuok1u14WIfIbLGcyRjO8VAsPNr+KVo8STlpPVgcLmL7EZRhlJ5Od8Fr0u3
-         KctRi6VIxdWb1NRiowULi+tcQ1e/mA4BSdzgaKCcnUcLxz9CcN/xf4EOp8liPMusAwSn
-         1iRrgFJwNGFLqKgiJwdgnKuTq5yMqWkXkouUzmfuSm6ezgurDj8zEfyAm/s92QdR7bPg
-         BHxQ==
-X-Gm-Message-State: AAQBX9eXlscOLafaByIDhjHVA/1iYvW5zXiKAEufz9H7NlqShYaAGj3k
-        Th1RC9niBLN79w12Wk3x9ts=
-X-Google-Smtp-Source: AKy350aWnkLdINoW4PZXnZKiYeedp342XceoGXuMkHDy+l8aNbDe05eQYMuENtzNTCLrbWfjgHQ2oQ==
-X-Received: by 2002:a17:907:ca29:b0:94a:7b2c:205e with SMTP id uk41-20020a170907ca2900b0094a7b2c205emr1363232ejc.72.1682070121183;
-        Fri, 21 Apr 2023 02:42:01 -0700 (PDT)
-Received: from ?IPV6:2a02:908:1256:79a0:b9f1:4015:2594:f62d? ([2a02:908:1256:79a0:b9f1:4015:2594:f62d])
-        by smtp.gmail.com with ESMTPSA id sd22-20020a1709076e1600b009572bd99281sm335833ejc.224.2023.04.21.02.42.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 21 Apr 2023 02:42:00 -0700 (PDT)
-Message-ID: <a0594b09-8a6f-1778-cfdd-f2595d314a12@gmail.com>
-Date:   Fri, 21 Apr 2023 11:41:59 +0200
+        with ESMTP id S229818AbjDUMGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 08:06:42 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2064.outbound.protection.outlook.com [40.107.220.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8E424C0E;
+        Fri, 21 Apr 2023 05:06:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=myUgFQI8Zsg6fwRqsPqvFrgzBcf7LU9gn+M/RACnp0mjMQgzcTOK6+ZY73hGo5u6bJOzd50KIOO0Qy1nIyFH6OkfSXv6uyxhTUfwztH3Gzn0tv4gEYG5PSkLQLf7K+S/CN3UJiDZkVdcPlYNBwYsSfkUDP8bncEWewnfphGGwVzAYeUionP9gngvWFLOTMdyTyk2ebhpCPNKQSq0vzhckAn4c4bGmnnbf/FtVMzAafIJ5sgxW6DcGcSnX9h6uR5dUMywAlkTvG+Qr6rImlQmAVl26LY67kyIMVbuBLd5WIspP4Ip8T/0FBd/Z7AcnMQObh75SQfMuem5arHbkkkSsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7YhhrKRfm8Qm14pxFEeFtsPFmCjIErz7kop0TLDEapY=;
+ b=TzyaVQo4bbtvBwssEf31fJGZnF+ztFHh6SSw75XnjsT9KFPlz8SbE69BrmaCpXdQ7nEQ5/w+lFTT1Xy3IA/g2Riom3cJw62RnAfYXk0BaRE74GwM4pQ2z3cIHQ0pKnEIFFjV172nQeK8/KA6w6eUbaQLMN/c1WM8Efy1kLqDE9zsxjEcJSTiN/c8FQpZ3LdgdYLhRvhi3KrqIDZIXQznl3y2gni6MaNz6YQAEN+67165UR8R9xsjKNiC4eIFGqyRczjqWWN74stPaWfFOQWpzPQAww2+t+RWd90S1YGJ7BarQuMiO7GXoLmSW34oWzh37iVNDM08+oXhbD6iLoK3sQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=linaro.org smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7YhhrKRfm8Qm14pxFEeFtsPFmCjIErz7kop0TLDEapY=;
+ b=KmeCMNSR+WQiBqrtRjcaq5ovHfZBz/8NhTBVbyigtfGJp1jtemy/ZF911GKlJk1+fLLhiY9FdV9f1lxN9mha4Ak44p3rzsm3LMQrEA6y5ZKNSKCx4LjFl+/yLnRZrGRiIHb+EHj+vCJVnleI2b2s0bsiG09SUquS0N5wCAFSALQ=
+Received: from MW3PR05CA0025.namprd05.prod.outlook.com (2603:10b6:303:2b::30)
+ by DS7PR12MB5717.namprd12.prod.outlook.com (2603:10b6:8:70::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.22; Fri, 21 Apr
+ 2023 12:06:39 +0000
+Received: from CO1NAM11FT103.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:2b:cafe::5c) by MW3PR05CA0025.outlook.office365.com
+ (2603:10b6:303:2b::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.11 via Frontend
+ Transport; Fri, 21 Apr 2023 12:06:39 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT103.mail.protection.outlook.com (10.13.174.252) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6319.26 via Frontend Transport; Fri, 21 Apr 2023 12:06:38 +0000
+Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 21 Apr
+ 2023 07:06:37 -0500
+From:   Mario Limonciello <mario.limonciello@amd.com>
+To:     <linus.walleij@linaro.org>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+CC:     <nakato@nakato.io>, <korneld@chromium.org>, <richard.gong@amd.com>,
+        "Mario Limonciello" <mario.limonciello@amd.com>,
+        <stable@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/4] pinctrl: amd: Detect internal GPIO0 debounce handling
+Date:   Fri, 21 Apr 2023 07:06:21 -0500
+Message-ID: <20230421120625.3366-2-mario.limonciello@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230421120625.3366-1-mario.limonciello@amd.com>
+References: <20230421120625.3366-1-mario.limonciello@amd.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v4] drm/amd/display: fix flickering caused by S/G mode
-Content-Language: en-US
-To:     Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        amd-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Roman Li <Roman.Li@amd.com>
-References: <20230420160036.130360-1-hamza.mahfooz@amd.com>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
-In-Reply-To: <20230420160036.130360-1-hamza.mahfooz@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT103:EE_|DS7PR12MB5717:EE_
+X-MS-Office365-Filtering-Correlation-Id: dd49c4da-ae9e-4680-3091-08db4260dcb4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XxI/LxDBUDw+SusDb9hkY5HdYmUuRGkyLIm4rkq/H98wec2ZKE2tpOE4xg8mgRYH43bPjwFpmdEJlph4Pe1aoGDh39B3sV1bx8Bw3BnEN9bxYrbc142ZYbcksZuYXbIszpeTN/AFSxwafQBZGXEsITpWhr3ctpQ1aCFf7q52EsRgD339KYotQ5mM+Iki4nehFJhXwftmP95A4zizZFDYhKixKHDOMDqXv3DKd0JAK2iDxx1DKoW1CMfpOO3HIYJsfmSBSkh/z0l8PovWQoHZmSg08k5pjNclsL46GOj8z4MCgFuKyXWVm8JTbi7USJQvIfJLK5DeWBzE9OUfRTx5gH8VAPauhYuWMy2aqXkYCvcHYDJlAqqWwmv7gRw/ZzqX2+FrLlmee6t/UsyR2um1jG5e61a3VBrvkrwvSJ8teGQgRfm30T2zr4UqdUX9qw2lqHZssIWgcIvmseH2HH2GWzCazomr9LEhRE2RcnuybRyHbIGlk8LW9a+dGntUgIuC2VgLv72IA6Ky+guG6xK2m5Z13ORNOLfLPtQDDyPEbdCuxJLTYD88ic6xvSupmlQDnZyq6JQ1F5PCI1ShBfBIMTv1icBJW93b4HBwlFUQgTLZhQHmw8ymCKHTuKHsa7yw6ynlbkbg6swLHvWC1uiTfVGMvbbgsAY7O6WCv9REfIwKyOFQfyEmi6WwlxmMLM5LsMRDg93WFE4LXanG2LZc0HnYc7YVIfUre2iolIMnXCs=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230028)(4636009)(136003)(346002)(396003)(39860400002)(376002)(451199021)(40470700004)(36840700001)(46966006)(54906003)(6636002)(47076005)(83380400001)(478600001)(2616005)(36860700001)(40480700001)(7696005)(1076003)(26005)(966005)(6666004)(316002)(70586007)(70206006)(82740400003)(4326008)(110136005)(186003)(426003)(336012)(16526019)(81166007)(356005)(5660300002)(44832011)(40460700003)(8676002)(8936002)(2906002)(41300700001)(86362001)(82310400005)(36756003)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2023 12:06:38.8584
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: dd49c4da-ae9e-4680-3091-08db4260dcb4
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT103.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5717
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 20.04.23 um 18:00 schrieb Hamza Mahfooz:
-> Currently, on a handful of ASICs. We allow the framebuffer for a given
-> plane to exist in either VRAM or GTT. However, if the plane's new
-> framebuffer is in a different memory domain than it's previous
-> framebuffer, flipping between them can cause the screen to flicker. So,
-> to fix this, don't perform an immediate flip in the aforementioned case.
->
-> Cc: stable@vger.kernel.org
-> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2354
-> Reviewed-by: Roman Li <Roman.Li@amd.com>
-> Fixes: 81d0bcf99009 ("drm/amdgpu: make display pinning more flexible (v2)")
-> Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe")
+had a mistake in loop iteration 63 that it would clear offset 0xFC instead
+of 0x100.  Offset 0xFC is actually `WAKE_INT_MASTER_REG`.  This was
+clearing bits 13 and 15 from the register which significantly changed the
+expected handling for some platforms for GPIO0.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
+commit b26cd9325be4 ("pinctrl: amd: Disable and mask interrupts on resume")
+actually fixed this bug, but lead to regressions on Lenovo Z13 and some
+other systems.  This is because there was no handling in the driver for bit
+15 debounce behavior.
 
-> ---
-> v2: make a number of clarifications to the commit message and drop
->      locking.
-> v3: use a stronger check
-> v4: drop mem_type
-> ---
->   drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 13 +++++++++++--
->   1 file changed, 11 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> index dfcb9815b5a8..76a776fd8437 100644
-> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> @@ -7900,6 +7900,13 @@ static void amdgpu_dm_commit_cursors(struct drm_atomic_state *state)
->   			amdgpu_dm_plane_handle_cursor_update(plane, old_plane_state);
->   }
->   
-> +static inline uint32_t get_mem_type(struct drm_framebuffer *fb)
-> +{
-> +	struct amdgpu_bo *abo = gem_to_amdgpu_bo(fb->obj[0]);
-> +
-> +	return abo->tbo.resource ? abo->tbo.resource->mem_type : 0;
-> +}
-> +
->   static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
->   				    struct dc_state *dc_state,
->   				    struct drm_device *dev,
-> @@ -8042,11 +8049,13 @@ static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
->   
->   		/*
->   		 * Only allow immediate flips for fast updates that don't
-> -		 * change FB pitch, DCC state, rotation or mirroing.
-> +		 * change memory domain, FB pitch, DCC state, rotation or
-> +		 * mirroring.
->   		 */
->   		bundle->flip_addrs[planes_count].flip_immediate =
->   			crtc->state->async_flip &&
-> -			acrtc_state->update_type == UPDATE_TYPE_FAST;
-> +			acrtc_state->update_type == UPDATE_TYPE_FAST &&
-> +			get_mem_type(old_plane_state->fb) == get_mem_type(fb);
->   
->   		timestamp_ns = ktime_get_ns();
->   		bundle->flip_addrs[planes_count].flip_timestamp_in_us = div_u64(timestamp_ns, 1000);
+Quoting a public BKDG:
+```
+EnWinBlueBtn. Read-write. Reset: 0. 0=GPIO0 detect debounced power button;
+Power button override is 4 seconds. 1=GPIO0 detect debounced power button
+in S3/S5/S0i3, and detect "pressed less than 2 seconds" and "pressed 2~10
+seconds" in S0; Power button override is 10 seconds
+```
+
+Cross referencing the same master register in Windows it's obvious that
+Windows doesn't use debounce values in this configuration.  So align the
+Linux driver to do this as well.  This fixes wake on lid when
+WAKE_INT_MASTER_REG is properly programmed.
+
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217315
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+---
+ drivers/pinctrl/pinctrl-amd.c | 7 +++++++
+ drivers/pinctrl/pinctrl-amd.h | 1 +
+ 2 files changed, 8 insertions(+)
+
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index c250110f6775..6b9ae92017d4 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -125,6 +125,12 @@ static int amd_gpio_set_debounce(struct gpio_chip *gc, unsigned offset,
+ 	struct amd_gpio *gpio_dev = gpiochip_get_data(gc);
+ 
+ 	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++
++	/* Use special handling for Pin0 debounce */
++	pin_reg = readl(gpio_dev->base + WAKE_INT_MASTER_REG);
++	if (pin_reg & INTERNAL_GPIO0_DEBOUNCE)
++		debounce = 0;
++
+ 	pin_reg = readl(gpio_dev->base + offset * 4);
+ 
+ 	if (debounce) {
+@@ -219,6 +225,7 @@ static void amd_gpio_dbg_show(struct seq_file *s, struct gpio_chip *gc)
+ 	char *debounce_enable;
+ 	char *wake_cntrlz;
+ 
++	seq_printf(s, "WAKE_INT_MASTER_REG: 0x%08x\n", readl(gpio_dev->base + WAKE_INT_MASTER_REG));
+ 	for (bank = 0; bank < gpio_dev->hwbank_num; bank++) {
+ 		unsigned int time = 0;
+ 		unsigned int unit = 0;
+diff --git a/drivers/pinctrl/pinctrl-amd.h b/drivers/pinctrl/pinctrl-amd.h
+index 81ae8319a1f0..1cf2d06bbd8c 100644
+--- a/drivers/pinctrl/pinctrl-amd.h
++++ b/drivers/pinctrl/pinctrl-amd.h
+@@ -17,6 +17,7 @@
+ #define AMD_GPIO_PINS_BANK3     32
+ 
+ #define WAKE_INT_MASTER_REG 0xfc
++#define INTERNAL_GPIO0_DEBOUNCE (1 << 15)
+ #define EOI_MASK (1 << 29)
+ 
+ #define WAKE_INT_STATUS_REG0 0x2f8
+-- 
+2.34.1
 
