@@ -2,42 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91926EBA1C
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 17:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F986EBA1F
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbjDVP75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 11:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
+        id S229642AbjDVQAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 12:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbjDVP75 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 11:59:57 -0400
+        with ESMTP id S229663AbjDVQAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:00:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A6E10EA
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 08:59:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7448E1FEB
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:00:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA94960B76
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 15:59:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C404EC433EF;
-        Sat, 22 Apr 2023 15:59:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB5C2611C1
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3ECC433EF;
+        Sat, 22 Apr 2023 16:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682179195;
-        bh=u17G5wqbbqqRp1CN8C3vSpMIgGNnmE8AKqyxcWYGGyg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=KQInsCWa1rYDkFOKahlT5O2CeZ3VfE3FBgwppJtk8Iy8kbZNif72wUfUp18cNBCCh
-         +0psmau8+6JH56Zc7g7mcW4KXJVFyafcFWuKBBIfJcaWFKDzxRKYjFzZf+HxTnRcyT
-         xH4EcJQqOhcaUBPteyB7tOpdwCnWO/WK1tEOG/EI=
-Subject: FAILED: patch "[PATCH] pwm: meson: Explicitly set .polarity in .get_state()" failed to apply to 5.15-stable tree
-To:     u.kleine-koenig@pengutronix.de, kamatam@amazon.com,
-        martin.blumenstingl@googlemail.com, thierry.reding@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 22 Apr 2023 17:59:44 +0200
-Message-ID: <2023042244-audience-anemic-4b09@gregkh>
+        s=korg; t=1682179220;
+        bh=ixZaYltQkP1Wtn2aJI1La0+GQQqOjwbo95aEe1P8Z+E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=d3qwRXpkx1cESgAYEnj4z/ukcZGp5OjIy/08Ayuj9k6WFkbmnEpaCKLuACQ4hkGKI
+         ktl9cNHbtpnDcc3CF5LY+E8C4cj1044wBsqcyRXm6NS8002NEzHl77srSRme4TBQ7W
+         6uVTUB1EJExtcoylmYzLoKegSECgufA+xNzdvIho=
+Date:   Sat, 22 Apr 2023 18:00:17 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Guenter Roeck <groeck@chromium.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 003/124] pwm: cros-ec: Explicitly set .polarity in
+ .get_state()
+Message-ID: <2023042200-glade-morale-1c08@gregkh>
+References: <20230418120309.539243408@linuxfoundation.org>
+ <20230418120309.688458749@linuxfoundation.org>
+ <20230418130121.rx2zfwkzjyasghkg@pengutronix.de>
+ <2023042239-sloping-sprite-7c24@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <2023042239-sloping-sprite-7c24@gregkh>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
@@ -48,87 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Apr 22, 2023 at 05:05:08PM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Apr 18, 2023 at 03:01:21PM +0200, Uwe Kleine-König wrote:
+> > On Tue, Apr 18, 2023 at 02:20:22PM +0200, Greg Kroah-Hartman wrote:
+> > > From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> > > 
+> > > [ Upstream commit 30006b77c7e130e01d1ab2148cc8abf73dfcc4bf ]
+> > > 
+> > > The driver only supports normal polarity. Complete the implementation of
+> > > .get_state() by setting .polarity accordingly.
+> > > 
+> > > Reviewed-by: Guenter Roeck <groeck@chromium.org>
+> > > Fixes: 1f0d3bb02785 ("pwm: Add ChromeOS EC PWM driver")
+> > > Link: https://lore.kernel.org/r/20230228135508.1798428-3-u.kleine-koenig@pengutronix.de
+> > > Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> > > Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > 
+> > I see you picked this one and the similar sprd patch, but not
+> > 
+> > 	8caa81eb950c pwm: meson: Explicitly set .polarity in .get_state()
+> > 	b20b097128d9 pwm: iqs620a: Explicitly set .polarity in .get_state()
+> > 	6f5793798014 pwm: hibvt: Explicitly set .polarity in .get_state()
+> > 
+> > (At least I didn't get a mail about these). These should qualify in the same way.
+> 
+> They didn't all apply very well (one did).
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
-git checkout FETCH_HEAD
-git cherry-pick -x 8caa81eb950cb2e9d2d6959b37d853162d197f57
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042244-audience-anemic-4b09@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
-
-Possible dependencies:
-
-8caa81eb950c ("pwm: meson: Explicitly set .polarity in .get_state()")
-6c452cff79f8 ("pwm: Make .get_state() callback return an error code")
-8eca6b0a647a ("Merge tag 'pwm/for-5.19-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm")
+Nope, that one broke the build, so none of these applied, which is
+probably why Sasha didn't do it :)
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 8caa81eb950cb2e9d2d6959b37d853162d197f57 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Date: Wed, 22 Mar 2023 22:45:44 +0100
-Subject: [PATCH] pwm: meson: Explicitly set .polarity in .get_state()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-The driver only supports normal polarity. Complete the implementation of
-.get_state() by setting .polarity accordingly.
-
-This fixes a regression that was possible since commit c73a3107624d
-("pwm: Handle .get_state() failures") which stopped to zero-initialize
-the state passed to the .get_state() callback. This was reported at
-https://forum.odroid.com/viewtopic.php?f=177&t=46360 . While this was an
-unintended side effect, the real issue is the driver's callback not
-setting the polarity.
-
-There is a complicating fact, that the .apply() callback fakes support
-for inversed polarity. This is not (and cannot) be matched by
-.get_state(). As fixing this isn't easy, only point it out in a comment
-to prevent authors of other drivers from copying that approach.
-
-Fixes: c375bcbaabdb ("pwm: meson: Read the full hardware state in meson_pwm_get_state()")
-Reported-by: Munehisa Kamata <kamatam@amazon.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20230310191405.2606296-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-KÃ¶nig <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-
-diff --git a/drivers/pwm/pwm-meson.c b/drivers/pwm/pwm-meson.c
-index 16d79ca5d8f5..5cd7b90872c6 100644
---- a/drivers/pwm/pwm-meson.c
-+++ b/drivers/pwm/pwm-meson.c
-@@ -162,6 +162,12 @@ static int meson_pwm_calc(struct meson_pwm *meson, struct pwm_device *pwm,
- 	duty = state->duty_cycle;
- 	period = state->period;
- 
-+	/*
-+	 * Note this is wrong. The result is an output wave that isn't really
-+	 * inverted and so is wrongly identified by .get_state as normal.
-+	 * Fixing this needs some care however as some machines might rely on
-+	 * this.
-+	 */
- 	if (state->polarity == PWM_POLARITY_INVERSED)
- 		duty = period - duty;
- 
-@@ -358,6 +364,8 @@ static int meson_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 		state->duty_cycle = 0;
- 	}
- 
-+	state->polarity = PWM_POLARITY_NORMAL;
-+
- 	return 0;
- }
- 
-
