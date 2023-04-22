@@ -2,571 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F146EB541
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 00:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 014E96EB600
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 02:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbjDUWud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 18:50:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49792 "EHLO
+        id S232094AbjDVADD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 20:03:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229698AbjDUWub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 18:50:31 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFF61FD5
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:50:27 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-5068e99960fso3719422a12.1
-        for <stable@vger.kernel.org>; Fri, 21 Apr 2023 15:50:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682117426; x=1684709426;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=lxodUZsxeyf6PA26bjNhpte28Th1rWqjrqcGpRhZ21c=;
-        b=oKAENvq9arEUH/25j+iB2Sipl6f0zr6jnSCIcm01ZftLqTGJaWN4iG/14cieK4IsyZ
-         a6VQVT0GzK+0HkhJsZ6VuU+vYV2Ojbn+S7Zbim7Ra2BhlgwotVrkT7qJrdB4WQ46AzOV
-         L8Uc+OH/TlREL8dovEYI885w563WtNVCIzgflyZxQUvqnzWyXRIcbDXog9RgFp1aicg5
-         BrvZa4aloTBDFmDJvqcbgwT6yef1/O20/WtuqbjiJeOIIue3ADzjvNHBCl7cRfNFkSBH
-         PqMqUSxZ9cNmwGvKmUR2Pxwdb87XmCi5wKKcKA6cpb64wszAosqece1iEQbOcRoKNTo3
-         91OQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682117426; x=1684709426;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=lxodUZsxeyf6PA26bjNhpte28Th1rWqjrqcGpRhZ21c=;
-        b=YXujXtx4166NSlkRgv6Y1yzMtmCwxdp7K7alQTgrX2uZ6b5TB47HF4aH/aWbJOgJW2
-         a7jZ4yMmFKSvaodvD8rfCBgbhaEa6h1khZq2QK8LtF1k6z4jyDts32nIrPIG6gnEqjqZ
-         H3TGLpALJkZ0asJd9s02X66S+qhuEhjPhWjdClBvECIHnx1No8SAoOkiQSs5UHXFDz+P
-         BuXk54y8B4pIGjx3HcloOe3HX/g4AnUwEpL+3/0V10KcQU3NrV3ye5GJ3uR1bnrWO1+b
-         hB5QLAnI+K7qbxzxw1bDtjuL6a6YbWIUG3XO+AeqCKJ12FrIwyq1HJnLYDT6KOKxI8yT
-         Q3cg==
-X-Gm-Message-State: AAQBX9elDGDPcMdgkhMdpPr98hi322bEZHTdg8yQYtnmyZUlgf0AV7S9
-        NWeyq2a3twucmHhIoKI1Rq0=
-X-Google-Smtp-Source: AKy350Zca7so/esm+v9kqUxVr14M0MAbSWoUxRJ8B2k06Uj/PkkOwSCkRrw0OcXLtTiA6vgdZIWQjQ==
-X-Received: by 2002:a17:907:6d24:b0:94a:9f9a:b3c4 with SMTP id sa36-20020a1709076d2400b0094a9f9ab3c4mr3930180ejc.49.1682117425950;
-        Fri, 21 Apr 2023 15:50:25 -0700 (PDT)
-Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
-        by smtp.gmail.com with ESMTPSA id li14-20020a170907198e00b009572db67bf2sm1042476ejc.89.2023.04.21.15.50.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Apr 2023 15:50:25 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-        id 97615BE2DE0; Sat, 22 Apr 2023 00:50:24 +0200 (CEST)
-Date:   Sat, 22 Apr 2023 00:50:24 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Daniel Henrique Barboza <danielhb413@gmail.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, regressions@lists.linux.dev
-Subject: Re: [PATCH 5.10 105/124] powerpc/pseries: Add support for FORM2
- associativity
-Message-ID: <ZEMTMKisvzwqrCVl@eldamar.lan>
-References: <20230418120309.539243408@linuxfoundation.org>
- <20230418120313.637367536@linuxfoundation.org>
+        with ESMTP id S231297AbjDVADD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 20:03:03 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27050210B;
+        Fri, 21 Apr 2023 17:03:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=+0dfV1eYp/+nsnlca8imSwnEvVZPr6k/2shPoq7dM34=; b=Wil964yehIc5HstIQLofzUOEMb
+        X28bUyCxE9QFQi4OhBIwvd0Yqul1/mB+ZaiOz93EXGeSVRHO6adfd/F4RBqTWR7WHhvkGRHjZMgd7
+        61xwVjKVxIpbqWOejQOYikYZd7IKF6YHi5EtqoaiyxCkFenn1AGK44hUIs8vEBFeSwsIQPagttjRl
+        /3fYumaohcGWwEOBmZS4uA3uS/x7CZjBrTqEYuFTl5slwdr+xMhiIP2Z3XoGzkWnV5A0bWC0lAs8H
+        pTqVuLfmNbdD8SJQIAAJerKLr1aE1oeo2ey3x+70j+Orn0Ep8FlFP/ni0Fk1pA0TBN4fkqZnbAROF
+        YDxBuCLw==;
+Received: from [2601:1c2:980:9ec0::2764]
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pq0iS-00C7L7-0t;
+        Sat, 22 Apr 2023 00:03:00 +0000
+Message-ID: <81229999-c4c1-61f0-1277-4b7a7c0a1d98@infradead.org>
+Date:   Fri, 21 Apr 2023 17:02:58 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230418120313.637367536@linuxfoundation.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH] docs: futex: Fix kernel-doc references after code
+ split-up preparation
+Content-Language: en-US
+To:     Salvatore Bonaccorso <carnil@debian.org>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        =?UTF-8?Q?Andr=c3=a9_Almeida?= <andrealmeid@collabora.com>,
+        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+        Jonathan Corbet <corbet@lwn.net>
+References: <20230421210531.1816665-1-carnil@debian.org>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20230421210531.1816665-1-carnil@debian.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Please see https://lore.kernel.org/all/20211012135549.14451-1-andrealmeid@collabora.com/
 
-On Tue, Apr 18, 2023 at 02:22:04PM +0200, Greg Kroah-Hartman wrote:
-> From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Don't know what has happened to it though.  :(
+
+
+On 4/21/23 14:05, Salvatore Bonaccorso wrote:
+> In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
+> futex code from kernel/futex.c was moved into kernel/futex/core in
+> preparation of the split-up of the implementation in various files.
 > 
-> [ Upstream commit 1c6b5a7e74052768977855f95d6b8812f6e7772c ]
+> Point kernel-doc references to the new files as otherwise the
+> documentation shows errors on build:
 > 
-> PAPR interface currently supports two different ways of communicating resource
-> grouping details to the OS. These are referred to as Form 0 and Form 1
-> associativity grouping. Form 0 is the older format and is now considered
-> deprecated. This patch adds another resource grouping named FORM2.
+> [...]
+> Error: Cannot open file ./kernel/futex.c
+> Error: Cannot open file ./kernel/futex.c
+> [...]
+> WARNING: kernel-doc './scripts/kernel-doc -rst -enable-lineno -sphinx-version 3.4.3 -internal ./kernel/futex.c' failed with return code 2
 > 
-> Signed-off-by: Daniel Henrique Barboza <danielhb413@gmail.com>
-> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> Link: https://lore.kernel.org/r/20210812132223.225214-6-aneesh.kumar@linux.ibm.com
-> Stable-dep-of: b277fc793daf ("powerpc/papr_scm: Update the NUMA distance table for the target node")
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> There is no direct upstream commit for this change. It is made in
+> analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
+> references") applied as consequence of the restructuring of the futex
+> code.
+> 
+> Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
+> Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
 > ---
->  Documentation/powerpc/associativity.rst   | 104 ++++++++++++
->  arch/powerpc/include/asm/firmware.h       |   3 +-
->  arch/powerpc/include/asm/prom.h           |   1 +
->  arch/powerpc/kernel/prom_init.c           |   3 +-
->  arch/powerpc/mm/numa.c                    | 187 ++++++++++++++++++----
->  arch/powerpc/platforms/pseries/firmware.c |   1 +
->  6 files changed, 262 insertions(+), 37 deletions(-)
->  create mode 100644 Documentation/powerpc/associativity.rst
+>  Documentation/kernel-hacking/locking.rst                    | 2 +-
+>  Documentation/translations/it_IT/kernel-hacking/locking.rst | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/Documentation/powerpc/associativity.rst b/Documentation/powerpc/associativity.rst
-> new file mode 100644
-> index 0000000000000..07e7dd3d6c87e
-> --- /dev/null
-> +++ b/Documentation/powerpc/associativity.rst
-> @@ -0,0 +1,104 @@
-> +============================
-> +NUMA resource associativity
-> +=============================
-> +
-> +Associativity represents the groupings of the various platform resources into
-> +domains of substantially similar mean performance relative to resources outside
-> +of that domain. Resources subsets of a given domain that exhibit better
-> +performance relative to each other than relative to other resources subsets
-> +are represented as being members of a sub-grouping domain. This performance
-> +characteristic is presented in terms of NUMA node distance within the Linux kernel.
-> +From the platform view, these groups are also referred to as domains.
-> +
-> +PAPR interface currently supports different ways of communicating these resource
-> +grouping details to the OS. These are referred to as Form 0, Form 1 and Form2
-> +associativity grouping. Form 0 is the oldest format and is now considered deprecated.
-> +
-> +Hypervisor indicates the type/form of associativity used via "ibm,architecture-vec-5 property".
-> +Bit 0 of byte 5 in the "ibm,architecture-vec-5" property indicates usage of Form 0 or Form 1.
-> +A value of 1 indicates the usage of Form 1 associativity. For Form 2 associativity
-> +bit 2 of byte 5 in the "ibm,architecture-vec-5" property is used.
-> +
-> +Form 0
-> +-----
-> +Form 0 associativity supports only two NUMA distances (LOCAL and REMOTE).
-> +
-> +Form 1
-> +-----
-> +With Form 1 a combination of ibm,associativity-reference-points, and ibm,associativity
-> +device tree properties are used to determine the NUMA distance between resource groups/domains.
-> +
-> +The “ibm,associativity” property contains a list of one or more numbers (domainID)
-> +representing the resource’s platform grouping domains.
-> +
-> +The “ibm,associativity-reference-points” property contains a list of one or more numbers
-> +(domainID index) that represents the 1 based ordinal in the associativity lists.
-> +The list of domainID indexes represents an increasing hierarchy of resource grouping.
-> +
-> +ex:
-> +{ primary domainID index, secondary domainID index, tertiary domainID index.. }
-> +
-> +Linux kernel uses the domainID at the primary domainID index as the NUMA node id.
-> +Linux kernel computes NUMA distance between two domains by recursively comparing
-> +if they belong to the same higher-level domains. For mismatch at every higher
-> +level of the resource group, the kernel doubles the NUMA distance between the
-> +comparing domains.
-> +
-> +Form 2
-> +-------
-> +Form 2 associativity format adds separate device tree properties representing NUMA node distance
-> +thereby making the node distance computation flexible. Form 2 also allows flexible primary
-> +domain numbering. With numa distance computation now detached from the index value in
-> +"ibm,associativity-reference-points" property, Form 2 allows a large number of primary domain
-> +ids at the same domainID index representing resource groups of different performance/latency
-> +characteristics.
-> +
-> +Hypervisor indicates the usage of FORM2 associativity using bit 2 of byte 5 in the
-> +"ibm,architecture-vec-5" property.
-> +
-> +"ibm,numa-lookup-index-table" property contains a list of one or more numbers representing
-> +the domainIDs present in the system. The offset of the domainID in this property is
-> +used as an index while computing numa distance information via "ibm,numa-distance-table".
-> +
-> +prop-encoded-array: The number N of the domainIDs encoded as with encode-int, followed by
-> +N domainID encoded as with encode-int
-> +
-> +For ex:
-> +"ibm,numa-lookup-index-table" =  {4, 0, 8, 250, 252}. The offset of domainID 8 (2) is used when
-> +computing the distance of domain 8 from other domains present in the system. For the rest of
-> +this document, this offset will be referred to as domain distance offset.
-> +
-> +"ibm,numa-distance-table" property contains a list of one or more numbers representing the NUMA
-> +distance between resource groups/domains present in the system.
-> +
-> +prop-encoded-array: The number N of the distance values encoded as with encode-int, followed by
-> +N distance values encoded as with encode-bytes. The max distance value we could encode is 255.
-> +The number N must be equal to the square of m where m is the number of domainIDs in the
-> +numa-lookup-index-table.
-> +
-> +For ex:
-> +ibm,numa-lookup-index-table = <3 0 8 40>;
-> +ibm,numa-distace-table = <9>, /bits/ 8 < 10  20  80
-> +					 20  10 160
-> +					 80 160  10>;
-> +  | 0    8   40
-> +--|------------
-> +  |
-> +0 | 10   20  80
-> +  |
-> +8 | 20   10  160
-> +  |
-> +40| 80   160  10
-> +
-> +A possible "ibm,associativity" property for resources in node 0, 8 and 40
-> +
-> +{ 3, 6, 7, 0 }
-> +{ 3, 6, 9, 8 }
-> +{ 3, 6, 7, 40}
-> +
-> +With "ibm,associativity-reference-points"  { 0x3 }
-> +
-> +"ibm,lookup-index-table" helps in having a compact representation of distance matrix.
-> +Since domainID can be sparse, the matrix of distances can also be effectively sparse.
-> +With "ibm,lookup-index-table" we can achieve a compact representation of
-> +distance information.
-> diff --git a/arch/powerpc/include/asm/firmware.h b/arch/powerpc/include/asm/firmware.h
-> index 0cf648d829f15..89a31f1c7b118 100644
-> --- a/arch/powerpc/include/asm/firmware.h
-> +++ b/arch/powerpc/include/asm/firmware.h
-> @@ -53,6 +53,7 @@
->  #define FW_FEATURE_ULTRAVISOR	ASM_CONST(0x0000004000000000)
->  #define FW_FEATURE_STUFF_TCE	ASM_CONST(0x0000008000000000)
->  #define FW_FEATURE_RPT_INVALIDATE ASM_CONST(0x0000010000000000)
-> +#define FW_FEATURE_FORM2_AFFINITY ASM_CONST(0x0000020000000000)
+> diff --git a/Documentation/kernel-hacking/locking.rst b/Documentation/kernel-hacking/locking.rst
+> index 6ed806e6061b..a6d89efede79 100644
+> --- a/Documentation/kernel-hacking/locking.rst
+> +++ b/Documentation/kernel-hacking/locking.rst
+> @@ -1358,7 +1358,7 @@ Mutex API reference
+>  Futex API reference
+>  ===================
 >  
->  #ifndef __ASSEMBLY__
+> -.. kernel-doc:: kernel/futex.c
+> +.. kernel-doc:: kernel/futex/core.c
+>     :internal:
 >  
-> @@ -73,7 +74,7 @@ enum {
->  		FW_FEATURE_HPT_RESIZE | FW_FEATURE_DRMEM_V2 |
->  		FW_FEATURE_DRC_INFO | FW_FEATURE_BLOCK_REMOVE |
->  		FW_FEATURE_PAPR_SCM | FW_FEATURE_ULTRAVISOR |
-> -		FW_FEATURE_RPT_INVALIDATE,
-> +		FW_FEATURE_RPT_INVALIDATE | FW_FEATURE_FORM2_AFFINITY,
->  	FW_FEATURE_PSERIES_ALWAYS = 0,
->  	FW_FEATURE_POWERNV_POSSIBLE = FW_FEATURE_OPAL | FW_FEATURE_ULTRAVISOR,
->  	FW_FEATURE_POWERNV_ALWAYS = 0,
-> diff --git a/arch/powerpc/include/asm/prom.h b/arch/powerpc/include/asm/prom.h
-> index df9fec9d232cb..5c80152e8f188 100644
-> --- a/arch/powerpc/include/asm/prom.h
-> +++ b/arch/powerpc/include/asm/prom.h
-> @@ -149,6 +149,7 @@ extern int of_read_drc_info_cell(struct property **prop,
->  #define OV5_XCMO		0x0440	/* Page Coalescing */
->  #define OV5_FORM1_AFFINITY	0x0580	/* FORM1 NUMA affinity */
->  #define OV5_PRRN		0x0540	/* Platform Resource Reassignment */
-> +#define OV5_FORM2_AFFINITY	0x0520	/* Form2 NUMA affinity */
->  #define OV5_HP_EVT		0x0604	/* Hot Plug Event support */
->  #define OV5_RESIZE_HPT		0x0601	/* Hash Page Table resizing */
->  #define OV5_PFO_HW_RNG		0x1180	/* PFO Random Number Generator */
-> diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-> index a3bf3587a4162..6f7ad80763159 100644
-> --- a/arch/powerpc/kernel/prom_init.c
-> +++ b/arch/powerpc/kernel/prom_init.c
-> @@ -1069,7 +1069,8 @@ static const struct ibm_arch_vec ibm_architecture_vec_template __initconst = {
->  #else
->  		0,
->  #endif
-> -		.associativity = OV5_FEAT(OV5_FORM1_AFFINITY) | OV5_FEAT(OV5_PRRN),
-> +		.associativity = OV5_FEAT(OV5_FORM1_AFFINITY) | OV5_FEAT(OV5_PRRN) |
-> +		OV5_FEAT(OV5_FORM2_AFFINITY),
->  		.bin_opts = OV5_FEAT(OV5_RESIZE_HPT) | OV5_FEAT(OV5_HP_EVT),
->  		.micro_checkpoint = 0,
->  		.reserved0 = 0,
-> diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
-> index 010476abec344..cfc170935a58b 100644
-> --- a/arch/powerpc/mm/numa.c
-> +++ b/arch/powerpc/mm/numa.c
-> @@ -56,12 +56,17 @@ static int n_mem_addr_cells, n_mem_size_cells;
+>  Further reading
+> diff --git a/Documentation/translations/it_IT/kernel-hacking/locking.rst b/Documentation/translations/it_IT/kernel-hacking/locking.rst
+> index bf1acd6204ef..192ab8e28125 100644
+> --- a/Documentation/translations/it_IT/kernel-hacking/locking.rst
+> +++ b/Documentation/translations/it_IT/kernel-hacking/locking.rst
+> @@ -1400,7 +1400,7 @@ Riferimento per l'API dei Mutex
+>  Riferimento per l'API dei Futex
+>  ===============================
 >  
->  #define FORM0_AFFINITY 0
->  #define FORM1_AFFINITY 1
-> +#define FORM2_AFFINITY 2
->  static int affinity_form;
+> -.. kernel-doc:: kernel/futex.c
+> +.. kernel-doc:: kernel/futex/core.c
+>     :internal:
 >  
->  #define MAX_DISTANCE_REF_POINTS 4
->  static int distance_ref_points_depth;
->  static const __be32 *distance_ref_points;
->  static int distance_lookup_table[MAX_NUMNODES][MAX_DISTANCE_REF_POINTS];
-> +static int numa_distance_table[MAX_NUMNODES][MAX_NUMNODES] = {
-> +	[0 ... MAX_NUMNODES - 1] = { [0 ... MAX_NUMNODES - 1] = -1 }
-> +};
-> +static int numa_id_index_table[MAX_NUMNODES] = { [0 ... MAX_NUMNODES - 1] = NUMA_NO_NODE };
->  
->  /*
->   * Allocate node_to_cpumask_map based on number of available nodes
-> @@ -166,6 +171,54 @@ static void unmap_cpu_from_node(unsigned long cpu)
->  }
->  #endif /* CONFIG_HOTPLUG_CPU || CONFIG_PPC_SPLPAR */
->  
-> +static int __associativity_to_nid(const __be32 *associativity,
-> +				  int max_array_sz)
-> +{
-> +	int nid;
-> +	/*
-> +	 * primary_domain_index is 1 based array index.
-> +	 */
-> +	int index = primary_domain_index  - 1;
-> +
-> +	if (!numa_enabled || index >= max_array_sz)
-> +		return NUMA_NO_NODE;
-> +
-> +	nid = of_read_number(&associativity[index], 1);
-> +
-> +	/* POWER4 LPAR uses 0xffff as invalid node */
-> +	if (nid == 0xffff || nid >= nr_node_ids)
-> +		nid = NUMA_NO_NODE;
-> +	return nid;
-> +}
-> +/*
-> + * Returns nid in the range [0..nr_node_ids], or -1 if no useful NUMA
-> + * info is found.
-> + */
-> +static int associativity_to_nid(const __be32 *associativity)
-> +{
-> +	int array_sz = of_read_number(associativity, 1);
-> +
-> +	/* Skip the first element in the associativity array */
-> +	return __associativity_to_nid((associativity + 1), array_sz);
-> +}
-> +
-> +static int __cpu_form2_relative_distance(__be32 *cpu1_assoc, __be32 *cpu2_assoc)
-> +{
-> +	int dist;
-> +	int node1, node2;
-> +
-> +	node1 = associativity_to_nid(cpu1_assoc);
-> +	node2 = associativity_to_nid(cpu2_assoc);
-> +
-> +	dist = numa_distance_table[node1][node2];
-> +	if (dist <= LOCAL_DISTANCE)
-> +		return 0;
-> +	else if (dist <= REMOTE_DISTANCE)
-> +		return 1;
-> +	else
-> +		return 2;
-> +}
-> +
->  static int __cpu_form1_relative_distance(__be32 *cpu1_assoc, __be32 *cpu2_assoc)
->  {
->  	int dist = 0;
-> @@ -186,8 +239,9 @@ int cpu_relative_distance(__be32 *cpu1_assoc, __be32 *cpu2_assoc)
->  {
->  	/* We should not get called with FORM0 */
->  	VM_WARN_ON(affinity_form == FORM0_AFFINITY);
-> -
-> -	return __cpu_form1_relative_distance(cpu1_assoc, cpu2_assoc);
-> +	if (affinity_form == FORM1_AFFINITY)
-> +		return __cpu_form1_relative_distance(cpu1_assoc, cpu2_assoc);
-> +	return __cpu_form2_relative_distance(cpu1_assoc, cpu2_assoc);
->  }
->  
->  /* must hold reference to node during call */
-> @@ -201,7 +255,9 @@ int __node_distance(int a, int b)
->  	int i;
->  	int distance = LOCAL_DISTANCE;
->  
-> -	if (affinity_form == FORM0_AFFINITY)
-> +	if (affinity_form == FORM2_AFFINITY)
-> +		return numa_distance_table[a][b];
-> +	else if (affinity_form == FORM0_AFFINITY)
->  		return ((a == b) ? LOCAL_DISTANCE : REMOTE_DISTANCE);
->  
->  	for (i = 0; i < distance_ref_points_depth; i++) {
-> @@ -216,37 +272,6 @@ int __node_distance(int a, int b)
->  }
->  EXPORT_SYMBOL(__node_distance);
->  
-> -static int __associativity_to_nid(const __be32 *associativity,
-> -				  int max_array_sz)
-> -{
-> -	int nid;
-> -	/*
-> -	 * primary_domain_index is 1 based array index.
-> -	 */
-> -	int index = primary_domain_index  - 1;
-> -
-> -	if (!numa_enabled || index >= max_array_sz)
-> -		return NUMA_NO_NODE;
-> -
-> -	nid = of_read_number(&associativity[index], 1);
-> -
-> -	/* POWER4 LPAR uses 0xffff as invalid node */
-> -	if (nid == 0xffff || nid >= nr_node_ids)
-> -		nid = NUMA_NO_NODE;
-> -	return nid;
-> -}
-> -/*
-> - * Returns nid in the range [0..nr_node_ids], or -1 if no useful NUMA
-> - * info is found.
-> - */
-> -static int associativity_to_nid(const __be32 *associativity)
-> -{
-> -	int array_sz = of_read_number(associativity, 1);
-> -
-> -	/* Skip the first element in the associativity array */
-> -	return __associativity_to_nid((associativity + 1), array_sz);
-> -}
-> -
->  /* Returns the nid associated with the given device tree node,
->   * or -1 if not found.
->   */
-> @@ -320,6 +345,8 @@ static void initialize_form1_numa_distance(const __be32 *associativity)
->   */
->  void update_numa_distance(struct device_node *node)
->  {
-> +	int nid;
-> +
->  	if (affinity_form == FORM0_AFFINITY)
->  		return;
->  	else if (affinity_form == FORM1_AFFINITY) {
-> @@ -332,6 +359,84 @@ void update_numa_distance(struct device_node *node)
->  		initialize_form1_numa_distance(associativity);
->  		return;
->  	}
-> +
-> +	/* FORM2 affinity  */
-> +	nid = of_node_to_nid_single(node);
-> +	if (nid == NUMA_NO_NODE)
-> +		return;
-> +
-> +	/*
-> +	 * With FORM2 we expect NUMA distance of all possible NUMA
-> +	 * nodes to be provided during boot.
-> +	 */
-> +	WARN(numa_distance_table[nid][nid] == -1,
-> +	     "NUMA distance details for node %d not provided\n", nid);
-> +}
-> +
-> +/*
-> + * ibm,numa-lookup-index-table= {N, domainid1, domainid2, ..... domainidN}
-> + * ibm,numa-distance-table = { N, 1, 2, 4, 5, 1, 6, .... N elements}
-> + */
-> +static void initialize_form2_numa_distance_lookup_table(void)
-> +{
-> +	int i, j;
-> +	struct device_node *root;
-> +	const __u8 *numa_dist_table;
-> +	const __be32 *numa_lookup_index;
-> +	int numa_dist_table_length;
-> +	int max_numa_index, distance_index;
-> +
-> +	if (firmware_has_feature(FW_FEATURE_OPAL))
-> +		root = of_find_node_by_path("/ibm,opal");
-> +	else
-> +		root = of_find_node_by_path("/rtas");
-> +	if (!root)
-> +		root = of_find_node_by_path("/");
-> +
-> +	numa_lookup_index = of_get_property(root, "ibm,numa-lookup-index-table", NULL);
-> +	max_numa_index = of_read_number(&numa_lookup_index[0], 1);
-> +
-> +	/* first element of the array is the size and is encode-int */
-> +	numa_dist_table = of_get_property(root, "ibm,numa-distance-table", NULL);
-> +	numa_dist_table_length = of_read_number((const __be32 *)&numa_dist_table[0], 1);
-> +	/* Skip the size which is encoded int */
-> +	numa_dist_table += sizeof(__be32);
-> +
-> +	pr_debug("numa_dist_table_len = %d, numa_dist_indexes_len = %d\n",
-> +		 numa_dist_table_length, max_numa_index);
-> +
-> +	for (i = 0; i < max_numa_index; i++)
-> +		/* +1 skip the max_numa_index in the property */
-> +		numa_id_index_table[i] = of_read_number(&numa_lookup_index[i + 1], 1);
-> +
-> +
-> +	if (numa_dist_table_length != max_numa_index * max_numa_index) {
-> +		WARN(1, "Wrong NUMA distance information\n");
-> +		/* consider everybody else just remote. */
-> +		for (i = 0;  i < max_numa_index; i++) {
-> +			for (j = 0; j < max_numa_index; j++) {
-> +				int nodeA = numa_id_index_table[i];
-> +				int nodeB = numa_id_index_table[j];
-> +
-> +				if (nodeA == nodeB)
-> +					numa_distance_table[nodeA][nodeB] = LOCAL_DISTANCE;
-> +				else
-> +					numa_distance_table[nodeA][nodeB] = REMOTE_DISTANCE;
-> +			}
-> +		}
-> +	}
-> +
-> +	distance_index = 0;
-> +	for (i = 0;  i < max_numa_index; i++) {
-> +		for (j = 0; j < max_numa_index; j++) {
-> +			int nodeA = numa_id_index_table[i];
-> +			int nodeB = numa_id_index_table[j];
-> +
-> +			numa_distance_table[nodeA][nodeB] = numa_dist_table[distance_index++];
-> +			pr_debug("dist[%d][%d]=%d ", nodeA, nodeB, numa_distance_table[nodeA][nodeB]);
-> +		}
-> +	}
-> +	of_node_put(root);
->  }
->  
->  static int __init find_primary_domain_index(void)
-> @@ -344,6 +449,9 @@ static int __init find_primary_domain_index(void)
->  	 */
->  	if (firmware_has_feature(FW_FEATURE_OPAL)) {
->  		affinity_form = FORM1_AFFINITY;
-> +	} else if (firmware_has_feature(FW_FEATURE_FORM2_AFFINITY)) {
-> +		dbg("Using form 2 affinity\n");
-> +		affinity_form = FORM2_AFFINITY;
->  	} else if (firmware_has_feature(FW_FEATURE_FORM1_AFFINITY)) {
->  		dbg("Using form 1 affinity\n");
->  		affinity_form = FORM1_AFFINITY;
-> @@ -388,9 +496,12 @@ static int __init find_primary_domain_index(void)
->  
->  		index = of_read_number(&distance_ref_points[1], 1);
->  	} else {
-> +		/*
-> +		 * Both FORM1 and FORM2 affinity find the primary domain details
-> +		 * at the same offset.
-> +		 */
->  		index = of_read_number(distance_ref_points, 1);
->  	}
-> -
->  	/*
->  	 * Warn and cap if the hardware supports more than
->  	 * MAX_DISTANCE_REF_POINTS domains.
-> @@ -819,6 +930,12 @@ static int __init parse_numa_properties(void)
->  
->  	dbg("NUMA associativity depth for CPU/Memory: %d\n", primary_domain_index);
->  
-> +	/*
-> +	 * If it is FORM2 initialize the distance table here.
-> +	 */
-> +	if (affinity_form == FORM2_AFFINITY)
-> +		initialize_form2_numa_distance_lookup_table();
-> +
->  	/*
->  	 * Even though we connect cpus to numa domains later in SMP
->  	 * init, we need to know the node ids now. This is because
-> diff --git a/arch/powerpc/platforms/pseries/firmware.c b/arch/powerpc/platforms/pseries/firmware.c
-> index 5d4c2bc20bbab..f162156b7b68d 100644
-> --- a/arch/powerpc/platforms/pseries/firmware.c
-> +++ b/arch/powerpc/platforms/pseries/firmware.c
-> @@ -123,6 +123,7 @@ vec5_fw_features_table[] = {
->  	{FW_FEATURE_PRRN,		OV5_PRRN},
->  	{FW_FEATURE_DRMEM_V2,		OV5_DRMEM_V2},
->  	{FW_FEATURE_DRC_INFO,		OV5_DRC_INFO},
-> +	{FW_FEATURE_FORM2_AFFINITY,	OV5_FORM2_AFFINITY},
->  };
->  
->  static void __init fw_vec5_feature_init(const char *vec5, unsigned long len)
-> -- 
-> 2.39.2
+>  Approfondimenti
 
-This commit causes documentation build to fail:
-
-| Sphinx parallel build error:
-| docutils.utils.SystemMessage: /build/linux/Documentation/powerpc/associativity.rst:1: (SEVERE/4) Title overline & underline mismatch.
-| 
-| ============================
-| NUMA resource associativity
-| =============================
-
-This in fact was fixed with upstream f50da6edbf1e ("powerpc/doc: Fix htmldocs
-errors") but was not applied along with the above changes.
-
-Can you please pick f50da6edbf1e as well for 5.10.y?
-
-#regzbot ^introduced 1c6b5a7e7405
-#regzbot ^introduced 453b3188be89
-#regzbot fixed-by: f50da6edbf1e
-
-Regards,
-Salvatore
+-- 
+~Randy
