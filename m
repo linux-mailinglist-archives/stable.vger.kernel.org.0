@@ -2,36 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 171C46EB7A0
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 07:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 933486EB7BA
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 09:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbjDVFqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 01:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56228 "EHLO
+        id S229484AbjDVHCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 03:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229504AbjDVFqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 01:46:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B69D1BC6;
-        Fri, 21 Apr 2023 22:46:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 248B6601BD;
-        Sat, 22 Apr 2023 05:46:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEAD2C433D2;
-        Sat, 22 Apr 2023 05:46:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682142410;
-        bh=oXrfF0+q+OjmweaqDYxmuwSbcE5OLmEHWrKpfu2ytJg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kXRZ2UUdvtwzPVs+F0IUc48X2UkkWE32EzYqwwjX21BC1LywmY1B1bpc9x/mWM7Op
-         TLXec2rcTmu2tBmjiY61XUpa/bSdvfYRzeg96zMmobr8SvmSbQ/GXYdcKGJ3cn26BE
-         wDYS6BOmiwIlqaj0E+fhkk4fjH5LeUhkgj8ckeBU=
-Date:   Sat, 22 Apr 2023 07:46:47 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        with ESMTP id S229447AbjDVHCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 03:02:22 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED00E77;
+        Sat, 22 Apr 2023 00:02:20 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id 4fb4d7f45d1cf-506b2a08877so4176369a12.2;
+        Sat, 22 Apr 2023 00:02:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682146939; x=1684738939;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QJug3HFwwM76eXtI/ZybFRMLVPjmd4+EsYAZDkR3Svc=;
+        b=lmyF6Sny0Ee4vR1YKrh+LsX4kbjs57R0D6Dis5iMQyJRizAgaXBKzng6zok6xJGRQa
+         oWhniLhC10eeEXu02sFgOWgHqNlSIdmFi7CVjMGPENWjBeg/NRZDKc7RbTmS0Rqgr98+
+         jT06lAomWeU1hd4mQedfvpt2tVjh1cLyQ49uYKZf5bou8EuYoa9a+KGk4631MGo81Q7E
+         vcnXi52WeqqnDAZdL+sXyHJUjzL++C/sI1mFjtyR1lKoZ1IPzVtYRDeVzrYJ9ruzOsW9
+         jEiFu+97NcTZPsBszU2Xa3osRO3zLXc0xFn1hg7hkMUpLZ9MOuZfsooMzf/hzinLKvA3
+         l5LQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682146939; x=1684738939;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QJug3HFwwM76eXtI/ZybFRMLVPjmd4+EsYAZDkR3Svc=;
+        b=kt3IBCq8Sygf9xj81OXat6LbiJQoUvLb361rQQzJJEFODDSeuQsh7lNEpc1vAIK+h9
+         hZ3UciGbhKhR0FuCYyIAcuPKAHdHzEMmeWnFiZBqKTA3DaJfI0G1mroXK3+j5AHfc2Ui
+         Zx4TxPW43Hz3Y0lmYfEJFjU6+S2c6c6KYQPHsNDW8sISNN1/OLt2vheZqtzK2q/KbYTU
+         5Qs5znnfs01f4ruETUzaJRby0nk5Qosxh1PlF0MvcL0A4Tl4nA0pCRG3Yr7NEPUnmvOT
+         D0vYd8q3ml/CB0RCiICWAogvOqrsORv4tESlr/zCLBhtGvZ56puYoVF1ZWjYxQIS0wRT
+         7eQg==
+X-Gm-Message-State: AAQBX9feEncf2butR4s7rAHpfzru0srz4wfZseMgNvgggQF0HFy+j0Mz
+        E7F/tJRRhtDYLdGk4VnrbN4=
+X-Google-Smtp-Source: AKy350Y8MzEpCSpS5sm68AXROV3Oy3lqZE1tHP/SiPTaj2HSXCKP5XLd96iOIzInN5hQ8QgIMmey7g==
+X-Received: by 2002:aa7:d713:0:b0:506:7385:9653 with SMTP id t19-20020aa7d713000000b0050673859653mr7039392edq.39.1682146938962;
+        Sat, 22 Apr 2023 00:02:18 -0700 (PDT)
+Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
+        by smtp.gmail.com with ESMTPSA id e9-20020a50fb89000000b00504ada6d718sm2534634edq.38.2023.04.22.00.02.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 22 Apr 2023 00:02:17 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Received: by eldamar.lan (Postfix, from userid 1000)
+        id 0A8ACBE2DE0; Sat, 22 Apr 2023 09:02:17 +0200 (CEST)
+Date:   Sat, 22 Apr 2023 09:02:17 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@collabora.com>,
@@ -39,25 +65,39 @@ Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
         Jonathan Corbet <corbet@lwn.net>
 Subject: Re: [PATCH v2 stable-5.10.y stable-5.15.y] docs: futex: Fix
  kernel-doc references after code split-up preparation
-Message-ID: <ZEN0x2Opg2dryAND@kroah.com>
+Message-ID: <ZEOGeVyvOx6/xypo@eldamar.lan>
 References: <20230421221741.1827866-1-carnil@debian.org>
- <ZEN0MsKMQXTqGwk-@kroah.com>
+ <bc5a2d13-4829-0c5a-837d-8842e16cd997@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZEN0MsKMQXTqGwk-@kroah.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <bc5a2d13-4829-0c5a-837d-8842e16cd997@infradead.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 22, 2023 at 07:44:18AM +0200, Greg Kroah-Hartman wrote:
-> On Sat, Apr 22, 2023 at 12:17:42AM +0200, Salvatore Bonaccorso wrote:
+Hi Randy,
+
+On Fri, Apr 21, 2023 at 05:03:15PM -0700, Randy Dunlap wrote:
+> Please see https://lore.kernel.org/all/20211012135549.14451-1-andrealmeid@collabora.com/
+> 
+> Don't know what has happened to it though.  :(
+
+It was applied, as bc67f1c454fb ("docs: futex: Fix kernel-doc
+references") in 5.16-rc1. But 5.10.y and 5.15.y picked up from the
+refactoring only 77e52ae35463 ("futex: Move to kernel/futex/"). 
+
+So this change is a specific backport of subset of it, to 5.10.y and
+5.15.y thus the commit message:
+
+> On 4/21/23 15:17, Salvatore Bonaccorso wrote:
 > > In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
 > > futex code from kernel/futex.c was moved into kernel/futex/core.c in
 > > preparation of the split-up of the implementation in various files.
@@ -75,24 +115,11 @@ On Sat, Apr 22, 2023 at 07:44:18AM +0200, Greg Kroah-Hartman wrote:
 > > analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
 > > references") applied as consequence of the restructuring of the futex
 > > code.
-> > 
-> > Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
-> > Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
-> > ---
-> > v1->v2:
-> >  - Fix typo in description about new target file for futex.c code
-> >  - Indent block with build log output
-> > 
-> >  Documentation/kernel-hacking/locking.rst                    | 2 +-
-> >  Documentation/translations/it_IT/kernel-hacking/locking.rst | 2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
 
-Oops, nope, this was sent just fine, my bot got it wrong, sorry for the
-noise...
+Here pointing out explicitly that there is no (direct) upstream commit
+for it. 
+
+Hope this helps,
+
+Regards,
+Salvatore
