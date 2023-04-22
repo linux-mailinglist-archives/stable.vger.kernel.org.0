@@ -2,125 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BBE76EB613
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 02:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3D46EB71E
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 05:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233825AbjDVADf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Apr 2023 20:03:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45762 "EHLO
+        id S229655AbjDVDkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Apr 2023 23:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233765AbjDVADV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 20:03:21 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6265726B5;
-        Fri, 21 Apr 2023 17:03:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=38uIKrEkm/KHYjQ9Ld2WXvwa9CxwZa7VCqEcFp/aR3U=; b=B9ID0WJg5NwnBuxfJ/ItrM5eb0
-        wDirm9AZhAj6AcqEcFoinxIjZX1dnypg6RBnfcNTOldLtDU+Tbb2Y6xUC3dOOmEEtSyta56OTCX4P
-        L/JK+aaSRsEwS2giC6+bUg3wVxrfv94OG3K/XwlIZpsgB+K2mpbuUghA1Hd/4RnCGWgefxoy8CGka
-        j+rQyfPUpUZho0VRFLR7qnKy/O1RCq19JaNu+3X1n6ny1BfMYuUyWCcGTzI7pDGKxIn7/rnJSHooU
-        5YLkUBRwP095/yvt8k0diIj2e6mUQMhzLfbeIoqllvXm1yWitz4Ox8UCxsPY0qNQZmizIyVOBnl1g
-        0g/SHlmQ==;
-Received: from [2601:1c2:980:9ec0::2764]
-        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pq0ii-00C7Mx-2a;
-        Sat, 22 Apr 2023 00:03:16 +0000
-Message-ID: <bc5a2d13-4829-0c5a-837d-8842e16cd997@infradead.org>
-Date:   Fri, 21 Apr 2023 17:03:15 -0700
+        with ESMTP id S229588AbjDVDkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Apr 2023 23:40:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F7C1BD4;
+        Fri, 21 Apr 2023 20:40:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25DEE64430;
+        Sat, 22 Apr 2023 03:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 73A11C4339E;
+        Sat, 22 Apr 2023 03:40:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1682134820;
+        bh=CKVGbNL1CDMqJ52adbSYFbDf9P+aKOtB/jBkwFDm8Pc=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=TzV1T8dhGyECXKUV6fTgARMAW64+Gd1f4YMhCLQFCJfvEgC+Uia/X31NkSnVUUm2V
+         QSLouMi3ZCXW4dlfgbrmOAtYKDNC96via6r4kpSTNhGKcqgZSNSCnWtu5FmZ8U7Dbe
+         QK+OyK3xenBs3FtEnHTXJeYbRtVB6eP5Bl8LkHt4hL41RF7JwBVYh+NhANAxxfiSQY
+         z+jjRvwHzTwK0u+CASUnVfhxKUtizhOf8DxixsGy/rUrtJ6JijKvu9V11i4bnupfpP
+         EZ2Jky2Ob5fSqIIj7Loo90f5nrbhlKApahHVsGaiD3O4Kl6tEpU+QLD+VRsWUNPvlL
+         uaf42FtvzrNow==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4FC6DE4D000;
+        Sat, 22 Apr 2023 03:40:20 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH v2 stable-5.10.y stable-5.15.y] docs: futex: Fix
- kernel-doc references after code split-up preparation
-Content-Language: en-US
-To:     Salvatore Bonaccorso <carnil@debian.org>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        =?UTF-8?Q?Andr=c3=a9_Almeida?= <andrealmeid@collabora.com>,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>
-References: <20230421221741.1827866-1-carnil@debian.org>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20230421221741.1827866-1-carnil@debian.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] nfp: fix incorrect pointer deference when offloading
+ IPsec with bonding
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <168213482031.27640.14971982573981481441.git-patchwork-notify@kernel.org>
+Date:   Sat, 22 Apr 2023 03:40:20 +0000
+References: <20230420140125.38521-1-louis.peens@corigine.com>
+In-Reply-To: <20230420140125.38521-1-louis.peens@corigine.com>
+To:     Louis Peens <louis.peens@corigine.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        steffen.klassert@secunet.com, herbert@gondor.apana.org.au,
+        leon@kernel.org, simon.horman@corigine.com, netdev@vger.kernel.org,
+        stable@vger.kernel.org, oss-drivers@corigine.com
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please see https://lore.kernel.org/all/20211012135549.14451-1-andrealmeid@collabora.com/
+Hello:
 
-Don't know what has happened to it though.  :(
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
+On Thu, 20 Apr 2023 16:01:25 +0200 you wrote:
+> From: Huanhuan Wang <huanhuan.wang@corigine.com>
+> 
+> There are two pointers in struct xfrm_dev_offload, *dev, *real_dev.
+> The *dev points whether bonding interface or real interface, if
+> bonding IPsec offload is used, it points bonding interface; if not,
+> it points real interface. And *real_dev always points real interface.
+> So nfp should always use real_dev instead of dev.
+> 
+> [...]
 
-On 4/21/23 15:17, Salvatore Bonaccorso wrote:
-> In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
-> futex code from kernel/futex.c was moved into kernel/futex/core.c in
-> preparation of the split-up of the implementation in various files.
-> 
-> Point kernel-doc references to the new files as otherwise the
-> documentation shows errors on build:
-> 
->     [...]
->     Error: Cannot open file ./kernel/futex.c
->     Error: Cannot open file ./kernel/futex.c
->     [...]
->     WARNING: kernel-doc './scripts/kernel-doc -rst -enable-lineno -sphinx-version 3.4.3 -internal ./kernel/futex.c' failed with return code 2
-> 
-> There is no direct upstream commit for this change. It is made in
-> analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
-> references") applied as consequence of the restructuring of the futex
-> code.
-> 
-> Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
-> Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
-> ---
-> v1->v2:
->  - Fix typo in description about new target file for futex.c code
->  - Indent block with build log output
-> 
->  Documentation/kernel-hacking/locking.rst                    | 2 +-
->  Documentation/translations/it_IT/kernel-hacking/locking.rst | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/kernel-hacking/locking.rst b/Documentation/kernel-hacking/locking.rst
-> index 6ed806e6061b..a6d89efede79 100644
-> --- a/Documentation/kernel-hacking/locking.rst
-> +++ b/Documentation/kernel-hacking/locking.rst
-> @@ -1358,7 +1358,7 @@ Mutex API reference
->  Futex API reference
->  ===================
->  
-> -.. kernel-doc:: kernel/futex.c
-> +.. kernel-doc:: kernel/futex/core.c
->     :internal:
->  
->  Further reading
-> diff --git a/Documentation/translations/it_IT/kernel-hacking/locking.rst b/Documentation/translations/it_IT/kernel-hacking/locking.rst
-> index bf1acd6204ef..192ab8e28125 100644
-> --- a/Documentation/translations/it_IT/kernel-hacking/locking.rst
-> +++ b/Documentation/translations/it_IT/kernel-hacking/locking.rst
-> @@ -1400,7 +1400,7 @@ Riferimento per l'API dei Mutex
->  Riferimento per l'API dei Futex
->  ===============================
->  
-> -.. kernel-doc:: kernel/futex.c
-> +.. kernel-doc:: kernel/futex/core.c
->     :internal:
->  
->  Approfondimenti
+Here is the summary with links:
+  - [net] nfp: fix incorrect pointer deference when offloading IPsec with bonding
+    https://git.kernel.org/netdev/net/c/63cfd210034c
 
+You are awesome, thank you!
 -- 
-~Randy
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
