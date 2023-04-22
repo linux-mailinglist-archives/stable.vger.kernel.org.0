@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D4D16EBA54
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:27:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C816EBA55
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbjDVQ1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 12:27:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50622 "EHLO
+        id S229580AbjDVQ3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 12:29:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229656AbjDVQ1W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:27:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173171FE4
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:27:20 -0700 (PDT)
+        with ESMTP id S229508AbjDVQ3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:29:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD51AC
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7C5F60F21
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702E5C433EF;
-        Sat, 22 Apr 2023 16:27:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3011F611AF
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34D70C433D2;
+        Sat, 22 Apr 2023 16:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682180839;
-        bh=vqg3oFL2gMAr39Wub0vutDF4Q9QMzvzweIB6iOwzkks=;
+        s=korg; t=1682180944;
+        bh=yjQbqNAyW8pqlSOZleDmP/e1dgC7SBJtV1tV30Ch6/M=;
         h=Subject:To:Cc:From:Date:From;
-        b=xHyUvUpBZANAjXWlNRp/YiGyJOGrK71wjEEve5DBzYBbPFYfhL5OOoVaDHU5kN87F
-         3x4OvD7Do6EeLsPMT/VAQ6QjdvjQmgnIzlUTFIl1BWKX4mnMvvcwAQGdLc7f2uMEkg
-         MMHhc5C4zvrtbbNERvlY1qb6hmYLCXQ2TqscEZjs=
-Subject: FAILED: patch "[PATCH] mptcp: fix accept vs worker race" failed to apply to 6.1-stable tree
-To:     pabeni@redhat.com, cpaasch@apple.com, davem@davemloft.net,
-        matthieu.baerts@tessares.net
+        b=MuZ0E/lJB5GDQ8oez3MJCWlei+7rLLhNMRq7JUAHtGblTtOLW6CKhPmn1Ti6Ctf3z
+         z7zVhvGJChHjiFWRzvnNTMvY8O8/hkh2Ymupv+BSliYQ9ylSHGjr53d1FySBg4K8PU
+         jrFmmJL+jepJsw7BJiHPM1gQBYanxdBK5EbKpuag=
+Subject: FAILED: patch "[PATCH] kernel/sys.c: fix and improve control flow in" failed to apply to 5.4-stable tree
+To:     omosnace@redhat.com, akpm@linux-foundation.org,
+        ebiederm@xmission.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 22 Apr 2023 18:27:15 +0200
-Message-ID: <2023042215-chastise-scuba-8478@gregkh>
+Date:   Sat, 22 Apr 2023 18:29:01 +0200
+Message-ID: <2023042201-superior-freebase-a71f@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -49,32 +49,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
-git cherry-pick -x 63740448a32eb662e05894425b47bcc5814136f4
+git cherry-pick -x 659c0ce1cb9efc7f58d380ca4bb2a51ae9e30553
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042215-chastise-scuba-8478@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042201-superior-freebase-a71f@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
-63740448a32e ("mptcp: fix accept vs worker race")
-2a6a870e44dd ("mptcp: stops worker on unaccepted sockets at listener close")
-0a3f4f1f9c27 ("mptcp: fix UaF in listener shutdown")
-b6985b9b8295 ("mptcp: use the workqueue to destroy unaccepted sockets")
-fec3adfd754c ("mptcp: fix lockdep false positive")
-7d803344fdc3 ("mptcp: fix deadlock in fastopen error path")
-f8c9dfbd875b ("mptcp: add pm listener events")
-36b122baf6a8 ("mptcp: add subflow_v(4,6)_send_synack()")
-dfc8d0603033 ("mptcp: implement delayed seq generation for passive fastopen")
-f2bb566f5c97 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
+659c0ce1cb9e ("kernel/sys.c: fix and improve control flow in __sys_setres[ug]id()")
+111767c1d86b ("LSM: Signal to SafeSetID when setting group IDs")
 
 thanks,
 
@@ -82,282 +74,150 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 63740448a32eb662e05894425b47bcc5814136f4 Mon Sep 17 00:00:00 2001
-From: Paolo Abeni <pabeni@redhat.com>
-Date: Mon, 17 Apr 2023 16:00:41 +0200
-Subject: [PATCH] mptcp: fix accept vs worker race
+From 659c0ce1cb9efc7f58d380ca4bb2a51ae9e30553 Mon Sep 17 00:00:00 2001
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Fri, 17 Feb 2023 17:21:54 +0100
+Subject: [PATCH] kernel/sys.c: fix and improve control flow in
+ __sys_setres[ug]id()
 
-The mptcp worker and mptcp_accept() can race, as reported by Christoph:
+Linux Security Modules (LSMs) that implement the "capable" hook will
+usually emit an access denial message to the audit log whenever they
+"block" the current task from using the given capability based on their
+security policy.
 
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 1 PID: 14351 at lib/refcount.c:25 refcount_warn_saturate+0x105/0x1b0 lib/refcount.c:25
-Modules linked in:
-CPU: 1 PID: 14351 Comm: syz-executor.2 Not tainted 6.3.0-rc1-gde5e8fd0123c #11
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
-RIP: 0010:refcount_warn_saturate+0x105/0x1b0 lib/refcount.c:25
-Code: 02 31 ff 89 de e8 1b f0 a7 ff 84 db 0f 85 6e ff ff ff e8 3e f5 a7 ff 48 c7 c7 d8 c7 34 83 c6 05 6d 2d 0f 02 01 e8 cb 3d 90 ff <0f> 0b e9 4f ff ff ff e8 1f f5 a7 ff 0f b6 1d 54 2d 0f 02 31 ff 89
-RSP: 0018:ffffc90000a47bf8 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88802eae98c0 RSI: ffffffff81097d4f RDI: 0000000000000001
-RBP: ffff88802e712180 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000001 R11: ffff88802eaea148 R12: ffff88802e712100
-R13: ffff88802e712a88 R14: ffff888005cb93a8 R15: ffff88802e712a88
-FS:  0000000000000000(0000) GS:ffff88803ed00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f277fd89120 CR3: 0000000035486002 CR4: 0000000000370ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __refcount_add include/linux/refcount.h:199 [inline]
- __refcount_inc include/linux/refcount.h:250 [inline]
- refcount_inc include/linux/refcount.h:267 [inline]
- sock_hold include/net/sock.h:775 [inline]
- __mptcp_close+0x4c6/0x4d0 net/mptcp/protocol.c:3051
- mptcp_close+0x24/0xe0 net/mptcp/protocol.c:3072
- inet_release+0x56/0xa0 net/ipv4/af_inet.c:429
- __sock_release+0x51/0xf0 net/socket.c:653
- sock_close+0x18/0x20 net/socket.c:1395
- __fput+0x113/0x430 fs/file_table.c:321
- task_work_run+0x96/0x100 kernel/task_work.c:179
- exit_task_work include/linux/task_work.h:38 [inline]
- do_exit+0x4fc/0x10c0 kernel/exit.c:869
- do_group_exit+0x51/0xf0 kernel/exit.c:1019
- get_signal+0x12b0/0x1390 kernel/signal.c:2859
- arch_do_signal_or_restart+0x25/0x260 arch/x86/kernel/signal.c:306
- exit_to_user_mode_loop kernel/entry/common.c:168 [inline]
- exit_to_user_mode_prepare+0x131/0x1a0 kernel/entry/common.c:203
- __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
- syscall_exit_to_user_mode+0x19/0x40 kernel/entry/common.c:296
- do_syscall_64+0x46/0x90 arch/x86/entry/common.c:86
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
-RIP: 0033:0x7fec4b4926a9
-Code: Unable to access opcode bytes at 0x7fec4b49267f.
-RSP: 002b:00007fec49f9dd78 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
-RAX: fffffffffffffe00 RBX: 00000000006bc058 RCX: 00007fec4b4926a9
-RDX: 0000000000000000 RSI: 0000000000000080 RDI: 00000000006bc058
-RBP: 00000000006bc050 R08: 00000000007df998 R09: 00000000007df998
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000006bc05c
-R13: fffffffffffffea8 R14: 000000000000000b R15: 000000000001fe40
- </TASK>
+The occurrence of a denial is used as an indication that the given task
+has attempted an operation that requires the given access permission, so
+the callers of functions that perform LSM permission checks must take care
+to avoid calling them too early (before it is decided if the permission is
+actually needed to perform the requested operation).
 
-The root cause is that the worker can force fallback to TCP the first
-mptcp subflow, actually deleting the unaccepted msk socket.
+The __sys_setres[ug]id() functions violate this convention by first
+calling ns_capable_setid() and only then checking if the operation
+requires the capability or not.  It means that any caller that has the
+capability granted by DAC (task's capability set) but not by MAC (LSMs)
+will generate a "denied" audit record, even if is doing an operation for
+which the capability is not required.
 
-We can explicitly prevent the race delaying the unaccepted msk deletion
-at listener shutdown time. In case the closed subflow is later accepted,
-just drop the mptcp context and let the user-space deal with the
-paired mptcp socket.
+Fix this by reordering the checks such that ns_capable_setid() is checked
+last and -EPERM is returned immediately if it returns false.
 
-Fixes: b6985b9b8295 ("mptcp: use the workqueue to destroy unaccepted sockets")
-Cc: stable@vger.kernel.org
-Reported-by: Christoph Paasch <cpaasch@apple.com>
-Link: https://github.com/multipath-tcp/mptcp_net-next/issues/375
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Tested-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+While there, also do two small optimizations:
+* move the capability check before prepare_creds() and
+* bail out early in case of a no-op.
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 5181fb91595b..b998e9df53ce 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2315,7 +2315,26 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
- 			      unsigned int flags)
- {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
--	bool need_push, dispose_it;
-+	bool dispose_it, need_push = false;
-+
-+	/* If the first subflow moved to a close state before accept, e.g. due
-+	 * to an incoming reset, mptcp either:
-+	 * - if either the subflow or the msk are dead, destroy the context
-+	 *   (the subflow socket is deleted by inet_child_forget) and the msk
-+	 * - otherwise do nothing at the moment and take action at accept and/or
-+	 *   listener shutdown - user-space must be able to accept() the closed
-+	 *   socket.
-+	 */
-+	if (msk->in_accept_queue && msk->first == ssk) {
-+		if (!sock_flag(sk, SOCK_DEAD) && !sock_flag(ssk, SOCK_DEAD))
-+			return;
-+
-+		/* ensure later check in mptcp_worker() will dispose the msk */
-+		sock_set_flag(sk, SOCK_DEAD);
-+		lock_sock_nested(ssk, SINGLE_DEPTH_NESTING);
-+		mptcp_subflow_drop_ctx(ssk);
-+		goto out_release;
-+	}
+Link: https://lkml.kernel.org/r/20230217162154.837549-1-omosnace@redhat.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 495cd87d9bf4..351de7916302 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -664,6 +664,7 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+ 	struct cred *new;
+ 	int retval;
+ 	kuid_t kruid, keuid, ksuid;
++	bool ruid_new, euid_new, suid_new;
  
- 	dispose_it = !msk->subflow || ssk != msk->subflow->sk;
- 	if (dispose_it)
-@@ -2351,18 +2370,6 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
- 	if (!inet_csk(ssk)->icsk_ulp_ops) {
- 		WARN_ON_ONCE(!sock_flag(ssk, SOCK_DEAD));
- 		kfree_rcu(subflow, rcu);
--	} else if (msk->in_accept_queue && msk->first == ssk) {
--		/* if the first subflow moved to a close state, e.g. due to
--		 * incoming reset and we reach here before inet_child_forget()
--		 * the TCP stack could later try to close it via
--		 * inet_csk_listen_stop(), or deliver it to the user space via
--		 * accept().
--		 * We can't delete the subflow - or risk a double free - nor let
--		 * the msk survive - or will be leaked in the non accept scenario:
--		 * fallback and let TCP cope with the subflow cleanup.
--		 */
--		WARN_ON_ONCE(sock_flag(ssk, SOCK_DEAD));
--		mptcp_subflow_drop_ctx(ssk);
- 	} else {
- 		/* otherwise tcp will dispose of the ssk and subflow ctx */
- 		if (ssk->sk_state == TCP_LISTEN) {
-@@ -2377,6 +2384,8 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
- 		/* close acquired an extra ref */
- 		__sock_put(ssk);
- 	}
+ 	kruid = make_kuid(ns, ruid);
+ 	keuid = make_kuid(ns, euid);
+@@ -678,25 +679,29 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+ 	if ((suid != (uid_t) -1) && !uid_valid(ksuid))
+ 		return -EINVAL;
+ 
++	old = current_cred();
 +
-+out_release:
- 	release_sock(ssk);
++	/* check for no-op */
++	if ((ruid == (uid_t) -1 || uid_eq(kruid, old->uid)) &&
++	    (euid == (uid_t) -1 || (uid_eq(keuid, old->euid) &&
++				    uid_eq(keuid, old->fsuid))) &&
++	    (suid == (uid_t) -1 || uid_eq(ksuid, old->suid)))
++		return 0;
++
++	ruid_new = ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
++		   !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid);
++	euid_new = euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
++		   !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid);
++	suid_new = suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
++		   !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid);
++	if ((ruid_new || euid_new || suid_new) &&
++	    !ns_capable_setid(old->user_ns, CAP_SETUID))
++		return -EPERM;
++
+ 	new = prepare_creds();
+ 	if (!new)
+ 		return -ENOMEM;
  
- 	sock_put(ssk);
-@@ -2431,21 +2440,14 @@ static void __mptcp_close_subflow(struct sock *sk)
- 		mptcp_close_ssk(sk, ssk, subflow);
- 	}
- 
--	/* if the MPC subflow has been closed before the msk is accepted,
--	 * msk will never be accept-ed, close it now
--	 */
--	if (!msk->first && msk->in_accept_queue) {
--		sock_set_flag(sk, SOCK_DEAD);
--		inet_sk_state_store(sk, TCP_CLOSE);
+-	old = current_cred();
+-
+-	retval = -EPERM;
+-	if (!ns_capable_setid(old->user_ns, CAP_SETUID)) {
+-		if (ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
+-		    !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid))
+-			goto error;
+-		if (euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
+-		    !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid))
+-			goto error;
+-		if (suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
+-		    !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid))
+-			goto error;
 -	}
- }
+-
+ 	if (ruid != (uid_t) -1) {
+ 		new->uid = kruid;
+ 		if (!uid_eq(kruid, old->uid)) {
+@@ -761,6 +766,7 @@ long __sys_setresgid(gid_t rgid, gid_t egid, gid_t sgid)
+ 	struct cred *new;
+ 	int retval;
+ 	kgid_t krgid, kegid, ksgid;
++	bool rgid_new, egid_new, sgid_new;
  
--static bool mptcp_check_close_timeout(const struct sock *sk)
-+static bool mptcp_should_close(const struct sock *sk)
- {
- 	s32 delta = tcp_jiffies32 - inet_csk(sk)->icsk_mtup.probe_timestamp;
- 	struct mptcp_subflow_context *subflow;
+ 	krgid = make_kgid(ns, rgid);
+ 	kegid = make_kgid(ns, egid);
+@@ -773,23 +779,28 @@ long __sys_setresgid(gid_t rgid, gid_t egid, gid_t sgid)
+ 	if ((sgid != (gid_t) -1) && !gid_valid(ksgid))
+ 		return -EINVAL;
  
--	if (delta >= TCP_TIMEWAIT_LEN)
-+	if (delta >= TCP_TIMEWAIT_LEN || mptcp_sk(sk)->in_accept_queue)
- 		return true;
- 
- 	/* if all subflows are in closed status don't bother with additional
-@@ -2653,7 +2655,7 @@ static void mptcp_worker(struct work_struct *work)
- 	 * even if it is orphaned and in FIN_WAIT2 state
- 	 */
- 	if (sock_flag(sk, SOCK_DEAD)) {
--		if (mptcp_check_close_timeout(sk)) {
-+		if (mptcp_should_close(sk)) {
- 			inet_sk_state_store(sk, TCP_CLOSE);
- 			mptcp_do_fastclose(sk);
- 		}
-@@ -2899,6 +2901,14 @@ static void __mptcp_destroy_sock(struct sock *sk)
- 	sock_put(sk);
- }
- 
-+void __mptcp_unaccepted_force_close(struct sock *sk)
-+{
-+	sock_set_flag(sk, SOCK_DEAD);
-+	inet_sk_state_store(sk, TCP_CLOSE);
-+	mptcp_do_fastclose(sk);
-+	__mptcp_destroy_sock(sk);
-+}
++	old = current_cred();
 +
- static __poll_t mptcp_check_readable(struct mptcp_sock *msk)
- {
- 	/* Concurrent splices from sk_receive_queue into receive_queue will
-@@ -3737,6 +3747,18 @@ static int mptcp_stream_accept(struct socket *sock, struct socket *newsock,
- 			if (!ssk->sk_socket)
- 				mptcp_sock_graft(ssk, newsock);
- 		}
++	/* check for no-op */
++	if ((rgid == (gid_t) -1 || gid_eq(krgid, old->gid)) &&
++	    (egid == (gid_t) -1 || (gid_eq(kegid, old->egid) &&
++				    gid_eq(kegid, old->fsgid))) &&
++	    (sgid == (gid_t) -1 || gid_eq(ksgid, old->sgid)))
++		return 0;
 +
-+		/* Do late cleanup for the first subflow as necessary. Also
-+		 * deal with bad peers not doing a complete shutdown.
-+		 */
-+		if (msk->first &&
-+		    unlikely(inet_sk_state_load(msk->first) == TCP_CLOSE)) {
-+			__mptcp_close_ssk(newsk, msk->first,
-+					  mptcp_subflow_ctx(msk->first), 0);
-+			if (unlikely(list_empty(&msk->conn_list)))
-+				inet_sk_state_store(newsk, TCP_CLOSE);
-+		}
++	rgid_new = rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
++		   !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid);
++	egid_new = egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
++		   !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid);
++	sgid_new = sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
++		   !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid);
++	if ((rgid_new || egid_new || sgid_new) &&
++	    !ns_capable_setid(old->user_ns, CAP_SETGID))
++		return -EPERM;
 +
- 		release_sock(newsk);
- 	}
+ 	new = prepare_creds();
+ 	if (!new)
+ 		return -ENOMEM;
+-	old = current_cred();
+-
+-	retval = -EPERM;
+-	if (!ns_capable_setid(old->user_ns, CAP_SETGID)) {
+-		if (rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
+-		    !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid))
+-			goto error;
+-		if (egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
+-		    !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid))
+-			goto error;
+-		if (sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
+-		    !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid))
+-			goto error;
+-	}
  
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 3a2db1b862dd..d6469b6ab38e 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -634,6 +634,7 @@ void mptcp_sock_graft(struct sock *sk, struct socket *parent);
- struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
- bool __mptcp_close(struct sock *sk, long timeout);
- void mptcp_cancel_work(struct sock *sk);
-+void __mptcp_unaccepted_force_close(struct sock *sk);
- void mptcp_set_owner_r(struct sk_buff *skb, struct sock *sk);
- 
- bool mptcp_addresses_equal(const struct mptcp_addr_info *a,
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index bf5e5c72b5ee..281c1cc8dc8d 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -723,9 +723,12 @@ void mptcp_subflow_drop_ctx(struct sock *ssk)
- 	if (!ctx)
- 		return;
- 
--	subflow_ulp_fallback(ssk, ctx);
--	if (ctx->conn)
--		sock_put(ctx->conn);
-+	list_del(&mptcp_subflow_ctx(ssk)->node);
-+	if (inet_csk(ssk)->icsk_ulp_ops) {
-+		subflow_ulp_fallback(ssk, ctx);
-+		if (ctx->conn)
-+			sock_put(ctx->conn);
-+	}
- 
- 	kfree_rcu(ctx, rcu);
- }
-@@ -1824,6 +1827,7 @@ void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_s
- 	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
- 	struct mptcp_sock *msk, *next, *head = NULL;
- 	struct request_sock *req;
-+	struct sock *sk;
- 
- 	/* build a list of all unaccepted mptcp sockets */
- 	spin_lock_bh(&queue->rskq_lock);
-@@ -1839,11 +1843,12 @@ void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_s
- 			continue;
- 
- 		/* skip if already in list */
--		msk = mptcp_sk(subflow->conn);
-+		sk = subflow->conn;
-+		msk = mptcp_sk(sk);
- 		if (msk->dl_next || msk == head)
- 			continue;
- 
--		sock_hold(subflow->conn);
-+		sock_hold(sk);
- 		msk->dl_next = head;
- 		head = msk;
- 	}
-@@ -1857,16 +1862,13 @@ void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_s
- 	release_sock(listener_ssk);
- 
- 	for (msk = head; msk; msk = next) {
--		struct sock *sk = (struct sock *)msk;
-+		sk = (struct sock *)msk;
- 
- 		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
- 		next = msk->dl_next;
- 		msk->dl_next = NULL;
- 
--		/* prevent the stack from later re-schedule the worker for
--		 * this socket
--		 */
--		inet_sk_state_store(sk, TCP_CLOSE);
-+		__mptcp_unaccepted_force_close(sk);
- 		release_sock(sk);
- 
- 		/* lockdep will report a false positive ABBA deadlock
+ 	if (rgid != (gid_t) -1)
+ 		new->gid = krgid;
 
