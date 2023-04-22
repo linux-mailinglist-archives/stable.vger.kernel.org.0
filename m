@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 905516EB9F8
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 17:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A506EBA1B
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 17:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbjDVPUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 11:20:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37240 "EHLO
+        id S229508AbjDVP7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 11:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbjDVPUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 11:20:22 -0400
+        with ESMTP id S229583AbjDVP7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 11:59:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E089109;
-        Sat, 22 Apr 2023 08:20:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF0810EA
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 08:59:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 293E060B5C;
-        Sat, 22 Apr 2023 15:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A64C433D2;
-        Sat, 22 Apr 2023 15:20:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBD5E61044
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 15:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFFBC433D2;
+        Sat, 22 Apr 2023 15:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682176820;
-        bh=FOlJkgGZ6G9M2l1cmZWwgB09X0NECDhBxKDOoN1YeKY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mwEVLSSWgkyOfrArixzsjSos+5edUsLutV3BoVzpawMwJD9LrVthRPDNkBc2bymWE
-         JBbdLI7Eho1kg70dvQSRQFe1tMDXihSZ22vkGIIrK/BFO7WUkyBkG38882kGgXUa0N
-         Y9Tz5UZMif2yDZYrq0oq5uFQjqYyGoUS/c559yKI=
-Date:   Sat, 22 Apr 2023 17:20:17 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Brian Foster <bfoster@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Christian Theune <ct@flyingcircus.io>
-Subject: Re: [PATCH 5.10] xfs: drop submit side trans alloc for append ioends
-Message-ID: <2023042211-harmonica-ecology-a31b@gregkh>
-References: <20230419161813.2044576-1-amir73il@gmail.com>
+        s=korg; t=1682179186;
+        bh=VNt1AQOI1F9iDZ8xtBkX7WdZwUlT+cc0IBZRvr0Neb0=;
+        h=Subject:To:Cc:From:Date:From;
+        b=gWGCBSIvriu9pY/f/hxh2UuhC/Hybv+E+77+fFmSzyXZk/LMDitJ8xMUm3FYin7OJ
+         Rp5M4SVnCLlqEUhREx816ALo4ATtkUiuALur+PbICuyZaBHzYlGX6PdCUGiR9hubzV
+         ySFToAkWsocZWl6U9tq9XXoinPwKNuyN22Fsr1UM=
+Subject: FAILED: patch "[PATCH] pwm: meson: Explicitly set .polarity in .get_state()" failed to apply to 5.10-stable tree
+To:     u.kleine-koenig@pengutronix.de, kamatam@amazon.com,
+        martin.blumenstingl@googlemail.com, thierry.reding@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 22 Apr 2023 17:59:42 +0200
+Message-ID: <2023042242-unsaved-sanded-d4c1@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230419161813.2044576-1-amir73il@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
@@ -56,58 +48,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 19, 2023 at 07:18:13PM +0300, Amir Goldstein wrote:
-> From: Brian Foster <bfoster@redhat.com>
-> 
-> commit 7cd3099f4925d7c15887d1940ebd65acd66100f5 upstream.
-> 
-> Per-inode ioend completion batching has a log reservation deadlock
-> vector between preallocated append transactions and transactions
-> that are acquired at completion time for other purposes (i.e.,
-> unwritten extent conversion or COW fork remaps). For example, if the
-> ioend completion workqueue task executes on a batch of ioends that
-> are sorted such that an append ioend sits at the tail, it's possible
-> for the outstanding append transaction reservation to block
-> allocation of transactions required to process preceding ioends in
-> the list.
-> 
-> Append ioend completion is historically the common path for on-disk
-> inode size updates. While file extending writes may have completed
-> sometime earlier, the on-disk inode size is only updated after
-> successful writeback completion. These transactions are preallocated
-> serially from writeback context to mitigate concurrency and
-> associated log reservation pressure across completions processed by
-> multi-threaded workqueue tasks.
-> 
-> However, now that delalloc blocks unconditionally map to unwritten
-> extents at physical block allocation time, size updates via append
-> ioends are relatively rare. This means that inode size updates most
-> commonly occur as part of the preexisting completion time
-> transaction to convert unwritten extents. As a result, there is no
-> longer a strong need to preallocate size update transactions.
-> 
-> Remove the preallocation of inode size update transactions to avoid
-> the ioend completion processing log reservation deadlock. Instead,
-> continue to send all potential size extending ioends to workqueue
-> context for completion and allocate the transaction from that
-> context. This ensures that no outstanding log reservation is owned
-> by the ioend completion worker task when it begins to process
-> ioends.
-> 
-> Signed-off-by: Brian Foster <bfoster@redhat.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-> Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-> Reported-by: Christian Theune <ct@flyingcircus.io>
-> Link: https://lore.kernel.org/linux-xfs/CAOQ4uxjj2UqA0h4Y31NbmpHksMhVrXfXjLG4Tnz3zq_UR-3gSA@mail.gmail.com/
-> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-> Acked-by: Darrick J. Wong <djwong@kernel.org>
-> ---
-> 
-> Greg,
-> 
-> One more fix from v5.13 that I missed from my backports.
 
-Now queued up, thanks.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+To reproduce the conflict and resubmit, you may use the following commands:
+
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git checkout FETCH_HEAD
+git cherry-pick -x 8caa81eb950cb2e9d2d6959b37d853162d197f57
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042242-unsaved-sanded-d4c1@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+
+Possible dependencies:
+
+8caa81eb950c ("pwm: meson: Explicitly set .polarity in .get_state()")
+6c452cff79f8 ("pwm: Make .get_state() callback return an error code")
+8eca6b0a647a ("Merge tag 'pwm/for-5.19-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm")
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 8caa81eb950cb2e9d2d6959b37d853162d197f57 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Wed, 22 Mar 2023 22:45:44 +0100
+Subject: [PATCH] pwm: meson: Explicitly set .polarity in .get_state()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The driver only supports normal polarity. Complete the implementation of
+.get_state() by setting .polarity accordingly.
+
+This fixes a regression that was possible since commit c73a3107624d
+("pwm: Handle .get_state() failures") which stopped to zero-initialize
+the state passed to the .get_state() callback. This was reported at
+https://forum.odroid.com/viewtopic.php?f=177&t=46360 . While this was an
+unintended side effect, the real issue is the driver's callback not
+setting the polarity.
+
+There is a complicating fact, that the .apply() callback fakes support
+for inversed polarity. This is not (and cannot) be matched by
+.get_state(). As fixing this isn't easy, only point it out in a comment
+to prevent authors of other drivers from copying that approach.
+
+Fixes: c375bcbaabdb ("pwm: meson: Read the full hardware state in meson_pwm_get_state()")
+Reported-by: Munehisa Kamata <kamatam@amazon.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20230310191405.2606296-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+
+diff --git a/drivers/pwm/pwm-meson.c b/drivers/pwm/pwm-meson.c
+index 16d79ca5d8f5..5cd7b90872c6 100644
+--- a/drivers/pwm/pwm-meson.c
++++ b/drivers/pwm/pwm-meson.c
+@@ -162,6 +162,12 @@ static int meson_pwm_calc(struct meson_pwm *meson, struct pwm_device *pwm,
+ 	duty = state->duty_cycle;
+ 	period = state->period;
+ 
++	/*
++	 * Note this is wrong. The result is an output wave that isn't really
++	 * inverted and so is wrongly identified by .get_state as normal.
++	 * Fixing this needs some care however as some machines might rely on
++	 * this.
++	 */
+ 	if (state->polarity == PWM_POLARITY_INVERSED)
+ 		duty = period - duty;
+ 
+@@ -358,6 +364,8 @@ static int meson_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		state->duty_cycle = 0;
+ 	}
+ 
++	state->polarity = PWM_POLARITY_NORMAL;
++
+ 	return 0;
+ }
+ 
+
