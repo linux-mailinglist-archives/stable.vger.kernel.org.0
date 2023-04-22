@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E5B6EBA28
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A0C96EBA50
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbjDVQFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 12:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45042 "EHLO
+        id S229533AbjDVQ1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 12:27:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbjDVQFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:05:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C680B1736
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:05:22 -0700 (PDT)
+        with ESMTP id S229508AbjDVQ1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:27:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27EF81717
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:27:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 614C260C34
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:05:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6EEC433EF;
-        Sat, 22 Apr 2023 16:05:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7C9A6199F
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE11EC433EF;
+        Sat, 22 Apr 2023 16:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682179521;
-        bh=8S8O25fFkFkrTirrBp702S1p4sgxNSHZOj9kqnmtcvg=;
+        s=korg; t=1682180823;
+        bh=T0NIMFpdgpDgYcubSjz6drCZ/sgJkHGU7xes4lIZZ3c=;
         h=Subject:To:Cc:From:Date:From;
-        b=H9OpDAehfqdMruP8G8rAParM8ruHp3tmLz9Eio8Gs0dFK81rftN2TkD2NbHuZIlVq
-         MsBZyua6dikLzT9zMqocrvwvNI0DnbGjz5xBMIFh8/KNmE5RrLjUhexrSujaPpic5K
-         rrR37DrFIbHjl+JObvZR88cb0KJks0ukkZexBLdM=
-Subject: FAILED: patch "[PATCH] LoongArch: Make WriteCombine configurable for ioremap()" failed to apply to 6.2-stable tree
-To:     chenhuacai@kernel.org, chenhuacai@loongson.cn, kernel@xen0n.name
+        b=yzRVukuMkdNR0QiUbpRj20Zr9AoEJlp9MGmA6swdhYZTbdbrGvOq64fCYaChEBhwf
+         HM03quZdompQLRwkPT+TF+gc/e6ZO2seeqIpcCbS+EIbAxB19fdkvzACaupDFMg2TV
+         Esxtbz7w8zq5SHZhWEfOwCn2RBlUNxS+SLpTFcMs=
+Subject: FAILED: patch "[PATCH] mptcp: stops worker on unaccepted sockets at listener close" failed to apply to 6.1-stable tree
+To:     pabeni@redhat.com, cpaasch@apple.com, davem@davemloft.net,
+        matthieu.baerts@tessares.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 22 Apr 2023 18:05:13 +0200
-Message-ID: <2023042213-overbid-jitters-7a29@gregkh>
+Date:   Sat, 22 Apr 2023 18:27:00 +0200
+Message-ID: <2023042259-gravity-hate-a9a3@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -48,24 +49,29 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x 16c52e503043aed1e2a2ce38d9249de5936c1f6b
+git cherry-pick -x 2a6a870e44dd88f1a6a2893c65ef756a9edfb4c7
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042213-overbid-jitters-7a29@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042259-gravity-hate-a9a3@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-16c52e503043 ("LoongArch: Make WriteCombine configurable for ioremap()")
-41596803302d ("LoongArch: Make -mstrict-align configurable")
+2a6a870e44dd ("mptcp: stops worker on unaccepted sockets at listener close")
+0a3f4f1f9c27 ("mptcp: fix UaF in listener shutdown")
+b6985b9b8295 ("mptcp: use the workqueue to destroy unaccepted sockets")
+fec3adfd754c ("mptcp: fix lockdep false positive")
+7d803344fdc3 ("mptcp: fix deadlock in fastopen error path")
+f8c9dfbd875b ("mptcp: add pm listener events")
+f2bb566f5c97 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
 
 thanks,
 
@@ -73,132 +79,192 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 16c52e503043aed1e2a2ce38d9249de5936c1f6b Mon Sep 17 00:00:00 2001
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Tue, 18 Apr 2023 19:38:58 +0800
-Subject: [PATCH] LoongArch: Make WriteCombine configurable for ioremap()
+From 2a6a870e44dd88f1a6a2893c65ef756a9edfb4c7 Mon Sep 17 00:00:00 2001
+From: Paolo Abeni <pabeni@redhat.com>
+Date: Mon, 17 Apr 2023 16:00:40 +0200
+Subject: [PATCH] mptcp: stops worker on unaccepted sockets at listener close
 
-LoongArch maintains cache coherency in hardware, but when paired with
-LS7A chipsets the WUC attribute (Weak-ordered UnCached, which is similar
-to WriteCombine) is out of the scope of cache coherency machanism for
-PCIe devices (this is a PCIe protocol violation, which may be fixed in
-newer chipsets).
+This is a partial revert of the blamed commit, with a relevant
+change: mptcp_subflow_queue_clean() now just change the msk
+socket status and stop the worker, so that the UaF issue addressed
+by the blamed commit is not re-introduced.
 
-This means WUC can only used for write-only memory regions now, so this
-option is disabled by default, making WUC silently fallback to SUC for
-ioremap(). You can enable this option if the kernel is ensured to run on
-hardware without this bug.
+The above prevents the mptcp worker from running concurrently with
+inet_csk_listen_stop(), as such race would trigger a warning, as
+reported by Christoph:
 
-Kernel parameter writecombine=on/off can be used to override the Kconfig
-option.
+RSP: 002b:00007f784fe09cd8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+WARNING: CPU: 0 PID: 25807 at net/ipv4/inet_connection_sock.c:1387 inet_csk_listen_stop+0x664/0x870 net/ipv4/inet_connection_sock.c:1387
+RAX: ffffffffffffffda RBX: 00000000006bc050 RCX: 00007f7850afd6a9
+RDX: 0000000000000000 RSI: 0000000020000340 RDI: 0000000000000004
+Modules linked in:
+RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000006bc05c
+R13: fffffffffffffea8 R14: 00000000006bc050 R15: 000000000001fe40
 
+ </TASK>
+CPU: 0 PID: 25807 Comm: syz-executor.7 Not tainted 6.2.0-g778e54711659 #7
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
+RIP: 0010:inet_csk_listen_stop+0x664/0x870 net/ipv4/inet_connection_sock.c:1387
+RAX: 0000000000000000 RBX: ffff888100dfbd40 RCX: 0000000000000000
+RDX: ffff8881363aab80 RSI: ffffffff81c494f4 RDI: 0000000000000005
+RBP: ffff888126dad080 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888100dfe040
+R13: 0000000000000001 R14: 0000000000000000 R15: ffff888100dfbdd8
+FS:  00007f7850a2c800(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b32d26000 CR3: 000000012fdd8006 CR4: 0000000000770ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ __tcp_close+0x5b2/0x620 net/ipv4/tcp.c:2875
+ __mptcp_close_ssk+0x145/0x3d0 net/mptcp/protocol.c:2427
+ mptcp_destroy_common+0x8a/0x1c0 net/mptcp/protocol.c:3277
+ mptcp_destroy+0x41/0x60 net/mptcp/protocol.c:3304
+ __mptcp_destroy_sock+0x56/0x140 net/mptcp/protocol.c:2965
+ __mptcp_close+0x38f/0x4a0 net/mptcp/protocol.c:3057
+ mptcp_close+0x24/0xe0 net/mptcp/protocol.c:3072
+ inet_release+0x53/0xa0 net/ipv4/af_inet.c:429
+ __sock_release+0x4e/0xf0 net/socket.c:651
+ sock_close+0x15/0x20 net/socket.c:1393
+ __fput+0xff/0x420 fs/file_table.c:321
+ task_work_run+0x8b/0xe0 kernel/task_work.c:179
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
+ exit_to_user_mode_prepare+0x113/0x120 kernel/entry/common.c:203
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+ syscall_exit_to_user_mode+0x1d/0x40 kernel/entry/common.c:296
+ do_syscall_64+0x46/0x90 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
+RIP: 0033:0x7f7850af70dc
+RAX: 0000000000000000 RBX: 0000000000000004 RCX: 00007f7850af70dc
+RDX: 00007f7850a2c800 RSI: 0000000000000002 RDI: 0000000000000003
+RBP: 00000000006bd980 R08: 0000000000000000 R09: 00000000000018a0
+R10: 00000000316338a4 R11: 0000000000000293 R12: 0000000000211e31
+R13: 00000000006bc05c R14: 00007f785062c000 R15: 0000000000211af0
+
+Fixes: 0a3f4f1f9c27 ("mptcp: fix UaF in listener shutdown")
 Cc: stable@vger.kernel.org
-Suggested-by: WANG Xuerui <kernel@xen0n.name>
-Reviewed-by: WANG Xuerui <kernel@xen0n.name>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Link: https://github.com/multipath-tcp/mptcp_net-next/issues/371
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/Documentation/admin-guide/kernel-parameters.rst b/Documentation/admin-guide/kernel-parameters.rst
-index 19600c50277b..6ae5f129fbca 100644
---- a/Documentation/admin-guide/kernel-parameters.rst
-+++ b/Documentation/admin-guide/kernel-parameters.rst
-@@ -128,6 +128,7 @@ parameter is applicable::
- 	KVM	Kernel Virtual Machine support is enabled.
- 	LIBATA  Libata driver is enabled
- 	LP	Printer support is enabled.
-+	LOONGARCH LoongArch architecture is enabled.
- 	LOOP	Loopback device support is enabled.
- 	M68k	M68k architecture is enabled.
- 			These options have more detailed description inside of
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 6221a1d057dd..7016cb12dc4e 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6933,6 +6933,12 @@
- 			When enabled, memory and cache locality will be
- 			impacted.
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 06c5872e3b00..5181fb91595b 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2365,8 +2365,12 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 		mptcp_subflow_drop_ctx(ssk);
+ 	} else {
+ 		/* otherwise tcp will dispose of the ssk and subflow ctx */
+-		if (ssk->sk_state == TCP_LISTEN)
++		if (ssk->sk_state == TCP_LISTEN) {
++			tcp_set_state(ssk, TCP_CLOSE);
++			mptcp_subflow_queue_clean(sk, ssk);
++			inet_csk_listen_stop(ssk);
+ 			mptcp_event_pm_listener(ssk, MPTCP_EVENT_LISTENER_CLOSED);
++		}
  
-+	writecombine=	[LOONGARCH] Control the MAT (Memory Access Type) of
-+			ioremap_wc().
-+
-+			on   - Enable writecombine, use WUC for ioremap_wc()
-+			off  - Disable writecombine, use SUC for ioremap_wc()
-+
- 	x2apic_phys	[X86-64,APIC] Use x2apic physical mode instead of
- 			default x2apic cluster mode on platforms
- 			supporting x2apic.
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index 7fd51257e0ed..3ddde336e6a5 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -447,6 +447,22 @@ config ARCH_IOREMAP
- 	  protection support. However, you can enable LoongArch DMW-based
- 	  ioremap() for better performance.
+ 		__tcp_close(ssk, 0);
  
-+config ARCH_WRITECOMBINE
-+	bool "Enable WriteCombine (WUC) for ioremap()"
-+	help
-+	  LoongArch maintains cache coherency in hardware, but when paired
-+	  with LS7A chipsets the WUC attribute (Weak-ordered UnCached, which
-+	  is similar to WriteCombine) is out of the scope of cache coherency
-+	  machanism for PCIe devices (this is a PCIe protocol violation, which
-+	  may be fixed in newer chipsets).
-+
-+	  This means WUC can only used for write-only memory regions now, so
-+	  this option is disabled by default, making WUC silently fallback to
-+	  SUC for ioremap(). You can enable this option if the kernel is ensured
-+	  to run on hardware without this bug.
-+
-+	  You can override this setting via writecombine=on/off boot parameter.
-+
- config ARCH_STRICT_ALIGN
- 	bool "Enable -mstrict-align to prevent unaligned accesses" if EXPERT
- 	default y
-diff --git a/arch/loongarch/include/asm/io.h b/arch/loongarch/include/asm/io.h
-index 402a7d9e3a53..545e2708fbf7 100644
---- a/arch/loongarch/include/asm/io.h
-+++ b/arch/loongarch/include/asm/io.h
-@@ -54,8 +54,10 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset, unsigned long size,
-  * @offset:    bus address of the memory
-  * @size:      size of the resource to map
-  */
-+extern pgprot_t pgprot_wc;
-+
- #define ioremap_wc(offset, size)	\
--	ioremap_prot((offset), (size), pgprot_val(PAGE_KERNEL_WUC))
-+	ioremap_prot((offset), (size), pgprot_val(pgprot_wc))
- 
- #define ioremap_cache(offset, size)	\
- 	ioremap_prot((offset), (size), pgprot_val(PAGE_KERNEL))
-diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
-index bae84ccf6d36..27f71f9531e1 100644
---- a/arch/loongarch/kernel/setup.c
-+++ b/arch/loongarch/kernel/setup.c
-@@ -160,6 +160,27 @@ static void __init smbios_parse(void)
- 	dmi_walk(find_tokens, NULL);
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index 339a6f072989..3a2db1b862dd 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -629,6 +629,7 @@ void mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 		     struct mptcp_subflow_context *subflow);
+ void __mptcp_subflow_send_ack(struct sock *ssk);
+ void mptcp_subflow_reset(struct sock *ssk);
++void mptcp_subflow_queue_clean(struct sock *sk, struct sock *ssk);
+ void mptcp_sock_graft(struct sock *sk, struct socket *parent);
+ struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
+ bool __mptcp_close(struct sock *sk, long timeout);
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index d34588850545..bf5e5c72b5ee 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1819,6 +1819,78 @@ static void subflow_state_change(struct sock *sk)
+ 	}
  }
  
-+#ifdef CONFIG_ARCH_WRITECOMBINE
-+pgprot_t pgprot_wc = PAGE_KERNEL_WUC;
-+#else
-+pgprot_t pgprot_wc = PAGE_KERNEL_SUC;
-+#endif
-+
-+EXPORT_SYMBOL(pgprot_wc);
-+
-+static int __init setup_writecombine(char *p)
++void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_ssk)
 +{
-+	if (!strcmp(p, "on"))
-+		pgprot_wc = PAGE_KERNEL_WUC;
-+	else if (!strcmp(p, "off"))
-+		pgprot_wc = PAGE_KERNEL_SUC;
-+	else
-+		pr_warn("Unknown writecombine setting \"%s\".\n", p);
++	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
++	struct mptcp_sock *msk, *next, *head = NULL;
++	struct request_sock *req;
 +
-+	return 0;
++	/* build a list of all unaccepted mptcp sockets */
++	spin_lock_bh(&queue->rskq_lock);
++	for (req = queue->rskq_accept_head; req; req = req->dl_next) {
++		struct mptcp_subflow_context *subflow;
++		struct sock *ssk = req->sk;
++
++		if (!sk_is_mptcp(ssk))
++			continue;
++
++		subflow = mptcp_subflow_ctx(ssk);
++		if (!subflow || !subflow->conn)
++			continue;
++
++		/* skip if already in list */
++		msk = mptcp_sk(subflow->conn);
++		if (msk->dl_next || msk == head)
++			continue;
++
++		sock_hold(subflow->conn);
++		msk->dl_next = head;
++		head = msk;
++	}
++	spin_unlock_bh(&queue->rskq_lock);
++	if (!head)
++		return;
++
++	/* can't acquire the msk socket lock under the subflow one,
++	 * or will cause ABBA deadlock
++	 */
++	release_sock(listener_ssk);
++
++	for (msk = head; msk; msk = next) {
++		struct sock *sk = (struct sock *)msk;
++
++		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
++		next = msk->dl_next;
++		msk->dl_next = NULL;
++
++		/* prevent the stack from later re-schedule the worker for
++		 * this socket
++		 */
++		inet_sk_state_store(sk, TCP_CLOSE);
++		release_sock(sk);
++
++		/* lockdep will report a false positive ABBA deadlock
++		 * between cancel_work_sync and the listener socket.
++		 * The involved locks belong to different sockets WRT
++		 * the existing AB chain.
++		 * Using a per socket key is problematic as key
++		 * deregistration requires process context and must be
++		 * performed at socket disposal time, in atomic
++		 * context.
++		 * Just tell lockdep to consider the listener socket
++		 * released here.
++		 */
++		mutex_release(&listener_sk->sk_lock.dep_map, _RET_IP_);
++		mptcp_cancel_work(sk);
++		mutex_acquire(&listener_sk->sk_lock.dep_map, 0, 0, _RET_IP_);
++
++		sock_put(sk);
++	}
++
++	/* we are still under the listener msk socket lock */
++	lock_sock_nested(listener_ssk, SINGLE_DEPTH_NESTING);
 +}
-+early_param("writecombine", setup_writecombine);
 +
- static int usermem __initdata;
- 
- static int __init early_parse_mem(char *p)
+ static int subflow_ulp_init(struct sock *sk)
+ {
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
 
