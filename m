@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D398B6EBA5F
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46A76EBA60
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:37:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbjDVQh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 12:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52834 "EHLO
+        id S229670AbjDVQhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 12:37:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbjDVQh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:37:27 -0400
+        with ESMTP id S229533AbjDVQha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:37:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F69CAC
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:37:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8291BAC
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:37:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE53D619E1
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:37:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96B3C433D2;
-        Sat, 22 Apr 2023 16:37:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B3C8619E3
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:37:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DE3C433D2;
+        Sat, 22 Apr 2023 16:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682181445;
-        bh=NKNnVQI9Fwmf4VZj4KDl35AlVBbJ/Ek+qlqd4uq/Dis=;
+        s=korg; t=1682181448;
+        bh=71UTA1Uhq8Ackv9cIqcJ1sE/Q/9ZOi3FXYpSu9LAUoo=;
         h=Subject:To:Cc:From:Date:From;
-        b=S1g57RetUjhVJVD/YkbzmVe1kEyVSH+ypf60eszHXlOza17TW+p+PyrKljRLp09Sy
-         SZXOssNVcLRtnoYwExhBsM7zPmELzOujB/Kufe2Epa49jL7DnSBKLl3dvEz8hSjKMW
-         ANAQ36AtfbU/OqW2tULhkt7ZogaPJqzxoY08y3r4=
-Subject: FAILED: patch "[PATCH] writeback, cgroup: fix null-ptr-deref write in" failed to apply to 5.10-stable tree
+        b=jAObX2V2DLXKkA3wzl9UCIkCVsboFydjynx9rAu7izmf74JQ4JvJG0voU9hN5ofug
+         J6ByG6qYaZaFalnmnmypZ8BtqU36BF4rzjVi7QIr2oJPff0rvglC6klYYabX7jlPLr
+         uiebk8KxXKErjiKjfSsER4Jc8PXY3mLy1Xde6ZSo=
+Subject: FAILED: patch "[PATCH] writeback, cgroup: fix null-ptr-deref write in" failed to apply to 5.4-stable tree
 To:     libaokun1@huawei.com, adilger.kernel@dilger.ca,
         akpm@linux-foundation.org, axboe@kernel.dk, brauner@kernel.org,
         dennis@kernel.org, houtao1@huawei.com, jack@suse.cz,
@@ -36,8 +36,8 @@ To:     libaokun1@huawei.com, adilger.kernel@dilger.ca,
         yangerkun@huawei.com, yi.zhang@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 22 Apr 2023 18:37:19 +0200
-Message-ID: <2023042219-woof-sanitary-4833@gregkh>
+Date:   Sat, 22 Apr 2023 18:37:22 +0200
+Message-ID: <2023042221-hazing-platonic-1a57@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,19 +52,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1ba1199ec5747f475538c0d25a32804e5ba1dfde
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042219-woof-sanitary-4833@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042221-hazing-platonic-1a57@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -74,6 +74,7 @@ f3b6a6df38aa ("writeback, cgroup: keep list of inodes attached to bdi_writeback"
 29264d92a0f1 ("writeback, cgroup: switch to rcu_work API in inode_switch_wbs()")
 8826ee4fe750 ("writeback, cgroup: increment isw_nr_in_flight before grabbing an inode")
 4ade5867b4b8 ("writeback, cgroup: do not switch inodes with I_WILL_FREE flag")
+e30942859030 ("Merge tag 'writeback_for_v5.9-rc3' of git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs")
 
 thanks,
 
