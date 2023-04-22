@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B46A76EBA60
-	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3E36EBA61
+	for <lists+stable@lfdr.de>; Sat, 22 Apr 2023 18:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbjDVQhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 12:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52854 "EHLO
+        id S229533AbjDVQhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 12:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbjDVQha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:37:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8291BAC
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:37:29 -0700 (PDT)
+        with ESMTP id S229478AbjDVQhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 12:37:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EF471725
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 09:37:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B3C8619E3
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:37:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DE3C433D2;
-        Sat, 22 Apr 2023 16:37:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C668F619E4
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:37:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B70C433D2;
+        Sat, 22 Apr 2023 16:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682181448;
-        bh=71UTA1Uhq8Ackv9cIqcJ1sE/Q/9ZOi3FXYpSu9LAUoo=;
+        s=korg; t=1682181453;
+        bh=zQvwH4cV9yU7DVZyw3B7PYt2iQeyzqHs8Kqnhl7n9ro=;
         h=Subject:To:Cc:From:Date:From;
-        b=jAObX2V2DLXKkA3wzl9UCIkCVsboFydjynx9rAu7izmf74JQ4JvJG0voU9hN5ofug
-         J6ByG6qYaZaFalnmnmypZ8BtqU36BF4rzjVi7QIr2oJPff0rvglC6klYYabX7jlPLr
-         uiebk8KxXKErjiKjfSsER4Jc8PXY3mLy1Xde6ZSo=
-Subject: FAILED: patch "[PATCH] writeback, cgroup: fix null-ptr-deref write in" failed to apply to 5.4-stable tree
+        b=lJGPKGP+DDNbZs6m5BaapVCoDm2l+m/bjuGu7jPMc3EeZA40LkNvr8AUghnW4tnNg
+         shd062CxvqyCgvq3ClQkAd0Zbh1NCIEYK7LddcTxj+VVVHgeY2CLXAc+nKyq9ttw2U
+         aRu7NQz4UxjmElNrRyQf6HhcQ81C1U4l7hk+XDb8=
+Subject: FAILED: patch "[PATCH] writeback, cgroup: fix null-ptr-deref write in" failed to apply to 4.19-stable tree
 To:     libaokun1@huawei.com, adilger.kernel@dilger.ca,
         akpm@linux-foundation.org, axboe@kernel.dk, brauner@kernel.org,
         dennis@kernel.org, houtao1@huawei.com, jack@suse.cz,
@@ -36,13 +36,13 @@ To:     libaokun1@huawei.com, adilger.kernel@dilger.ca,
         yangerkun@huawei.com, yi.zhang@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 22 Apr 2023 18:37:22 +0200
-Message-ID: <2023042221-hazing-platonic-1a57@gregkh>
+Date:   Sat, 22 Apr 2023 18:37:24 +0200
+Message-ID: <2023042224-tricolor-shining-6cd0@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,19 +52,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1ba1199ec5747f475538c0d25a32804e5ba1dfde
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042221-hazing-platonic-1a57@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042224-tricolor-shining-6cd0@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
