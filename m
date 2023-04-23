@@ -2,287 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F403E6EBC20
-	for <lists+stable@lfdr.de>; Sun, 23 Apr 2023 01:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9966EBC7F
+	for <lists+stable@lfdr.de>; Sun, 23 Apr 2023 04:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbjDVXuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Apr 2023 19:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
+        id S230017AbjDWC4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Apr 2023 22:56:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbjDVXuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 19:50:14 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 112FA1986
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:50:13 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id d2e1a72fcca58-63b78b344d5so2770877b3a.1
-        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 16:50:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20221208.gappssmtp.com; s=20221208; t=1682207412; x=1684799412;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=gPdJnaKCRRQkd2WmibS6esf/nh0fUmV/OrqlZUEmxzM=;
-        b=hO4qYYfmGi/JubSyF/qQVig/7D+tk33hSvlgsLZbOVuZ99bvUlWzhEljHRK/IzLNo2
-         reo5v+dV8QZXONprIcbPpf5txKVIoPsnFDvZK0anv+g1AuHD/FPEbjonpeWJ2RSqCSOF
-         8kbXWuZoJxw8o8kRyw140t+/NB5xgh8v8EZgEEIpXe3a6sfhwx2b5huu0jDFlbsMBi64
-         7cXDcJqscQknqoPup6eP1KlucZ6aqUQw3sfKkH9s/CI+OAEhCTeuyWKci1EoJt9V43Rl
-         7t5BpF5jxNgt8ipTo5EYch+7Qi5TDZSugyyHDNRIPHJK/hVBoCfifTUisq6zkNxb7Szy
-         VtYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682207412; x=1684799412;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=gPdJnaKCRRQkd2WmibS6esf/nh0fUmV/OrqlZUEmxzM=;
-        b=l0gj+w5F7ixJYrt06eJXvHktLKZ16GTO++PHK412mHtwMBsoqOsxg3HVPpP9TFmkhY
-         i1AAb/USSU9VmQQGgSUU7T37YxqiLRgbDdOFw9JYqV6NA41Iq5Y/xm5hu/oBf6bj3Ize
-         ixWYIkvOgCDuBf4a5AFQjl9ep4IqKca8aiq2cIUgLqx/S2BZGTIwrjyK8niLlm6qYRbv
-         G4mL1ecNnG+NdzvpTz77f0VMciN2BfXvHp35lC7++nyaeus3Eta7sNTIF3a2HxfwG+/Y
-         aO9qY5p42zHuYmWLYQ6IXe9nEtnkBP8wgRDwZfwNkPy5F6gDkVdvqPW250vPGgJ02Hnb
-         7PGg==
-X-Gm-Message-State: AAQBX9diP9oJ6RhqBJ95JB2BlvQeYRTAjaw6h43QnFtqdWmNZmU+xXKH
-        RshlDhItYbd5ECGasTRiUMVhKi7bhVdEy/Df9e0wQKJI
-X-Google-Smtp-Source: AKy350aMt2Db3Iplx8mIxwvZ0tQiiw5Z+R8I+fWwBiphzjIJ0tQZeklOaAG1K6lxxKOTRn8dv4AgBw==
-X-Received: by 2002:a05:6a00:994:b0:63d:3765:dc8e with SMTP id u20-20020a056a00099400b0063d3765dc8emr11908325pfg.32.1682207412295;
-        Sat, 22 Apr 2023 16:50:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q29-20020a631f5d000000b005140ce70582sm4365004pgm.44.2023.04.22.16.50.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Apr 2023 16:50:11 -0700 (PDT)
-Message-ID: <644472b3.630a0220.34ff9.8a4c@mx.google.com>
-Date:   Sat, 22 Apr 2023 16:50:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229556AbjDWC4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Apr 2023 22:56:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E69210E
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 19:56:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 449B660DED
+        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 02:56:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79A5C433EF
+        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 02:56:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1682218588;
+        bh=98b6CPGbigGkk32tmkd7n3RlB0NDDWnnik9pW3x5dpA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=idLiMDqaMBS5Gm7WFv0UOA2ZaUnTKEfPEvxzebdvqr6yjdSnMXk0dudWyph9VSUJY
+         K4pz7GwL9TuVWMIl/zU7PlGL3PdbTCgLUkI0zzFbju0ZUZbdd6ERtdWPaVWWYxFR3I
+         1gSdy0HG0zaVOSt4/4vzqqPlSY50XO0a0xdYJCAd/A7K+2juksc4fmLK+VeERd8q4p
+         WQpDtM+7fbU+hODOpoJak3WEZjewViThuQ9Dg2LXhxsj/KxmIB2ePA88YzGSMKRsN/
+         vWPvbdjp494SIrTBEUrVt4uqxv0cFqVQZkQqSzFY+97vCgyESmSb2cxdRzJqhx70Wx
+         0P8yUW5xCdkVg==
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-94ef0a8546fso464400766b.1
+        for <stable@vger.kernel.org>; Sat, 22 Apr 2023 19:56:28 -0700 (PDT)
+X-Gm-Message-State: AAQBX9dQeT+7yaLkkn6vvRMISMHk6a0qL3QV1oPwrHgQ+R9wMF1KGe4C
+        /koEuEYjcy3NIAilX55hwtrD1FU8qgeZJxnvauw=
+X-Google-Smtp-Source: AKy350bfbWk7KtGIebSbTTm9/84yMXDNlqDZh52faXlw76by0j1GqbLC6WjsYABOkyTO9CEHKqvjj17vHGCwcnMRYY4=
+X-Received: by 2002:a17:907:e92:b0:94a:4d06:3de3 with SMTP id
+ ho18-20020a1709070e9200b0094a4d063de3mr6479706ejc.72.1682218586831; Sat, 22
+ Apr 2023 19:56:26 -0700 (PDT)
 MIME-Version: 1.0
+References: <2023042213-overbid-jitters-7a29@gregkh>
+In-Reply-To: <2023042213-overbid-jitters-7a29@gregkh>
+From:   Huacai Chen <chenhuacai@kernel.org>
+Date:   Sun, 23 Apr 2023 10:56:16 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H5wPvRtf0uBnyzUnwpgnfU3oB4mezHQ6L7AzyvgHPTU8w@mail.gmail.com>
+Message-ID: <CAAhV-H5wPvRtf0uBnyzUnwpgnfU3oB4mezHQ6L7AzyvgHPTU8w@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] LoongArch: Make WriteCombine configurable
+ for ioremap()" failed to apply to 6.2-stable tree
+To:     gregkh@linuxfoundation.org
+Cc:     chenhuacai@loongson.cn, kernel@xen0n.name, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.238-225-ga3d78dc277756
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 67 runs,
- 3 regressions (v5.4.238-225-ga3d78dc277756)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 67 runs, 3 regressions (v5.4.238-225-ga3d78dc=
-277756)
-
-Regressions Summary
--------------------
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-hifive-unleashed-a00         | riscv  | lab-baylibre  | gcc-10   | defconfi=
-g                    | 1          =
-
-hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-hp-x360-14-G1-sona           | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.238-225-ga3d78dc277756/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.238-225-ga3d78dc277756
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a3d78dc27775629de37e1a5c54c60c7838d01ae4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-hifive-unleashed-a00         | riscv  | lab-baylibre  | gcc-10   | defconfi=
-g                    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64443edee049df43c82e8615
-
-  Results:     3 PASS, 2 FAIL, 2 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
-25-ga3d78dc277756/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
-25-ga3d78dc277756/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230414.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/64443edee049df43=
-c82e861e
-        failing since 185 days (last pass: v5.4.219-270-gde284a6cd1e4, firs=
-t fail: v5.4.219-266-g5eb28a6c7901)
-        3 lines
-
-    2023-04-22T20:08:45.341916  / # =
-
-    2023-04-22T20:08:45.353975  =
-
-    2023-04-22T20:08:45.465916  / # #
-    2023-04-22T20:08:45.485969  #
-    2023-04-22T20:08:45.588303  / # export SHELL=3D/bin/sh
-    2023-04-22T20:08:45.613956  export SHELL=3D/bin/sh
-    2023-04-22T20:08:45.719073  / # . /lava-3522157/environment
-    2023-04-22T20:08:45.735636  . /lava-3522157/environment
-    2023-04-22T20:08:45.837223  / # /lava-3522157/bin/lava-test-runner /lav=
-a-3522157/0
-    2023-04-22T20:08:45.848015  /lava-3522157/bin/lava-test-runner /lava-35=
-22157/0 =
-
-    ... (10 line(s) more)  =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64443f46d15c10826a2e85f6
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
-25-ga3d78dc277756/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-12b-ca0010nr-n4020-octopus.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
-25-ga3d78dc277756/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-12b-ca0010nr-n4020-octopus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230414.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64443f46d15c10826a2e85fb
-        failing since 25 days (last pass: v5.4.238-29-g39c31e43e3b2b, first=
- fail: v5.4.238-60-gcf51829325af)
-
-    2023-04-22T20:10:22.449458  + set<8>[   10.479382] <LAVA_SIGNAL_ENDRUN =
-0_dmesg 10086966_1.4.2.3.1>
-
-    2023-04-22T20:10:22.449547   +x
-
-    2023-04-22T20:10:22.551697  #
-
-    2023-04-22T20:10:22.552774  =
-
-
-    2023-04-22T20:10:22.654672  / # #export SHELL=3D/bin/sh
-
-    2023-04-22T20:10:22.654883  =
-
-
-    2023-04-22T20:10:22.755648  / # export SHELL=3D/bin/sh. /lava-10086966/=
-environment
-
-    2023-04-22T20:10:22.755825  =
-
-
-    2023-04-22T20:10:22.856740  / # . /lava-10086966/environment/lava-10086=
-966/bin/lava-test-runner /lava-10086966/1
-
-    2023-04-22T20:10:22.857072  =
-
- =
-
-    ... (13 line(s) more)  =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-hp-x360-14-G1-sona           | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64443f2c463b1572402e861c
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
-25-ga3d78dc277756/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-14-G1-sona.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
-25-ga3d78dc277756/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-14-G1-sona.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230414.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64443f2c463b1572402e8621
-        failing since 25 days (last pass: v5.4.238-29-g39c31e43e3b2b, first=
- fail: v5.4.238-60-gcf51829325af)
-
-    2023-04-22T20:10:01.529639  + set +x<8>[   12.929324] <LAVA_SIGNAL_ENDR=
-UN 0_dmesg 10086925_1.4.2.3.1>
-
-    2023-04-22T20:10:01.529724  =
-
-
-    2023-04-22T20:10:01.631712  #
-
-    2023-04-22T20:10:01.732877  / # #export SHELL=3D/bin/sh
-
-    2023-04-22T20:10:01.733121  =
-
-
-    2023-04-22T20:10:01.834089  / # export SHELL=3D/bin/sh. /lava-10086925/=
-environment
-
-    2023-04-22T20:10:01.834311  =
-
-
-    2023-04-22T20:10:01.935321  / # . /lava-10086925/environment/lava-10086=
-925/bin/lava-test-runner /lava-10086925/1
-
-    2023-04-22T20:10:01.935609  =
-
-
-    2023-04-22T20:10:01.940504  / # /lava-10086925/bin/lava-test-runner /la=
-va-10086925/1
- =
-
-    ... (12 line(s) more)  =
-
- =20
+Hi, Greg,
+
+If possible, we can backport 41596803302d ("LoongArch: Make
+-mstrict-align configurable") as a dependency patch.
+
+Huacai
+
+On Sun, Apr 23, 2023 at 12:05=E2=80=AFAM <gregkh@linuxfoundation.org> wrote=
+:
+>
+>
+> The patch below does not apply to the 6.2-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> To reproduce the conflict and resubmit, you may use the following command=
+s:
+>
+> git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.gi=
+t/ linux-6.2.y
+> git checkout FETCH_HEAD
+> git cherry-pick -x 16c52e503043aed1e2a2ce38d9249de5936c1f6b
+> # <resolve conflicts, build, test, etc.>
+> git commit -s
+> git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042213-=
+overbid-jitters-7a29@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+>
+> Possible dependencies:
+>
+> 16c52e503043 ("LoongArch: Make WriteCombine configurable for ioremap()")
+> 41596803302d ("LoongArch: Make -mstrict-align configurable")
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From 16c52e503043aed1e2a2ce38d9249de5936c1f6b Mon Sep 17 00:00:00 2001
+> From: Huacai Chen <chenhuacai@kernel.org>
+> Date: Tue, 18 Apr 2023 19:38:58 +0800
+> Subject: [PATCH] LoongArch: Make WriteCombine configurable for ioremap()
+>
+> LoongArch maintains cache coherency in hardware, but when paired with
+> LS7A chipsets the WUC attribute (Weak-ordered UnCached, which is similar
+> to WriteCombine) is out of the scope of cache coherency machanism for
+> PCIe devices (this is a PCIe protocol violation, which may be fixed in
+> newer chipsets).
+>
+> This means WUC can only used for write-only memory regions now, so this
+> option is disabled by default, making WUC silently fallback to SUC for
+> ioremap(). You can enable this option if the kernel is ensured to run on
+> hardware without this bug.
+>
+> Kernel parameter writecombine=3Don/off can be used to override the Kconfi=
+g
+> option.
+>
+> Cc: stable@vger.kernel.org
+> Suggested-by: WANG Xuerui <kernel@xen0n.name>
+> Reviewed-by: WANG Xuerui <kernel@xen0n.name>
+> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+>
+> diff --git a/Documentation/admin-guide/kernel-parameters.rst b/Documentat=
+ion/admin-guide/kernel-parameters.rst
+> index 19600c50277b..6ae5f129fbca 100644
+> --- a/Documentation/admin-guide/kernel-parameters.rst
+> +++ b/Documentation/admin-guide/kernel-parameters.rst
+> @@ -128,6 +128,7 @@ parameter is applicable::
+>         KVM     Kernel Virtual Machine support is enabled.
+>         LIBATA  Libata driver is enabled
+>         LP      Printer support is enabled.
+> +       LOONGARCH LoongArch architecture is enabled.
+>         LOOP    Loopback device support is enabled.
+>         M68k    M68k architecture is enabled.
+>                         These options have more detailed description insi=
+de of
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentat=
+ion/admin-guide/kernel-parameters.txt
+> index 6221a1d057dd..7016cb12dc4e 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -6933,6 +6933,12 @@
+>                         When enabled, memory and cache locality will be
+>                         impacted.
+>
+> +       writecombine=3D   [LOONGARCH] Control the MAT (Memory Access Type=
+) of
+> +                       ioremap_wc().
+> +
+> +                       on   - Enable writecombine, use WUC for ioremap_w=
+c()
+> +                       off  - Disable writecombine, use SUC for ioremap_=
+wc()
+> +
+>         x2apic_phys     [X86-64,APIC] Use x2apic physical mode instead of
+>                         default x2apic cluster mode on platforms
+>                         supporting x2apic.
+> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+> index 7fd51257e0ed..3ddde336e6a5 100644
+> --- a/arch/loongarch/Kconfig
+> +++ b/arch/loongarch/Kconfig
+> @@ -447,6 +447,22 @@ config ARCH_IOREMAP
+>           protection support. However, you can enable LoongArch DMW-based
+>           ioremap() for better performance.
+>
+> +config ARCH_WRITECOMBINE
+> +       bool "Enable WriteCombine (WUC) for ioremap()"
+> +       help
+> +         LoongArch maintains cache coherency in hardware, but when paire=
+d
+> +         with LS7A chipsets the WUC attribute (Weak-ordered UnCached, wh=
+ich
+> +         is similar to WriteCombine) is out of the scope of cache cohere=
+ncy
+> +         machanism for PCIe devices (this is a PCIe protocol violation, =
+which
+> +         may be fixed in newer chipsets).
+> +
+> +         This means WUC can only used for write-only memory regions now,=
+ so
+> +         this option is disabled by default, making WUC silently fallbac=
+k to
+> +         SUC for ioremap(). You can enable this option if the kernel is =
+ensured
+> +         to run on hardware without this bug.
+> +
+> +         You can override this setting via writecombine=3Don/off boot pa=
+rameter.
+> +
+>  config ARCH_STRICT_ALIGN
+>         bool "Enable -mstrict-align to prevent unaligned accesses" if EXP=
+ERT
+>         default y
+> diff --git a/arch/loongarch/include/asm/io.h b/arch/loongarch/include/asm=
+/io.h
+> index 402a7d9e3a53..545e2708fbf7 100644
+> --- a/arch/loongarch/include/asm/io.h
+> +++ b/arch/loongarch/include/asm/io.h
+> @@ -54,8 +54,10 @@ static inline void __iomem *ioremap_prot(phys_addr_t o=
+ffset, unsigned long size,
+>   * @offset:    bus address of the memory
+>   * @size:      size of the resource to map
+>   */
+> +extern pgprot_t pgprot_wc;
+> +
+>  #define ioremap_wc(offset, size)       \
+> -       ioremap_prot((offset), (size), pgprot_val(PAGE_KERNEL_WUC))
+> +       ioremap_prot((offset), (size), pgprot_val(pgprot_wc))
+>
+>  #define ioremap_cache(offset, size)    \
+>         ioremap_prot((offset), (size), pgprot_val(PAGE_KERNEL))
+> diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.=
+c
+> index bae84ccf6d36..27f71f9531e1 100644
+> --- a/arch/loongarch/kernel/setup.c
+> +++ b/arch/loongarch/kernel/setup.c
+> @@ -160,6 +160,27 @@ static void __init smbios_parse(void)
+>         dmi_walk(find_tokens, NULL);
+>  }
+>
+> +#ifdef CONFIG_ARCH_WRITECOMBINE
+> +pgprot_t pgprot_wc =3D PAGE_KERNEL_WUC;
+> +#else
+> +pgprot_t pgprot_wc =3D PAGE_KERNEL_SUC;
+> +#endif
+> +
+> +EXPORT_SYMBOL(pgprot_wc);
+> +
+> +static int __init setup_writecombine(char *p)
+> +{
+> +       if (!strcmp(p, "on"))
+> +               pgprot_wc =3D PAGE_KERNEL_WUC;
+> +       else if (!strcmp(p, "off"))
+> +               pgprot_wc =3D PAGE_KERNEL_SUC;
+> +       else
+> +               pr_warn("Unknown writecombine setting \"%s\".\n", p);
+> +
+> +       return 0;
+> +}
+> +early_param("writecombine", setup_writecombine);
+> +
+>  static int usermem __initdata;
+>
+>  static int __init early_parse_mem(char *p)
+>
