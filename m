@@ -2,67 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 605996EC314
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 01:21:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D886EC318
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 01:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230184AbjDWXU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Apr 2023 19:20:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41432 "EHLO
+        id S230234AbjDWXVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Apr 2023 19:21:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbjDWXU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Apr 2023 19:20:57 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9C610F0
-        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 16:20:55 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id 3f1490d57ef6-b980ec2a95cso4941865276.2
-        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 16:20:55 -0700 (PDT)
+        with ESMTP id S230186AbjDWXU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Apr 2023 19:20:58 -0400
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDCC110FA
+        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 16:20:56 -0700 (PDT)
+Received: by mail-yb1-xb2d.google.com with SMTP id 3f1490d57ef6-b95c3b869dcso12048299276.1
+        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 16:20:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1682292055; x=1684884055;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=7P/6zoNdnIVgVCEt5mDoPuKCp+7Gdkmg7/IH03tl/hc=;
-        b=wEk96wY0BNTq4Si5T64xauv4RLRaJkGMx6CMD4mIf694zT68AiY4H/qDevf6Fehfqc
-         JQOOaH/f+33/21XGfmN00faEd8Ew41fsJ357jQWHVdQda35ApZF71jWp1gAqCwMVs1F+
-         +X8P1x4c3HO3v3jGE7q6d525dYGo+9FxUzp9Hp6ZW7kZ9rjKH0qqSEVhZluxNi+TNvj0
-         WQjGb5YNeAn9TbOZUszCeGDDpm4ubTNVfUPTudWLST3e6X+6NdNpLDz0DaJAq93ehLBf
-         K6EQIaA+8fFJ++AGF12JVUf0+3blgzzEGroRU9JcExEh5R3A4rOaXoI9kATzMiZkeUGp
-         hy2g==
+        d=linaro.org; s=google; t=1682292056; x=1684884056;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YzAHMc97ie/I1BcVW78M2VJNx9wjhBXHbWDgzi0U6j8=;
+        b=DHVnP7nGrg3vRnIqtPn1Q7mvsvrHjcTern73pfkIbqsV9bRZPyP+MqQ5KrjJfSLW2A
+         ImSGBdVeLWUAHIEaqo1ptnqhYq5k8JfyfS3qnHJvTvV/tJ5j9DWNh2Rnp6PxvxvNgP/a
+         vaxJQXbZbAfwINkpKh1fg+2Jj2yF4CKx949f2oPgiuXGaGqBgCsSPyqL7zyobXg5BKi5
+         LTbWdtswKpcCYv0oAh41d0mqSd3G1qzTDrCtDXlwl7Tj0a2E7bWhYQA6vFVgqU3ZRS6/
+         osMpsJUlObexxTVr0xxCfrEZLHcJzr40NjKXCVYbPwuK8mtGtBBy17EYDtkBE+m22ItH
+         t0fA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682292055; x=1684884055;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=7P/6zoNdnIVgVCEt5mDoPuKCp+7Gdkmg7/IH03tl/hc=;
-        b=L5wS+m7wPpDL7p/KKRa2stwmT5LtsOTpSmvcP7phHjsbPySdesuD3YBLPO97MsNs0Y
-         ZdZLpzqwY5KmUicCTTwKmkdwMVPM2XUvQ4ihA6XYZqKU4PIaauUmmDgMgrmQBDlHB6SQ
-         3kuSAGEBFkM4bQ4ZKMiEAeLIdoK8deACioKpe+8Y7bgi86RBdoJ50VOV+rhZPpAnxGhh
-         +bM3UOqWJasMCskZQ3lISegMoucCXOxaiZZJBA+ouQ48RUBdaTSvkKfArGXllTjmwPP1
-         shi6E6MPvVX/s9nP9XFi5OTmTghoQlMlO0Tv8psUzMprrDym1AAncdx7E2Ehh5jI58I+
-         9XgA==
-X-Gm-Message-State: AAQBX9fK2YoIYxFxsUdvxdUZkofbRVCDdokEDA1HwT+jzZQajqhDm++0
-        44NfNlK8qcHn2t9C8kJHQdYiUw==
-X-Google-Smtp-Source: AKy350ZU8SD5UpSm8QXQFKQlKUpoJGlUSQa8uCIAy8admKw4hyfrd8JMtLXsezp3AJ+E4bCYPoR1OQ==
-X-Received: by 2002:a25:cac4:0:b0:b8f:2047:181a with SMTP id a187-20020a25cac4000000b00b8f2047181amr8493235ybg.24.1682292055043;
+        d=1e100.net; s=20221208; t=1682292056; x=1684884056;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YzAHMc97ie/I1BcVW78M2VJNx9wjhBXHbWDgzi0U6j8=;
+        b=EW2hXRvWdq0AljHEFgcrohI4ctUkBAa8OLa6hh02r1pGmnA6Kc5xQ/NGp/XChAKkr5
+         tlYNb+3f9+Xi/YtE+Q47zARuExK1fbpicZLMfDSIXPGEFW66McakSRPLnw/BslRaweHt
+         Ot4H2iZfKEZeHs58t93og50wnCz5WxkWErsFdSllJmdB4wm2dFEyCVqiAE82E8sYGJOP
+         PcoXZDLmHnNIWpnk107Mcjk9kD6JJobDUfhpZvfHBie7NCFAt0lutkuVlSRRbs1aY8Sh
+         wZzwDui8kMRVm/Cwg4yTMbBIbeHFfEGuOgFoBwEtKrkqaYciw78VT8CJKt+JYWqoi998
+         51Hw==
+X-Gm-Message-State: AAQBX9c8gJbp/plnmnRlUld22T8C0L1S2ApEgksvELoBQJWtfLQZ9l+i
+        8D+Mi3TyFP0UVTsCbGIWh+02HQ==
+X-Google-Smtp-Source: AKy350Y4bsziUezOmWgOvpjrp33g5jOYb3Yhg5QNTxK1FyUPU1gTw5mq7+2RSZuXM/1EMS6om+fMYw==
+X-Received: by 2002:a81:49cb:0:b0:54f:52b7:3eac with SMTP id w194-20020a8149cb000000b0054f52b73eacmr8050321ywa.9.1682292055967;
         Sun, 23 Apr 2023 16:20:55 -0700 (PDT)
 Received: from fedora.. ([198.136.190.5])
-        by smtp.gmail.com with ESMTPSA id z205-20020a0dd7d6000000b0054f856bdc4dsm2607352ywd.38.2023.04.23.16.20.53
+        by smtp.gmail.com with ESMTPSA id z205-20020a0dd7d6000000b0054f856bdc4dsm2607352ywd.38.2023.04.23.16.20.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Apr 2023 16:20:54 -0700 (PDT)
+        Sun, 23 Apr 2023 16:20:55 -0700 (PDT)
 From:   William Breathitt Gray <william.gray@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
         Jonathan Cameron <jic23@kernel.org>,
         William Breathitt Gray <william.gray@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH 4.14 v4 1/5] iio: counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
-Date:   Sun, 23 Apr 2023 19:20:43 -0400
-Message-Id: <20230423232047.12589-1-william.gray@linaro.org>
+Subject: [PATCH 4.19 v4 2/5] iio: counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+Date:   Sun, 23 Apr 2023 19:20:44 -0400
+Message-Id: <20230423232047.12589-2-william.gray@linaro.org>
 X-Mailer: git-send-email 2.40.0
+In-Reply-To: <20230423232047.12589-1-william.gray@linaro.org>
+References: <20230423232047.12589-1-william.gray@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -83,17 +86,28 @@ Since the race condition could result in an incorrect 25-bit count
 value, remove support for 25-bit count values from this driver.
 
 Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
-Cc: <stable@vger.kernel.org> # 4.14.x
+Cc: <stable@vger.kernel.org> # 4.19.x
 Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 ---
- drivers/iio/counter/104-quad-8.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ drivers/iio/counter/104-quad-8.c | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
 diff --git a/drivers/iio/counter/104-quad-8.c b/drivers/iio/counter/104-quad-8.c
-index 181585ae6e..bdb07694e2 100644
+index 92be8d0f77..92e68cada8 100644
 --- a/drivers/iio/counter/104-quad-8.c
 +++ b/drivers/iio/counter/104-quad-8.c
-@@ -64,9 +64,6 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
+@@ -61,10 +61,6 @@ struct quad8_iio {
+ 
+ #define QUAD8_REG_CHAN_OP 0x11
+ #define QUAD8_REG_INDEX_INPUT_LEVELS 0x16
+-/* Borrow Toggle flip-flop */
+-#define QUAD8_FLAG_BT BIT(0)
+-/* Carry Toggle flip-flop */
+-#define QUAD8_FLAG_CT BIT(1)
+ /* Error flag */
+ #define QUAD8_FLAG_E BIT(4)
+ /* Up/Down flag */
+@@ -97,9 +93,6 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
  {
  	struct quad8_iio *const priv = iio_priv(indio_dev);
  	const int base_offset = priv->base + 2 * chan->channel;
@@ -103,22 +117,22 @@ index 181585ae6e..bdb07694e2 100644
  	int i;
  
  	switch (mask) {
-@@ -76,12 +73,7 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
+@@ -110,12 +103,7 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
  			return IIO_VAL_INT;
  		}
  
 -		flags = inb(base_offset + 1);
--		borrow = flags & BIT(0);
--		carry = !!(flags & BIT(1));
+-		borrow = flags & QUAD8_FLAG_BT;
+-		carry = !!(flags & QUAD8_FLAG_CT);
 -
 -		/* Borrow XOR Carry effectively doubles count range */
 -		*val = (borrow ^ carry) << 24;
 +		*val = 0;
  
  		/* Reset Byte Pointer; transfer Counter to Output Latch */
- 		outb(0x11, base_offset + 1);
+ 		outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP | QUAD8_RLD_CNTR_OUT,
 
-base-commit: df06e352f27a9f368ec6a3b077881c35d933e32c
+base-commit: a5b79a58cfc02977cd4d5c1e20454cd98e88f749
 -- 
 2.40.0
 
