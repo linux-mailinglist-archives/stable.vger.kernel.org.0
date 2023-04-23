@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0926EBE97
-	for <lists+stable@lfdr.de>; Sun, 23 Apr 2023 12:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD726EBE96
+	for <lists+stable@lfdr.de>; Sun, 23 Apr 2023 12:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjDWK0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Apr 2023 06:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44320 "EHLO
+        id S229611AbjDWK0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Apr 2023 06:26:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbjDWK0S (ORCPT
+        with ESMTP id S229907AbjDWK0S (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 23 Apr 2023 06:26:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D381BD5
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A00061BEB
         for <stable@vger.kernel.org>; Sun, 23 Apr 2023 03:26:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FC7360BD3
-        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 10:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84547C433EF;
-        Sun, 23 Apr 2023 10:26:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1EC4617B6
+        for <stable@vger.kernel.org>; Sun, 23 Apr 2023 10:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1952C433D2;
+        Sun, 23 Apr 2023 10:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682245562;
-        bh=uks+01Q6K4fylhh6juyA/FzQSO7e8xKrfgC8OLmerNQ=;
+        s=korg; t=1682245565;
+        bh=CrIIBhfwECkhtoIjSLZhurReCqkSXFByUT3npRfK9E8=;
         h=Subject:To:Cc:From:Date:From;
-        b=ycEeosmgdkPNcRfFG2YS85hy1Mej3RMNMqi8+CfRM7NYjdRbea3+8aV4NkFcxRrZC
-         QVHUUWyAAZoTHi7uC0h3sPj454itm2euSH8Egh69k/JlSVcn9zgJWmdmsukY9CgZHS
-         qWa4UjpLkeWwAJwFDPa9fYucPSsbrIchBU1j4F+E=
-Subject: FAILED: patch "[PATCH] KVM: arm64: Fix buffer overflow in kvm_arm_set_fw_reg()" failed to apply to 5.10-stable tree
+        b=Rquwa3rFlTf2WMF2NlX8+litthg4qWTjylKGxWfIigyyoNw6HWSJcsqX2+5mioeGP
+         bqlcKegI0ACMhPyTBvA6iNnt64HSGw1ZERcTMqVgsSA9gGbSNRGdeBlKjDXXVy+u7J
+         mpdKPSvDTG5A2RIgzcVqEx5ZF0vV7F2jwiu6bh8Q=
+Subject: FAILED: patch "[PATCH] KVM: arm64: Fix buffer overflow in kvm_arm_set_fw_reg()" failed to apply to 5.4-stable tree
 To:     dan.carpenter@linaro.org, eric.auger@redhat.com, maz@kernel.org,
         oliver.upton@linux.dev, steven.price@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Apr 2023 12:25:50 +0200
-Message-ID: <2023042350-coveted-collapse-44f5@gregkh>
+Date:   Sun, 23 Apr 2023 12:25:51 +0200
+Message-ID: <2023042351-feline-gas-e7b7@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,19 +49,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x a25bc8486f9c01c1af6b6c5657234b2eee2c39d6
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042350-coveted-collapse-44f5@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042351-feline-gas-e7b7@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
