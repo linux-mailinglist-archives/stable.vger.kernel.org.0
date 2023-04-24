@@ -2,55 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E48F66ECDA6
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A0856ECD2A
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231964AbjDXNZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51654 "EHLO
+        id S231956AbjDXNVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232129AbjDXNZW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D14C45FD7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:17 -0700 (PDT)
+        with ESMTP id S232008AbjDXNVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853B199
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E4CB622A7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86646C433D2;
-        Mon, 24 Apr 2023 13:25:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 188246221F
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FB36C433EF;
+        Mon, 24 Apr 2023 13:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342716;
-        bh=ra1x4jsE2PCOofIpGDZKW4G2CG4QGuG3/rRMcXp79uM=;
+        s=korg; t=1682342444;
+        bh=f+RfwfcYOEofk3mFyHM16hFlSGfFoGNS42yTFlfIl4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/cBNi22mkyt8A7JJUEeAoAXQh5nnm8qSYAfsFeF0pA4ViQ1no4FRhq3+Jk+v5SVW
-         /fke8v9gsNYU3u36G9R5GwxOszW2XjtlI2l/sBo5e/pWC6LzWhWR4klfKz+nmecoSi
-         dfRHfNLkfUsAUEDSZEJNGWsL3rXaAGBkBWaombOc=
+        b=J3vnwD7eVhR/K23Yi4Iu8AC8cumjWzRa76wjO3aoL5zJe2mWpnbb4yl9GxWbEwW7P
+         Vmcp2W/+NQDCy3Mb/QjEW665k6HedQxtokNDEhoLhQ6f9Pw2fmj6ezHQRsAttc2CE+
+         ANPzl69vZE5W4HAREYT/12Qv47G1Xs3TGAIS9rLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Basierski <sebastianx.basierski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 31/98] e1000e: Disable TSO on i219-LM card to increase speed
-Date:   Mon, 24 Apr 2023 15:16:54 +0200
-Message-Id: <20230424131135.102945697@linuxfoundation.org>
+        patches@lists.linux.dev, Bhavya Kapoor <b-kapoor@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 41/73] mmc: sdhci_am654: Set HIGH_SPEED_ENA for SDR12 and SDR25
+Date:   Mon, 24 Apr 2023 15:16:55 +0200
+Message-Id: <20230424131130.480067768@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,100 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Basierski <sebastianx.basierski@intel.com>
+From: Bhavya Kapoor <b-kapoor@ti.com>
 
-[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
+commit 2265098fd6a6272fde3fd1be5761f2f5895bd99a upstream.
 
-While using i219-LM card currently it was only possible to achieve
-about 60% of maximum speed due to regression introduced in Linux 5.8.
-This was caused by TSO not being disabled by default despite commit
-f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
-Fix that by disabling TSO during driver probe.
+Timing Information in Datasheet assumes that HIGH_SPEED_ENA=1 should be
+set for SDR12 and SDR25 modes. But sdhci_am654 driver clears
+HIGH_SPEED_ENA register. Thus, Modify sdhci_am654 to not clear
+HIGH_SPEED_ENA (HOST_CONTROL[2]) bit for SDR12 and SDR25 speed modes.
 
-Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
-Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e374e87538f4 ("mmc: sdhci_am654: Clear HISPD_ENA in some lower speed modes")
+Signed-off-by: Bhavya Kapoor <b-kapoor@ti.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230317092711.660897-1-b-kapoor@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ drivers/mmc/host/sdhci_am654.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 55cf2f62bb308..db8e06157da29 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5293,31 +5293,6 @@ static void e1000_watchdog_task(struct work_struct *work)
- 				ew32(TARC(0), tarc0);
- 			}
- 
--			/* disable TSO for pcie and 10/100 speeds, to avoid
--			 * some hardware issues
--			 */
--			if (!(adapter->flags & FLAG_TSO_FORCE)) {
--				switch (adapter->link_speed) {
--				case SPEED_10:
--				case SPEED_100:
--					e_info("10/100 speed: disabling TSO\n");
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--					break;
--				case SPEED_1000:
--					netdev->features |= NETIF_F_TSO;
--					netdev->features |= NETIF_F_TSO6;
--					break;
--				default:
--					/* oops */
--					break;
--				}
--				if (hw->mac.type == e1000_pch_spt) {
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--				}
--			}
--
- 			/* enable transmits in the hardware, need to do this
- 			 * after setting TARC(0)
- 			 */
-@@ -7532,6 +7507,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			    NETIF_F_RXCSUM |
- 			    NETIF_F_HW_CSUM);
- 
-+	/* disable TSO for pcie and 10/100 speeds to avoid
-+	 * some hardware issues and for i219 to fix transfer
-+	 * speed being capped at 60%
-+	 */
-+	if (!(adapter->flags & FLAG_TSO_FORCE)) {
-+		switch (adapter->link_speed) {
-+		case SPEED_10:
-+		case SPEED_100:
-+			e_info("10/100 speed: disabling TSO\n");
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+			break;
-+		case SPEED_1000:
-+			netdev->features |= NETIF_F_TSO;
-+			netdev->features |= NETIF_F_TSO6;
-+			break;
-+		default:
-+			/* oops */
-+			break;
-+		}
-+		if (hw->mac.type == e1000_pch_spt) {
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+		}
-+	}
-+
- 	/* Set user-changeable features (subset of all device features) */
- 	netdev->hw_features = netdev->features;
- 	netdev->hw_features |= NETIF_F_RXFCS;
--- 
-2.39.2
-
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -351,8 +351,6 @@ static void sdhci_am654_write_b(struct s
+ 		 */
+ 		case MMC_TIMING_SD_HS:
+ 		case MMC_TIMING_MMC_HS:
+-		case MMC_TIMING_UHS_SDR12:
+-		case MMC_TIMING_UHS_SDR25:
+ 			val &= ~SDHCI_CTRL_HISPD;
+ 		}
+ 	}
 
 
