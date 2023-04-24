@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25C196ECE34
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E9F6ECD20
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232300AbjDXNaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:30:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58360 "EHLO
+        id S232002AbjDXNUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232281AbjDXNaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D802769F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:48 -0700 (PDT)
+        with ESMTP id S231671AbjDXNUm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD9BA4EEF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C6DB62322
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CD1FC433D2;
-        Mon, 24 Apr 2023 13:29:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99F3A621BC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE3B1C433D2;
+        Mon, 24 Apr 2023 13:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342987;
-        bh=7pMFKFDJI+sG7ctg5O1lzusZkdcpTqN1n1aWhh1mVIo=;
+        s=korg; t=1682342421;
+        bh=VXpVQw+GjyoNAIVpHEmky+0V63arsI94gum9hvPZPGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuYCCCoKm6NXDj5kclLV4JRBs8wuNUM/ZZfe3Gf50abeFHp2drHhwO+owobOx6t46
-         YdNWuAHxdlWFtqKHLtPqpzL7h+xBTErXxMhK1LBTxE64hEAIG3/k4LvCzCUBxhgz9Y
-         aifwHjGcF2+jH/sYTNmCsY4SFV/VVAJf8tLXReUQ=
+        b=B5dgYBEiSzat1+C9WCG9U8fsfeRtXGlIk/co8q831ncxmkqntlD87QfZqKLNyla6+
+         sKtiZSejMhP860ZTAkiJJkdEN+uGVJeuRJK42vdwSXxLlY69o7+IH3ZoeRR4fcUkjq
+         PQ2d4Um2I50SKZm9WWuA6jDv9tO9UTt4DEBLMVR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Gonzalez <mgonzalez@freebox.fr>,
-        Will Deacon <will@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 007/110] perf/amlogic: adjust register offsets
+Subject: [PATCH 5.15 15/73] netfilter: nf_tables: validate catch-all set elements
 Date:   Mon, 24 Apr 2023 15:16:29 +0200
-Message-Id: <20230424131136.406932947@linuxfoundation.org>
+Message-Id: <20230424131129.580013240@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,69 +53,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Gonzalez <mgonzalez@freebox.fr>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit f9d323e7c1724270d747657051099826744e91e7 ]
+[ Upstream commit d46fc894147cf98dd6e8210aa99ed46854191840 ]
 
-Commit "perf/amlogic: resolve conflict between canvas & pmu"
-changed the base address.
+catch-all set element might jump/goto to chain that uses expressions
+that require validation.
 
-Fixes: 2016e2113d35 ("perf/amlogic: Add support for Amlogic meson G12 SoC DDR PMU driver")
-Signed-off-by: Marc Gonzalez <mgonzalez@freebox.fr>
-Acked-by: Will Deacon <will@kernel.org>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/20230327120932.2158389-4-mgonzalez@freebox.fr
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Fixes: aaa31047a6d2 ("netfilter: nftables: add catch-all set element support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/amlogic/meson_g12_ddr_pmu.c | 34 ++++++++++++------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ include/net/netfilter/nf_tables.h |  4 ++
+ net/netfilter/nf_tables_api.c     | 64 ++++++++++++++++++++++++++++---
+ net/netfilter/nft_lookup.c        | 36 ++---------------
+ 3 files changed, 66 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/perf/amlogic/meson_g12_ddr_pmu.c b/drivers/perf/amlogic/meson_g12_ddr_pmu.c
-index a78fdb15e26c2..8b643888d5036 100644
---- a/drivers/perf/amlogic/meson_g12_ddr_pmu.c
-+++ b/drivers/perf/amlogic/meson_g12_ddr_pmu.c
-@@ -21,23 +21,23 @@
- #define DMC_QOS_IRQ		BIT(30)
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 80df8ff5e6752..8def00a04541e 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1030,6 +1030,10 @@ struct nft_chain {
+ };
  
- /* DMC bandwidth monitor register address offset */
--#define DMC_MON_G12_CTRL0		(0x20  << 2)
--#define DMC_MON_G12_CTRL1		(0x21  << 2)
--#define DMC_MON_G12_CTRL2		(0x22  << 2)
--#define DMC_MON_G12_CTRL3		(0x23  << 2)
--#define DMC_MON_G12_CTRL4		(0x24  << 2)
--#define DMC_MON_G12_CTRL5		(0x25  << 2)
--#define DMC_MON_G12_CTRL6		(0x26  << 2)
--#define DMC_MON_G12_CTRL7		(0x27  << 2)
--#define DMC_MON_G12_CTRL8		(0x28  << 2)
--
--#define DMC_MON_G12_ALL_REQ_CNT		(0x29  << 2)
--#define DMC_MON_G12_ALL_GRANT_CNT	(0x2a  << 2)
--#define DMC_MON_G12_ONE_GRANT_CNT	(0x2b  << 2)
--#define DMC_MON_G12_SEC_GRANT_CNT	(0x2c  << 2)
--#define DMC_MON_G12_THD_GRANT_CNT	(0x2d  << 2)
--#define DMC_MON_G12_FOR_GRANT_CNT	(0x2e  << 2)
--#define DMC_MON_G12_TIMER		(0x2f  << 2)
-+#define DMC_MON_G12_CTRL0		(0x0  << 2)
-+#define DMC_MON_G12_CTRL1		(0x1  << 2)
-+#define DMC_MON_G12_CTRL2		(0x2  << 2)
-+#define DMC_MON_G12_CTRL3		(0x3  << 2)
-+#define DMC_MON_G12_CTRL4		(0x4  << 2)
-+#define DMC_MON_G12_CTRL5		(0x5  << 2)
-+#define DMC_MON_G12_CTRL6		(0x6  << 2)
-+#define DMC_MON_G12_CTRL7		(0x7  << 2)
-+#define DMC_MON_G12_CTRL8		(0x8  << 2)
+ int nft_chain_validate(const struct nft_ctx *ctx, const struct nft_chain *chain);
++int nft_setelem_validate(const struct nft_ctx *ctx, struct nft_set *set,
++			 const struct nft_set_iter *iter,
++			 struct nft_set_elem *elem);
++int nft_set_catchall_validate(const struct nft_ctx *ctx, struct nft_set *set);
+ 
+ enum nft_chain_types {
+ 	NFT_CHAIN_T_DEFAULT = 0,
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index dc276b6802ca9..aecb2f1e7af10 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3294,6 +3294,64 @@ static int nft_table_validate(struct net *net, const struct nft_table *table)
+ 	return 0;
+ }
+ 
++int nft_setelem_validate(const struct nft_ctx *ctx, struct nft_set *set,
++			 const struct nft_set_iter *iter,
++			 struct nft_set_elem *elem)
++{
++	const struct nft_set_ext *ext = nft_set_elem_ext(set, elem->priv);
++	struct nft_ctx *pctx = (struct nft_ctx *)ctx;
++	const struct nft_data *data;
++	int err;
 +
-+#define DMC_MON_G12_ALL_REQ_CNT		(0x9  << 2)
-+#define DMC_MON_G12_ALL_GRANT_CNT	(0xa  << 2)
-+#define DMC_MON_G12_ONE_GRANT_CNT	(0xb  << 2)
-+#define DMC_MON_G12_SEC_GRANT_CNT	(0xc  << 2)
-+#define DMC_MON_G12_THD_GRANT_CNT	(0xd  << 2)
-+#define DMC_MON_G12_FOR_GRANT_CNT	(0xe  << 2)
-+#define DMC_MON_G12_TIMER		(0xf  << 2)
++	if (nft_set_ext_exists(ext, NFT_SET_EXT_FLAGS) &&
++	    *nft_set_ext_flags(ext) & NFT_SET_ELEM_INTERVAL_END)
++		return 0;
++
++	data = nft_set_ext_data(ext);
++	switch (data->verdict.code) {
++	case NFT_JUMP:
++	case NFT_GOTO:
++		pctx->level++;
++		err = nft_chain_validate(ctx, data->verdict.chain);
++		if (err < 0)
++			return err;
++		pctx->level--;
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++struct nft_set_elem_catchall {
++	struct list_head	list;
++	struct rcu_head		rcu;
++	void			*elem;
++};
++
++int nft_set_catchall_validate(const struct nft_ctx *ctx, struct nft_set *set)
++{
++	u8 genmask = nft_genmask_next(ctx->net);
++	struct nft_set_elem_catchall *catchall;
++	struct nft_set_elem elem;
++	struct nft_set_ext *ext;
++	int ret = 0;
++
++	list_for_each_entry_rcu(catchall, &set->catchall_list, list) {
++		ext = nft_set_elem_ext(set, catchall->elem);
++		if (!nft_set_elem_active(ext, genmask))
++			continue;
++
++		elem.priv = catchall->elem;
++		ret = nft_setelem_validate(ctx, set, NULL, &elem);
++		if (ret < 0)
++			return ret;
++	}
++
++	return ret;
++}
++
+ static struct nft_rule *nft_rule_lookup_byid(const struct net *net,
+ 					     const struct nft_chain *chain,
+ 					     const struct nlattr *nla);
+@@ -4598,12 +4656,6 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	return err;
+ }
  
- /* Each bit represent a axi line */
- PMU_FORMAT_ATTR(event, "config:0-7");
+-struct nft_set_elem_catchall {
+-	struct list_head	list;
+-	struct rcu_head		rcu;
+-	void			*elem;
+-};
+-
+ static void nft_set_catchall_destroy(const struct nft_ctx *ctx,
+ 				     struct nft_set *set)
+ {
+diff --git a/net/netfilter/nft_lookup.c b/net/netfilter/nft_lookup.c
+index 90becbf5bff3d..bd3485dd930f5 100644
+--- a/net/netfilter/nft_lookup.c
++++ b/net/netfilter/nft_lookup.c
+@@ -198,37 +198,6 @@ static int nft_lookup_dump(struct sk_buff *skb, const struct nft_expr *expr)
+ 	return -1;
+ }
+ 
+-static int nft_lookup_validate_setelem(const struct nft_ctx *ctx,
+-				       struct nft_set *set,
+-				       const struct nft_set_iter *iter,
+-				       struct nft_set_elem *elem)
+-{
+-	const struct nft_set_ext *ext = nft_set_elem_ext(set, elem->priv);
+-	struct nft_ctx *pctx = (struct nft_ctx *)ctx;
+-	const struct nft_data *data;
+-	int err;
+-
+-	if (nft_set_ext_exists(ext, NFT_SET_EXT_FLAGS) &&
+-	    *nft_set_ext_flags(ext) & NFT_SET_ELEM_INTERVAL_END)
+-		return 0;
+-
+-	data = nft_set_ext_data(ext);
+-	switch (data->verdict.code) {
+-	case NFT_JUMP:
+-	case NFT_GOTO:
+-		pctx->level++;
+-		err = nft_chain_validate(ctx, data->verdict.chain);
+-		if (err < 0)
+-			return err;
+-		pctx->level--;
+-		break;
+-	default:
+-		break;
+-	}
+-
+-	return 0;
+-}
+-
+ static int nft_lookup_validate(const struct nft_ctx *ctx,
+ 			       const struct nft_expr *expr,
+ 			       const struct nft_data **d)
+@@ -244,9 +213,12 @@ static int nft_lookup_validate(const struct nft_ctx *ctx,
+ 	iter.skip	= 0;
+ 	iter.count	= 0;
+ 	iter.err	= 0;
+-	iter.fn		= nft_lookup_validate_setelem;
++	iter.fn		= nft_setelem_validate;
+ 
+ 	priv->set->ops->walk(ctx, priv->set, &iter);
++	if (!iter.err)
++		iter.err = nft_set_catchall_validate(ctx, priv->set);
++
+ 	if (iter.err < 0)
+ 		return iter.err;
+ 
 -- 
 2.39.2
 
