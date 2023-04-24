@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 426CC6ECF0A
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766A86ECF2B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232437AbjDXNhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39300 "EHLO
+        id S232740AbjDXNiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232642AbjDXNhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:37 -0400
+        with ESMTP id S232680AbjDXNik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3686A251
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:37:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97CC869A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3389623EE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02EA3C4339B;
-        Mon, 24 Apr 2023 13:36:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF8A962456
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B54C433EF;
+        Mon, 24 Apr 2023 13:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343418;
-        bh=JME6NifGrTzE29YheuGLOG/vWfZgiZ0JJFbEIrx7y2M=;
+        s=korg; t=1682343479;
+        bh=ttxrWK0ds3BLQZme7B06MSYATP5g4gqhmeNnU6qH4I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vchRMblkvdl6KlM1EXnxitbmuEV73Wdda3nHaWIiqZzX2/al1BJFz9mlwsY0vOBaG
-         sHHPv9XN457Tjx+dVaGW5frzFusPRRaFMBe02tWn4d2mqg8tEU4BHq0OseRSG/2zDa
-         UgxRxDXZyGboUa1sGvqYApPa/BpQrN1bjbuZSds8=
+        b=gfHrKWIpEViQLrUc56yxQe0Y9vIgvavXMdflM8u7JEfNThBVONNjc1O2rU7v+D7ar
+         uJnh9+jjPhwZriF7fbNtUOSTj9I2Ak79vdujT2fVvJdHX4hjpExwffa8amC7Xrp0K8
+         I2PZc63ez39V3I6bSKNL0tgtgOP16G98IJLVDXuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "tytso@mit.edu, adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org,
-        linux-kernel@vger.kernel.org, joneslee@google.com, Tudor Ambarus" 
-        <tudor.ambarus@linaro.org>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 4.14 18/28] Revert "ext4: fix use-after-free in ext4_xattr_set_entry"
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 12/29] scsi: core: Improve scsi_vpd_inquiry() checks
 Date:   Mon, 24 Apr 2023 15:18:39 +0200
-Message-Id: <20230424131121.918926414@linuxfoundation.org>
+Message-Id: <20230424131121.564455887@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
-References: <20230424131121.331252806@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@linaro.org>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-This reverts commit bb8592efcf8ef2f62947745d3182ea05b5256a15 which is
-commit 67d7d8ad99beccd9fe92d585b87f1760dc9018e3 upstream.
+[ Upstream commit f0aa59a33d2ac2267d260fe21eaf92500df8e7b4 ]
 
-The order in which patches are queued to stable matters. This patch
-has a logical dependency on commit 310c097c2bdbea253d6ee4e064f3e65580ef93ac
-upstream, and failing to queue the latter results in a null-ptr-deref
-reported at the Link below.
+Some USB-SATA adapters have broken behavior when an unsupported VPD page is
+probed: Depending on the VPD page number, a 4-byte header with a valid VPD
+page number but with a 0 length is returned. Currently, scsi_vpd_inquiry()
+only checks that the page number is valid to determine if the page is
+valid, which results in receiving only the 4-byte header for the
+non-existent page. This error manifests itself very often with page 0xb9
+for the Concurrent Positioning Ranges detection done by sd_read_cpr(),
+resulting in the following error message:
 
-In order to avoid conflicts on stable, revert the commit just so that we
-can queue its prerequisite patch first and then queue the same after.
+sd 0:0:0:0: [sda] Invalid Concurrent Positioning Ranges VPD page
 
-Link: https://syzkaller.appspot.com/bug?extid=d5ebf56f3b1268136afd
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Prevent such misleading error message by adding a check in
+scsi_vpd_inquiry() to verify that the page length is not 0.
+
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20230322022211.116327-1-damien.lemoal@opensource.wdc.com
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/scsi.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2200,9 +2200,8 @@ int ext4_xattr_ibody_find(struct inode *
- 	struct ext4_inode *raw_inode;
- 	int error;
+diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
+index febe29a9b8b06..acd118da88bfb 100644
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -351,11 +351,18 @@ static int scsi_vpd_inquiry(struct scsi_device *sdev, unsigned char *buffer,
+ 	if (result)
+ 		return -EIO;
  
--	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
-+	if (EXT4_I(inode)->i_extra_isize == 0)
- 		return 0;
--
- 	raw_inode = ext4_raw_inode(&is->iloc);
- 	header = IHDR(inode, raw_inode);
- 	is->s.base = is->s.first = IFIRST(header);
-@@ -2230,9 +2229,8 @@ int ext4_xattr_ibody_inline_set(handle_t
- 	struct ext4_xattr_search *s = &is->s;
- 	int error;
+-	/* Sanity check that we got the page back that we asked for */
++	/*
++	 * Sanity check that we got the page back that we asked for and that
++	 * the page size is not 0.
++	 */
+ 	if (buffer[1] != page)
+ 		return -EIO;
  
--	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
-+	if (EXT4_I(inode)->i_extra_isize == 0)
- 		return -ENOSPC;
--
- 	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
- 	if (error)
- 		return error;
+-	return get_unaligned_be16(&buffer[2]) + 4;
++	result = get_unaligned_be16(&buffer[2]);
++	if (!result)
++		return -EIO;
++
++	return result + 4;
+ }
+ 
+ /**
+-- 
+2.39.2
+
 
 
