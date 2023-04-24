@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4356ECF49
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 629A86ECEEC
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232748AbjDXNjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42572 "EHLO
+        id S232655AbjDXNg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:36:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232799AbjDXNjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7409013
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:52 -0700 (PDT)
+        with ESMTP id S232660AbjDXNgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:36:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F294F9016
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A724B61F10
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE323C433EF;
-        Mon, 24 Apr 2023 13:38:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D392F623E3
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E90B2C4339B;
+        Mon, 24 Apr 2023 13:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343532;
-        bh=l8TJmZJm1p7ky8NHebFi9JWBSSTQxsm0kdJl/fJr4Sw=;
+        s=korg; t=1682343349;
+        bh=oY5RFsxTD45qPaGAN9GMF6KmgRWtlO/LLJFdbsv8G+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSV98LOVWSlXES9LGfXE0P0xqE9xeRWzoUjiW5PAtKPrjpLyMYdDCM6hhnMi0Ty7Q
-         EEd+mP6HU6hzaRK+4AZ4KW0MiKpFnLe/NXPo2CoZB5xjSChbR9dKxoegyog0elFCYH
-         spJ1Sg97UGyGHTyTOiMToyRe2Uj/xjUo6Vu4S1Jk=
+        b=sW1x38I8Qa4ZXFJU/QLhvnk/41vJmWdwSGcEzDVUV7U2o8+GvtNqvjpJPcXoA1ORB
+         bE2+VfKiwkVcdegG/nW4blUDYR/NOOBe7W5cMNItk1TWh7oDtWE528NermuAsbXpb7
+         /v3nktcAl6fymgPOJuT59ywuvfWiB7/R6jcEYCNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
-Subject: [PATCH 4.19 04/29] i40e: fix accessing vsi->active_filters without holding lock
-Date:   Mon, 24 Apr 2023 15:18:31 +0200
-Message-Id: <20230424131121.302495085@linuxfoundation.org>
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 5.10 61/68] dccp: Call inet6_destroy_sock() via sk->sk_destruct().
+Date:   Mon, 24 Apr 2023 15:18:32 +0200
+Message-Id: <20230424131129.984132279@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,49 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 8485d093b076e59baff424552e8aecfc5bd2d261 ]
+commit 1651951ebea54970e0bda60c638fc2eee7a6218f upstream.
 
-Fix accessing vsi->active_filters without holding the mac_filter_hash_lock.
-Move vsi->active_filters = 0 inside critical section and
-move clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state) after the critical
-section to ensure the new filters from other threads can be added only after
-filters cleaning in the critical section is finished.
+After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
+in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
+sk->sk_destruct() by setting inet6_sock_destruct() to it to make
+sure we do not leak inet6-specific resources.
 
-Fixes: 278e7d0b9d68 ("i40e: store MAC/VLAN filters in a hash with the MAC Address as key")
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+DCCP sets its own sk->sk_destruct() in the dccp_init_sock(), and
+DCCPv6 socket shares it by calling the same init function via
+dccp_v6_init_sock().
+
+To call inet6_sock_destruct() from DCCPv6 sk->sk_destruct(), we
+export it and set dccp_v6_sk_destruct() in the init function.
+
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/dccp/dccp.h     |    1 +
+ net/dccp/ipv6.c     |   15 ++++++++-------
+ net/dccp/proto.c    |    8 +++++++-
+ net/ipv6/af_inet6.c |    1 +
+ 4 files changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 795f8fe2570e4..3f8c37660e860 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -12484,15 +12484,15 @@ static int i40e_add_vsi(struct i40e_vsi *vsi)
- 		vsi->id = ctxt.vsi_number;
+--- a/net/dccp/dccp.h
++++ b/net/dccp/dccp.h
+@@ -283,6 +283,7 @@ int dccp_rcv_state_process(struct sock *
+ int dccp_rcv_established(struct sock *sk, struct sk_buff *skb,
+ 			 const struct dccp_hdr *dh, const unsigned int len);
+ 
++void dccp_destruct_common(struct sock *sk);
+ int dccp_init_sock(struct sock *sk, const __u8 ctl_sock_initialized);
+ void dccp_destroy_sock(struct sock *sk);
+ 
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -992,6 +992,12 @@ static const struct inet_connection_sock
+ 	.sockaddr_len	   = sizeof(struct sockaddr_in6),
+ };
+ 
++static void dccp_v6_sk_destruct(struct sock *sk)
++{
++	dccp_destruct_common(sk);
++	inet6_sock_destruct(sk);
++}
++
+ /* NOTE: A lot of things set to zero explicitly by call to
+  *       sk_alloc() so need not be done here.
+  */
+@@ -1004,17 +1010,12 @@ static int dccp_v6_init_sock(struct sock
+ 		if (unlikely(!dccp_v6_ctl_sock_initialized))
+ 			dccp_v6_ctl_sock_initialized = 1;
+ 		inet_csk(sk)->icsk_af_ops = &dccp_ipv6_af_ops;
++		sk->sk_destruct = dccp_v6_sk_destruct;
  	}
  
--	vsi->active_filters = 0;
--	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
- 	spin_lock_bh(&vsi->mac_filter_hash_lock);
-+	vsi->active_filters = 0;
- 	/* If macvlan filters already exist, force them to get loaded */
- 	hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
- 		f->state = I40E_FILTER_NEW;
- 		f_count++;
- 	}
- 	spin_unlock_bh(&vsi->mac_filter_hash_lock);
-+	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 	return err;
+ }
  
- 	if (f_count) {
- 		vsi->flags |= I40E_VSI_FLAG_FILTER_CHANGED;
--- 
-2.39.2
-
+-static void dccp_v6_destroy_sock(struct sock *sk)
+-{
+-	dccp_destroy_sock(sk);
+-	inet6_destroy_sock(sk);
+-}
+-
+ static struct timewait_sock_ops dccp6_timewait_sock_ops = {
+ 	.twsk_obj_size	= sizeof(struct dccp6_timewait_sock),
+ };
+@@ -1037,7 +1038,7 @@ static struct proto dccp_v6_prot = {
+ 	.accept		   = inet_csk_accept,
+ 	.get_port	   = inet_csk_get_port,
+ 	.shutdown	   = dccp_shutdown,
+-	.destroy	   = dccp_v6_destroy_sock,
++	.destroy	   = dccp_destroy_sock,
+ 	.orphan_count	   = &dccp_orphan_count,
+ 	.max_header	   = MAX_DCCP_HEADER,
+ 	.obj_size	   = sizeof(struct dccp6_sock),
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -171,12 +171,18 @@ const char *dccp_packet_name(const int t
+ 
+ EXPORT_SYMBOL_GPL(dccp_packet_name);
+ 
+-static void dccp_sk_destruct(struct sock *sk)
++void dccp_destruct_common(struct sock *sk)
+ {
+ 	struct dccp_sock *dp = dccp_sk(sk);
+ 
+ 	ccid_hc_tx_delete(dp->dccps_hc_tx_ccid, sk);
+ 	dp->dccps_hc_tx_ccid = NULL;
++}
++EXPORT_SYMBOL_GPL(dccp_destruct_common);
++
++static void dccp_sk_destruct(struct sock *sk)
++{
++	dccp_destruct_common(sk);
+ 	inet_sock_destruct(sk);
+ }
+ 
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -112,6 +112,7 @@ void inet6_sock_destruct(struct sock *sk
+ 	inet6_cleanup_sock(sk);
+ 	inet_sock_destruct(sk);
+ }
++EXPORT_SYMBOL_GPL(inet6_sock_destruct);
+ 
+ static int inet6_create(struct net *net, struct socket *sock, int protocol,
+ 			int kern)
 
 
