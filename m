@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E0D6ECDC1
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7FE36ECD6A
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbjDXN02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53038 "EHLO
+        id S232151AbjDXNX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:23:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbjDXN01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6135BBF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:26 -0700 (PDT)
+        with ESMTP id S232149AbjDXNXI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5A549FE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA8F2622C5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0816DC433D2;
-        Mon, 24 Apr 2023 13:26:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EDDD61EFA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E62C433EF;
+        Mon, 24 Apr 2023 13:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342785;
-        bh=75P9ARHfHk1hx8qD3Um08bBYiViL7N9pwQf6/OCnP4Q=;
+        s=korg; t=1682342577;
+        bh=F//45VwgUYwqnq/zqqoCuZrjr2a4lXeB7zZZmi+WW18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=auaNeq/qK5t8L0gvlRSF15OqRjpJImqOmycddoFXbb7yKObW20GQeKV/nhPU5lH6W
-         N6+f8SE7O8ydTIMejlNUCGx2gb3M/Igb7Tg0aCWHGtK+4R9qHhMAQ1ExQ9nbmvWu0M
-         JOs2WEZrFWxAMn4biltz8AKBp8iRLrTWDEBZ7EMw=
+        b=kBW3w6l/0Dna+0Ef/bfjwgP52pkz9lWYYCw91PkbhpREtuqytNVgDaTPeyJHp+1BD
+         PSn27UyxgxVJv6/h6tDAfELsCgaqnP/cqju+8cES7apCApP8/8YXAsLlpciTwpPR2S
+         iPZcYzcEHb97U102KqHJ0RLY0sd7XveNuZW0wrp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, WANG Xuerui <git@xen0n.name>,
-        Huacai Chen <chenhuacai@loongson.cn>
-Subject: [PATCH 6.1 57/98] LoongArch: Mark 3 symbol exports as non-GPL
-Date:   Mon, 24 Apr 2023 15:17:20 +0200
-Message-Id: <20230424131136.077611717@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 18/39] net: dsa: b53: mmap: add phy ops
+Date:   Mon, 24 Apr 2023 15:17:21 +0200
+Message-Id: <20230424131123.725819919@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,80 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Álvaro Fernández Rojas <noltari@gmail.com>
 
-commit dce5ea1d0f45fa612f5760b88614a3f32bc75e3f upstream.
+[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
 
-vm_map_base, empty_zero_page and invalid_pmd_table could be accessed
-widely by some out-of-tree non-GPL but important file systems or drivers
-(e.g. OpenZFS). Let's use EXPORT_SYMBOL() instead of EXPORT_SYMBOL_GPL()
-to export them, so as to avoid build errors.
+Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
+B53_PORT_MII_PAGE registers which hangs the device.
+This access should be done through the MDIO Mux bus controller.
 
-1, Details about vm_map_base:
-
-This is a LoongArch-specific symbol and may be referenced through macros
-PCI_IOBASE, VMALLOC_START and VMALLOC_END.
-
-2, Details about empty_zero_page:
-
-As it stands today, only 3 architectures export empty_zero_page as a GPL
-symbol: IA64, LoongArch and MIPS. LoongArch gets the GPL export by
-inheriting from MIPS, and the MIPS export was first introduced in commit
-497d2adcbf50b ("[MIPS] Export empty_zero_page for sake of the ext4
-module."). The IA64 export was similar: commit a7d57ecf4216e ("[IA64]
-Export three symbols for module use") did so for kvm.
-
-In both IA64 and MIPS, the export of empty_zero_page was done for
-satisfying some in-kernel component built as module (kvm and ext4
-respectively), and given its reasonably low-level nature, GPL is a
-reasonable choice. But looking at the bigger picture it is evident most
-other architectures do not regard it as GPL, so in effect the symbol
-probably should not be treated as such, in favor of consistency.
-
-3, Details about invalid_pmd_table:
-
-Keep consistency with invalid_pte_table and make it be possible by some
-modules.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: WANG Xuerui <git@xen0n.name>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/loongarch/kernel/cpu-probe.c |    2 +-
- arch/loongarch/mm/init.c          |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/arch/loongarch/kernel/cpu-probe.c
-+++ b/arch/loongarch/kernel/cpu-probe.c
-@@ -60,7 +60,7 @@ static inline void set_elf_platform(int
+diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
+index c628d0980c0b1..1d52cb3e46d52 100644
+--- a/drivers/net/dsa/b53/b53_mmap.c
++++ b/drivers/net/dsa/b53/b53_mmap.c
+@@ -215,6 +215,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
+ 	return 0;
+ }
  
- /* MAP BASE */
- unsigned long vm_map_base;
--EXPORT_SYMBOL_GPL(vm_map_base);
-+EXPORT_SYMBOL(vm_map_base);
++static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
++			       u16 *value)
++{
++	return -EIO;
++}
++
++static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
++				u16 value)
++{
++	return -EIO;
++}
++
+ static const struct b53_io_ops b53_mmap_ops = {
+ 	.read8 = b53_mmap_read8,
+ 	.read16 = b53_mmap_read16,
+@@ -226,6 +238,8 @@ static const struct b53_io_ops b53_mmap_ops = {
+ 	.write32 = b53_mmap_write32,
+ 	.write48 = b53_mmap_write48,
+ 	.write64 = b53_mmap_write64,
++	.phy_read16 = b53_mmap_phy_read16,
++	.phy_write16 = b53_mmap_phy_write16,
+ };
  
- static void cpu_probe_addrbits(struct cpuinfo_loongarch *c)
- {
---- a/arch/loongarch/mm/init.c
-+++ b/arch/loongarch/mm/init.c
-@@ -41,7 +41,7 @@
-  * don't have to care about aliases on other CPUs.
-  */
- unsigned long empty_zero_page, zero_page_mask;
--EXPORT_SYMBOL_GPL(empty_zero_page);
-+EXPORT_SYMBOL(empty_zero_page);
- EXPORT_SYMBOL(zero_page_mask);
- 
- void setup_zero_pages(void)
-@@ -231,7 +231,7 @@ pud_t invalid_pud_table[PTRS_PER_PUD] __
- #endif
- #ifndef __PAGETABLE_PMD_FOLDED
- pmd_t invalid_pmd_table[PTRS_PER_PMD] __page_aligned_bss;
--EXPORT_SYMBOL_GPL(invalid_pmd_table);
-+EXPORT_SYMBOL(invalid_pmd_table);
- #endif
- pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
- EXPORT_SYMBOL(invalid_pte_table);
+ static int b53_mmap_probe(struct platform_device *pdev)
+-- 
+2.39.2
+
 
 
