@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6096ECD60
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F34CC6ECDB1
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232116AbjDXNXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
+        id S232167AbjDXNZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232132AbjDXNWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:47 -0400
+        with ESMTP id S232166AbjDXNZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF67355A7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D3C5BAD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 954B562255
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6700C433D2;
-        Mon, 24 Apr 2023 13:22:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CAF26223C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F32C433D2;
+        Mon, 24 Apr 2023 13:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342553;
-        bh=FSdw20i2eAWWBseuqJJEkzPEl0K3AV1ijo7Qilen2TY=;
+        s=korg; t=1682342746;
+        bh=sbvEeEAH1fOXzYJuYw5C2KbyDNDubiZlIU+RDaCnxW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G64I3JOKBLlqaG6ouEnixh56g9q2iAkHg13usPxYLUNw2qEN3OMDRPhMQH6bPbTM6
-         8VOIlsGVfeeNKH/MIfm83+ytCbQteDRd5zkv+BY8tEUosZtkXg3zATxxrp/yPLcAig
-         Kj6IYdlRDbG3Sz30CUHQdasvhoBVakR76BH5vTt0=
+        b=Ei5p29r8rEg5LkaFrSWsuPJ/w0w0kJ7adANWtamODusMPCDgAlDcqaDCgoSEfScLg
+         zIa9JEUGzz9EMf1EA+xXaZ+U8jGwQK8MN/3wzso0gFkS/Rt0Up10tXltl1qbI7+CA1
+         lmPbGVVhQuMYmYO39Q+XH027MPjcwH6Yl76K0NtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jianqun Xu <jay.xu@rock-chips.com>,
-        Sjoerd Simons <sjoerd@collabora.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/39] ARM: dts: rockchip: fix a typo error for rk3288 spdif node
+Subject: [PATCH 6.1 41/98] s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
 Date:   Mon, 24 Apr 2023 15:17:04 +0200
-Message-Id: <20230424131123.087626635@linuxfoundation.org>
+Message-Id: <20230424131135.465840102@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,35 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianqun Xu <jay.xu@rock-chips.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 02c84f91adb9a64b75ec97d772675c02a3e65ed7 ]
+[ Upstream commit f9bbf25e7b2b74b52b2f269216a92657774f239c ]
 
-Fix the address in the spdif node name.
+Return -EFAULT if put_user() for the PTRACE_GET_LAST_BREAK
+request fails, instead of silently ignoring it.
 
-Fixes: 874e568e500a ("ARM: dts: rockchip: Add SPDIF transceiver for RK3288")
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Sjoerd Simons <sjoerd@collabora.com>
-Link: https://lore.kernel.org/r/20230208091411.1603142-1-jay.xu@rock-chips.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/ptrace.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 3a7d375389d0e..36f943a3f3ad2 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -942,7 +942,7 @@
- 		status = "disabled";
- 	};
- 
--	spdif: sound@ff88b0000 {
-+	spdif: sound@ff8b0000 {
- 		compatible = "rockchip,rk3288-spdif", "rockchip,rk3066-spdif";
- 		reg = <0x0 0xff8b0000 0x0 0x10000>;
- 		#sound-dai-cells = <0>;
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 53e0209229f87..092b16b4dd4f6 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -474,9 +474,7 @@ long arch_ptrace(struct task_struct *child, long request,
+ 		}
+ 		return 0;
+ 	case PTRACE_GET_LAST_BREAK:
+-		put_user(child->thread.last_break,
+-			 (unsigned long __user *) data);
+-		return 0;
++		return put_user(child->thread.last_break, (unsigned long __user *)data);
+ 	case PTRACE_ENABLE_TE:
+ 		if (!MACHINE_HAS_TE)
+ 			return -EIO;
+@@ -824,9 +822,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+ 		}
+ 		return 0;
+ 	case PTRACE_GET_LAST_BREAK:
+-		put_user(child->thread.last_break,
+-			 (unsigned int __user *) data);
+-		return 0;
++		return put_user(child->thread.last_break, (unsigned int __user *)data);
+ 	}
+ 	return compat_ptrace_request(child, request, addr, data);
+ }
 -- 
 2.39.2
 
