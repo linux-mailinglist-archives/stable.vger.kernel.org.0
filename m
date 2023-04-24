@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D9F6ECE9A
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 090936ECEC1
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232520AbjDXNdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
+        id S232544AbjDXNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232351AbjDXNdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:32 -0400
+        with ESMTP id S232480AbjDXNep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2A586B4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA347DA9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06DF761EA1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F474C433D2;
-        Mon, 24 Apr 2023 13:33:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A5D6623BB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8D1C4339B;
+        Mon, 24 Apr 2023 13:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343193;
-        bh=5YtbPC1B/po0Q8vfP7wcPCCXtg3GFxfQU22h32K5xiU=;
+        s=korg; t=1682343267;
+        bh=5tFhIybJQJN0Hb94BP2kJXGPvNh37fAzfNZ0oKQzSOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LweYKJ70q/BI6FBzUheK3ZgXI2UqAzRIAO9lZJSVqDZyX5EdDhagwXOYilbVK1z8u
-         OqEI5K8TRwyEBBArN+62amyXe/yqcSRaUNCnc68EFFkIgvQY5PEh+bbkdC9434XH3J
-         xQHkTQjxvVYiHSZ8ZoVPLqxsNc7gIemHrTGjbL4M=
+        b=Ee3CAh0OGYt0MNFMQ686qYohaGFXVvbeFe7lrHZnxaEidTHilpe+g0sRw9hBCOvIZ
+         Yk9XMjVhMUuF/HS2Tdy1GFpuTvwkVZ9y612RzMCRnX6lPFTcx6dxUKE/dwnpAf4p7x
+         3k89Cs0mV1+EAHKn8mbXE9yesVWRvqOmHcbf9y+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 6.2 099/110] purgatory: fix disabling debug info
+        patches@lists.linux.dev, Tom Rix <trix@redhat.com>,
+        Brian Masney <bmasney@redhat.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 30/68] iio: light: tsl2772: fix reading proximity-diodes from device tree
 Date:   Mon, 24 Apr 2023 15:18:01 +0200
-Message-Id: <20230424131140.272707120@linuxfoundation.org>
+Message-Id: <20230424131128.799794118@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Brian Masney <bmasney@redhat.com>
 
-commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 upstream.
+commit b1cb00d51e361cf5af93649917d9790e1623647e upstream.
 
-Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
--Wa versions of both of those if building with Clang and GNU as.  As a
-result, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+tsl2772_read_prox_diodes() will correctly parse the properties from
+device tree to determine which proximity diode(s) to read from, however
+it didn't actually set this value on the struct tsl2772_settings. Let's
+go ahead and fix that.
 
-Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reported-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/lkml/20230327120823.1369700-1-trix@redhat.com/
+Fixes: 94cd1113aaa0 ("iio: tsl2772: add support for reading proximity led settings from device tree")
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+Link: https://lore.kernel.org/r/20230404011455.339454-1-bmasney@redhat.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/purgatory/Makefile |    4 +---
- arch/x86/purgatory/Makefile   |    3 +--
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/iio/light/tsl2772.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/riscv/purgatory/Makefile
-+++ b/arch/riscv/purgatory/Makefile
-@@ -74,9 +74,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+--- a/drivers/iio/light/tsl2772.c
++++ b/drivers/iio/light/tsl2772.c
+@@ -606,6 +606,7 @@ static int tsl2772_read_prox_diodes(stru
+ 			return -EINVAL;
+ 		}
+ 	}
++	chip->settings.prox_diode = prox_diode_mask;
  
--AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- 
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
+ 	return 0;
+ }
 
 
