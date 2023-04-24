@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 782906ECDD6
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE616ECD7D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232119AbjDXN1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:27:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53704 "EHLO
+        id S232132AbjDXNYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232227AbjDXN1J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:27:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7023C61B2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:08 -0700 (PDT)
+        with ESMTP id S232122AbjDXNXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2626659D6
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C282622B6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F83CC4339C;
-        Mon, 24 Apr 2023 13:27:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A77FD62255
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC68AC433D2;
+        Mon, 24 Apr 2023 13:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342827;
-        bh=Xj4DRvcX19MNepCASaZl+BCakrl1v12ik4BItkJJrB0=;
+        s=korg; t=1682342619;
+        bh=E1/FLRbMWKAKHeKK7eyU76UeBHn2ETFKXqwZ6wUQQH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srg4oXhqY4pqLpxl8bXlbdIlkFuYksdzyZCHZDSHxyk/pxjZg3KmOwaRdzBUGYzfj
-         6WGHjVHbsG8lJLf3HUFnotYeYbakl7Rx1PBnWO2bA7ItHGXtxja/jf9jM6D9n0jJog
-         rVGJj+na8V045OMyr8xAyc1B5Lek7fojuL+Tf2Ng=
+        b=RNoQ/WY9gIwRZexOfYcJJMU2Yg6QFilOMkxrZnlrK+q6Rgs3POjHm5vKjuzqkl0hM
+         azKhyhBiyI7YfQN6sSm2DHDMnUfRoS0m2mxtQIrohRIXddyXK8QcnwtpT8/3j5fN8T
+         3YxcmmSmQ6dstqQvf4SwXXRIgZ/iZPPHohgezVyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 72/98] mm/userfaultfd: fix uffd-wp handling for THP migration entries
-Date:   Mon, 24 Apr 2023 15:17:35 +0200
-Message-Id: <20230424131136.653552597@linuxfoundation.org>
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 5.4 33/39] inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().
+Date:   Mon, 24 Apr 2023 15:17:36 +0200
+Message-Id: <20230424131124.317671737@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,77 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 24bf08c4376be417f16ceb609188b16f461b0443 upstream.
+commit b5fc29233d28be7a3322848ebe73ac327559cdb9 upstream.
 
-Looks like what we fixed for hugetlb in commit 44f86392bdd1 ("mm/hugetlb:
-fix uffd-wp handling for migration entries in
-hugetlb_change_protection()") similarly applies to THP.
+After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
+in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
+sk->sk_destruct() by setting inet6_sock_destruct() to it to make
+sure we do not leak inet6-specific resources.
 
-Setting/clearing uffd-wp on THP migration entries is not implemented
-properly.  Further, while removing migration PMDs considers the uffd-wp
-bit, inserting migration PMDs does not consider the uffd-wp bit.
+Now we can remove unnecessary inet6_destroy_sock() calls in
+sk->sk_prot->destroy().
 
-We have to set/clear independently of the migration entry type in
-change_huge_pmd() and properly copy the uffd-wp bit in
-set_pmd_migration_entry().
+DCCP and SCTP have their own sk->sk_destruct() function, so we
+change them separately in the following patches.
 
-Verified using a simple reproducer that triggers migration of a THP, that
-the set_pmd_migration_entry() no longer loses the uffd-wp bit.
-
-Link: https://lkml.kernel.org/r/20230405160236.587705-2-david@redhat.com
-Fixes: f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Cc: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/huge_memory.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ net/ipv6/ping.c     |    6 ------
+ net/ipv6/raw.c      |    2 --
+ net/ipv6/tcp_ipv6.c |    8 +-------
+ net/ipv6/udp.c      |    2 --
+ net/l2tp/l2tp_ip6.c |    2 --
+ 5 files changed, 1 insertion(+), 19 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1805,10 +1805,10 @@ int change_huge_pmd(struct mmu_gather *t
- 	if (is_swap_pmd(*pmd)) {
- 		swp_entry_t entry = pmd_to_swp_entry(*pmd);
- 		struct page *page = pfn_swap_entry_to_page(entry);
-+		pmd_t newpmd;
+--- a/net/ipv6/ping.c
++++ b/net/ipv6/ping.c
+@@ -22,11 +22,6 @@
+ #include <linux/proc_fs.h>
+ #include <net/ping.h>
  
- 		VM_BUG_ON(!is_pmd_migration_entry(*pmd));
- 		if (is_writable_migration_entry(entry)) {
--			pmd_t newpmd;
- 			/*
- 			 * A protection check is difficult so
- 			 * just be safe and disable write
-@@ -1822,8 +1822,16 @@ int change_huge_pmd(struct mmu_gather *t
- 				newpmd = pmd_swp_mksoft_dirty(newpmd);
- 			if (pmd_swp_uffd_wp(*pmd))
- 				newpmd = pmd_swp_mkuffd_wp(newpmd);
--			set_pmd_at(mm, addr, pmd, newpmd);
-+		} else {
-+			newpmd = *pmd;
+-static void ping_v6_destroy(struct sock *sk)
+-{
+-	inet6_destroy_sock(sk);
+-}
+-
+ /* Compatibility glue so we can support IPv6 when it's compiled as a module */
+ static int dummy_ipv6_recv_error(struct sock *sk, struct msghdr *msg, int len,
+ 				 int *addr_len)
+@@ -170,7 +165,6 @@ struct proto pingv6_prot = {
+ 	.owner =	THIS_MODULE,
+ 	.init =		ping_init_sock,
+ 	.close =	ping_close,
+-	.destroy =	ping_v6_destroy,
+ 	.connect =	ip6_datagram_connect_v6_only,
+ 	.disconnect =	__udp_disconnect,
+ 	.setsockopt =	ipv6_setsockopt,
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -1256,8 +1256,6 @@ static void raw6_destroy(struct sock *sk
+ 	lock_sock(sk);
+ 	ip6_flush_pending_frames(sk);
+ 	release_sock(sk);
+-
+-	inet6_destroy_sock(sk);
+ }
+ 
+ static int rawv6_init_sk(struct sock *sk)
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -1848,12 +1848,6 @@ static int tcp_v6_init_sock(struct sock
+ 	return 0;
+ }
+ 
+-static void tcp_v6_destroy_sock(struct sock *sk)
+-{
+-	tcp_v4_destroy_sock(sk);
+-	inet6_destroy_sock(sk);
+-}
+-
+ #ifdef CONFIG_PROC_FS
+ /* Proc filesystem TCPv6 sock list dumping. */
+ static void get_openreq6(struct seq_file *seq,
+@@ -2046,7 +2040,7 @@ struct proto tcpv6_prot = {
+ 	.accept			= inet_csk_accept,
+ 	.ioctl			= tcp_ioctl,
+ 	.init			= tcp_v6_init_sock,
+-	.destroy		= tcp_v6_destroy_sock,
++	.destroy		= tcp_v4_destroy_sock,
+ 	.shutdown		= tcp_shutdown,
+ 	.setsockopt		= tcp_setsockopt,
+ 	.getsockopt		= tcp_getsockopt,
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1573,8 +1573,6 @@ void udpv6_destroy_sock(struct sock *sk)
+ 			udp_encap_disable();
  		}
-+
-+		if (uffd_wp)
-+			newpmd = pmd_swp_mkuffd_wp(newpmd);
-+		else if (uffd_wp_resolve)
-+			newpmd = pmd_swp_clear_uffd_wp(newpmd);
-+		if (!pmd_same(*pmd, newpmd))
-+			set_pmd_at(mm, addr, pmd, newpmd);
- 		goto unlock;
  	}
- #endif
-@@ -3233,6 +3241,8 @@ int set_pmd_migration_entry(struct page_
- 	pmdswp = swp_entry_to_pmd(entry);
- 	if (pmd_soft_dirty(pmdval))
- 		pmdswp = pmd_swp_mksoft_dirty(pmdswp);
-+	if (pmd_uffd_wp(pmdval))
-+		pmdswp = pmd_swp_mkuffd_wp(pmdswp);
- 	set_pmd_at(mm, address, pvmw->pmd, pmdswp);
- 	page_remove_rmap(page, vma, true);
- 	put_page(page);
+-
+-	inet6_destroy_sock(sk);
+ }
+ 
+ /*
+--- a/net/l2tp/l2tp_ip6.c
++++ b/net/l2tp/l2tp_ip6.c
+@@ -268,8 +268,6 @@ static void l2tp_ip6_destroy_sock(struct
+ 
+ 	if (tunnel)
+ 		l2tp_tunnel_delete(tunnel);
+-
+-	inet6_destroy_sock(sk);
+ }
+ 
+ static int l2tp_ip6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 
 
