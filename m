@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E69C16ECE0D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B64F6ECE0C
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232312AbjDXN2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
+        id S232366AbjDXN2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232315AbjDXN2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBE85FF6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:32 -0700 (PDT)
+        with ESMTP id S232326AbjDXN2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA23065B7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C5DC61E68
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A128DC433D2;
-        Mon, 24 Apr 2023 13:28:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 322B961E97
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49008C433D2;
+        Mon, 24 Apr 2023 13:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342909;
-        bh=n/w5OF3SZziTUVBEcMJfgelS+24erpL3mGQ9JlQEHsI=;
+        s=korg; t=1682342911;
+        bh=BEQTPXr/8cYA5q4VrjqOEP4ZXCIWiRu6WXnBgFt9u2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kChT8q8Yb1gxjwOkCB3iWx75mVLE0887sUlNUEnLMJ06g7tsZwZi2gHklAwJPWw9x
-         TiNMj+KtcmeAmXdB7tJEU45CHdiXCijBmk7FM1KUdL4SyhskkdlEVqg5ES9PaM7SCt
-         OjyCXRnzqinx8tO4+zcSEzx9bT8fCq5VvQisyIvI=
+        b=zQfHweqoOIFYPPqJqyfM7aaiElcWrxzQLHzSrQrxlgGl4j1Ssp01y1VhAaSbFtnFg
+         7UJPAGRdL5AGF+ZA4GIqP0/uYRQqPvewTQaBC8jCLyNgUopkokwEfB3c3Sq92MBGRF
+         2BRV8A3dPKocib31qyqFPzxeoS7nFW8wgHKXjyyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 6.1 84/98] MIPS: Define RUNTIME_DISCARD_EXIT in LD script
-Date:   Mon, 24 Apr 2023 15:17:47 +0200
-Message-Id: <20230424131137.142239983@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>,
+        Zhang Tianci <zhangtianci.1997@bytedance.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Yang Bo <yb203166@antfin.com>
+Subject: [PATCH 6.1 85/98] fuse: always revalidate rename target dentry
+Date:   Mon, 24 Apr 2023 15:17:48 +0200
+Message-Id: <20230424131137.186268956@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
 References: <20230424131133.829259077@linuxfoundation.org>
@@ -44,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,35 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
 
-commit 6dcbd0a69c84a8ae7a442840a8cf6b1379dc8f16 upstream.
+commit ccc031e26afe60d2a5a3d93dabd9c978210825fb upstream.
 
-MIPS's exit sections are discarded at runtime as well.
+The previous commit df8629af2934 ("fuse: always revalidate if exclusive
+create") ensures that the dentries are revalidated on O_EXCL creates.  This
+commit complements it by also performing revalidation for rename target
+dentries.  Otherwise, a rename target file that only exists in kernel
+dentry cache but not in the filesystem will result in EEXIST if
+RENAME_NOREPLACE flag is used.
 
-Fixes link error:
-`.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
-defined in discarded section `.exit.text' of fs/fuse/inode.o
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Yang Bo <yb203166@antfin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/kernel/vmlinux.lds.S |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/fuse/dir.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -15,6 +15,8 @@
- #define EMITS_PT_NOTE
- #endif
- 
-+#define RUNTIME_DISCARD_EXIT
-+
- #include <asm-generic/vmlinux.lds.h>
- 
- #undef mips
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -214,7 +214,7 @@ static int fuse_dentry_revalidate(struct
+ 	if (inode && fuse_is_bad(inode))
+ 		goto invalid;
+ 	else if (time_before64(fuse_dentry_time(entry), get_jiffies_64()) ||
+-		 (flags & (LOOKUP_EXCL | LOOKUP_REVAL))) {
++		 (flags & (LOOKUP_EXCL | LOOKUP_REVAL | LOOKUP_RENAME_TARGET))) {
+ 		struct fuse_entry_out outarg;
+ 		FUSE_ARGS(args);
+ 		struct fuse_forget_link *forget;
 
 
