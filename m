@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15EE6ECDA8
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1CED6ECD2B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232113AbjDXNZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:25:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51654 "EHLO
+        id S231963AbjDXNVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232166AbjDXNZZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:25 -0400
+        with ESMTP id S231992AbjDXNVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E6F05BBD
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DFA55BF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F214A622A2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13EC8C433EF;
-        Mon, 24 Apr 2023 13:25:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B875D621D9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C997BC433D2;
+        Mon, 24 Apr 2023 13:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342722;
-        bh=T7sPgeZWaMHUXeeot7fb5Pe61axswwSYZIpjGPzNdjc=;
+        s=korg; t=1682342447;
+        bh=CAY6dvryIBjk490gspnEFhpKuyrOitYWKoW4xe/B08k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3e2PReRLFOFRt3IlqwXOCVhKwS6Y6KTejjNuDtpKepLW/hi5TfjrVdohLi17AGSN
-         IFRBUu37MKp2FTBbBRCdzqBrtcc3B5ZCr0xdv9MuA6ZAMkMX4PIvPsQBezq3aDr5ss
-         +7ofgKlQMu0eep7Arcs5jGQ9PTiLk2vZFJQbcPM8=
+        b=SZ+C8bjqZuWeWBGl1X/5I7itc1RQZO+sF4tLbQcAR8kg+Dnxx3IBtumljroxxmAw2
+         IA0r6xzU6kt34UjuCa64oJdUetzg6Qg/miAOUN+cKT34acdCPhWcwXIeOxrUbS3U2R
+         VrMmuThecpSuC2RjMNmMqPdUN8JIYlaUtq9kavPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Douglas Raillard <douglas.raillard@arm.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 33/98] f2fs: Fix f2fs_truncate_partial_nodes ftrace event
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.15 42/73] drm/i915: Fix fast wake AUX sync len
 Date:   Mon, 24 Apr 2023 15:16:56 +0200
-Message-Id: <20230424131135.180709225@linuxfoundation.org>
+Message-Id: <20230424131130.518891922@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Raillard <douglas.raillard@arm.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 0b04d4c0542e8573a837b1d81b94209e48723b25 ]
+commit e1c71f8f918047ce822dc19b42ab1261ed259fd1 upstream.
 
-Fix the nid_t field so that its size is correctly reported in the text
-format embedded in trace.dat files. As it stands, it is reported as
-being of size 4:
+Fast wake should use 8 SYNC pulses for the preamble
+and 10-16 SYNC pulses for the precharge. Reduce our
+fast wake SYNC count to match the maximum value.
+We also use the maximum precharge length for normal
+AUX transactions.
 
-        field:nid_t nid[3];     offset:24;      size:4; signed:0;
-
-Instead of 12:
-
-        field:nid_t nid[3];     offset:24;      size:12;        signed:0;
-
-This also fixes the reported offset of subsequent fields so that they
-match with the actual struct layout.
-
-Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230329172434.18744-1-ville.syrjala@linux.intel.com
+Reviewed-by: Jouni Högander <jouni.hogander@intel.com>
+(cherry picked from commit 605f7c73133341d4b762cbd9a22174cc22d4c38b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/f2fs.h | 2 +-
+ drivers/gpu/drm/i915/display/intel_dp_aux.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index e57f867191ef1..eb53e96b7a29c 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -505,7 +505,7 @@ TRACE_EVENT(f2fs_truncate_partial_nodes,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(nid_t,	nid[3])
-+		__array(nid_t,	nid, 3)
- 		__field(int,	depth)
- 		__field(int,	err)
- 	),
--- 
-2.39.2
-
+--- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
+@@ -167,7 +167,7 @@ static u32 skl_get_aux_send_ctl(struct i
+ 	      DP_AUX_CH_CTL_TIME_OUT_MAX |
+ 	      DP_AUX_CH_CTL_RECEIVE_ERROR |
+ 	      (send_bytes << DP_AUX_CH_CTL_MESSAGE_SIZE_SHIFT) |
+-	      DP_AUX_CH_CTL_FW_SYNC_PULSE_SKL(32) |
++	      DP_AUX_CH_CTL_FW_SYNC_PULSE_SKL(24) |
+ 	      DP_AUX_CH_CTL_SYNC_PULSE_SKL(32);
+ 
+ 	if (intel_phy_is_tc(i915, phy) &&
 
 
