@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B736ECE10
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B624C6ECEAA
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232372AbjDXN25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
+        id S232511AbjDXNeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232311AbjDXN2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:45 -0400
+        with ESMTP id S232462AbjDXNds (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2972361B5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7699A7EF7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EA926212A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F235C4339B;
-        Mon, 24 Apr 2023 13:28:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 446836237B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B1BC433EF;
+        Mon, 24 Apr 2023 13:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342898;
-        bh=xvA8I67JvT6qfAoDeSsBkp5IBfYc9mtO1paUYdWKyrs=;
+        s=korg; t=1682343219;
+        bh=HJL8rSzZGnwlJaM2FrMcn++7WWq1ToCQS9jcrwTQfg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g577LQXwZ5nEeqtZ46UcXmlE4VYFWrpRYAPIMgbTC6V4pESO+ugg+InCd7dQy707I
-         aqtqd0CgLW6q8GvmQgL29Zn6hPO77OIXljOEZyiblO+17w2ZJ1XW4gZ347GrWjiuoA
-         R6McXeI3wxSRT9NlN9Mq24TgZcCzHd2iM29WPhUA=
+        b=K2XQxdskbr+g3vb8I5+DlS+M3at06soT3BvcV4KV/YSczoVWLrQyp1U+mtUr4DIYV
+         GzvBcNowg014LBQF5b+5zj/t6upgqKB6hg8QRK8nR6pZNuniPqb7xDp3gqzQtXB/HY
+         MTaDIXQCflbTOtH61546zR5me25dQIgZrmlWGiHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 6.1 80/98] sched/fair: Consider capacity inversion in util_fits_cpu()
+        patches@lists.linux.dev,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 5.10 12/68] i40e: fix accessing vsi->active_filters without holding lock
 Date:   Mon, 24 Apr 2023 15:17:43 +0200
-Message-Id: <20230424131136.965952977@linuxfoundation.org>
+Message-Id: <20230424131128.140054126@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-commit: aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8 upstream.
+[ Upstream commit 8485d093b076e59baff424552e8aecfc5bd2d261 ]
 
-We do consider thermal pressure in util_fits_cpu() for uclamp_min only.
-With the exception of the biggest cores which by definition are the max
-performance point of the system and all tasks by definition should fit.
+Fix accessing vsi->active_filters without holding the mac_filter_hash_lock.
+Move vsi->active_filters = 0 inside critical section and
+move clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state) after the critical
+section to ensure the new filters from other threads can be added only after
+filters cleaning in the critical section is finished.
 
-Even under thermal pressure, the capacity of the biggest CPU is the
-highest in the system and should still fit every task. Except when it
-reaches capacity inversion point, then this is no longer true.
-
-We can handle this by using the inverted capacity as capacity_orig in
-util_fits_cpu(). Which not only addresses the problem above, but also
-ensure uclamp_max now considers the inverted capacity. Force fitting
-a task when a CPU is in this adverse state will contribute to making the
-thermal throttling last longer.
-
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-10-qais.yousef@arm.com
-(cherry picked from commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8)
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 278e7d0b9d68 ("i40e: store MAC/VLAN filters in a hash with the MAC Address as key")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4465,12 +4465,16 @@ static inline int util_fits_cpu(unsigned
- 	 * For uclamp_max, we can tolerate a drop in performance level as the
- 	 * goal is to cap the task. So it's okay if it's getting less.
- 	 *
--	 * In case of capacity inversion, which is not handled yet, we should
--	 * honour the inverted capacity for both uclamp_min and uclamp_max all
--	 * the time.
-+	 * In case of capacity inversion we should honour the inverted capacity
-+	 * for both uclamp_min and uclamp_max all the time.
- 	 */
--	capacity_orig = capacity_orig_of(cpu);
--	capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
-+	capacity_orig = cpu_in_capacity_inversion(cpu);
-+	if (capacity_orig) {
-+		capacity_orig_thermal = capacity_orig;
-+	} else {
-+		capacity_orig = capacity_orig_of(cpu);
-+		capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
-+	}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 76481ff7074ba..3a93d538b2d73 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -13458,15 +13458,15 @@ static int i40e_add_vsi(struct i40e_vsi *vsi)
+ 		vsi->id = ctxt.vsi_number;
+ 	}
  
- 	/*
- 	 * We want to force a task to fit a cpu as implied by uclamp_max.
+-	vsi->active_filters = 0;
+-	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	vsi->active_filters = 0;
+ 	/* If macvlan filters already exist, force them to get loaded */
+ 	hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
+ 		f->state = I40E_FILTER_NEW;
+ 		f_count++;
+ 	}
+ 	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 
+ 	if (f_count) {
+ 		vsi->flags |= I40E_VSI_FLAG_FILTER_CHANGED;
+-- 
+2.39.2
+
 
 
