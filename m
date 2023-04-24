@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A76E6ECE17
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E896ECD33
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232422AbjDXN3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56208 "EHLO
+        id S231966AbjDXNV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232380AbjDXN3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:29:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B3965B4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:45 -0700 (PDT)
+        with ESMTP id S231997AbjDXNVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC7C4C10
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80DF061DE3
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96890C433EF;
-        Mon, 24 Apr 2023 13:28:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9134262225
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0E27C433D2;
+        Mon, 24 Apr 2023 13:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342925;
-        bh=a4vUwbNcu5ldHk4wpcsRsRY1WTxIjQrfsljmB5hoHZw=;
+        s=korg; t=1682342463;
+        bh=ZkSBZPR9CmhWILGzUWy52YoKCjHuoOzpqDhP1GkV1RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7FrbqPtghpuGPbDdHM5kSUPdCcmQwOXULU3hBSYe9kul9RtrqJeQBmaXRIG14fsJ
-         Uhq8H3Ubp991eSx86I9GOQZSCdwcYkRiVCDBExVmaGhYb/OqC7KgT1J6znx7i47hkz
-         w7v9ti/aC4p+P/2tyrFm3UDpae69hn+TPFMKUsC4=
+        b=h6NcbA9hEDbrqOIilkYOlsWLJ9Jjp/bhh3mpxCQGupRx2GjRLM7wiYbHjxwGrJ5j0
+         oBw4+g+gKQ10GEcRl0Z5Du4NYulVc+wEoYKTHqSaFOyJdR3puFKwuCkNjHbtpnoomI
+         juN3iL6Sz+R+5R8P6ePDYcnpvibCasYzgqaBdPcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 011/110] arm64: dts: imx8mp-verdin: correct off-on-delay
+Subject: [PATCH 5.15 19/73] bonding: Fix memory leak when changing bond type to Ethernet
 Date:   Mon, 24 Apr 2023 15:16:33 +0200
-Message-Id: <20230424131136.542621503@linuxfoundation.org>
+Message-Id: <20230424131129.714611973@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,56 +57,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 02c447a0d79f0c966563e5095a017cbf9477ca6d ]
+[ Upstream commit c484fcc058bada604d7e4e5228d4affb646ddbc2 ]
 
-The property should be off-on-delay-us, not off-on-delay
+When a net device is put administratively up, its 'IFF_UP' flag is set
+(if not set already) and a 'NETDEV_UP' notification is emitted, which
+causes the 8021q driver to add VLAN ID 0 on the device. The reverse
+happens when a net device is put administratively down.
 
-Fixes: a39ed23bdf6e ("arm64: dts: freescale: add initial support for verdin imx8m plus")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+When changing the type of a bond to Ethernet, its 'IFF_UP' flag is
+incorrectly cleared, resulting in the kernel skipping the above process
+and VLAN ID 0 being leaked [1].
+
+Fix by restoring the flag when changing the type to Ethernet, in a
+similar fashion to the restoration of the 'IFF_SLAVE' flag.
+
+The issue can be reproduced using the script in [2], with example out
+before and after the fix in [3].
+
+[1]
+unreferenced object 0xffff888103479900 (size 256):
+  comm "ip", pid 329, jiffies 4294775225 (age 28.561s)
+  hex dump (first 32 bytes):
+    00 a0 0c 15 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81a6051a>] kmalloc_trace+0x2a/0xe0
+    [<ffffffff8406426c>] vlan_vid_add+0x30c/0x790
+    [<ffffffff84068e21>] vlan_device_event+0x1491/0x21a0
+    [<ffffffff81440c8e>] notifier_call_chain+0xbe/0x1f0
+    [<ffffffff8372383a>] call_netdevice_notifiers_info+0xba/0x150
+    [<ffffffff837590f2>] __dev_notify_flags+0x132/0x2e0
+    [<ffffffff8375ad9f>] dev_change_flags+0x11f/0x180
+    [<ffffffff8379af36>] do_setlink+0xb96/0x4060
+    [<ffffffff837adf6a>] __rtnl_newlink+0xc0a/0x18a0
+    [<ffffffff837aec6c>] rtnl_newlink+0x6c/0xa0
+    [<ffffffff837ac64e>] rtnetlink_rcv_msg+0x43e/0xe00
+    [<ffffffff839a99e0>] netlink_rcv_skb+0x170/0x440
+    [<ffffffff839a738f>] netlink_unicast+0x53f/0x810
+    [<ffffffff839a7fcb>] netlink_sendmsg+0x96b/0xe90
+    [<ffffffff8369d12f>] ____sys_sendmsg+0x30f/0xa70
+    [<ffffffff836a6d7a>] ___sys_sendmsg+0x13a/0x1e0
+unreferenced object 0xffff88810f6a83e0 (size 32):
+  comm "ip", pid 329, jiffies 4294775225 (age 28.561s)
+  hex dump (first 32 bytes):
+    a0 99 47 03 81 88 ff ff a0 99 47 03 81 88 ff ff  ..G.......G.....
+    81 00 00 00 01 00 00 00 cc cc cc cc cc cc cc cc  ................
+  backtrace:
+    [<ffffffff81a6051a>] kmalloc_trace+0x2a/0xe0
+    [<ffffffff84064369>] vlan_vid_add+0x409/0x790
+    [<ffffffff84068e21>] vlan_device_event+0x1491/0x21a0
+    [<ffffffff81440c8e>] notifier_call_chain+0xbe/0x1f0
+    [<ffffffff8372383a>] call_netdevice_notifiers_info+0xba/0x150
+    [<ffffffff837590f2>] __dev_notify_flags+0x132/0x2e0
+    [<ffffffff8375ad9f>] dev_change_flags+0x11f/0x180
+    [<ffffffff8379af36>] do_setlink+0xb96/0x4060
+    [<ffffffff837adf6a>] __rtnl_newlink+0xc0a/0x18a0
+    [<ffffffff837aec6c>] rtnl_newlink+0x6c/0xa0
+    [<ffffffff837ac64e>] rtnetlink_rcv_msg+0x43e/0xe00
+    [<ffffffff839a99e0>] netlink_rcv_skb+0x170/0x440
+    [<ffffffff839a738f>] netlink_unicast+0x53f/0x810
+    [<ffffffff839a7fcb>] netlink_sendmsg+0x96b/0xe90
+    [<ffffffff8369d12f>] ____sys_sendmsg+0x30f/0xa70
+    [<ffffffff836a6d7a>] ___sys_sendmsg+0x13a/0x1e0
+
+[2]
+ip link add name t-nlmon type nlmon
+ip link add name t-dummy type dummy
+ip link add name t-bond type bond mode active-backup
+
+ip link set dev t-bond up
+ip link set dev t-nlmon master t-bond
+ip link set dev t-nlmon nomaster
+ip link show dev t-bond
+ip link set dev t-dummy master t-bond
+ip link show dev t-bond
+
+ip link del dev t-bond
+ip link del dev t-dummy
+ip link del dev t-nlmon
+
+[3]
+Before:
+
+12: t-bond: <NO-CARRIER,BROADCAST,MULTICAST,MASTER,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default qlen 1000
+    link/netlink
+12: t-bond: <BROADCAST,MULTICAST,MASTER,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 46:57:39:a4:46:a2 brd ff:ff:ff:ff:ff:ff
+
+After:
+
+12: t-bond: <NO-CARRIER,BROADCAST,MULTICAST,MASTER,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default qlen 1000
+    link/netlink
+12: t-bond: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 66:48:7b:74:b6:8a brd ff:ff:ff:ff:ff:ff
+
+Fixes: e36b9d16c6a6 ("bonding: clean muticast addresses when device changes type")
+Fixes: 75c78500ddad ("bonding: remap muticast addresses without using dev_close() and dev_open()")
+Fixes: 9ec7eb60dcbc ("bonding: restore IFF_MASTER/SLAVE flags on bond enslave ether type change")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Link: https://lore.kernel.org/netdev/78a8a03b-6070-3e6b-5042-f848dab16fb8@alu.unizg.hr/
+Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi | 2 +-
- arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_main.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi
-index cefabe65b2520..c8b521d45fca1 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi
-@@ -12,7 +12,7 @@
- 		compatible = "regulator-fixed";
- 		enable-active-high;
- 		gpio = <&gpio_expander_21 4 GPIO_ACTIVE_HIGH>; /* ETH_PWR_EN */
--		off-on-delay = <500000>;
-+		off-on-delay-us = <500000>;
- 		regulator-max-microvolt = <3300000>;
- 		regulator-min-microvolt = <3300000>;
- 		regulator-name = "+V3.3_ETH";
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
-index 6a1890a4b5d88..947e4537303f2 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
-@@ -87,7 +87,7 @@
- 		compatible = "regulator-fixed";
- 		enable-active-high;
- 		gpio = <&gpio2 20 GPIO_ACTIVE_HIGH>; /* PMIC_EN_ETH */
--		off-on-delay = <500000>;
-+		off-on-delay-us = <500000>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_reg_eth>;
- 		regulator-always-on;
-@@ -128,7 +128,7 @@
- 		enable-active-high;
- 		/* Verdin SD_1_PWR_EN (SODIMM 76) */
- 		gpio = <&gpio4 22 GPIO_ACTIVE_HIGH>;
--		off-on-delay = <100000>;
-+		off-on-delay-us = <100000>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_usdhc2_pwr_en>;
- 		regulator-max-microvolt = <3300000>;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index e1dc94f01cb5a..2816b6fc17392 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1746,14 +1746,15 @@ void bond_lower_state_changed(struct slave *slave)
+ 
+ /* The bonding driver uses ether_setup() to convert a master bond device
+  * to ARPHRD_ETHER, that resets the target netdevice's flags so we always
+- * have to restore the IFF_MASTER flag, and only restore IFF_SLAVE if it was set
++ * have to restore the IFF_MASTER flag, and only restore IFF_SLAVE and IFF_UP
++ * if they were set
+  */
+ static void bond_ether_setup(struct net_device *bond_dev)
+ {
+-	unsigned int slave_flag = bond_dev->flags & IFF_SLAVE;
++	unsigned int flags = bond_dev->flags & (IFF_SLAVE | IFF_UP);
+ 
+ 	ether_setup(bond_dev);
+-	bond_dev->flags |= IFF_MASTER | slave_flag;
++	bond_dev->flags |= IFF_MASTER | flags;
+ 	bond_dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ }
+ 
 -- 
 2.39.2
 
