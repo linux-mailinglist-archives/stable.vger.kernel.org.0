@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524CC6ECF26
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D09D6ECF34
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232701AbjDXNim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:38:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
+        id S232684AbjDXNjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:39:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232642AbjDXNih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:37 -0400
+        with ESMTP id S232735AbjDXNix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3417E901C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285878A60
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46EB962420
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 581DDC433D2;
-        Mon, 24 Apr 2023 13:37:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 959576239C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4954C433D2;
+        Mon, 24 Apr 2023 13:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343439;
-        bh=lZ2IgiWGP47Z0fvYY4pBpYGxeg5uxIr1PXN6VuawWx8=;
+        s=korg; t=1682343498;
+        bh=bPAgZwE/5D21mB31uoUwQmkOzveDTZ4x/oF0Avqsaf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2LrYZxlY3mEPFDs58LTyfn1Fx2oEdL4SN0CX6E5IcOKbKv0xWZgPHvwv4HwEHdYi3
-         gayI2S4m5g7mRuCZe3DZSZXnsObAOmy2OG6DUiEiWZz9b6zgpgKphd93RQsGSrqJuR
-         VxOoh1DS7TR8af67J7tOLtl6tz3v+y1cjcXAFVn0=
+        b=Ynuzlg7cnH+6H92qICgMzaXbXveSK5Jik4J/prlldUCsDdnUnwEc7mfs/C6Dw+Ll/
+         sNfpRFa01A8SB2vjO8zkkfwQG9OSKGAizNNVCCPe1k6JQB7Msw97T3qugmWY7nOINP
+         Bre/CpEMVqy1QuZ5BTO9DXHl0zVh753MmisjHpG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>
-Subject: [PATCH 4.14 25/28] sctp: Call inet6_destroy_sock() via sk->sk_destruct().
+        patches@lists.linux.dev,
+        "tytso@mit.edu, adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org,
+        linux-kernel@vger.kernel.org, joneslee@google.com, Tudor Ambarus" 
+        <tudor.ambarus@linaro.org>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 4.19 19/29] Revert "ext4: fix use-after-free in ext4_xattr_set_entry"
 Date:   Mon, 24 Apr 2023 15:18:46 +0200
-Message-Id: <20230424131122.176943849@linuxfoundation.org>
+Message-Id: <20230424131121.787207430@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
-References: <20230424131121.331252806@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Tudor Ambarus <tudor.ambarus@linaro.org>
 
-commit 6431b0f6ff1633ae598667e4cdd93830074a03e8 upstream.
+This reverts commit bb8592efcf8ef2f62947745d3182ea05b5256a15 which is
+commit 67d7d8ad99beccd9fe92d585b87f1760dc9018e3 upstream.
 
-After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
-in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
-sk->sk_destruct() by setting inet6_sock_destruct() to it to make
-sure we do not leak inet6-specific resources.
+The order in which patches are queued to stable matters. This patch
+has a logical dependency on commit 310c097c2bdbea253d6ee4e064f3e65580ef93ac
+upstream, and failing to queue the latter results in a null-ptr-deref
+reported at the Link below.
 
-SCTP sets its own sk->sk_destruct() in the sctp_init_sock(), and
-SCTPv6 socket reuses it as the init function.
+In order to avoid conflicts on stable, revert the commit just so that we
+can queue its prerequisite patch first and then queue the same after.
 
-To call inet6_sock_destruct() from SCTPv6 sk->sk_destruct(), we
-set sctp_v6_destruct_sock() in a new init function.
-
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Link: https://syzkaller.appspot.com/bug?extid=d5ebf56f3b1268136afd
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ fs/ext4/xattr.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -4497,13 +4497,17 @@ static void sctp_destroy_sock(struct soc
- }
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2214,9 +2214,8 @@ int ext4_xattr_ibody_find(struct inode *
+ 	struct ext4_inode *raw_inode;
+ 	int error;
  
- /* Triggered when there are no references on the socket anymore */
--static void sctp_destruct_sock(struct sock *sk)
-+static void sctp_destruct_common(struct sock *sk)
- {
- 	struct sctp_sock *sp = sctp_sk(sk);
+-	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
++	if (EXT4_I(inode)->i_extra_isize == 0)
+ 		return 0;
+-
+ 	raw_inode = ext4_raw_inode(&is->iloc);
+ 	header = IHDR(inode, raw_inode);
+ 	is->s.base = is->s.first = IFIRST(header);
+@@ -2244,9 +2243,8 @@ int ext4_xattr_ibody_inline_set(handle_t
+ 	struct ext4_xattr_search *s = &is->s;
+ 	int error;
  
- 	/* Free up the HMAC transform. */
- 	crypto_free_shash(sp->hmac);
-+}
- 
-+static void sctp_destruct_sock(struct sock *sk)
-+{
-+	sctp_destruct_common(sk);
- 	inet_sock_destruct(sk);
- }
- 
-@@ -8134,7 +8138,7 @@ void sctp_copy_sock(struct sock *newsk,
- 	newsk->sk_reuse = sk->sk_reuse;
- 
- 	newsk->sk_shutdown = sk->sk_shutdown;
--	newsk->sk_destruct = sctp_destruct_sock;
-+	newsk->sk_destruct = sk->sk_destruct;
- 	newsk->sk_family = sk->sk_family;
- 	newsk->sk_protocol = IPPROTO_SCTP;
- 	newsk->sk_backlog_rcv = sk->sk_prot->backlog_rcv;
-@@ -8351,11 +8355,20 @@ struct proto sctp_prot = {
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 
--#include <net/transp_v6.h>
--static void sctp_v6_destroy_sock(struct sock *sk)
-+static void sctp_v6_destruct_sock(struct sock *sk)
-+{
-+	sctp_destruct_common(sk);
-+	inet6_sock_destruct(sk);
-+}
-+
-+static int sctp_v6_init_sock(struct sock *sk)
- {
--	sctp_destroy_sock(sk);
--	inet6_destroy_sock(sk);
-+	int ret = sctp_init_sock(sk);
-+
-+	if (!ret)
-+		sk->sk_destruct = sctp_v6_destruct_sock;
-+
-+	return ret;
- }
- 
- struct proto sctpv6_prot = {
-@@ -8365,8 +8378,8 @@ struct proto sctpv6_prot = {
- 	.disconnect	= sctp_disconnect,
- 	.accept		= sctp_accept,
- 	.ioctl		= sctp_ioctl,
--	.init		= sctp_init_sock,
--	.destroy	= sctp_v6_destroy_sock,
-+	.init		= sctp_v6_init_sock,
-+	.destroy	= sctp_destroy_sock,
- 	.shutdown	= sctp_shutdown,
- 	.setsockopt	= sctp_setsockopt,
- 	.getsockopt	= sctp_getsockopt,
+-	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
++	if (EXT4_I(inode)->i_extra_isize == 0)
+ 		return -ENOSPC;
+-
+ 	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
+ 	if (error)
+ 		return error;
 
 
