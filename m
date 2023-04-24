@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C246ECE77
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1DC36ECEBA
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232466AbjDXNcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33524 "EHLO
+        id S232488AbjDXNes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232520AbjDXNcf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:35 -0400
+        with ESMTP id S232481AbjDXNef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B3B6EA9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73FDC6EAB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65EAA6234A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D1FC433EF;
-        Mon, 24 Apr 2023 13:31:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A249623B5
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E30BC4339B;
+        Mon, 24 Apr 2023 13:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343098;
-        bh=UICBWH/ltQefqpekhjvpJJFEl5hCDIuw2iowMXBkN60=;
+        s=korg; t=1682343249;
+        bh=txfLP54fSe01L/lwVEBRRfESxnKTk2HA56gIuq7HKuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVqJSQyBE3u89P3fgJKql8lW5xlR1S82x269jZTxb4PhwH/UqpD/Hlu+yUg1VHPTg
-         CQhtwcYlQ2maUIQAOXp5uCaoTFit9eeTlahSNiF5bbMRP5hHtHHj+WyaX7ShHl+0V2
-         pkE7B2WstfYizQUkKS2xQnruihIXQFGDz7J/vF6I=
+        b=fiAtwT3bj3deSLPjaBkF3kFGijMoxWGUH6SVheHcoKBV4xpZspxaDPDLnDQc1CWAW
+         f1+5xMRtE1oRp2fPtu1N+sLowWhseRIRuj4zuUSObxeg3sRrf/FkQQ0h4hbP+NCdNy
+         IMdgUJ4QY2vxh5jPM8XGjQAa6XwiFpABa2+1n87E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ondrej Mosnacek <omosnace@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 077/110] kernel/sys.c: fix and improve control flow in __sys_setres[ug]id()
+        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 08/68] virtio_net: bugfix overflow inside xdp_linearize_page()
 Date:   Mon, 24 Apr 2023 15:17:39 +0200
-Message-Id: <20230424131139.322087616@linuxfoundation.org>
+Message-Id: <20230424131127.997998350@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,151 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-commit 659c0ce1cb9efc7f58d380ca4bb2a51ae9e30553 upstream.
+[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
 
-Linux Security Modules (LSMs) that implement the "capable" hook will
-usually emit an access denial message to the audit log whenever they
-"block" the current task from using the given capability based on their
-security policy.
+Here we copy the data from the original buf to the new page. But we
+not check that it may be overflow.
 
-The occurrence of a denial is used as an indication that the given task
-has attempted an operation that requires the given access permission, so
-the callers of functions that perform LSM permission checks must take care
-to avoid calling them too early (before it is decided if the permission is
-actually needed to perform the requested operation).
+As long as the size received(including vnethdr) is greater than 3840
+(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
 
-The __sys_setres[ug]id() functions violate this convention by first
-calling ns_capable_setid() and only then checking if the operation
-requires the capability or not.  It means that any caller that has the
-capability granted by DAC (task's capability set) but not by MAC (LSMs)
-will generate a "denied" audit record, even if is doing an operation for
-which the capability is not required.
+And this is completely possible, as long as the MTU is large, such
+as 4096. In our test environment, this will cause crash. Since crash is
+caused by the written memory, it is meaningless, so I do not include it.
 
-Fix this by reordering the checks such that ns_capable_setid() is checked
-last and -EPERM is returned immediately if it returns false.
-
-While there, also do two small optimizations:
-* move the capability check before prepare_creds() and
-* bail out early in case of a no-op.
-
-Link: https://lkml.kernel.org/r/20230217162154.837549-1-omosnace@redhat.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sys.c |   69 ++++++++++++++++++++++++++++++++++-------------------------
- 1 file changed, 40 insertions(+), 29 deletions(-)
+ drivers/net/virtio_net.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -664,6 +664,7 @@ long __sys_setresuid(uid_t ruid, uid_t e
- 	struct cred *new;
- 	int retval;
- 	kuid_t kruid, keuid, ksuid;
-+	bool ruid_new, euid_new, suid_new;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d533211161366..47c9118cc92a3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -646,8 +646,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 				       int page_off,
+ 				       unsigned int *len)
+ {
+-	struct page *page = alloc_page(GFP_ATOMIC);
++	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++	struct page *page;
  
- 	kruid = make_kuid(ns, ruid);
- 	keuid = make_kuid(ns, euid);
-@@ -678,25 +679,29 @@ long __sys_setresuid(uid_t ruid, uid_t e
- 	if ((suid != (uid_t) -1) && !uid_valid(ksuid))
- 		return -EINVAL;
++	if (page_off + *len + tailroom > PAGE_SIZE)
++		return NULL;
++
++	page = alloc_page(GFP_ATOMIC);
+ 	if (!page)
+ 		return NULL;
  
-+	old = current_cred();
-+
-+	/* check for no-op */
-+	if ((ruid == (uid_t) -1 || uid_eq(kruid, old->uid)) &&
-+	    (euid == (uid_t) -1 || (uid_eq(keuid, old->euid) &&
-+				    uid_eq(keuid, old->fsuid))) &&
-+	    (suid == (uid_t) -1 || uid_eq(ksuid, old->suid)))
-+		return 0;
-+
-+	ruid_new = ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
-+		   !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid);
-+	euid_new = euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
-+		   !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid);
-+	suid_new = suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
-+		   !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid);
-+	if ((ruid_new || euid_new || suid_new) &&
-+	    !ns_capable_setid(old->user_ns, CAP_SETUID))
-+		return -EPERM;
-+
- 	new = prepare_creds();
- 	if (!new)
- 		return -ENOMEM;
+@@ -655,7 +660,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 	page_off += *len;
  
--	old = current_cred();
--
--	retval = -EPERM;
--	if (!ns_capable_setid(old->user_ns, CAP_SETUID)) {
--		if (ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
--		    !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid))
--			goto error;
--		if (euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
--		    !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid))
--			goto error;
--		if (suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
--		    !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid))
--			goto error;
--	}
--
- 	if (ruid != (uid_t) -1) {
- 		new->uid = kruid;
- 		if (!uid_eq(kruid, old->uid)) {
-@@ -761,6 +766,7 @@ long __sys_setresgid(gid_t rgid, gid_t e
- 	struct cred *new;
- 	int retval;
- 	kgid_t krgid, kegid, ksgid;
-+	bool rgid_new, egid_new, sgid_new;
- 
- 	krgid = make_kgid(ns, rgid);
- 	kegid = make_kgid(ns, egid);
-@@ -773,23 +779,28 @@ long __sys_setresgid(gid_t rgid, gid_t e
- 	if ((sgid != (gid_t) -1) && !gid_valid(ksgid))
- 		return -EINVAL;
- 
-+	old = current_cred();
-+
-+	/* check for no-op */
-+	if ((rgid == (gid_t) -1 || gid_eq(krgid, old->gid)) &&
-+	    (egid == (gid_t) -1 || (gid_eq(kegid, old->egid) &&
-+				    gid_eq(kegid, old->fsgid))) &&
-+	    (sgid == (gid_t) -1 || gid_eq(ksgid, old->sgid)))
-+		return 0;
-+
-+	rgid_new = rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
-+		   !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid);
-+	egid_new = egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
-+		   !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid);
-+	sgid_new = sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
-+		   !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid);
-+	if ((rgid_new || egid_new || sgid_new) &&
-+	    !ns_capable_setid(old->user_ns, CAP_SETGID))
-+		return -EPERM;
-+
- 	new = prepare_creds();
- 	if (!new)
- 		return -ENOMEM;
--	old = current_cred();
--
--	retval = -EPERM;
--	if (!ns_capable_setid(old->user_ns, CAP_SETGID)) {
--		if (rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
--		    !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid))
--			goto error;
--		if (egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
--		    !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid))
--			goto error;
--		if (sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
--		    !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid))
--			goto error;
--	}
- 
- 	if (rgid != (gid_t) -1)
- 		new->gid = krgid;
+ 	while (--*num_buf) {
+-		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 		unsigned int buflen;
+ 		void *buf;
+ 		int off;
+-- 
+2.39.2
+
 
 
