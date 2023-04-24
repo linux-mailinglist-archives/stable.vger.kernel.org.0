@@ -2,96 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 242A46ECF44
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C63A06ECD05
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232784AbjDXNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43416 "EHLO
+        id S231705AbjDXNT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:19:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbjDXNjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C886F93F6;
-        Mon, 24 Apr 2023 06:38:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74B2661D16;
-        Mon, 24 Apr 2023 13:38:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 815A6C433D2;
-        Mon, 24 Apr 2023 13:38:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343526;
-        bh=VcLv8JN1TgLe7NYl2Ie7loJzukPT4oWuE1B8SrIq7+8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUOzJ3WsJm/m1RvOjwLpjWYbx0Lx9Rqq0iz/PSHsldg5uhX5GBXHemoEUwHOM15GQ
-         FdzGMAYyhwXr8lEWxi71hbaxtWouO4rtEx+I4AwRrlfT2AH8rHHC3tUF6yNMwczX9k
-         kGr8byPNdvn2MZbv0T04BUHTnwTLuXRe+XmIJNmU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ekaterina Orlova <vorobushek.ok@gmail.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        James Bottomley <jejb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>, keyrings@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 29/29] ASN.1: Fix check for strdup() success
-Date:   Mon, 24 Apr 2023 15:18:56 +0200
-Message-Id: <20230424131122.114376465@linuxfoundation.org>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S231956AbjDXNTt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:19:49 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 030514EEF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:19:27 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-2febac9cacdso2654241f8f.1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:19:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rivosinc-com.20221208.gappssmtp.com; s=20221208; t=1682342361; x=1684934361;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3kpj/quHCtWwAEy/HWT68YrA1m8HrVHHUNGqNDohmzE=;
+        b=mi1SMj8MzqaCGgp6WKjkgRMA+Aqaix8xAjrqZYynDI9Z8bOevQFLFxZLT/woTUaazq
+         G9MYXfCp9tLS1B1jweQWCl7UHsrw9j+qez3gZJgJO4VWZ4ywDOy7pzlFZb1wK1T5U+6n
+         wa54T22A3HRmIlRjyXrZT1qrpBr+NVkeENOy2Gc1a2DryvHtVIJsH5qaSI0UVRZEVc8l
+         zc0S4Lhf/TFHbfgY1P6EhqjIOa31WDcgzTw/VCdMbAPfFD1FqRQHxz9jhRydlDXRFgOU
+         oxXkFpcO6HfCN7TkckKMtUv68p3p1x+VlQoVUTkgqSy/ZrGqKE/Igd4iBI/EISaiSWIG
+         DHkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682342361; x=1684934361;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3kpj/quHCtWwAEy/HWT68YrA1m8HrVHHUNGqNDohmzE=;
+        b=TMYbVSBecOHeJwqncAVT8To+WM9QC8w2Cw4T2TRc7OlT4NhUkFQ+04zBQ22CjGPHMV
+         JuTxHGRFpS46qRQjh0HCQJeCDyWSPx7eBmxZ8tjcCJci3NYB9vPfaX+/4+90F/KaZbPm
+         +YlWjHAX71Ae8s55ejXTlkSD3pJOV9fnJzs+eshFpznho5ad45j1bEULS1cJu7olbqQf
+         o8WIJAccGom9AH6IduWg4GQitycdljUN9mwfWCDve5eDJGe0c3vrtIxuuKMT0IihymH3
+         Y6zCohBwIqAN+TUFAUGpYFPZV2h0rc65RUTwtHXfsJNVoeRcOGG65hRIZXC4Lz4zlaXQ
+         g6HA==
+X-Gm-Message-State: AAQBX9fbLzB48QwFSDD0RL4KD3avU3fwiBW4+K/oGooHgUMzq86nz9CE
+        xH1bb3JCpRqg6TvZe36g4PMgxKZ/Msi2K/Bkgc5SvJhlNacfRQdL
+X-Google-Smtp-Source: AKy350bKuTwTTYzhRjanpfZtTleU7Yz1/us5U/cDigvQnBtKMFsCRJaYuGzkYXcgY8Pz9vXsXYsd74/456a9jx0cc0k=
+X-Received: by 2002:a05:6000:1b85:b0:2fb:2a43:4a97 with SMTP id
+ r5-20020a0560001b8500b002fb2a434a97mr9196993wru.39.1682342361527; Mon, 24 Apr
+ 2023 06:19:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20230424115618.185321-1-alexghiti@rivosinc.com> <2023042403-renewal-ripcord-736b@gregkh>
+In-Reply-To: <2023042403-renewal-ripcord-736b@gregkh>
+From:   Alexandre Ghiti <alexghiti@rivosinc.com>
+Date:   Mon, 24 Apr 2023 15:19:10 +0200
+Message-ID: <CAHVXubi0_PW=rW2xUd+bjXR-x8HV+=7qYhvq7LVVoKeaa4ge9w@mail.gmail.com>
+Subject: Re: [PATCH 5.15.108 0/3] Fixes for dtb mapping
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ekaterina Orlova <vorobushek.ok@gmail.com>
+Hi Greg, Conor,
 
-commit 5a43001c01691dcbd396541e6faa2c0077378f48 upstream.
+On Mon, Apr 24, 2023 at 2:51=E2=80=AFPM Greg KH <gregkh@linuxfoundation.org=
+> wrote:
+>
+> On Mon, Apr 24, 2023 at 01:56:15PM +0200, Alexandre Ghiti wrote:
+> > We used to map the dtb differently between early_pg_dir and
+> > swapper_pg_dir which caused issues when we referenced addresses from
+> > the early mapping with swapper_pg_dir (reserved_mem): move the dtb mapp=
+ing
+> > to the fixmap region in patch 1, which allows to simplify dtb handling =
+in
+> > patch 2.
+> >
+> > base-commit-tag: v5.15.108
+>
+> Please look at the archives of the stable kernel mailing list for
+> examples of how to do this.
 
-It seems there is a misprint in the check of strdup() return code that
-can lead to NULL pointer dereference.
+Sorry, I should have done that.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+>
+> Also, what about 6.1.y and 6.2.y?  You can't have someone upgrade from
+> an older kernel to a new one and have a regression, right?
 
-Fixes: 4520c6a49af8 ("X.509: Add simple ASN.1 grammar compiler")
-Signed-off-by: Ekaterina Orlova <vorobushek.ok@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: James Bottomley <jejb@linux.ibm.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: keyrings@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org
-Link: https://lore.kernel.org/r/20230315172130.140-1-vorobushek.ok@gmail.com/
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- scripts/asn1_compiler.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, it is ready and the patches are different, I was about to push
+them when Conor replied. Let me fix that.
 
---- a/scripts/asn1_compiler.c
-+++ b/scripts/asn1_compiler.c
-@@ -629,7 +629,7 @@ int main(int argc, char **argv)
- 	p = strrchr(argv[1], '/');
- 	p = p ? p + 1 : argv[1];
- 	grammar_name = strdup(p);
--	if (!p) {
-+	if (!grammar_name) {
- 		perror(NULL);
- 		exit(1);
- 	}
+Thanks Conor, Greg,
+
+Alex
 
 
+>
+> Please fix this up and send patches for all relevant trees.
+>
+> thanks,
+>
+> greg k-h
