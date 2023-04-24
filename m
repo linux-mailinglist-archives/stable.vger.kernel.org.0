@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2010E6ECDE8
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B566ECD67
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232272AbjDXN2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55032 "EHLO
+        id S232065AbjDXNXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:23:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232285AbjDXN1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:27:54 -0400
+        with ESMTP id S232067AbjDXNXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 819316596
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE6B59DE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 159BC622E4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 288B8C433D2;
-        Mon, 24 Apr 2023 13:27:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA16761E88
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3DEC433EF;
+        Mon, 24 Apr 2023 13:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342856;
-        bh=0Sm3/m/sbl6YkZnwnL8cRMncGNL49HXMeMUIbD4wg4o=;
+        s=korg; t=1682342569;
+        bh=ic5M+WBk/A6QoKKdXZiMgu7UjhhgBghwgfBK5+s0omQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSdKSm3TL2KZb8tcgOlui5uGRMlz/vqYpKwSMp7DFrU4VPlzRcN7NMJGZjlIyrlL8
-         YN3rqIxCvu4ebjomU3tTLUYq0nQOuPyQnNFpJbm9BGuOHPob64rdJYBQ8dDDFqNiXV
-         Xg0eVNATzMg2ZbjFxKYWbmzxxNLVlMtfkY6L04LM=
+        b=aXaINcRLaBrMCABKm/OVQR9/oMeqFhM8UCd0oIzWptwe00tmqJhBk6/K2LZZE0Asy
+         UGf/UFt0de9v1k19q5in0iH5m8oVY95m1ZL6/Pgv/LDKcp4WnM/wHQJR2EyvlC6W4T
+         gHBV/1K++hczsa7IebP3fuXYWGiNfHafQnLW3ZNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Gow <davidgow@google.com>,
-        Gary Guo <gary@garyguo.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?= <bjorn3_gh@protonmail.com>,
-        Vincenzo Palazzo <vincenzopalazzodev@gmail.com>,
-        Miguel Ojeda <ojeda@kernel.org>
-Subject: [PATCH 6.1 55/98] rust: kernel: Mark rust_fmt_argument as extern "C"
+        patches@lists.linux.dev,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/39] selftests: sigaltstack: fix -Wuninitialized
 Date:   Mon, 24 Apr 2023 15:17:18 +0200
-Message-Id: <20230424131135.993216732@linuxfoundation.org>
+Message-Id: <20230424131123.625640153@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +58,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit c682e4c37d2b8ba3bde1125cbbea4ee88824b4e2 upstream.
+[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
 
-The rust_fmt_argument function is called from printk() to handle the %pA
-format specifier.
+Building sigaltstack with clang via:
+$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
 
-Since it's called from C, we should mark it extern "C" to make sure it's
-ABI compatible.
+produces the following warning:
+  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
+  if (sp < (unsigned long)sstack ||
+      ^~
 
-Cc: stable@vger.kernel.org
-Fixes: 247b365dc8dc ("rust: add `kernel` crate")
-Signed-off-by: David Gow <davidgow@google.com>
-Reviewed-by: Gary Guo <gary@garyguo.net>
-Reviewed-by: Björn Roy Baron <bjorn3_gh@protonmail.com>
-Reviewed-by: Vincenzo Palazzo <vincenzopalazzodev@gmail.com>
-[Applied `rustfmt`]
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Clang expects these to be declared at global scope; we've fixed this in
+the kernel proper by using the macro `current_stack_pointer`. This is
+defined in different headers for different target architectures, so just
+create a new header that defines the arch-specific register names for
+the stack pointer register, and define it for more targets (at least the
+ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- rust/kernel/print.rs |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
+ tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+ create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
 
---- a/rust/kernel/print.rs
-+++ b/rust/kernel/print.rs
-@@ -18,7 +18,11 @@ use crate::bindings;
+diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+new file mode 100644
+index 0000000000000..ea9bdf3a90b16
+--- /dev/null
++++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#if __alpha__
++register unsigned long sp asm("$30");
++#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
++register unsigned long sp asm("sp");
++#elif __i386__
++register unsigned long sp asm("esp");
++#elif __loongarch64
++register unsigned long sp asm("$sp");
++#elif __ppc__
++register unsigned long sp asm("r1");
++#elif __s390x__
++register unsigned long sp asm("%15");
++#elif __sh__
++register unsigned long sp asm("r15");
++#elif __x86_64__
++register unsigned long sp asm("rsp");
++#elif __XTENSA__
++register unsigned long sp asm("a1");
++#else
++#error "implement current_stack_pointer equivalent"
++#endif
+diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
+index ad0f8df2ca0af..6e60545994916 100644
+--- a/tools/testing/selftests/sigaltstack/sas.c
++++ b/tools/testing/selftests/sigaltstack/sas.c
+@@ -19,6 +19,7 @@
+ #include <errno.h>
  
- // Called from `vsprintf` with format specifier `%pA`.
- #[no_mangle]
--unsafe fn rust_fmt_argument(buf: *mut c_char, end: *mut c_char, ptr: *const c_void) -> *mut c_char {
-+unsafe extern "C" fn rust_fmt_argument(
-+    buf: *mut c_char,
-+    end: *mut c_char,
-+    ptr: *const c_void,
-+) -> *mut c_char {
-     use fmt::Write;
-     // SAFETY: The C contract guarantees that `buf` is valid if it's less than `end`.
-     let mut w = unsafe { RawFormatter::from_ptrs(buf.cast(), end.cast()) };
+ #include "../kselftest.h"
++#include "current_stack_pointer.h"
+ 
+ #ifndef SS_AUTODISARM
+ #define SS_AUTODISARM  (1U << 31)
+@@ -40,12 +41,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
+ 	stack_t stk;
+ 	struct stk_data *p;
+ 
+-#if __s390x__
+-	register unsigned long sp asm("%15");
+-#else
+-	register unsigned long sp asm("sp");
+-#endif
+-
+ 	if (sp < (unsigned long)sstack ||
+ 			sp >= (unsigned long)sstack + SIGSTKSZ) {
+ 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
+-- 
+2.39.2
+
 
 
