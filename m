@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 943976ECDBF
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DE16ECD82
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232204AbjDXN0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52974 "EHLO
+        id S232159AbjDXNYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232196AbjDXN0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:21 -0400
+        with ESMTP id S232136AbjDXNYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36BF35FF6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EFB5274
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2ED3622C2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8270C433EF;
-        Mon, 24 Apr 2023 13:26:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDF1762276
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4519C433D2;
+        Mon, 24 Apr 2023 13:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342780;
-        bh=61CpfB4NPx3Sn2ArhV0R5wLaJ+ElHuIv6dOpo25OXQE=;
+        s=korg; t=1682342632;
+        bh=Emlq1aLGJtwI7Jv0bWEYQ8aWUAs2M8P2OATNEPe4AiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0C8BX1Jn0+VIo2YWn/mUFEkD2TiKAIdhQbl8UKjtC3ZzFxp9gw5snf3bkd1575le
-         9RgmYd+eMXjnMA4WJWJqs7bfgl2dZh5JKExaRdmpnRClPj6SFQQfluiElacmQmGqka
-         XRYyqr6Se40Au+38ckpyMautcdS5+UxqE04MOgTY=
+        b=stmjnPiVMEeXpjSizpUxWVv0kc5opyRO5x646kswe7wHm/O03/5JqiqkEzWmAxLWM
+         R9VTTm+oPww1JPS/iksM7ZcwxgBp+Bb3+2CUXIfCvPUjV5uUk/Fjfrg3fClOHZf7XR
+         jR/MLLxzS0eYHmnq4flN703FFIrjbO0jA4ahfdTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, weiliang1503 <weiliang1503@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 47/98] platform/x86: asus-nb-wmi: Add quirk_asus_tablet_mode to other ROG Flow X13 models
-Date:   Mon, 24 Apr 2023 15:17:10 +0200
-Message-Id: <20230424131135.695296332@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 5.4 08/39] i40e: fix accessing vsi->active_filters without holding lock
+Date:   Mon, 24 Apr 2023 15:17:11 +0200
+Message-Id: <20230424131123.363596441@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: weiliang1503 <weiliang1503@gmail.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit e352d685fde427a8fc9beb2ba30888f5d6f2e5e6 ]
+[ Upstream commit 8485d093b076e59baff424552e8aecfc5bd2d261 ]
 
-Make quirk_asus_tablet_mode apply on other ROG Flow X13 devices,
-which only affects the GV301Q model before.
+Fix accessing vsi->active_filters without holding the mac_filter_hash_lock.
+Move vsi->active_filters = 0 inside critical section and
+move clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state) after the critical
+section to ensure the new filters from other threads can be added only after
+filters cleaning in the critical section is finished.
 
-Signed-off-by: weiliang1503 <weiliang1503@gmail.com>
-Link: https://lore.kernel.org/r/20230330114943.15057-1-weiliang1503@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 278e7d0b9d68 ("i40e: store MAC/VLAN filters in a hash with the MAC Address as key")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index cb15acdf14a30..e2c9a68d12df9 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -464,7 +464,8 @@ static const struct dmi_system_id asus_quirks[] = {
- 		.ident = "ASUS ROG FLOW X13",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "GV301Q"),
-+			/* Match GV301** */
-+			DMI_MATCH(DMI_PRODUCT_NAME, "GV301"),
- 		},
- 		.driver_data = &quirk_asus_tablet_mode,
- 	},
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 05f2f5637d3df..c5edee873ba54 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -13463,15 +13463,15 @@ static int i40e_add_vsi(struct i40e_vsi *vsi)
+ 		vsi->id = ctxt.vsi_number;
+ 	}
+ 
+-	vsi->active_filters = 0;
+-	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	vsi->active_filters = 0;
+ 	/* If macvlan filters already exist, force them to get loaded */
+ 	hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
+ 		f->state = I40E_FILTER_NEW;
+ 		f_count++;
+ 	}
+ 	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 
+ 	if (f_count) {
+ 		vsi->flags |= I40E_VSI_FLAG_FILTER_CHANGED;
 -- 
 2.39.2
 
