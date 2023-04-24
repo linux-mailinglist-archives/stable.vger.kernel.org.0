@@ -2,62 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 287296ED0CE
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 16:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48CF66ED0E5
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 17:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231228AbjDXO6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 10:58:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47914 "EHLO
+        id S231944AbjDXPEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 11:04:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbjDXO6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 10:58:22 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A48EA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 07:58:21 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-3f19ab994ccso23475645e9.2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 07:58:21 -0700 (PDT)
+        with ESMTP id S231694AbjDXPED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 11:04:03 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D974161AB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 08:03:59 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id ffacd0b85a97d-2f58125b957so4128272f8f.3
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 08:03:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20221208.gappssmtp.com; s=20221208; t=1682348300; x=1684940300;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TidUDDdUKAUYvYjHcJ5ZX2inr8rKWBrXmkLzNnyVUPg=;
-        b=a4l07CV716xR19lJMn/Ake3d6dKilDwHyxYJnidZ9gqJj/5Zepvu1yMegw0X7YdyQz
-         GHpuZ7RZdr/F2WcZPxOno7vl0PxG9YF8ydXwSAh/sCPeFcD0m/vAGtyKfaP2kyewwprk
-         EXEl1hsTWPiKVxe6bc2SqQ1OvsGHrYMc+QyGAfJrl4McjVw8H99fX+dV5yKBw04Qh12P
-         2RMbQtEInNc2m8XTunSS+NoSBxflriCUE79sz1pIbHYCRrrP3iUxKX7VtIfIRtqMPNR/
-         /ozaSRSsLnDVDmNvJgQq67iwutUvUWRHpr/7dAqYK8MJ+AAgU7I67+S9wRTjk3GUA/zi
-         f2eA==
+        d=rivosinc-com.20221208.gappssmtp.com; s=20221208; t=1682348638; x=1684940638;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8RtY00JwyNkAtAmX5W3oxGMcQc/5Sznm9C0GKVvVNR0=;
+        b=pVxqUcJjxIVeqJH87iZKy16smgEKzlKrFR1KhVut7HSJfSuchzzx+9smgWZ+wiDsyO
+         NDyeAVTD21+i060248rYLw2TcqndLCSfvJAnw5wIRdJx4+IttSzjxE+lR4qRPs0whDkV
+         KDJaK3eyPw2FUS6uyn2i2nLwo4jaJDgFXwLY3y1tG7vreZyEhGWiVqpfJsPMkqJwy7zY
+         IrwT2zM4vsLVI4ku5AOSONAqaJdAxvBje3lPkUFZ5QWKhaWlmifoM+8ou0kAsdqmotXD
+         xSJsfbyeEiQerAP5FZjATsT0K1ItiHkIAK3ysoS6X2eQqpyv51xo5FjYMUQMBc1s4Uzo
+         2JVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682348300; x=1684940300;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TidUDDdUKAUYvYjHcJ5ZX2inr8rKWBrXmkLzNnyVUPg=;
-        b=H1KZQNYX0w0WYpPKxiqEUnqK7EjV2L1Zpum/lchcaf3oYxB4oxDx7VWHohp1Abu8tW
-         yc0h8DpUoSJ6CM/O6fgHWVdJAE9l9dt1uZikDMzL5clq6VGbazCHRLXWnSWlzCoyFun5
-         UGIfQdCZEAcXtbdRygQ1/s3ztqLAC/B7FCy6E0zZ28pUkSA0uOVPL8er96xI/LZg9UAr
-         avtylfD+kbJKN4eVu3ptanEqXQicaeFLXVdfvObRHJGAN5R7dJItDLtMWFKBR1fuOhaK
-         XnCP7bFz1REANxBseSymzRG+GUc3nflUzJVytbvl671YYNBY2+q0GohffKkC4X+HWPYr
-         zzyw==
-X-Gm-Message-State: AAQBX9ftLqzwaAN+y3eWKfEu7bXBy1d22/+cieTA89O7Vxv79XPf+Xq8
-        Taobp5rqzBjN93muWACf+hjTnaXIhRPFGaN5lxc=
-X-Google-Smtp-Source: AKy350bfAlUuUdCv7erGIkgs3B5S2luX9qi6XYQ8YG/jgu5ap4B261vkQOLd9+JJFjioKE8BJcgxHg==
-X-Received: by 2002:a7b:c4d9:0:b0:3f1:969f:c9d0 with SMTP id g25-20020a7bc4d9000000b003f1969fc9d0mr5886489wmk.4.1682348300176;
-        Mon, 24 Apr 2023 07:58:20 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1682348638; x=1684940638;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8RtY00JwyNkAtAmX5W3oxGMcQc/5Sznm9C0GKVvVNR0=;
+        b=hqlBXwPpgaL79/TC42XOWPazCkMwtikmMW3Qkwi2GAWhpzF9WSfyhGA70JhXD/Gl4d
+         Qk7CglCiHyV7AcSf1t5+Kxu4gzJY3O/cXwqUrSvVyHjf9judYBikFXQ/0oz8OGRuNaqm
+         FZ8TzM6Usm8JR4F7CpiwkV86qOUlGbZWSnCGR+HFGhDxlWxepgdlvsoOiK+PgOtUYr2S
+         6+gqhyV/KCGR9R/vZx3iu3lam6ycy7BjTAXBt1HVL3dlBXyqSLL0YEmwHnglvnlv90Mx
+         NTce+v7oJ4wdz0+mPhfU7xmp4bQG5xlW1KofTwJyFywbSuo8AJ0ozC0lDqmcBjPjMCJF
+         b5lA==
+X-Gm-Message-State: AAQBX9fF0GKsIQmZ67VYmSJ64pyd3AX1yJeKOvHVesKGfju9TY0W+JNV
+        o/5ktH7dvPF7z5Km6iMat+JUAg==
+X-Google-Smtp-Source: AKy350ZD5Q+NIOLy42zuCrNbxsYHdQv8YbfOFgL1ekxCTgig5EEJ1Kpb6Dw+yCmQbW4IDEenz82LCA==
+X-Received: by 2002:a05:6000:1c9:b0:2fe:2f01:fc7e with SMTP id t9-20020a05600001c900b002fe2f01fc7emr9281647wrx.13.1682348638298;
+        Mon, 24 Apr 2023 08:03:58 -0700 (PDT)
 Received: from alex-rivos.home (amontpellier-656-1-456-62.w92-145.abo.wanadoo.fr. [92.145.124.62])
-        by smtp.gmail.com with ESMTPSA id p8-20020a05600c358800b003f1738d0d13sm21408772wmq.1.2023.04.24.07.58.19
+        by smtp.gmail.com with ESMTPSA id c4-20020adffb44000000b00304760c891asm3528099wrs.52.2023.04.24.08.03.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Apr 2023 07:58:19 -0700 (PDT)
+        Mon, 24 Apr 2023 08:03:57 -0700 (PDT)
 From:   Alexandre Ghiti <alexghiti@rivosinc.com>
 To:     Conor Dooley <conor.dooley@microchip.com>, stable@vger.kernel.org
 Cc:     Alexandre Ghiti <alexghiti@rivosinc.com>
-Subject: [PATCH 6.1.24 3/3] riscv: No need to relocate the dtb as it lies in the fixmap region
-Date:   Mon, 24 Apr 2023 16:55:02 +0200
-Message-Id: <20230424145502.194770-4-alexghiti@rivosinc.com>
+Subject: [PATCH 6.2.11 0/3] Fixes for dtb mapping
+Date:   Mon, 24 Apr 2023 17:03:51 +0200
+Message-Id: <20230424150354.195572-1-alexghiti@rivosinc.com>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20230424145502.194770-1-alexghiti@rivosinc.com>
-References: <20230424145502.194770-1-alexghiti@rivosinc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -69,54 +66,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 1b50f956c8fe9082bdee4a9cfd798149c52f7043 upstream.
+We used to map the dtb differently between early_pg_dir and
+swapper_pg_dir which caused issues when we referenced addresses from
+the early mapping with swapper_pg_dir (reserved_mem): move the dtb mapping
+to the fixmap region in patch 1, which allows to simplify dtb handling in
+patch 2.
 
-We used to access the dtb via its linear mapping address but now that the
-dtb early mapping was moved in the fixmap region, we can keep using this
-address since it is present in swapper_pg_dir, and remove the dtb
-relocation.
+base-commit-tag: v6.2.11
 
-Note that the relocation was wrong anyway since early_memremap() is
-restricted to 256K whereas the maximum fdt size is 2MB.
+Alexandre Ghiti (3):
+  riscv: Move early dtb mapping into the fixmap region
+  riscv: Do not set initial_boot_params to the linear address of the dtb
+  riscv: No need to relocate the dtb as it lies in the fixmap region
 
-Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Cc: <stable@vger.kernel.org> # 6.1.x
----
- arch/riscv/mm/init.c | 21 ++-------------------
- 1 file changed, 2 insertions(+), 19 deletions(-)
+ Documentation/riscv/vm-layout.rst |  6 +--
+ arch/riscv/include/asm/fixmap.h   |  8 +++
+ arch/riscv/include/asm/pgtable.h  |  8 ++-
+ arch/riscv/kernel/setup.c         |  6 +--
+ arch/riscv/mm/init.c              | 82 ++++++++++++++-----------------
+ 5 files changed, 54 insertions(+), 56 deletions(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 5570c52deb0b..6f47ced3175b 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -249,25 +249,8 @@ static void __init setup_bootmem(void)
- 	 * early_init_fdt_reserve_self() since __pa() does
- 	 * not work for DTB pointers that are fixmap addresses
- 	 */
--	if (!IS_ENABLED(CONFIG_BUILTIN_DTB)) {
--		/*
--		 * In case the DTB is not located in a memory region we won't
--		 * be able to locate it later on via the linear mapping and
--		 * get a segfault when accessing it via __va(dtb_early_pa).
--		 * To avoid this situation copy DTB to a memory region.
--		 * Note that memblock_phys_alloc will also reserve DTB region.
--		 */
--		if (!memblock_is_memory(dtb_early_pa)) {
--			size_t fdt_size = fdt_totalsize(dtb_early_va);
--			phys_addr_t new_dtb_early_pa = memblock_phys_alloc(fdt_size, PAGE_SIZE);
--			void *new_dtb_early_va = early_memremap(new_dtb_early_pa, fdt_size);
--
--			memcpy(new_dtb_early_va, dtb_early_va, fdt_size);
--			early_memunmap(new_dtb_early_va, fdt_size);
--			_dtb_early_pa = new_dtb_early_pa;
--		} else
--			memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
--	}
-+	if (!IS_ENABLED(CONFIG_BUILTIN_DTB))
-+		memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
- 
- 	dma_contiguous_reserve(dma32_phys_limit);
- 	if (IS_ENABLED(CONFIG_64BIT))
 -- 
 2.37.2
 
