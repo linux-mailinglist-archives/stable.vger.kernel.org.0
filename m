@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1D16ECDE3
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E3A6ECD43
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232318AbjDXN1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54602 "EHLO
+        id S232032AbjDXNV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbjDXN1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:27:38 -0400
+        with ESMTP id S232025AbjDXNVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D9F6A49
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4D049FE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E701622E5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3100AC433EF;
-        Mon, 24 Apr 2023 13:27:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 206FE6221E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F403C433EF;
+        Mon, 24 Apr 2023 13:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342848;
-        bh=v1XyL3NmflixdwWGNBTxSEHkkwJBpp4WaNuyxfyX4Jw=;
+        s=korg; t=1682342494;
+        bh=11EhVpa6UQ5d0MgbwWdBeP7qtvzkptP71hR3H4uIUm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAU58oeKTrmF88uVhAsAVtsrbqjk6hUzcIm/Q35A3tcPAIT7Ww2Fn/wY3XKzXOEOl
-         w/ixGsd5xN0zEvjknm/etUXMePGg42upbhgQ20sW4Vu10RxlPfBQFW0o1iF1hkiQYN
-         mLqeQYzlKJceL2+CPrVW6sDKk4KZcmAtT9nRqizs=
+        b=r0juMtRJYhCRhJ0Se3zNqEMI6/0MCvUgoQC1RUM3JzR6kIqa89sHn/R2RM9qG4eNY
+         QnwoGD0qDFNcW/FOLUeMsJEtGuY47KPtsa+3taJ9AOGwUgo/nwAP/7FYp8EFluSabe
+         kTZ6DvH2Jwomya+DM4+utKUtP3MPugwL/H4jsuyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Rix <trix@redhat.com>,
-        Brian Masney <bmasney@redhat.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 52/98] iio: light: tsl2772: fix reading proximity-diodes from device tree
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 5.15 61/73] dccp: Call inet6_destroy_sock() via sk->sk_destruct().
 Date:   Mon, 24 Apr 2023 15:17:15 +0200
-Message-Id: <20230424131135.867550569@linuxfoundation.org>
+Message-Id: <20230424131131.306912145@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <bmasney@redhat.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit b1cb00d51e361cf5af93649917d9790e1623647e upstream.
+commit 1651951ebea54970e0bda60c638fc2eee7a6218f upstream.
 
-tsl2772_read_prox_diodes() will correctly parse the properties from
-device tree to determine which proximity diode(s) to read from, however
-it didn't actually set this value on the struct tsl2772_settings. Let's
-go ahead and fix that.
+After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
+in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
+sk->sk_destruct() by setting inet6_sock_destruct() to it to make
+sure we do not leak inet6-specific resources.
 
-Reported-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/lkml/20230327120823.1369700-1-trix@redhat.com/
-Fixes: 94cd1113aaa0 ("iio: tsl2772: add support for reading proximity led settings from device tree")
-Signed-off-by: Brian Masney <bmasney@redhat.com>
-Link: https://lore.kernel.org/r/20230404011455.339454-1-bmasney@redhat.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+DCCP sets its own sk->sk_destruct() in the dccp_init_sock(), and
+DCCPv6 socket shares it by calling the same init function via
+dccp_v6_init_sock().
+
+To call inet6_sock_destruct() from DCCPv6 sk->sk_destruct(), we
+export it and set dccp_v6_sk_destruct() in the init function.
+
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/tsl2772.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/dccp/dccp.h     |    1 +
+ net/dccp/ipv6.c     |   15 ++++++++-------
+ net/dccp/proto.c    |    8 +++++++-
+ net/ipv6/af_inet6.c |    1 +
+ 4 files changed, 17 insertions(+), 8 deletions(-)
 
---- a/drivers/iio/light/tsl2772.c
-+++ b/drivers/iio/light/tsl2772.c
-@@ -601,6 +601,7 @@ static int tsl2772_read_prox_diodes(stru
- 			return -EINVAL;
- 		}
- 	}
-+	chip->settings.prox_diode = prox_diode_mask;
+--- a/net/dccp/dccp.h
++++ b/net/dccp/dccp.h
+@@ -283,6 +283,7 @@ int dccp_rcv_state_process(struct sock *
+ int dccp_rcv_established(struct sock *sk, struct sk_buff *skb,
+ 			 const struct dccp_hdr *dh, const unsigned int len);
  
- 	return 0;
++void dccp_destruct_common(struct sock *sk);
+ int dccp_init_sock(struct sock *sk, const __u8 ctl_sock_initialized);
+ void dccp_destroy_sock(struct sock *sk);
+ 
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -1002,6 +1002,12 @@ static const struct inet_connection_sock
+ 	.sockaddr_len	   = sizeof(struct sockaddr_in6),
+ };
+ 
++static void dccp_v6_sk_destruct(struct sock *sk)
++{
++	dccp_destruct_common(sk);
++	inet6_sock_destruct(sk);
++}
++
+ /* NOTE: A lot of things set to zero explicitly by call to
+  *       sk_alloc() so need not be done here.
+  */
+@@ -1014,17 +1020,12 @@ static int dccp_v6_init_sock(struct sock
+ 		if (unlikely(!dccp_v6_ctl_sock_initialized))
+ 			dccp_v6_ctl_sock_initialized = 1;
+ 		inet_csk(sk)->icsk_af_ops = &dccp_ipv6_af_ops;
++		sk->sk_destruct = dccp_v6_sk_destruct;
+ 	}
+ 
+ 	return err;
  }
+ 
+-static void dccp_v6_destroy_sock(struct sock *sk)
+-{
+-	dccp_destroy_sock(sk);
+-	inet6_destroy_sock(sk);
+-}
+-
+ static struct timewait_sock_ops dccp6_timewait_sock_ops = {
+ 	.twsk_obj_size	= sizeof(struct dccp6_timewait_sock),
+ };
+@@ -1047,7 +1048,7 @@ static struct proto dccp_v6_prot = {
+ 	.accept		   = inet_csk_accept,
+ 	.get_port	   = inet_csk_get_port,
+ 	.shutdown	   = dccp_shutdown,
+-	.destroy	   = dccp_v6_destroy_sock,
++	.destroy	   = dccp_destroy_sock,
+ 	.orphan_count	   = &dccp_orphan_count,
+ 	.max_header	   = MAX_DCCP_HEADER,
+ 	.obj_size	   = sizeof(struct dccp6_sock),
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -171,12 +171,18 @@ const char *dccp_packet_name(const int t
+ 
+ EXPORT_SYMBOL_GPL(dccp_packet_name);
+ 
+-static void dccp_sk_destruct(struct sock *sk)
++void dccp_destruct_common(struct sock *sk)
+ {
+ 	struct dccp_sock *dp = dccp_sk(sk);
+ 
+ 	ccid_hc_tx_delete(dp->dccps_hc_tx_ccid, sk);
+ 	dp->dccps_hc_tx_ccid = NULL;
++}
++EXPORT_SYMBOL_GPL(dccp_destruct_common);
++
++static void dccp_sk_destruct(struct sock *sk)
++{
++	dccp_destruct_common(sk);
+ 	inet_sock_destruct(sk);
+ }
+ 
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -113,6 +113,7 @@ void inet6_sock_destruct(struct sock *sk
+ 	inet6_cleanup_sock(sk);
+ 	inet_sock_destruct(sk);
+ }
++EXPORT_SYMBOL_GPL(inet6_sock_destruct);
+ 
+ static int inet6_create(struct net *net, struct socket *sock, int protocol,
+ 			int kern)
 
 
