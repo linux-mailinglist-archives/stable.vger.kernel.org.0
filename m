@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C37F6ECE4D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5316ECD7E
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbjDXNbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
+        id S232143AbjDXNYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232433AbjDXNa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:56 -0400
+        with ESMTP id S232145AbjDXNXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5B665B4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82625BBA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE29A6232C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F33C4339C;
-        Mon, 24 Apr 2023 13:30:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5614B62276
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A395C433EF;
+        Mon, 24 Apr 2023 13:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343022;
-        bh=KvbfyJJsZJdfmByvweii2cgAnMVFdQui9o6fhzYeZtQ=;
+        s=korg; t=1682342621;
+        bh=SzVR1zDw1MjiXgnQ+vOPHx7hJKYdtyCYvDjd664KRpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sy2aOoagcTAyw5de9EkWbfux2I7Ws/e4Ja/Xwt5gLTi94ehR8DEC9aNCASPjEl+HP
-         yUtgXP0WaIyKDshx5flCVW3q3SNiJdJhIhhQg2gdY7cR8iBzzRh2dGJxah1hJ02uBT
-         CBjqkD5q6xBNuS65HhE2aCd5JGcBsq5nQYKtsy7c=
+        b=INVpb4zyClIzNhDHJMVFXqYYsELkuhtM5U2oJJQ2QYU25yaivabKzswblGeocoZSY
+         MZwP1SL60kGGlUL7kF9Gx9q0g6+ZS6RezEMji/nbJsJ11lpD0QuswOYZEI5VJ2MXRu
+         nquSddc6PNhbMghi8ekSolQVcDebsB/1dd9/VRjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Gow <davidgow@google.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        =?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
-        Arunpravin Paneer Selvam <arunpravin.paneerselvam@amd.com>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 048/110] drm: test: Fix 32-bit issue in drm_buddy_test
+Subject: [PATCH 5.4 07/39] netfilter: nf_tables: fix ifdef to also consider nf_tables=m
 Date:   Mon, 24 Apr 2023 15:17:10 +0200
-Message-Id: <20230424131138.044523914@linuxfoundation.org>
+Message-Id: <20230424131123.325779309@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 25bbe844ef5c4fb4d7d8dcaa0080f922b7cd3a16 ]
+[ Upstream commit c55c0e91c813589dc55bea6bf9a9fbfaa10ae41d ]
 
-The drm_buddy_test KUnit tests verify that returned blocks have sizes
-which are powers of two using is_power_of_2(). However, is_power_of_2()
-operations on a 'long', but the block size is a u64. So on systems where
-long is 32-bit, this can sometimes fail even on correctly sized blocks.
+nftables can be built as a module, so fix the preprocessor conditional
+accordingly.
 
-This only reproduces randomly, as the parameters passed to the buddy
-allocator in this test are random. The seed 0xb2e06022 reproduced it
-fine here.
-
-For now, just hardcode an is_power_of_2() implementation using
-x & (x - 1).
-
-Signed-off-by: David Gow <davidgow@google.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Maíra Canal <mcanal@igalia.com>
-Reviewed-by: Arunpravin Paneer Selvam <arunpravin.paneerselvam@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230329065532.2122295-2-davidgow@google.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: 478b360a47b7 ("netfilter: nf_tables: fix nf_trace always-on with XT_TRACE=n")
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tests/drm_buddy_test.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/skbuff.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/tests/drm_buddy_test.c b/drivers/gpu/drm/tests/drm_buddy_test.c
-index f8ee714df3967..09ee6f6af896b 100644
---- a/drivers/gpu/drm/tests/drm_buddy_test.c
-+++ b/drivers/gpu/drm/tests/drm_buddy_test.c
-@@ -89,7 +89,8 @@ static int check_block(struct kunit *test, struct drm_buddy *mm,
- 		err = -EINVAL;
- 	}
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index c951d16a40a70..302a2ad679809 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -4227,7 +4227,7 @@ static inline void nf_reset_ct(struct sk_buff *skb)
  
--	if (!is_power_of_2(block_size)) {
-+	/* We can't use is_power_of_2() for a u64 on 32-bit systems. */
-+	if (block_size & (block_size - 1)) {
- 		kunit_err(test, "block size not power of two\n");
- 		err = -EINVAL;
- 	}
+ static inline void nf_reset_trace(struct sk_buff *skb)
+ {
+-#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || defined(CONFIG_NF_TABLES)
++#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || IS_ENABLED(CONFIG_NF_TABLES)
+ 	skb->nf_trace = 0;
+ #endif
+ }
+@@ -4247,7 +4247,7 @@ static inline void __nf_copy(struct sk_buff *dst, const struct sk_buff *src,
+ 	dst->_nfct = src->_nfct;
+ 	nf_conntrack_get(skb_nfct(src));
+ #endif
+-#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || defined(CONFIG_NF_TABLES)
++#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || IS_ENABLED(CONFIG_NF_TABLES)
+ 	if (copy)
+ 		dst->nf_trace = src->nf_trace;
+ #endif
 -- 
 2.39.2
 
