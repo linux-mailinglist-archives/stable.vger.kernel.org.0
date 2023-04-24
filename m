@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7FE36ECD6A
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C34B6ECE5B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbjDXNX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
+        id S232439AbjDXNbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:31:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbjDXNXI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:08 -0400
+        with ESMTP id S232441AbjDXNbR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5A549FE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B469B7293
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EDDD61EFA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E62C433EF;
-        Mon, 24 Apr 2023 13:22:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9452962337
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9567C4339B;
+        Mon, 24 Apr 2023 13:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342577;
-        bh=F//45VwgUYwqnq/zqqoCuZrjr2a4lXeB7zZZmi+WW18=;
+        s=korg; t=1682343054;
+        bh=D2tDkHxFj5Ytupv2iy+k8iz1Ur21YYNi4sLWyaUa+9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBW3w6l/0Dna+0Ef/bfjwgP52pkz9lWYYCw91PkbhpREtuqytNVgDaTPeyJHp+1BD
-         PSn27UyxgxVJv6/h6tDAfELsCgaqnP/cqju+8cES7apCApP8/8YXAsLlpciTwpPR2S
-         iPZcYzcEHb97U102KqHJ0RLY0sd7XveNuZW0wrp0=
+        b=v5IVGUFb86D7hS87MKmhVZcFgWTgvSLvNTX167Zf8AH83IGBfB4hDiqwDGr5CnL6K
+         1AfAAlq+Xl1Pumc2Bl0Bqo9h0pD54rqUbiseNr62O8OfQSJZ+CHllTFUtuaGRhQxD4
+         hpGLTBDQn0UeFj/sW895zrwdMjcQLNHu4YqbbcmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/39] net: dsa: b53: mmap: add phy ops
+        patches@lists.linux.dev, Andy Chi <andy.chi@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.2 059/110] ALSA: hda/realtek: fix mute/micmute LEDs for a HP ProBook
 Date:   Mon, 24 Apr 2023 15:17:21 +0200
-Message-Id: <20230424131123.725819919@linuxfoundation.org>
+Message-Id: <20230424131138.504640648@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Andy Chi <andy.chi@canonical.com>
 
-[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
+commit 2ae147d643d326f74d93ba4f72a405f25f2677ea upstream.
 
-Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
-B53_PORT_MII_PAGE registers which hangs the device.
-This access should be done through the MDIO Mux bus controller.
+There is a HP ProBook 455 G10 which using ALC236 codec and need the
+ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF quirk to make mute LED and
+micmute LED work.
 
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Andy Chi <andy.chi@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230420035942.66817-1-andy.chi@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
-index c628d0980c0b1..1d52cb3e46d52 100644
---- a/drivers/net/dsa/b53/b53_mmap.c
-+++ b/drivers/net/dsa/b53/b53_mmap.c
-@@ -215,6 +215,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
- 	return 0;
- }
- 
-+static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
-+			       u16 *value)
-+{
-+	return -EIO;
-+}
-+
-+static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
-+				u16 value)
-+{
-+	return -EIO;
-+}
-+
- static const struct b53_io_ops b53_mmap_ops = {
- 	.read8 = b53_mmap_read8,
- 	.read16 = b53_mmap_read16,
-@@ -226,6 +238,8 @@ static const struct b53_io_ops b53_mmap_ops = {
- 	.write32 = b53_mmap_write32,
- 	.write48 = b53_mmap_write48,
- 	.write64 = b53_mmap_write64,
-+	.phy_read16 = b53_mmap_phy_read16,
-+	.phy_write16 = b53_mmap_phy_write16,
- };
- 
- static int b53_mmap_probe(struct platform_device *pdev)
--- 
-2.39.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9468,6 +9468,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8b47, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8b5d, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8b5e, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++	SND_PCI_QUIRK(0x103c, 0x8b65, "HP ProBook 455 15.6 inch G10 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8b66, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8b7a, "HP", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8b7d, "HP", ALC236_FIXUP_HP_GPIO_LED),
 
 
