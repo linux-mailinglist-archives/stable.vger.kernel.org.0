@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 015486ECDFC
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6576ECEB1
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232317AbjDXN2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55898 "EHLO
+        id S232558AbjDXNeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232280AbjDXN2n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A5A46E86
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:28 -0700 (PDT)
+        with ESMTP id S232591AbjDXNdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC21C7295
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC84B61FBC
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0960BC433EF;
-        Mon, 24 Apr 2023 13:28:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43D4762392
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5089DC433D2;
+        Mon, 24 Apr 2023 13:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342906;
-        bh=pRMLaFXOR23iu71aOV9NhmFlAHIUmJF8jeLXFXSD/Yc=;
+        s=korg; t=1682343227;
+        bh=1lDhdgo6utFl0xp7ChlF2NSqxRW2Ba51OVhjNLJdgWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2s5D20PNCXlMXvHfvyTEqAIJ+K5WiYIqXGWmUh/fRsut7AbPfXy8sBldbHClKBNq
-         EoUp41sstTnqZXzSPoOKezB0a/uUAiQlnpQ09kSyLhvsMRUW3pS+fn0DZI6PS0v0RN
-         gNOeLn/OSgLSKJQR7GZuDUcS5e1gbbFhomS+fDcU=
+        b=QkoNHN2ypwgUhT4jmAks0LcngBPwpBkwER0PQpkndXtFEj4yQgxGyZYgR0eQBR6mm
+         kZuzd+Lk81nIUNMFTdjWnMo1b7slRzNWF1DDfIlzfywtTIkC3Q1Ml2Qft+BW6qT0N0
+         CS5GDISIBVSJ5CKNjnuYws6SjoLobd6pAq5UiejE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@linaro.org>,
-        Steven Price <steven.price@arm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oliver.upton@linux.dev>
-Subject: [PATCH 6.1 83/98] KVM: arm64: Fix buffer overflow in kvm_arm_set_fw_reg()
+        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
+        maxpl0it <maxpl0it@protonmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 15/68] net: rpl: fix rpl header size calculation
 Date:   Mon, 24 Apr 2023 15:17:46 +0200
-Message-Id: <20230424131137.093817192@linuxfoundation.org>
+Message-Id: <20230424131128.254149807@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,36 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@linaro.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit a25bc8486f9c01c1af6b6c5657234b2eee2c39d6 upstream.
+[ Upstream commit 4e006c7a6dac0ead4c1bf606000aa90a372fc253 ]
 
-The KVM_REG_SIZE() comes from the ioctl and it can be a power of two
-between 0-32768 but if it is more than sizeof(long) this will corrupt
-memory.
+This patch fixes a missing 8 byte for the header size calculation. The
+ipv6_rpl_srh_size() is used to check a skb_pull() on skb->data which
+points to skb_transport_header(). Currently we only check on the
+calculated addresses fields using CmprI and CmprE fields, see:
 
-Fixes: 99adb567632b ("KVM: arm/arm64: Add save/restore support for firmware workaround state")
-Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/4efbab8c-640f-43b2-8ac6-6d68e08280fe@kili.mountain
-Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://www.rfc-editor.org/rfc/rfc6554#section-3
+
+there is however a missing 8 byte inside the calculation which stands
+for the fields before the addresses field. Those 8 bytes are represented
+by sizeof(struct ipv6_rpl_sr_hdr) expression.
+
+Fixes: 8610c7c6e3bd ("net: ipv6: add support for rpl sr exthdr")
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Reported-by: maxpl0it <maxpl0it@protonmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/hypercalls.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv6/rpl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/hypercalls.c
-+++ b/arch/arm64/kvm/hypercalls.c
-@@ -397,6 +397,8 @@ int kvm_arm_set_fw_reg(struct kvm_vcpu *
- 	u64 val;
- 	int wa_level;
+diff --git a/net/ipv6/rpl.c b/net/ipv6/rpl.c
+index 307f336b5353e..3b0386437f69d 100644
+--- a/net/ipv6/rpl.c
++++ b/net/ipv6/rpl.c
+@@ -32,7 +32,8 @@ static void *ipv6_rpl_segdata_pos(const struct ipv6_rpl_sr_hdr *hdr, int i)
+ size_t ipv6_rpl_srh_size(unsigned char n, unsigned char cmpri,
+ 			 unsigned char cmpre)
+ {
+-	return (n * IPV6_PFXTAIL_LEN(cmpri)) + IPV6_PFXTAIL_LEN(cmpre);
++	return sizeof(struct ipv6_rpl_sr_hdr) + (n * IPV6_PFXTAIL_LEN(cmpri)) +
++		IPV6_PFXTAIL_LEN(cmpre);
+ }
  
-+	if (KVM_REG_SIZE(reg->id) != sizeof(val))
-+		return -ENOENT;
- 	if (copy_from_user(&val, uaddr, KVM_REG_SIZE(reg->id)))
- 		return -EFAULT;
- 
+ void ipv6_rpl_srh_decompress(struct ipv6_rpl_sr_hdr *outhdr,
+-- 
+2.39.2
+
 
 
