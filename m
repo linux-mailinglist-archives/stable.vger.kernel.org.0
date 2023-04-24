@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CDE6ECDBE
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 134DE6ECD13
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232187AbjDXN0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52924 "EHLO
+        id S231955AbjDXNUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbjDXN0T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:19 -0400
+        with ESMTP id S231620AbjDXNUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DAE5B86
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903424EFE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:19:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2125A622C4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350A7C433D2;
-        Mon, 24 Apr 2023 13:26:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6115D621FD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716DFC433EF;
+        Mon, 24 Apr 2023 13:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342777;
-        bh=cw9+KipHJJNlFwS40WiYvrRjTyRcGuOlaoYVtmJUQTg=;
+        s=korg; t=1682342393;
+        bh=1tAAibBoguxMvqWYb44Z48Tyu1Oewqgvt4rf4fZd28U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dd+WmGQX+LfbFVR13xtQ2UTYfHbFLxAEFI9cowCpd//p1S+IBdiZyspic3qTBhZXe
-         i4mcRMF+dEd1AKpS2Ie9O/nlE/ZeGheNLuJ3blLdIyNNDi2VKfEQ83nZ4KL213olbB
-         k6Qytu+KFQ5OmPozfBoz4SUaZWS3gIgQiPF0fGtg=
+        b=v4bR51QtOlBmhZhjuDxiOw1s2BQUFMDrxxP3Za/dSYrOIfsoW9MyU8doYxsgE5GQH
+         qgIDVuIZ7jTfqSlA5dqQRc5aFS9Xtq6/wXiFbgn9ToXLt13p7HrSYbh2HQybFGE4qZ
+         iRU6ZsMxrCFe5Pg4pLEseKuYH3vI6zySnruXKyPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
+        Juan Jose Lopez Jaimez <jjlopezjaimez@google.com>,
+        Meador Inge <meadori@google.com>,
+        Simon Scannell <simonscannell@google.com>,
+        Nenad Stojanovski <thenenadx@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 14/98] regulator: fan53555: Explicitly include bits header
+Subject: [PATCH 5.15 23/73] bpf: Fix incorrect verifier pruning due to missing register precision taints
 Date:   Mon, 24 Apr 2023 15:16:37 +0200
-Message-Id: <20230424131134.426328805@linuxfoundation.org>
+Message-Id: <20230424131129.864728679@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +60,422 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 4fb9a5060f73627303bc531ceaab1b19d0a24aef ]
+[ Upstream commit 71b547f561247897a0a14f3082730156c0533fed ]
 
-Since commit f2a9eb975ab2 ("regulator: fan53555: Add support for
-FAN53526") the driver makes use of the BIT() macro, but relies on the
-bits header being implicitly included.
+Juan Jose et al reported an issue found via fuzzing where the verifier's
+pruning logic prematurely marks a program path as safe.
 
-Explicitly pull the header in to avoid potential build failures in some
-configurations.
+Consider the following program:
 
-While here, reorder include directives alphabetically.
+   0: (b7) r6 = 1024
+   1: (b7) r7 = 0
+   2: (b7) r8 = 0
+   3: (b7) r9 = -2147483648
+   4: (97) r6 %= 1025
+   5: (05) goto pc+0
+   6: (bd) if r6 <= r9 goto pc+2
+   7: (97) r6 %= 1
+   8: (b7) r9 = 0
+   9: (bd) if r6 <= r9 goto pc+1
+  10: (b7) r6 = 0
+  11: (b7) r0 = 0
+  12: (63) *(u32 *)(r10 -4) = r0
+  13: (18) r4 = 0xffff888103693400 // map_ptr(ks=4,vs=48)
+  15: (bf) r1 = r4
+  16: (bf) r2 = r10
+  17: (07) r2 += -4
+  18: (85) call bpf_map_lookup_elem#1
+  19: (55) if r0 != 0x0 goto pc+1
+  20: (95) exit
+  21: (77) r6 >>= 10
+  22: (27) r6 *= 8192
+  23: (bf) r1 = r0
+  24: (0f) r0 += r6
+  25: (79) r3 = *(u64 *)(r0 +0)
+  26: (7b) *(u64 *)(r1 +0) = r3
+  27: (95) exit
 
-Fixes: f2a9eb975ab2 ("regulator: fan53555: Add support for FAN53526")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Link: https://lore.kernel.org/r/20230406171806.948290-3-cristian.ciocaltea@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The verifier treats this as safe, leading to oob read/write access due
+to an incorrect verifier conclusion:
+
+  func#0 @0
+  0: R1=ctx(off=0,imm=0) R10=fp0
+  0: (b7) r6 = 1024                     ; R6_w=1024
+  1: (b7) r7 = 0                        ; R7_w=0
+  2: (b7) r8 = 0                        ; R8_w=0
+  3: (b7) r9 = -2147483648              ; R9_w=-2147483648
+  4: (97) r6 %= 1025                    ; R6_w=scalar()
+  5: (05) goto pc+0
+  6: (bd) if r6 <= r9 goto pc+2         ; R6_w=scalar(umin=18446744071562067969,var_off=(0xffffffff00000000; 0xffffffff)) R9_w=-2147483648
+  7: (97) r6 %= 1                       ; R6_w=scalar()
+  8: (b7) r9 = 0                        ; R9=0
+  9: (bd) if r6 <= r9 goto pc+1         ; R6=scalar(umin=1) R9=0
+  10: (b7) r6 = 0                       ; R6_w=0
+  11: (b7) r0 = 0                       ; R0_w=0
+  12: (63) *(u32 *)(r10 -4) = r0
+  last_idx 12 first_idx 9
+  regs=1 stack=0 before 11: (b7) r0 = 0
+  13: R0_w=0 R10=fp0 fp-8=0000????
+  13: (18) r4 = 0xffff8ad3886c2a00      ; R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  15: (bf) r1 = r4                      ; R1_w=map_ptr(off=0,ks=4,vs=48,imm=0) R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  16: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  17: (07) r2 += -4                     ; R2_w=fp-4
+  18: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=1,off=0,ks=4,vs=48,imm=0)
+  19: (55) if r0 != 0x0 goto pc+1       ; R0=0
+  20: (95) exit
+
+  from 19 to 21: R0=map_value(off=0,ks=4,vs=48,imm=0) R6=0 R7=0 R8=0 R9=0 R10=fp0 fp-8=mmmm????
+  21: (77) r6 >>= 10                    ; R6_w=0
+  22: (27) r6 *= 8192                   ; R6_w=0
+  23: (bf) r1 = r0                      ; R0=map_value(off=0,ks=4,vs=48,imm=0) R1_w=map_value(off=0,ks=4,vs=48,imm=0)
+  24: (0f) r0 += r6
+  last_idx 24 first_idx 19
+  regs=40 stack=0 before 23: (bf) r1 = r0
+  regs=40 stack=0 before 22: (27) r6 *= 8192
+  regs=40 stack=0 before 21: (77) r6 >>= 10
+  regs=40 stack=0 before 19: (55) if r0 != 0x0 goto pc+1
+  parent didn't have regs=40 stack=0 marks: R0_rw=map_value_or_null(id=1,off=0,ks=4,vs=48,imm=0) R6_rw=P0 R7=0 R8=0 R9=0 R10=fp0 fp-8=mmmm????
+  last_idx 18 first_idx 9
+  regs=40 stack=0 before 18: (85) call bpf_map_lookup_elem#1
+  regs=40 stack=0 before 17: (07) r2 += -4
+  regs=40 stack=0 before 16: (bf) r2 = r10
+  regs=40 stack=0 before 15: (bf) r1 = r4
+  regs=40 stack=0 before 13: (18) r4 = 0xffff8ad3886c2a00
+  regs=40 stack=0 before 12: (63) *(u32 *)(r10 -4) = r0
+  regs=40 stack=0 before 11: (b7) r0 = 0
+  regs=40 stack=0 before 10: (b7) r6 = 0
+  25: (79) r3 = *(u64 *)(r0 +0)         ; R0_w=map_value(off=0,ks=4,vs=48,imm=0) R3_w=scalar()
+  26: (7b) *(u64 *)(r1 +0) = r3         ; R1_w=map_value(off=0,ks=4,vs=48,imm=0) R3_w=scalar()
+  27: (95) exit
+
+  from 9 to 11: R1=ctx(off=0,imm=0) R6=0 R7=0 R8=0 R9=0 R10=fp0
+  11: (b7) r0 = 0                       ; R0_w=0
+  12: (63) *(u32 *)(r10 -4) = r0
+  last_idx 12 first_idx 11
+  regs=1 stack=0 before 11: (b7) r0 = 0
+  13: R0_w=0 R10=fp0 fp-8=0000????
+  13: (18) r4 = 0xffff8ad3886c2a00      ; R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  15: (bf) r1 = r4                      ; R1_w=map_ptr(off=0,ks=4,vs=48,imm=0) R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  16: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  17: (07) r2 += -4                     ; R2_w=fp-4
+  18: (85) call bpf_map_lookup_elem#1
+  frame 0: propagating r6
+  last_idx 19 first_idx 11
+  regs=40 stack=0 before 18: (85) call bpf_map_lookup_elem#1
+  regs=40 stack=0 before 17: (07) r2 += -4
+  regs=40 stack=0 before 16: (bf) r2 = r10
+  regs=40 stack=0 before 15: (bf) r1 = r4
+  regs=40 stack=0 before 13: (18) r4 = 0xffff8ad3886c2a00
+  regs=40 stack=0 before 12: (63) *(u32 *)(r10 -4) = r0
+  regs=40 stack=0 before 11: (b7) r0 = 0
+  parent didn't have regs=40 stack=0 marks: R1=ctx(off=0,imm=0) R6_r=P0 R7=0 R8=0 R9=0 R10=fp0
+  last_idx 9 first_idx 9
+  regs=40 stack=0 before 9: (bd) if r6 <= r9 goto pc+1
+  parent didn't have regs=40 stack=0 marks: R1=ctx(off=0,imm=0) R6_rw=Pscalar() R7_w=0 R8_w=0 R9_rw=0 R10=fp0
+  last_idx 8 first_idx 0
+  regs=40 stack=0 before 8: (b7) r9 = 0
+  regs=40 stack=0 before 7: (97) r6 %= 1
+  regs=40 stack=0 before 6: (bd) if r6 <= r9 goto pc+2
+  regs=40 stack=0 before 5: (05) goto pc+0
+  regs=40 stack=0 before 4: (97) r6 %= 1025
+  regs=40 stack=0 before 3: (b7) r9 = -2147483648
+  regs=40 stack=0 before 2: (b7) r8 = 0
+  regs=40 stack=0 before 1: (b7) r7 = 0
+  regs=40 stack=0 before 0: (b7) r6 = 1024
+  19: safe
+  frame 0: propagating r6
+  last_idx 9 first_idx 0
+  regs=40 stack=0 before 6: (bd) if r6 <= r9 goto pc+2
+  regs=40 stack=0 before 5: (05) goto pc+0
+  regs=40 stack=0 before 4: (97) r6 %= 1025
+  regs=40 stack=0 before 3: (b7) r9 = -2147483648
+  regs=40 stack=0 before 2: (b7) r8 = 0
+  regs=40 stack=0 before 1: (b7) r7 = 0
+  regs=40 stack=0 before 0: (b7) r6 = 1024
+
+  from 6 to 9: safe
+  verification time 110 usec
+  stack depth 4
+  processed 36 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2
+
+The verifier considers this program as safe by mistakenly pruning unsafe
+code paths. In the above func#0, code lines 0-10 are of interest. In line
+0-3 registers r6 to r9 are initialized with known scalar values. In line 4
+the register r6 is reset to an unknown scalar given the verifier does not
+track modulo operations. Due to this, the verifier can also not determine
+precisely which branches in line 6 and 9 are taken, therefore it needs to
+explore them both.
+
+As can be seen, the verifier starts with exploring the false/fall-through
+paths first. The 'from 19 to 21' path has both r6=0 and r9=0 and the pointer
+arithmetic on r0 += r6 is therefore considered safe. Given the arithmetic,
+r6 is correctly marked for precision tracking where backtracking kicks in
+where it walks back the current path all the way where r6 was set to 0 in
+the fall-through branch.
+
+Next, the pruning logics pops the path 'from 9 to 11' from the stack. Also
+here, the state of the registers is the same, that is, r6=0 and r9=0, so
+that at line 19 the path can be pruned as it is considered safe. It is
+interesting to note that the conditional in line 9 turned r6 into a more
+precise state, that is, in the fall-through path at the beginning of line
+10, it is R6=scalar(umin=1), and in the branch-taken path (which is analyzed
+here) at the beginning of line 11, r6 turned into a known const r6=0 as
+r9=0 prior to that and therefore (unsigned) r6 <= 0 concludes that r6 must
+be 0 (**):
+
+  [...]                                 ; R6_w=scalar()
+  9: (bd) if r6 <= r9 goto pc+1         ; R6=scalar(umin=1) R9=0
+  [...]
+
+  from 9 to 11: R1=ctx(off=0,imm=0) R6=0 R7=0 R8=0 R9=0 R10=fp0
+  [...]
+
+The next path is 'from 6 to 9'. The verifier considers the old and current
+state equivalent, and therefore prunes the search incorrectly. Looking into
+the two states which are being compared by the pruning logic at line 9, the
+old state consists of R6_rwD=Pscalar() R9_rwD=0 R10=fp0 and the new state
+consists of R1=ctx(off=0,imm=0) R6_w=scalar(umax=18446744071562067968)
+R7_w=0 R8_w=0 R9_w=-2147483648 R10=fp0. While r6 had the reg->precise flag
+correctly set in the old state, r9 did not. Both r6'es are considered as
+equivalent given the old one is a superset of the current, more precise one,
+however, r9's actual values (0 vs 0x80000000) mismatch. Given the old r9
+did not have reg->precise flag set, the verifier does not consider the
+register as contributing to the precision state of r6, and therefore it
+considered both r9 states as equivalent. However, for this specific pruned
+path (which is also the actual path taken at runtime), register r6 will be
+0x400 and r9 0x80000000 when reaching line 21, thus oob-accessing the map.
+
+The purpose of precision tracking is to initially mark registers (including
+spilled ones) as imprecise to help verifier's pruning logic finding equivalent
+states it can then prune if they don't contribute to the program's safety
+aspects. For example, if registers are used for pointer arithmetic or to pass
+constant length to a helper, then the verifier sets reg->precise flag and
+backtracks the BPF program instruction sequence and chain of verifier states
+to ensure that the given register or stack slot including their dependencies
+are marked as precisely tracked scalar. This also includes any other registers
+and slots that contribute to a tracked state of given registers/stack slot.
+This backtracking relies on recorded jmp_history and is able to traverse
+entire chain of parent states. This process ends only when all the necessary
+registers/slots and their transitive dependencies are marked as precise.
+
+The backtrack_insn() is called from the current instruction up to the first
+instruction, and its purpose is to compute a bitmask of registers and stack
+slots that need precision tracking in the parent's verifier state. For example,
+if a current instruction is r6 = r7, then r6 needs precision after this
+instruction and r7 needs precision before this instruction, that is, in the
+parent state. Hence for the latter r7 is marked and r6 unmarked.
+
+For the class of jmp/jmp32 instructions, backtrack_insn() today only looks
+at call and exit instructions and for all other conditionals the masks
+remain as-is. However, in the given situation register r6 has a dependency
+on r9 (as described above in **), so also that one needs to be marked for
+precision tracking. In other words, if an imprecise register influences a
+precise one, then the imprecise register should also be marked precise.
+Meaning, in the parent state both dest and src register need to be tracked
+for precision and therefore the marking must be more conservative by setting
+reg->precise flag for both. The precision propagation needs to cover both
+for the conditional: if the src reg was marked but not the dst reg and vice
+versa.
+
+After the fix the program is correctly rejected:
+
+  func#0 @0
+  0: R1=ctx(off=0,imm=0) R10=fp0
+  0: (b7) r6 = 1024                     ; R6_w=1024
+  1: (b7) r7 = 0                        ; R7_w=0
+  2: (b7) r8 = 0                        ; R8_w=0
+  3: (b7) r9 = -2147483648              ; R9_w=-2147483648
+  4: (97) r6 %= 1025                    ; R6_w=scalar()
+  5: (05) goto pc+0
+  6: (bd) if r6 <= r9 goto pc+2         ; R6_w=scalar(umin=18446744071562067969,var_off=(0xffffffff80000000; 0x7fffffff),u32_min=-2147483648) R9_w=-2147483648
+  7: (97) r6 %= 1                       ; R6_w=scalar()
+  8: (b7) r9 = 0                        ; R9=0
+  9: (bd) if r6 <= r9 goto pc+1         ; R6=scalar(umin=1) R9=0
+  10: (b7) r6 = 0                       ; R6_w=0
+  11: (b7) r0 = 0                       ; R0_w=0
+  12: (63) *(u32 *)(r10 -4) = r0
+  last_idx 12 first_idx 9
+  regs=1 stack=0 before 11: (b7) r0 = 0
+  13: R0_w=0 R10=fp0 fp-8=0000????
+  13: (18) r4 = 0xffff9290dc5bfe00      ; R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  15: (bf) r1 = r4                      ; R1_w=map_ptr(off=0,ks=4,vs=48,imm=0) R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  16: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  17: (07) r2 += -4                     ; R2_w=fp-4
+  18: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=1,off=0,ks=4,vs=48,imm=0)
+  19: (55) if r0 != 0x0 goto pc+1       ; R0=0
+  20: (95) exit
+
+  from 19 to 21: R0=map_value(off=0,ks=4,vs=48,imm=0) R6=0 R7=0 R8=0 R9=0 R10=fp0 fp-8=mmmm????
+  21: (77) r6 >>= 10                    ; R6_w=0
+  22: (27) r6 *= 8192                   ; R6_w=0
+  23: (bf) r1 = r0                      ; R0=map_value(off=0,ks=4,vs=48,imm=0) R1_w=map_value(off=0,ks=4,vs=48,imm=0)
+  24: (0f) r0 += r6
+  last_idx 24 first_idx 19
+  regs=40 stack=0 before 23: (bf) r1 = r0
+  regs=40 stack=0 before 22: (27) r6 *= 8192
+  regs=40 stack=0 before 21: (77) r6 >>= 10
+  regs=40 stack=0 before 19: (55) if r0 != 0x0 goto pc+1
+  parent didn't have regs=40 stack=0 marks: R0_rw=map_value_or_null(id=1,off=0,ks=4,vs=48,imm=0) R6_rw=P0 R7=0 R8=0 R9=0 R10=fp0 fp-8=mmmm????
+  last_idx 18 first_idx 9
+  regs=40 stack=0 before 18: (85) call bpf_map_lookup_elem#1
+  regs=40 stack=0 before 17: (07) r2 += -4
+  regs=40 stack=0 before 16: (bf) r2 = r10
+  regs=40 stack=0 before 15: (bf) r1 = r4
+  regs=40 stack=0 before 13: (18) r4 = 0xffff9290dc5bfe00
+  regs=40 stack=0 before 12: (63) *(u32 *)(r10 -4) = r0
+  regs=40 stack=0 before 11: (b7) r0 = 0
+  regs=40 stack=0 before 10: (b7) r6 = 0
+  25: (79) r3 = *(u64 *)(r0 +0)         ; R0_w=map_value(off=0,ks=4,vs=48,imm=0) R3_w=scalar()
+  26: (7b) *(u64 *)(r1 +0) = r3         ; R1_w=map_value(off=0,ks=4,vs=48,imm=0) R3_w=scalar()
+  27: (95) exit
+
+  from 9 to 11: R1=ctx(off=0,imm=0) R6=0 R7=0 R8=0 R9=0 R10=fp0
+  11: (b7) r0 = 0                       ; R0_w=0
+  12: (63) *(u32 *)(r10 -4) = r0
+  last_idx 12 first_idx 11
+  regs=1 stack=0 before 11: (b7) r0 = 0
+  13: R0_w=0 R10=fp0 fp-8=0000????
+  13: (18) r4 = 0xffff9290dc5bfe00      ; R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  15: (bf) r1 = r4                      ; R1_w=map_ptr(off=0,ks=4,vs=48,imm=0) R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  16: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  17: (07) r2 += -4                     ; R2_w=fp-4
+  18: (85) call bpf_map_lookup_elem#1
+  frame 0: propagating r6
+  last_idx 19 first_idx 11
+  regs=40 stack=0 before 18: (85) call bpf_map_lookup_elem#1
+  regs=40 stack=0 before 17: (07) r2 += -4
+  regs=40 stack=0 before 16: (bf) r2 = r10
+  regs=40 stack=0 before 15: (bf) r1 = r4
+  regs=40 stack=0 before 13: (18) r4 = 0xffff9290dc5bfe00
+  regs=40 stack=0 before 12: (63) *(u32 *)(r10 -4) = r0
+  regs=40 stack=0 before 11: (b7) r0 = 0
+  parent didn't have regs=40 stack=0 marks: R1=ctx(off=0,imm=0) R6_r=P0 R7=0 R8=0 R9=0 R10=fp0
+  last_idx 9 first_idx 9
+  regs=40 stack=0 before 9: (bd) if r6 <= r9 goto pc+1
+  parent didn't have regs=240 stack=0 marks: R1=ctx(off=0,imm=0) R6_rw=Pscalar() R7_w=0 R8_w=0 R9_rw=P0 R10=fp0
+  last_idx 8 first_idx 0
+  regs=240 stack=0 before 8: (b7) r9 = 0
+  regs=40 stack=0 before 7: (97) r6 %= 1
+  regs=40 stack=0 before 6: (bd) if r6 <= r9 goto pc+2
+  regs=240 stack=0 before 5: (05) goto pc+0
+  regs=240 stack=0 before 4: (97) r6 %= 1025
+  regs=240 stack=0 before 3: (b7) r9 = -2147483648
+  regs=40 stack=0 before 2: (b7) r8 = 0
+  regs=40 stack=0 before 1: (b7) r7 = 0
+  regs=40 stack=0 before 0: (b7) r6 = 1024
+  19: safe
+
+  from 6 to 9: R1=ctx(off=0,imm=0) R6_w=scalar(umax=18446744071562067968) R7_w=0 R8_w=0 R9_w=-2147483648 R10=fp0
+  9: (bd) if r6 <= r9 goto pc+1
+  last_idx 9 first_idx 0
+  regs=40 stack=0 before 6: (bd) if r6 <= r9 goto pc+2
+  regs=240 stack=0 before 5: (05) goto pc+0
+  regs=240 stack=0 before 4: (97) r6 %= 1025
+  regs=240 stack=0 before 3: (b7) r9 = -2147483648
+  regs=40 stack=0 before 2: (b7) r8 = 0
+  regs=40 stack=0 before 1: (b7) r7 = 0
+  regs=40 stack=0 before 0: (b7) r6 = 1024
+  last_idx 9 first_idx 0
+  regs=200 stack=0 before 6: (bd) if r6 <= r9 goto pc+2
+  regs=240 stack=0 before 5: (05) goto pc+0
+  regs=240 stack=0 before 4: (97) r6 %= 1025
+  regs=240 stack=0 before 3: (b7) r9 = -2147483648
+  regs=40 stack=0 before 2: (b7) r8 = 0
+  regs=40 stack=0 before 1: (b7) r7 = 0
+  regs=40 stack=0 before 0: (b7) r6 = 1024
+  11: R6=scalar(umax=18446744071562067968) R9=-2147483648
+  11: (b7) r0 = 0                       ; R0_w=0
+  12: (63) *(u32 *)(r10 -4) = r0
+  last_idx 12 first_idx 11
+  regs=1 stack=0 before 11: (b7) r0 = 0
+  13: R0_w=0 R10=fp0 fp-8=0000????
+  13: (18) r4 = 0xffff9290dc5bfe00      ; R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  15: (bf) r1 = r4                      ; R1_w=map_ptr(off=0,ks=4,vs=48,imm=0) R4_w=map_ptr(off=0,ks=4,vs=48,imm=0)
+  16: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  17: (07) r2 += -4                     ; R2_w=fp-4
+  18: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=3,off=0,ks=4,vs=48,imm=0)
+  19: (55) if r0 != 0x0 goto pc+1       ; R0_w=0
+  20: (95) exit
+
+  from 19 to 21: R0=map_value(off=0,ks=4,vs=48,imm=0) R6=scalar(umax=18446744071562067968) R7=0 R8=0 R9=-2147483648 R10=fp0 fp-8=mmmm????
+  21: (77) r6 >>= 10                    ; R6_w=scalar(umax=18014398507384832,var_off=(0x0; 0x3fffffffffffff))
+  22: (27) r6 *= 8192                   ; R6_w=scalar(smax=9223372036854767616,umax=18446744073709543424,var_off=(0x0; 0xffffffffffffe000),s32_max=2147475456,u32_max=-8192)
+  23: (bf) r1 = r0                      ; R0=map_value(off=0,ks=4,vs=48,imm=0) R1_w=map_value(off=0,ks=4,vs=48,imm=0)
+  24: (0f) r0 += r6
+  last_idx 24 first_idx 21
+  regs=40 stack=0 before 23: (bf) r1 = r0
+  regs=40 stack=0 before 22: (27) r6 *= 8192
+  regs=40 stack=0 before 21: (77) r6 >>= 10
+  parent didn't have regs=40 stack=0 marks: R0_rw=map_value(off=0,ks=4,vs=48,imm=0) R6_r=Pscalar(umax=18446744071562067968) R7=0 R8=0 R9=-2147483648 R10=fp0 fp-8=mmmm????
+  last_idx 19 first_idx 11
+  regs=40 stack=0 before 19: (55) if r0 != 0x0 goto pc+1
+  regs=40 stack=0 before 18: (85) call bpf_map_lookup_elem#1
+  regs=40 stack=0 before 17: (07) r2 += -4
+  regs=40 stack=0 before 16: (bf) r2 = r10
+  regs=40 stack=0 before 15: (bf) r1 = r4
+  regs=40 stack=0 before 13: (18) r4 = 0xffff9290dc5bfe00
+  regs=40 stack=0 before 12: (63) *(u32 *)(r10 -4) = r0
+  regs=40 stack=0 before 11: (b7) r0 = 0
+  parent didn't have regs=40 stack=0 marks: R1=ctx(off=0,imm=0) R6_rw=Pscalar(umax=18446744071562067968) R7_w=0 R8_w=0 R9_w=-2147483648 R10=fp0
+  last_idx 9 first_idx 0
+  regs=40 stack=0 before 9: (bd) if r6 <= r9 goto pc+1
+  regs=240 stack=0 before 6: (bd) if r6 <= r9 goto pc+2
+  regs=240 stack=0 before 5: (05) goto pc+0
+  regs=240 stack=0 before 4: (97) r6 %= 1025
+  regs=240 stack=0 before 3: (b7) r9 = -2147483648
+  regs=40 stack=0 before 2: (b7) r8 = 0
+  regs=40 stack=0 before 1: (b7) r7 = 0
+  regs=40 stack=0 before 0: (b7) r6 = 1024
+  math between map_value pointer and register with unbounded min value is not allowed
+  verification time 886 usec
+  stack depth 4
+  processed 49 insns (limit 1000000) max_states_per_insn 1 total_states 5 peak_states 5 mark_read 2
+
+Fixes: b5dc0163d8fd ("bpf: precise scalar_value tracking")
+Reported-by: Juan Jose Lopez Jaimez <jjlopezjaimez@google.com>
+Reported-by: Meador Inge <meadori@google.com>
+Reported-by: Simon Scannell <simonscannell@google.com>
+Reported-by: Nenad Stojanovski <thenenadx@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Co-developed-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Reviewed-by: Juan Jose Lopez Jaimez <jjlopezjaimez@google.com>
+Reviewed-by: Meador Inge <meadori@google.com>
+Reviewed-by: Simon Scannell <simonscannell@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/fan53555.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ kernel/bpf/verifier.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
-index dac1fb584fa35..df53464afe3a0 100644
---- a/drivers/regulator/fan53555.c
-+++ b/drivers/regulator/fan53555.c
-@@ -8,18 +8,19 @@
- // Copyright (c) 2012 Marvell Technology Ltd.
- // Yunfan Zhang <yfzhang@marvell.com>
- 
-+#include <linux/bits.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/param.h>
--#include <linux/err.h>
- #include <linux/platform_device.h>
-+#include <linux/regmap.h>
- #include <linux/regulator/driver.h>
-+#include <linux/regulator/fan53555.h>
- #include <linux/regulator/machine.h>
- #include <linux/regulator/of_regulator.h>
--#include <linux/of_device.h>
--#include <linux/i2c.h>
- #include <linux/slab.h>
--#include <linux/regmap.h>
--#include <linux/regulator/fan53555.h>
- 
- /* Voltage setting */
- #define FAN53555_VSEL0		0x00
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 1c95d97e7aa53..37d4b5f5ec0c3 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2279,6 +2279,21 @@ static int backtrack_insn(struct bpf_verifier_env *env, int idx,
+ 			}
+ 		} else if (opcode == BPF_EXIT) {
+ 			return -ENOTSUPP;
++		} else if (BPF_SRC(insn->code) == BPF_X) {
++			if (!(*reg_mask & (dreg | sreg)))
++				return 0;
++			/* dreg <cond> sreg
++			 * Both dreg and sreg need precision before
++			 * this insn. If only sreg was marked precise
++			 * before it would be equally necessary to
++			 * propagate it to dreg.
++			 */
++			*reg_mask |= (sreg | dreg);
++			 /* else dreg <cond> K
++			  * Only dreg still needs precision before
++			  * this insn, so for the K-based conditional
++			  * there is nothing new to be marked.
++			  */
+ 		}
+ 	} else if (class == BPF_LD) {
+ 		if (!(*reg_mask & dreg))
 -- 
 2.39.2
 
