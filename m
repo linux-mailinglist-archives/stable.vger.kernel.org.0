@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DC36ECEBA
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 913966ECDDD
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232488AbjDXNes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:34:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59684 "EHLO
+        id S232284AbjDXN1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232481AbjDXNef (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73FDC6EAB
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:10 -0700 (PDT)
+        with ESMTP id S232265AbjDXN12 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:27:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD1F110
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A249623B5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E30BC4339B;
-        Mon, 24 Apr 2023 13:34:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32BD4622CD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A67C433D2;
+        Mon, 24 Apr 2023 13:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343249;
-        bh=txfLP54fSe01L/lwVEBRRfESxnKTk2HA56gIuq7HKuY=;
+        s=korg; t=1682342840;
+        bh=IrxXSYiGXNbX6D4Qz1c260AfMByfAjFG1K3dtjaQN6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiAtwT3bj3deSLPjaBkF3kFGijMoxWGUH6SVheHcoKBV4xpZspxaDPDLnDQc1CWAW
-         f1+5xMRtE1oRp2fPtu1N+sLowWhseRIRuj4zuUSObxeg3sRrf/FkQQ0h4hbP+NCdNy
-         IMdgUJ4QY2vxh5jPM8XGjQAa6XwiFpABa2+1n87E=
+        b=HqsIyFOnQg420fIgtmmb46CFaCGkiprEJxUsL005TZoPfLZPA7pK0zCIvljDD9bS+
+         EQ9sVIVtynw8Ei+AD89P1uFFMeklz3hhOUVaGjPB1fMoc+9O8icYUd3orZAvDBuF8n
+         OwdJkoPewfULw+eDcFWLkk4Xl+2myIXjVsEop1qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 08/68] virtio_net: bugfix overflow inside xdp_linearize_page()
+        patches@lists.linux.dev, Alexander Potapenko <glider@google.com>,
+        Dipanjan Das <mail.dipanjan.das@gmail.com>,
+        Marco Elver <elver@google.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 76/98] mm: kmsan: handle alloc failures in kmsan_vmap_pages_range_noflush()
 Date:   Mon, 24 Apr 2023 15:17:39 +0200
-Message-Id: <20230424131127.997998350@linuxfoundation.org>
+Message-Id: <20230424131136.798145675@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,59 +58,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
+commit 47ebd0310e89c087f56e58c103c44b72a2f6b216 upstream.
 
-Here we copy the data from the original buf to the new page. But we
-not check that it may be overflow.
+As reported by Dipanjan Das, when KMSAN is used together with kernel fault
+injection (or, generally, even without the latter), calls to kcalloc() or
+__vmap_pages_range_noflush() may fail, leaving the metadata mappings for
+the virtual mapping in an inconsistent state.  When these metadata
+mappings are accessed later, the kernel crashes.
 
-As long as the size received(including vnethdr) is greater than 3840
-(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
+To address the problem, we return a non-zero error code from
+kmsan_vmap_pages_range_noflush() in the case of any allocation/mapping
+failure inside it, and make vmap_pages_range_noflush() return an error if
+KMSAN fails to allocate the metadata.
 
-And this is completely possible, as long as the MTU is large, such
-as 4096. In our test environment, this will cause crash. Since crash is
-caused by the written memory, it is meaningless, so I do not include it.
+This patch also removes KMSAN_WARN_ON() from vmap_pages_range_noflush(),
+as these allocation failures are not fatal anymore.
 
-Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20230413131223.4135168-1-glider@google.com
+Fixes: b073d7f8aee4 ("mm: kmsan: maintain KMSAN metadata for page operations")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reported-by: Dipanjan Das <mail.dipanjan.das@gmail.com>
+  Link: https://lore.kernel.org/linux-mm/CANX2M5ZRrRA64k0hOif02TjmY9kbbO2aCBPyq79es34RXZ=cAw@mail.gmail.com/
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ include/linux/kmsan.h |   20 +++++++++++---------
+ mm/kmsan/shadow.c     |   27 ++++++++++++++++++---------
+ mm/vmalloc.c          |    6 +++++-
+ 3 files changed, 34 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d533211161366..47c9118cc92a3 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -646,8 +646,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 				       int page_off,
- 				       unsigned int *len)
+--- a/include/linux/kmsan.h
++++ b/include/linux/kmsan.h
+@@ -134,11 +134,12 @@ void kmsan_kfree_large(const void *ptr);
+  * @page_shift:	page_shift passed to vmap_range_noflush().
+  *
+  * KMSAN maps shadow and origin pages of @pages into contiguous ranges in
+- * vmalloc metadata address range.
++ * vmalloc metadata address range. Returns 0 on success, callers must check
++ * for non-zero return value.
+  */
+-void kmsan_vmap_pages_range_noflush(unsigned long start, unsigned long end,
+-				    pgprot_t prot, struct page **pages,
+-				    unsigned int page_shift);
++int kmsan_vmap_pages_range_noflush(unsigned long start, unsigned long end,
++				   pgprot_t prot, struct page **pages,
++				   unsigned int page_shift);
+ 
+ /**
+  * kmsan_vunmap_kernel_range_noflush() - Notify KMSAN about a vunmap.
+@@ -282,12 +283,13 @@ static inline void kmsan_kfree_large(con
  {
--	struct page *page = alloc_page(GFP_ATOMIC);
-+	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+	struct page *page;
+ }
  
-+	if (page_off + *len + tailroom > PAGE_SIZE)
-+		return NULL;
+-static inline void kmsan_vmap_pages_range_noflush(unsigned long start,
+-						  unsigned long end,
+-						  pgprot_t prot,
+-						  struct page **pages,
+-						  unsigned int page_shift)
++static inline int kmsan_vmap_pages_range_noflush(unsigned long start,
++						 unsigned long end,
++						 pgprot_t prot,
++						 struct page **pages,
++						 unsigned int page_shift)
+ {
++	return 0;
+ }
+ 
+ static inline void kmsan_vunmap_range_noflush(unsigned long start,
+--- a/mm/kmsan/shadow.c
++++ b/mm/kmsan/shadow.c
+@@ -216,27 +216,29 @@ void kmsan_free_page(struct page *page,
+ 	kmsan_leave_runtime();
+ }
+ 
+-void kmsan_vmap_pages_range_noflush(unsigned long start, unsigned long end,
+-				    pgprot_t prot, struct page **pages,
+-				    unsigned int page_shift)
++int kmsan_vmap_pages_range_noflush(unsigned long start, unsigned long end,
++				   pgprot_t prot, struct page **pages,
++				   unsigned int page_shift)
+ {
+ 	unsigned long shadow_start, origin_start, shadow_end, origin_end;
+ 	struct page **s_pages, **o_pages;
+-	int nr, mapped;
++	int nr, mapped, err = 0;
+ 
+ 	if (!kmsan_enabled)
+-		return;
++		return 0;
+ 
+ 	shadow_start = vmalloc_meta((void *)start, KMSAN_META_SHADOW);
+ 	shadow_end = vmalloc_meta((void *)end, KMSAN_META_SHADOW);
+ 	if (!shadow_start)
+-		return;
++		return 0;
+ 
+ 	nr = (end - start) / PAGE_SIZE;
+ 	s_pages = kcalloc(nr, sizeof(*s_pages), GFP_KERNEL);
+ 	o_pages = kcalloc(nr, sizeof(*o_pages), GFP_KERNEL);
+-	if (!s_pages || !o_pages)
++	if (!s_pages || !o_pages) {
++		err = -ENOMEM;
+ 		goto ret;
++	}
+ 	for (int i = 0; i < nr; i++) {
+ 		s_pages[i] = shadow_page_for(pages[i]);
+ 		o_pages[i] = origin_page_for(pages[i]);
+@@ -249,10 +251,16 @@ void kmsan_vmap_pages_range_noflush(unsi
+ 	kmsan_enter_runtime();
+ 	mapped = __vmap_pages_range_noflush(shadow_start, shadow_end, prot,
+ 					    s_pages, page_shift);
+-	KMSAN_WARN_ON(mapped);
++	if (mapped) {
++		err = mapped;
++		goto ret;
++	}
+ 	mapped = __vmap_pages_range_noflush(origin_start, origin_end, prot,
+ 					    o_pages, page_shift);
+-	KMSAN_WARN_ON(mapped);
++	if (mapped) {
++		err = mapped;
++		goto ret;
++	}
+ 	kmsan_leave_runtime();
+ 	flush_tlb_kernel_range(shadow_start, shadow_end);
+ 	flush_tlb_kernel_range(origin_start, origin_end);
+@@ -262,6 +270,7 @@ void kmsan_vmap_pages_range_noflush(unsi
+ ret:
+ 	kfree(s_pages);
+ 	kfree(o_pages);
++	return err;
+ }
+ 
+ /* Allocate metadata for pages allocated at boot time. */
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -613,7 +613,11 @@ int __vmap_pages_range_noflush(unsigned
+ int vmap_pages_range_noflush(unsigned long addr, unsigned long end,
+ 		pgprot_t prot, struct page **pages, unsigned int page_shift)
+ {
+-	kmsan_vmap_pages_range_noflush(addr, end, prot, pages, page_shift);
++	int ret = kmsan_vmap_pages_range_noflush(addr, end, prot, pages,
++						 page_shift);
 +
-+	page = alloc_page(GFP_ATOMIC);
- 	if (!page)
- 		return NULL;
++	if (ret)
++		return ret;
+ 	return __vmap_pages_range_noflush(addr, end, prot, pages, page_shift);
+ }
  
-@@ -655,7 +660,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 	page_off += *len;
- 
- 	while (--*num_buf) {
--		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 		unsigned int buflen;
- 		void *buf;
- 		int off;
--- 
-2.39.2
-
 
 
