@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D45696ECF31
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524CC6ECF26
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232788AbjDXNjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
+        id S232701AbjDXNim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232729AbjDXNiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C7D8A4B
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:29 -0700 (PDT)
+        with ESMTP id S232642AbjDXNih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3417E901C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE17C62457
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1024CC433D2;
-        Mon, 24 Apr 2023 13:38:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46EB962420
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 581DDC433D2;
+        Mon, 24 Apr 2023 13:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343495;
-        bh=1krLyJWlEkC0w8bP9ttf9TtWClkmu2n+U0oRuZRh5DQ=;
+        s=korg; t=1682343439;
+        bh=lZ2IgiWGP47Z0fvYY4pBpYGxeg5uxIr1PXN6VuawWx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G889fX17T/UGu1vuClDmwaZCQp7XjMZdTe1JXOJca6lvwQMvhsPcGmi4pVurYoTXB
-         96/5lt4tPQipSSGh3JE3tzvgigkMk4UKQDPpp1U0Q/hba+K3cz0GkgPTI4xo2Lxn43
-         yKMZkaxZIT2bevKEIdVhGSf60X/jFPd1ZghRadrw=
+        b=2LrYZxlY3mEPFDs58LTyfn1Fx2oEdL4SN0CX6E5IcOKbKv0xWZgPHvwv4HwEHdYi3
+         gayI2S4m5g7mRuCZe3DZSZXnsObAOmy2OG6DUiEiWZz9b6zgpgKphd93RQsGSrqJuR
+         VxOoh1DS7TR8af67J7tOLtl6tz3v+y1cjcXAFVn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pingfan Liu <kernelfans@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Steve Wahl <steve.wahl@hpe.com>,
-        Dave Young <dyoung@redhat.com>, Alyssa Ross <hi@alyssa.is>
-Subject: [PATCH 4.19 18/29] x86/purgatory: Dont generate debug info for purgatory.ro
-Date:   Mon, 24 Apr 2023 15:18:45 +0200
-Message-Id: <20230424131121.750282091@linuxfoundation.org>
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 4.14 25/28] sctp: Call inet6_destroy_sock() via sk->sk_destruct().
+Date:   Mon, 24 Apr 2023 15:18:46 +0200
+Message-Id: <20230424131122.176943849@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
+In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
+References: <20230424131121.331252806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,56 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 52416ffcf823ee11aa19792715664ab94757f111 upstream.
+commit 6431b0f6ff1633ae598667e4cdd93830074a03e8 upstream.
 
-Purgatory.ro is a standalone binary that is not linked against the rest of
-the kernel.  Its image is copied into an array that is linked to the
-kernel, and from there kexec relocates it wherever it desires.
+After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
+in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
+sk->sk_destruct() by setting inet6_sock_destruct() to it to make
+sure we do not leak inet6-specific resources.
 
-Unlike the debug info for vmlinux, which can be used for analyzing crash
-such info is useless in purgatory.ro. And discarding them can save about
-200K space.
+SCTP sets its own sk->sk_destruct() in the sctp_init_sock(), and
+SCTPv6 socket reuses it as the init function.
 
- Original:
-   259080  kexec-purgatory.o
- Stripped debug info:
-    29152  kexec-purgatory.o
+To call inet6_sock_destruct() from SCTPv6 sk->sk_destruct(), we
+set sctp_v6_destruct_sock() in a new init function.
 
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Steve Wahl <steve.wahl@hpe.com>
-Acked-by: Dave Young <dyoung@redhat.com>
-Link: https://lore.kernel.org/r/1596433788-3784-1-git-send-email-kernelfans@gmail.com
-[Alyssa: fixed for LLVM_IAS=1 by adding -g to AFLAGS_REMOVE_*]
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/purgatory/Makefile |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sctp/socket.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -25,7 +25,7 @@ KCOV_INSTRUMENT := n
- # make up the standalone purgatory.ro
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -4497,13 +4497,17 @@ static void sctp_destroy_sock(struct soc
+ }
  
- PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
--PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
-+PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss -g0
- PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN) -DDISABLE_BRANCH_PROFILING
+ /* Triggered when there are no references on the socket anymore */
+-static void sctp_destruct_sock(struct sock *sk)
++static void sctp_destruct_common(struct sock *sk)
+ {
+ 	struct sctp_sock *sp = sctp_sk(sk);
  
- # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
-@@ -56,6 +56,9 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ 	/* Free up the HMAC transform. */
+ 	crypto_free_shash(sp->hmac);
++}
  
-+AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -g -Wa,-gdwarf-2
-+AFLAGS_REMOVE_entry64.o			+= -g -Wa,-gdwarf-2
++static void sctp_destruct_sock(struct sock *sk)
++{
++	sctp_destruct_common(sk);
+ 	inet_sock_destruct(sk);
+ }
+ 
+@@ -8134,7 +8138,7 @@ void sctp_copy_sock(struct sock *newsk,
+ 	newsk->sk_reuse = sk->sk_reuse;
+ 
+ 	newsk->sk_shutdown = sk->sk_shutdown;
+-	newsk->sk_destruct = sctp_destruct_sock;
++	newsk->sk_destruct = sk->sk_destruct;
+ 	newsk->sk_family = sk->sk_family;
+ 	newsk->sk_protocol = IPPROTO_SCTP;
+ 	newsk->sk_backlog_rcv = sk->sk_prot->backlog_rcv;
+@@ -8351,11 +8355,20 @@ struct proto sctp_prot = {
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ 
+-#include <net/transp_v6.h>
+-static void sctp_v6_destroy_sock(struct sock *sk)
++static void sctp_v6_destruct_sock(struct sock *sk)
++{
++	sctp_destruct_common(sk);
++	inet6_sock_destruct(sk);
++}
 +
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
++static int sctp_v6_init_sock(struct sock *sk)
+ {
+-	sctp_destroy_sock(sk);
+-	inet6_destroy_sock(sk);
++	int ret = sctp_init_sock(sk);
++
++	if (!ret)
++		sk->sk_destruct = sctp_v6_destruct_sock;
++
++	return ret;
+ }
  
+ struct proto sctpv6_prot = {
+@@ -8365,8 +8378,8 @@ struct proto sctpv6_prot = {
+ 	.disconnect	= sctp_disconnect,
+ 	.accept		= sctp_accept,
+ 	.ioctl		= sctp_ioctl,
+-	.init		= sctp_init_sock,
+-	.destroy	= sctp_v6_destroy_sock,
++	.init		= sctp_v6_init_sock,
++	.destroy	= sctp_destroy_sock,
+ 	.shutdown	= sctp_shutdown,
+ 	.setsockopt	= sctp_setsockopt,
+ 	.getsockopt	= sctp_getsockopt,
 
 
