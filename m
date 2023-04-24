@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D034E6ECD54
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2EE26ECDC6
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbjDXNW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
+        id S232213AbjDXN0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232063AbjDXNWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:17 -0400
+        with ESMTP id S232215AbjDXN0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF314EE1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77C4E618B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25AC462251
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39DD7C433EF;
-        Mon, 24 Apr 2023 13:22:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FCE9622BF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22302C4339C;
+        Mon, 24 Apr 2023 13:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342523;
-        bh=50zKGSO8Bw8Uo6ayP9XfVPJ6fGmXRAPG/UjIuMTDXnc=;
+        s=korg; t=1682342798;
+        bh=yNf+6MgrW2TLuDgOW6ptHVlZmMXDPGptF4rVUsUo/sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QAyOfZAITW+qldenR9Wq8PWArnMKGO0ObhwXEir49TA6hij0VmVTTrkwWj7KNTC/
-         m+AQXSo5NtrEZuXk5sbS32e5Lgs0dfflvFDYJKThBUbD7dWItuMA3L58IEUsfVGrUQ
-         xhxbQUI9zfdSEZYbc1yshbFgMX0t7gxN18KVcxik=
+        b=i35gJ0tegrujsRYjyL7aYl7wri6IebBsuRXhLFK+hvJLQ+fOB3Dga2iNUJOKJI+70
+         AixPG6tSGgulGehPZydpqMrKCVW/R/FlW0XWrHtihs1CPWIx5MrcYDwUY/L8XBsmri
+         g3woXZsKZh0GmDs+RNM+d2Db9icTR8JXoOgXZti0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH 5.15 71/73] soc: sifive: l2_cache: fix missing iounmap() in error path in sifive_l2_init()
+        patches@lists.linux.dev, Steve Chou <steve_chou@pesi.com.tw>,
+        Jiajian Ye <yejiajian2018@email.szu.edu.cn>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 62/98] tools/mm/page_owner_sort.c: fix TGID output when cull=tg is used
 Date:   Mon, 24 Apr 2023 15:17:25 +0200
-Message-Id: <20230424131131.727740347@linuxfoundation.org>
+Message-Id: <20230424131136.259770319@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Steve Chou <steve_chou@pesi.com.tw>
 
-commit 73e770f085023da327dc9ffeb6cd96b0bb22d97e upstream.
+commit 9235756885e865070c4be2facda75262dbd85967 upstream.
 
-Add missing iounmap() before return error from sifive_l2_init().
+When using cull option with 'tg' flag, the fprintf is using pid instead
+of tgid. It should use tgid instead.
 
-Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-[conor: ccache -> l2_cache]
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lkml.kernel.org/r/20230411034929.2071501-1-steve_chou@pesi.com.tw
+Fixes: 9c8a0a8e599f4a ("tools/vm/page_owner_sort.c: support for user-defined culling rules")
+Signed-off-by: Steve Chou <steve_chou@pesi.com.tw>
+Cc: Jiajian Ye <yejiajian2018@email.szu.edu.cn>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sifive/sifive_l2_cache.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ tools/vm/page_owner_sort.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/sifive/sifive_l2_cache.c
-+++ b/drivers/soc/sifive/sifive_l2_cache.c
-@@ -212,7 +212,8 @@ static int __init sifive_l2_init(void)
- 	intr_num = of_property_count_u32_elems(np, "interrupts");
- 	if (!intr_num) {
- 		pr_err("L2CACHE: no interrupts property\n");
--		return -ENODEV;
-+		rc = -ENODEV;
-+		goto err_unmap;
- 	}
- 
- 	for (i = 0; i < intr_num; i++) {
-@@ -220,7 +221,7 @@ static int __init sifive_l2_init(void)
- 		rc = request_irq(g_irq[i], l2_int_handler, 0, "l2_ecc", NULL);
- 		if (rc) {
- 			pr_err("L2CACHE: Could not request IRQ %d\n", g_irq[i]);
--			return rc;
-+			goto err_unmap;
- 		}
- 	}
- 
-@@ -233,5 +234,9 @@ static int __init sifive_l2_init(void)
- 	setup_sifive_debug();
- #endif
- 	return 0;
-+
-+err_unmap:
-+	iounmap(l2_base);
-+	return rc;
- }
- device_initcall(sifive_l2_init);
+--- a/tools/vm/page_owner_sort.c
++++ b/tools/vm/page_owner_sort.c
+@@ -847,7 +847,7 @@ int main(int argc, char **argv)
+ 			if (cull & CULL_PID || filter & FILTER_PID)
+ 				fprintf(fout, ", PID %d", list[i].pid);
+ 			if (cull & CULL_TGID || filter & FILTER_TGID)
+-				fprintf(fout, ", TGID %d", list[i].pid);
++				fprintf(fout, ", TGID %d", list[i].tgid);
+ 			if (cull & CULL_COMM || filter & FILTER_COMM)
+ 				fprintf(fout, ", task_comm_name: %s", list[i].comm);
+ 			if (cull & CULL_ALLOCATOR) {
 
 
