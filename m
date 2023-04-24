@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FBBA6ECEF1
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4EF46ECF1D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232573AbjDXNgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39412 "EHLO
+        id S232629AbjDXNiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232701AbjDXNgM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:36:12 -0400
+        with ESMTP id S232648AbjDXNiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9A47D87
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:36:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A1E8A74;
+        Mon, 24 Apr 2023 06:37:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D7C0623E9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B99EC4339B;
-        Mon, 24 Apr 2023 13:35:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC71C62406;
+        Mon, 24 Apr 2023 13:36:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94F21C433EF;
+        Mon, 24 Apr 2023 13:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343359;
-        bh=VFBQkRXoFMtDfl9zLkTX692jLZiolvDNeBAtjuePkEk=;
+        s=korg; t=1682343413;
+        bh=5y+jQjQjcSWOGGqd/O0W2Tb+6ltuxkOjdQ4o513ZV60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msMP8vzYRm82TLbXVGcvm7llePKuuSzbNotJ7zRv56oWhHm4JrrShisXEuBl6VdcJ
-         v2AGO0veguAUT1hR6KZ3uj7SExAjPKF5CZ85teQHAEj9p9ojAKhU45OhdFqLnqGOGR
-         rJISRQATQ4OjVtmeWVtRjuf5kCYXQUSMg+oxGn/0=
+        b=q2sJiEdxEMk5BL8OvBqawhfgJUT8RcFMxdsXvw6gVKMfSVZmykKRYz1mU9iK71qSU
+         ZKjfknoGuSN8oY5t+3XAreFdxPQREg25lW0B2PQMe6ulrZfrU4txM7KdcxPcjn1B2/
+         OxLJxTJKgEyqdhIaFwbA0aXqjg8i57xomfX2Ag80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, thierry.reding@gmail.com,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 5.10 65/68] pwm: hibvt: Explicitly set .polarity in .get_state()
-Date:   Mon, 24 Apr 2023 15:18:36 +0200
-Message-Id: <20230424131130.113716221@linuxfoundation.org>
+        patches@lists.linux.dev, Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Kay Sievers <kay.sievers@vrfy.org>, linux-mmc@vger.kernel.org,
+        stable <stable@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Subject: [PATCH 4.14 16/28] memstick: fix memory leak if card device is never registered
+Date:   Mon, 24 Apr 2023 15:18:37 +0200
+Message-Id: <20230424131121.857848250@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
+References: <20230424131121.331252806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +59,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Uwe Kleine-K�nig" <u.kleine-koenig@pengutronix.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 6f57937980142715e927697a6ffd2050f38ed6f6 ]
+commit 4b6d621c9d859ff89e68cebf6178652592676013 upstream.
 
-The driver only both polarities. Complete the implementation of
-.get_state() by setting .polarity according to the configured hardware
-state.
+When calling dev_set_name() memory is allocated for the name for the
+struct device.  Once that structure device is registered, or attempted
+to be registerd, with the driver core, the driver core will handle
+cleaning up that memory when the device is removed from the system.
 
-Fixes: d09f00810850 ("pwm: Add PWM driver for HiSilicon BVT SOCs")
-Link: https://lore.kernel.org/r/20230228135508.1798428-2-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Unfortunatly for the memstick code, there is an error path that causes
+the struct device to never be registered, and so the memory allocated in
+dev_set_name will be leaked.  Fix that leak by manually freeing it right
+before the memory for the device is freed.
+
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Alex Dubov <oakad@yahoo.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>
+Cc: linux-mmc@vger.kernel.org
+Fixes: 0252c3b4f018 ("memstick: struct device - replace bus_id with dev_name(), dev_set_name()")
+Cc: stable <stable@kernel.org>
+Co-developed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Co-developed-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Link: https://lore.kernel.org/r/20230401200327.16800-1-gregkh@linuxfoundation.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-hibvt.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/memstick/core/memstick.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pwm/pwm-hibvt.c
-+++ b/drivers/pwm/pwm-hibvt.c
-@@ -146,6 +146,7 @@ static void hibvt_pwm_get_state(struct p
- 
- 	value = readl(base + PWM_CTRL_ADDR(pwm->hwpwm));
- 	state->enabled = (PWM_ENABLE_MASK & value);
-+	state->polarity = (PWM_POLARITY_MASK & value) ? PWM_POLARITY_INVERSED : PWM_POLARITY_NORMAL;
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -416,6 +416,7 @@ static struct memstick_dev *memstick_all
+ 	return card;
+ err_out:
+ 	host->card = old_card;
++	kfree_const(card->dev.kobj.name);
+ 	kfree(card);
+ 	return NULL;
  }
+@@ -471,8 +472,10 @@ static void memstick_check(struct work_s
+ 				put_device(&card->dev);
+ 				host->card = NULL;
+ 			}
+-		} else
++		} else {
++			kfree_const(card->dev.kobj.name);
+ 			kfree(card);
++		}
+ 	}
  
- static int hibvt_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ out_power_off:
 
 
