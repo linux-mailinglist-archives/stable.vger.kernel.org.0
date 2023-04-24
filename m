@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD966ECD95
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5506ECD36
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232063AbjDXNYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48894 "EHLO
+        id S231974AbjDXNVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232069AbjDXNYh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:37 -0400
+        with ESMTP id S231981AbjDXNVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62EC5D8
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FDEC5594
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDEF962290
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D55C433A0;
-        Mon, 24 Apr 2023 13:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2D6262216
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10AE9C433D2;
+        Mon, 24 Apr 2023 13:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342674;
-        bh=ci7W76DJWN3LqSP5Q6wCWtrjV2zSlq1xrPBPZvyGNbY=;
+        s=korg; t=1682342473;
+        bh=rALHxYIo2hBJOTXo50jVCR/YVJsbiCCB3CA7SUSGO5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q48jHECmCDQ3h2FOujH3JWGbZLYzGzU6EgqMOCjlLkcYiL7mEARWiYM8nJmPXxsb5
-         O4f847fDIDdCeaKV9JCrs4BHPEhNZE3gsesI9a30obM7tMJQETPmHeQKdLBNOZqqFU
-         7gOGlLxd5/3+q/EL8sJEHUdPIAG/U1p0H0ttQ2r4=
+        b=WpdGjqUa2m9sMwEdD6xJt/8EcnKqmbFOrPcOKVq2gDhKfvtOjWF4g7/Khy4E+wST5
+         +qd7M2hyvnD9m//vFf44CCvLxeCyJtZheCXuiiEMeJCWdxXHF4VUdXqkxJqDx04I1z
+         C1K6ytOngXwCsu5YzAaraM8UzSd85VnerGpIvuRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 03/98] arm64: dts: qcom: ipq8074-hk01: enable QMP device, not the PHY node
-Date:   Mon, 24 Apr 2023 15:16:26 +0200
-Message-Id: <20230424131133.965195121@linuxfoundation.org>
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 5.15 13/73] i40e: fix accessing vsi->active_filters without holding lock
+Date:   Mon, 24 Apr 2023 15:16:27 +0200
+Message-Id: <20230424131129.517362026@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit 72630ba422b70ea0874fc90d526353cf71c72488 ]
+[ Upstream commit 8485d093b076e59baff424552e8aecfc5bd2d261 ]
 
-Correct PCIe PHY enablement to refer the QMP device nodes rather than
-PHY device nodes. QMP nodes have 'status = "disabled"' property in the
-ipq8074.dtsi, while PHY nodes do not correspond to the actual device and
-do not have the status property.
+Fix accessing vsi->active_filters without holding the mac_filter_hash_lock.
+Move vsi->active_filters = 0 inside critical section and
+move clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state) after the critical
+section to ensure the new filters from other threads can be added only after
+filters cleaning in the critical section is finished.
 
-Fixes: e8a7fdc505bb ("arm64: dts: ipq8074: qcom: Re-arrange dts nodes based on address")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230324021651.1799969-1-dmitry.baryshkov@linaro.org
+Fixes: 278e7d0b9d68 ("i40e: store MAC/VLAN filters in a hash with the MAC Address as key")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 4 ++--
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-index 7143c936de61e..bb0a838891f64 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-+++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-@@ -59,11 +59,11 @@
- 	perst-gpios = <&tlmm 58 0x1>;
- };
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 85d48efce1d00..cafbabc687565 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -13945,15 +13945,15 @@ static int i40e_add_vsi(struct i40e_vsi *vsi)
+ 		vsi->id = ctxt.vsi_number;
+ 	}
  
--&pcie_phy0 {
-+&pcie_qmp0 {
- 	status = "okay";
- };
+-	vsi->active_filters = 0;
+-	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	vsi->active_filters = 0;
+ 	/* If macvlan filters already exist, force them to get loaded */
+ 	hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
+ 		f->state = I40E_FILTER_NEW;
+ 		f_count++;
+ 	}
+ 	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
  
--&pcie_phy1 {
-+&pcie_qmp1 {
- 	status = "okay";
- };
- 
+ 	if (f_count) {
+ 		vsi->flags |= I40E_VSI_FLAG_FILTER_CHANGED;
 -- 
 2.39.2
 
