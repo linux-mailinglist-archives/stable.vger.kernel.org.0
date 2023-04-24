@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0DF6ECDB9
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C2C36ECD1B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232186AbjDXN0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52698 "EHLO
+        id S232043AbjDXNUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbjDXN0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788165BBD
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:05 -0700 (PDT)
+        with ESMTP id S231982AbjDXNUc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D194C1F
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12258622BF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265C7C433D2;
-        Mon, 24 Apr 2023 13:26:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 185B562208
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B14AC433D2;
+        Mon, 24 Apr 2023 13:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342764;
-        bh=S9dfBYtUbYLOwnobE1azqwXFuOt6xVyT4rBSX4DvF4M=;
+        s=korg; t=1682342407;
+        bh=cfJ073jZWuUKyB8yTPziOXBTwqVge2u8UtgBTT4+M2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGAyxkV2puICSHpmVAw2XH1iX0yZiKt9rteWXubjdiKTs1xTJquDa3pkga9OkK/gM
-         lsp+M+0r+WPGjMmz0EfjcFgaIqL5RAD3YRxaYm88HRuHO9DsHAzRBnPnE9XyGeXxiN
-         zZ8O2Y5tF3zzXlDHDwS/OW9dh255pVyREwu2iL+M=
+        b=epR+jLLyREUlDXjHLvyNkresctbrmfmlI4+I/BiF2YgFCi1MhiZmEu5RgNcBRr5es
+         nj+HLMA2ydpt3WskCbN9x9gzaL2mboel5EA5wqC1FCw1JDurfM0JzBCkIoF9MgzLMs
+         U/byNbkq+GVlcjZ5j5FMBAfjNn7ydOqYEyslG+3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 19/98] netfilter: nf_tables: fix ifdef to also consider nf_tables=m
+Subject: [PATCH 5.15 28/73] selftests: sigaltstack: fix -Wuninitialized
 Date:   Mon, 24 Apr 2023 15:16:42 +0200
-Message-Id: <20230424131134.639964207@linuxfoundation.org>
+Message-Id: <20230424131130.062574551@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,45 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit c55c0e91c813589dc55bea6bf9a9fbfaa10ae41d ]
+[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
 
-nftables can be built as a module, so fix the preprocessor conditional
-accordingly.
+Building sigaltstack with clang via:
+$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
 
-Fixes: 478b360a47b7 ("netfilter: nf_tables: fix nf_trace always-on with XT_TRACE=n")
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+produces the following warning:
+  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
+  if (sp < (unsigned long)sstack ||
+      ^~
+
+Clang expects these to be declared at global scope; we've fixed this in
+the kernel proper by using the macro `current_stack_pointer`. This is
+defined in different headers for different target architectures, so just
+create a new header that defines the arch-specific register names for
+the stack pointer register, and define it for more targets (at least the
+ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
+ tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+ create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index a0d271581b964..20ca1613f2e3e 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -4685,7 +4685,7 @@ static inline void nf_reset_ct(struct sk_buff *skb)
+diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+new file mode 100644
+index 0000000000000..ea9bdf3a90b16
+--- /dev/null
++++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#if __alpha__
++register unsigned long sp asm("$30");
++#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
++register unsigned long sp asm("sp");
++#elif __i386__
++register unsigned long sp asm("esp");
++#elif __loongarch64
++register unsigned long sp asm("$sp");
++#elif __ppc__
++register unsigned long sp asm("r1");
++#elif __s390x__
++register unsigned long sp asm("%15");
++#elif __sh__
++register unsigned long sp asm("r15");
++#elif __x86_64__
++register unsigned long sp asm("rsp");
++#elif __XTENSA__
++register unsigned long sp asm("a1");
++#else
++#error "implement current_stack_pointer equivalent"
++#endif
+diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
+index c53b070755b65..98d37cb744fb2 100644
+--- a/tools/testing/selftests/sigaltstack/sas.c
++++ b/tools/testing/selftests/sigaltstack/sas.c
+@@ -20,6 +20,7 @@
+ #include <sys/auxv.h>
  
- static inline void nf_reset_trace(struct sk_buff *skb)
- {
--#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || defined(CONFIG_NF_TABLES)
-+#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || IS_ENABLED(CONFIG_NF_TABLES)
- 	skb->nf_trace = 0;
- #endif
- }
-@@ -4705,7 +4705,7 @@ static inline void __nf_copy(struct sk_buff *dst, const struct sk_buff *src,
- 	dst->_nfct = src->_nfct;
- 	nf_conntrack_get(skb_nfct(src));
- #endif
--#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || defined(CONFIG_NF_TABLES)
-+#if IS_ENABLED(CONFIG_NETFILTER_XT_TARGET_TRACE) || IS_ENABLED(CONFIG_NF_TABLES)
- 	if (copy)
- 		dst->nf_trace = src->nf_trace;
- #endif
+ #include "../kselftest.h"
++#include "current_stack_pointer.h"
+ 
+ #ifndef SS_AUTODISARM
+ #define SS_AUTODISARM  (1U << 31)
+@@ -46,12 +47,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
+ 	stack_t stk;
+ 	struct stk_data *p;
+ 
+-#if __s390x__
+-	register unsigned long sp asm("%15");
+-#else
+-	register unsigned long sp asm("sp");
+-#endif
+-
+ 	if (sp < (unsigned long)sstack ||
+ 			sp >= (unsigned long)sstack + stack_size) {
+ 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
 -- 
 2.39.2
 
