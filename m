@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 834A46ECF0C
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5954F6ECEFB
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbjDXNhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:37:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
+        id S232727AbjDXNhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232489AbjDXNhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C6AA260
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:37:01 -0700 (PDT)
+        with ESMTP id S232680AbjDXNga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:36:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A79B93ED
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8A896240C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA8CC433D2;
-        Mon, 24 Apr 2023 13:36:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A701623BC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D8B8C4339B;
+        Mon, 24 Apr 2023 13:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343394;
-        bh=gwl8ytMCY7qGQOc+aGOtlD5JzLJnZap97/TuRms7nxM=;
+        s=korg; t=1682343370;
+        bh=B9J5YQ8IBO2/Boe1gZNu1/MyMDEdfPBedYWCDUsidLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wcfDQW10F5nrrxidamik5yBKH0pfG9tXM9pDt5GFgmUcx0mE9yBj9lzZlcqJm9SdU
-         6oRyrSz6r3fkA50Y0yI7NrwZC77LiA/jJ9KSzgoguYzTRUXoAliw4X9el5f1oyjNXs
-         M0VeAKCVHm4aT7HJ/C0nc3t9ICpoYLFCtPW3vqhw=
+        b=D2QrXwTQOcUrbAdtS7aCLyV6yE+is407xRxf/UVmo6ZlByIhjenAHlX2iA2d7zuXW
+         KqQbjcMOrnQLxztYlNgVMFCHxUINF4E4gSatH9Xcn0hGu7AOeQMCedibK0H1qcYXxn
+         YhaE5ydTdRmZ78Rjfoif3zt0uKwPCsVPxckz0arc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jianqun Xu <jay.xu@rock-chips.com>,
-        Sjoerd Simons <sjoerd@collabora.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/28] ARM: dts: rockchip: fix a typo error for rk3288 spdif node
+        patches@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
+        Yang Bo <yb203166@antfin.com>
+Subject: [PATCH 5.10 51/68] fuse: check s_root when destroying sb
 Date:   Mon, 24 Apr 2023 15:18:22 +0200
-Message-Id: <20230424131121.375575638@linuxfoundation.org>
+Message-Id: <20230424131129.624164183@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
-References: <20230424131121.331252806@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,37 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianqun Xu <jay.xu@rock-chips.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 02c84f91adb9a64b75ec97d772675c02a3e65ed7 ]
+commit d534d31d6a45d71de61db22090b4820afb68fddc upstream.
 
-Fix the address in the spdif node name.
+Checking "fm" works because currently sb->s_fs_info is cleared on error
+paths; however, sb->s_root is what generic_shutdown_super() checks to
+determine whether the sb was fully initialized or not.
 
-Fixes: 874e568e500a ("ARM: dts: rockchip: Add SPDIF transceiver for RK3288")
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Sjoerd Simons <sjoerd@collabora.com>
-Link: https://lore.kernel.org/r/20230208091411.1603142-1-jay.xu@rock-chips.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This change will allow cleanup of sb setup error paths.
+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Yang Bo <yb203166@antfin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/inode.c     |    2 +-
+ fs/fuse/virtio_fs.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index c3440adc763ce..c1329359359a0 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -910,7 +910,7 @@
- 		status = "disabled";
- 	};
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -1596,7 +1596,7 @@ static void fuse_kill_sb_blk(struct supe
+ 	struct fuse_mount *fm = get_fuse_mount_super(sb);
+ 	bool last;
  
--	spdif: sound@ff88b0000 {
-+	spdif: sound@ff8b0000 {
- 		compatible = "rockchip,rk3288-spdif", "rockchip,rk3066-spdif";
- 		reg = <0x0 0xff8b0000 0x0 0x10000>;
- 		#sound-dai-cells = <0>;
--- 
-2.39.2
-
+-	if (fm) {
++	if (sb->s_root) {
+ 		last = fuse_mount_remove(fm);
+ 		if (last)
+ 			fuse_conn_destroy(fm);
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1399,7 +1399,7 @@ static void virtio_kill_sb(struct super_
+ 	bool last;
+ 
+ 	/* If mount failed, we can still be called without any fc */
+-	if (fm) {
++	if (sb->s_root) {
+ 		last = fuse_mount_remove(fm);
+ 		if (last)
+ 			virtio_fs_conn_destroy(fm);
 
 
