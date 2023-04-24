@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A221D6ECE51
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFEEB6ECD84
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232392AbjDXNbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57172 "EHLO
+        id S232149AbjDXNYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbjDXNa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CB66596
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:33 -0700 (PDT)
+        with ESMTP id S232171AbjDXNYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2725242
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92DFD62337
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77668C433EF;
-        Mon, 24 Apr 2023 13:30:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2773462277
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 393B5C433EF;
+        Mon, 24 Apr 2023 13:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343033;
-        bh=YimFVwDeaW+TGuGRJmmcI1SbAKhZF5qTQM8vXf4U8XY=;
+        s=korg; t=1682342637;
+        bh=tQmjXt9Cc7Z6kWHWMyjev3Vj4rxIBivhPAu7q7T9ULg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCRRVdbcQM5px4eAAOSTlyhlgIgbquknkWGfp7MUPxZaCNtgy9BQbw335FfQLXVEQ
-         dFuw4zBp9hm2z09AlnEbbzfLpp8i7TY051nYamBO8YznDMu2lcZC7MLp9g4KV9WNQN
-         WHnwIcuh9L9pqfFjKNaUH7VbyaTcCKqlRUdEHTKk=
+        b=xNA2UA8TT/cmXOsdtW0CN86sl+a9Rd5RqUNyyqMY/71IblYO8mM5T424BAVPhb2Pc
+         /cBgQAFevZYywueJv1+o+bgjuzug74uLH9dGJuUbiVNpFdL4hC/Fj1GxGC0U0lLBPU
+         YWwcmgGUnIoeTHzkyr4dX9w/C9YzwGZZtjbKRUOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brandon Nielsen <nielsenb@jetfuse.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 051/110] platform/x86: gigabyte-wmi: add support for X570S AORUS ELITE
+        patches@lists.linux.dev,
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Natalia Petrova <n.petrova@fintech.ru>
+Subject: [PATCH 5.4 10/39] mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
 Date:   Mon, 24 Apr 2023 15:17:13 +0200
-Message-Id: <20230424131138.157825482@linuxfoundation.org>
+Message-Id: <20230424131123.443603991@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,32 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-[ Upstream commit 52f91e51944808d83dfe2d5582601b5e84e472cc ]
+[ Upstream commit c0e73276f0fcbbd3d4736ba975d7dc7a48791b0c ]
 
-Add "X570S AORUS ELITE" to known working boards
+Function mlxfw_mfa2_tlv_multi_get() returns NULL if 'tlv' in
+question does not pass checks in mlxfw_mfa2_tlv_payload_get(). This
+behaviour may lead to NULL pointer dereference in 'multi->total_len'.
+Fix this issue by testing mlxfw_mfa2_tlv_multi_get()'s return value
+against NULL.
 
-Reported-by: Brandon Nielsen <nielsenb@jetfuse.net>
-Link: https://lore.kernel.org/r/20230331014902.7864-1-nielsenb@jetfuse.net
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Found by Linux Verification Center (linuxtesting.org) with static
+analysis tool SVACE.
+
+Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
+Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20230417120718.52325-1-n.zhandarovich@fintech.ru
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index 5e5b17c50eb67..2a426040f749e 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -161,6 +161,7 @@ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 GAMING X"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 I AORUS PRO WIFI"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 UD"),
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570S AORUS ELITE"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("Z690M AORUS ELITE AX DDR4"),
- 	{ }
- };
+diff --git a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
+index 017d68f1e1232..972c571b41587 100644
+--- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
++++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
+@@ -31,6 +31,8 @@ mlxfw_mfa2_tlv_next(const struct mlxfw_mfa2_file *mfa2_file,
+ 
+ 	if (tlv->type == MLXFW_MFA2_TLV_MULTI_PART) {
+ 		multi = mlxfw_mfa2_tlv_multi_get(mfa2_file, tlv);
++		if (!multi)
++			return NULL;
+ 		tlv_len = NLA_ALIGN(tlv_len + be16_to_cpu(multi->total_len));
+ 	}
+ 
 -- 
 2.39.2
 
