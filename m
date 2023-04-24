@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5FD6ECD81
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C246ECE77
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232108AbjDXNYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47536 "EHLO
+        id S232466AbjDXNcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231928AbjDXNX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:58 -0400
+        with ESMTP id S232520AbjDXNcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2BF99
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B3B6EA9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3918262279
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 462C0C433D2;
-        Mon, 24 Apr 2023 13:23:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65EAA6234A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D1FC433EF;
+        Mon, 24 Apr 2023 13:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342629;
-        bh=IlfGK9Hx11FEog89R98f1zXdR9DIdGBgRcWwlNdTSj0=;
+        s=korg; t=1682343098;
+        bh=UICBWH/ltQefqpekhjvpJJFEl5hCDIuw2iowMXBkN60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVcP6QGPceMXJciQbXdmGQsHB+h3oX0G67ALBU//FabSRrlg9IBiCRtGwmv7RAwmf
-         CfU4WlPKMUvAGInYWAL79EgshMokwFpMam2RvgpkTV3rhxaN1ARuPcpgx66Id53V45
-         FxtamhKF59kXweXkgxaqExWi63wNz0bgzwNTp7LM=
+        b=JVqJSQyBE3u89P3fgJKql8lW5xlR1S82x269jZTxb4PhwH/UqpD/Hlu+yUg1VHPTg
+         CQhtwcYlQ2maUIQAOXp5uCaoTFit9eeTlahSNiF5bbMRP5hHtHHj+WyaX7ShHl+0V2
+         pkE7B2WstfYizQUkKS2xQnruihIXQFGDz7J/vF6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dennis Gilmore <dgilmore@redhat.com>
-Subject: [PATCH 5.4 36/39] xfs: fix forkoff miscalculation related to XFS_LITINO(mp)
+        patches@lists.linux.dev, Ondrej Mosnacek <omosnace@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 077/110] kernel/sys.c: fix and improve control flow in __sys_setres[ug]id()
 Date:   Mon, 24 Apr 2023 15:17:39 +0200
-Message-Id: <20230424131124.409970063@linuxfoundation.org>
+Message-Id: <20230424131139.322087616@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,89 +54,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit ada49d64fb3538144192181db05de17e2ffc3551 upstream.
+commit 659c0ce1cb9efc7f58d380ca4bb2a51ae9e30553 upstream.
 
-Currently, commit e9e2eae89ddb dropped a (int) decoration from
-XFS_LITINO(mp), and since sizeof() expression is also involved,
-the result of XFS_LITINO(mp) is simply as the size_t type
-(commonly unsigned long).
+Linux Security Modules (LSMs) that implement the "capable" hook will
+usually emit an access denial message to the audit log whenever they
+"block" the current task from using the given capability based on their
+security policy.
 
-Considering the expression in xfs_attr_shortform_bytesfit():
-  offset = (XFS_LITINO(mp) - bytes) >> 3;
-let "bytes" be (int)340, and
-    "XFS_LITINO(mp)" be (unsigned long)336.
+The occurrence of a denial is used as an indication that the given task
+has attempted an operation that requires the given access permission, so
+the callers of functions that perform LSM permission checks must take care
+to avoid calling them too early (before it is decided if the permission is
+actually needed to perform the requested operation).
 
-on 64-bit platform, the expression is
-  offset = ((unsigned long)336 - (int)340) >> 3 =
-           (int)(0xfffffffffffffffcUL >> 3) = -1
+The __sys_setres[ug]id() functions violate this convention by first
+calling ns_capable_setid() and only then checking if the operation
+requires the capability or not.  It means that any caller that has the
+capability granted by DAC (task's capability set) but not by MAC (LSMs)
+will generate a "denied" audit record, even if is doing an operation for
+which the capability is not required.
 
-but on 32-bit platform, the expression is
-  offset = ((unsigned long)336 - (int)340) >> 3 =
-           (int)(0xfffffffcUL >> 3) = 0x1fffffff
-instead.
+Fix this by reordering the checks such that ns_capable_setid() is checked
+last and -EPERM is returned immediately if it returns false.
 
-so offset becomes a large positive number on 32-bit platform, and
-cause xfs_attr_shortform_bytesfit() returns maxforkoff rather than 0.
+While there, also do two small optimizations:
+* move the capability check before prepare_creds() and
+* bail out early in case of a no-op.
 
-Therefore, one result is
-  "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
-
-assertion failure in xfs_idata_realloc(), which was also the root
-cause of the original bugreport from Dennis, see:
-   https://bugzilla.redhat.com/show_bug.cgi?id=1894177
-
-And it can also be manually triggered with the following commands:
-  $ touch a;
-  $ setfattr -n user.0 -v "`seq 0 80`" a;
-  $ setfattr -n user.1 -v "`seq 0 80`" a
-
-on 32-bit platform.
-
-Fix the case in xfs_attr_shortform_bytesfit() by bailing out
-"XFS_LITINO(mp) < bytes" in advance suggested by Eric and a misleading
-comment together with this bugfix suggested by Darrick. It seems the
-other users of XFS_LITINO(mp) are not impacted.
-
-Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
-Cc: <stable@vger.kernel.org> # 5.7+
-Reported-and-tested-by: Dennis Gilmore <dgilmore@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Link: https://lkml.kernel.org/r/20230217162154.837549-1-omosnace@redhat.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ kernel/sys.c |   69 ++++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 40 insertions(+), 29 deletions(-)
 
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -435,7 +435,7 @@ xfs_attr_copy_value(
-  *========================================================================*/
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -664,6 +664,7 @@ long __sys_setresuid(uid_t ruid, uid_t e
+ 	struct cred *new;
+ 	int retval;
+ 	kuid_t kruid, keuid, ksuid;
++	bool ruid_new, euid_new, suid_new;
  
- /*
-- * Query whether the requested number of additional bytes of extended
-+ * Query whether the total requested number of attr fork bytes of extended
-  * attribute space will be able to fit inline.
-  *
-  * Returns zero if not, else the di_forkoff fork offset to be used in the
-@@ -455,6 +455,12 @@ xfs_attr_shortform_bytesfit(
- 	int			maxforkoff;
- 	int			offset;
+ 	kruid = make_kuid(ns, ruid);
+ 	keuid = make_kuid(ns, euid);
+@@ -678,25 +679,29 @@ long __sys_setresuid(uid_t ruid, uid_t e
+ 	if ((suid != (uid_t) -1) && !uid_valid(ksuid))
+ 		return -EINVAL;
  
-+	/*
-+	 * Check if the new size could fit at all first:
-+	 */
-+	if (bytes > XFS_LITINO(mp))
++	old = current_cred();
++
++	/* check for no-op */
++	if ((ruid == (uid_t) -1 || uid_eq(kruid, old->uid)) &&
++	    (euid == (uid_t) -1 || (uid_eq(keuid, old->euid) &&
++				    uid_eq(keuid, old->fsuid))) &&
++	    (suid == (uid_t) -1 || uid_eq(ksuid, old->suid)))
 +		return 0;
 +
- 	/* rounded down */
- 	offset = (XFS_LITINO(mp) - bytes) >> 3;
++	ruid_new = ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
++		   !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid);
++	euid_new = euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
++		   !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid);
++	suid_new = suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
++		   !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid);
++	if ((ruid_new || euid_new || suid_new) &&
++	    !ns_capable_setid(old->user_ns, CAP_SETUID))
++		return -EPERM;
++
+ 	new = prepare_creds();
+ 	if (!new)
+ 		return -ENOMEM;
  
+-	old = current_cred();
+-
+-	retval = -EPERM;
+-	if (!ns_capable_setid(old->user_ns, CAP_SETUID)) {
+-		if (ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
+-		    !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid))
+-			goto error;
+-		if (euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
+-		    !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid))
+-			goto error;
+-		if (suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
+-		    !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid))
+-			goto error;
+-	}
+-
+ 	if (ruid != (uid_t) -1) {
+ 		new->uid = kruid;
+ 		if (!uid_eq(kruid, old->uid)) {
+@@ -761,6 +766,7 @@ long __sys_setresgid(gid_t rgid, gid_t e
+ 	struct cred *new;
+ 	int retval;
+ 	kgid_t krgid, kegid, ksgid;
++	bool rgid_new, egid_new, sgid_new;
+ 
+ 	krgid = make_kgid(ns, rgid);
+ 	kegid = make_kgid(ns, egid);
+@@ -773,23 +779,28 @@ long __sys_setresgid(gid_t rgid, gid_t e
+ 	if ((sgid != (gid_t) -1) && !gid_valid(ksgid))
+ 		return -EINVAL;
+ 
++	old = current_cred();
++
++	/* check for no-op */
++	if ((rgid == (gid_t) -1 || gid_eq(krgid, old->gid)) &&
++	    (egid == (gid_t) -1 || (gid_eq(kegid, old->egid) &&
++				    gid_eq(kegid, old->fsgid))) &&
++	    (sgid == (gid_t) -1 || gid_eq(ksgid, old->sgid)))
++		return 0;
++
++	rgid_new = rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
++		   !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid);
++	egid_new = egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
++		   !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid);
++	sgid_new = sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
++		   !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid);
++	if ((rgid_new || egid_new || sgid_new) &&
++	    !ns_capable_setid(old->user_ns, CAP_SETGID))
++		return -EPERM;
++
+ 	new = prepare_creds();
+ 	if (!new)
+ 		return -ENOMEM;
+-	old = current_cred();
+-
+-	retval = -EPERM;
+-	if (!ns_capable_setid(old->user_ns, CAP_SETGID)) {
+-		if (rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
+-		    !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid))
+-			goto error;
+-		if (egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
+-		    !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid))
+-			goto error;
+-		if (sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
+-		    !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid))
+-			goto error;
+-	}
+ 
+ 	if (rgid != (gid_t) -1)
+ 		new->gid = krgid;
 
 
