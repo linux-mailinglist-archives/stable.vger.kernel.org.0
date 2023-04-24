@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3126EC6B2
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 09:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C146EC6C3
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 09:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231223AbjDXHDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 03:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35240 "EHLO
+        id S231278AbjDXHGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 03:06:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231237AbjDXHC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 03:02:57 -0400
+        with ESMTP id S231252AbjDXHGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 03:06:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 209CC35B7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 00:02:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286C4A0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 00:05:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 015F761E5B
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 07:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C75C433EF;
-        Mon, 24 Apr 2023 07:02:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A110A6121A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 07:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2316C433D2;
+        Mon, 24 Apr 2023 07:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682319768;
-        bh=OLuz0HYw9cXRVreDegii//x5siRppuh7kxFCa29CzeQ=;
+        s=korg; t=1682319949;
+        bh=WnahG4ikpdhwkt7tjIhVba4rXNJxzUa4IiHfQs63MfE=;
         h=Subject:To:Cc:From:Date:From;
-        b=DMPFgWW6w7+/xcFf79HoIf6vP9+9gdLsLKs2GWOiGoyDcK5UNRlvPq4AZJ5xRA8On
-         KmnNfAvd007eZlAf3aZbLyXnvWqWSyLueOG92i1EzEhIAcNhqqbVvWwRH3Sdv53bga
-         BRaPUv5fkf5dmnu9vpI/04bkUL3WdlwlLM+lBdHM=
-Subject: FAILED: patch "[PATCH] mm/mempolicy: fix use-after-free of VMA iterator" failed to apply to 6.2-stable tree
-To:     Liam.Howlett@oracle.com, akpm@linux-foundation.org,
-        stable@vger.kernel.org
+        b=A0I3MX1lyBpf4oMJVzULMtLUq0eyqDdlkwx3GldcooLOOOkvWw/r2/QwDmexLzT7T
+         2fw0omMfjGd+kdlb0+C9tJvBhsNk5PJfdJmc9IR1Zt3rwxmlIZmdqoljxYjfb4edOp
+         Xc1FXn90RDrvMSfJq0kwgutqPdYDfz89EyZY+FO8=
+Subject: FAILED: patch "[PATCH] mm/page_alloc: fix potential deadlock on zonelist_update_seq" failed to apply to 5.10-stable tree
+To:     penguin-kernel@I-love.SAKURA.ne.jp, akpm@linux-foundation.org,
+        david@redhat.com, ilpo.jarvinen@linux.intel.com,
+        john.ogness@linutronix.de, mgorman@techsingularity.net,
+        mhocko@suse.com, pmladek@suse.com, quic_pdaly@quicinc.com,
+        rostedt@goodmis.org, senozhatsky@chromium.org,
+        stable@vger.kernel.org,
+        syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Apr 2023 09:02:38 +0200
-Message-ID: <2023042437-profane-confidant-7987@gregkh>
+Date:   Mon, 24 Apr 2023 09:05:46 +0200
+Message-ID: <2023042446-gills-morality-d566@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
@@ -49,40 +54,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
-git cherry-pick -x f4e9e0e69468583c2c6d9d5c7bfc975e292bf188
+git cherry-pick -x 1007843a91909a4995ee78a538f62d8665705b66
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042437-profane-confidant-7987@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042446-gills-morality-d566@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
-f4e9e0e69468 ("mm/mempolicy: fix use-after-free of VMA iterator")
-9760ebffbf55 ("mm: switch vma_merge(), split_vma(), and __split_vma to vma iterator")
-47d9644de92c ("nommu: convert nommu to using the vma iterator")
-a27a11f92fe2 ("mm/mremap: use vmi version of vma_merge()")
-076f16bf7698 ("mmap: use vmi version of vma_merge()")
-0c0c5bffd0a2 ("mmap: pass through vmi iterator to __split_vma()")
-178e22ac2078 ("madvise: use vmi iterator for __split_vma() and vma_merge()")
-f10c2abcdac4 ("mempolicy: convert to vma iterator")
-37598f5a9d8b ("mlock: convert mlock to vma iterator")
-2286a6914c77 ("mm: change mprotect_fixup to vma iterator")
-11a9b90274f6 ("userfaultfd: use vma iterator")
-f2ebfe43ba6c ("mm: add temporary vma iterator versions of vma_merge(), split_vma(), and __split_vma()")
-183654ce26a5 ("mmap: change do_mas_munmap and do_mas_aligned_munmap() to use vma iterator")
-0378c0a0e9e4 ("mm/mmap: remove preallocation from do_mas_align_munmap()")
-92fed82047d7 ("mm/mmap: convert brk to use vma iterator")
-baabcfc93d3b ("mm/mmap: fix typo in comment")
-c5d5546ea065 ("maple_tree: remove the parameter entry of mas_preallocate")
-5ab0fc155dc0 ("Sync mm-stable with mm-hotfixes-stable to pick up dependent patches")
+1007843a9190 ("mm/page_alloc: fix potential deadlock on zonelist_update_seq seqlock")
+3d36424b3b58 ("mm/page_alloc: fix race condition between build_all_zonelists and page allocation")
 
 thanks,
 
@@ -90,195 +79,183 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f4e9e0e69468583c2c6d9d5c7bfc975e292bf188 Mon Sep 17 00:00:00 2001
-From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
-Date: Mon, 10 Apr 2023 11:22:05 -0400
-Subject: [PATCH] mm/mempolicy: fix use-after-free of VMA iterator
+From 1007843a91909a4995ee78a538f62d8665705b66 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date: Tue, 4 Apr 2023 23:31:58 +0900
+Subject: [PATCH] mm/page_alloc: fix potential deadlock on zonelist_update_seq
+ seqlock
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-set_mempolicy_home_node() iterates over a list of VMAs and calls
-mbind_range() on each VMA, which also iterates over the singular list of
-the VMA passed in and potentially splits the VMA.  Since the VMA iterator
-is not passed through, set_mempolicy_home_node() may now point to a stale
-node in the VMA tree.  This can result in a UAF as reported by syzbot.
+syzbot is reporting circular locking dependency which involves
+zonelist_update_seq seqlock [1], for this lock is checked by memory
+allocation requests which do not need to be retried.
 
-Avoid the stale maple tree node by passing the VMA iterator through to the
-underlying call to split_vma().
+One deadlock scenario is kmalloc(GFP_ATOMIC) from an interrupt handler.
 
-mbind_range() is also overly complicated, since there are two calling
-functions and one already handles iterating over the VMAs.  Simplify
-mbind_range() to only handle merging and splitting of the VMAs.
+  CPU0
+  ----
+  __build_all_zonelists() {
+    write_seqlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount odd
+    // e.g. timer interrupt handler runs at this moment
+      some_timer_func() {
+        kmalloc(GFP_ATOMIC) {
+          __alloc_pages_slowpath() {
+            read_seqbegin(&zonelist_update_seq) {
+              // spins forever because zonelist_update_seq.seqcount is odd
+            }
+          }
+        }
+      }
+    // e.g. timer interrupt handler finishes
+    write_sequnlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount even
+  }
 
-Align the new loop in do_mbind() and existing loop in
-set_mempolicy_home_node() to use the reduced mbind_range() function.  This
-allows for a single location of the range calculation and avoids
-constantly looking up the previous VMA (since this is a loop over the
-VMAs).
+This deadlock scenario can be easily eliminated by not calling
+read_seqbegin(&zonelist_update_seq) from !__GFP_DIRECT_RECLAIM allocation
+requests, for retry is applicable to only __GFP_DIRECT_RECLAIM allocation
+requests.  But Michal Hocko does not know whether we should go with this
+approach.
 
-Link: https://lore.kernel.org/linux-mm/000000000000c93feb05f87e24ad@google.com/
-Fixes: 66850be55e8e ("mm/mempolicy: use vma iterator & maple state instead of vma linked list")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Reported-by: syzbot+a7c1ec5b1d71ceaa5186@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/20230410152205.2294819-1-Liam.Howlett@oracle.com
-Tested-by: syzbot+a7c1ec5b1d71ceaa5186@syzkaller.appspotmail.com
+Another deadlock scenario which syzbot is reporting is a race between
+kmalloc(GFP_ATOMIC) from tty_insert_flip_string_and_push_buffer() with
+port->lock held and printk() from __build_all_zonelists() with
+zonelist_update_seq held.
+
+  CPU0                                   CPU1
+  ----                                   ----
+  pty_write() {
+    tty_insert_flip_string_and_push_buffer() {
+                                         __build_all_zonelists() {
+                                           write_seqlock(&zonelist_update_seq);
+                                           build_zonelists() {
+                                             printk() {
+                                               vprintk() {
+                                                 vprintk_default() {
+                                                   vprintk_emit() {
+                                                     console_unlock() {
+                                                       console_flush_all() {
+                                                         console_emit_next_record() {
+                                                           con->write() = serial8250_console_write() {
+      spin_lock_irqsave(&port->lock, flags);
+      tty_insert_flip_string() {
+        tty_insert_flip_string_fixed_flag() {
+          __tty_buffer_request_room() {
+            tty_buffer_alloc() {
+              kmalloc(GFP_ATOMIC | __GFP_NOWARN) {
+                __alloc_pages_slowpath() {
+                  zonelist_iter_begin() {
+                    read_seqbegin(&zonelist_update_seq); // spins forever because zonelist_update_seq.seqcount is odd
+                                                             spin_lock_irqsave(&port->lock, flags); // spins forever because port->lock is held
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      spin_unlock_irqrestore(&port->lock, flags);
+                                                             // message is printed to console
+                                                             spin_unlock_irqrestore(&port->lock, flags);
+                                                           }
+                                                         }
+                                                       }
+                                                     }
+                                                   }
+                                                 }
+                                               }
+                                             }
+                                           }
+                                           write_sequnlock(&zonelist_update_seq);
+                                         }
+    }
+  }
+
+This deadlock scenario can be eliminated by
+
+  preventing interrupt context from calling kmalloc(GFP_ATOMIC)
+
+and
+
+  preventing printk() from calling console_flush_all()
+
+while zonelist_update_seq.seqcount is odd.
+
+Since Petr Mladek thinks that __build_all_zonelists() can become a
+candidate for deferring printk() [2], let's address this problem by
+
+  disabling local interrupts in order to avoid kmalloc(GFP_ATOMIC)
+
+and
+
+  disabling synchronous printk() in order to avoid console_flush_all()
+
+.
+
+As a side effect of minimizing duration of zonelist_update_seq.seqcount
+being odd by disabling synchronous printk(), latency at
+read_seqbegin(&zonelist_update_seq) for both !__GFP_DIRECT_RECLAIM and
+__GFP_DIRECT_RECLAIM allocation requests will be reduced.  Although, from
+lockdep perspective, not calling read_seqbegin(&zonelist_update_seq) (i.e.
+do not record unnecessary locking dependency) from interrupt context is
+still preferable, even if we don't allow calling kmalloc(GFP_ATOMIC)
+inside
+write_seqlock(&zonelist_update_seq)/write_sequnlock(&zonelist_update_seq)
+section...
+
+Link: https://lkml.kernel.org/r/8796b95c-3da3-5885-fddd-6ef55f30e4d3@I-love.SAKURA.ne.jp
+Fixes: 3d36424b3b58 ("mm/page_alloc: fix race condition between build_all_zonelists and page allocation")
+Link: https://lkml.kernel.org/r/ZCrs+1cDqPWTDFNM@alley [2]
+Reported-by: syzbot <syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com>
+  Link: https://syzkaller.appspot.com/bug?extid=223c7461c58c58a4cb10 [1]
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Cc: John Ogness <john.ogness@linutronix.de>
+Cc: Patrick Daly <quic_pdaly@quicinc.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index a256a241fd1d..2068b594dc88 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -790,61 +790,50 @@ static int vma_replace_policy(struct vm_area_struct *vma,
- 	return err;
- }
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 7136c36c5d01..e8b4f294d763 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6632,7 +6632,21 @@ static void __build_all_zonelists(void *data)
+ 	int nid;
+ 	int __maybe_unused cpu;
+ 	pg_data_t *self = data;
++	unsigned long flags;
  
--/* Step 2: apply policy to a range and do splits. */
--static int mbind_range(struct mm_struct *mm, unsigned long start,
--		       unsigned long end, struct mempolicy *new_pol)
-+/* Split or merge the VMA (if required) and apply the new policy */
-+static int mbind_range(struct vma_iterator *vmi, struct vm_area_struct *vma,
-+		struct vm_area_struct **prev, unsigned long start,
-+		unsigned long end, struct mempolicy *new_pol)
- {
--	VMA_ITERATOR(vmi, mm, start);
--	struct vm_area_struct *prev;
--	struct vm_area_struct *vma;
--	int err = 0;
-+	struct vm_area_struct *merged;
-+	unsigned long vmstart, vmend;
- 	pgoff_t pgoff;
-+	int err;
++	/*
++	 * Explicitly disable this CPU's interrupts before taking seqlock
++	 * to prevent any IRQ handler from calling into the page allocator
++	 * (e.g. GFP_ATOMIC) that could hit zonelist_iter_begin and livelock.
++	 */
++	local_irq_save(flags);
++	/*
++	 * Explicitly disable this CPU's synchronous printk() before taking
++	 * seqlock to prevent any printk() from trying to hold port->lock, for
++	 * tty_insert_flip_string_and_push_buffer() on other CPU might be
++	 * calling kmalloc(GFP_ATOMIC | __GFP_NOWARN) with port->lock held.
++	 */
++	printk_deferred_enter();
+ 	write_seqlock(&zonelist_update_seq);
  
--	prev = vma_prev(&vmi);
--	vma = vma_find(&vmi, end);
--	if (WARN_ON(!vma))
-+	vmend = min(end, vma->vm_end);
-+	if (start > vma->vm_start) {
-+		*prev = vma;
-+		vmstart = start;
-+	} else {
-+		vmstart = vma->vm_start;
-+	}
-+
-+	if (mpol_equal(vma_policy(vma), new_pol))
- 		return 0;
- 
--	if (start > vma->vm_start)
--		prev = vma;
--
--	do {
--		unsigned long vmstart = max(start, vma->vm_start);
--		unsigned long vmend = min(end, vma->vm_end);
--
--		if (mpol_equal(vma_policy(vma), new_pol))
--			goto next;
--
--		pgoff = vma->vm_pgoff +
--			((vmstart - vma->vm_start) >> PAGE_SHIFT);
--		prev = vma_merge(&vmi, mm, prev, vmstart, vmend, vma->vm_flags,
--				 vma->anon_vma, vma->vm_file, pgoff,
--				 new_pol, vma->vm_userfaultfd_ctx,
--				 anon_vma_name(vma));
--		if (prev) {
--			vma = prev;
--			goto replace;
--		}
--		if (vma->vm_start != vmstart) {
--			err = split_vma(&vmi, vma, vmstart, 1);
--			if (err)
--				goto out;
--		}
--		if (vma->vm_end != vmend) {
--			err = split_vma(&vmi, vma, vmend, 0);
--			if (err)
--				goto out;
--		}
--replace:
--		err = vma_replace_policy(vma, new_pol);
-+	pgoff = vma->vm_pgoff + ((vmstart - vma->vm_start) >> PAGE_SHIFT);
-+	merged = vma_merge(vmi, vma->vm_mm, *prev, vmstart, vmend, vma->vm_flags,
-+			 vma->anon_vma, vma->vm_file, pgoff, new_pol,
-+			 vma->vm_userfaultfd_ctx, anon_vma_name(vma));
-+	if (merged) {
-+		*prev = merged;
-+		return vma_replace_policy(merged, new_pol);
-+	}
-+
-+	if (vma->vm_start != vmstart) {
-+		err = split_vma(vmi, vma, vmstart, 1);
- 		if (err)
--			goto out;
--next:
--		prev = vma;
--	} for_each_vma_range(vmi, vma, end);
-+			return err;
-+	}
- 
--out:
--	return err;
-+	if (vma->vm_end != vmend) {
-+		err = split_vma(vmi, vma, vmend, 0);
-+		if (err)
-+			return err;
-+	}
-+
-+	*prev = vma;
-+	return vma_replace_policy(vma, new_pol);
- }
- 
- /* Set the process memory policy */
-@@ -1259,6 +1248,8 @@ static long do_mbind(unsigned long start, unsigned long len,
- 		     nodemask_t *nmask, unsigned long flags)
- {
- 	struct mm_struct *mm = current->mm;
-+	struct vm_area_struct *vma, *prev;
-+	struct vma_iterator vmi;
- 	struct mempolicy *new;
- 	unsigned long end;
- 	int err;
-@@ -1328,7 +1319,13 @@ static long do_mbind(unsigned long start, unsigned long len,
- 		goto up_out;
+ #ifdef CONFIG_NUMA
+@@ -6671,6 +6685,8 @@ static void __build_all_zonelists(void *data)
  	}
  
--	err = mbind_range(mm, start, end, new);
-+	vma_iter_init(&vmi, mm, start);
-+	prev = vma_prev(&vmi);
-+	for_each_vma_range(vmi, vma, end) {
-+		err = mbind_range(&vmi, vma, &prev, start, end, new);
-+		if (err)
-+			break;
-+	}
+ 	write_sequnlock(&zonelist_update_seq);
++	printk_deferred_exit();
++	local_irq_restore(flags);
+ }
  
- 	if (!err) {
- 		int nr_failed = 0;
-@@ -1489,10 +1486,8 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
- 		unsigned long, home_node, unsigned long, flags)
- {
- 	struct mm_struct *mm = current->mm;
--	struct vm_area_struct *vma;
-+	struct vm_area_struct *vma, *prev;
- 	struct mempolicy *new, *old;
--	unsigned long vmstart;
--	unsigned long vmend;
- 	unsigned long end;
- 	int err = -ENOENT;
- 	VMA_ITERATOR(vmi, mm, start);
-@@ -1521,6 +1516,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
- 	if (end == start)
- 		return 0;
- 	mmap_write_lock(mm);
-+	prev = vma_prev(&vmi);
- 	for_each_vma_range(vmi, vma, end) {
- 		/*
- 		 * If any vma in the range got policy other than MPOL_BIND
-@@ -1541,9 +1537,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
- 		}
- 
- 		new->home_node = home_node;
--		vmstart = max(start, vma->vm_start);
--		vmend   = min(end, vma->vm_end);
--		err = mbind_range(mm, vmstart, vmend, new);
-+		err = mbind_range(&vmi, vma, &prev, start, end, new);
- 		mpol_put(new);
- 		if (err)
- 			break;
+ static noinline void __init
 
