@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 012266ECE6F
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69C16ECE0D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232347AbjDXNco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59566 "EHLO
+        id S232312AbjDXN2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:28:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232227AbjDXNcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:22 -0400
+        with ESMTP id S232315AbjDXN2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 259E076AE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBE85FF6
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF94362332
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC56C433EF;
-        Mon, 24 Apr 2023 13:32:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C5DC61E68
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A128DC433D2;
+        Mon, 24 Apr 2023 13:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343122;
-        bh=8P34wgrPucba7calZnGun3FgSUEsAJcwMhGPrJMugXQ=;
+        s=korg; t=1682342909;
+        bh=n/w5OF3SZziTUVBEcMJfgelS+24erpL3mGQ9JlQEHsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m12j0EEkdyXFetPumMEiyu55FpAaTJSc1ROKGplbVDc0cPNcsr9qieT4evVD5gtGC
-         qRlMrAQPIRlrTZj4mjf0IBhL5WJ7B9rhwo7GJOao9b3D9Shaqpbu6djlOq+tYFCfR8
-         igzqSPogqzudkkDtcnWOgDmGnVcHJrk5W72xUc4k=
+        b=kChT8q8Yb1gxjwOkCB3iWx75mVLE0887sUlNUEnLMJ06g7tsZwZi2gHklAwJPWw9x
+         TiNMj+KtcmeAmXdB7tJEU45CHdiXCijBmk7FM1KUdL4SyhskkdlEVqg5ES9PaM7SCt
+         OjyCXRnzqinx8tO4+zcSEzx9bT8fCq5VvQisyIvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 085/110] mm: fix memory leak on mm_init error handling
+        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 6.1 84/98] MIPS: Define RUNTIME_DISCARD_EXIT in LD script
 Date:   Mon, 24 Apr 2023 15:17:47 +0200
-Message-Id: <20230424131139.677173051@linuxfoundation.org>
+Message-Id: <20230424131137.142239983@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-commit b20b0368c614c609badfe16fbd113dfb4780acd9 upstream.
+commit 6dcbd0a69c84a8ae7a442840a8cf6b1379dc8f16 upstream.
 
-commit f1a7941243c1 ("mm: convert mm's rss stats into percpu_counter")
-introduces a memory leak by missing a call to destroy_context() when a
-percpu_counter fails to allocate.
+MIPS's exit sections are discarded at runtime as well.
 
-Before introducing the per-cpu counter allocations, init_new_context() was
-the last call that could fail in mm_init(), and thus there was no need to
-ever invoke destroy_context() in the error paths.  Adding the following
-percpu counter allocations adds error paths after init_new_context(),
-which means its associated destroy_context() needs to be called when
-percpu counters fail to allocate.
+Fixes link error:
+`.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
+defined in discarded section `.exit.text' of fs/fuse/inode.o
 
-Link: https://lkml.kernel.org/r/20230330133822.66271-1-mathieu.desnoyers@efficios.com
-Fixes: f1a7941243c1 ("mm: convert mm's rss stats into percpu_counter")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Acked-by: Shakeel Butt <shakeelb@google.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/fork.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/kernel/vmlinux.lds.S |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1177,6 +1177,7 @@ static struct mm_struct *mm_init(struct
- fail_pcpu:
- 	while (i > 0)
- 		percpu_counter_destroy(&mm->rss_stat[--i]);
-+	destroy_context(mm);
- fail_nocontext:
- 	mm_free_pgd(mm);
- fail_nopgd:
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -15,6 +15,8 @@
+ #define EMITS_PT_NOTE
+ #endif
+ 
++#define RUNTIME_DISCARD_EXIT
++
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ #undef mips
 
 
