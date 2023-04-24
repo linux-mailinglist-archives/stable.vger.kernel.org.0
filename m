@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3E96ECD56
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2736ECD74
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbjDXNWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:22:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47440 "EHLO
+        id S232173AbjDXNXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232082AbjDXNWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:22 -0400
+        with ESMTP id S232129AbjDXNX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8139E55A7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 858B155B8;
+        Mon, 24 Apr 2023 06:23:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 629AD6221E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78413C433EF;
-        Mon, 24 Apr 2023 13:22:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1671C6226E;
+        Mon, 24 Apr 2023 13:23:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02AD8C433D2;
+        Mon, 24 Apr 2023 13:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342528;
-        bh=95SiklVmTmkib2sdosXKqpaoQ18razzQO7Owv2fLv/8=;
+        s=korg; t=1682342595;
+        bh=EqN+rzAmug3lRlQTcmQ3dsyGdyHFe3qtIiSP2R5edUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7hK7HYdylzOGOuC8F8/xpm0anO04n4hAlBvsyI8wqPAFhVXowNYh4VK4Krkk9SS3
-         8ev5eKE9AC3hRPxk04xzEKzdmtp3HNL3aUjJ5tTu2HspMX3Ua2gClRrh7wZWAviBXW
-         uXxR8GsBfx4XjywB6SW7Jw9a6UJAcp57Mgb1m8/8=
+        b=U1kHnt4rUq6e7HGFoQM7+EckYAI7TUpol5unSKHGnbXz7tI8JEAz8rJ03JLviy4Eg
+         Jg1/ZTLfvvnKXOB/q5LWLYW117eXcIXFATDMfTRu5GkzEnk8MYmAM9LT/Bqk6U8/Bn
+         CKsBhnC1jv5mqUw3CwKaNOoOCMm7Q+pr/Ahq44xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH 5.15 73/73] soc: sifive: l2_cache: fix missing of_node_put() in sifive_l2_init()
+        patches@lists.linux.dev, Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Kay Sievers <kay.sievers@vrfy.org>, linux-mmc@vger.kernel.org,
+        stable <stable@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Subject: [PATCH 5.4 24/39] memstick: fix memory leak if card device is never registered
 Date:   Mon, 24 Apr 2023 15:17:27 +0200
-Message-Id: <20230424131131.797887392@linuxfoundation.org>
+Message-Id: <20230424131123.971772094@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +59,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 8fbf94fea0b4e187ca9100936c5429f96b8a4e44 upstream.
+commit 4b6d621c9d859ff89e68cebf6178652592676013 upstream.
 
-The device_node pointer returned by of_find_matching_node() with
-refcount incremented, when finish using it, the refcount need be
-decreased.
+When calling dev_set_name() memory is allocated for the name for the
+struct device.  Once that structure device is registered, or attempted
+to be registerd, with the driver core, the driver core will handle
+cleaning up that memory when the device is removed from the system.
 
-Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-[conor: cache -> l2_cache]
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Unfortunatly for the memstick code, there is an error path that causes
+the struct device to never be registered, and so the memory allocated in
+dev_set_name will be leaked.  Fix that leak by manually freeing it right
+before the memory for the device is freed.
+
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Alex Dubov <oakad@yahoo.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>
+Cc: linux-mmc@vger.kernel.org
+Fixes: 0252c3b4f018 ("memstick: struct device - replace bus_id with dev_name(), dev_set_name()")
+Cc: stable <stable@kernel.org>
+Co-developed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Co-developed-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Link: https://lore.kernel.org/r/20230401200327.16800-1-gregkh@linuxfoundation.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/sifive/sifive_l2_cache.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/memstick/core/memstick.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/soc/sifive/sifive_l2_cache.c
-+++ b/drivers/soc/sifive/sifive_l2_cache.c
-@@ -202,12 +202,16 @@ static int __init sifive_l2_init(void)
- 	if (!np)
- 		return -ENODEV;
- 
--	if (of_address_to_resource(np, 0, &res))
--		return -ENODEV;
-+	if (of_address_to_resource(np, 0, &res)) {
-+		rc = -ENODEV;
-+		goto err_node_put;
-+	}
- 
- 	l2_base = ioremap(res.start, resource_size(&res));
--	if (!l2_base)
--		return -ENOMEM;
-+	if (!l2_base) {
-+		rc = -ENOMEM;
-+		goto err_node_put;
-+	}
- 
- 	intr_num = of_property_count_u32_elems(np, "interrupts");
- 	if (!intr_num) {
-@@ -224,6 +228,7 @@ static int __init sifive_l2_init(void)
- 			goto err_free_irq;
- 		}
- 	}
-+	of_node_put(np);
- 
- 	l2_config_read();
- 
-@@ -240,6 +245,8 @@ err_free_irq:
- 		free_irq(g_irq[i], NULL);
- err_unmap:
- 	iounmap(l2_base);
-+err_node_put:
-+	of_node_put(np);
- 	return rc;
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -412,6 +412,7 @@ static struct memstick_dev *memstick_all
+ 	return card;
+ err_out:
+ 	host->card = old_card;
++	kfree_const(card->dev.kobj.name);
+ 	kfree(card);
+ 	return NULL;
  }
- device_initcall(sifive_l2_init);
+@@ -470,8 +471,10 @@ static void memstick_check(struct work_s
+ 				put_device(&card->dev);
+ 				host->card = NULL;
+ 			}
+-		} else
++		} else {
++			kfree_const(card->dev.kobj.name);
+ 			kfree(card);
++		}
+ 	}
+ 
+ out_power_off:
 
 
