@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2FEE6ECDAD
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCAC16ECE64
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232129AbjDXNZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:25:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
+        id S232461AbjDXNcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232142AbjDXNZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:37 -0400
+        with ESMTP id S232462AbjDXNbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05395FCF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DDB07D92
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E848622B9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C134C433D2;
-        Mon, 24 Apr 2023 13:25:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA6D36234A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D09C433EF;
+        Mon, 24 Apr 2023 13:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342735;
-        bh=gPNb4Tgl8pMqVcBtkk5oYPIAdMBiCLQV2F2BV0XM2D8=;
+        s=korg; t=1682343075;
+        bh=OJnp1eB1GU+IdWevcDAhKD+L9ozYSOlac/WkoeZhdY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fq59vNbU0AlEv/ee0P+AF1YjoXgoT2TyzlZEBat9B/Vg4lyUEWq6xmbD5ls+8sDlW
-         GFRmEdTVAkI0qdDEb6ryPQhL53r9Rdzw7DhCfhO3MrgUdNN5t7+kbt8Ig9Zx73LlBy
-         BA4w0Fj7ytUa/hvHLvthfYdXBm7DgAp06dmXBg6o=
+        b=F2yl8TxvtseSVw3T7WrnDEqo+RIXbJPjNwNopbUtCLFB/Q2iasZK9nsOF1BoaqNJn
+         cCG/AchOvTps8iJKiC6f2UUhQTkaZrlrjUcB6uwaP18VLHrjQqobMZeAdw0upTHwyQ
+         WH9luZs42h1FIZ79r3uKwMfCJSIqdCSOKPG7y33Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Douglas Raillard <douglas.raillard@arm.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 37/98] scsi: megaraid_sas: Fix fw_crash_buffer_show()
+Subject: [PATCH 6.2 038/110] f2fs: Fix f2fs_truncate_partial_nodes ftrace event
 Date:   Mon, 24 Apr 2023 15:17:00 +0200
-Message-Id: <20230424131135.308753218@linuxfoundation.org>
+Message-Id: <20230424131137.570832775@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Douglas Raillard <douglas.raillard@arm.com>
 
-[ Upstream commit 0808ed6ebbc292222ca069d339744870f6d801da ]
+[ Upstream commit 0b04d4c0542e8573a837b1d81b94209e48723b25 ]
 
-If crash_dump_buf is not allocated then crash dump can't be available.
-Replace logical 'and' with 'or'.
+Fix the nid_t field so that its size is correctly reported in the text
+format embedded in trace.dat files. As it stands, it is reported as
+being of size 4:
 
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230324135249.9733-1-thenzl@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+        field:nid_t nid[3];     offset:24;      size:4; signed:0;
+
+Instead of 12:
+
+        field:nid_t nid[3];     offset:24;      size:12;        signed:0;
+
+This also fixes the reported offset of subsequent fields so that they
+match with the actual struct layout.
+
+Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 2 +-
+ include/trace/events/f2fs.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index d265a2d9d0824..13ee8e4c4f570 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -3299,7 +3299,7 @@ fw_crash_buffer_show(struct device *cdev,
- 
- 	spin_lock_irqsave(&instance->crashdump_lock, flags);
- 	buff_offset = instance->fw_crash_buffer_offset;
--	if (!instance->crash_dump_buf &&
-+	if (!instance->crash_dump_buf ||
- 		!((instance->fw_crash_state == AVAILABLE) ||
- 		(instance->fw_crash_state == COPYING))) {
- 		dev_err(&instance->pdev->dev,
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index 35ecb3118c7d5..111fafe049f7d 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -512,7 +512,7 @@ TRACE_EVENT(f2fs_truncate_partial_nodes,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(nid_t,	nid[3])
++		__array(nid_t,	nid, 3)
+ 		__field(int,	depth)
+ 		__field(int,	err)
+ 	),
 -- 
 2.39.2
 
