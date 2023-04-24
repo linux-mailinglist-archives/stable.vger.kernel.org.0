@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A52926ECD17
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9AD26ECE20
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbjDXNU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44374 "EHLO
+        id S232414AbjDXN3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:29:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231979AbjDXNU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:26 -0400
+        with ESMTP id S232416AbjDXN3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:29:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA19849FC
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A3672AB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9F3F62209
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D94C433D2;
-        Mon, 24 Apr 2023 13:20:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D22D06230D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83E2C433EF;
+        Mon, 24 Apr 2023 13:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342402;
-        bh=O5FUzRydRgbd/1a29nGyOuQIzc1RLSElbTf+cqka+3s=;
+        s=korg; t=1682342943;
+        bh=Hk4dGeyjOuZfk3Gngq2yK8PI4r8t7qZqEoLBC/w7M7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqLZrT+/Xz7q4X8c3diyANQxZT9agg4w7p/DGrcb5X9/Y30WH+Wcc5XvI58fp5uni
-         8D5oHznL1ZgQBSot9uRRjkDY75efMMveJnVEfUaD7oQPdtzQvbVeG5OZHj144P47ga
-         xEcZEg4SIm4PSkeEtkWAiFJxXkZVH331fcWA+0VA=
+        b=DWYRyjUWOas32y/b/YkxrPGg07o1qLkIBzNTxf8bs9iSMX57hqRvCNNIxZ9MY201k
+         ESh1+fAIN3eiss6IYKTEahIaYHcnEc9V1oc//BUVjc5Zni6SW+XMTKhqO9HGvvpx72
+         NddEl/3qFchwR3a8BkOzpmrcu15N2wzcdeQW3ADI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonathan Denose <jdenose@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 26/73] Input: i8042 - add quirk for Fujitsu Lifebook A574/H
+Subject: [PATCH 6.2 018/110] virtio_net: bugfix overflow inside xdp_linearize_page()
 Date:   Mon, 24 Apr 2023 15:16:40 +0200
-Message-Id: <20230424131129.982149864@linuxfoundation.org>
+Message-Id: <20230424131136.805853987@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,41 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Denose <jdenose@chromium.org>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-[ Upstream commit f5bad62f9107b701a6def7cac1f5f65862219b83 ]
+[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
 
-Fujitsu Lifebook A574/H requires the nomux option to properly
-probe the touchpad, especially when waking from sleep.
+Here we copy the data from the original buf to the new page. But we
+not check that it may be overflow.
 
-Signed-off-by: Jonathan Denose <jdenose@google.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230303152623.45859-1-jdenose@google.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+As long as the size received(including vnethdr) is greater than 3840
+(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
+
+And this is completely possible, as long as the MTU is large, such
+as 4096. In our test environment, this will cause crash. Since crash is
+caused by the written memory, it is meaningless, so I do not include it.
+
+Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/virtio_net.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 239c777f8271c..339e765bcf5ae 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -601,6 +601,14 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
- 	},
-+	{
-+		/* Fujitsu Lifebook A574/H */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "FMVA0501PZ"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
-+	},
- 	{
- 		/* Gigabyte M912 */
- 		.matches = {
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 61e33e4dd0cd6..0644069592211 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -728,8 +728,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 				       int page_off,
+ 				       unsigned int *len)
+ {
+-	struct page *page = alloc_page(GFP_ATOMIC);
++	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++	struct page *page;
+ 
++	if (page_off + *len + tailroom > PAGE_SIZE)
++		return NULL;
++
++	page = alloc_page(GFP_ATOMIC);
+ 	if (!page)
+ 		return NULL;
+ 
+@@ -737,7 +742,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 	page_off += *len;
+ 
+ 	while (--*num_buf) {
+-		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 		unsigned int buflen;
+ 		void *buf;
+ 		int off;
 -- 
 2.39.2
 
