@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1400B6ECE9E
+	by mail.lfdr.de (Postfix) with ESMTP id 9000F6ECEA0
 	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232530AbjDXNd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:33:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59686 "EHLO
+        id S232404AbjDXNeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232575AbjDXNdg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AD3086B6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:22 -0700 (PDT)
+        with ESMTP id S232441AbjDXNdi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A134D6EAC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDDA361EA5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C93C433EF;
-        Mon, 24 Apr 2023 13:33:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8228E61E09
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B72C433D2;
+        Mon, 24 Apr 2023 13:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343201;
-        bh=av5o3vC55bbMILVskKfeoTt01agSyBcf5512qMmSJbE=;
+        s=korg; t=1682343203;
+        bh=Fd67DUmgcp3dcXuG3HRyaJFLs/SAgMjAeeVxLaWDe34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFGAicJ3rCLduLsOoqBTVpD1yjqmb+QpIIV8Tq12eXW035cdSYUL7AVti5933dqEO
-         gNmZ0lVchrTmNjG90IAxV2Leiwrfh6JRDPPBuQ/MjQNQL+L70tnL50XPuy0FsFWsmN
-         J43GpvrX7AEuvhv0IuJgvzVeKU7J6rPVzeSOnsCo=
+        b=vDsHGy0ohj/1SMSV/lzlyYWEZuib53ACUHhFzn3wu90pRXv60o0uXlV6/5FOZzREn
+         n4hBM+GP1SYGSI9sMSermMi0cOC4eexmy9V2/NeQSNJIZw7IAT18Y3zXOflD6UW5Ir
+         ocyt0KMuN8Megi2vUhd87+PdwUZ2S7SJBS/l9w94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, hrdl <git@hrdl.eu>,
-        Alistair Francis <alistair@alistair23.me>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6.2 102/110] Input: cyttsp5 - fix sensing configuration data structure
-Date:   Mon, 24 Apr 2023 15:18:04 +0200
-Message-Id: <20230424131140.400353698@linuxfoundation.org>
+        patches@lists.linux.dev, Soumya Negi <soumya.negi97@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        syzbot+04ee0cb4caccaed12d78@syzkaller.appspotmail.com
+Subject: [PATCH 6.2 103/110] Input: pegasus-notetaker - check pipe type when probing
+Date:   Mon, 24 Apr 2023 15:18:05 +0200
+Message-Id: <20230424131140.442896054@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
 References: <20230424131136.142490414@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,36 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hrdl <git@hrdl.eu>
+From: Soumya Negi <soumya.negi97@gmail.com>
 
-commit 5dc63e56a9cf8df0b59c234a505a1653f1bdf885 upstream.
+commit b3d80fd27a3c2d8715a40cbf876139b56195f162 upstream.
 
-Prior to this patch, the sensing configuration data was not parsed
-correctly, breaking detection of max_tch. The vendor driver includes
-this field. This change informs the driver about the correct maximum
-number of simultaneous touch inputs.
+Fix WARNING in pegasus_open/usb_submit_urb
+Syzbot bug: https://syzkaller.appspot.com/bug?id=bbc107584dcf3262253ce93183e51f3612aaeb13
 
-Tested on a Pine64 PineNote with a modified touch screen controller
-firmware.
+Warning raised because pegasus_driver submits transfer request for
+bogus URB (pipe type does not match endpoint type). Add sanity check at
+probe time for pipe value extracted from endpoint descriptor. Probe
+will fail if sanity check fails.
 
-Signed-off-by: hrdl <git@hrdl.eu>
-Reviewed-by: Alistair Francis <alistair@alistair23.me>
-Link: https://lore.kernel.org/r/20230411211651.3791304-1-git@hrdl.eu
+Reported-and-tested-by: syzbot+04ee0cb4caccaed12d78@syzkaller.appspotmail.com
+Signed-off-by: Soumya Negi <soumya.negi97@gmail.com>
+Link: https://lore.kernel.org/r/20230404074145.11523-1-soumya.negi97@gmail.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/cyttsp5.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/tablet/pegasus_notetaker.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/input/touchscreen/cyttsp5.c
-+++ b/drivers/input/touchscreen/cyttsp5.c
-@@ -111,6 +111,7 @@ struct cyttsp5_sensing_conf_data_dev {
- 	__le16 max_z;
- 	u8 origin_x;
- 	u8 origin_y;
-+	u8 panel_id;
- 	u8 btn;
- 	u8 scan_mode;
- 	u8 max_num_of_tch_per_refresh_cycle;
+--- a/drivers/input/tablet/pegasus_notetaker.c
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -296,6 +296,12 @@ static int pegasus_probe(struct usb_inte
+ 	pegasus->intf = intf;
+ 
+ 	pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
++	/* Sanity check that pipe's type matches endpoint's type */
++	if (usb_pipe_type_check(dev, pipe)) {
++		error = -EINVAL;
++		goto err_free_mem;
++	}
++
+ 	pegasus->data_len = usb_maxpacket(dev, pipe);
+ 
+ 	pegasus->data = usb_alloc_coherent(dev, pegasus->data_len, GFP_KERNEL,
 
 
