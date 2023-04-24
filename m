@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4E06ECE99
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB5E6ECEBE
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232547AbjDXNdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58986 "EHLO
+        id S232524AbjDXNfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232520AbjDXNdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DE97DA9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:12 -0700 (PDT)
+        with ESMTP id S232606AbjDXNen (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356D07EF6
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5810F61E07
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D3D1C433EF;
-        Mon, 24 Apr 2023 13:33:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FDF0623B2
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F49C4339E;
+        Mon, 24 Apr 2023 13:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343190;
-        bh=EYz7GiP6sk84FAw91gCcYbCExrJDlxCdKUxsrNo5WeA=;
+        s=korg; t=1682343264;
+        bh=KcIYtxZiyltAwaQEXsnim1aZAxkvZbi72cBZ43HvthM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2aPQ6HUr1Uq10eeSsuQISoOkXJ8LNZOUkk0zeqyv+xCZ2H6XB/1MA57iG8AE6MmB
-         jITt1611yL746HtA2zdMj5D686FT5xn0wpSnCPLL9Jqcgk5FAYIvHkErPDG++1Nrxp
-         R5vegVVNKbViqXj1FIebwRdNnNULdF7xJ83a/LUk=
+        b=b2au54br3AeKnCxvPTklw7SPNWAi/W1assCAwM+U9xJVU0aaa8Du0k8UEHyYeW64X
+         wrOoPlWprL5qsvsSxc5t051KjqB0b34iuzNgonqMItUfv3V1wRT5H4byoYPkTpgJDl
+         4cTn5VK+lEDNMVB8Spcec/WYNAvTn7HpMohYPqg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, WANG Xuerui <kernel@xen0n.name>,
-        Huacai Chen <chenhuacai@loongson.cn>
-Subject: [PATCH 6.2 098/110] LoongArch: Make WriteCombine configurable for ioremap()
+        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christian Theune <ct@flyingcircus.io>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 29/68] xfs: drop submit side trans alloc for append ioends
 Date:   Mon, 24 Apr 2023 15:18:00 +0200
-Message-Id: <20230424131140.230840389@linuxfoundation.org>
+Message-Id: <20230424131128.759812392@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,130 +56,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 16c52e503043aed1e2a2ce38d9249de5936c1f6b upstream.
+commit 7cd3099f4925d7c15887d1940ebd65acd66100f5 upstream.
 
-LoongArch maintains cache coherency in hardware, but when paired with
-LS7A chipsets the WUC attribute (Weak-ordered UnCached, which is similar
-to WriteCombine) is out of the scope of cache coherency machanism for
-PCIe devices (this is a PCIe protocol violation, which may be fixed in
-newer chipsets).
+Per-inode ioend completion batching has a log reservation deadlock
+vector between preallocated append transactions and transactions
+that are acquired at completion time for other purposes (i.e.,
+unwritten extent conversion or COW fork remaps). For example, if the
+ioend completion workqueue task executes on a batch of ioends that
+are sorted such that an append ioend sits at the tail, it's possible
+for the outstanding append transaction reservation to block
+allocation of transactions required to process preceding ioends in
+the list.
 
-This means WUC can only used for write-only memory regions now, so this
-option is disabled by default, making WUC silently fallback to SUC for
-ioremap(). You can enable this option if the kernel is ensured to run on
-hardware without this bug.
+Append ioend completion is historically the common path for on-disk
+inode size updates. While file extending writes may have completed
+sometime earlier, the on-disk inode size is only updated after
+successful writeback completion. These transactions are preallocated
+serially from writeback context to mitigate concurrency and
+associated log reservation pressure across completions processed by
+multi-threaded workqueue tasks.
 
-Kernel parameter writecombine=on/off can be used to override the Kconfig
-option.
+However, now that delalloc blocks unconditionally map to unwritten
+extents at physical block allocation time, size updates via append
+ioends are relatively rare. This means that inode size updates most
+commonly occur as part of the preexisting completion time
+transaction to convert unwritten extents. As a result, there is no
+longer a strong need to preallocate size update transactions.
 
-Cc: stable@vger.kernel.org
-Suggested-by: WANG Xuerui <kernel@xen0n.name>
-Reviewed-by: WANG Xuerui <kernel@xen0n.name>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Remove the preallocation of inode size update transactions to avoid
+the ioend completion processing log reservation deadlock. Instead,
+continue to send all potential size extending ioends to workqueue
+context for completion and allocate the transaction from that
+context. This ensures that no outstanding log reservation is owned
+by the ioend completion worker task when it begins to process
+ioends.
+
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reported-by: Christian Theune <ct@flyingcircus.io>
+Link: https://lore.kernel.org/linux-xfs/CAOQ4uxjj2UqA0h4Y31NbmpHksMhVrXfXjLG4Tnz3zq_UR-3gSA@mail.gmail.com/
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.rst |    1 +
- Documentation/admin-guide/kernel-parameters.txt |    6 ++++++
- arch/loongarch/Kconfig                          |   16 ++++++++++++++++
- arch/loongarch/include/asm/io.h                 |    4 +++-
- arch/loongarch/kernel/setup.c                   |   21 +++++++++++++++++++++
- 5 files changed, 47 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_aops.c |   45 +++------------------------------------------
+ 1 file changed, 3 insertions(+), 42 deletions(-)
 
---- a/Documentation/admin-guide/kernel-parameters.rst
-+++ b/Documentation/admin-guide/kernel-parameters.rst
-@@ -128,6 +128,7 @@ parameter is applicable::
- 	KVM	Kernel Virtual Machine support is enabled.
- 	LIBATA  Libata driver is enabled
- 	LP	Printer support is enabled.
-+	LOONGARCH LoongArch architecture is enabled.
- 	LOOP	Loopback device support is enabled.
- 	M68k	M68k architecture is enabled.
- 			These options have more detailed description inside of
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6874,6 +6874,12 @@
- 			When enabled, memory and cache locality will be
- 			impacted.
- 
-+	writecombine=	[LOONGARCH] Control the MAT (Memory Access Type) of
-+			ioremap_wc().
-+
-+			on   - Enable writecombine, use WUC for ioremap_wc()
-+			off  - Disable writecombine, use SUC for ioremap_wc()
-+
- 	x2apic_phys	[X86-64,APIC] Use x2apic physical mode instead of
- 			default x2apic cluster mode on platforms
- 			supporting x2apic.
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -442,6 +442,22 @@ config ARCH_IOREMAP
- 	  protection support. However, you can enable LoongArch DMW-based
- 	  ioremap() for better performance.
- 
-+config ARCH_WRITECOMBINE
-+	bool "Enable WriteCombine (WUC) for ioremap()"
-+	help
-+	  LoongArch maintains cache coherency in hardware, but when paired
-+	  with LS7A chipsets the WUC attribute (Weak-ordered UnCached, which
-+	  is similar to WriteCombine) is out of the scope of cache coherency
-+	  machanism for PCIe devices (this is a PCIe protocol violation, which
-+	  may be fixed in newer chipsets).
-+
-+	  This means WUC can only used for write-only memory regions now, so
-+	  this option is disabled by default, making WUC silently fallback to
-+	  SUC for ioremap(). You can enable this option if the kernel is ensured
-+	  to run on hardware without this bug.
-+
-+	  You can override this setting via writecombine=on/off boot parameter.
-+
- config ARCH_STRICT_ALIGN
- 	bool "Enable -mstrict-align to prevent unaligned accesses" if EXPERT
- 	default y
---- a/arch/loongarch/include/asm/io.h
-+++ b/arch/loongarch/include/asm/io.h
-@@ -54,8 +54,10 @@ static inline void __iomem *ioremap_prot
-  * @offset:    bus address of the memory
-  * @size:      size of the resource to map
-  */
-+extern pgprot_t pgprot_wc;
-+
- #define ioremap_wc(offset, size)	\
--	ioremap_prot((offset), (size), pgprot_val(PAGE_KERNEL_WUC))
-+	ioremap_prot((offset), (size), pgprot_val(pgprot_wc))
- 
- #define ioremap_cache(offset, size)	\
- 	ioremap_prot((offset), (size), pgprot_val(PAGE_KERNEL))
---- a/arch/loongarch/kernel/setup.c
-+++ b/arch/loongarch/kernel/setup.c
-@@ -160,6 +160,27 @@ static void __init smbios_parse(void)
- 	dmi_walk(find_tokens, NULL);
+--- a/fs/xfs/xfs_aops.c
++++ b/fs/xfs/xfs_aops.c
+@@ -39,33 +39,6 @@ static inline bool xfs_ioend_is_append(s
+ 		XFS_I(ioend->io_inode)->i_d.di_size;
  }
  
-+#ifdef CONFIG_ARCH_WRITECOMBINE
-+pgprot_t pgprot_wc = PAGE_KERNEL_WUC;
-+#else
-+pgprot_t pgprot_wc = PAGE_KERNEL_SUC;
-+#endif
-+
-+EXPORT_SYMBOL(pgprot_wc);
-+
-+static int __init setup_writecombine(char *p)
-+{
-+	if (!strcmp(p, "on"))
-+		pgprot_wc = PAGE_KERNEL_WUC;
-+	else if (!strcmp(p, "off"))
-+		pgprot_wc = PAGE_KERNEL_SUC;
-+	else
-+		pr_warn("Unknown writecombine setting \"%s\".\n", p);
-+
-+	return 0;
-+}
-+early_param("writecombine", setup_writecombine);
-+
- static int usermem __initdata;
+-STATIC int
+-xfs_setfilesize_trans_alloc(
+-	struct iomap_ioend	*ioend)
+-{
+-	struct xfs_mount	*mp = XFS_I(ioend->io_inode)->i_mount;
+-	struct xfs_trans	*tp;
+-	int			error;
+-
+-	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_fsyncts, 0, 0, 0, &tp);
+-	if (error)
+-		return error;
+-
+-	ioend->io_private = tp;
+-
+-	/*
+-	 * We may pass freeze protection with a transaction.  So tell lockdep
+-	 * we released it.
+-	 */
+-	__sb_writers_release(ioend->io_inode->i_sb, SB_FREEZE_FS);
+-	/*
+-	 * We hand off the transaction to the completion thread now, so
+-	 * clear the flag here.
+-	 */
+-	xfs_trans_clear_context(tp);
+-	return 0;
+-}
+-
+ /*
+  * Update on-disk file size now that data has been written to disk.
+  */
+@@ -191,12 +164,10 @@ xfs_end_ioend(
+ 		error = xfs_reflink_end_cow(ip, offset, size);
+ 	else if (ioend->io_type == IOMAP_UNWRITTEN)
+ 		error = xfs_iomap_write_unwritten(ip, offset, size, false);
+-	else
+-		ASSERT(!xfs_ioend_is_append(ioend) || ioend->io_private);
  
- static int __init early_parse_mem(char *p)
++	if (!error && xfs_ioend_is_append(ioend))
++		error = xfs_setfilesize(ip, ioend->io_offset, ioend->io_size);
+ done:
+-	if (ioend->io_private)
+-		error = xfs_setfilesize_ioend(ioend, error);
+ 	iomap_finish_ioends(ioend, error);
+ 	memalloc_nofs_restore(nofs_flag);
+ }
+@@ -246,7 +217,7 @@ xfs_end_io(
+ 
+ static inline bool xfs_ioend_needs_workqueue(struct iomap_ioend *ioend)
+ {
+-	return ioend->io_private ||
++	return xfs_ioend_is_append(ioend) ||
+ 		ioend->io_type == IOMAP_UNWRITTEN ||
+ 		(ioend->io_flags & IOMAP_F_SHARED);
+ }
+@@ -259,8 +230,6 @@ xfs_end_bio(
+ 	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
+ 	unsigned long		flags;
+ 
+-	ASSERT(xfs_ioend_needs_workqueue(ioend));
+-
+ 	spin_lock_irqsave(&ip->i_ioend_lock, flags);
+ 	if (list_empty(&ip->i_ioend_list))
+ 		WARN_ON_ONCE(!queue_work(ip->i_mount->m_unwritten_workqueue,
+@@ -510,14 +479,6 @@ xfs_prepare_ioend(
+ 				ioend->io_offset, ioend->io_size);
+ 	}
+ 
+-	/* Reserve log space if we might write beyond the on-disk inode size. */
+-	if (!status &&
+-	    ((ioend->io_flags & IOMAP_F_SHARED) ||
+-	     ioend->io_type != IOMAP_UNWRITTEN) &&
+-	    xfs_ioend_is_append(ioend) &&
+-	    !ioend->io_private)
+-		status = xfs_setfilesize_trans_alloc(ioend);
+-
+ 	memalloc_nofs_restore(nofs_flag);
+ 
+ 	if (xfs_ioend_needs_workqueue(ioend))
 
 
