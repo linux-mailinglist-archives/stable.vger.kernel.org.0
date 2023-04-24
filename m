@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2257D6ECE2B
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3C96ECD94
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232307AbjDXN35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56182 "EHLO
+        id S232075AbjDXNYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232353AbjDXN3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:29:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8226EAF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:26 -0700 (PDT)
+        with ESMTP id S232034AbjDXNYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8412186
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A81C6231D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B9C8C4339B;
-        Mon, 24 Apr 2023 13:29:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 569CD62297
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BACC433D2;
+        Mon, 24 Apr 2023 13:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342948;
-        bh=558TS+8mHcQ/PtVYRqDmvCYhlgnr5r7Y1jjXylo/zbA=;
+        s=korg; t=1682342671;
+        bh=Awu7IQueBdlpb8JBbsQQXr6uY30ejPbsQqjZv0z4sBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDbwjyymYrr5emKjTvPywDCfSTIm8rNCgAvz/WU7DmvTRabYhknJe6RW2gf6C5EgF
-         HO9js7r1W9F/9XawTfCdImAwTbesxZINebugPpQBaJFWRAAd0aA/CiMv31izBvovkt
-         9aJJ01t6iR9J4uZmhyrrHrBsfrAEQqh+fhBN9N3s=
+        b=M5sdYH6jEG6w/QsP8uH/udjSZC+72+rZegUySUpuo9L9lO8QUHLh0ivm19IwrCIrx
+         fSnZ62tf2eayTc0LQgeGl4oHPkQ5BYCioJL/MTCs7WlnKgpafAu2aoKqMM0iwkWbVz
+         puJQ+Yr5bxXUDRSbMbuFf83B872W1b1tiTNZQ02E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,18 +35,18 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Peter Geis <pgwipeout@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 002/110] arm64: dts: rockchip: Lower sd speed on rk3566-soquartz
-Date:   Mon, 24 Apr 2023 15:16:24 +0200
-Message-Id: <20230424131136.234397113@linuxfoundation.org>
+Subject: [PATCH 6.1 02/98] arm64: dts: rockchip: Lower sd speed on rk3566-soquartz
+Date:   Mon, 24 Apr 2023 15:16:25 +0200
+Message-Id: <20230424131133.927095381@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/rockchip/rk3566-soquartz.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-soquartz.dtsi
-index ce7165d7f1a14..102e448bc026a 100644
+index 5bcd4be329643..4d494b53a71ab 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3566-soquartz.dtsi
 +++ b/arch/arm64/boot/dts/rockchip/rk3566-soquartz.dtsi
-@@ -598,7 +598,7 @@
+@@ -540,7 +540,7 @@
  	non-removable;
  	pinctrl-names = "default";
  	pinctrl-0 = <&sdmmc1_bus4 &sdmmc1_cmd &sdmmc1_clk>;
