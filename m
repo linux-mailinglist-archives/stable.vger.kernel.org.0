@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BDE46ECED6
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0DF36ECDF0
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232513AbjDXNfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:35:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38064 "EHLO
+        id S232257AbjDXN2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:28:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232517AbjDXNfh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B82C8695
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:15 -0700 (PDT)
+        with ESMTP id S232225AbjDXN2a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 756E865BE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A36C623BC
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F77BC433D2;
-        Mon, 24 Apr 2023 13:35:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9102D61DED
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A41D7C433D2;
+        Mon, 24 Apr 2023 13:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343314;
-        bh=bRMJMZZpgzwMBP+WHIcm5ARXb7ss27W3j3C0r5vPOTo=;
+        s=korg; t=1682342867;
+        bh=5ZFJ/kl6fOCRCJfI8dq2WDVTqwmhBEZV1odLIr8sCzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tylM++GeZVdIAHooyfkOOFdgxaTxUqoPbMtpf4OlGQMeYL/7MIAxY07y0THl6YCZG
-         QR1BreuB9saSR3y3rKfARZ+hZ1ikvsivpkOMWCEyiBt4HkIgRWcA+qilu6z1InCP8i
-         nKSvb7ZSK/YBV7gMIB8f8a+u/PkNq547V2TMLqxc=
+        b=PPFe4OOMStO2zJ3Uz7oc+WvznARkuvGHMM1WqeuUg4sqqTQqv6aGBvSfsy+8Oma4k
+         0a34wcvifnYbm3PRfIoeTDG0DKhRADx6BSAoU/BjirKfoNOajyyghl4uc5eMq5tHst
+         UizDvJKzXuPSe4S0fTObFAWoa5Dbp2unqU8Gv5T4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonathan Denose <jdenose@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/68] Input: i8042 - add quirk for Fujitsu Lifebook A574/H
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 6.1 88/98] dccp: Call inet6_destroy_sock() via sk->sk_destruct().
 Date:   Mon, 24 Apr 2023 15:17:51 +0200
-Message-Id: <20230424131128.422490283@linuxfoundation.org>
+Message-Id: <20230424131137.292894985@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,43 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Denose <jdenose@chromium.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit f5bad62f9107b701a6def7cac1f5f65862219b83 ]
+commit 1651951ebea54970e0bda60c638fc2eee7a6218f upstream.
 
-Fujitsu Lifebook A574/H requires the nomux option to properly
-probe the touchpad, especially when waking from sleep.
+After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
+in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
+sk->sk_destruct() by setting inet6_sock_destruct() to it to make
+sure we do not leak inet6-specific resources.
 
-Signed-off-by: Jonathan Denose <jdenose@google.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230303152623.45859-1-jdenose@google.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+DCCP sets its own sk->sk_destruct() in the dccp_init_sock(), and
+DCCPv6 socket shares it by calling the same init function via
+dccp_v6_init_sock().
+
+To call inet6_sock_destruct() from DCCPv6 sk->sk_destruct(), we
+export it and set dccp_v6_sk_destruct() in the init function.
+
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/dccp/dccp.h     |    1 +
+ net/dccp/ipv6.c     |   15 ++++++++-------
+ net/dccp/proto.c    |    8 +++++++-
+ net/ipv6/af_inet6.c |    1 +
+ 4 files changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 65c0081838e3d..9dcdf21c50bdc 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -601,6 +601,14 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
- 	},
-+	{
-+		/* Fujitsu Lifebook A574/H */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "FMVA0501PZ"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
-+	},
- 	{
- 		/* Gigabyte M912 */
- 		.matches = {
--- 
-2.39.2
-
+--- a/net/dccp/dccp.h
++++ b/net/dccp/dccp.h
+@@ -278,6 +278,7 @@ int dccp_rcv_state_process(struct sock *
+ int dccp_rcv_established(struct sock *sk, struct sk_buff *skb,
+ 			 const struct dccp_hdr *dh, const unsigned int len);
+ 
++void dccp_destruct_common(struct sock *sk);
+ int dccp_init_sock(struct sock *sk, const __u8 ctl_sock_initialized);
+ void dccp_destroy_sock(struct sock *sk);
+ 
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -1004,6 +1004,12 @@ static const struct inet_connection_sock
+ 	.sockaddr_len	   = sizeof(struct sockaddr_in6),
+ };
+ 
++static void dccp_v6_sk_destruct(struct sock *sk)
++{
++	dccp_destruct_common(sk);
++	inet6_sock_destruct(sk);
++}
++
+ /* NOTE: A lot of things set to zero explicitly by call to
+  *       sk_alloc() so need not be done here.
+  */
+@@ -1016,17 +1022,12 @@ static int dccp_v6_init_sock(struct sock
+ 		if (unlikely(!dccp_v6_ctl_sock_initialized))
+ 			dccp_v6_ctl_sock_initialized = 1;
+ 		inet_csk(sk)->icsk_af_ops = &dccp_ipv6_af_ops;
++		sk->sk_destruct = dccp_v6_sk_destruct;
+ 	}
+ 
+ 	return err;
+ }
+ 
+-static void dccp_v6_destroy_sock(struct sock *sk)
+-{
+-	dccp_destroy_sock(sk);
+-	inet6_destroy_sock(sk);
+-}
+-
+ static struct timewait_sock_ops dccp6_timewait_sock_ops = {
+ 	.twsk_obj_size	= sizeof(struct dccp6_timewait_sock),
+ };
+@@ -1049,7 +1050,7 @@ static struct proto dccp_v6_prot = {
+ 	.accept		   = inet_csk_accept,
+ 	.get_port	   = inet_csk_get_port,
+ 	.shutdown	   = dccp_shutdown,
+-	.destroy	   = dccp_v6_destroy_sock,
++	.destroy	   = dccp_destroy_sock,
+ 	.orphan_count	   = &dccp_orphan_count,
+ 	.max_header	   = MAX_DCCP_HEADER,
+ 	.obj_size	   = sizeof(struct dccp6_sock),
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -171,12 +171,18 @@ const char *dccp_packet_name(const int t
+ 
+ EXPORT_SYMBOL_GPL(dccp_packet_name);
+ 
+-static void dccp_sk_destruct(struct sock *sk)
++void dccp_destruct_common(struct sock *sk)
+ {
+ 	struct dccp_sock *dp = dccp_sk(sk);
+ 
+ 	ccid_hc_tx_delete(dp->dccps_hc_tx_ccid, sk);
+ 	dp->dccps_hc_tx_ccid = NULL;
++}
++EXPORT_SYMBOL_GPL(dccp_destruct_common);
++
++static void dccp_sk_destruct(struct sock *sk)
++{
++	dccp_destruct_common(sk);
+ 	inet_sock_destruct(sk);
+ }
+ 
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -114,6 +114,7 @@ void inet6_sock_destruct(struct sock *sk
+ 	inet6_cleanup_sock(sk);
+ 	inet_sock_destruct(sk);
+ }
++EXPORT_SYMBOL_GPL(inet6_sock_destruct);
+ 
+ static int inet6_create(struct net *net, struct socket *sock, int protocol,
+ 			int kern)
 
 
