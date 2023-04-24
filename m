@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4846ECD98
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C196ECE34
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232082AbjDXNYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50992 "EHLO
+        id S232300AbjDXNaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:30:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232049AbjDXNYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:44 -0400
+        with ESMTP id S232281AbjDXNaG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549D412E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D802769F
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2AED6229D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FF5C433D2;
-        Mon, 24 Apr 2023 13:24:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C6DB62322
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CD1FC433D2;
+        Mon, 24 Apr 2023 13:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342682;
-        bh=S9gg9G0bW1nYmWID1vHNh6W28jlxKVh0dP3uCW2laWE=;
+        s=korg; t=1682342987;
+        bh=7pMFKFDJI+sG7ctg5O1lzusZkdcpTqN1n1aWhh1mVIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJ6XSbCJyct5U7QJoi69x5vOQBQuqEl3LWlabwHx2g+VQlwcWI7AXu8tu4eQcRFWK
-         zd9ibFBnoi+CbzT4SmB1cDIdaYW/vCcEBKwzssk8knJkyIPioi3omM7jStqux1Tjp2
-         p0HZHxathPVyZbR+ZqXhQZYi57tOPEaxFtbanW/I=
+        b=UuYCCCoKm6NXDj5kclLV4JRBs8wuNUM/ZZfe3Gf50abeFHp2drHhwO+owobOx6t46
+         YdNWuAHxdlWFtqKHLtPqpzL7h+xBTErXxMhK1LBTxE64hEAIG3/k4LvCzCUBxhgz9Y
+         aifwHjGcF2+jH/sYTNmCsY4SFV/VVAJf8tLXReUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Marc Gonzalez <mgonzalez@freebox.fr>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Will Deacon <will@kernel.org>,
         Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 06/98] arm64: dts: meson-g12-common: specify full DMC range
+Subject: [PATCH 6.2 007/110] perf/amlogic: adjust register offsets
 Date:   Mon, 24 Apr 2023 15:16:29 +0200
-Message-Id: <20230424131134.077680873@linuxfoundation.org>
+Message-Id: <20230424131136.406932947@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +57,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Gonzalez <mgonzalez@freebox.fr>
 
-[ Upstream commit aec4353114a408b3a831a22ba34942d05943e462 ]
+[ Upstream commit f9d323e7c1724270d747657051099826744e91e7 ]
 
-According to S905X2 Datasheet - Revision 07:
-DRAM Memory Controller (DMC) register area spans ff638000-ff63a000.
+Commit "perf/amlogic: resolve conflict between canvas & pmu"
+changed the base address.
 
-According to DeviceTree Specification - Release v0.4-rc1:
-simple-bus nodes do not require reg property.
-
-Fixes: 1499218c80c99a ("arm64: dts: move common G12A & G12B modes to meson-g12-common.dtsi")
+Fixes: 2016e2113d35 ("perf/amlogic: Add support for Amlogic meson G12 SoC DDR PMU driver")
 Signed-off-by: Marc Gonzalez <mgonzalez@freebox.fr>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20230327120932.2158389-2-mgonzalez@freebox.fr
+Acked-by: Will Deacon <will@kernel.org>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://lore.kernel.org/r/20230327120932.2158389-4-mgonzalez@freebox.fr
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/perf/amlogic/meson_g12_ddr_pmu.c | 34 ++++++++++++------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-index 131a8a5a9f5a0..88b848c65b0d2 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-@@ -1571,10 +1571,9 @@
+diff --git a/drivers/perf/amlogic/meson_g12_ddr_pmu.c b/drivers/perf/amlogic/meson_g12_ddr_pmu.c
+index a78fdb15e26c2..8b643888d5036 100644
+--- a/drivers/perf/amlogic/meson_g12_ddr_pmu.c
++++ b/drivers/perf/amlogic/meson_g12_ddr_pmu.c
+@@ -21,23 +21,23 @@
+ #define DMC_QOS_IRQ		BIT(30)
  
- 			dmc: bus@38000 {
- 				compatible = "simple-bus";
--				reg = <0x0 0x38000 0x0 0x400>;
- 				#address-cells = <2>;
- 				#size-cells = <2>;
--				ranges = <0x0 0x0 0x0 0x38000 0x0 0x400>;
-+				ranges = <0x0 0x0 0x0 0x38000 0x0 0x2000>;
+ /* DMC bandwidth monitor register address offset */
+-#define DMC_MON_G12_CTRL0		(0x20  << 2)
+-#define DMC_MON_G12_CTRL1		(0x21  << 2)
+-#define DMC_MON_G12_CTRL2		(0x22  << 2)
+-#define DMC_MON_G12_CTRL3		(0x23  << 2)
+-#define DMC_MON_G12_CTRL4		(0x24  << 2)
+-#define DMC_MON_G12_CTRL5		(0x25  << 2)
+-#define DMC_MON_G12_CTRL6		(0x26  << 2)
+-#define DMC_MON_G12_CTRL7		(0x27  << 2)
+-#define DMC_MON_G12_CTRL8		(0x28  << 2)
+-
+-#define DMC_MON_G12_ALL_REQ_CNT		(0x29  << 2)
+-#define DMC_MON_G12_ALL_GRANT_CNT	(0x2a  << 2)
+-#define DMC_MON_G12_ONE_GRANT_CNT	(0x2b  << 2)
+-#define DMC_MON_G12_SEC_GRANT_CNT	(0x2c  << 2)
+-#define DMC_MON_G12_THD_GRANT_CNT	(0x2d  << 2)
+-#define DMC_MON_G12_FOR_GRANT_CNT	(0x2e  << 2)
+-#define DMC_MON_G12_TIMER		(0x2f  << 2)
++#define DMC_MON_G12_CTRL0		(0x0  << 2)
++#define DMC_MON_G12_CTRL1		(0x1  << 2)
++#define DMC_MON_G12_CTRL2		(0x2  << 2)
++#define DMC_MON_G12_CTRL3		(0x3  << 2)
++#define DMC_MON_G12_CTRL4		(0x4  << 2)
++#define DMC_MON_G12_CTRL5		(0x5  << 2)
++#define DMC_MON_G12_CTRL6		(0x6  << 2)
++#define DMC_MON_G12_CTRL7		(0x7  << 2)
++#define DMC_MON_G12_CTRL8		(0x8  << 2)
++
++#define DMC_MON_G12_ALL_REQ_CNT		(0x9  << 2)
++#define DMC_MON_G12_ALL_GRANT_CNT	(0xa  << 2)
++#define DMC_MON_G12_ONE_GRANT_CNT	(0xb  << 2)
++#define DMC_MON_G12_SEC_GRANT_CNT	(0xc  << 2)
++#define DMC_MON_G12_THD_GRANT_CNT	(0xd  << 2)
++#define DMC_MON_G12_FOR_GRANT_CNT	(0xe  << 2)
++#define DMC_MON_G12_TIMER		(0xf  << 2)
  
- 				canvas: video-lut@48 {
- 					compatible = "amlogic,canvas";
+ /* Each bit represent a axi line */
+ PMU_FORMAT_ATTR(event, "config:0-7");
 -- 
 2.39.2
 
