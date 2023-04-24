@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0506ECDEF
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 370A46ECE87
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232268AbjDXN2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55710 "EHLO
+        id S232501AbjDXNd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:33:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232269AbjDXN2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:30 -0400
+        with ESMTP id S232503AbjDXNdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15E765B7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11377EF7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1635A61E97
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A44C4339B;
-        Mon, 24 Apr 2023 13:27:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BA6062332
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABDB4C433EF;
+        Mon, 24 Apr 2023 13:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342877;
-        bh=RC0twR+9KcpAPJ8hxqhLhYX2V4A/kj6xICjHVzzfHFs=;
+        s=korg; t=1682343146;
+        bh=WLgYMxy2p5o2evbGVrqjKBGVceZ7450KEpU2tpZOjQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXkiKfsOKYy7c1wIte8ZmZc0wn6uY05+INZMVf7zL9YbPjkTKq8qv8DG5NJWh7038
-         iv89XD+CDb4tN840RIVbxpSmdamreiYBx1BBq2sqSC48u84R9NpivqjuHbDFX8ELKY
-         tUjCD00MmpiKkETOR0BdnQBLM5eFm0r+leVgyowc=
+        b=2J9aGeLDo5HTMtfTkuTSPdVSeTxWz4I7CCqfEDtkNYdi11FZKLow2lCspBY4EZj53
+         UhHxHTus/EfH6UWCYO7cm5xtD1E/qA760ZklzRm5O0uUO4EFHkD2jPf0oiQCQbzx/u
+         7UW2Qi0EkMoOkN3kWhjkErtU+mKT4GPCCxKFKGyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 92/98] iio: adc: at91-sama5d2_adc: fix an error code in at91_adc_allocate_trigger()
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 093/110] cifs: avoid dup prefix path in dfs_get_automount_devname()
 Date:   Mon, 24 Apr 2023 15:17:55 +0200
-Message-Id: <20230424131137.464605795@linuxfoundation.org>
+Message-Id: <20230424131140.030245609@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-commit 73a428b37b9b538f8f8fe61caa45e7f243bab87c upstream.
+commit d5a863a153e90996ab2aef6b9e08d509f4d5662b upstream.
 
-The at91_adc_allocate_trigger() function is supposed to return error
-pointers.  Returning a NULL will cause an Oops.
+@server->origin_fullpath already contains the tree name + optional
+prefix, so avoid calling __build_path_from_dentry_optional_prefix() as
+it might end up duplicating prefix path from @cifs_sb->prepath into
+final full path.
 
-Fixes: 5e1a1da0f8c9 ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/5d728f9d-31d1-410d-a0b3-df6a63a2c8ba@kili.mountain
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Instead, generate DFS full path by simply merging
+@server->origin_fullpath with dentry's path.
+
+This fixes the following case
+
+	mount.cifs //root/dfs/dir /mnt/ -o ...
+	ls /mnt/link
+
+where cifs_dfs_do_automount() will call smb3_parse_devname() with
+@devname set to "//root/dfs/dir/link" instead of
+"//root/dfs/dir/dir/link".
+
+Fixes: 7ad54b98fc1f ("cifs: use origin fullpath for automounts")
+Cc: <stable@vger.kernel.org> # 6.2+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/at91-sama5d2_adc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifs_dfs_ref.c |  2 --
+ fs/cifs/dfs.h          | 22 ++++++++++++++++++----
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/adc/at91-sama5d2_adc.c
-+++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -1409,7 +1409,7 @@ static struct iio_trigger *at91_adc_allo
- 	trig = devm_iio_trigger_alloc(&indio->dev, "%s-dev%d-%s", indio->name,
- 				iio_device_id(indio), trigger_name);
- 	if (!trig)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
+diff --git a/fs/cifs/cifs_dfs_ref.c b/fs/cifs/cifs_dfs_ref.c
+index cb40074feb3e..0329a907bdfe 100644
+--- a/fs/cifs/cifs_dfs_ref.c
++++ b/fs/cifs/cifs_dfs_ref.c
+@@ -171,8 +171,6 @@ static struct vfsmount *cifs_dfs_do_automount(struct path *path)
+ 		mnt = ERR_CAST(full_path);
+ 		goto out;
+ 	}
+-
+-	convert_delimiter(full_path, '/');
+ 	cifs_dbg(FYI, "%s: full_path: %s\n", __func__, full_path);
  
- 	trig->dev.parent = indio->dev.parent;
- 	iio_trigger_set_drvdata(trig, indio);
+ 	tmp = *cur_ctx;
+diff --git a/fs/cifs/dfs.h b/fs/cifs/dfs.h
+index 13f26e01f7b9..0b8cbf721fff 100644
+--- a/fs/cifs/dfs.h
++++ b/fs/cifs/dfs.h
+@@ -34,19 +34,33 @@ static inline int dfs_get_referral(struct cifs_mount_ctx *mnt_ctx, const char *p
+ 			      cifs_remap(cifs_sb), path, ref, tl);
+ }
+ 
++/* Return DFS full path out of a dentry set for automount */
+ static inline char *dfs_get_automount_devname(struct dentry *dentry, void *page)
+ {
+ 	struct cifs_sb_info *cifs_sb = CIFS_SB(dentry->d_sb);
+ 	struct cifs_tcon *tcon = cifs_sb_master_tcon(cifs_sb);
+ 	struct TCP_Server_Info *server = tcon->ses->server;
++	size_t len;
++	char *s;
+ 
+ 	if (unlikely(!server->origin_fullpath))
+ 		return ERR_PTR(-EREMOTE);
+ 
+-	return __build_path_from_dentry_optional_prefix(dentry, page,
+-							server->origin_fullpath,
+-							strlen(server->origin_fullpath),
+-							true);
++	s = dentry_path_raw(dentry, page, PATH_MAX);
++	if (IS_ERR(s))
++		return s;
++	/* for root, we want "" */
++	if (!s[1])
++		s++;
++
++	len = strlen(server->origin_fullpath);
++	if (s < (char *)page + len)
++		return ERR_PTR(-ENAMETOOLONG);
++
++	s -= len;
++	memcpy(s, server->origin_fullpath, len);
++	convert_delimiter(s, '/');
++	return s;
+ }
+ 
+ static inline void dfs_put_root_smb_sessions(struct list_head *head)
+-- 
+2.40.0
+
 
 
