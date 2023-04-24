@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E296ECE76
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781806ECEC9
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232394AbjDXNcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59900 "EHLO
+        id S232559AbjDXNf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232514AbjDXNce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:34 -0400
+        with ESMTP id S232580AbjDXNfG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE4F5FE1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBB4E10C4
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 387DE62360
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E638C4339B;
-        Mon, 24 Apr 2023 13:32:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8728F623A0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A7EC433EF;
+        Mon, 24 Apr 2023 13:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343127;
-        bh=O7h4IJTp71ezAL1PtBDjB3kID/LODlnPyWXpeIHNK/k=;
+        s=korg; t=1682343286;
+        bh=j3/iw94mKIuIrszdGI4ABTDK7tgs5kCINVzSTavDhAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9fySFsLWfI/gKf4xM7BHeAd3UhHgx+cwrCvk76r12ZHgdTCjyckFJXEkjf9jYsj7
-         ciLkxIishbywdWM+lzvqC8qAl2DxPpbAelr2kpuUACmXDde6/P+msAeN8T7NXk4bLj
-         ea4F/t00a4dN9hT22NvwAUqju5H5ur4XAKKEnPms=
+        b=UfOYVcft1YQa/NHWoqo6JRc7/TNzII7y2LHiATlCuhW81ALOirvDiX1KvuQo38NKX
+         REiKUVCRp3TNeAxqFlufT1jVls3uPfbjxmt3TrpWPO70HqgF3y8c9NlYApKAzeZGTG
+         O0/qk5Urbxlf7aLtHqr0/mvH8zRN7nDI260+Fr60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 087/110] mm/khugepaged: check again on anon uffd-wp during isolation
-Date:   Mon, 24 Apr 2023 15:17:49 +0200
-Message-Id: <20230424131139.762487509@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Douglas Raillard <douglas.raillard@arm.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 19/68] f2fs: Fix f2fs_truncate_partial_nodes ftrace event
+Date:   Mon, 24 Apr 2023 15:17:50 +0200
+Message-Id: <20230424131128.390894684@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,60 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Douglas Raillard <douglas.raillard@arm.com>
 
-commit dd47ac428c3f5f3bcabe845f36be870fe6c20784 upstream.
+[ Upstream commit 0b04d4c0542e8573a837b1d81b94209e48723b25 ]
 
-Khugepaged collapse an anonymous thp in two rounds of scans.  The 2nd
-round done in __collapse_huge_page_isolate() after
-hpage_collapse_scan_pmd(), during which all the locks will be released
-temporarily.  It means the pgtable can change during this phase before 2nd
-round starts.
+Fix the nid_t field so that its size is correctly reported in the text
+format embedded in trace.dat files. As it stands, it is reported as
+being of size 4:
 
-It's logically possible some ptes got wr-protected during this phase, and
-we can errornously collapse a thp without noticing some ptes are
-wr-protected by userfault.  e1e267c7928f wanted to avoid it but it only
-did that for the 1st phase, not the 2nd phase.
+        field:nid_t nid[3];     offset:24;      size:4; signed:0;
 
-Since __collapse_huge_page_isolate() happens after a round of small page
-swapins, we don't need to worry on any !present ptes - if it existed
-khugepaged will already bail out.  So we only need to check present ptes
-with uffd-wp bit set there.
+Instead of 12:
 
-This is something I found only but never had a reproducer, I thought it
-was one caused a bug in Muhammad's recent pagemap new ioctl work, but it
-turns out it's not the cause of that but an userspace bug.  However this
-seems to still be a real bug even with a very small race window, still
-worth to have it fixed and copy stable.
+        field:nid_t nid[3];     offset:24;      size:12;        signed:0;
 
-Link: https://lkml.kernel.org/r/20230405155120.3608140-1-peterx@redhat.com
-Fixes: e1e267c7928f ("khugepaged: skip collapse if uffd-wp detected")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This also fixes the reported offset of subsequent fields so that they
+match with the actual struct layout.
+
+Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/trace/events/f2fs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -561,6 +561,10 @@ static int __collapse_huge_page_isolate(
- 			result = SCAN_PTE_NON_PRESENT;
- 			goto out;
- 		}
-+		if (pte_uffd_wp(pteval)) {
-+			result = SCAN_PTE_UFFD_WP;
-+			goto out;
-+		}
- 		page = vm_normal_page(vma, address, pteval);
- 		if (unlikely(!page) || unlikely(is_zone_device_page(page))) {
- 			result = SCAN_PAGE_NULL;
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index df293bc7f03b8..e8cd19e91de11 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -513,7 +513,7 @@ TRACE_EVENT(f2fs_truncate_partial_nodes,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(nid_t,	nid[3])
++		__array(nid_t,	nid, 3)
+ 		__field(int,	depth)
+ 		__field(int,	err)
+ 	),
+-- 
+2.39.2
+
 
 
