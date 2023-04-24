@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0856ECD2A
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D74726ECDA7
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231956AbjDXNVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:21:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44706 "EHLO
+        id S232096AbjDXNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:25:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232008AbjDXNVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853B199
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:45 -0700 (PDT)
+        with ESMTP id S232095AbjDXNZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359AC5FC9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 188246221F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FB36C433EF;
-        Mon, 24 Apr 2023 13:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16A3C622B1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A285C433EF;
+        Mon, 24 Apr 2023 13:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342444;
-        bh=f+RfwfcYOEofk3mFyHM16hFlSGfFoGNS42yTFlfIl4U=;
+        s=korg; t=1682342719;
+        bh=RzD+QsHvWoQkEeeiOSeSBdQISBdSyg6RZwMSTVc67tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3vnwD7eVhR/K23Yi4Iu8AC8cumjWzRa76wjO3aoL5zJe2mWpnbb4yl9GxWbEwW7P
-         Vmcp2W/+NQDCy3Mb/QjEW665k6HedQxtokNDEhoLhQ6f9Pw2fmj6ezHQRsAttc2CE+
-         ANPzl69vZE5W4HAREYT/12Qv47G1Xs3TGAIS9rLI=
+        b=OHUtRJ4eIph6aeersuM/B8TgChdhZSSIVd1p2/vy8p5tzQZi2NhozWUN/YQ7g1zmA
+         HbbkNDcSiq9BwJMRAzTrFALHCtmPnARN2qz7bzSmiUV9Oo9dVJHW2Xs9P95IaSCVoR
+         RiPQh0d999fblzz26CSvDgU9bLO9uFhhPk+NDj+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bhavya Kapoor <b-kapoor@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 41/73] mmc: sdhci_am654: Set HIGH_SPEED_ENA for SDR12 and SDR25
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 32/98] net: bridge: switchdev: dont notify FDB entries with "master dynamic"
 Date:   Mon, 24 Apr 2023 15:16:55 +0200
-Message-Id: <20230424131130.480067768@linuxfoundation.org>
+Message-Id: <20230424131135.143976935@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,35 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhavya Kapoor <b-kapoor@ti.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 2265098fd6a6272fde3fd1be5761f2f5895bd99a upstream.
+[ Upstream commit 927cdea5d2095287ddd5246e5aa68eb5d68db2be ]
 
-Timing Information in Datasheet assumes that HIGH_SPEED_ENA=1 should be
-set for SDR12 and SDR25 modes. But sdhci_am654 driver clears
-HIGH_SPEED_ENA register. Thus, Modify sdhci_am654 to not clear
-HIGH_SPEED_ENA (HOST_CONTROL[2]) bit for SDR12 and SDR25 speed modes.
+There is a structural problem in switchdev, where the flag bits in
+struct switchdev_notifier_fdb_info (added_by_user, is_local etc) only
+represent a simplified / denatured view of what's in struct
+net_bridge_fdb_entry :: flags (BR_FDB_ADDED_BY_USER, BR_FDB_LOCAL etc).
+Each time we want to pass more information about struct
+net_bridge_fdb_entry :: flags to struct switchdev_notifier_fdb_info
+(here, BR_FDB_STATIC), we find that FDB entries were already notified to
+switchdev with no regard to this flag, and thus, switchdev drivers had
+no indication whether the notified entries were static or not.
 
-Fixes: e374e87538f4 ("mmc: sdhci_am654: Clear HISPD_ENA in some lower speed modes")
-Signed-off-by: Bhavya Kapoor <b-kapoor@ti.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230317092711.660897-1-b-kapoor@ti.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For example, this command:
+
+ip link add br0 type bridge && ip link set swp0 master br0
+bridge fdb add dev swp0 00:01:02:03:04:05 master dynamic
+
+has never worked as intended with switchdev. It causes a struct
+net_bridge_fdb_entry to be passed to br_switchdev_fdb_notify() which has
+a single flag set: BR_FDB_ADDED_BY_USER.
+
+This is further passed to the switchdev notifier chain, where interested
+drivers have no choice but to assume this is a static (does not age) and
+sticky (does not migrate) FDB entry. So currently, all drivers offload
+it to hardware as such, as can be seen below ("offload" is set).
+
+bridge fdb get 00:01:02:03:04:05 dev swp0 master
+00:01:02:03:04:05 dev swp0 offload master br0
+
+The software FDB entry expires $ageing_time centiseconds after the
+kernel last sees a packet with this MAC SA, and the bridge notifies its
+deletion as well, so it eventually disappears from hardware too.
+
+This is a problem, because it is actually desirable to start offloading
+"master dynamic" FDB entries correctly - they should expire $ageing_time
+centiseconds after the *hardware* port last sees a packet with this
+MAC SA - and this is how the current incorrect behavior was discovered.
+With an offloaded data plane, it can be expected that software only sees
+exception path packets, so an otherwise active dynamic FDB entry would
+be aged out by software sooner than it should.
+
+With the change in place, these FDB entries are no longer offloaded:
+
+bridge fdb get 00:01:02:03:04:05 dev swp0 master
+00:01:02:03:04:05 dev swp0 master br0
+
+and this also constitutes a better way (assuming a backport to stable
+kernels) for user space to determine whether the kernel has the
+capability of doing something sane with these or not.
+
+As opposed to "master dynamic" FDB entries, on the current behavior of
+which no one currently depends on (which can be deduced from the lack of
+kselftests), Ido Schimmel explains that entries with the "extern_learn"
+flag (BR_FDB_ADDED_BY_EXT_LEARN) should still be notified to switchdev,
+since the spectrum driver listens to them (and this is kind of okay,
+because although they are treated identically to "static", they are
+expected to not age, and to roam).
+
+Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
+Link: https://lore.kernel.org/netdev/20230327115206.jk5q5l753aoelwus@skbuf/
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20230418155902.898627-1-vladimir.oltean@nxp.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci_am654.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/bridge/br_switchdev.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/mmc/host/sdhci_am654.c
-+++ b/drivers/mmc/host/sdhci_am654.c
-@@ -351,8 +351,6 @@ static void sdhci_am654_write_b(struct s
- 		 */
- 		case MMC_TIMING_SD_HS:
- 		case MMC_TIMING_MMC_HS:
--		case MMC_TIMING_UHS_SDR12:
--		case MMC_TIMING_UHS_SDR25:
- 			val &= ~SDHCI_CTRL_HISPD;
- 		}
- 	}
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 8f3d76c751dd0..4b3982c368b35 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -146,6 +146,17 @@ br_switchdev_fdb_notify(struct net_bridge *br,
+ {
+ 	struct switchdev_notifier_fdb_info item;
+ 
++	/* Entries with these flags were created using ndm_state == NUD_REACHABLE,
++	 * ndm_flags == NTF_MASTER( | NTF_STICKY), ext_flags == 0 by something
++	 * equivalent to 'bridge fdb add ... master dynamic (sticky)'.
++	 * Drivers don't know how to deal with these, so don't notify them to
++	 * avoid confusing them.
++	 */
++	if (test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags) &&
++	    !test_bit(BR_FDB_STATIC, &fdb->flags) &&
++	    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
++		return;
++
+ 	br_switchdev_fdb_populate(br, &item, fdb, NULL);
+ 
+ 	switch (type) {
+-- 
+2.39.2
+
 
 
