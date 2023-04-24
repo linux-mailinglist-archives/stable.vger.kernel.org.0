@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB5E6ECEBE
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7D9F6ECE9A
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232524AbjDXNfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36816 "EHLO
+        id S232520AbjDXNdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232606AbjDXNen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356D07EF6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:27 -0700 (PDT)
+        with ESMTP id S232351AbjDXNdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2A586B4
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FDF0623B2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F49C4339E;
-        Mon, 24 Apr 2023 13:34:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06DF761EA1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F474C433D2;
+        Mon, 24 Apr 2023 13:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343264;
-        bh=KcIYtxZiyltAwaQEXsnim1aZAxkvZbi72cBZ43HvthM=;
+        s=korg; t=1682343193;
+        bh=5YtbPC1B/po0Q8vfP7wcPCCXtg3GFxfQU22h32K5xiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2au54br3AeKnCxvPTklw7SPNWAi/W1assCAwM+U9xJVU0aaa8Du0k8UEHyYeW64X
-         wrOoPlWprL5qsvsSxc5t051KjqB0b34iuzNgonqMItUfv3V1wRT5H4byoYPkTpgJDl
-         4cTn5VK+lEDNMVB8Spcec/WYNAvTn7HpMohYPqg4=
+        b=LweYKJ70q/BI6FBzUheK3ZgXI2UqAzRIAO9lZJSVqDZyX5EdDhagwXOYilbVK1z8u
+         OqEI5K8TRwyEBBArN+62amyXe/yqcSRaUNCnc68EFFkIgvQY5PEh+bbkdC9434XH3J
+         xQHkTQjxvVYiHSZ8ZoVPLqxsNc7gIemHrTGjbL4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Christian Theune <ct@flyingcircus.io>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 29/68] xfs: drop submit side trans alloc for append ioends
-Date:   Mon, 24 Apr 2023 15:18:00 +0200
-Message-Id: <20230424131128.759812392@linuxfoundation.org>
+        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 6.2 099/110] purgatory: fix disabling debug info
+Date:   Mon, 24 Apr 2023 15:18:01 +0200
+Message-Id: <20230424131140.272707120@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,139 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Alyssa Ross <hi@alyssa.is>
 
-commit 7cd3099f4925d7c15887d1940ebd65acd66100f5 upstream.
+commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 upstream.
 
-Per-inode ioend completion batching has a log reservation deadlock
-vector between preallocated append transactions and transactions
-that are acquired at completion time for other purposes (i.e.,
-unwritten extent conversion or COW fork remaps). For example, if the
-ioend completion workqueue task executes on a batch of ioends that
-are sorted such that an append ioend sits at the tail, it's possible
-for the outstanding append transaction reservation to block
-allocation of transactions required to process preceding ioends in
-the list.
+Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
+Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
+-Wa versions of both of those if building with Clang and GNU as.  As a
+result, debug info was being generated for the purgatory objects, even
+though the intention was that it not be.
 
-Append ioend completion is historically the common path for on-disk
-inode size updates. While file extending writes may have completed
-sometime earlier, the on-disk inode size is only updated after
-successful writeback completion. These transactions are preallocated
-serially from writeback context to mitigate concurrency and
-associated log reservation pressure across completions processed by
-multi-threaded workqueue tasks.
-
-However, now that delalloc blocks unconditionally map to unwritten
-extents at physical block allocation time, size updates via append
-ioends are relatively rare. This means that inode size updates most
-commonly occur as part of the preexisting completion time
-transaction to convert unwritten extents. As a result, there is no
-longer a strong need to preallocate size update transactions.
-
-Remove the preallocation of inode size update transactions to avoid
-the ioend completion processing log reservation deadlock. Instead,
-continue to send all potential size extending ioends to workqueue
-context for completion and allocate the transaction from that
-context. This ensures that no outstanding log reservation is owned
-by the ioend completion worker task when it begins to process
-ioends.
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reported-by: Christian Theune <ct@flyingcircus.io>
-Link: https://lore.kernel.org/linux-xfs/CAOQ4uxjj2UqA0h4Y31NbmpHksMhVrXfXjLG4Tnz3zq_UR-3gSA@mail.gmail.com/
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Cc: stable@vger.kernel.org
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_aops.c |   45 +++------------------------------------------
- 1 file changed, 3 insertions(+), 42 deletions(-)
+ arch/riscv/purgatory/Makefile |    4 +---
+ arch/x86/purgatory/Makefile   |    3 +--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
---- a/fs/xfs/xfs_aops.c
-+++ b/fs/xfs/xfs_aops.c
-@@ -39,33 +39,6 @@ static inline bool xfs_ioend_is_append(s
- 		XFS_I(ioend->io_inode)->i_d.di_size;
- }
+--- a/arch/riscv/purgatory/Makefile
++++ b/arch/riscv/purgatory/Makefile
+@@ -74,9 +74,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
  
--STATIC int
--xfs_setfilesize_trans_alloc(
--	struct iomap_ioend	*ioend)
--{
--	struct xfs_mount	*mp = XFS_I(ioend->io_inode)->i_mount;
--	struct xfs_trans	*tp;
--	int			error;
--
--	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_fsyncts, 0, 0, 0, &tp);
--	if (error)
--		return error;
--
--	ioend->io_private = tp;
--
--	/*
--	 * We may pass freeze protection with a transaction.  So tell lockdep
--	 * we released it.
--	 */
--	__sb_writers_release(ioend->io_inode->i_sb, SB_FREEZE_FS);
--	/*
--	 * We hand off the transaction to the completion thread now, so
--	 * clear the flag here.
--	 */
--	xfs_trans_clear_context(tp);
--	return 0;
--}
--
- /*
-  * Update on-disk file size now that data has been written to disk.
-  */
-@@ -191,12 +164,10 @@ xfs_end_ioend(
- 		error = xfs_reflink_end_cow(ip, offset, size);
- 	else if (ioend->io_type == IOMAP_UNWRITTEN)
- 		error = xfs_iomap_write_unwritten(ip, offset, size, false);
--	else
--		ASSERT(!xfs_ioend_is_append(ioend) || ioend->io_private);
+-AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
++asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
  
-+	if (!error && xfs_ioend_is_append(ioend))
-+		error = xfs_setfilesize(ip, ioend->io_offset, ioend->io_size);
- done:
--	if (ioend->io_private)
--		error = xfs_setfilesize_ioend(ioend, error);
- 	iomap_finish_ioends(ioend, error);
- 	memalloc_nofs_restore(nofs_flag);
- }
-@@ -246,7 +217,7 @@ xfs_end_io(
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
  
- static inline bool xfs_ioend_needs_workqueue(struct iomap_ioend *ioend)
- {
--	return ioend->io_private ||
-+	return xfs_ioend_is_append(ioend) ||
- 		ioend->io_type == IOMAP_UNWRITTEN ||
- 		(ioend->io_flags & IOMAP_F_SHARED);
- }
-@@ -259,8 +230,6 @@ xfs_end_bio(
- 	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
- 	unsigned long		flags;
+-AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
++asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
  
--	ASSERT(xfs_ioend_needs_workqueue(ioend));
--
- 	spin_lock_irqsave(&ip->i_ioend_lock, flags);
- 	if (list_empty(&ip->i_ioend_list))
- 		WARN_ON_ONCE(!queue_work(ip->i_mount->m_unwritten_workqueue,
-@@ -510,14 +479,6 @@ xfs_prepare_ioend(
- 				ioend->io_offset, ioend->io_size);
- 	}
- 
--	/* Reserve log space if we might write beyond the on-disk inode size. */
--	if (!status &&
--	    ((ioend->io_flags & IOMAP_F_SHARED) ||
--	     ioend->io_type != IOMAP_UNWRITTEN) &&
--	    xfs_ioend_is_append(ioend) &&
--	    !ioend->io_private)
--		status = xfs_setfilesize_trans_alloc(ioend);
--
- 	memalloc_nofs_restore(nofs_flag);
- 
- 	if (xfs_ioend_needs_workqueue(ioend))
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
 
 
