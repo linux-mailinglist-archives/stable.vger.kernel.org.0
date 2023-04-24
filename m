@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6898A6ECD70
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6646ECE7C
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232207AbjDXNXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46958 "EHLO
+        id S232504AbjDXNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232170AbjDXNXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:22 -0400
+        with ESMTP id S232482AbjDXNcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE214525D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E4C7A99
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0ED61541
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2857C433EF;
-        Mon, 24 Apr 2023 13:23:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57A0862377
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B1C9C433D2;
+        Mon, 24 Apr 2023 13:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342590;
-        bh=Tys6h4pxc7w4cQSCN/DoHfbEES3xmcLSAejDb0wXals=;
+        s=korg; t=1682343140;
+        bh=7Tai9VoDSP3fnzBapK+Q5uGS9uodF8uxdlqNPTTUOZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9kxkZoBwB7GWe2l8soTKIQlm3WIyJ0wua26oKUe7/6T1Us3631WwTRM+vXKZtJQj
-         K4K1rkY2FHhEifMFSqGiybjG42ykjsml6Ho5xThEQ3rYTJTIwqyQOjimny00Qchz/X
-         2r4ze3AbTD7kyfyM7kQbhbTBN7pLNk4Kby7jJHrA=
+        b=Drb77OlvpXU/fVoZc7UrFsuViuNKqfPIurcyNbfzKMqKjSdOR6eeZHCkw7YWLJpr9
+         Rj1aKTg1hcf6WedZt+h9x/rHa+k9loGCPgCk0pB1Usi2zH7YoTmTSpwxKCZ1FbGwYk
+         zOTlR7GDvnKLjksisHp8VAm3qQh22/w/xr6Ai1Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 23/39] nilfs2: initialize unused bytes in segment summary blocks
-Date:   Mon, 24 Apr 2023 15:17:26 +0200
-Message-Id: <20230424131123.921814245@linuxfoundation.org>
+        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>
+Subject: [PATCH 6.2 065/110] LoongArch: Fix probing of the CRC32 feature
+Date:   Mon, 24 Apr 2023 15:17:27 +0200
+Message-Id: <20230424131138.776178478@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,80 +52,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit ef832747a82dfbc22a3702219cc716f449b24e4a upstream.
+commit df830336045db1246d3245d3737fee9939c5f731 upstream.
 
-Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
-KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
-initialize "struct nilfs_binfo_dat"->bi_pad field").
+Not all LoongArch processors support CRC32 instructions. This feature
+is indicated by CPUCFG1.CRC32 (Bit25) but it is wrongly defined in the
+previous versions of the ISA manual (and so does in loongarch.h). The
+CRC32 feature is set unconditionally now, so fix it.
 
-This is because the unused bytes at the end of each block in segment
-summaries are not initialized.  So this fixes the issue by padding the
-unused bytes with null bytes.
+BTW, expose the CRC32 feature in /proc/cpuinfo.
 
-Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
-  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
-Cc: Alexander Potapenko <glider@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/loongarch/include/asm/cpu-features.h |    1 
+ arch/loongarch/include/asm/cpu.h          |   40 +++++++++++++++---------------
+ arch/loongarch/include/asm/loongarch.h    |    2 -
+ arch/loongarch/kernel/cpu-probe.c         |    7 ++++-
+ arch/loongarch/kernel/proc.c              |    1 
+ 5 files changed, 30 insertions(+), 21 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -435,6 +435,23 @@ static int nilfs_segctor_reset_segment_b
- 	return 0;
- }
+--- a/arch/loongarch/include/asm/cpu-features.h
++++ b/arch/loongarch/include/asm/cpu-features.h
+@@ -42,6 +42,7 @@
+ #define cpu_has_fpu		cpu_opt(LOONGARCH_CPU_FPU)
+ #define cpu_has_lsx		cpu_opt(LOONGARCH_CPU_LSX)
+ #define cpu_has_lasx		cpu_opt(LOONGARCH_CPU_LASX)
++#define cpu_has_crc32		cpu_opt(LOONGARCH_CPU_CRC32)
+ #define cpu_has_complex		cpu_opt(LOONGARCH_CPU_COMPLEX)
+ #define cpu_has_crypto		cpu_opt(LOONGARCH_CPU_CRYPTO)
+ #define cpu_has_lvz		cpu_opt(LOONGARCH_CPU_LVZ)
+--- a/arch/loongarch/include/asm/cpu.h
++++ b/arch/loongarch/include/asm/cpu.h
+@@ -78,25 +78,26 @@ enum cpu_type_enum {
+ #define CPU_FEATURE_FPU			3	/* CPU has FPU */
+ #define CPU_FEATURE_LSX			4	/* CPU has LSX (128-bit SIMD) */
+ #define CPU_FEATURE_LASX		5	/* CPU has LASX (256-bit SIMD) */
+-#define CPU_FEATURE_COMPLEX		6	/* CPU has Complex instructions */
+-#define CPU_FEATURE_CRYPTO		7	/* CPU has Crypto instructions */
+-#define CPU_FEATURE_LVZ			8	/* CPU has Virtualization extension */
+-#define CPU_FEATURE_LBT_X86		9	/* CPU has X86 Binary Translation */
+-#define CPU_FEATURE_LBT_ARM		10	/* CPU has ARM Binary Translation */
+-#define CPU_FEATURE_LBT_MIPS		11	/* CPU has MIPS Binary Translation */
+-#define CPU_FEATURE_TLB			12	/* CPU has TLB */
+-#define CPU_FEATURE_CSR			13	/* CPU has CSR */
+-#define CPU_FEATURE_WATCH		14	/* CPU has watchpoint registers */
+-#define CPU_FEATURE_VINT		15	/* CPU has vectored interrupts */
+-#define CPU_FEATURE_CSRIPI		16	/* CPU has CSR-IPI */
+-#define CPU_FEATURE_EXTIOI		17	/* CPU has EXT-IOI */
+-#define CPU_FEATURE_PREFETCH		18	/* CPU has prefetch instructions */
+-#define CPU_FEATURE_PMP			19	/* CPU has perfermance counter */
+-#define CPU_FEATURE_SCALEFREQ		20	/* CPU supports cpufreq scaling */
+-#define CPU_FEATURE_FLATMODE		21	/* CPU has flat mode */
+-#define CPU_FEATURE_EIODECODE		22	/* CPU has EXTIOI interrupt pin decode mode */
+-#define CPU_FEATURE_GUESTID		23	/* CPU has GuestID feature */
+-#define CPU_FEATURE_HYPERVISOR		24	/* CPU has hypervisor (running in VM) */
++#define CPU_FEATURE_CRC32		6	/* CPU has CRC32 instructions */
++#define CPU_FEATURE_COMPLEX		7	/* CPU has Complex instructions */
++#define CPU_FEATURE_CRYPTO		8	/* CPU has Crypto instructions */
++#define CPU_FEATURE_LVZ			9	/* CPU has Virtualization extension */
++#define CPU_FEATURE_LBT_X86		10	/* CPU has X86 Binary Translation */
++#define CPU_FEATURE_LBT_ARM		11	/* CPU has ARM Binary Translation */
++#define CPU_FEATURE_LBT_MIPS		12	/* CPU has MIPS Binary Translation */
++#define CPU_FEATURE_TLB			13	/* CPU has TLB */
++#define CPU_FEATURE_CSR			14	/* CPU has CSR */
++#define CPU_FEATURE_WATCH		15	/* CPU has watchpoint registers */
++#define CPU_FEATURE_VINT		16	/* CPU has vectored interrupts */
++#define CPU_FEATURE_CSRIPI		17	/* CPU has CSR-IPI */
++#define CPU_FEATURE_EXTIOI		18	/* CPU has EXT-IOI */
++#define CPU_FEATURE_PREFETCH		19	/* CPU has prefetch instructions */
++#define CPU_FEATURE_PMP			20	/* CPU has perfermance counter */
++#define CPU_FEATURE_SCALEFREQ		21	/* CPU supports cpufreq scaling */
++#define CPU_FEATURE_FLATMODE		22	/* CPU has flat mode */
++#define CPU_FEATURE_EIODECODE		23	/* CPU has EXTIOI interrupt pin decode mode */
++#define CPU_FEATURE_GUESTID		24	/* CPU has GuestID feature */
++#define CPU_FEATURE_HYPERVISOR		25	/* CPU has hypervisor (running in VM) */
  
-+/**
-+ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
-+ * @sci: segment constructor object
-+ *
-+ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
-+ * the current segment summary block.
-+ */
-+static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
-+{
-+	struct nilfs_segsum_pointer *ssp;
-+
-+	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
-+	if (ssp->offset < ssp->bh->b_size)
-+		memset(ssp->bh->b_data + ssp->offset, 0,
-+		       ssp->bh->b_size - ssp->offset);
-+}
-+
- static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
- {
- 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
-@@ -443,6 +460,7 @@ static int nilfs_segctor_feed_segment(st
- 				* The current segment is filled up
- 				* (internal code)
- 				*/
-+	nilfs_segctor_zeropad_segsum(sci);
- 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
- 	return nilfs_segctor_reset_segment_buffer(sci);
- }
-@@ -547,6 +565,7 @@ static int nilfs_segctor_add_file_block(
- 		goto retry;
- 	}
- 	if (unlikely(required)) {
-+		nilfs_segctor_zeropad_segsum(sci);
- 		err = nilfs_segbuf_extend_segsum(segbuf);
- 		if (unlikely(err))
- 			goto failed;
-@@ -1531,6 +1550,7 @@ static int nilfs_segctor_collect(struct
- 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
- 		sci->sc_stage = prev_stage;
- 	}
-+	nilfs_segctor_zeropad_segsum(sci);
- 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
- 	return 0;
+ #define LOONGARCH_CPU_CPUCFG		BIT_ULL(CPU_FEATURE_CPUCFG)
+ #define LOONGARCH_CPU_LAM		BIT_ULL(CPU_FEATURE_LAM)
+@@ -104,6 +105,7 @@ enum cpu_type_enum {
+ #define LOONGARCH_CPU_FPU		BIT_ULL(CPU_FEATURE_FPU)
+ #define LOONGARCH_CPU_LSX		BIT_ULL(CPU_FEATURE_LSX)
+ #define LOONGARCH_CPU_LASX		BIT_ULL(CPU_FEATURE_LASX)
++#define LOONGARCH_CPU_CRC32		BIT_ULL(CPU_FEATURE_CRC32)
+ #define LOONGARCH_CPU_COMPLEX		BIT_ULL(CPU_FEATURE_COMPLEX)
+ #define LOONGARCH_CPU_CRYPTO		BIT_ULL(CPU_FEATURE_CRYPTO)
+ #define LOONGARCH_CPU_LVZ		BIT_ULL(CPU_FEATURE_LVZ)
+--- a/arch/loongarch/include/asm/loongarch.h
++++ b/arch/loongarch/include/asm/loongarch.h
+@@ -117,7 +117,7 @@ static inline u32 read_cpucfg(u32 reg)
+ #define  CPUCFG1_EP			BIT(22)
+ #define  CPUCFG1_RPLV			BIT(23)
+ #define  CPUCFG1_HUGEPG			BIT(24)
+-#define  CPUCFG1_IOCSRBRD		BIT(25)
++#define  CPUCFG1_CRC32			BIT(25)
+ #define  CPUCFG1_MSGINT			BIT(26)
  
+ #define LOONGARCH_CPUCFG2		0x2
+--- a/arch/loongarch/kernel/cpu-probe.c
++++ b/arch/loongarch/kernel/cpu-probe.c
+@@ -94,13 +94,18 @@ static void cpu_probe_common(struct cpui
+ 	c->options = LOONGARCH_CPU_CPUCFG | LOONGARCH_CPU_CSR |
+ 		     LOONGARCH_CPU_TLB | LOONGARCH_CPU_VINT | LOONGARCH_CPU_WATCH;
+ 
+-	elf_hwcap = HWCAP_LOONGARCH_CPUCFG | HWCAP_LOONGARCH_CRC32;
++	elf_hwcap = HWCAP_LOONGARCH_CPUCFG;
+ 
+ 	config = read_cpucfg(LOONGARCH_CPUCFG1);
+ 	if (config & CPUCFG1_UAL) {
+ 		c->options |= LOONGARCH_CPU_UAL;
+ 		elf_hwcap |= HWCAP_LOONGARCH_UAL;
+ 	}
++	if (config & CPUCFG1_CRC32) {
++		c->options |= LOONGARCH_CPU_CRC32;
++		elf_hwcap |= HWCAP_LOONGARCH_CRC32;
++	}
++
+ 
+ 	config = read_cpucfg(LOONGARCH_CPUCFG2);
+ 	if (config & CPUCFG2_LAM) {
+--- a/arch/loongarch/kernel/proc.c
++++ b/arch/loongarch/kernel/proc.c
+@@ -76,6 +76,7 @@ static int show_cpuinfo(struct seq_file
+ 	if (cpu_has_fpu)	seq_printf(m, " fpu");
+ 	if (cpu_has_lsx)	seq_printf(m, " lsx");
+ 	if (cpu_has_lasx)	seq_printf(m, " lasx");
++	if (cpu_has_crc32)	seq_printf(m, " crc32");
+ 	if (cpu_has_complex)	seq_printf(m, " complex");
+ 	if (cpu_has_crypto)	seq_printf(m, " crypto");
+ 	if (cpu_has_lvz)	seq_printf(m, " lvz");
 
 
