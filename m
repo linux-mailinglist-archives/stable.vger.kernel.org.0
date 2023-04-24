@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 351F86ECD5E
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DA56ECDB7
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232064AbjDXNXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48116 "EHLO
+        id S232176AbjDXN0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232065AbjDXNWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:44 -0400
+        with ESMTP id S232186AbjDXN0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5C45B94
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AD95BBD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6112762263
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75222C433EF;
-        Mon, 24 Apr 2023 13:22:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9D00622C1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D94C433EF;
+        Mon, 24 Apr 2023 13:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342547;
-        bh=H3qh3ZEE+a7EDijgwqrliAy5B2iEJaNRDUTZCn7Zmzs=;
+        s=korg; t=1682342759;
+        bh=JYv8anrELkRS2InyKfowv6LTjAw5NsWku3VF0hOAG1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNRHN3I/aucKH4YQIZ3e46FT4xLwreEvPtz0yjQhYZSxsteOCSRrDu92IWfBm7HJ5
-         DCOVVVnxIe3avReXIBvlQnR1Or+vLZ51XFE54pS0ccobeQNHY3VZt7Qj0eC2z1K5aY
-         /3dkYDzSZE+lJJalTOV4wWxIYBiuHbGFF+kEDfV0=
+        b=SoCgyurn5G29k6pk1vxCySMl3EiqWc6GzjPMRpiOwG/A2KD5eJhoYn7yjmXu35Gt0
+         0la6wEUdcXMk3HbV2CUXfPjucpli0g+tMehosmsj7iwri9A+1D8Xqbz6lphKsSXZDd
+         ylaj63OvMgl8AXi5i4Rp3Bf/5lyq9EqKbRC1zKvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.15 54/73] purgatory: fix disabling debug info
+        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 45/98] xen/netback: use same error messages for same errors
 Date:   Mon, 24 Apr 2023 15:17:08 +0200
-Message-Id: <20230424131131.026576532@linuxfoundation.org>
+Message-Id: <20230424131135.616569773@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Juergen Gross <jgross@suse.com>
 
-commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 upstream.
+[ Upstream commit 2eca98e5b24d01c02b46c67be05a5f98cc9789b1 ]
 
-Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
--Wa versions of both of those if building with Clang and GNU as.  As a
-result, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+Issue the same error message in case an illegal page boundary crossing
+has been detected in both cases where this is tested.
 
-Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20230329080259.14823-1-jgross@suse.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/purgatory/Makefile |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/xen-netback/netback.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -64,8 +64,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index 5c266062c08f0..c35c085dbc877 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -996,10 +996,8 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
  
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-remove-y		+= -g -Wa,-gdwarf-2
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
+ 		/* No crossing a page as the payload mustn't fragment. */
+ 		if (unlikely((txreq.offset + txreq.size) > XEN_PAGE_SIZE)) {
+-			netdev_err(queue->vif->dev,
+-				   "txreq.offset: %u, size: %u, end: %lu\n",
+-				   txreq.offset, txreq.size,
+-				   (unsigned long)(txreq.offset&~XEN_PAGE_MASK) + txreq.size);
++			netdev_err(queue->vif->dev, "Cross page boundary, txreq.offset: %u, size: %u\n",
++				   txreq.offset, txreq.size);
+ 			xenvif_fatal_tx_err(queue->vif);
+ 			break;
+ 		}
+-- 
+2.39.2
+
 
 
