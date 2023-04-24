@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBC86ECF1E
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC906ECEFF
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbjDXNiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:38:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
+        id S232742AbjDXNhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232721AbjDXNiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:04 -0400
+        with ESMTP id S232725AbjDXNhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8315901B
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:37:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3349000
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:36:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACC03623D3
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC8F1C433EF;
-        Mon, 24 Apr 2023 13:37:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B510623DB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50F4CC433D2;
+        Mon, 24 Apr 2023 13:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343458;
-        bh=tX943alFEAj2EnDWYkla04r0Y4G6WHtovotRMKxqkaU=;
+        s=korg; t=1682343383;
+        bh=SkN7G4LFfFxqVhQ5SlGTOvAf5wPGasBr8JYLxiKenrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MaQkF1l5JikMGKNvT8lzhp8lAvxUgteYS/hiQ9hKr13ygI+PZ0pRi5LvxlUy7ITks
-         QaChLCy+reby6pa+0VAIhayh7kVievR+GzIceB2EQo4i8WvRGLMzvHA6knK/2Xe16L
-         qQp6468QmO5A30s6kjDYnZ5DjFIx36Naubu4RHoM=
+        b=SBw/YUd+pb6I2+RAgU3LaPty6iOFZl9CwlxIX6NIs3SgvwtSDBVNLjJ5QMAX4UynK
+         LwZyEEQWiTLS4jpx8KriAMhSFeP/atrO2UdzRM+uN+qgkG1lGIZe4hPmQlUb3GdR3d
+         ZOSNRmgy4veF4jSJWl4SoNHcsj8syuqzUtlDrtL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Natalia Petrova <n.petrova@fintech.ru>
-Subject: [PATCH 4.14 06/28] mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
+        patches@lists.linux.dev, Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 5.10 56/68] ext4: remove duplicate definition of ext4_xattr_ibody_inline_set()
 Date:   Mon, 24 Apr 2023 15:18:27 +0200
-Message-Id: <20230424131121.527224692@linuxfoundation.org>
+Message-Id: <20230424131129.792268951@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
-References: <20230424131121.331252806@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +54,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-[ Upstream commit c0e73276f0fcbbd3d4736ba975d7dc7a48791b0c ]
+[ Upstream commit 310c097c2bdbea253d6ee4e064f3e65580ef93ac ]
 
-Function mlxfw_mfa2_tlv_multi_get() returns NULL if 'tlv' in
-question does not pass checks in mlxfw_mfa2_tlv_payload_get(). This
-behaviour may lead to NULL pointer dereference in 'multi->total_len'.
-Fix this issue by testing mlxfw_mfa2_tlv_multi_get()'s return value
-against NULL.
+ext4_xattr_ibody_inline_set() & ext4_xattr_ibody_set() have the exact
+same definition.  Hence remove ext4_xattr_ibody_inline_set() and all
+its call references. Convert the callers of it to call
+ext4_xattr_ibody_set() instead.
 
-Found by Linux Verification Center (linuxtesting.org) with static
-analysis tool SVACE.
+[ Modified to preserve ext4_xattr_ibody_set() and remove
+  ext4_xattr_ibody_inline_set() instead. -- TYT ]
 
-Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
-Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20230417120718.52325-1-n.zhandarovich@fintech.ru
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/fd566b799bbbbe9b668eb5eecde5b5e319e3694f.1622685482.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/inline.c |   11 +++++------
+ fs/ext4/xattr.c  |   26 +-------------------------
+ fs/ext4/xattr.h  |    6 +++---
+ 3 files changed, 9 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-index 0094b92a233ba..31c0d6ee81b16 100644
---- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-+++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-@@ -62,6 +62,8 @@ mlxfw_mfa2_tlv_next(const struct mlxfw_mfa2_file *mfa2_file,
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -206,7 +206,7 @@ out:
+ /*
+  * write the buffer to the inline inode.
+  * If 'create' is set, we don't need to do the extra copy in the xattr
+- * value since it is already handled by ext4_xattr_ibody_inline_set.
++ * value since it is already handled by ext4_xattr_ibody_set.
+  * That saves us one memcpy.
+  */
+ static void ext4_write_inline_data(struct inode *inode, struct ext4_iloc *iloc,
+@@ -288,7 +288,7 @@ static int ext4_create_inline_data(handl
  
- 	if (tlv->type == MLXFW_MFA2_TLV_MULTI_PART) {
- 		multi = mlxfw_mfa2_tlv_multi_get(mfa2_file, tlv);
-+		if (!multi)
-+			return NULL;
- 		tlv_len = NLA_ALIGN(tlv_len + be16_to_cpu(multi->total_len));
- 	}
+ 	BUG_ON(!is.s.not_found);
  
--- 
-2.39.2
-
+-	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
++	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
+ 	if (error) {
+ 		if (error == -ENOSPC)
+ 			ext4_clear_inode_state(inode,
+@@ -360,7 +360,7 @@ static int ext4_update_inline_data(handl
+ 	i.value = value;
+ 	i.value_len = len;
+ 
+-	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
++	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
+ 	if (error)
+ 		goto out;
+ 
+@@ -433,7 +433,7 @@ static int ext4_destroy_inline_data_nolo
+ 	if (error)
+ 		goto out;
+ 
+-	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
++	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
+ 	if (error)
+ 		goto out;
+ 
+@@ -1930,8 +1930,7 @@ int ext4_inline_data_truncate(struct ino
+ 			i.value = value;
+ 			i.value_len = i_size > EXT4_MIN_INLINE_DATA_SIZE ?
+ 					i_size - EXT4_MIN_INLINE_DATA_SIZE : 0;
+-			err = ext4_xattr_ibody_inline_set(handle, inode,
+-							  &i, &is);
++			err = ext4_xattr_ibody_set(handle, inode, &i, &is);
+ 			if (err)
+ 				goto out_error;
+ 		}
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2214,31 +2214,7 @@ int ext4_xattr_ibody_find(struct inode *
+ 	return 0;
+ }
+ 
+-int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
+-				struct ext4_xattr_info *i,
+-				struct ext4_xattr_ibody_find *is)
+-{
+-	struct ext4_xattr_ibody_header *header;
+-	struct ext4_xattr_search *s = &is->s;
+-	int error;
+-
+-	if (EXT4_I(inode)->i_extra_isize == 0)
+-		return -ENOSPC;
+-	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
+-	if (error)
+-		return error;
+-	header = IHDR(inode, ext4_raw_inode(&is->iloc));
+-	if (!IS_LAST_ENTRY(s->first)) {
+-		header->h_magic = cpu_to_le32(EXT4_XATTR_MAGIC);
+-		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
+-	} else {
+-		header->h_magic = cpu_to_le32(0);
+-		ext4_clear_inode_state(inode, EXT4_STATE_XATTR);
+-	}
+-	return 0;
+-}
+-
+-static int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
++int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
+ 				struct ext4_xattr_info *i,
+ 				struct ext4_xattr_ibody_find *is)
+ {
+--- a/fs/ext4/xattr.h
++++ b/fs/ext4/xattr.h
+@@ -200,9 +200,9 @@ extern int ext4_xattr_ibody_find(struct
+ extern int ext4_xattr_ibody_get(struct inode *inode, int name_index,
+ 				const char *name,
+ 				void *buffer, size_t buffer_size);
+-extern int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
+-				       struct ext4_xattr_info *i,
+-				       struct ext4_xattr_ibody_find *is);
++extern int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
++				struct ext4_xattr_info *i,
++				struct ext4_xattr_ibody_find *is);
+ 
+ extern struct mb_cache *ext4_xattr_create_cache(void);
+ extern void ext4_xattr_destroy_cache(struct mb_cache *);
 
 
