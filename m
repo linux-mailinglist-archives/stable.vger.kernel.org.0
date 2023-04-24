@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CBE6ECE45
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338136ECD88
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232476AbjDXNbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59508 "EHLO
+        id S232085AbjDXNY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232416AbjDXNax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:53 -0400
+        with ESMTP id S232200AbjDXNYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 873F31B4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6505255
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35DEC61F13
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45747C433EF;
-        Mon, 24 Apr 2023 13:30:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBFC262290
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E80C433D2;
+        Mon, 24 Apr 2023 13:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343011;
-        bh=2mxQnyIbun5nh7sgVCBRUrrK5WNidCF0V7zcXrMZs5g=;
+        s=korg; t=1682342648;
+        bh=RyVSaSqn4wBFKnxu9j97/taoihP7qRmiIOVsbU8gKuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFaHeaiFtRgsgmoPxdmouDWzn9i5CnUDR+U0Lh8t2bTuXCJ5XpnHfmRDvUcK3PAIY
-         IjaAJ7MVa3jN6vCbet4sJ2B1b/EEwzZ2F21nwSmoxmQeuXTubCGdz9jhTLzauemn/w
-         TRDlWZYEmPdxCqRjWF98BoL+crozumHdeXu59uv0=
+        b=B/BacM2Lcm27zr5oiIU3be4GSfq41q8LfmLFhZBWz5b8MvgqMbmgLPFKmN1rzAL/u
+         u2jqRn88bQlXhwhI7s6AicjOSnzz+eax/RNcmoZ4vIuY+TejBzLiFuwftDqex+mXWm
+         f8eJ0PylsdeBNhKFKRzg58nRKf6bztYg9SaA6c4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 044/110] net: dsa: b53: mmap: add phy ops
-Date:   Mon, 24 Apr 2023 15:17:06 +0200
-Message-Id: <20230424131137.840269012@linuxfoundation.org>
+Subject: [PATCH 5.4 04/39] regulator: fan53555: Explicitly include bits header
+Date:   Mon, 24 Apr 2023 15:17:07 +0200
+Message-Id: <20230424131123.207723649@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
+[ Upstream commit 4fb9a5060f73627303bc531ceaab1b19d0a24aef ]
 
-Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
-B53_PORT_MII_PAGE registers which hangs the device.
-This access should be done through the MDIO Mux bus controller.
+Since commit f2a9eb975ab2 ("regulator: fan53555: Add support for
+FAN53526") the driver makes use of the BIT() macro, but relies on the
+bits header being implicitly included.
 
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Explicitly pull the header in to avoid potential build failures in some
+configurations.
+
+While here, reorder include directives alphabetically.
+
+Fixes: f2a9eb975ab2 ("regulator: fan53555: Add support for FAN53526")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Link: https://lore.kernel.org/r/20230406171806.948290-3-cristian.ciocaltea@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/regulator/fan53555.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
-index 70887e0aece33..d9434ed9450df 100644
---- a/drivers/net/dsa/b53/b53_mmap.c
-+++ b/drivers/net/dsa/b53/b53_mmap.c
-@@ -216,6 +216,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
- 	return 0;
- }
+diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
+index dbe477da4e559..99a1b2dc30933 100644
+--- a/drivers/regulator/fan53555.c
++++ b/drivers/regulator/fan53555.c
+@@ -8,18 +8,19 @@
+ // Copyright (c) 2012 Marvell Technology Ltd.
+ // Yunfan Zhang <yfzhang@marvell.com>
  
-+static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
-+			       u16 *value)
-+{
-+	return -EIO;
-+}
-+
-+static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
-+				u16 value)
-+{
-+	return -EIO;
-+}
-+
- static const struct b53_io_ops b53_mmap_ops = {
- 	.read8 = b53_mmap_read8,
- 	.read16 = b53_mmap_read16,
-@@ -227,6 +239,8 @@ static const struct b53_io_ops b53_mmap_ops = {
- 	.write32 = b53_mmap_write32,
- 	.write48 = b53_mmap_write48,
- 	.write64 = b53_mmap_write64,
-+	.phy_read16 = b53_mmap_phy_read16,
-+	.phy_write16 = b53_mmap_phy_write16,
- };
++#include <linux/bits.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/param.h>
+-#include <linux/err.h>
+ #include <linux/platform_device.h>
++#include <linux/regmap.h>
+ #include <linux/regulator/driver.h>
++#include <linux/regulator/fan53555.h>
+ #include <linux/regulator/machine.h>
+ #include <linux/regulator/of_regulator.h>
+-#include <linux/of_device.h>
+-#include <linux/i2c.h>
+ #include <linux/slab.h>
+-#include <linux/regmap.h>
+-#include <linux/regulator/fan53555.h>
  
- static int b53_mmap_probe_of(struct platform_device *pdev,
+ /* Voltage setting */
+ #define FAN53555_VSEL0		0x00
 -- 
 2.39.2
 
