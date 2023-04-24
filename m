@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB456ECEEF
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D0B6ECF4F
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232679AbjDXNga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:36:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39244 "EHLO
+        id S232673AbjDXNjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232676AbjDXNgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:36:09 -0400
+        with ESMTP id S232769AbjDXNjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC216A65
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE439EE5
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1825E62332
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B431C433D2;
-        Mon, 24 Apr 2023 13:35:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B64D6239C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:39:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAD61C433EF;
+        Mon, 24 Apr 2023 13:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343354;
-        bh=tBkSnrIt2m+7p4Ir4G2Vb3DYBKgIS58O0gdBptIAb1k=;
+        s=korg; t=1682343540;
+        bh=0rW4xEviGQlH+Kh0yzDl9V9IHWSHr94idmaIK8J8JM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMwdgNqaTEwDktB1xJChDMWCSLUEBhtVwXQscNrFK3kBCYVqeA3dzwDc8QxVpDaBZ
-         SdfX75/NeSPnbOSiq5RxhVOuIMl0CKvBXD2MLi8Lrex8KAFI9IHEsAz40v9H4akMXx
-         ZeCI/ezEHTcMZjGTOCiHqAYeUuGu2YmCLXjAOMAI=
+        b=Qc1HqMphOh8ino2vr/58p+SuWPNYnotuySteAoG2BLtaFwN5jT/SFLi/U/R4a6VuA
+         UXBWaRXBKuJMI14mpzo/43WQ9PS9Z3dkMvs0iaORaftERMVMvmo0yeW4jO864+hAP5
+         /MVv9LhKkJrHiJhwZIXyHjURbpRYjgfPb0uhVljM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Munehisa Kamata <kamatam@amazon.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5.10 63/68] pwm: meson: Explicitly set .polarity in .get_state()
+        patches@lists.linux.dev,
+        Sebastian Basierski <sebastianx.basierski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/29] e1000e: Disable TSO on i219-LM card to increase speed
 Date:   Mon, 24 Apr 2023 15:18:34 +0200
-Message-Id: <20230424131130.050723521@linuxfoundation.org>
+Message-Id: <20230424131121.394194506@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +59,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Sebastian Basierski <sebastianx.basierski@intel.com>
 
-commit 8caa81eb950cb2e9d2d6959b37d853162d197f57 upstream.
+[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
 
-The driver only supports normal polarity. Complete the implementation of
-.get_state() by setting .polarity accordingly.
+While using i219-LM card currently it was only possible to achieve
+about 60% of maximum speed due to regression introduced in Linux 5.8.
+This was caused by TSO not being disabled by default despite commit
+f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
+Fix that by disabling TSO during driver probe.
 
-This fixes a regression that was possible since commit c73a3107624d
-("pwm: Handle .get_state() failures") which stopped to zero-initialize
-the state passed to the .get_state() callback. This was reported at
-https://forum.odroid.com/viewtopic.php?f=177&t=46360 . While this was an
-unintended side effect, the real issue is the driver's callback not
-setting the polarity.
-
-There is a complicating fact, that the .apply() callback fakes support
-for inversed polarity. This is not (and cannot) be matched by
-.get_state(). As fixing this isn't easy, only point it out in a comment
-to prevent authors of other drivers from copying that approach.
-
-Fixes: c375bcbaabdb ("pwm: meson: Read the full hardware state in meson_pwm_get_state()")
-Reported-by: Munehisa Kamata <kamatam@amazon.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20230310191405.2606296-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
+Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-meson.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
---- a/drivers/pwm/pwm-meson.c
-+++ b/drivers/pwm/pwm-meson.c
-@@ -168,6 +168,12 @@ static int meson_pwm_calc(struct meson_p
- 	duty = state->duty_cycle;
- 	period = state->period;
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 0629f87a20be7..202f734f8733b 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5230,31 +5230,6 @@ static void e1000_watchdog_task(struct work_struct *work)
+ 				ew32(TARC(0), tarc0);
+ 			}
  
-+	/*
-+	 * Note this is wrong. The result is an output wave that isn't really
-+	 * inverted and so is wrongly identified by .get_state as normal.
-+	 * Fixing this needs some care however as some machines might rely on
-+	 * this.
+-			/* disable TSO for pcie and 10/100 speeds, to avoid
+-			 * some hardware issues
+-			 */
+-			if (!(adapter->flags & FLAG_TSO_FORCE)) {
+-				switch (adapter->link_speed) {
+-				case SPEED_10:
+-				case SPEED_100:
+-					e_info("10/100 speed: disabling TSO\n");
+-					netdev->features &= ~NETIF_F_TSO;
+-					netdev->features &= ~NETIF_F_TSO6;
+-					break;
+-				case SPEED_1000:
+-					netdev->features |= NETIF_F_TSO;
+-					netdev->features |= NETIF_F_TSO6;
+-					break;
+-				default:
+-					/* oops */
+-					break;
+-				}
+-				if (hw->mac.type == e1000_pch_spt) {
+-					netdev->features &= ~NETIF_F_TSO;
+-					netdev->features &= ~NETIF_F_TSO6;
+-				}
+-			}
+-
+ 			/* enable transmits in the hardware, need to do this
+ 			 * after setting TARC(0)
+ 			 */
+@@ -7191,6 +7166,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			    NETIF_F_RXCSUM |
+ 			    NETIF_F_HW_CSUM);
+ 
++	/* disable TSO for pcie and 10/100 speeds to avoid
++	 * some hardware issues and for i219 to fix transfer
++	 * speed being capped at 60%
 +	 */
- 	if (state->polarity == PWM_POLARITY_INVERSED)
- 		duty = period - duty;
- 
-@@ -366,6 +372,7 @@ static void meson_pwm_get_state(struct p
- 		state->period = 0;
- 		state->duty_cycle = 0;
- 	}
-+	state->polarity = PWM_POLARITY_NORMAL;
- }
- 
- static const struct pwm_ops meson_pwm_ops = {
++	if (!(adapter->flags & FLAG_TSO_FORCE)) {
++		switch (adapter->link_speed) {
++		case SPEED_10:
++		case SPEED_100:
++			e_info("10/100 speed: disabling TSO\n");
++			netdev->features &= ~NETIF_F_TSO;
++			netdev->features &= ~NETIF_F_TSO6;
++			break;
++		case SPEED_1000:
++			netdev->features |= NETIF_F_TSO;
++			netdev->features |= NETIF_F_TSO6;
++			break;
++		default:
++			/* oops */
++			break;
++		}
++		if (hw->mac.type == e1000_pch_spt) {
++			netdev->features &= ~NETIF_F_TSO;
++			netdev->features &= ~NETIF_F_TSO6;
++		}
++	}
++
+ 	/* Set user-changeable features (subset of all device features) */
+ 	netdev->hw_features = netdev->features;
+ 	netdev->hw_features |= NETIF_F_RXFCS;
+-- 
+2.39.2
+
 
 
