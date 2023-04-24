@@ -2,55 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E15756ECE7A
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCEF6ECDEE
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232322AbjDXNc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59976 "EHLO
+        id S232262AbjDXN20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:28:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232538AbjDXNcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE34772B8
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:18 -0700 (PDT)
+        with ESMTP id S232254AbjDXN2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CD061BA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEFE96235C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4B91C433EF;
-        Mon, 24 Apr 2023 13:32:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAB1661D3E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0FF9C433D2;
+        Mon, 24 Apr 2023 13:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343138;
-        bh=uwBPoOCCBI8jAOfv+Jqtqs+PfoeF/VqY0RFKiKFpfS4=;
+        s=korg; t=1682342872;
+        bh=nYYRro7bwihhg5VV6MrIjsbzsZvLhbFdrhYEIynNksQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjg9qwx4hQXeWhnV7DckMfc7e4J0nYOZNQCBxNpw6/rRVmi6mhNaKJjCmlpFXOxyk
-         2m/2/7Sv8kr/aZwUhq5xjLtFaGLgaFnhpn4ka4uGD9b/9TkRB9xW0F87opeHf+LI51
-         7ftsyjzfp7vBGfTK33ACtIgX2hhTDlKmFfY7RymQ=
+        b=p4YX7RcS3bDRlmCfZAoiSrlZveIXc6FiCh95zxa/VRx+dn5X1v6Ds5uBjj+6cIwsR
+         o0hw+5Ne3rNa7smtIAZH58BMZjTncYnfUNA2tZed0J4gUE3kpDC0n+vq9uCIhqfaKW
+         XaOx93MvFB5oq2mAlfYinrdB1XQcNh3wd4TNHQ+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mel Gorman <mgorman@techsingularity.net>,
-        Yuanxi Liu <y.liu@naruida.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 091/110] mm: page_alloc: skip regions with hugetlbfs pages when allocating 1G pages
+        patches@lists.linux.dev,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 6.1 90/98] gcc: disable -Warray-bounds for gcc-13 too
 Date:   Mon, 24 Apr 2023 15:17:53 +0200
-Message-Id: <20230424131139.945247576@linuxfoundation.org>
+Message-Id: <20230424131137.385303450@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,92 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 4d73ba5fa710fe7d432e0b271e6fecd252aef66e upstream.
+commit 0da6e5fd6c3726723e275603426e09178940dace upstream.
 
-A bug was reported by Yuanxi Liu where allocating 1G pages at runtime is
-taking an excessive amount of time for large amounts of memory.  Further
-testing allocating huge pages that the cost is linear i.e.  if allocating
-1G pages in batches of 10 then the time to allocate nr_hugepages from
-10->20->30->etc increases linearly even though 10 pages are allocated at
-each step.  Profiles indicated that much of the time is spent checking the
-validity within already existing huge pages and then attempting a
-migration that fails after isolating the range, draining pages and a whole
-lot of other useless work.
+We started disabling '-Warray-bounds' for gcc-12 originally on s390,
+because it resulted in some warnings that weren't realistically fixable
+(commit 8b202ee21839: "s390: disable -Warray-bounds").
 
-Commit eb14d4eefdc4 ("mm,page_alloc: drop unnecessary checks from
-pfn_range_valid_contig") removed two checks, one which ignored huge pages
-for contiguous allocations as huge pages can sometimes migrate.  While
-there may be value on migrating a 2M page to satisfy a 1G allocation, it's
-potentially expensive if the 1G allocation fails and it's pointless to try
-moving a 1G page for a new 1G allocation or scan the tail pages for valid
-PFNs.
+That s390-specific issue was then found to be less common elsewhere, but
+generic (see f0be87c42cbd: "gcc-12: disable '-Warray-bounds' universally
+for now"), and then later expanded the version check was expanded to
+gcc-11 (5a41237ad1d4: "gcc: disable -Warray-bounds for gcc-11 too").
 
-Reintroduce the PageHuge check and assume any contiguous region with
-hugetlbfs pages is unsuitable for a new 1G allocation.
+And it turns out that I was much too optimistic in thinking that it's
+all going to go away, and here we are with gcc-13 showing all the same
+issues.  So instead of expanding this one version at a time, let's just
+disable it for gcc-11+, and put an end limit to it only when we actually
+find a solution.
 
-The hpagealloc test allocates huge pages in batches and reports the
-average latency per page over time.  This test happens just after boot
-when fragmentation is not an issue.  Units are in milliseconds.
+Yes, I'm sure some of this is because the kernel just does odd things
+(like our "container_of()" use, but also knowingly playing games with
+things like linker tables and array layouts).
 
-hpagealloc
-                               6.3.0-rc6              6.3.0-rc6              6.3.0-rc6
-                                 vanilla   hugeallocrevert-v1r1   hugeallocsimple-v1r2
-Min       Latency       26.42 (   0.00%)        5.07 (  80.82%)       18.94 (  28.30%)
-1st-qrtle Latency      356.61 (   0.00%)        5.34 (  98.50%)       19.85 (  94.43%)
-2nd-qrtle Latency      697.26 (   0.00%)        5.47 (  99.22%)       20.44 (  97.07%)
-3rd-qrtle Latency      972.94 (   0.00%)        5.50 (  99.43%)       20.81 (  97.86%)
-Max-1     Latency       26.42 (   0.00%)        5.07 (  80.82%)       18.94 (  28.30%)
-Max-5     Latency       82.14 (   0.00%)        5.11 (  93.78%)       19.31 (  76.49%)
-Max-10    Latency      150.54 (   0.00%)        5.20 (  96.55%)       19.43 (  87.09%)
-Max-90    Latency     1164.45 (   0.00%)        5.53 (  99.52%)       20.97 (  98.20%)
-Max-95    Latency     1223.06 (   0.00%)        5.55 (  99.55%)       21.06 (  98.28%)
-Max-99    Latency     1278.67 (   0.00%)        5.57 (  99.56%)       22.56 (  98.24%)
-Max       Latency     1310.90 (   0.00%)        8.06 (  99.39%)       26.62 (  97.97%)
-Amean     Latency      678.36 (   0.00%)        5.44 *  99.20%*       20.44 *  96.99%*
+And yes, some of the warnings are likely signs of real bugs, but when
+there are hundreds of false positives, that doesn't really help.
 
-                   6.3.0-rc6   6.3.0-rc6   6.3.0-rc6
-                     vanilla   revert-v1   hugeallocfix-v2
-Duration User           0.28        0.27        0.30
-Duration System       808.66       17.77       35.99
-Duration Elapsed      830.87       18.08       36.33
+Oh well.
 
-The vanilla kernel is poor, taking up to 1.3 second to allocate a huge
-page and almost 10 minutes in total to run the test.  Reverting the
-problematic commit reduces it to 8ms at worst and the patch takes 26ms.
-This patch fixes the main issue with skipping huge pages but leaves the
-page_count() out because a page with an elevated count potentially can
-migrate.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=217022
-Link: https://lkml.kernel.org/r/20230414141429.pwgieuwluxwez3rj@techsingularity.net
-Fixes: eb14d4eefdc4 ("mm,page_alloc: drop unnecessary checks from pfn_range_valid_contig")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reported-by: Yuanxi Liu <y.liu@naruida.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ init/Kconfig |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -9407,6 +9407,9 @@ static bool pfn_range_valid_contig(struc
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -892,18 +892,14 @@ config CC_IMPLICIT_FALLTHROUGH
+ 	default "-Wimplicit-fallthrough=5" if CC_IS_GCC && $(cc-option,-Wimplicit-fallthrough=5)
+ 	default "-Wimplicit-fallthrough" if CC_IS_CLANG && $(cc-option,-Wunreachable-code-fallthrough)
  
- 		if (PageReserved(page))
- 			return false;
-+
-+		if (PageHuge(page))
-+			return false;
- 	}
- 	return true;
- }
+-# Currently, disable gcc-11,12 array-bounds globally.
+-# We may want to target only particular configurations some day.
++# Currently, disable gcc-11+ array-bounds globally.
++# It's still broken in gcc-13, so no upper bound yet.
+ config GCC11_NO_ARRAY_BOUNDS
+ 	def_bool y
+ 
+-config GCC12_NO_ARRAY_BOUNDS
+-	def_bool y
+-
+ config CC_NO_ARRAY_BOUNDS
+ 	bool
+-	default y if CC_IS_GCC && GCC_VERSION >= 110000 && GCC_VERSION < 120000 && GCC11_NO_ARRAY_BOUNDS
+-	default y if CC_IS_GCC && GCC_VERSION >= 120000 && GCC_VERSION < 130000 && GCC12_NO_ARRAY_BOUNDS
++	default y if CC_IS_GCC && GCC_VERSION >= 110000 && GCC11_NO_ARRAY_BOUNDS
+ 
+ #
+ # For architectures that know their GCC __int128 support is sound
 
 
