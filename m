@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B75E06ECECF
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E42436ECED0
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232512AbjDXNfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:35:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37376 "EHLO
+        id S232644AbjDXNfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232563AbjDXNfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:25 -0400
+        with ESMTP id S232574AbjDXNf0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21B858A6C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA7783DB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4F2E61E07
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F59C4339B;
-        Mon, 24 Apr 2023 13:34:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D855623B8
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B877C4339B;
+        Mon, 24 Apr 2023 13:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343299;
-        bh=zumKDWU9+p1lk56jjX9fLUGxoo2NMyyyonNAMiLTZ50=;
+        s=korg; t=1682343301;
+        bh=y26DSNLRgLh5EghFr2t+iFgKkWE9bSzCbFdqGV3QbIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0KtgHHgsop+pWwcqJ0fKhBSdtiyhpILbgwAgJCRYm6basVWyqlwXs4suVs5X0NZf
-         DsJcIdQu25v7n29qNFyhuAyUX8Aa/12UnE12c71wHNABo4/obfdswORH5ndF0Juxn+
-         IaHIZ4AcOLa5xN71u3seLMTLpzNlH+bk9rwUTazc=
+        b=f66xool6+M/zpOI30Rxl7NouXQuaV8olAS5LsYnhWoiXS/BiEE9ONxTiJ5QW1L4x8
+         WJrL32YuriZZKf0X7XTV/4et2SS5HIcl2HwRCl7jx0r1jaRRyUKr6ntinnwBA8hw9N
+         cI93WhDCa+FNMTc7tbYwV4S0rKRRkfCCB4FhW+Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.10 41/68] sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()s early exit condition
-Date:   Mon, 24 Apr 2023 15:18:12 +0200
-Message-Id: <20230424131129.234724372@linuxfoundation.org>
+Subject: [PATCH 5.10 42/68] sched/fair: Detect capacity inversion
+Date:   Mon, 24 Apr 2023 15:18:13 +0200
+Message-Id: <20230424131129.281871013@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
 References: <20230424131127.653885914@linuxfoundation.org>
@@ -56,61 +56,150 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-commit d81304bc6193554014d4372a01debdf65e1e9a4d upstream.
+commit: 44c7b80bffc3a657a36857098d5d9c49d94e652b upstream.
 
-If the utilization of the woken up task is 0, we skip the energy
-calculation because it has no impact.
+Check each performance domain to see if thermal pressure is causing its
+capacity to be lower than another performance domain.
 
-But if the task is boosted (uclamp_min != 0) will have an impact on task
-placement and frequency selection. Only skip if the util is truly
-0 after applying uclamp values.
+We assume that each performance domain has CPUs with the same
+capacities, which is similar to an assumption made in energy_model.c
 
-Change uclamp_task_cpu() signature to avoid unnecessary additional calls
-to uclamp_eff_get(). feec() is the only user now.
+We also assume that thermal pressure impacts all CPUs in a performance
+domain equally.
 
-Fixes: 732cd75b8c920 ("sched/fair: Select an energy-efficient CPU on task wake-up")
+If there're multiple performance domains with the same capacity_orig, we
+will trigger a capacity inversion if the domain is under thermal
+pressure.
+
+The new cpu_in_capacity_inversion() should help users to know when
+information about capacity_orig are not reliable and can opt in to use
+the inverted capacity as the 'actual' capacity_orig.
+
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-8-qais.yousef@arm.com
-(cherry picked from commit d81304bc6193554014d4372a01debdf65e1e9a4d)
+Link: https://lore.kernel.org/r/20220804143609.515789-9-qais.yousef@arm.com
+(cherry picked from commit 44c7b80bffc3a657a36857098d5d9c49d94e652b)
+[Trivial conflict in kernel/sched/fair.c and sched.h due to code shuffling]
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ kernel/sched/fair.c  |   63 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ kernel/sched/sched.h |   19 +++++++++++++++
+ 2 files changed, 79 insertions(+), 3 deletions(-)
 
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -3928,14 +3928,16 @@ static inline unsigned long task_util_es
- }
+@@ -8376,16 +8376,73 @@ static unsigned long scale_rt_capacity(i
  
- #ifdef CONFIG_UCLAMP_TASK
--static inline unsigned long uclamp_task_util(struct task_struct *p)
-+static inline unsigned long uclamp_task_util(struct task_struct *p,
-+					     unsigned long uclamp_min,
-+					     unsigned long uclamp_max)
+ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
  {
--	return clamp(task_util_est(p),
--		     uclamp_eff_value(p, UCLAMP_MIN),
--		     uclamp_eff_value(p, UCLAMP_MAX));
-+	return clamp(task_util_est(p), uclamp_min, uclamp_max);
- }
- #else
--static inline unsigned long uclamp_task_util(struct task_struct *p)
-+static inline unsigned long uclamp_task_util(struct task_struct *p,
-+					     unsigned long uclamp_min,
-+					     unsigned long uclamp_max)
++	unsigned long capacity_orig = arch_scale_cpu_capacity(cpu);
+ 	unsigned long capacity = scale_rt_capacity(cpu);
+ 	struct sched_group *sdg = sd->groups;
++	struct rq *rq = cpu_rq(cpu);
+ 
+-	cpu_rq(cpu)->cpu_capacity_orig = arch_scale_cpu_capacity(cpu);
++	rq->cpu_capacity_orig = capacity_orig;
+ 
+ 	if (!capacity)
+ 		capacity = 1;
+ 
+-	cpu_rq(cpu)->cpu_capacity = capacity;
+-	trace_sched_cpu_capacity_tp(cpu_rq(cpu));
++	rq->cpu_capacity = capacity;
++
++	/*
++	 * Detect if the performance domain is in capacity inversion state.
++	 *
++	 * Capacity inversion happens when another perf domain with equal or
++	 * lower capacity_orig_of() ends up having higher capacity than this
++	 * domain after subtracting thermal pressure.
++	 *
++	 * We only take into account thermal pressure in this detection as it's
++	 * the only metric that actually results in *real* reduction of
++	 * capacity due to performance points (OPPs) being dropped/become
++	 * unreachable due to thermal throttling.
++	 *
++	 * We assume:
++	 *   * That all cpus in a perf domain have the same capacity_orig
++	 *     (same uArch).
++	 *   * Thermal pressure will impact all cpus in this perf domain
++	 *     equally.
++	 */
++	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
++		unsigned long inv_cap = capacity_orig - thermal_load_avg(rq);
++		struct perf_domain *pd = rcu_dereference(rq->rd->pd);
++
++		rq->cpu_capacity_inverted = 0;
++
++		for (; pd; pd = pd->next) {
++			struct cpumask *pd_span = perf_domain_span(pd);
++			unsigned long pd_cap_orig, pd_cap;
++
++			cpu = cpumask_any(pd_span);
++			pd_cap_orig = arch_scale_cpu_capacity(cpu);
++
++			if (capacity_orig < pd_cap_orig)
++				continue;
++
++			/*
++			 * handle the case of multiple perf domains have the
++			 * same capacity_orig but one of them is under higher
++			 * thermal pressure. We record it as capacity
++			 * inversion.
++			 */
++			if (capacity_orig == pd_cap_orig) {
++				pd_cap = pd_cap_orig - thermal_load_avg(cpu_rq(cpu));
++
++				if (pd_cap > inv_cap) {
++					rq->cpu_capacity_inverted = inv_cap;
++					break;
++				}
++			} else if (pd_cap_orig > inv_cap) {
++				rq->cpu_capacity_inverted = inv_cap;
++				break;
++			}
++		}
++	}
++
++	trace_sched_cpu_capacity_tp(rq);
+ 
+ 	sdg->sgc->capacity = capacity;
+ 	sdg->sgc->min_capacity = capacity;
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -973,6 +973,7 @@ struct rq {
+ 
+ 	unsigned long		cpu_capacity;
+ 	unsigned long		cpu_capacity_orig;
++	unsigned long		cpu_capacity_inverted;
+ 
+ 	struct callback_head	*balance_callback;
+ 
+@@ -2539,6 +2540,24 @@ static inline unsigned long capacity_ori
  {
- 	return task_util_est(p);
+ 	return cpu_rq(cpu)->cpu_capacity_orig;
  }
-@@ -6836,7 +6838,7 @@ static int find_energy_efficient_cpu(str
- 		goto fail;
++
++/*
++ * Returns inverted capacity if the CPU is in capacity inversion state.
++ * 0 otherwise.
++ *
++ * Capacity inversion detection only considers thermal impact where actual
++ * performance points (OPPs) gets dropped.
++ *
++ * Capacity inversion state happens when another performance domain that has
++ * equal or lower capacity_orig_of() becomes effectively larger than the perf
++ * domain this CPU belongs to due to thermal pressure throttling it hard.
++ *
++ * See comment in update_cpu_capacity().
++ */
++static inline unsigned long cpu_in_capacity_inversion(int cpu)
++{
++	return cpu_rq(cpu)->cpu_capacity_inverted;
++}
+ #endif
  
- 	sync_entity_load_avg(&p->se);
--	if (!task_util_est(p))
-+	if (!uclamp_task_util(p, p_util_min, p_util_max))
- 		goto unlock;
- 
- 	for (; pd; pd = pd->next) {
+ /**
 
 
