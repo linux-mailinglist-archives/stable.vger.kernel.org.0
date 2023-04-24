@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B74F6ECD38
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2FEE6ECDAD
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbjDXNVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:21:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
+        id S232129AbjDXNZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:25:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232027AbjDXNVc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:32 -0400
+        with ESMTP id S232142AbjDXNZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B445E49FD
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05395FCF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91A9162209
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5310C433A0;
-        Mon, 24 Apr 2023 13:21:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E848622B9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C134C433D2;
+        Mon, 24 Apr 2023 13:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342476;
-        bh=bB7ZOSh4TORDmWGI3374u5WwOIG/GDEF6YT5jR2n8XY=;
+        s=korg; t=1682342735;
+        bh=gPNb4Tgl8pMqVcBtkk5oYPIAdMBiCLQV2F2BV0XM2D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrCgRYn7zdX6sDusl6MkSFluaxaIZYIy/UQoUTlpaRlXoCLxXW2K+OvQODZUSgOpv
-         2uLGSx43NKCNXmGXjIAA0uykVd3i654my7mPmS4b/XC1RnMlaDRCxfB2uN5PNWT8rz
-         WS5R3/U0P6EDFoFjfCHzWm0j9rpzaQTzDsmnFcxs=
+        b=fq59vNbU0AlEv/ee0P+AF1YjoXgoT2TyzlZEBat9B/Vg4lyUEWq6xmbD5ls+8sDlW
+         GFRmEdTVAkI0qdDEb6ryPQhL53r9Rdzw7DhCfhO3MrgUdNN5t7+kbt8Ig9Zx73LlBy
+         BA4w0Fj7ytUa/hvHLvthfYdXBm7DgAp06dmXBg6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.15 46/73] sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 37/98] scsi: megaraid_sas: Fix fw_crash_buffer_show()
 Date:   Mon, 24 Apr 2023 15:17:00 +0200
-Message-Id: <20230424131130.689803419@linuxfoundation.org>
+Message-Id: <20230424131135.308753218@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-commit c56ab1b3506ba0e7a872509964b100912bde165d upstream.
+[ Upstream commit 0808ed6ebbc292222ca069d339744870f6d801da ]
 
-So that it is now uclamp aware.
+If crash_dump_buf is not allocated then crash dump can't be available.
+Replace logical 'and' with 'or'.
 
-This fixes a major problem of busy tasks capped with UCLAMP_MAX keeping
-the system in overutilized state which disables EAS and leads to wasting
-energy in the long run.
-
-Without this patch running a busy background activity like JIT
-compilation on Pixel 6 causes the system to be in overutilized state
-74.5% of the time.
-
-With this patch this goes down to  9.79%.
-
-It also fixes another problem when long running tasks that have their
-UCLAMP_MIN changed while running such that they need to upmigrate to
-honour the new UCLAMP_MIN value. The upmigration doesn't get triggered
-because overutilized state never gets set in this state, hence misfit
-migration never happens at tick in this case until the task wakes up
-again.
-
-Fixes: af24bde8df202 ("sched/uclamp: Add uclamp support to energy_compute()")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-7-qais.yousef@arm.com
-(cherry picked from commit c56ab1b3506ba0e7a872509964b100912bde165d)
-[Fixed trivial conflict in cpu_overutilized() - use cpu_util() instead
-of cpu_util_cfs()]
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Link: https://lore.kernel.org/r/20230324135249.9733-1-thenzl@redhat.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5739,7 +5739,10 @@ static inline unsigned long cpu_util(int
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index d265a2d9d0824..13ee8e4c4f570 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -3299,7 +3299,7 @@ fw_crash_buffer_show(struct device *cdev,
  
- static inline bool cpu_overutilized(int cpu)
- {
--	return !fits_capacity(cpu_util(cpu), capacity_of(cpu));
-+	unsigned long rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
-+	unsigned long rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
-+
-+	return !util_fits_cpu(cpu_util(cpu), rq_util_min, rq_util_max, cpu);
- }
- 
- static inline void update_overutilized_status(struct rq *rq)
+ 	spin_lock_irqsave(&instance->crashdump_lock, flags);
+ 	buff_offset = instance->fw_crash_buffer_offset;
+-	if (!instance->crash_dump_buf &&
++	if (!instance->crash_dump_buf ||
+ 		!((instance->fw_crash_state == AVAILABLE) ||
+ 		(instance->fw_crash_state == COPYING))) {
+ 		dev_err(&instance->pdev->dev,
+-- 
+2.39.2
+
 
 
