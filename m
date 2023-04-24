@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A436ECEB9
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE706ECE74
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232541AbjDXNep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:34:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59558 "EHLO
+        id S232507AbjDXNcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232462AbjDXNec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:32 -0400
+        with ESMTP id S232462AbjDXNcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8547E8A53
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C20A5BB6;
+        Mon, 24 Apr 2023 06:32:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF2856239C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B667C433D2;
-        Mon, 24 Apr 2023 13:34:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C47B66234B;
+        Mon, 24 Apr 2023 13:31:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2462C433D2;
+        Mon, 24 Apr 2023 13:31:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343246;
-        bh=ERbquLZbNVJuLIFbKUlLhsdybxhgmO2T4rezqj2Phbo=;
+        s=korg; t=1682343096;
+        bh=ja7S2LB0OvCCmqEw1nb05oddZS4SuYkfKzmpFaLMeMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j68iVTMiZztgkqPXel5VpA0Y1FylbBdWctcaMlczbcywAlX8kBTo/YStQXhdjK8+0
-         4FoQdjnaOIx0OGYKzDJ9cbjUU9PTrmsuXmrjKd2ufVkjh+1T29ntwxYN9y+qSNsEIy
-         sWgEwdZO0gIlmgc3PJWFRHr8Sb37osCqGBw+e5EI=
+        b=qIT0y33lQiR4ym8Pb3SHhL1rgSJ6Ui/cJMdN9P85AEQLQo7BFs+jf/YejqI1b6Lws
+         Gz3Ju31OFJgeQBfvy1q4Uy0GrPMKfn1V8KIfLAobXl8mt9foh2BlbP2b2+Bpn1eSGg
+         iOkc836FIkwdJKUMfesj+lISrqWvwQRXIPapt8OU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gwangun Jung <exsociety@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 07/68] net: sched: sch_qfq: prevent slab-out-of-bounds in qfq_activate_agg
+        patches@lists.linux.dev, Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Kay Sievers <kay.sievers@vrfy.org>, linux-mmc@vger.kernel.org,
+        stable <stable@kernel.org>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Subject: [PATCH 6.2 076/110] memstick: fix memory leak if card device is never registered
 Date:   Mon, 24 Apr 2023 15:17:38 +0200
-Message-Id: <20230424131127.964308977@linuxfoundation.org>
+Message-Id: <20230424131139.281280747@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,134 +59,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwangun Jung <exsociety@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 3037933448f60f9acb705997eae62013ecb81e0d ]
+commit 4b6d621c9d859ff89e68cebf6178652592676013 upstream.
 
-If the TCA_QFQ_LMAX value is not offered through nlattr, lmax is determined by the MTU value of the network device.
-The MTU of the loopback device can be set up to 2^31-1.
-As a result, it is possible to have an lmax value that exceeds QFQ_MIN_LMAX.
+When calling dev_set_name() memory is allocated for the name for the
+struct device.  Once that structure device is registered, or attempted
+to be registerd, with the driver core, the driver core will handle
+cleaning up that memory when the device is removed from the system.
 
-Due to the invalid lmax value, an index is generated that exceeds the QFQ_MAX_INDEX(=24) value, causing out-of-bounds read/write errors.
+Unfortunatly for the memstick code, there is an error path that causes
+the struct device to never be registered, and so the memory allocated in
+dev_set_name will be leaked.  Fix that leak by manually freeing it right
+before the memory for the device is freed.
 
-The following reports a oob access:
-
-[   84.582666] BUG: KASAN: slab-out-of-bounds in qfq_activate_agg.constprop.0 (net/sched/sch_qfq.c:1027 net/sched/sch_qfq.c:1060 net/sched/sch_qfq.c:1313)
-[   84.583267] Read of size 4 at addr ffff88810f676948 by task ping/301
-[   84.583686]
-[   84.583797] CPU: 3 PID: 301 Comm: ping Not tainted 6.3.0-rc5 #1
-[   84.584164] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-[   84.584644] Call Trace:
-[   84.584787]  <TASK>
-[   84.584906] dump_stack_lvl (lib/dump_stack.c:107 (discriminator 1))
-[   84.585108] print_report (mm/kasan/report.c:320 mm/kasan/report.c:430)
-[   84.585570] kasan_report (mm/kasan/report.c:538)
-[   84.585988] qfq_activate_agg.constprop.0 (net/sched/sch_qfq.c:1027 net/sched/sch_qfq.c:1060 net/sched/sch_qfq.c:1313)
-[   84.586599] qfq_enqueue (net/sched/sch_qfq.c:1255)
-[   84.587607] dev_qdisc_enqueue (net/core/dev.c:3776)
-[   84.587749] __dev_queue_xmit (./include/net/sch_generic.h:186 net/core/dev.c:3865 net/core/dev.c:4212)
-[   84.588763] ip_finish_output2 (./include/net/neighbour.h:546 net/ipv4/ip_output.c:228)
-[   84.589460] ip_output (net/ipv4/ip_output.c:430)
-[   84.590132] ip_push_pending_frames (./include/net/dst.h:444 net/ipv4/ip_output.c:126 net/ipv4/ip_output.c:1586 net/ipv4/ip_output.c:1606)
-[   84.590285] raw_sendmsg (net/ipv4/raw.c:649)
-[   84.591960] sock_sendmsg (net/socket.c:724 net/socket.c:747)
-[   84.592084] __sys_sendto (net/socket.c:2142)
-[   84.593306] __x64_sys_sendto (net/socket.c:2150)
-[   84.593779] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-[   84.593902] entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-[   84.594070] RIP: 0033:0x7fe568032066
-[   84.594192] Code: 0e 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 41 89 ca 64 8b 04 25 18 00 00 00 85 c09[ 84.594796] RSP: 002b:00007ffce388b4e8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-
-Code starting with the faulting instruction
-===========================================
-[   84.595047] RAX: ffffffffffffffda RBX: 00007ffce388cc70 RCX: 00007fe568032066
-[   84.595281] RDX: 0000000000000040 RSI: 00005605fdad6d10 RDI: 0000000000000003
-[   84.595515] RBP: 00005605fdad6d10 R08: 00007ffce388eeec R09: 0000000000000010
-[   84.595749] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000040
-[   84.595984] R13: 00007ffce388cc30 R14: 00007ffce388b4f0 R15: 0000001d00000001
-[   84.596218]  </TASK>
-[   84.596295]
-[   84.596351] Allocated by task 291:
-[   84.596467] kasan_save_stack (mm/kasan/common.c:46)
-[   84.596597] kasan_set_track (mm/kasan/common.c:52)
-[   84.596725] __kasan_kmalloc (mm/kasan/common.c:384)
-[   84.596852] __kmalloc_node (./include/linux/kasan.h:196 mm/slab_common.c:967 mm/slab_common.c:974)
-[   84.596979] qdisc_alloc (./include/linux/slab.h:610 ./include/linux/slab.h:731 net/sched/sch_generic.c:938)
-[   84.597100] qdisc_create (net/sched/sch_api.c:1244)
-[   84.597222] tc_modify_qdisc (net/sched/sch_api.c:1680)
-[   84.597357] rtnetlink_rcv_msg (net/core/rtnetlink.c:6174)
-[   84.597495] netlink_rcv_skb (net/netlink/af_netlink.c:2574)
-[   84.597627] netlink_unicast (net/netlink/af_netlink.c:1340 net/netlink/af_netlink.c:1365)
-[   84.597759] netlink_sendmsg (net/netlink/af_netlink.c:1942)
-[   84.597891] sock_sendmsg (net/socket.c:724 net/socket.c:747)
-[   84.598016] ____sys_sendmsg (net/socket.c:2501)
-[   84.598147] ___sys_sendmsg (net/socket.c:2557)
-[   84.598275] __sys_sendmsg (./include/linux/file.h:31 net/socket.c:2586)
-[   84.598399] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-[   84.598520] entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-[   84.598688]
-[   84.598744] The buggy address belongs to the object at ffff88810f674000
-[   84.598744]  which belongs to the cache kmalloc-8k of size 8192
-[   84.599135] The buggy address is located 2664 bytes to the right of
-[   84.599135]  allocated 7904-byte region [ffff88810f674000, ffff88810f675ee0)
-[   84.599544]
-[   84.599598] The buggy address belongs to the physical page:
-[   84.599777] page:00000000e638567f refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10f670
-[   84.600074] head:00000000e638567f order:3 entire_mapcount:0 nr_pages_mapped:0 pincount:0
-[   84.600330] flags: 0x200000000010200(slab|head|node=0|zone=2)
-[   84.600517] raw: 0200000000010200 ffff888100043180 dead000000000122 0000000000000000
-[   84.600764] raw: 0000000000000000 0000000080020002 00000001ffffffff 0000000000000000
-[   84.601009] page dumped because: kasan: bad access detected
-[   84.601187]
-[   84.601241] Memory state around the buggy address:
-[   84.601396]  ffff88810f676800: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.601620]  ffff88810f676880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.601845] >ffff88810f676900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.602069]                                               ^
-[   84.602243]  ffff88810f676980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.602468]  ffff88810f676a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.602693] ==================================================================
-[   84.602924] Disabling lock debugging due to kernel taint
-
-Fixes: 3015f3d2a3cd ("pkt_sched: enable QFQ to support TSO/GSO")
-Reported-by: Gwangun Jung <exsociety@gmail.com>
-Signed-off-by: Gwangun Jung <exsociety@gmail.com>
-Acked-by: Jamal Hadi Salim<jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Alex Dubov <oakad@yahoo.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>
+Cc: linux-mmc@vger.kernel.org
+Fixes: 0252c3b4f018 ("memstick: struct device - replace bus_id with dev_name(), dev_set_name()")
+Cc: stable <stable@kernel.org>
+Co-developed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Co-developed-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Link: https://lore.kernel.org/r/20230401200327.16800-1-gregkh@linuxfoundation.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_qfq.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/memstick/core/memstick.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
-index 1d1d81aeb389f..cad7deacf60a4 100644
---- a/net/sched/sch_qfq.c
-+++ b/net/sched/sch_qfq.c
-@@ -421,15 +421,16 @@ static int qfq_change_class(struct Qdisc *sch, u32 classid, u32 parentid,
- 	} else
- 		weight = 1;
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -410,6 +410,7 @@ static struct memstick_dev *memstick_all
+ 	return card;
+ err_out:
+ 	host->card = old_card;
++	kfree_const(card->dev.kobj.name);
+ 	kfree(card);
+ 	return NULL;
+ }
+@@ -468,8 +469,10 @@ static void memstick_check(struct work_s
+ 				put_device(&card->dev);
+ 				host->card = NULL;
+ 			}
+-		} else
++		} else {
++			kfree_const(card->dev.kobj.name);
+ 			kfree(card);
++		}
+ 	}
  
--	if (tb[TCA_QFQ_LMAX]) {
-+	if (tb[TCA_QFQ_LMAX])
- 		lmax = nla_get_u32(tb[TCA_QFQ_LMAX]);
--		if (lmax < QFQ_MIN_LMAX || lmax > (1UL << QFQ_MTU_SHIFT)) {
--			pr_notice("qfq: invalid max length %u\n", lmax);
--			return -EINVAL;
--		}
--	} else
-+	else
- 		lmax = psched_mtu(qdisc_dev(sch));
- 
-+	if (lmax < QFQ_MIN_LMAX || lmax > (1UL << QFQ_MTU_SHIFT)) {
-+		pr_notice("qfq: invalid max length %u\n", lmax);
-+		return -EINVAL;
-+	}
-+
- 	inv_w = ONE_FP / weight;
- 	weight = ONE_FP / inv_w;
- 
--- 
-2.39.2
-
+ out_power_off:
 
 
