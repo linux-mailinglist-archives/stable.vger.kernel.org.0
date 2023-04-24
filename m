@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CABE6ECEB0
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A50C6ECE6B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232623AbjDXNeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:34:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59608 "EHLO
+        id S232459AbjDXNcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232558AbjDXNdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:54 -0400
+        with ESMTP id S232526AbjDXNcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FFE76A0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB5197EC1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B1AE61EA1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F96C4339C;
-        Mon, 24 Apr 2023 13:33:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC9B66235C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC9C5C433EF;
+        Mon, 24 Apr 2023 13:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343225;
-        bh=tQmjXt9Cc7Z6kWHWMyjev3Vj4rxIBivhPAu7q7T9ULg=;
+        s=korg; t=1682343117;
+        bh=ehsUc5/em0JzuMLl5lf7UnhWnu5DDaeOarARG3z1yxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXN4SMNHxDQ7pG9iwL+VmfSPia7ljYGipDraMfLMmOUqSrhklfK5cpyu1s8vYy0L8
-         FkKb801fk+2ZdgFs/+oqITogIbv1pFTHcAgE8Uy60Xo+gQfWreLL8ymJym0QUJiv4k
-         9/08l99Jb1AgZkGzZD2dhxcTrt0cB2xX4rIgsqxc=
+        b=1vFiNBKCLxwTMyVJmlLUNvwExxUErgFbbEqG7XYMItcfmt142Imzikxr5NvvM9zV2
+         lTB4rrXlniRAiDokhNhaFb78HaS6acXV+oRokeV5CLNZ8lkntY17bkAYxx/zIEbPJa
+         clkJSocvIKj+QkXNt6AdmU3FyGMdEQZs+diaDvSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Natalia Petrova <n.petrova@fintech.ru>
-Subject: [PATCH 5.10 14/68] mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
+        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
+        Chris Morgan <macromorgan@hotmail.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 6.2 083/110] drm/rockchip: vop2: fix suspend/resume
 Date:   Mon, 24 Apr 2023 15:17:45 +0200
-Message-Id: <20230424131128.219540591@linuxfoundation.org>
+Message-Id: <20230424131139.587966860@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit c0e73276f0fcbbd3d4736ba975d7dc7a48791b0c ]
+commit afa965a45e01e541cdbe5c8018226eff117610f0 upstream.
 
-Function mlxfw_mfa2_tlv_multi_get() returns NULL if 'tlv' in
-question does not pass checks in mlxfw_mfa2_tlv_payload_get(). This
-behaviour may lead to NULL pointer dereference in 'multi->total_len'.
-Fix this issue by testing mlxfw_mfa2_tlv_multi_get()'s return value
-against NULL.
+During a suspend/resume cycle the VO power domain will be disabled and
+the VOP2 registers will reset to their default values. After that the
+cached register values will be out of sync and the read/modify/write
+operations we do on the window registers will result in bogus values
+written. Fix this by re-initializing the register cache each time we
+enable the VOP2. With this the VOP2 will show a picture after a
+suspend/resume cycle whereas without this the screen stays dark.
 
-Found by Linux Verification Center (linuxtesting.org) with static
-analysis tool SVACE.
-
-Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
-Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20230417120718.52325-1-n.zhandarovich@fintech.ru
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 604be85547ce4 ("drm/rockchip: Add VOP2 driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: Chris Morgan <macromorgan@hotmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230413144347.3506023-1-s.hauer@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/rockchip/rockchip_drm_vop2.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-index 017d68f1e1232..972c571b41587 100644
---- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-+++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-@@ -31,6 +31,8 @@ mlxfw_mfa2_tlv_next(const struct mlxfw_mfa2_file *mfa2_file,
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop2.c
+@@ -216,6 +216,8 @@ struct vop2 {
+ 	struct vop2_win win[];
+ };
  
- 	if (tlv->type == MLXFW_MFA2_TLV_MULTI_PART) {
- 		multi = mlxfw_mfa2_tlv_multi_get(mfa2_file, tlv);
-+		if (!multi)
-+			return NULL;
- 		tlv_len = NLA_ALIGN(tlv_len + be16_to_cpu(multi->total_len));
++static const struct regmap_config vop2_regmap_config;
++
+ static struct vop2_video_port *to_vop2_video_port(struct drm_crtc *crtc)
+ {
+ 	return container_of(crtc, struct vop2_video_port, crtc);
+@@ -840,6 +842,12 @@ static void vop2_enable(struct vop2 *vop
+ 		return;
  	}
  
--- 
-2.39.2
-
++	ret = regmap_reinit_cache(vop2->map, &vop2_regmap_config);
++	if (ret) {
++		drm_err(vop2->drm, "failed to reinit cache: %d\n", ret);
++		return;
++	}
++
+ 	if (vop2->data->soc_id == 3566)
+ 		vop2_writel(vop2, RK3568_OTP_WIN_EN, 1);
+ 
 
 
