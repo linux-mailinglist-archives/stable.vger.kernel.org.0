@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B61FB6ECF2D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BEC56ECF02
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbjDXNiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42538 "EHLO
+        id S232705AbjDXNh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbjDXNil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:41 -0400
+        with ESMTP id S232739AbjDXNhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ACBA8A78
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD98C8A60
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:36:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DCED623EE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 592FBC433EF;
-        Mon, 24 Apr 2023 13:37:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E1E5623E9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D8DC433D2;
+        Mon, 24 Apr 2023 13:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343460;
-        bh=uDcOGl6lZvFpVEcTKvEexxresinjttrssNcF7FyPlxs=;
+        s=korg; t=1682343389;
+        bh=3KaNx/yzjYpCD9uIjENZdH3zEl37AtWv84A0jzMz7gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/pF2fQEMe9wp6Zle4nPV39huLMqFQqh9eCTmwpS3TiRXWGvYuFD6WRKRROHDw+3q
-         aO7bMTcX3AdflVWJsxYJ5I9aFPUDBJM3DSpStlHCHYFiegp2cwVt9Q9Kti+NLTMcV/
-         Cy0CLwlN8ndTu/q3wDVHLDfGjOAFs2Tv6w/jra8c=
+        b=oa+Rggipnx1KAqrj7ypAEFCmi/nz125hrutTJZQb/cFQUexPOU/d3n1F8FExdwT1Z
+         3M8Ta4Zk7oevraJ9rwxewpgw7/4fm+q9GWv+et+0Yzi5WwlMXnyTvaKiLjleg9VPnT
+         GfuLRa/T7k/UrcY5s9xXp/PNzRnB+ztSl8FK/B9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Basierski <sebastianx.basierski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/28] e1000e: Disable TSO on i219-LM card to increase speed
-Date:   Mon, 24 Apr 2023 15:18:28 +0200
-Message-Id: <20230424131121.567627243@linuxfoundation.org>
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 5.10 58/68] udp: Call inet6_destroy_sock() in setsockopt(IPV6_ADDRFORM).
+Date:   Mon, 24 Apr 2023 15:18:29 +0200
+Message-Id: <20230424131129.872726068@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
-References: <20230424131121.331252806@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,100 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Basierski <sebastianx.basierski@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
+commit 21985f43376cee092702d6cb963ff97a9d2ede68 upstream.
 
-While using i219-LM card currently it was only possible to achieve
-about 60% of maximum speed due to regression introduced in Linux 5.8.
-This was caused by TSO not being disabled by default despite commit
-f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
-Fix that by disabling TSO during driver probe.
+Commit 4b340ae20d0e ("IPv6: Complete IPV6_DONTFRAG support") forgot
+to add a change to free inet6_sk(sk)->rxpmtu while converting an IPv6
+socket into IPv4 with IPV6_ADDRFORM.  After conversion, sk_prot is
+changed to udp_prot and ->destroy() never cleans it up, resulting in
+a memory leak.
 
-Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
-Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
+This is due to the discrepancy between inet6_destroy_sock() and
+IPV6_ADDRFORM, so let's call inet6_destroy_sock() from IPV6_ADDRFORM
+to remove the difference.
+
+However, this is not enough for now because rxpmtu can be changed
+without lock_sock() after commit 03485f2adcde ("udpv6: Add lockless
+sendmsg() support").  We will fix this case in the following patch.
+
+Note we will rename inet6_destroy_sock() to inet6_cleanup_sock() and
+remove unnecessary inet6_destroy_sock() calls in sk_prot->destroy()
+in the future.
+
+Fixes: 4b340ae20d0e ("IPv6: Complete IPV6_DONTFRAG support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ include/net/ipv6.h       |    1 +
+ net/ipv6/af_inet6.c      |    6 ++++++
+ net/ipv6/ipv6_sockglue.c |   20 ++++++++------------
+ 3 files changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index cb3ff3c2fb03f..d41ebc50eeaa2 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5250,31 +5250,6 @@ static void e1000_watchdog_task(struct work_struct *work)
- 				ew32(TARC(0), tarc0);
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -1109,6 +1109,7 @@ void ipv6_icmp_error(struct sock *sk, st
+ void ipv6_local_error(struct sock *sk, int err, struct flowi6 *fl6, u32 info);
+ void ipv6_local_rxpmtu(struct sock *sk, struct flowi6 *fl6, u32 mtu);
+ 
++void inet6_cleanup_sock(struct sock *sk);
+ int inet6_release(struct socket *sock);
+ int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len);
+ int inet6_getname(struct socket *sock, struct sockaddr *uaddr,
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -503,6 +503,12 @@ void inet6_destroy_sock(struct sock *sk)
+ }
+ EXPORT_SYMBOL_GPL(inet6_destroy_sock);
+ 
++void inet6_cleanup_sock(struct sock *sk)
++{
++	inet6_destroy_sock(sk);
++}
++EXPORT_SYMBOL_GPL(inet6_cleanup_sock);
++
+ /*
+  *	This does both peername and sockname.
+  */
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -429,9 +429,6 @@ static int do_ipv6_setsockopt(struct soc
+ 		if (optlen < sizeof(int))
+ 			goto e_inval;
+ 		if (val == PF_INET) {
+-			struct ipv6_txoptions *opt;
+-			struct sk_buff *pktopt;
+-
+ 			if (sk->sk_type == SOCK_RAW)
+ 				break;
+ 
+@@ -462,7 +459,6 @@ static int do_ipv6_setsockopt(struct soc
+ 				break;
  			}
  
--			/* disable TSO for pcie and 10/100 speeds, to avoid
--			 * some hardware issues
--			 */
--			if (!(adapter->flags & FLAG_TSO_FORCE)) {
--				switch (adapter->link_speed) {
--				case SPEED_10:
--				case SPEED_100:
--					e_info("10/100 speed: disabling TSO\n");
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--					break;
--				case SPEED_1000:
--					netdev->features |= NETIF_F_TSO;
--					netdev->features |= NETIF_F_TSO6;
--					break;
--				default:
--					/* oops */
--					break;
--				}
--				if (hw->mac.type == e1000_pch_spt) {
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--				}
--			}
--
- 			/* enable transmits in the hardware, need to do this
- 			 * after setting TARC(0)
- 			 */
-@@ -7211,6 +7186,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			    NETIF_F_RXCSUM |
- 			    NETIF_F_HW_CSUM);
+-			fl6_free_socklist(sk);
+ 			__ipv6_sock_mc_close(sk);
+ 			__ipv6_sock_ac_close(sk);
  
-+	/* disable TSO for pcie and 10/100 speeds to avoid
-+	 * some hardware issues and for i219 to fix transfer
-+	 * speed being capped at 60%
-+	 */
-+	if (!(adapter->flags & FLAG_TSO_FORCE)) {
-+		switch (adapter->link_speed) {
-+		case SPEED_10:
-+		case SPEED_100:
-+			e_info("10/100 speed: disabling TSO\n");
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+			break;
-+		case SPEED_1000:
-+			netdev->features |= NETIF_F_TSO;
-+			netdev->features |= NETIF_F_TSO6;
-+			break;
-+		default:
-+			/* oops */
-+			break;
-+		}
-+		if (hw->mac.type == e1000_pch_spt) {
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+		}
-+	}
+@@ -497,14 +493,14 @@ static int do_ipv6_setsockopt(struct soc
+ 				sk->sk_socket->ops = &inet_dgram_ops;
+ 				sk->sk_family = PF_INET;
+ 			}
+-			opt = xchg((__force struct ipv6_txoptions **)&np->opt,
+-				   NULL);
+-			if (opt) {
+-				atomic_sub(opt->tot_len, &sk->sk_omem_alloc);
+-				txopt_put(opt);
+-			}
+-			pktopt = xchg(&np->pktoptions, NULL);
+-			kfree_skb(pktopt);
 +
- 	/* Set user-changeable features (subset of all device features) */
- 	netdev->hw_features = netdev->features;
- 	netdev->hw_features |= NETIF_F_RXFCS;
--- 
-2.39.2
-
++			/* Disable all options not to allocate memory anymore,
++			 * but there is still a race.  See the lockless path
++			 * in udpv6_sendmsg() and ipv6_local_rxpmtu().
++			 */
++			np->rxopt.all = 0;
++
++			inet6_cleanup_sock(sk);
+ 
+ 			/*
+ 			 * ... and add it to the refcnt debug socks count
 
 
