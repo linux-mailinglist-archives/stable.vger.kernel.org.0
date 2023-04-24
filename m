@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA316ECEEB
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700B56ECF45
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232397AbjDXNgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:36:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36836 "EHLO
+        id S232790AbjDXNjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:39:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232415AbjDXNf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:59 -0400
+        with ESMTP id S232793AbjDXNjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571F28A71
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CCC9767
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CD61623DA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDE9C433D2;
-        Mon, 24 Apr 2023 13:35:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15D376239C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2517BC433D2;
+        Mon, 24 Apr 2023 13:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343343;
-        bh=EK3+mzMUuXH0ZkgsZfWgOqiq+oI0zHYUPUcrRe6MeXI=;
+        s=korg; t=1682343529;
+        bh=n1QjoW+UKH6fRW7FMS5/dogPQnv0TvaqgEn8B2GCeH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJ6QRrx5BHB+A/fhMe8czviQfxQHp3LlLCHB9gKkE3bcVFS6Klil6DJeRBOzBpagj
-         jukrAqDOn4rEsLmjkeXg9aWUKnUWBMtFGktOisG3HQTwwbI0/h96rcp8cU5twEF+N5
-         wB1ryQVwRh+XWHIZhwMKWYlAdsSjqrYh9SyHuims=
+        b=yYTEnUVBEWwn3Q1eQWO+9joNgYPh8U9F+GHpTsXflgg5lyQ8c6JKKlPYOusbi8t5I
+         7IeWEV6sBAiNqAyxhNWMs0A11fdlVkRTcymiKfWAIAHOClGi/0bg4N72cs+SV2NoiZ
+         B243pGGssmwth2V8No0v/cgaaAVriUpwFLU9pI38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>
-Subject: [PATCH 5.10 59/68] tcp/udp: Call inet6_destroy_sock() in IPv6 sk->sk_destruct().
+        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/29] virtio_net: bugfix overflow inside xdp_linearize_page()
 Date:   Mon, 24 Apr 2023 15:18:30 +0200
-Message-Id: <20230424131129.916235117@linuxfoundation.org>
+Message-Id: <20230424131121.273546556@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,243 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-commit d38afeec26ed4739c640bf286c270559aab2ba5f upstream.
+[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
 
-Originally, inet6_sk(sk)->XXX were changed under lock_sock(), so we were
-able to clean them up by calling inet6_destroy_sock() during the IPv6 ->
-IPv4 conversion by IPV6_ADDRFORM.  However, commit 03485f2adcde ("udpv6:
-Add lockless sendmsg() support") added a lockless memory allocation path,
-which could cause a memory leak:
+Here we copy the data from the original buf to the new page. But we
+not check that it may be overflow.
 
-setsockopt(IPV6_ADDRFORM)                 sendmsg()
-+-----------------------+                 +-------+
-- do_ipv6_setsockopt(sk, ...)             - udpv6_sendmsg(sk, ...)
-  - sockopt_lock_sock(sk)                   ^._ called via udpv6_prot
-    - lock_sock(sk)                             before WRITE_ONCE()
-  - WRITE_ONCE(sk->sk_prot, &tcp_prot)
-  - inet6_destroy_sock()                    - if (!corkreq)
-  - sockopt_release_sock(sk)                  - ip6_make_skb(sk, ...)
-    - release_sock(sk)                          ^._ lockless fast path for
-                                                    the non-corking case
+As long as the size received(including vnethdr) is greater than 3840
+(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
 
-                                                - __ip6_append_data(sk, ...)
-                                                  - ipv6_local_rxpmtu(sk, ...)
-                                                    - xchg(&np->rxpmtu, skb)
-                                                      ^._ rxpmtu is never freed.
+And this is completely possible, as long as the MTU is large, such
+as 4096. In our test environment, this will cause crash. Since crash is
+caused by the written memory, it is meaningless, so I do not include it.
 
-                                                - goto out_no_dst;
-
-                                            - lock_sock(sk)
-
-For now, rxpmtu is only the case, but not to miss the future change
-and a similar bug fixed in commit e27326009a3d ("net: ping6: Fix
-memleak in ipv6_renew_options()."), let's set a new function to IPv6
-sk->sk_destruct() and call inet6_cleanup_sock() there.  Since the
-conversion does not change sk->sk_destruct(), we can guarantee that
-we can clean up IPv6 resources finally.
-
-We can now remove all inet6_destroy_sock() calls from IPv6 protocol
-specific ->destroy() functions, but such changes are invasive to
-backport.  So they can be posted as a follow-up later for net-next.
-
-Fixes: 03485f2adcde ("udpv6: Add lockless sendmsg() support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ipv6.h    |    1 +
- include/net/udp.h     |    2 +-
- include/net/udplite.h |    8 --------
- net/ipv4/udp.c        |    9 ++++++---
- net/ipv4/udplite.c    |    8 ++++++++
- net/ipv6/af_inet6.c   |    8 +++++++-
- net/ipv6/udp.c        |   15 ++++++++++++++-
- net/ipv6/udp_impl.h   |    1 +
- net/ipv6/udplite.c    |    9 ++++++++-
- 9 files changed, 46 insertions(+), 15 deletions(-)
+ drivers/net/virtio_net.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -1110,6 +1110,7 @@ void ipv6_local_error(struct sock *sk, i
- void ipv6_local_rxpmtu(struct sock *sk, struct flowi6 *fl6, u32 mtu);
- 
- void inet6_cleanup_sock(struct sock *sk);
-+void inet6_sock_destruct(struct sock *sk);
- int inet6_release(struct socket *sock);
- int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len);
- int inet6_getname(struct socket *sock, struct sockaddr *uaddr,
---- a/include/net/udp.h
-+++ b/include/net/udp.h
-@@ -268,7 +268,7 @@ static inline bool udp_sk_bound_dev_eq(s
- }
- 
- /* net/ipv4/udp.c */
--void udp_destruct_sock(struct sock *sk);
-+void udp_destruct_common(struct sock *sk);
- void skb_consume_udp(struct sock *sk, struct sk_buff *skb, int len);
- int __udp_enqueue_schedule_skb(struct sock *sk, struct sk_buff *skb);
- void udp_skb_destructor(struct sock *sk, struct sk_buff *skb);
---- a/include/net/udplite.h
-+++ b/include/net/udplite.h
-@@ -24,14 +24,6 @@ static __inline__ int udplite_getfrag(vo
- 	return copy_from_iter_full(to, len, &msg->msg_iter) ? 0 : -EFAULT;
- }
- 
--/* Designate sk as UDP-Lite socket */
--static inline int udplite_sk_init(struct sock *sk)
--{
--	udp_init_sock(sk);
--	udp_sk(sk)->pcflag = UDPLITE_BIT;
--	return 0;
--}
--
- /*
-  * 	Checksumming routines
-  */
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1582,7 +1582,7 @@ drop:
- }
- EXPORT_SYMBOL_GPL(__udp_enqueue_schedule_skb);
- 
--void udp_destruct_sock(struct sock *sk)
-+void udp_destruct_common(struct sock *sk)
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 406ef4cc636d4..0cd46735e3950 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -600,8 +600,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 				       int page_off,
+ 				       unsigned int *len)
  {
- 	/* reclaim completely the forward allocated memory */
- 	struct udp_sock *up = udp_sk(sk);
-@@ -1595,10 +1595,14 @@ void udp_destruct_sock(struct sock *sk)
- 		kfree_skb(skb);
- 	}
- 	udp_rmem_release(sk, total, 0, true);
-+}
-+EXPORT_SYMBOL_GPL(udp_destruct_common);
+-	struct page *page = alloc_page(GFP_ATOMIC);
++	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++	struct page *page;
  
-+static void udp_destruct_sock(struct sock *sk)
-+{
-+	udp_destruct_common(sk);
- 	inet_sock_destruct(sk);
- }
--EXPORT_SYMBOL_GPL(udp_destruct_sock);
- 
- int udp_init_sock(struct sock *sk)
- {
-@@ -1606,7 +1610,6 @@ int udp_init_sock(struct sock *sk)
- 	sk->sk_destruct = udp_destruct_sock;
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(udp_init_sock);
- 
- void skb_consume_udp(struct sock *sk, struct sk_buff *skb, int len)
- {
---- a/net/ipv4/udplite.c
-+++ b/net/ipv4/udplite.c
-@@ -17,6 +17,14 @@
- struct udp_table 	udplite_table __read_mostly;
- EXPORT_SYMBOL(udplite_table);
- 
-+/* Designate sk as UDP-Lite socket */
-+static int udplite_sk_init(struct sock *sk)
-+{
-+	udp_init_sock(sk);
-+	udp_sk(sk)->pcflag = UDPLITE_BIT;
-+	return 0;
-+}
++	if (page_off + *len + tailroom > PAGE_SIZE)
++		return NULL;
 +
- static int udplite_rcv(struct sk_buff *skb)
- {
- 	return __udp4_lib_rcv(skb, &udplite_table, IPPROTO_UDPLITE);
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -107,6 +107,12 @@ static __inline__ struct ipv6_pinfo *ine
- 	return (struct ipv6_pinfo *)(((u8 *)sk) + offset);
- }
++	page = alloc_page(GFP_ATOMIC);
+ 	if (!page)
+ 		return NULL;
  
-+void inet6_sock_destruct(struct sock *sk)
-+{
-+	inet6_cleanup_sock(sk);
-+	inet_sock_destruct(sk);
-+}
-+
- static int inet6_create(struct net *net, struct socket *sock, int protocol,
- 			int kern)
- {
-@@ -199,7 +205,7 @@ lookup_protocol:
- 			inet->hdrincl = 1;
- 	}
+@@ -609,7 +614,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+ 	page_off += *len;
  
--	sk->sk_destruct		= inet_sock_destruct;
-+	sk->sk_destruct		= inet6_sock_destruct;
- 	sk->sk_family		= PF_INET6;
- 	sk->sk_protocol		= protocol;
- 
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -54,6 +54,19 @@
- #include <trace/events/skb.h>
- #include "udp_impl.h"
- 
-+static void udpv6_destruct_sock(struct sock *sk)
-+{
-+	udp_destruct_common(sk);
-+	inet6_sock_destruct(sk);
-+}
-+
-+int udpv6_init_sock(struct sock *sk)
-+{
-+	skb_queue_head_init(&udp_sk(sk)->reader_queue);
-+	sk->sk_destruct = udpv6_destruct_sock;
-+	return 0;
-+}
-+
- static u32 udp6_ehashfn(const struct net *net,
- 			const struct in6_addr *laddr,
- 			const u16 lport,
-@@ -1702,7 +1715,7 @@ struct proto udpv6_prot = {
- 	.connect		= ip6_datagram_connect,
- 	.disconnect		= udp_disconnect,
- 	.ioctl			= udp_ioctl,
--	.init			= udp_init_sock,
-+	.init			= udpv6_init_sock,
- 	.destroy		= udpv6_destroy_sock,
- 	.setsockopt		= udpv6_setsockopt,
- 	.getsockopt		= udpv6_getsockopt,
---- a/net/ipv6/udp_impl.h
-+++ b/net/ipv6/udp_impl.h
-@@ -12,6 +12,7 @@ int __udp6_lib_rcv(struct sk_buff *, str
- int __udp6_lib_err(struct sk_buff *, struct inet6_skb_parm *, u8, u8, int,
- 		   __be32, struct udp_table *);
- 
-+int udpv6_init_sock(struct sock *sk);
- int udp_v6_get_port(struct sock *sk, unsigned short snum);
- void udp_v6_rehash(struct sock *sk);
- 
---- a/net/ipv6/udplite.c
-+++ b/net/ipv6/udplite.c
-@@ -12,6 +12,13 @@
- #include <linux/proc_fs.h>
- #include "udp_impl.h"
- 
-+static int udplitev6_sk_init(struct sock *sk)
-+{
-+	udpv6_init_sock(sk);
-+	udp_sk(sk)->pcflag = UDPLITE_BIT;
-+	return 0;
-+}
-+
- static int udplitev6_rcv(struct sk_buff *skb)
- {
- 	return __udp6_lib_rcv(skb, &udplite_table, IPPROTO_UDPLITE);
-@@ -38,7 +45,7 @@ struct proto udplitev6_prot = {
- 	.connect	   = ip6_datagram_connect,
- 	.disconnect	   = udp_disconnect,
- 	.ioctl		   = udp_ioctl,
--	.init		   = udplite_sk_init,
-+	.init		   = udplitev6_sk_init,
- 	.destroy	   = udpv6_destroy_sock,
- 	.setsockopt	   = udpv6_setsockopt,
- 	.getsockopt	   = udpv6_getsockopt,
+ 	while (--*num_buf) {
+-		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 		unsigned int buflen;
+ 		void *buf;
+ 		int off;
+-- 
+2.39.2
+
 
 
