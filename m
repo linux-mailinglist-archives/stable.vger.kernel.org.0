@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76C186ECEB6
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87CE56ECE6D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232566AbjDXNeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:34:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59508 "EHLO
+        id S232467AbjDXNcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232571AbjDXNeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:19 -0400
+        with ESMTP id S232474AbjDXNcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBE0D65B4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD1C7EC8
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 165FF623A0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A14C4339C;
-        Mon, 24 Apr 2023 13:33:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEED062356
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE76EC433EF;
+        Mon, 24 Apr 2023 13:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343238;
-        bh=km/dW3/e1Fd3BE04vL37/VTNMPlRUYGd78hsBSatXtA=;
+        s=korg; t=1682343088;
+        bh=AZ6NBXo8jEOeRe342FZl1dU8+mm4SgXHtVBYpwVZ0i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c3b/3r6aKQ4IyXPhNQYuLs83U6o6343Ux6kupxxTLqbcYC1053hmmD3EJL9P9R/Zl
-         00bP+o+Z2BhC6u22QaDJsVDPWCuTKBPXo+OiQgN4laFOk9vv6K9JpCynpHG6iZ76Pr
-         pRNnwQl4rFg7a4dwkqwaE7nOYLttwm3RfIZsf81w=
+        b=oI3TZLAlc0RyE2/ThjDG/G2yewHNUHwEC3Kg+iJOeQRn8sgEEQMF/1Mgp0Br667ul
+         8Ka4ZcvuIOnv8WUOuNn1eWLTjcj6dPRtdzsuPak9a/peqXGGIp5V86o+7t2FPz0efC
+         5bmyUy7/RR6lstuQyCPuMgiTmQGmVWIQvQ7PmF9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/68] arm64: dts: imx8mm-evk: correct pmic clock source
+        patches@lists.linux.dev, Christoph Paasch <cpaasch@apple.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.2 073/110] mptcp: stops worker on unaccepted sockets at listener close
 Date:   Mon, 24 Apr 2023 15:17:35 +0200
-Message-Id: <20230424131127.843814435@linuxfoundation.org>
+Message-Id: <20230424131139.152513230@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 85af7ffd24da38e416a14bd6bf207154d94faa83 ]
+commit 2a6a870e44dd88f1a6a2893c65ef756a9edfb4c7 upstream.
 
-The osc_32k supports #clock-cells as 0, using an id is wrong, drop it.
+This is a partial revert of the blamed commit, with a relevant
+change: mptcp_subflow_queue_clean() now just change the msk
+socket status and stop the worker, so that the UaF issue addressed
+by the blamed commit is not re-introduced.
 
-Fixes: a6a355ede574 ("arm64: dts: imx8mm-evk: Add 32.768 kHz clock to PMIC")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The above prevents the mptcp worker from running concurrently with
+inet_csk_listen_stop(), as such race would trigger a warning, as
+reported by Christoph:
+
+RSP: 002b:00007f784fe09cd8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+WARNING: CPU: 0 PID: 25807 at net/ipv4/inet_connection_sock.c:1387 inet_csk_listen_stop+0x664/0x870 net/ipv4/inet_connection_sock.c:1387
+RAX: ffffffffffffffda RBX: 00000000006bc050 RCX: 00007f7850afd6a9
+RDX: 0000000000000000 RSI: 0000000020000340 RDI: 0000000000000004
+Modules linked in:
+RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000006bc05c
+R13: fffffffffffffea8 R14: 00000000006bc050 R15: 000000000001fe40
+
+ </TASK>
+CPU: 0 PID: 25807 Comm: syz-executor.7 Not tainted 6.2.0-g778e54711659 #7
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
+RIP: 0010:inet_csk_listen_stop+0x664/0x870 net/ipv4/inet_connection_sock.c:1387
+RAX: 0000000000000000 RBX: ffff888100dfbd40 RCX: 0000000000000000
+RDX: ffff8881363aab80 RSI: ffffffff81c494f4 RDI: 0000000000000005
+RBP: ffff888126dad080 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888100dfe040
+R13: 0000000000000001 R14: 0000000000000000 R15: ffff888100dfbdd8
+FS:  00007f7850a2c800(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b32d26000 CR3: 000000012fdd8006 CR4: 0000000000770ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ __tcp_close+0x5b2/0x620 net/ipv4/tcp.c:2875
+ __mptcp_close_ssk+0x145/0x3d0 net/mptcp/protocol.c:2427
+ mptcp_destroy_common+0x8a/0x1c0 net/mptcp/protocol.c:3277
+ mptcp_destroy+0x41/0x60 net/mptcp/protocol.c:3304
+ __mptcp_destroy_sock+0x56/0x140 net/mptcp/protocol.c:2965
+ __mptcp_close+0x38f/0x4a0 net/mptcp/protocol.c:3057
+ mptcp_close+0x24/0xe0 net/mptcp/protocol.c:3072
+ inet_release+0x53/0xa0 net/ipv4/af_inet.c:429
+ __sock_release+0x4e/0xf0 net/socket.c:651
+ sock_close+0x15/0x20 net/socket.c:1393
+ __fput+0xff/0x420 fs/file_table.c:321
+ task_work_run+0x8b/0xe0 kernel/task_work.c:179
+ resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
+ exit_to_user_mode_prepare+0x113/0x120 kernel/entry/common.c:203
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+ syscall_exit_to_user_mode+0x1d/0x40 kernel/entry/common.c:296
+ do_syscall_64+0x46/0x90 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
+RIP: 0033:0x7f7850af70dc
+RAX: 0000000000000000 RBX: 0000000000000004 RCX: 00007f7850af70dc
+RDX: 00007f7850a2c800 RSI: 0000000000000002 RDI: 0000000000000003
+RBP: 00000000006bd980 R08: 0000000000000000 R09: 00000000000018a0
+R10: 00000000316338a4 R11: 0000000000000293 R12: 0000000000211e31
+R13: 00000000006bc05c R14: 00007f785062c000 R15: 0000000000211af0
+
+Fixes: 0a3f4f1f9c27 ("mptcp: fix UaF in listener shutdown")
+Cc: stable@vger.kernel.org
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Link: https://github.com/multipath-tcp/mptcp_net-next/issues/371
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-evk.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mptcp/protocol.c |    6 +++-
+ net/mptcp/protocol.h |    1 
+ net/mptcp/subflow.c  |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 78 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-evk.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-evk.dtsi
-index 521eb3a5a12ed..ed6d296bd6644 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-evk.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-evk.dtsi
-@@ -128,7 +128,7 @@
- 		rohm,reset-snvs-powered;
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2366,8 +2366,12 @@ static void __mptcp_close_ssk(struct soc
+ 		mptcp_subflow_drop_ctx(ssk);
+ 	} else {
+ 		/* otherwise tcp will dispose of the ssk and subflow ctx */
+-		if (ssk->sk_state == TCP_LISTEN)
++		if (ssk->sk_state == TCP_LISTEN) {
++			tcp_set_state(ssk, TCP_CLOSE);
++			mptcp_subflow_queue_clean(sk, ssk);
++			inet_csk_listen_stop(ssk);
+ 			mptcp_event_pm_listener(ssk, MPTCP_EVENT_LISTENER_CLOSED);
++		}
  
- 		#clock-cells = <0>;
--		clocks = <&osc_32k 0>;
-+		clocks = <&osc_32k>;
- 		clock-output-names = "clk-32k-out";
+ 		__tcp_close(ssk, 0);
  
- 		regulators {
--- 
-2.39.2
-
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -629,6 +629,7 @@ void mptcp_close_ssk(struct sock *sk, st
+ 		     struct mptcp_subflow_context *subflow);
+ void __mptcp_subflow_send_ack(struct sock *ssk);
+ void mptcp_subflow_reset(struct sock *ssk);
++void mptcp_subflow_queue_clean(struct sock *sk, struct sock *ssk);
+ void mptcp_sock_graft(struct sock *sk, struct socket *parent);
+ struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
+ bool __mptcp_close(struct sock *sk, long timeout);
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1816,6 +1816,78 @@ static void subflow_state_change(struct
+ 	}
+ }
+ 
++void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_ssk)
++{
++	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
++	struct mptcp_sock *msk, *next, *head = NULL;
++	struct request_sock *req;
++
++	/* build a list of all unaccepted mptcp sockets */
++	spin_lock_bh(&queue->rskq_lock);
++	for (req = queue->rskq_accept_head; req; req = req->dl_next) {
++		struct mptcp_subflow_context *subflow;
++		struct sock *ssk = req->sk;
++
++		if (!sk_is_mptcp(ssk))
++			continue;
++
++		subflow = mptcp_subflow_ctx(ssk);
++		if (!subflow || !subflow->conn)
++			continue;
++
++		/* skip if already in list */
++		msk = mptcp_sk(subflow->conn);
++		if (msk->dl_next || msk == head)
++			continue;
++
++		sock_hold(subflow->conn);
++		msk->dl_next = head;
++		head = msk;
++	}
++	spin_unlock_bh(&queue->rskq_lock);
++	if (!head)
++		return;
++
++	/* can't acquire the msk socket lock under the subflow one,
++	 * or will cause ABBA deadlock
++	 */
++	release_sock(listener_ssk);
++
++	for (msk = head; msk; msk = next) {
++		struct sock *sk = (struct sock *)msk;
++
++		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
++		next = msk->dl_next;
++		msk->dl_next = NULL;
++
++		/* prevent the stack from later re-schedule the worker for
++		 * this socket
++		 */
++		inet_sk_state_store(sk, TCP_CLOSE);
++		release_sock(sk);
++
++		/* lockdep will report a false positive ABBA deadlock
++		 * between cancel_work_sync and the listener socket.
++		 * The involved locks belong to different sockets WRT
++		 * the existing AB chain.
++		 * Using a per socket key is problematic as key
++		 * deregistration requires process context and must be
++		 * performed at socket disposal time, in atomic
++		 * context.
++		 * Just tell lockdep to consider the listener socket
++		 * released here.
++		 */
++		mutex_release(&listener_sk->sk_lock.dep_map, _RET_IP_);
++		mptcp_cancel_work(sk);
++		mutex_acquire(&listener_sk->sk_lock.dep_map, 0, 0, _RET_IP_);
++
++		sock_put(sk);
++	}
++
++	/* we are still under the listener msk socket lock */
++	lock_sock_nested(listener_ssk, SINGLE_DEPTH_NESTING);
++}
++
+ static int subflow_ulp_init(struct sock *sk)
+ {
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
 
 
