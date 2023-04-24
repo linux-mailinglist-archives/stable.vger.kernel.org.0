@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 532386ECD2C
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0EFD6ECD99
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231990AbjDXNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:21:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44802 "EHLO
+        id S232058AbjDXNYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232006AbjDXNVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:04 -0400
+        with ESMTP id S231964AbjDXNYr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833F94ED0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2996B59DA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6403762223
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72345C433EF;
-        Mon, 24 Apr 2023 13:20:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B96BD6229E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D9CC433EF;
+        Mon, 24 Apr 2023 13:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342449;
-        bh=MBZUmVmJpjRGBACAEOZuXrO0jKeLxXt7RnJCDMUhnAI=;
+        s=korg; t=1682342685;
+        bh=BF6lZF7RwdWzRqD4PH5wng31QXjSn7YGGHreWiAB9LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fo5eDT8fCJj9MPjcsgk/Xcq5h7KJM8MVFBxUCyEHq1wgKEv9aebVSUo4Z4gQjf9/o
-         EzJKg15Ht/MaxHRdK+hAQqAPYeAqljY384N2SGOqBiehYYXGN9c4yNsQkvTPoxkJDh
-         mduMfDVWBhUG5P0Di/rZQhgEp14iioQ/iuoBs9UY=
+        b=Arj98JaAGlJIDNNpdaet6yIsLLg2PnYtwKZXuLGNW705BCe6XM2FiFiCBRMhWbPVt
+         NVpkVdFSs7sN1GeFzkIEsmHSpZbygMziMtITS7vHo4TsiueA96u2s/nTqgij29PPQb
+         cYY6+wHhh4PY0i4q3DddHGvTBx/vomXIIxGis7II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 16/73] netfilter: nf_tables: tighten netlink attribute requirements for catch-all elements
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Steev Klimaszewski <steev@kali.org>
+Subject: [PATCH 6.1 07/98] arm64: dts: qcom: sc8280xp-pmics: fix pon compatible and registers
 Date:   Mon, 24 Apr 2023 15:16:30 +0200
-Message-Id: <20230424131129.610407217@linuxfoundation.org>
+Message-Id: <20230424131134.115246247@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit d4eb7e39929a3b1ff30fb751b4859fc2410702a0 ]
+[ Upstream commit ad8cd35c58ca3ec5e93f52a0124899627b98efb2 ]
 
-If NFT_SET_ELEM_CATCHALL is set on, then userspace provides no set element
-key. Otherwise, bail out with -EINVAL.
+The pmk8280 PMIC PON peripheral is gen3 and uses two sets of registers;
+hlos and pbs.
 
-Fixes: aaa31047a6d2 ("netfilter: nftables: add catch-all set element support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This specifically fixes the following error message during boot when the
+pbs registers are not defined:
+
+	PON_PBS address missing, can't read HW debounce time
+
+Note that this also enables the spurious interrupt workaround introduced
+by commit 0b65118e6ba3 ("Input: pm8941-pwrkey - add software key press
+debouncing support") (which may or may not be needed).
+
+Fixes: ccd3517faf18 ("arm64: dts: qcom: sc8280xp: Add reference device")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org> #Thinkpad X13s
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230327122948.4323-1-johan+linaro@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index aecb2f1e7af10..d950041364d5f 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5895,7 +5895,8 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 	if (err < 0)
- 		return err;
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi
+index 24836b6b9bbc9..be0df0856df9b 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi
+@@ -15,8 +15,9 @@
+ 		#size-cells = <0>;
  
--	if (!nla[NFTA_SET_ELEM_KEY] && !(flags & NFT_SET_ELEM_CATCHALL))
-+	if (((flags & NFT_SET_ELEM_CATCHALL) && nla[NFTA_SET_ELEM_KEY]) ||
-+	    (!(flags & NFT_SET_ELEM_CATCHALL) && !nla[NFTA_SET_ELEM_KEY]))
- 		return -EINVAL;
+ 		pmk8280_pon: pon@1300 {
+-			compatible = "qcom,pm8998-pon";
+-			reg = <0x1300>;
++			compatible = "qcom,pmk8350-pon";
++			reg = <0x1300>, <0x800>;
++			reg-names = "hlos", "pbs";
  
- 	if (flags != 0) {
+ 			pmk8280_pon_pwrkey: pwrkey {
+ 				compatible = "qcom,pmk8350-pwrkey";
 -- 
 2.39.2
 
