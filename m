@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5495B6ECE5C
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D8E6ECDC3
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbjDXNbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59624 "EHLO
+        id S232171AbjDXN0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232512AbjDXNbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:19 -0400
+        with ESMTP id S232209AbjDXN0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096E97AB6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9435FF6
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8C136233C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92C9C433EF;
-        Mon, 24 Apr 2023 13:30:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 268EC62207
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0CAC433EF;
+        Mon, 24 Apr 2023 13:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343059;
-        bh=F0xo3TK4nFYyr291iZuMfIYFpoQphmclRzYN+rsUH/g=;
+        s=korg; t=1682342790;
+        bh=ONCt3OR/vxf6iAPQ0lpcmGNw8LVVdg8UNCKm8wxvi/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=waO10aZSNrjcetGHgduVGvGqyMaETpeoQUavMZirY3LIuaLF2QshsLe6jasikwlDC
-         nzpVmSkvanCkuAhJLr21qEB/GaLdD9VCOE70qtpniM+RQlxICtCbThJsiCKtz97vA5
-         ngdLFDRmw9UaYLLbXDugWHhaDUNBbD0zGrN0ecwo=
+        b=wwXL5er8Nl9Wfia/G7cOcTidd/gmjhBpi0/W/rzMbu/xLUaU/JyDzpgZtRtXJ9tvw
+         sUhZsuE8M+yeWh6AAfRFEPRchehJHlAms42NuRmi4RXvwiKFnyy5eEBTQy7WySuaQ3
+         8t/wqLGQ3aCcfn01SYZecakAT8zQfjlyRC0xKAXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boris Burkov <boris@bur.io>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.2 060/110] btrfs: set default discard iops_limit to 1000
+        patches@lists.linux.dev,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 59/98] maple_tree: fix mas_empty_area() search
 Date:   Mon, 24 Apr 2023 15:17:22 +0200
-Message-Id: <20230424131138.552705731@linuxfoundation.org>
+Message-Id: <20230424131136.155716603@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: Liam R. Howlett <Liam.Howlett@oracle.com>
 
-commit e9f59429b87d35cf23ae9ca19629bd686a1c0304 upstream.
+commit 06e8fd999334bcd76b4d72d7b9206d4aea89764e upstream.
 
-Previously, the default was a relatively conservative 10. This results
-in a 100ms delay, so with ~300 discards in a commit, it takes the full
-30s till the next commit to finish the discards. On a workstation, this
-results in the disk never going idle, wasting power/battery, etc.
+The internal function of mas_awalk() was incorrectly skipping the last
+entry in a node, which could potentially be NULL.  This is only a problem
+for the left-most node in the tree - otherwise that NULL would not exist.
 
-Set the default to 1000, which results in using the smallest possible
-delay, currently, which is 1ms. This has shown to not pathologically
-keep the disk busy by the original reporter.
+Fix mas_awalk() by using the metadata to obtain the end of the node for
+the loop and the logical pivot as apposed to the raw pivot value.
 
-Link: https://lore.kernel.org/linux-btrfs/Y%2F+n1wS%2F4XAH7X1p@nz/
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2182228
-CC: stable@vger.kernel.org # 6.2+
-Reviewed-by: Neal Gompa <neal@gompa.dev
-Signed-off-by: Boris Burkov <boris@bur.io>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lkml.kernel.org/r/20230414145728.4067069-2-Liam.Howlett@oracle.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/discard.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/maple_tree.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/fs/btrfs/discard.c
-+++ b/fs/btrfs/discard.c
-@@ -60,7 +60,7 @@
- #define BTRFS_DISCARD_TARGET_MSEC	(6 * 60 * 60UL * MSEC_PER_SEC)
- #define BTRFS_DISCARD_MIN_DELAY_MSEC	(1UL)
- #define BTRFS_DISCARD_MAX_DELAY_MSEC	(1000UL)
--#define BTRFS_DISCARD_MAX_IOPS		(10U)
-+#define BTRFS_DISCARD_MAX_IOPS		(1000U)
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -5059,10 +5059,10 @@ static inline bool mas_anode_descend(str
+ {
+ 	enum maple_type type = mte_node_type(mas->node);
+ 	unsigned long pivot, min, gap = 0;
+-	unsigned char offset;
+-	unsigned long *gaps;
+-	unsigned long *pivots = ma_pivots(mas_mn(mas), type);
+-	void __rcu **slots = ma_slots(mas_mn(mas), type);
++	unsigned char offset, data_end;
++	unsigned long *gaps, *pivots;
++	void __rcu **slots;
++	struct maple_node *node;
+ 	bool found = false;
  
- /* Monotonically decreasing minimum length filters after index 0 */
- static int discard_minlen[BTRFS_NR_DISCARD_LISTS] = {
+ 	if (ma_is_dense(type)) {
+@@ -5070,13 +5070,15 @@ static inline bool mas_anode_descend(str
+ 		return true;
+ 	}
+ 
+-	gaps = ma_gaps(mte_to_node(mas->node), type);
++	node = mas_mn(mas);
++	pivots = ma_pivots(node, type);
++	slots = ma_slots(node, type);
++	gaps = ma_gaps(node, type);
+ 	offset = mas->offset;
+ 	min = mas_safe_min(mas, pivots, offset);
+-	for (; offset < mt_slots[type]; offset++) {
+-		pivot = mas_safe_pivot(mas, pivots, offset, type);
+-		if (offset && !pivot)
+-			break;
++	data_end = ma_data_end(node, type, pivots, mas->max);
++	for (; offset <= data_end; offset++) {
++		pivot = mas_logical_pivot(mas, pivots, offset, type);
+ 
+ 		/* Not within lower bounds */
+ 		if (mas->index > pivot)
 
 
