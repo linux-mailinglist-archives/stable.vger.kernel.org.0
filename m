@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22AA26ECED2
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88BE06ECED5
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbjDXNfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37892 "EHLO
+        id S232473AbjDXNfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232624AbjDXNfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:33 -0400
+        with ESMTP id S232633AbjDXNff (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE9D83DE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B57E8A71
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CACD623A0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C720C4339E;
-        Mon, 24 Apr 2023 13:35:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C91C6231F
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D31C433EF;
+        Mon, 24 Apr 2023 13:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343306;
-        bh=c8mRfcWKlfW0uqHoda9eLB2DA2/jLLu5mXie6ZjBQRs=;
+        s=korg; t=1682343309;
+        bh=89TpjMtVJCWva/qi7sba+Zb/sXWZYdEFfMGsD1mbk2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMr9ZFvOt9J4R6d0uRWCapCLcIMOMpXq28AOAx7RU0jcTGzOSgYwbXBWTSZzmjgS8
-         /JGwzJNybsPe14Dw6E/i5bDCW/u3GLVAK1QrtsNmlNSKLCLLcgSR9VlQ4VTWfEOBjO
-         G8mhT83oVjnzFIurBQwt0itpS7dwr3VvosG4SGUs=
+        b=SLtmsYnqXU+5BYsVw8oW26PACSCuFYLKteIylPmYimtBKA9X76EIex2CFnKpmqx8p
+         zA8HWQNYToxRbrN5KMmWt4jN1IH6kv0gw8gTXpoCOR0R/GzrDsbZDYJwt4qeQcLoKi
+         pLAv0NXmNaMsMuGF8uTVPXL7DN3LOHZhutewT2Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
+        patches@lists.linux.dev,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
         "Qais Yousef (Google)" <qyousef@layalina.io>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>
-Subject: [PATCH 5.10 44/68] sched/uclamp: Fix a uninitialized variable warnings
-Date:   Mon, 24 Apr 2023 15:18:15 +0200
-Message-Id: <20230424131129.372546310@linuxfoundation.org>
+Subject: [PATCH 5.10 45/68] sched/fair: Fixes for capacity inversion detection
+Date:   Mon, 24 Apr 2023 15:18:16 +0200
+Message-Id: <20230424131129.404226029@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
 References: <20230424131127.653885914@linuxfoundation.org>
@@ -58,92 +58,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qyousef@layalina.io>
 
-commit e26fd28db82899be71b4b949527373d0a6be1e65 upstream.
+commit da07d2f9c153e457e845d4dcfdd13568d71d18a4 upstream.
 
-Addresses the following warnings:
+Traversing the Perf Domains requires rcu_read_lock() to be held and is
+conditional on sched_energy_enabled(). Ensure right protections applied.
 
-> config: riscv-randconfig-m031-20221111
-> compiler: riscv64-linux-gcc (GCC) 12.1.0
->
-> smatch warnings:
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_min'.
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_max'.
+Also skip capacity inversion detection for our own pd; which was an
+error.
 
-Fixes: 244226035a1f ("sched/uclamp: Fix fits_capacity() check in feec()")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
+Fixes: 44c7b80bffc3 ("sched/fair: Detect capacity inversion")
+Reported-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20230112122708.330667-2-qyousef@layalina.io
-(cherry picked from commit e26fd28db82899be71b4b949527373d0a6be1e65)
-[Conflict in kernel/sched/fair.c due to new automatic variable in
-master vs 5.10 and new code around for loop]
+Link: https://lore.kernel.org/r/20230112122708.330667-3-qyousef@layalina.io
+(cherry picked from commit da07d2f9c153e457e845d4dcfdd13568d71d18a4)
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ kernel/sched/fair.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -6846,9 +6846,9 @@ static int find_energy_efficient_cpu(str
- 		goto unlock;
+@@ -8407,16 +8407,23 @@ static void update_cpu_capacity(struct s
+ 	 *   * Thermal pressure will impact all cpus in this perf domain
+ 	 *     equally.
+ 	 */
+-	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
++	if (sched_energy_enabled()) {
+ 		unsigned long inv_cap = capacity_orig - thermal_load_avg(rq);
+-		struct perf_domain *pd = rcu_dereference(rq->rd->pd);
++		struct perf_domain *pd;
  
- 	for (; pd; pd = pd->next) {
-+		unsigned long util_min = p_util_min, util_max = p_util_max;
- 		unsigned long cur_delta, spare_cap, max_spare_cap = 0;
- 		unsigned long rq_util_min, rq_util_max;
--		unsigned long util_min, util_max;
- 		unsigned long base_energy_pd;
- 		int max_spare_cap_cpu = -1;
- 
-@@ -6857,6 +6857,8 @@ static int find_energy_efficient_cpu(str
- 		base_energy += base_energy_pd;
- 
- 		for_each_cpu_and(cpu, perf_domain_span(pd), sched_domain_span(sd)) {
-+			struct rq *rq = cpu_rq(cpu);
++		rcu_read_lock();
 +
- 			if (!cpumask_test_cpu(cpu, p->cpus_ptr))
- 				continue;
++		pd = rcu_dereference(rq->rd->pd);
+ 		rq->cpu_capacity_inverted = 0;
  
-@@ -6872,24 +6874,19 @@ static int find_energy_efficient_cpu(str
- 			 * much capacity we can get out of the CPU; this is
- 			 * aligned with schedutil_cpu_util().
- 			 */
--			if (uclamp_is_used()) {
--				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
--					util_min = p_util_min;
--					util_max = p_util_max;
--				} else {
--					/*
--					 * Open code uclamp_rq_util_with() except for
--					 * the clamp() part. Ie: apply max aggregation
--					 * only. util_fits_cpu() logic requires to
--					 * operate on non clamped util but must use the
--					 * max-aggregated uclamp_{min, max}.
--					 */
--					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
--					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
--
--					util_min = max(rq_util_min, p_util_min);
--					util_max = max(rq_util_max, p_util_max);
--				}
-+			if (uclamp_is_used() && !uclamp_rq_is_idle(rq)) {
-+				/*
-+				 * Open code uclamp_rq_util_with() except for
-+				 * the clamp() part. Ie: apply max aggregation
-+				 * only. util_fits_cpu() logic requires to
-+				 * operate on non clamped util but must use the
-+				 * max-aggregated uclamp_{min, max}.
-+				 */
-+				rq_util_min = uclamp_rq_get(rq, UCLAMP_MIN);
-+				rq_util_max = uclamp_rq_get(rq, UCLAMP_MAX);
+ 		for (; pd; pd = pd->next) {
+ 			struct cpumask *pd_span = perf_domain_span(pd);
+ 			unsigned long pd_cap_orig, pd_cap;
+ 
++			/* We can't be inverted against our own pd */
++			if (cpumask_test_cpu(cpu_of(rq), pd_span))
++				continue;
 +
-+				util_min = max(rq_util_min, p_util_min);
-+				util_max = max(rq_util_max, p_util_max);
+ 			cpu = cpumask_any(pd_span);
+ 			pd_cap_orig = arch_scale_cpu_capacity(cpu);
+ 
+@@ -8441,6 +8448,8 @@ static void update_cpu_capacity(struct s
+ 				break;
  			}
- 			if (!util_fits_cpu(util, util_min, util_max, cpu))
- 				continue;
+ 		}
++
++		rcu_read_unlock();
+ 	}
+ 
+ 	trace_sched_cpu_capacity_tp(rq);
 
 
