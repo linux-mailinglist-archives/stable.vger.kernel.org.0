@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F516ECE63
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B74F6ECD38
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbjDXNcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58954 "EHLO
+        id S232007AbjDXNVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232526AbjDXNbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC106EAC
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:13 -0700 (PDT)
+        with ESMTP id S232027AbjDXNVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B445E49FD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E74FA62321
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E9AC4339E;
-        Mon, 24 Apr 2023 13:31:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91A9162209
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5310C433A0;
+        Mon, 24 Apr 2023 13:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343072;
-        bh=W/GVl5ywtT7PzvOuOmCcsQ4llQ1ejoLlnD559adwA3g=;
+        s=korg; t=1682342476;
+        bh=bB7ZOSh4TORDmWGI3374u5WwOIG/GDEF6YT5jR2n8XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/ntMC6MW900RgAFtZh+ef/qAPS81D+6b+YSJoFOgXeuw+x4xGg/YSx2HtUptryzn
-         ci6RN+eMfRWK9iUonCyB6vQBY6HRn3eSPrxZl4I/82nIj84V5OXUpNBKUzVhJIuhGS
-         IjWAu1UdkujOfRNrieStlFyNasWoLZDcQ4vQ0FPo=
+        b=HrCgRYn7zdX6sDusl6MkSFluaxaIZYIy/UQoUTlpaRlXoCLxXW2K+OvQODZUSgOpv
+         2uLGSx43NKCNXmGXjIAA0uykVd3i654my7mPmS4b/XC1RnMlaDRCxfB2uN5PNWT8rz
+         WS5R3/U0P6EDFoFjfCHzWm0j9rpzaQTzDsmnFcxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 037/110] net: bridge: switchdev: dont notify FDB entries with "master dynamic"
-Date:   Mon, 24 Apr 2023 15:16:59 +0200
-Message-Id: <20230424131137.540297189@linuxfoundation.org>
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.15 46/73] sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
+Date:   Mon, 24 Apr 2023 15:17:00 +0200
+Message-Id: <20230424131130.689803419@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,103 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 927cdea5d2095287ddd5246e5aa68eb5d68db2be ]
+commit c56ab1b3506ba0e7a872509964b100912bde165d upstream.
 
-There is a structural problem in switchdev, where the flag bits in
-struct switchdev_notifier_fdb_info (added_by_user, is_local etc) only
-represent a simplified / denatured view of what's in struct
-net_bridge_fdb_entry :: flags (BR_FDB_ADDED_BY_USER, BR_FDB_LOCAL etc).
-Each time we want to pass more information about struct
-net_bridge_fdb_entry :: flags to struct switchdev_notifier_fdb_info
-(here, BR_FDB_STATIC), we find that FDB entries were already notified to
-switchdev with no regard to this flag, and thus, switchdev drivers had
-no indication whether the notified entries were static or not.
+So that it is now uclamp aware.
 
-For example, this command:
+This fixes a major problem of busy tasks capped with UCLAMP_MAX keeping
+the system in overutilized state which disables EAS and leads to wasting
+energy in the long run.
 
-ip link add br0 type bridge && ip link set swp0 master br0
-bridge fdb add dev swp0 00:01:02:03:04:05 master dynamic
+Without this patch running a busy background activity like JIT
+compilation on Pixel 6 causes the system to be in overutilized state
+74.5% of the time.
 
-has never worked as intended with switchdev. It causes a struct
-net_bridge_fdb_entry to be passed to br_switchdev_fdb_notify() which has
-a single flag set: BR_FDB_ADDED_BY_USER.
+With this patch this goes down to  9.79%.
 
-This is further passed to the switchdev notifier chain, where interested
-drivers have no choice but to assume this is a static (does not age) and
-sticky (does not migrate) FDB entry. So currently, all drivers offload
-it to hardware as such, as can be seen below ("offload" is set).
+It also fixes another problem when long running tasks that have their
+UCLAMP_MIN changed while running such that they need to upmigrate to
+honour the new UCLAMP_MIN value. The upmigration doesn't get triggered
+because overutilized state never gets set in this state, hence misfit
+migration never happens at tick in this case until the task wakes up
+again.
 
-bridge fdb get 00:01:02:03:04:05 dev swp0 master
-00:01:02:03:04:05 dev swp0 offload master br0
-
-The software FDB entry expires $ageing_time centiseconds after the
-kernel last sees a packet with this MAC SA, and the bridge notifies its
-deletion as well, so it eventually disappears from hardware too.
-
-This is a problem, because it is actually desirable to start offloading
-"master dynamic" FDB entries correctly - they should expire $ageing_time
-centiseconds after the *hardware* port last sees a packet with this
-MAC SA - and this is how the current incorrect behavior was discovered.
-With an offloaded data plane, it can be expected that software only sees
-exception path packets, so an otherwise active dynamic FDB entry would
-be aged out by software sooner than it should.
-
-With the change in place, these FDB entries are no longer offloaded:
-
-bridge fdb get 00:01:02:03:04:05 dev swp0 master
-00:01:02:03:04:05 dev swp0 master br0
-
-and this also constitutes a better way (assuming a backport to stable
-kernels) for user space to determine whether the kernel has the
-capability of doing something sane with these or not.
-
-As opposed to "master dynamic" FDB entries, on the current behavior of
-which no one currently depends on (which can be deduced from the lack of
-kselftests), Ido Schimmel explains that entries with the "extern_learn"
-flag (BR_FDB_ADDED_BY_EXT_LEARN) should still be notified to switchdev,
-since the spectrum driver listens to them (and this is kind of okay,
-because although they are treated identically to "static", they are
-expected to not age, and to roam).
-
-Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
-Link: https://lore.kernel.org/netdev/20230327115206.jk5q5l753aoelwus@skbuf/
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20230418155902.898627-1-vladimir.oltean@nxp.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: af24bde8df202 ("sched/uclamp: Add uclamp support to energy_compute()")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-7-qais.yousef@arm.com
+(cherry picked from commit c56ab1b3506ba0e7a872509964b100912bde165d)
+[Fixed trivial conflict in cpu_overutilized() - use cpu_util() instead
+of cpu_util_cfs()]
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_switchdev.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/sched/fair.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 7eb6fd5bb917a..0b5f8e1a7325d 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -150,6 +150,17 @@ br_switchdev_fdb_notify(struct net_bridge *br,
- 	if (test_bit(BR_FDB_LOCKED, &fdb->flags))
- 		return;
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -5739,7 +5739,10 @@ static inline unsigned long cpu_util(int
  
-+	/* Entries with these flags were created using ndm_state == NUD_REACHABLE,
-+	 * ndm_flags == NTF_MASTER( | NTF_STICKY), ext_flags == 0 by something
-+	 * equivalent to 'bridge fdb add ... master dynamic (sticky)'.
-+	 * Drivers don't know how to deal with these, so don't notify them to
-+	 * avoid confusing them.
-+	 */
-+	if (test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags) &&
-+	    !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-+	    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-+		return;
+ static inline bool cpu_overutilized(int cpu)
+ {
+-	return !fits_capacity(cpu_util(cpu), capacity_of(cpu));
++	unsigned long rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
++	unsigned long rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
 +
- 	br_switchdev_fdb_populate(br, &item, fdb, NULL);
++	return !util_fits_cpu(cpu_util(cpu), rq_util_min, rq_util_max, cpu);
+ }
  
- 	switch (type) {
--- 
-2.39.2
-
+ static inline void update_overutilized_status(struct rq *rq)
 
 
