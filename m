@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D0E6ECD90
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E50A86ECD91
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232052AbjDXNYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
+        id S231928AbjDXNYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232103AbjDXNYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4226C49FE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:22 -0700 (PDT)
+        with ESMTP id S232081AbjDXNYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B2649C3
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB32C62277
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDA2BC433EF;
-        Mon, 24 Apr 2023 13:24:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 714306228E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E63C433EF;
+        Mon, 24 Apr 2023 13:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342661;
-        bh=3fYupidKRbyX2OqXnlPRMTgM12gtXXdCssK8MekXBcQ=;
+        s=korg; t=1682342663;
+        bh=xrok3IolVXZua4zAQnuScuCAigBJK8EEZi/RteWbPOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jSYcYsQUOZrU4fJySWGFT4traQf0BBLdW7FhNLU8Uq7cR5CA9EGRaq1gxaS4YYMN
-         HlgkX65/EZV63NFx4tP+MAInbkf8Na0bhLhK5Csc13fB0kGljejHM1ErVf/qvag6dn
-         2p4vOJc5b36dXyzAbsnLQEvYaza+ek2kZ7zvJcxU=
+        b=bZObkkdZcNSWCYJNuL39dxH+6fPYodE0rs83vpS99nQJh2l0pAPZsX33xNEy3gint
+         mq4MJCPFWPIHrpZKLoT/BvPnYOC8QnZBCod7Svx8ejbBPgWEHseaHYOTLlfKV9uwP1
+         ZEkITdS+zfIixc6Da5rC2YKv1L7oG27tIx2L0eMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 10/98] arm64: dts: imx8mp-verdin: correct off-on-delay
-Date:   Mon, 24 Apr 2023 15:16:33 +0200
-Message-Id: <20230424131134.243154141@linuxfoundation.org>
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Farid BENAMROUCHE <fariouche@yahoo.fr>
+Subject: [PATCH 6.1 11/98] netfilter: br_netfilter: fix recent physdev match breakage
+Date:   Mon, 24 Apr 2023 15:16:34 +0200
+Message-Id: <20230424131134.290623679@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
 References: <20230424131133.829259077@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,56 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 02c447a0d79f0c966563e5095a017cbf9477ca6d ]
+[ Upstream commit 94623f579ce338b5fa61b5acaa5beb8aa657fb9e ]
 
-The property should be off-on-delay-us, not off-on-delay
+Recent attempt to ensure PREROUTING hook is executed again when a
+decrypted ipsec packet received on a bridge passes through the network
+stack a second time broke the physdev match in INPUT hook.
 
-Fixes: a39ed23bdf6e ("arm64: dts: freescale: add initial support for verdin imx8m plus")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+We can't discard the nf_bridge info strct from sabotage_in hook, as
+this is needed by the physdev match.
+
+Keep the struct around and handle this with another conditional instead.
+
+Fixes: 2b272bb558f1 ("netfilter: br_netfilter: disable sabotage_in hook after first suppression")
+Reported-and-tested-by: Farid BENAMROUCHE <fariouche@yahoo.fr>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi | 2 +-
- arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ include/linux/skbuff.h          |  1 +
+ net/bridge/br_netfilter_hooks.c | 17 +++++++++++------
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi
-index cefabe65b2520..c8b521d45fca1 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-dev.dtsi
-@@ -12,7 +12,7 @@
- 		compatible = "regulator-fixed";
- 		enable-active-high;
- 		gpio = <&gpio_expander_21 4 GPIO_ACTIVE_HIGH>; /* ETH_PWR_EN */
--		off-on-delay = <500000>;
-+		off-on-delay-us = <500000>;
- 		regulator-max-microvolt = <3300000>;
- 		regulator-min-microvolt = <3300000>;
- 		regulator-name = "+V3.3_ETH";
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
-index 5dcd1de586b52..371144eb40188 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
-@@ -86,7 +86,7 @@
- 		compatible = "regulator-fixed";
- 		enable-active-high;
- 		gpio = <&gpio2 20 GPIO_ACTIVE_HIGH>; /* PMIC_EN_ETH */
--		off-on-delay = <500000>;
-+		off-on-delay-us = <500000>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_reg_eth>;
- 		regulator-always-on;
-@@ -127,7 +127,7 @@
- 		enable-active-high;
- 		/* Verdin SD_1_PWR_EN (SODIMM 76) */
- 		gpio = <&gpio4 22 GPIO_ACTIVE_HIGH>;
--		off-on-delay = <100000>;
-+		off-on-delay-us = <100000>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_usdhc2_pwr_en>;
- 		regulator-max-microvolt = <3300000>;
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 7be5bb4c94b6d..a0d271581b964 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -291,6 +291,7 @@ struct nf_bridge_info {
+ 	u8			pkt_otherhost:1;
+ 	u8			in_prerouting:1;
+ 	u8			bridged_dnat:1;
++	u8			sabotage_in_done:1;
+ 	__u16			frag_max_size;
+ 	struct net_device	*physindev;
+ 
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 9554abcfd5b4e..812bd7e1750b6 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -868,12 +868,17 @@ static unsigned int ip_sabotage_in(void *priv,
+ {
+ 	struct nf_bridge_info *nf_bridge = nf_bridge_info_get(skb);
+ 
+-	if (nf_bridge && !nf_bridge->in_prerouting &&
+-	    !netif_is_l3_master(skb->dev) &&
+-	    !netif_is_l3_slave(skb->dev)) {
+-		nf_bridge_info_free(skb);
+-		state->okfn(state->net, state->sk, skb);
+-		return NF_STOLEN;
++	if (nf_bridge) {
++		if (nf_bridge->sabotage_in_done)
++			return NF_ACCEPT;
++
++		if (!nf_bridge->in_prerouting &&
++		    !netif_is_l3_master(skb->dev) &&
++		    !netif_is_l3_slave(skb->dev)) {
++			nf_bridge->sabotage_in_done = 1;
++			state->okfn(state->net, state->sk, skb);
++			return NF_STOLEN;
++		}
+ 	}
+ 
+ 	return NF_ACCEPT;
 -- 
 2.39.2
 
