@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67906ECEC3
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E296ECE76
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232571AbjDXNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:35:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
+        id S232394AbjDXNcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232412AbjDXNep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FCA83D4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:30 -0700 (PDT)
+        with ESMTP id S232514AbjDXNce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE4F5FE1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E946623A2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 950F6C433D2;
-        Mon, 24 Apr 2023 13:34:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 387DE62360
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E638C4339B;
+        Mon, 24 Apr 2023 13:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343256;
-        bh=hphoRkfHjGGvcwSrVaUjpyntA3S6Z085NhuTDLrX4bM=;
+        s=korg; t=1682343127;
+        bh=O7h4IJTp71ezAL1PtBDjB3kID/LODlnPyWXpeIHNK/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvpWrs84g0yN/M8YNuY/YYlEJ25lW1I5r9KKVYH5p3US8B50cLE1d/R30RuKuIDkp
-         aA36tV9p2cozRaRvDqf8LcTn+BwlrLJGCXEnuhCw73+8Oey9npBuuH9haQuUynh/wY
-         d8iOKgTsaXA343X92zNhCLF87dk7M9TDcj5b3GbQ=
+        b=v9fySFsLWfI/gKf4xM7BHeAd3UhHgx+cwrCvk76r12ZHgdTCjyckFJXEkjf9jYsj7
+         ciLkxIishbywdWM+lzvqC8qAl2DxPpbAelr2kpuUACmXDde6/P+msAeN8T7NXk4bLj
+         ea4F/t00a4dN9hT22NvwAUqju5H5ur4XAKKEnPms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Basierski <sebastianx.basierski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/68] e1000e: Disable TSO on i219-LM card to increase speed
+        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 087/110] mm/khugepaged: check again on anon uffd-wp during isolation
 Date:   Mon, 24 Apr 2023 15:17:49 +0200
-Message-Id: <20230424131128.362609160@linuxfoundation.org>
+Message-Id: <20230424131139.762487509@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,100 +59,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Basierski <sebastianx.basierski@intel.com>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
+commit dd47ac428c3f5f3bcabe845f36be870fe6c20784 upstream.
 
-While using i219-LM card currently it was only possible to achieve
-about 60% of maximum speed due to regression introduced in Linux 5.8.
-This was caused by TSO not being disabled by default despite commit
-f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
-Fix that by disabling TSO during driver probe.
+Khugepaged collapse an anonymous thp in two rounds of scans.  The 2nd
+round done in __collapse_huge_page_isolate() after
+hpage_collapse_scan_pmd(), during which all the locks will be released
+temporarily.  It means the pgtable can change during this phase before 2nd
+round starts.
 
-Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
-Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It's logically possible some ptes got wr-protected during this phase, and
+we can errornously collapse a thp without noticing some ptes are
+wr-protected by userfault.  e1e267c7928f wanted to avoid it but it only
+did that for the 1st phase, not the 2nd phase.
+
+Since __collapse_huge_page_isolate() happens after a round of small page
+swapins, we don't need to worry on any !present ptes - if it existed
+khugepaged will already bail out.  So we only need to check present ptes
+with uffd-wp bit set there.
+
+This is something I found only but never had a reproducer, I thought it
+was one caused a bug in Muhammad's recent pagemap new ioctl work, but it
+turns out it's not the cause of that but an userspace bug.  However this
+seems to still be a real bug even with a very small race window, still
+worth to have it fixed and copy stable.
+
+Link: https://lkml.kernel.org/r/20230405155120.3608140-1-peterx@redhat.com
+Fixes: e1e267c7928f ("khugepaged: skip collapse if uffd-wp detected")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ mm/khugepaged.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index ae0c9aaab48db..b700663a634d2 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5294,31 +5294,6 @@ static void e1000_watchdog_task(struct work_struct *work)
- 				ew32(TARC(0), tarc0);
- 			}
- 
--			/* disable TSO for pcie and 10/100 speeds, to avoid
--			 * some hardware issues
--			 */
--			if (!(adapter->flags & FLAG_TSO_FORCE)) {
--				switch (adapter->link_speed) {
--				case SPEED_10:
--				case SPEED_100:
--					e_info("10/100 speed: disabling TSO\n");
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--					break;
--				case SPEED_1000:
--					netdev->features |= NETIF_F_TSO;
--					netdev->features |= NETIF_F_TSO6;
--					break;
--				default:
--					/* oops */
--					break;
--				}
--				if (hw->mac.type == e1000_pch_spt) {
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--				}
--			}
--
- 			/* enable transmits in the hardware, need to do this
- 			 * after setting TARC(0)
- 			 */
-@@ -7477,6 +7452,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			    NETIF_F_RXCSUM |
- 			    NETIF_F_HW_CSUM);
- 
-+	/* disable TSO for pcie and 10/100 speeds to avoid
-+	 * some hardware issues and for i219 to fix transfer
-+	 * speed being capped at 60%
-+	 */
-+	if (!(adapter->flags & FLAG_TSO_FORCE)) {
-+		switch (adapter->link_speed) {
-+		case SPEED_10:
-+		case SPEED_100:
-+			e_info("10/100 speed: disabling TSO\n");
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+			break;
-+		case SPEED_1000:
-+			netdev->features |= NETIF_F_TSO;
-+			netdev->features |= NETIF_F_TSO6;
-+			break;
-+		default:
-+			/* oops */
-+			break;
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -561,6 +561,10 @@ static int __collapse_huge_page_isolate(
+ 			result = SCAN_PTE_NON_PRESENT;
+ 			goto out;
+ 		}
++		if (pte_uffd_wp(pteval)) {
++			result = SCAN_PTE_UFFD_WP;
++			goto out;
 +		}
-+		if (hw->mac.type == e1000_pch_spt) {
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+		}
-+	}
-+
- 	/* Set user-changeable features (subset of all device features) */
- 	netdev->hw_features = netdev->features;
- 	netdev->hw_features |= NETIF_F_RXFCS;
--- 
-2.39.2
-
+ 		page = vm_normal_page(vma, address, pteval);
+ 		if (unlikely(!page) || unlikely(is_zone_device_page(page))) {
+ 			result = SCAN_PAGE_NULL;
 
 
