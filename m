@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D446ECDCF
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800C46ECEA5
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232229AbjDXN1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53596 "EHLO
+        id S232413AbjDXNeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232230AbjDXN1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:27:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C87619A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:00 -0700 (PDT)
+        with ESMTP id S232448AbjDXNdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824E36EA0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 197A7622D9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB5EC4339B;
-        Mon, 24 Apr 2023 13:26:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61EBA61E0A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E3FC433D2;
+        Mon, 24 Apr 2023 13:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342819;
-        bh=UGtWXl1fEbi6zraoCmAZhWXM/dKdC9Fm6Vfoa0OA/g8=;
+        s=korg; t=1682343211;
+        bh=jIbMscRZLDh+swCsTa/7ocPskf9pLOuEc31FuzFxq0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t58h7Napd+Z6txRTAJoqBq8TR7XsV+Olqg7gRgylCYyoJtpdxY7BLozGHuOFg8GiH
-         WtTyAe6Ymf7f62QxxAiWbmib6pCwg5yARmIQSWWxxvSDO83cl7/Ho+9aenMZUmWDdA
-         MR1gjDz/SwKGvrkPFmnDM6KZTVUAAHA1kEkOqjTE=
+        b=jiMB8O3RceWufDanmzOocXgPkZ8k/DtehwctNZveIvYnAIqmuqGr75DUb8/sAuaM1
+         7tDiSC7gGtcaGtblYnMpLlAw3MIYbiWgsSYBgDZSVt1yppgyOM+g5BJmO9vv9AQMAt
+         XxLo6MvpDRaeyOGMgru7WXBSfYgljtR0yFG9XG08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 69/98] drm/amd/display: set dcn315 lb bpp to 48
+        patches@lists.linux.dev, Jianqun Xu <jay.xu@rock-chips.com>,
+        Sjoerd Simons <sjoerd@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 01/68] ARM: dts: rockchip: fix a typo error for rk3288 spdif node
 Date:   Mon, 24 Apr 2023 15:17:32 +0200
-Message-Id: <20230424131136.527299740@linuxfoundation.org>
+Message-Id: <20230424131127.706028686@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,34 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Jianqun Xu <jay.xu@rock-chips.com>
 
-commit 6d9240c46f7419aa3210353b5f52cc63da5a6440 upstream.
+[ Upstream commit 02c84f91adb9a64b75ec97d772675c02a3e65ed7 ]
 
-[Why & How]
-Fix a typo for dcn315 line buffer bpp.
+Fix the address in the spdif node name.
 
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 874e568e500a ("ARM: dts: rockchip: Add SPDIF transceiver for RK3288")
+Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+Reviewed-by: Sjoerd Simons <sjoerd@collabora.com>
+Link: https://lore.kernel.org/r/20230208091411.1603142-1-jay.xu@rock-chips.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c |    2 +-
+ arch/arm/boot/dts/rk3288.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c
-@@ -222,7 +222,7 @@ struct _vcs_dpi_ip_params_st dcn3_15_ip
- 	.maximum_dsc_bits_per_component = 10,
- 	.dsc422_native_support = false,
- 	.is_line_buffer_bpp_fixed = true,
--	.line_buffer_fixed_bpp = 49,
-+	.line_buffer_fixed_bpp = 48,
- 	.line_buffer_size_bits = 789504,
- 	.max_line_buffer_lines = 12,
- 	.writeback_interface_buffer_size_kbytes = 90,
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index aab28161b9ae9..250a03a066a17 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -959,7 +959,7 @@
+ 		status = "disabled";
+ 	};
+ 
+-	spdif: sound@ff88b0000 {
++	spdif: sound@ff8b0000 {
+ 		compatible = "rockchip,rk3288-spdif", "rockchip,rk3066-spdif";
+ 		reg = <0x0 0xff8b0000 0x0 0x10000>;
+ 		#sound-dai-cells = <0>;
+-- 
+2.39.2
+
 
 
