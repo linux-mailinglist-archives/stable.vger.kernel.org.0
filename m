@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 629A86ECEEC
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 546496ECF4A
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232655AbjDXNg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:36:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38012 "EHLO
+        id S232563AbjDXNjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:39:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbjDXNgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:36:03 -0400
+        with ESMTP id S232636AbjDXNjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F294F9016
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEAD5976B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D392F623E3
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E90B2C4339B;
-        Mon, 24 Apr 2023 13:35:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 594D562421
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67721C433D2;
+        Mon, 24 Apr 2023 13:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343349;
-        bh=oY5RFsxTD45qPaGAN9GMF6KmgRWtlO/LLJFdbsv8G+c=;
+        s=korg; t=1682343534;
+        bh=mhCPpk3hZPunIMJKkuVz1ypKdPkz/3t+dAN9KuOEdJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sW1x38I8Qa4ZXFJU/QLhvnk/41vJmWdwSGcEzDVUV7U2o8+GvtNqvjpJPcXoA1ORB
-         bE2+VfKiwkVcdegG/nW4blUDYR/NOOBe7W5cMNItk1TWh7oDtWE528NermuAsbXpb7
-         /v3nktcAl6fymgPOJuT59ywuvfWiB7/R6jcEYCNY=
+        b=xx10jvllkp3dmFBBaIjKVt2QMoBn/FgWkQSDBwjj1m5rQqjg9VMnuR1RnOJCIpxhJ
+         GRTCRwIIdngranIMHK4kIvRkTZ9VI5BSwu8Ai8yHQ/13diIypcpzifL8PLMJN9Kkus
+         94AEtjkfmE2r+NZnlcZusuzJXQFhXADreDwF3fP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>
-Subject: [PATCH 5.10 61/68] dccp: Call inet6_destroy_sock() via sk->sk_destruct().
+        patches@lists.linux.dev,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 4.19 05/29] i40e: fix i40e_setup_misc_vector() error handling
 Date:   Mon, 24 Apr 2023 15:18:32 +0200
-Message-Id: <20230424131129.984132279@linuxfoundation.org>
+Message-Id: <20230424131121.336162708@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,117 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-commit 1651951ebea54970e0bda60c638fc2eee7a6218f upstream.
+[ Upstream commit c86c00c6935505929cc9adb29ddb85e48c71f828 ]
 
-After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
-in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
-sk->sk_destruct() by setting inet6_sock_destruct() to it to make
-sure we do not leak inet6-specific resources.
+Add error handling of i40e_setup_misc_vector() in i40e_rebuild().
+In case interrupt vectors setup fails do not re-open vsi-s and
+do not bring up vf-s, we have no interrupts to serve a traffic
+anyway.
 
-DCCP sets its own sk->sk_destruct() in the dccp_init_sock(), and
-DCCPv6 socket shares it by calling the same init function via
-dccp_v6_init_sock().
-
-To call inet6_sock_destruct() from DCCPv6 sk->sk_destruct(), we
-export it and set dccp_v6_sk_destruct() in the init function.
-
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/dccp.h     |    1 +
- net/dccp/ipv6.c     |   15 ++++++++-------
- net/dccp/proto.c    |    8 +++++++-
- net/ipv6/af_inet6.c |    1 +
- 4 files changed, 17 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/dccp/dccp.h
-+++ b/net/dccp/dccp.h
-@@ -283,6 +283,7 @@ int dccp_rcv_state_process(struct sock *
- int dccp_rcv_established(struct sock *sk, struct sk_buff *skb,
- 			 const struct dccp_hdr *dh, const unsigned int len);
- 
-+void dccp_destruct_common(struct sock *sk);
- int dccp_init_sock(struct sock *sk, const __u8 ctl_sock_initialized);
- void dccp_destroy_sock(struct sock *sk);
- 
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -992,6 +992,12 @@ static const struct inet_connection_sock
- 	.sockaddr_len	   = sizeof(struct sockaddr_in6),
- };
- 
-+static void dccp_v6_sk_destruct(struct sock *sk)
-+{
-+	dccp_destruct_common(sk);
-+	inet6_sock_destruct(sk);
-+}
-+
- /* NOTE: A lot of things set to zero explicitly by call to
-  *       sk_alloc() so need not be done here.
-  */
-@@ -1004,17 +1010,12 @@ static int dccp_v6_init_sock(struct sock
- 		if (unlikely(!dccp_v6_ctl_sock_initialized))
- 			dccp_v6_ctl_sock_initialized = 1;
- 		inet_csk(sk)->icsk_af_ops = &dccp_ipv6_af_ops;
-+		sk->sk_destruct = dccp_v6_sk_destruct;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 3f8c37660e860..a908720535ceb 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -9702,8 +9702,11 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 					     pf->hw.aq.asq_last_status));
  	}
+ 	/* reinit the misc interrupt */
+-	if (pf->flags & I40E_FLAG_MSIX_ENABLED)
++	if (pf->flags & I40E_FLAG_MSIX_ENABLED) {
+ 		ret = i40e_setup_misc_vector(pf);
++		if (ret)
++			goto end_unlock;
++	}
  
- 	return err;
- }
- 
--static void dccp_v6_destroy_sock(struct sock *sk)
--{
--	dccp_destroy_sock(sk);
--	inet6_destroy_sock(sk);
--}
--
- static struct timewait_sock_ops dccp6_timewait_sock_ops = {
- 	.twsk_obj_size	= sizeof(struct dccp6_timewait_sock),
- };
-@@ -1037,7 +1038,7 @@ static struct proto dccp_v6_prot = {
- 	.accept		   = inet_csk_accept,
- 	.get_port	   = inet_csk_get_port,
- 	.shutdown	   = dccp_shutdown,
--	.destroy	   = dccp_v6_destroy_sock,
-+	.destroy	   = dccp_destroy_sock,
- 	.orphan_count	   = &dccp_orphan_count,
- 	.max_header	   = MAX_DCCP_HEADER,
- 	.obj_size	   = sizeof(struct dccp6_sock),
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -171,12 +171,18 @@ const char *dccp_packet_name(const int t
- 
- EXPORT_SYMBOL_GPL(dccp_packet_name);
- 
--static void dccp_sk_destruct(struct sock *sk)
-+void dccp_destruct_common(struct sock *sk)
- {
- 	struct dccp_sock *dp = dccp_sk(sk);
- 
- 	ccid_hc_tx_delete(dp->dccps_hc_tx_ccid, sk);
- 	dp->dccps_hc_tx_ccid = NULL;
-+}
-+EXPORT_SYMBOL_GPL(dccp_destruct_common);
-+
-+static void dccp_sk_destruct(struct sock *sk)
-+{
-+	dccp_destruct_common(sk);
- 	inet_sock_destruct(sk);
- }
- 
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -112,6 +112,7 @@ void inet6_sock_destruct(struct sock *sk
- 	inet6_cleanup_sock(sk);
- 	inet_sock_destruct(sk);
- }
-+EXPORT_SYMBOL_GPL(inet6_sock_destruct);
- 
- static int inet6_create(struct net *net, struct socket *sock, int protocol,
- 			int kern)
+ 	/* Add a filter to drop all Flow control frames from any VSI from being
+ 	 * transmitted. By doing so we stop a malicious VF from sending out
+-- 
+2.39.2
+
 
 
