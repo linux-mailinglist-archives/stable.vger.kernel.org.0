@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC7F6ECEBC
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7226ECDF3
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232351AbjDXNe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
+        id S232282AbjDXN2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:28:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbjDXNek (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF767AB8
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:20 -0700 (PDT)
+        with ESMTP id S232270AbjDXN2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 670C76A57
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C318623A6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAF5C433EF;
-        Mon, 24 Apr 2023 13:34:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9730E615BB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD9BC433D2;
+        Mon, 24 Apr 2023 13:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343259;
-        bh=PlfyoNysZ9FML7GR+HPb+prC5EAQJfTUe15Aue3wG40=;
+        s=korg; t=1682342888;
+        bh=MyUoH/X7oQvxECshEf1qBDO57rFW1uTCmTA5sPUwDDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuBzSmbNXFwcx1mzGeNzAAl8jBKQ0WrAog6JHiPjkArJpxT5PvPMhGhXaWkh2oukv
-         ELNLwntVG+9XfOik87NZmDmkZekWa76R6nNOisv+9ULzmglo5al8K4svnZJi90Jz1L
-         tfkg0kVqQcW///reAuL4DXDjTMEcZqZXv+OfgZc4=
+        b=Qn0lx+LSAoNeCLCGgKo9jUYnUTsgoGO54prVtJa0YY0Qj3pnyV+DvUqPu1zyJQMa8
+         ChcspQWrhhR/VSQRy3a1zUKJevff9rpLN4DU3h1FSfj0UZnZntbLJs0C2VpyEIF6HP
+         /RTCeALrJQPuxm6A4ZDLve6HCkb4A0WmklfoPKRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/68] xen/netback: use same error messages for same errors
-Date:   Mon, 24 Apr 2023 15:17:58 +0200
-Message-Id: <20230424131128.666244315@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        Shengjiu Wang <shengjiu.wang@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Natalia Petrova <n.petrova@fintech.ru>
+Subject: [PATCH 6.1 96/98] ASoC: fsl_asrc_dma: fix potential null-ptr-deref
+Date:   Mon, 24 Apr 2023 15:17:59 +0200
+Message-Id: <20230424131137.622262214@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,42 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-[ Upstream commit 2eca98e5b24d01c02b46c67be05a5f98cc9789b1 ]
+commit 86a24e99c97234f87d9f70b528a691150e145197 upstream.
 
-Issue the same error message in case an illegal page boundary crossing
-has been detected in both cases where this is tested.
+dma_request_slave_channel() may return NULL which will lead to
+NULL pointer dereference error in 'tmp_chan->private'.
 
-Suggested-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20230329080259.14823-1-jgross@suse.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Correct this behaviour by, first, switching from deprecated function
+dma_request_slave_channel() to dma_request_chan(). Secondly, enable
+sanity check for the resuling value of dma_request_chan().
+Also, fix description that follows the enacted changes and that
+concerns the use of dma_request_slave_channel().
+
+Fixes: 706e2c881158 ("ASoC: fsl_asrc_dma: Reuse the dma channel if available in Back-End")
+Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
+Link: https://lore.kernel.org/r/20230417133242.53339-1-n.zhandarovich@fintech.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/netback.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ sound/soc/fsl/fsl_asrc_dma.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 67614e7166ac8..379ac9ca60b70 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -996,10 +996,8 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
+--- a/sound/soc/fsl/fsl_asrc_dma.c
++++ b/sound/soc/fsl/fsl_asrc_dma.c
+@@ -209,14 +209,19 @@ static int fsl_asrc_dma_hw_params(struct
+ 		be_chan = soc_component_to_pcm(component_be)->chan[substream->stream];
+ 		tmp_chan = be_chan;
+ 	}
+-	if (!tmp_chan)
+-		tmp_chan = dma_request_slave_channel(dev_be, tx ? "tx" : "rx");
++	if (!tmp_chan) {
++		tmp_chan = dma_request_chan(dev_be, tx ? "tx" : "rx");
++		if (IS_ERR(tmp_chan)) {
++			dev_err(dev, "failed to request DMA channel for Back-End\n");
++			return -EINVAL;
++		}
++	}
  
- 		/* No crossing a page as the payload mustn't fragment. */
- 		if (unlikely((txreq.offset + txreq.size) > XEN_PAGE_SIZE)) {
--			netdev_err(queue->vif->dev,
--				   "txreq.offset: %u, size: %u, end: %lu\n",
--				   txreq.offset, txreq.size,
--				   (unsigned long)(txreq.offset&~XEN_PAGE_MASK) + txreq.size);
-+			netdev_err(queue->vif->dev, "Cross page boundary, txreq.offset: %u, size: %u\n",
-+				   txreq.offset, txreq.size);
- 			xenvif_fatal_tx_err(queue->vif);
- 			break;
- 		}
--- 
-2.39.2
-
+ 	/*
+ 	 * An EDMA DEV_TO_DEV channel is fixed and bound with DMA event of each
+ 	 * peripheral, unlike SDMA channel that is allocated dynamically. So no
+ 	 * need to configure dma_request and dma_request2, but get dma_chan of
+-	 * Back-End device directly via dma_request_slave_channel.
++	 * Back-End device directly via dma_request_chan.
+ 	 */
+ 	if (!asrc->use_edma) {
+ 		/* Get DMA request of Back-End */
 
 
