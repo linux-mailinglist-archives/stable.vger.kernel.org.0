@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E2D6ECE11
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67906ECEC3
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232376AbjDXN26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56210 "EHLO
+        id S232571AbjDXNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232327AbjDXN2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:47 -0400
+        with ESMTP id S232412AbjDXNep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6260B6EA0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FCA83D4
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D31A762306
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E62C9C4339E;
-        Mon, 24 Apr 2023 13:28:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E946623A2
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 950F6C433D2;
+        Mon, 24 Apr 2023 13:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342914;
-        bh=5YtbPC1B/po0Q8vfP7wcPCCXtg3GFxfQU22h32K5xiU=;
+        s=korg; t=1682343256;
+        bh=hphoRkfHjGGvcwSrVaUjpyntA3S6Z085NhuTDLrX4bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTPd+Qon3FYYl7VDWCA94SXQMT2NvjerW7rEU2JNKCAomD8hq+zWGkUxuGvl22Lio
-         qhr1Qv4jiJW8Wl38y+t+5fViPvptCvpkxIZd4HQdCleQobTJmBhEH+ysCxg/pX4LN+
-         Uo6ytSa1fNtMNqUPGODzknZM952IGldWW+Y77Zrg=
+        b=DvpWrs84g0yN/M8YNuY/YYlEJ25lW1I5r9KKVYH5p3US8B50cLE1d/R30RuKuIDkp
+         aA36tV9p2cozRaRvDqf8LcTn+BwlrLJGCXEnuhCw73+8Oey9npBuuH9haQuUynh/wY
+         d8iOKgTsaXA343X92zNhCLF87dk7M9TDcj5b3GbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 6.1 86/98] purgatory: fix disabling debug info
+        patches@lists.linux.dev,
+        Sebastian Basierski <sebastianx.basierski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 18/68] e1000e: Disable TSO on i219-LM card to increase speed
 Date:   Mon, 24 Apr 2023 15:17:49 +0200
-Message-Id: <20230424131137.216210319@linuxfoundation.org>
+Message-Id: <20230424131128.362609160@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +59,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Sebastian Basierski <sebastianx.basierski@intel.com>
 
-commit d83806c4c0cccc0d6d3c3581a11983a9c186a138 upstream.
+[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
 
-Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
--Wa versions of both of those if building with Clang and GNU as.  As a
-result, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+While using i219-LM card currently it was only possible to achieve
+about 60% of maximum speed due to regression introduced in Linux 5.8.
+This was caused by TSO not being disabled by default despite commit
+f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
+Fix that by disabling TSO during driver probe.
 
-Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
+Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/purgatory/Makefile |    4 +---
- arch/x86/purgatory/Makefile   |    3 +--
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
---- a/arch/riscv/purgatory/Makefile
-+++ b/arch/riscv/purgatory/Makefile
-@@ -74,9 +74,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index ae0c9aaab48db..b700663a634d2 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5294,31 +5294,6 @@ static void e1000_watchdog_task(struct work_struct *work)
+ 				ew32(TARC(0), tarc0);
+ 			}
  
--AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
+-			/* disable TSO for pcie and 10/100 speeds, to avoid
+-			 * some hardware issues
+-			 */
+-			if (!(adapter->flags & FLAG_TSO_FORCE)) {
+-				switch (adapter->link_speed) {
+-				case SPEED_10:
+-				case SPEED_100:
+-					e_info("10/100 speed: disabling TSO\n");
+-					netdev->features &= ~NETIF_F_TSO;
+-					netdev->features &= ~NETIF_F_TSO6;
+-					break;
+-				case SPEED_1000:
+-					netdev->features |= NETIF_F_TSO;
+-					netdev->features |= NETIF_F_TSO6;
+-					break;
+-				default:
+-					/* oops */
+-					break;
+-				}
+-				if (hw->mac.type == e1000_pch_spt) {
+-					netdev->features &= ~NETIF_F_TSO;
+-					netdev->features &= ~NETIF_F_TSO6;
+-				}
+-			}
+-
+ 			/* enable transmits in the hardware, need to do this
+ 			 * after setting TARC(0)
+ 			 */
+@@ -7477,6 +7452,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			    NETIF_F_RXCSUM |
+ 			    NETIF_F_HW_CSUM);
  
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- 
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-remove-y		+= $(foreach x, -g -gdwarf-4 -gdwarf-5, $(x) -Wa,$(x))
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
++	/* disable TSO for pcie and 10/100 speeds to avoid
++	 * some hardware issues and for i219 to fix transfer
++	 * speed being capped at 60%
++	 */
++	if (!(adapter->flags & FLAG_TSO_FORCE)) {
++		switch (adapter->link_speed) {
++		case SPEED_10:
++		case SPEED_100:
++			e_info("10/100 speed: disabling TSO\n");
++			netdev->features &= ~NETIF_F_TSO;
++			netdev->features &= ~NETIF_F_TSO6;
++			break;
++		case SPEED_1000:
++			netdev->features |= NETIF_F_TSO;
++			netdev->features |= NETIF_F_TSO6;
++			break;
++		default:
++			/* oops */
++			break;
++		}
++		if (hw->mac.type == e1000_pch_spt) {
++			netdev->features &= ~NETIF_F_TSO;
++			netdev->features &= ~NETIF_F_TSO6;
++		}
++	}
++
+ 	/* Set user-changeable features (subset of all device features) */
+ 	netdev->hw_features = netdev->features;
+ 	netdev->hw_features |= NETIF_F_RXFCS;
+-- 
+2.39.2
+
 
 
