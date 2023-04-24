@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7122F6ECDC5
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE716ECE67
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232212AbjDXN0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53204 "EHLO
+        id S232269AbjDXNcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232213AbjDXN0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4C6618B
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:36 -0700 (PDT)
+        with ESMTP id S232389AbjDXNcA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF1A383C0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6732F6229C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C4D8C433EF;
-        Mon, 24 Apr 2023 13:26:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A63D762355
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E70C433EF;
+        Mon, 24 Apr 2023 13:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342795;
-        bh=LvP7QrQe49AfyW2vov+5OvXDAGbRc/YpJZlTrayh36o=;
+        s=korg; t=1682343083;
+        bh=73SbislDn2ykqWBi2Vto4uDZIf5XFY6WGsgFTYN6mgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c3eeGubuplzpFeaAjfA0XF2J32apWmQ1eT6RFuY+EKPMViJv6klZcTkgVNPmMWlXA
-         8NPoQEXuLUHljOA6bQOR8Yihx3Kh/RrXWFlk6dC9k7Q7Yc15xC095TJIEDkC2klf5k
-         bbMBd3LJJpf3gmSm7oCCivLWB4Fe89+WsPh9D/h8=
+        b=OHuYnzSZdxDYMxS65hHzQnBK9abWaCnwDm7kT2p5agDGI7AJNHbva0eu2pA1vWCGK
+         W/uoFla30chUo7A9GHVbiIZ6+4JsbbrvYUVHUpqPdOsF02pEMSA72+mPEzXvrngnCG
+         YJ0E5qvXBeH31huJCPJSiuUnd0R8C7k1HOLbEDUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 61/98] nilfs2: initialize unused bytes in segment summary blocks
-Date:   Mon, 24 Apr 2023 15:17:24 +0200
-Message-Id: <20230424131136.225863657@linuxfoundation.org>
+        patches@lists.linux.dev, Guo Ren <guoren@kernel.org>,
+        Chong Qiao <qiaochong@loongson.cn>,
+        Huacai Chen <chenhuacai@loongson.cn>
+Subject: [PATCH 6.2 063/110] LoongArch: module: set section addresses to 0x0
+Date:   Mon, 24 Apr 2023 15:17:25 +0200
+Message-Id: <20230424131138.692313747@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,80 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit ef832747a82dfbc22a3702219cc716f449b24e4a upstream.
+commit 93eb1215ed794a18ba8753e0654f069d58838966 upstream.
 
-Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
-KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
-initialize "struct nilfs_binfo_dat"->bi_pad field").
+These got*, plt* and .text.ftrace_trampoline sections specified for
+LoongArch have non-zero addressses. Non-zero section addresses in a
+relocatable ELF would confuse GDB when it tries to compute the section
+offsets and it ends up printing wrong symbol addresses. Therefore, set
+them to zero, which mirrors the change in commit 5d8591bc0fbaeb6ded
+("arm64 module: set plt* section addresses to 0x0").
 
-This is because the unused bytes at the end of each block in segment
-summaries are not initialized.  So this fixes the issue by padding the
-unused bytes with null bytes.
-
-Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
-  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
-Cc: Alexander Potapenko <glider@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Signed-off-by: Chong Qiao <qiaochong@loongson.cn>
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/loongarch/include/asm/module.lds.h |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -430,6 +430,23 @@ static int nilfs_segctor_reset_segment_b
- 	return 0;
+--- a/arch/loongarch/include/asm/module.lds.h
++++ b/arch/loongarch/include/asm/module.lds.h
+@@ -2,8 +2,8 @@
+ /* Copyright (C) 2020-2022 Loongson Technology Corporation Limited */
+ SECTIONS {
+ 	. = ALIGN(4);
+-	.got : { BYTE(0) }
+-	.plt : { BYTE(0) }
+-	.plt.idx : { BYTE(0) }
+-	.ftrace_trampoline : { BYTE(0) }
++	.got 0 : { BYTE(0) }
++	.plt 0 : { BYTE(0) }
++	.plt.idx 0 : { BYTE(0) }
++	.ftrace_trampoline 0 : { BYTE(0) }
  }
- 
-+/**
-+ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
-+ * @sci: segment constructor object
-+ *
-+ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
-+ * the current segment summary block.
-+ */
-+static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
-+{
-+	struct nilfs_segsum_pointer *ssp;
-+
-+	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
-+	if (ssp->offset < ssp->bh->b_size)
-+		memset(ssp->bh->b_data + ssp->offset, 0,
-+		       ssp->bh->b_size - ssp->offset);
-+}
-+
- static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
- {
- 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
-@@ -438,6 +455,7 @@ static int nilfs_segctor_feed_segment(st
- 				* The current segment is filled up
- 				* (internal code)
- 				*/
-+	nilfs_segctor_zeropad_segsum(sci);
- 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
- 	return nilfs_segctor_reset_segment_buffer(sci);
- }
-@@ -542,6 +560,7 @@ static int nilfs_segctor_add_file_block(
- 		goto retry;
- 	}
- 	if (unlikely(required)) {
-+		nilfs_segctor_zeropad_segsum(sci);
- 		err = nilfs_segbuf_extend_segsum(segbuf);
- 		if (unlikely(err))
- 			goto failed;
-@@ -1531,6 +1550,7 @@ static int nilfs_segctor_collect(struct
- 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
- 		sci->sc_stage = prev_stage;
- 	}
-+	nilfs_segctor_zeropad_segsum(sci);
- 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
- 	return 0;
- 
 
 
