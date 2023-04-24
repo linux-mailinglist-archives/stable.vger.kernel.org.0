@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC906ECEFF
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 413F06ECF22
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232742AbjDXNhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:37:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39334 "EHLO
+        id S232603AbjDXNic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232725AbjDXNhJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:09 -0400
+        with ESMTP id S232596AbjDXNib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3349000
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:36:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E48FD65B7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B510623DB
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50F4CC433D2;
-        Mon, 24 Apr 2023 13:36:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D9B86241A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D744C433D2;
+        Mon, 24 Apr 2023 13:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343383;
-        bh=SkN7G4LFfFxqVhQ5SlGTOvAf5wPGasBr8JYLxiKenrw=;
+        s=korg; t=1682343471;
+        bh=Oxq6mVMZpRJp0IKkdMsadxuw2x1xrSwKInFhVM82lr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBw/YUd+pb6I2+RAgU3LaPty6iOFZl9CwlxIX6NIs3SgvwtSDBVNLjJ5QMAX4UynK
-         LwZyEEQWiTLS4jpx8KriAMhSFeP/atrO2UdzRM+uN+qgkG1lGIZe4hPmQlUb3GdR3d
-         ZOSNRmgy4veF4jSJWl4SoNHcsj8syuqzUtlDrtL8=
+        b=1VuuVVmJMG8PrHsEQKw1+mO6mz2kWZgvSgKo86QGo+/IxC/nPnag9pFE4SzvhzU8g
+         Z22BUby3M8q3iu5VNxNRkD9AygA8CiHHCj5+mJ8Ek9o788qF/5kPs1UOepPCLZGP3t
+         1ea6qqc1/SA5YOlFuP+wCM7x3LX/n+Mw5v6UvrIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 5.10 56/68] ext4: remove duplicate definition of ext4_xattr_ibody_inline_set()
-Date:   Mon, 24 Apr 2023 15:18:27 +0200
-Message-Id: <20230424131129.792268951@linuxfoundation.org>
+        patches@lists.linux.dev, Jianqun Xu <jay.xu@rock-chips.com>,
+        Sjoerd Simons <sjoerd@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/29] ARM: dts: rockchip: fix a typo error for rk3288 spdif node
+Date:   Mon, 24 Apr 2023 15:18:28 +0200
+Message-Id: <20230424131121.202810025@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,126 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Jianqun Xu <jay.xu@rock-chips.com>
 
-[ Upstream commit 310c097c2bdbea253d6ee4e064f3e65580ef93ac ]
+[ Upstream commit 02c84f91adb9a64b75ec97d772675c02a3e65ed7 ]
 
-ext4_xattr_ibody_inline_set() & ext4_xattr_ibody_set() have the exact
-same definition.  Hence remove ext4_xattr_ibody_inline_set() and all
-its call references. Convert the callers of it to call
-ext4_xattr_ibody_set() instead.
+Fix the address in the spdif node name.
 
-[ Modified to preserve ext4_xattr_ibody_set() and remove
-  ext4_xattr_ibody_inline_set() instead. -- TYT ]
-
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/fd566b799bbbbe9b668eb5eecde5b5e319e3694f.1622685482.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 874e568e500a ("ARM: dts: rockchip: Add SPDIF transceiver for RK3288")
+Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+Reviewed-by: Sjoerd Simons <sjoerd@collabora.com>
+Link: https://lore.kernel.org/r/20230208091411.1603142-1-jay.xu@rock-chips.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c |   11 +++++------
- fs/ext4/xattr.c  |   26 +-------------------------
- fs/ext4/xattr.h  |    6 +++---
- 3 files changed, 9 insertions(+), 34 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -206,7 +206,7 @@ out:
- /*
-  * write the buffer to the inline inode.
-  * If 'create' is set, we don't need to do the extra copy in the xattr
-- * value since it is already handled by ext4_xattr_ibody_inline_set.
-+ * value since it is already handled by ext4_xattr_ibody_set.
-  * That saves us one memcpy.
-  */
- static void ext4_write_inline_data(struct inode *inode, struct ext4_iloc *iloc,
-@@ -288,7 +288,7 @@ static int ext4_create_inline_data(handl
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 402b5e0fd616c..4de88ded6d9a1 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -924,7 +924,7 @@
+ 		status = "disabled";
+ 	};
  
- 	BUG_ON(!is.s.not_found);
- 
--	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
-+	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 	if (error) {
- 		if (error == -ENOSPC)
- 			ext4_clear_inode_state(inode,
-@@ -360,7 +360,7 @@ static int ext4_update_inline_data(handl
- 	i.value = value;
- 	i.value_len = len;
- 
--	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
-+	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 	if (error)
- 		goto out;
- 
-@@ -433,7 +433,7 @@ static int ext4_destroy_inline_data_nolo
- 	if (error)
- 		goto out;
- 
--	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
-+	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 	if (error)
- 		goto out;
- 
-@@ -1930,8 +1930,7 @@ int ext4_inline_data_truncate(struct ino
- 			i.value = value;
- 			i.value_len = i_size > EXT4_MIN_INLINE_DATA_SIZE ?
- 					i_size - EXT4_MIN_INLINE_DATA_SIZE : 0;
--			err = ext4_xattr_ibody_inline_set(handle, inode,
--							  &i, &is);
-+			err = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 			if (err)
- 				goto out_error;
- 		}
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2214,31 +2214,7 @@ int ext4_xattr_ibody_find(struct inode *
- 	return 0;
- }
- 
--int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
--				struct ext4_xattr_info *i,
--				struct ext4_xattr_ibody_find *is)
--{
--	struct ext4_xattr_ibody_header *header;
--	struct ext4_xattr_search *s = &is->s;
--	int error;
--
--	if (EXT4_I(inode)->i_extra_isize == 0)
--		return -ENOSPC;
--	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
--	if (error)
--		return error;
--	header = IHDR(inode, ext4_raw_inode(&is->iloc));
--	if (!IS_LAST_ENTRY(s->first)) {
--		header->h_magic = cpu_to_le32(EXT4_XATTR_MAGIC);
--		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
--	} else {
--		header->h_magic = cpu_to_le32(0);
--		ext4_clear_inode_state(inode, EXT4_STATE_XATTR);
--	}
--	return 0;
--}
--
--static int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
-+int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
- 				struct ext4_xattr_info *i,
- 				struct ext4_xattr_ibody_find *is)
- {
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -200,9 +200,9 @@ extern int ext4_xattr_ibody_find(struct
- extern int ext4_xattr_ibody_get(struct inode *inode, int name_index,
- 				const char *name,
- 				void *buffer, size_t buffer_size);
--extern int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
--				       struct ext4_xattr_info *i,
--				       struct ext4_xattr_ibody_find *is);
-+extern int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
-+				struct ext4_xattr_info *i,
-+				struct ext4_xattr_ibody_find *is);
- 
- extern struct mb_cache *ext4_xattr_create_cache(void);
- extern void ext4_xattr_destroy_cache(struct mb_cache *);
+-	spdif: sound@ff88b0000 {
++	spdif: sound@ff8b0000 {
+ 		compatible = "rockchip,rk3288-spdif", "rockchip,rk3066-spdif";
+ 		reg = <0x0 0xff8b0000 0x0 0x10000>;
+ 		#sound-dai-cells = <0>;
+-- 
+2.39.2
+
 
 
