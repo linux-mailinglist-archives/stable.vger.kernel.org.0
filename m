@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B65BF6ECDBD
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9636ECD1F
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbjDXN0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52894 "EHLO
+        id S231975AbjDXNUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbjDXN0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:16 -0400
+        with ESMTP id S232031AbjDXNUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D98E95FC4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D294655AA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73CDC622B7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BC38C433D2;
-        Mon, 24 Apr 2023 13:26:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B39F96221D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC09CC4339B;
+        Mon, 24 Apr 2023 13:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342774;
-        bh=eQSnHg300uK8ywpnsIofvZbhdNqHLW+/1DfO8bTNmZ0=;
+        s=korg; t=1682342418;
+        bh=YXS4sk4xQSPlBlwT/UJczjasBY/YFGv4zvJqq5XP4OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJsB74LkZK5QK73cPT7YBCiuwKZw5lGDhrWtepDvOUHY1FtdTj/tQbxkGnRKTbwNK
-         O85aYQuV18+C5e/9O7nSz32qZJzFVhNLQZYZKdTQJ6KWZNy5huy8la4cPJXfFjrTXy
-         S1Mr0PmvRo7uQx+P3QBj646fgy4X0fNepVkj1iVE=
+        b=O2GDoc3rDSQaA5QeSiuQC6JBWKiccb5OXMSRU4J+rD6PjwFH48XoIfGzNih4zs6W0
+         lxGxtj8OHine4AFzrHu32+7dEKJ4UMoE9savteFNyQ9pO8YR0BEw8RkrAAWHTwJMUK
+         ODXrXt0CID8vCAyBxjXz6zWp1fJKznKHiuUKIsic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 23/98] netfilter: nf_tables: tighten netlink attribute requirements for catch-all elements
+Subject: [PATCH 5.15 32/73] s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
 Date:   Mon, 24 Apr 2023 15:16:46 +0200
-Message-Id: <20230424131134.793725385@linuxfoundation.org>
+Message-Id: <20230424131130.179227252@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit d4eb7e39929a3b1ff30fb751b4859fc2410702a0 ]
+[ Upstream commit f9bbf25e7b2b74b52b2f269216a92657774f239c ]
 
-If NFT_SET_ELEM_CATCHALL is set on, then userspace provides no set element
-key. Otherwise, bail out with -EINVAL.
+Return -EFAULT if put_user() for the PTRACE_GET_LAST_BREAK
+request fails, instead of silently ignoring it.
 
-Fixes: aaa31047a6d2 ("netfilter: nftables: add catch-all set element support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kernel/ptrace.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 251f4a9fbdb5a..12d815b9aa131 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6040,7 +6040,8 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 	if (err < 0)
- 		return err;
- 
--	if (!nla[NFTA_SET_ELEM_KEY] && !(flags & NFT_SET_ELEM_CATCHALL))
-+	if (((flags & NFT_SET_ELEM_CATCHALL) && nla[NFTA_SET_ELEM_KEY]) ||
-+	    (!(flags & NFT_SET_ELEM_CATCHALL) && !nla[NFTA_SET_ELEM_KEY]))
- 		return -EINVAL;
- 
- 	if (flags != 0) {
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 0ea3d02b378de..516c21baf3ad3 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -481,9 +481,7 @@ long arch_ptrace(struct task_struct *child, long request,
+ 		}
+ 		return 0;
+ 	case PTRACE_GET_LAST_BREAK:
+-		put_user(child->thread.last_break,
+-			 (unsigned long __user *) data);
+-		return 0;
++		return put_user(child->thread.last_break, (unsigned long __user *)data);
+ 	case PTRACE_ENABLE_TE:
+ 		if (!MACHINE_HAS_TE)
+ 			return -EIO;
+@@ -837,9 +835,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+ 		}
+ 		return 0;
+ 	case PTRACE_GET_LAST_BREAK:
+-		put_user(child->thread.last_break,
+-			 (unsigned int __user *) data);
+-		return 0;
++		return put_user(child->thread.last_break, (unsigned int __user *)data);
+ 	}
+ 	return compat_ptrace_request(child, request, addr, data);
+ }
 -- 
 2.39.2
 
