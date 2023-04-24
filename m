@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC196ECDC4
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6966ECD50
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbjDXN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53164 "EHLO
+        id S232088AbjDXNWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232212AbjDXN0f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:35 -0400
+        with ESMTP id S232017AbjDXNWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3855B5FD5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF7C524F
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51C7622C2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5376C433D2;
-        Mon, 24 Apr 2023 13:26:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC3B76224E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06884C433EF;
+        Mon, 24 Apr 2023 13:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342793;
-        bh=VSVe3wCuYswIOk7rHrXb0nQdR5rTlsfIH0YCLcwz5kU=;
+        s=korg; t=1682342518;
+        bh=Xy04lTcwCXQA+V0WxsrcmIrehm6shhHmUmYBBUXXaTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inFp/VDkeCEkNp/MqYLHF97SFkwqb9ctdhLz0zZv5bKsVIGPJ8FazjA5jGMidweoE
-         lVYkGBwy5bsJe8F1HurSxD8KaI/Y7vGRZTbocNjErMwKJMPHJvICzqKLEAdqMqI50w
-         fvqhHg06IEYmDhAWOeZ2wjX/9GlvnYslPA4EZ1q8=
+        b=B0PMaX3d7GYcZqS9Z/+dTVSYRg4bRc34RETWVnG/ClpoW1/x6EP/umlcCQKnBbvmy
+         9AuvQhgvYcfAY91FEGtxOSlhw0LDAqyYJRJHwQAjlFopwLjP9mj6ekRMzQZ946waD6
+         H4GiYxbstqFEQ5vQKEzK3b0ijC+lqRgPxMDk6qHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Zhang <zhangpeng.00@bytedance.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 60/98] maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
+        patches@lists.linux.dev,
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        Shengjiu Wang <shengjiu.wang@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Natalia Petrova <n.petrova@fintech.ru>
+Subject: [PATCH 5.15 69/73] ASoC: fsl_asrc_dma: fix potential null-ptr-deref
 Date:   Mon, 24 Apr 2023 15:17:23 +0200
-Message-Id: <20230424131136.191537070@linuxfoundation.org>
+Message-Id: <20230424131131.637110688@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Zhang <zhangpeng.00@bytedance.com>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-commit 1f5f12ece722aacea1769fb644f27790ede339dc upstream.
+commit 86a24e99c97234f87d9f70b528a691150e145197 upstream.
 
-In mas_alloc_nodes(), "node->node_count = 0" means to initialize the
-node_count field of the new node, but the node may not be a new node.  It
-may be a node that existed before and node_count has a value, setting it
-to 0 will cause a memory leak.  At this time, mas->alloc->total will be
-greater than the actual number of nodes in the linked list, which may
-cause many other errors.  For example, out-of-bounds access in
-mas_pop_node(), and mas_pop_node() may return addresses that should not be
-used.  Fix it by initializing node_count only for new nodes.
+dma_request_slave_channel() may return NULL which will lead to
+NULL pointer dereference error in 'tmp_chan->private'.
 
-Also, by the way, an if-else statement was removed to simplify the code.
+Correct this behaviour by, first, switching from deprecated function
+dma_request_slave_channel() to dma_request_chan(). Secondly, enable
+sanity check for the resuling value of dma_request_chan().
+Also, fix description that follows the enacted changes and that
+concerns the use of dma_request_slave_channel().
 
-Link: https://lkml.kernel.org/r/20230411041005.26205-1-zhangpeng.00@bytedance.com
-Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 706e2c881158 ("ASoC: fsl_asrc_dma: Reuse the dma channel if available in Back-End")
+Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
+Link: https://lore.kernel.org/r/20230417133242.53339-1-n.zhandarovich@fintech.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/maple_tree.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ sound/soc/fsl/fsl_asrc_dma.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -1293,26 +1293,21 @@ static inline void mas_alloc_nodes(struc
- 	node = mas->alloc;
- 	node->request_count = 0;
- 	while (requested) {
--		max_req = MAPLE_ALLOC_SLOTS;
--		if (node->node_count) {
--			unsigned int offset = node->node_count;
--
--			slots = (void **)&node->slot[offset];
--			max_req -= offset;
--		} else {
--			slots = (void **)&node->slot;
--		}
--
-+		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
-+		slots = (void **)&node->slot[node->node_count];
- 		max_req = min(requested, max_req);
- 		count = mt_alloc_bulk(gfp, max_req, slots);
- 		if (!count)
- 			goto nomem_bulk;
- 
-+		if (node->node_count == 0) {
-+			node->slot[0]->node_count = 0;
-+			node->slot[0]->request_count = 0;
-+		}
-+
- 		node->node_count += count;
- 		allocated += count;
- 		node = node->slot[0];
--		node->node_count = 0;
--		node->request_count = 0;
- 		requested -= count;
+--- a/sound/soc/fsl/fsl_asrc_dma.c
++++ b/sound/soc/fsl/fsl_asrc_dma.c
+@@ -208,14 +208,19 @@ static int fsl_asrc_dma_hw_params(struct
+ 		be_chan = soc_component_to_pcm(component_be)->chan[substream->stream];
+ 		tmp_chan = be_chan;
  	}
- 	mas->alloc->total = allocated;
+-	if (!tmp_chan)
+-		tmp_chan = dma_request_slave_channel(dev_be, tx ? "tx" : "rx");
++	if (!tmp_chan) {
++		tmp_chan = dma_request_chan(dev_be, tx ? "tx" : "rx");
++		if (IS_ERR(tmp_chan)) {
++			dev_err(dev, "failed to request DMA channel for Back-End\n");
++			return -EINVAL;
++		}
++	}
+ 
+ 	/*
+ 	 * An EDMA DEV_TO_DEV channel is fixed and bound with DMA event of each
+ 	 * peripheral, unlike SDMA channel that is allocated dynamically. So no
+ 	 * need to configure dma_request and dma_request2, but get dma_chan of
+-	 * Back-End device directly via dma_request_slave_channel.
++	 * Back-End device directly via dma_request_chan.
+ 	 */
+ 	if (!asrc->use_edma) {
+ 		/* Get DMA request of Back-End */
 
 
