@@ -2,60 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 972E86ECDF1
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19AC36ECEE5
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232254AbjDXN2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55722 "EHLO
+        id S232452AbjDXNgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:36:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232243AbjDXN2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF1061B5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:03 -0700 (PDT)
+        with ESMTP id S232627AbjDXNfs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578618A6C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 508E861F13
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD46C4339B;
-        Mon, 24 Apr 2023 13:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9641F623E1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69DBC4339E;
+        Mon, 24 Apr 2023 13:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342882;
-        bh=XPoHYNIwMvOXqRFqjHePJ4TcqMxp+wzhGPKp4l+D0kQ=;
+        s=korg; t=1682343336;
+        bh=8JtHFmxNEsRipiiss13B2lVWmqj/zrEEoxTPB1yFlgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAwQEHjqJ53pglB5OYDhuWdKXMtVV/onsUOLV+8Nn5/OSi1O7EACxjtx8quL1AA0i
-         CnQ9jFb/+x5nCVcNI05XHcpn1ucBsWSTayFrbYhyzSixCe41jKhUkRGcC5q8EGtfD0
-         pwG1MLqmufWDqxIEvFKkQeqbHvsM9L3kDfrOZTX4=
+        b=IWolc5w0jarbRLhrvtQB/ngV5j+LqNIYpQaTARHvzr682jBpV6Lvu7abcP+cmDHC6
+         8cW4Yrt9aOs66s3wMeWtDfy43AzywaHvIMEQVwG7AehpqqG71YWchwaUgNZYG6mn1K
+         YjTp0FXFkgEIh8CEFmJj1sWb3u/T+ybQfelxSCnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Michal Hocko <mhocko@suse.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Petr Mladek <pmladek@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        John Ogness <john.ogness@linutronix.de>,
-        Patrick Daly <quic_pdaly@quicinc.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 94/98] mm/page_alloc: fix potential deadlock on zonelist_update_seq seqlock
+        patches@lists.linux.dev, Yanjun Zhang <zhangyanjun@cestc.cn>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Yanjun Zhang <zhangyanjun@cestc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 26/68] nvme-tcp: fix a possible UAF when failing to allocate an io queue
 Date:   Mon, 24 Apr 2023 15:17:57 +0200
-Message-Id: <20230424131137.541981276@linuxfoundation.org>
+Message-Id: <20230424131128.630232159@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -64,181 +55,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 1007843a91909a4995ee78a538f62d8665705b66 upstream.
+[ Upstream commit 88eaba80328b31ef81813a1207b4056efd7006a6 ]
 
-syzbot is reporting circular locking dependency which involves
-zonelist_update_seq seqlock [1], for this lock is checked by memory
-allocation requests which do not need to be retried.
+When we allocate a nvme-tcp queue, we set the data_ready callback before
+we actually need to use it. This creates the potential that if a stray
+controller sends us data on the socket before we connect, we can trigger
+the io_work and start consuming the socket.
 
-One deadlock scenario is kmalloc(GFP_ATOMIC) from an interrupt handler.
+In this case reported: we failed to allocate one of the io queues, and
+as we start releasing the queues that we already allocated, we get
+a UAF [1] from the io_work which is running before it should really.
 
-  CPU0
-  ----
-  __build_all_zonelists() {
-    write_seqlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount odd
-    // e.g. timer interrupt handler runs at this moment
-      some_timer_func() {
-        kmalloc(GFP_ATOMIC) {
-          __alloc_pages_slowpath() {
-            read_seqbegin(&zonelist_update_seq) {
-              // spins forever because zonelist_update_seq.seqcount is odd
-            }
-          }
-        }
-      }
-    // e.g. timer interrupt handler finishes
-    write_sequnlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount even
-  }
+Fix this by setting the socket ops callbacks only before we start the
+queue, so that we can't accidentally schedule the io_work in the
+initialization phase before the queue started. While we are at it,
+rename nvme_tcp_restore_sock_calls to pair with nvme_tcp_setup_sock_ops.
 
-This deadlock scenario can be easily eliminated by not calling
-read_seqbegin(&zonelist_update_seq) from !__GFP_DIRECT_RECLAIM allocation
-requests, for retry is applicable to only __GFP_DIRECT_RECLAIM allocation
-requests.  But Michal Hocko does not know whether we should go with this
-approach.
+[1]:
+[16802.107284] nvme nvme4: starting error recovery
+[16802.109166] nvme nvme4: Reconnecting in 10 seconds...
+[16812.173535] nvme nvme4: failed to connect socket: -111
+[16812.173745] nvme nvme4: Failed reconnect attempt 1
+[16812.173747] nvme nvme4: Reconnecting in 10 seconds...
+[16822.413555] nvme nvme4: failed to connect socket: -111
+[16822.413762] nvme nvme4: Failed reconnect attempt 2
+[16822.413765] nvme nvme4: Reconnecting in 10 seconds...
+[16832.661274] nvme nvme4: creating 32 I/O queues.
+[16833.919887] BUG: kernel NULL pointer dereference, address: 0000000000000088
+[16833.920068] nvme nvme4: Failed reconnect attempt 3
+[16833.920094] #PF: supervisor write access in kernel mode
+[16833.920261] nvme nvme4: Reconnecting in 10 seconds...
+[16833.920368] #PF: error_code(0x0002) - not-present page
+[16833.921086] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
+[16833.921191] RIP: 0010:_raw_spin_lock_bh+0x17/0x30
+...
+[16833.923138] Call Trace:
+[16833.923271]  <TASK>
+[16833.923402]  lock_sock_nested+0x1e/0x50
+[16833.923545]  nvme_tcp_try_recv+0x40/0xa0 [nvme_tcp]
+[16833.923685]  nvme_tcp_io_work+0x68/0xa0 [nvme_tcp]
+[16833.923824]  process_one_work+0x1e8/0x390
+[16833.923969]  worker_thread+0x53/0x3d0
+[16833.924104]  ? process_one_work+0x390/0x390
+[16833.924240]  kthread+0x124/0x150
+[16833.924376]  ? set_kthread_struct+0x50/0x50
+[16833.924518]  ret_from_fork+0x1f/0x30
+[16833.924655]  </TASK>
 
-Another deadlock scenario which syzbot is reporting is a race between
-kmalloc(GFP_ATOMIC) from tty_insert_flip_string_and_push_buffer() with
-port->lock held and printk() from __build_all_zonelists() with
-zonelist_update_seq held.
-
-  CPU0                                   CPU1
-  ----                                   ----
-  pty_write() {
-    tty_insert_flip_string_and_push_buffer() {
-                                         __build_all_zonelists() {
-                                           write_seqlock(&zonelist_update_seq);
-                                           build_zonelists() {
-                                             printk() {
-                                               vprintk() {
-                                                 vprintk_default() {
-                                                   vprintk_emit() {
-                                                     console_unlock() {
-                                                       console_flush_all() {
-                                                         console_emit_next_record() {
-                                                           con->write() = serial8250_console_write() {
-      spin_lock_irqsave(&port->lock, flags);
-      tty_insert_flip_string() {
-        tty_insert_flip_string_fixed_flag() {
-          __tty_buffer_request_room() {
-            tty_buffer_alloc() {
-              kmalloc(GFP_ATOMIC | __GFP_NOWARN) {
-                __alloc_pages_slowpath() {
-                  zonelist_iter_begin() {
-                    read_seqbegin(&zonelist_update_seq); // spins forever because zonelist_update_seq.seqcount is odd
-                                                             spin_lock_irqsave(&port->lock, flags); // spins forever because port->lock is held
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      spin_unlock_irqrestore(&port->lock, flags);
-                                                             // message is printed to console
-                                                             spin_unlock_irqrestore(&port->lock, flags);
-                                                           }
-                                                         }
-                                                       }
-                                                     }
-                                                   }
-                                                 }
-                                               }
-                                             }
-                                           }
-                                           write_sequnlock(&zonelist_update_seq);
-                                         }
-    }
-  }
-
-This deadlock scenario can be eliminated by
-
-  preventing interrupt context from calling kmalloc(GFP_ATOMIC)
-
-and
-
-  preventing printk() from calling console_flush_all()
-
-while zonelist_update_seq.seqcount is odd.
-
-Since Petr Mladek thinks that __build_all_zonelists() can become a
-candidate for deferring printk() [2], let's address this problem by
-
-  disabling local interrupts in order to avoid kmalloc(GFP_ATOMIC)
-
-and
-
-  disabling synchronous printk() in order to avoid console_flush_all()
-
-.
-
-As a side effect of minimizing duration of zonelist_update_seq.seqcount
-being odd by disabling synchronous printk(), latency at
-read_seqbegin(&zonelist_update_seq) for both !__GFP_DIRECT_RECLAIM and
-__GFP_DIRECT_RECLAIM allocation requests will be reduced.  Although, from
-lockdep perspective, not calling read_seqbegin(&zonelist_update_seq) (i.e.
-do not record unnecessary locking dependency) from interrupt context is
-still preferable, even if we don't allow calling kmalloc(GFP_ATOMIC)
-inside
-write_seqlock(&zonelist_update_seq)/write_sequnlock(&zonelist_update_seq)
-section...
-
-Link: https://lkml.kernel.org/r/8796b95c-3da3-5885-fddd-6ef55f30e4d3@I-love.SAKURA.ne.jp
-Fixes: 3d36424b3b58 ("mm/page_alloc: fix race condition between build_all_zonelists and page allocation")
-Link: https://lkml.kernel.org/r/ZCrs+1cDqPWTDFNM@alley [2]
-Reported-by: syzbot <syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com>
-  Link: https://syzkaller.appspot.com/bug?extid=223c7461c58c58a4cb10 [1]
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Cc: John Ogness <john.ogness@linutronix.de>
-Cc: Patrick Daly <quic_pdaly@quicinc.com>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Yanjun Zhang <zhangyanjun@cestc.cn>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Tested-by: Yanjun Zhang <zhangyanjun@cestc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/nvme/host/tcp.c | 46 +++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6599,7 +6599,21 @@ static void __build_all_zonelists(void *
- 	int nid;
- 	int __maybe_unused cpu;
- 	pg_data_t *self = data;
-+	unsigned long flags;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 57df87def8c33..e6147a9220f9a 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1535,22 +1535,7 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl,
+ 	if (ret)
+ 		goto err_init_connect;
  
-+	/*
-+	 * Explicitly disable this CPU's interrupts before taking seqlock
-+	 * to prevent any IRQ handler from calling into the page allocator
-+	 * (e.g. GFP_ATOMIC) that could hit zonelist_iter_begin and livelock.
-+	 */
-+	local_irq_save(flags);
-+	/*
-+	 * Explicitly disable this CPU's synchronous printk() before taking
-+	 * seqlock to prevent any printk() from trying to hold port->lock, for
-+	 * tty_insert_flip_string_and_push_buffer() on other CPU might be
-+	 * calling kmalloc(GFP_ATOMIC | __GFP_NOWARN) with port->lock held.
-+	 */
-+	printk_deferred_enter();
- 	write_seqlock(&zonelist_update_seq);
+-	queue->rd_enabled = true;
+ 	set_bit(NVME_TCP_Q_ALLOCATED, &queue->flags);
+-	nvme_tcp_init_recv_ctx(queue);
+-
+-	write_lock_bh(&queue->sock->sk->sk_callback_lock);
+-	queue->sock->sk->sk_user_data = queue;
+-	queue->state_change = queue->sock->sk->sk_state_change;
+-	queue->data_ready = queue->sock->sk->sk_data_ready;
+-	queue->write_space = queue->sock->sk->sk_write_space;
+-	queue->sock->sk->sk_data_ready = nvme_tcp_data_ready;
+-	queue->sock->sk->sk_state_change = nvme_tcp_state_change;
+-	queue->sock->sk->sk_write_space = nvme_tcp_write_space;
+-#ifdef CONFIG_NET_RX_BUSY_POLL
+-	queue->sock->sk->sk_ll_usec = 1;
+-#endif
+-	write_unlock_bh(&queue->sock->sk->sk_callback_lock);
  
- #ifdef CONFIG_NUMA
-@@ -6638,6 +6652,8 @@ static void __build_all_zonelists(void *
- 	}
+ 	return 0;
  
- 	write_sequnlock(&zonelist_update_seq);
-+	printk_deferred_exit();
-+	local_irq_restore(flags);
+@@ -1569,7 +1554,7 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl,
+ 	return ret;
  }
  
- static noinline void __init
+-static void nvme_tcp_restore_sock_calls(struct nvme_tcp_queue *queue)
++static void nvme_tcp_restore_sock_ops(struct nvme_tcp_queue *queue)
+ {
+ 	struct socket *sock = queue->sock;
+ 
+@@ -1584,7 +1569,7 @@ static void nvme_tcp_restore_sock_calls(struct nvme_tcp_queue *queue)
+ static void __nvme_tcp_stop_queue(struct nvme_tcp_queue *queue)
+ {
+ 	kernel_sock_shutdown(queue->sock, SHUT_RDWR);
+-	nvme_tcp_restore_sock_calls(queue);
++	nvme_tcp_restore_sock_ops(queue);
+ 	cancel_work_sync(&queue->io_work);
+ }
+ 
+@@ -1599,21 +1584,42 @@ static void nvme_tcp_stop_queue(struct nvme_ctrl *nctrl, int qid)
+ 	mutex_unlock(&queue->queue_lock);
+ }
+ 
++static void nvme_tcp_setup_sock_ops(struct nvme_tcp_queue *queue)
++{
++	write_lock_bh(&queue->sock->sk->sk_callback_lock);
++	queue->sock->sk->sk_user_data = queue;
++	queue->state_change = queue->sock->sk->sk_state_change;
++	queue->data_ready = queue->sock->sk->sk_data_ready;
++	queue->write_space = queue->sock->sk->sk_write_space;
++	queue->sock->sk->sk_data_ready = nvme_tcp_data_ready;
++	queue->sock->sk->sk_state_change = nvme_tcp_state_change;
++	queue->sock->sk->sk_write_space = nvme_tcp_write_space;
++#ifdef CONFIG_NET_RX_BUSY_POLL
++	queue->sock->sk->sk_ll_usec = 1;
++#endif
++	write_unlock_bh(&queue->sock->sk->sk_callback_lock);
++}
++
+ static int nvme_tcp_start_queue(struct nvme_ctrl *nctrl, int idx)
+ {
+ 	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
++	struct nvme_tcp_queue *queue = &ctrl->queues[idx];
+ 	int ret;
+ 
++	queue->rd_enabled = true;
++	nvme_tcp_init_recv_ctx(queue);
++	nvme_tcp_setup_sock_ops(queue);
++
+ 	if (idx)
+ 		ret = nvmf_connect_io_queue(nctrl, idx, false);
+ 	else
+ 		ret = nvmf_connect_admin_queue(nctrl);
+ 
+ 	if (!ret) {
+-		set_bit(NVME_TCP_Q_LIVE, &ctrl->queues[idx].flags);
++		set_bit(NVME_TCP_Q_LIVE, &queue->flags);
+ 	} else {
+-		if (test_bit(NVME_TCP_Q_ALLOCATED, &ctrl->queues[idx].flags))
+-			__nvme_tcp_stop_queue(&ctrl->queues[idx]);
++		if (test_bit(NVME_TCP_Q_ALLOCATED, &queue->flags))
++			__nvme_tcp_stop_queue(queue);
+ 		dev_err(nctrl->device,
+ 			"failed to connect queue: %d ret=%d\n", idx, ret);
+ 	}
+-- 
+2.39.2
+
 
 
