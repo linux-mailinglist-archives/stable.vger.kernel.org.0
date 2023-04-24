@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338136ECD88
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4B216ECD5D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232085AbjDXNY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50546 "EHLO
+        id S232038AbjDXNW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:22:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbjDXNYR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:17 -0400
+        with ESMTP id S232112AbjDXNWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6505255
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008A65BAF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBFC262290
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E80C433D2;
-        Mon, 24 Apr 2023 13:24:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B54B862256
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB883C433D2;
+        Mon, 24 Apr 2023 13:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342648;
-        bh=RyVSaSqn4wBFKnxu9j97/taoihP7qRmiIOVsbU8gKuQ=;
+        s=korg; t=1682342545;
+        bh=0sCf5HCFZPZodz2GfqDV61a/BeVqGVnSzDvjal84/dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/BacM2Lcm27zr5oiIU3be4GSfq41q8LfmLFhZBWz5b8MvgqMbmgLPFKmN1rzAL/u
-         u2jqRn88bQlXhwhI7s6AicjOSnzz+eax/RNcmoZ4vIuY+TejBzLiFuwftDqex+mXWm
-         f8eJ0PylsdeBNhKFKRzg58nRKf6bztYg9SaA6c4Q=
+        b=ssYnKNl5TuFghLgK7ydDTuxaq3liiGoSgQr0vVSCqiPfYyiZNtJDQIIRJEfYaL+y+
+         SGuUedZmja6mSrl+/Fg886ZRhZARkLB7YREnXiZu56L5/tbQyMptClJdkYUa5eqNWk
+         t6Xs5m06GD75Ngu99lcLWCUx2D0QVwfUoN2G0AAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/39] regulator: fan53555: Explicitly include bits header
+        patches@lists.linux.dev, Salvatore Bonaccorso <carnil@debian.org>
+Subject: [PATCH 5.15 53/73] [PATCH v2 stable-5.10.y stable-5.15.y] docs: futex: Fix kernel-doc references after code split-up preparation
 Date:   Mon, 24 Apr 2023 15:17:07 +0200
-Message-Id: <20230424131123.207723649@linuxfoundation.org>
+Message-Id: <20230424131130.977682874@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+From: Salvatore Bonaccorso <carnil@debian.org>
 
-[ Upstream commit 4fb9a5060f73627303bc531ceaab1b19d0a24aef ]
+In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
+futex code from kernel/futex.c was moved into kernel/futex/core.c in
+preparation of the split-up of the implementation in various files.
 
-Since commit f2a9eb975ab2 ("regulator: fan53555: Add support for
-FAN53526") the driver makes use of the BIT() macro, but relies on the
-bits header being implicitly included.
+Point kernel-doc references to the new files as otherwise the
+documentation shows errors on build:
 
-Explicitly pull the header in to avoid potential build failures in some
-configurations.
+    [...]
+    Error: Cannot open file ./kernel/futex.c
+    Error: Cannot open file ./kernel/futex.c
+    [...]
+    WARNING: kernel-doc './scripts/kernel-doc -rst -enable-lineno -sphinx-version 3.4.3 -internal ./kernel/futex.c' failed with return code 2
 
-While here, reorder include directives alphabetically.
+There is no direct upstream commit for this change. It is made in
+analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
+references") applied as consequence of the restructuring of the futex
+code.
 
-Fixes: f2a9eb975ab2 ("regulator: fan53555: Add support for FAN53526")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Link: https://lore.kernel.org/r/20230406171806.948290-3-cristian.ciocaltea@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/fan53555.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ Documentation/kernel-hacking/locking.rst                    |    2 +-
+ Documentation/translations/it_IT/kernel-hacking/locking.rst |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
-index dbe477da4e559..99a1b2dc30933 100644
---- a/drivers/regulator/fan53555.c
-+++ b/drivers/regulator/fan53555.c
-@@ -8,18 +8,19 @@
- // Copyright (c) 2012 Marvell Technology Ltd.
- // Yunfan Zhang <yfzhang@marvell.com>
+--- a/Documentation/kernel-hacking/locking.rst
++++ b/Documentation/kernel-hacking/locking.rst
+@@ -1352,7 +1352,7 @@ Mutex API reference
+ Futex API reference
+ ===================
  
-+#include <linux/bits.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/param.h>
--#include <linux/err.h>
- #include <linux/platform_device.h>
-+#include <linux/regmap.h>
- #include <linux/regulator/driver.h>
-+#include <linux/regulator/fan53555.h>
- #include <linux/regulator/machine.h>
- #include <linux/regulator/of_regulator.h>
--#include <linux/of_device.h>
--#include <linux/i2c.h>
- #include <linux/slab.h>
--#include <linux/regmap.h>
--#include <linux/regulator/fan53555.h>
+-.. kernel-doc:: kernel/futex.c
++.. kernel-doc:: kernel/futex/core.c
+    :internal:
  
- /* Voltage setting */
- #define FAN53555_VSEL0		0x00
--- 
-2.39.2
-
+ Further reading
+--- a/Documentation/translations/it_IT/kernel-hacking/locking.rst
++++ b/Documentation/translations/it_IT/kernel-hacking/locking.rst
+@@ -1396,7 +1396,7 @@ Riferimento per l'API dei Mutex
+ Riferimento per l'API dei Futex
+ ===============================
+ 
+-.. kernel-doc:: kernel/futex.c
++.. kernel-doc:: kernel/futex/core.c
+    :internal:
+ 
+ Approfondimenti
 
 
