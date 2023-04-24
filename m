@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A05486ECE21
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194706ECDB8
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232338AbjDXN3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57270 "EHLO
+        id S232166AbjDXN0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232383AbjDXN32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:29:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46127769E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:06 -0700 (PDT)
+        with ESMTP id S232186AbjDXN0E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C3F5FC9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 732636212A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 899F3C4339B;
-        Mon, 24 Apr 2023 13:29:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DF6B622BD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F1DCC4339B;
+        Mon, 24 Apr 2023 13:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342945;
-        bh=jTJU0EXRqCwabfhc6l+GW/GbOoZ+c/YSS98lTkk5EK0=;
+        s=korg; t=1682342761;
+        bh=ITOpzuJMqiMRRjzf8/JQoUd5iLbNslABVUFXy1iTgd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVEMkrNnoM1TyyvvIVKldcHKixk8mIg5ZCLssL2hxXAy8dzD6kzroseJd6tYKSkIL
-         HI/XKYku9XP0+Mxlq64VgenJwStP4CQqfPtvzlyFyVOowvUpkx/6ZnJWJimCV5l/uU
-         Jo0IzpaQUgiXpjw5bVRGBa0TtGyUvTxKc9icw7F0=
+        b=qluxeB98I2qREcvkXHQ9BL6h9EMkOtkvgyuujzcdleKkdRFA/1J9Zg3an5/B685vd
+         1fT3PyYjk2bbLRSjZTvMFDhaf/btfYGA6/1PA7mF8aPbMZqg3He/KsyLU6abmaY/HD
+         7TJBAXkiPDnrAEuN0tvpMUA0ooN+r9qXxjAtaix4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,19 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>,
         Huang Cun <huangcun@sangfor.com.cn>
-Subject: [PATCH 6.2 019/110] sfc: Fix use-after-free due to selftest_work
+Subject: [PATCH 6.1 18/98] sfc: Fix use-after-free due to selftest_work
 Date:   Mon, 24 Apr 2023 15:16:41 +0200
-Message-Id: <20230424131136.835556960@linuxfoundation.org>
+Message-Id: <20230424131134.591899714@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -127,7 +127,7 @@ index 6a1bff54bc6c3..e6aedd8ebd750 100644
  }
  
 diff --git a/drivers/net/ethernet/sfc/efx_common.c b/drivers/net/ethernet/sfc/efx_common.c
-index cc30524c2fe45..361687de308dc 100644
+index c2224e41a694d..ee1cabe3e2429 100644
 --- a/drivers/net/ethernet/sfc/efx_common.c
 +++ b/drivers/net/ethernet/sfc/efx_common.c
 @@ -544,6 +544,8 @@ void efx_start_all(struct efx_nic *efx)
