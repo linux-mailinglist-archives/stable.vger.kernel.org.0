@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 211B66ECDCE
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:27:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5706ECE91
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbjDXN1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:27:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53518 "EHLO
+        id S232435AbjDXNdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:33:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232226AbjDXN06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95E06190
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:57 -0700 (PDT)
+        with ESMTP id S232404AbjDXNdX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8474983E0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7611C622CE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87ABBC433D2;
-        Mon, 24 Apr 2023 13:26:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54D9061F13
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67FDDC433EF;
+        Mon, 24 Apr 2023 13:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342816;
-        bh=PeQvJcP0SUSe7PhH8GB/dEqZJqPqJGalmKZzqWh8gS0=;
+        s=korg; t=1682343161;
+        bh=0wJfMAum1yvWKuJd+v0oOt0cR8Z5A4nKexd+TetMkBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oD40/W5Uit0Y5lZ5sXZXmWYnLTimzmmF4SJGF64RVrRTvomRULbo6ZwpTbd/6zs6U
-         gqaGCRE/EhjzUOwDhbckOrerFM5wDZp32uWiC9dP3zauaGG9o1lGqBjGBCKFO119Uz
-         Rui4UcejZ+GRlQSAUct4Hmovyx2CxN3e/skk2JFQ=
+        b=BjGt6nxXGdbIdjc0LEiYus24T5riZsBBrbeqQDguVtxQti3xdw/c2PLEVpnRNO66f
+         /Zlrz//I5/mZE6PWaetmX5a8qSXVp+eUTLgl+1v2p7wKIc8cxsj+HnQTbt6IkTRSfN
+         Xb7Wc+voSFph+9RhwNBQ0HZqUjl8ieSpZP4Q58Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Liu <HaoPing.Liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 68/98] drm/amdgpu: Fix desktop freezed after gpu-reset
-Date:   Mon, 24 Apr 2023 15:17:31 +0200
-Message-Id: <20230424131136.479337266@linuxfoundation.org>
+        patches@lists.linux.dev, Peng Zhang <zhangpeng.00@bytedance.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 070/110] maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
+Date:   Mon, 24 Apr 2023 15:17:32 +0200
+Message-Id: <20230424131139.010840370@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,98 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Liu <HaoPing.Liu@amd.com>
+From: Peng Zhang <zhangpeng.00@bytedance.com>
 
-commit c8b5a95b570949536a2b75cd8fc4f1de0bc60629 upstream.
+commit 1f5f12ece722aacea1769fb644f27790ede339dc upstream.
 
-[Why]
-After gpu-reset, sometimes the driver fails to enable vblank irq,
-causing flip_done timed out and the desktop freezed.
+In mas_alloc_nodes(), "node->node_count = 0" means to initialize the
+node_count field of the new node, but the node may not be a new node.  It
+may be a node that existed before and node_count has a value, setting it
+to 0 will cause a memory leak.  At this time, mas->alloc->total will be
+greater than the actual number of nodes in the linked list, which may
+cause many other errors.  For example, out-of-bounds access in
+mas_pop_node(), and mas_pop_node() may return addresses that should not be
+used.  Fix it by initializing node_count only for new nodes.
 
-During gpu-reset, we disable and enable vblank irq in dm_suspend() and
-dm_resume(). Later on in amdgpu_irq_gpu_reset_resume_helper(), we check
-irqs' refcount and decide to enable or disable the irqs again.
+Also, by the way, an if-else statement was removed to simplify the code.
 
-However, we have 2 sets of API for controling vblank irq, one is
-dm_vblank_get/put() and another is amdgpu_irq_get/put(). Each API has
-its own refcount and flag to store the state of vblank irq, and they
-are not synchronized.
-
-In drm we use the first API to control vblank irq but in
-amdgpu_irq_gpu_reset_resume_helper() we use the second set of API.
-
-The failure happens when vblank irq was enabled by dm_vblank_get()
-before gpu-reset, we have vblank->enabled true. However, during
-gpu-reset, in amdgpu_irq_gpu_reset_resume_helper() vblank irq's state
-checked from amdgpu_irq_update() is DISABLED. So finally it disables
-vblank irq again. After gpu-reset, if there is a cursor plane commit,
-the driver will try to enable vblank irq by calling drm_vblank_enable(),
-but the vblank->enabled is still true, so it fails to turn on vblank
-irq and causes flip_done can't be completed in vblank irq handler and
-desktop become freezed.
-
-[How]
-Combining the 2 vblank control APIs by letting drm's API finally calls
-amdgpu_irq's API, so the irq's refcount and state of both APIs can be
-synchronized. Also add a check to prevent refcount from being less then
-0 in amdgpu_irq_put().
-
-v2:
-- Add warning in amdgpu_irq_enable() if the irq is already disabled.
-- Call dc_interrupt_set() in dm_set_vblank() to avoid refcount change
-  if it is in gpu-reset.
-
-v3:
-- Improve commit message and code comments.
-
-Signed-off-by: Alan Liu <HaoPing.Liu@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20230411041005.26205-1-zhangpeng.00@bytedance.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c                |    3 +++
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c |   17 ++++++++++++++---
- 2 files changed, 17 insertions(+), 3 deletions(-)
+ lib/maple_tree.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-@@ -653,6 +653,9 @@ int amdgpu_irq_put(struct amdgpu_device
- 	if (!src->enabled_types || !src->funcs->set)
- 		return -EINVAL;
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -1298,26 +1298,21 @@ static inline void mas_alloc_nodes(struc
+ 	node = mas->alloc;
+ 	node->request_count = 0;
+ 	while (requested) {
+-		max_req = MAPLE_ALLOC_SLOTS;
+-		if (node->node_count) {
+-			unsigned int offset = node->node_count;
+-
+-			slots = (void **)&node->slot[offset];
+-			max_req -= offset;
+-		} else {
+-			slots = (void **)&node->slot;
+-		}
+-
++		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
++		slots = (void **)&node->slot[node->node_count];
+ 		max_req = min(requested, max_req);
+ 		count = mt_alloc_bulk(gfp, max_req, slots);
+ 		if (!count)
+ 			goto nomem_bulk;
  
-+	if (WARN_ON(!amdgpu_irq_enabled(adev, src, type)))
-+		return -EINVAL;
++		if (node->node_count == 0) {
++			node->slot[0]->node_count = 0;
++			node->slot[0]->request_count = 0;
++		}
 +
- 	if (atomic_dec_and_test(&src->enabled_types[type]))
- 		return amdgpu_irq_update(adev, src, type);
- 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c
-@@ -167,10 +167,21 @@ static inline int dm_set_vblank(struct d
- 	if (rc)
- 		return rc;
- 
--	irq_source = IRQ_TYPE_VBLANK + acrtc->otg_inst;
-+	if (amdgpu_in_reset(adev)) {
-+		irq_source = IRQ_TYPE_VBLANK + acrtc->otg_inst;
-+		/* During gpu-reset we disable and then enable vblank irq, so
-+		 * don't use amdgpu_irq_get/put() to avoid refcount change.
-+		 */
-+		if (!dc_interrupt_set(adev->dm.dc, irq_source, enable))
-+			rc = -EBUSY;
-+	} else {
-+		rc = (enable)
-+			? amdgpu_irq_get(adev, &adev->crtc_irq, acrtc->crtc_id)
-+			: amdgpu_irq_put(adev, &adev->crtc_irq, acrtc->crtc_id);
-+	}
- 
--	if (!dc_interrupt_set(adev->dm.dc, irq_source, enable))
--		return -EBUSY;
-+	if (rc)
-+		return rc;
- 
- skip:
- 	if (amdgpu_in_reset(adev))
+ 		node->node_count += count;
+ 		allocated += count;
+ 		node = node->slot[0];
+-		node->node_count = 0;
+-		node->request_count = 0;
+ 		requested -= count;
+ 	}
+ 	mas->alloc->total = allocated;
 
 
