@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B566ECD67
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58FF76ECD49
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbjDXNXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
+        id S232060AbjDXNWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232067AbjDXNXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE6B59DE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:49 -0700 (PDT)
+        with ESMTP id S232049AbjDXNVz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC3B55AC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA16761E88
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3DEC433EF;
-        Mon, 24 Apr 2023 13:22:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE6386224D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A73C433EF;
+        Mon, 24 Apr 2023 13:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342569;
-        bh=ic5M+WBk/A6QoKKdXZiMgu7UjhhgBghwgfBK5+s0omQ=;
+        s=korg; t=1682342502;
+        bh=auhKjn5kwbzJUM1rC6gmTN8B6lNQtrBgnVI+Mv0qXI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXaINcRLaBrMCABKm/OVQR9/oMeqFhM8UCd0oIzWptwe00tmqJhBk6/K2LZZE0Asy
-         UGf/UFt0de9v1k19q5in0iH5m8oVY95m1ZL6/Pgv/LDKcp4WnM/wHQJR2EyvlC6W4T
-         gHBV/1K++hczsa7IebP3fuXYWGiNfHafQnLW3ZNU=
+        b=dlUT8F6797+ncuP6ZfnlvIfvSELrUNbBczRLxrMPnEvYVWfcxvl3PxFJDHclGRlHV
+         BnxDUmWPpzCrLCkioP0Jf/Rdagdk8/zNlyIcZTAWelrXiUqFxGUFVyZgyWJr11VMVX
+         /Yd9ltlN9NLcCjI2QBAAKQ9N92XEBiXdHyYmfh2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/39] selftests: sigaltstack: fix -Wuninitialized
+        "thierry.reding@gmail.com, Jeff LaBundy" <jeff@labundy.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jeff LaBundy <jeff@labundy.com>
+Subject: [PATCH 5.15 64/73] pwm: iqs620a: Explicitly set .polarity in .get_state()
 Date:   Mon, 24 Apr 2023 15:17:18 +0200
-Message-Id: <20230424131123.625640153@linuxfoundation.org>
+Message-Id: <20230424131131.434637312@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,95 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: "Uwe Kleine-K�nig" <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
+[ Upstream commit b20b097128d9145fadcea1cbb45c4d186cb57466 ]
 
-Building sigaltstack with clang via:
-$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
+The driver only supports normal polarity. Complete the implementation of
+.get_state() by setting .polarity accordingly.
 
-produces the following warning:
-  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
-  if (sp < (unsigned long)sstack ||
-      ^~
-
-Clang expects these to be declared at global scope; we've fixed this in
-the kernel proper by using the macro `current_stack_pointer`. This is
-defined in different headers for different target architectures, so just
-create a new header that defines the arch-specific register names for
-the stack pointer register, and define it for more targets (at least the
-ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6f0841a8197b ("pwm: Add support for Azoteq IQS620A PWM generator")
+Reviewed-by: Jeff LaBundy <jeff@labundy.com>
+Link: https://lore.kernel.org/r/20230228135508.1798428-4-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
- tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
- 2 files changed, 24 insertions(+), 6 deletions(-)
- create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
+ drivers/pwm/pwm-iqs620a.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-new file mode 100644
-index 0000000000000..ea9bdf3a90b16
---- /dev/null
-+++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#if __alpha__
-+register unsigned long sp asm("$30");
-+#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
-+register unsigned long sp asm("sp");
-+#elif __i386__
-+register unsigned long sp asm("esp");
-+#elif __loongarch64
-+register unsigned long sp asm("$sp");
-+#elif __ppc__
-+register unsigned long sp asm("r1");
-+#elif __s390x__
-+register unsigned long sp asm("%15");
-+#elif __sh__
-+register unsigned long sp asm("r15");
-+#elif __x86_64__
-+register unsigned long sp asm("rsp");
-+#elif __XTENSA__
-+register unsigned long sp asm("a1");
-+#else
-+#error "implement current_stack_pointer equivalent"
-+#endif
-diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
-index ad0f8df2ca0af..6e60545994916 100644
---- a/tools/testing/selftests/sigaltstack/sas.c
-+++ b/tools/testing/selftests/sigaltstack/sas.c
-@@ -19,6 +19,7 @@
- #include <errno.h>
+--- a/drivers/pwm/pwm-iqs620a.c
++++ b/drivers/pwm/pwm-iqs620a.c
+@@ -126,6 +126,7 @@ static void iqs620_pwm_get_state(struct
+ 	mutex_unlock(&iqs620_pwm->lock);
  
- #include "../kselftest.h"
-+#include "current_stack_pointer.h"
+ 	state->period = IQS620_PWM_PERIOD_NS;
++	state->polarity = PWM_POLARITY_NORMAL;
+ }
  
- #ifndef SS_AUTODISARM
- #define SS_AUTODISARM  (1U << 31)
-@@ -40,12 +41,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
- 	stack_t stk;
- 	struct stk_data *p;
- 
--#if __s390x__
--	register unsigned long sp asm("%15");
--#else
--	register unsigned long sp asm("sp");
--#endif
--
- 	if (sp < (unsigned long)sstack ||
- 			sp >= (unsigned long)sstack + SIGSTKSZ) {
- 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
--- 
-2.39.2
-
+ static int iqs620_pwm_notifier(struct notifier_block *notifier,
 
 
