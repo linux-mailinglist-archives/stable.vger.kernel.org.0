@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9214A6ECE66
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 284366ECD26
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232386AbjDXNcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59680 "EHLO
+        id S231671AbjDXNVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232525AbjDXNcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C277276A0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:23 -0700 (PDT)
+        with ESMTP id S232006AbjDXNUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671455261
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 127ED6234F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21B8EC433EF;
-        Mon, 24 Apr 2023 13:31:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 474B9621FD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A6DC433EF;
+        Mon, 24 Apr 2023 13:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343080;
-        bh=JNwwZ8erFC9UapkXT18tqn01jY1Hhw1A08NlEQTQ3sQ=;
+        s=korg; t=1682342436;
+        bh=LvP7QrQe49AfyW2vov+5OvXDAGbRc/YpJZlTrayh36o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2fCa/SLyaJxDAI4hbotSq6Lq7KxniIJZKdCQPNOTBZz74i7865sutJY9ZKJKKH2FH
-         lDECITIYEznh7yOpeUvFBBmV0zfoIMHo1nQTuF/7nlwHWYQfl1JrV5c2+z6/D/XnCS
-         NTd5ruNrDlRDlukpREyn8twEcUTBq69Vw4EBgHYE=
+        b=0OPAuZSYkCz79B7bErCtDANb3CtoU0V7rM7s1ZYiCW9AKHLbDXECBcwIzSHsOtXD0
+         nOQpQoBgZHqNJnuTHfokGzanytlpEmyGbhkldRyDzMoRRVLLeXYNyCmog7dZoZa+Xe
+         Vd0/xGpYrehRPibs5RhQ/hHZQBtcIccBFydCVfA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
-        maxpl0it <maxpl0it@protonmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 030/110] net: rpl: fix rpl header size calculation
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 38/73] nilfs2: initialize unused bytes in segment summary blocks
 Date:   Mon, 24 Apr 2023 15:16:52 +0200
-Message-Id: <20230424131137.257042528@linuxfoundation.org>
+Message-Id: <20230424131130.371738284@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,47 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 4e006c7a6dac0ead4c1bf606000aa90a372fc253 ]
+commit ef832747a82dfbc22a3702219cc716f449b24e4a upstream.
 
-This patch fixes a missing 8 byte for the header size calculation. The
-ipv6_rpl_srh_size() is used to check a skb_pull() on skb->data which
-points to skb_transport_header(). Currently we only check on the
-calculated addresses fields using CmprI and CmprE fields, see:
+Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
+KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
+initialize "struct nilfs_binfo_dat"->bi_pad field").
 
-https://www.rfc-editor.org/rfc/rfc6554#section-3
+This is because the unused bytes at the end of each block in segment
+summaries are not initialized.  So this fixes the issue by padding the
+unused bytes with null bytes.
 
-there is however a missing 8 byte inside the calculation which stands
-for the fields before the addresses field. Those 8 bytes are represented
-by sizeof(struct ipv6_rpl_sr_hdr) expression.
-
-Fixes: 8610c7c6e3bd ("net: ipv6: add support for rpl sr exthdr")
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Reported-by: maxpl0it <maxpl0it@protonmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
+  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
+Cc: Alexander Potapenko <glider@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/rpl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nilfs2/segment.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/net/ipv6/rpl.c b/net/ipv6/rpl.c
-index 488aec9e1a74f..d1876f1922255 100644
---- a/net/ipv6/rpl.c
-+++ b/net/ipv6/rpl.c
-@@ -32,7 +32,8 @@ static void *ipv6_rpl_segdata_pos(const struct ipv6_rpl_sr_hdr *hdr, int i)
- size_t ipv6_rpl_srh_size(unsigned char n, unsigned char cmpri,
- 			 unsigned char cmpre)
- {
--	return (n * IPV6_PFXTAIL_LEN(cmpri)) + IPV6_PFXTAIL_LEN(cmpre);
-+	return sizeof(struct ipv6_rpl_sr_hdr) + (n * IPV6_PFXTAIL_LEN(cmpri)) +
-+		IPV6_PFXTAIL_LEN(cmpre);
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -430,6 +430,23 @@ static int nilfs_segctor_reset_segment_b
+ 	return 0;
  }
  
- void ipv6_rpl_srh_decompress(struct ipv6_rpl_sr_hdr *outhdr,
--- 
-2.39.2
-
++/**
++ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
++ * @sci: segment constructor object
++ *
++ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
++ * the current segment summary block.
++ */
++static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
++{
++	struct nilfs_segsum_pointer *ssp;
++
++	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
++	if (ssp->offset < ssp->bh->b_size)
++		memset(ssp->bh->b_data + ssp->offset, 0,
++		       ssp->bh->b_size - ssp->offset);
++}
++
+ static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
+ {
+ 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
+@@ -438,6 +455,7 @@ static int nilfs_segctor_feed_segment(st
+ 				* The current segment is filled up
+ 				* (internal code)
+ 				*/
++	nilfs_segctor_zeropad_segsum(sci);
+ 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
+ 	return nilfs_segctor_reset_segment_buffer(sci);
+ }
+@@ -542,6 +560,7 @@ static int nilfs_segctor_add_file_block(
+ 		goto retry;
+ 	}
+ 	if (unlikely(required)) {
++		nilfs_segctor_zeropad_segsum(sci);
+ 		err = nilfs_segbuf_extend_segsum(segbuf);
+ 		if (unlikely(err))
+ 			goto failed;
+@@ -1531,6 +1550,7 @@ static int nilfs_segctor_collect(struct
+ 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
+ 		sci->sc_stage = prev_stage;
+ 	}
++	nilfs_segctor_zeropad_segsum(sci);
+ 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
+ 	return 0;
+ 
 
 
