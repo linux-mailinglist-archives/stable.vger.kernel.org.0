@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5075E6ECD96
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62BAB6ECE30
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231944AbjDXNYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47688 "EHLO
+        id S232377AbjDXNaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:30:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232049AbjDXNYi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4AF4C2E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:38 -0700 (PDT)
+        with ESMTP id S232405AbjDXNaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F1F525C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BA046228F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE67AC4339B;
-        Mon, 24 Apr 2023 13:24:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CF726230D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D57C433D2;
+        Mon, 24 Apr 2023 13:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342677;
-        bh=R38uLk+hE1VJzOZOp2vgaO9WZJoICvTpMOsyZbKSRmU=;
+        s=korg; t=1682342982;
+        bh=uOOAHxGpEVE0S3mBFrPUezoTj9VkFZXc7BOKm1bVx1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvGqOeGk4PstyTxyiCeTwYHw4tdzRi1gKJ/jTjD7eakOWQ0BWGQKOM9ds/W3zpdJK
-         7SAcx+AOeTv9AqSltaVtfXHqt2XSb1EMcUe0C4Q4i+2DsSoj+p1NIEpzZ/HYSAVgKn
-         iSfbHjb/uLIp4Kc+bCeuHbUb+mLkYpYKZVjggiFg=
+        b=svyUpWrqgvDE8/GHQxgK3epKNUfKmCe700saaSQG0rjskORzyxejBgEG/+aqqfoDE
+         SWY/dDCkJYN0SO1ywe1nlEgzVx5TFElWmlQ8WmdVy3W4JMbFWJx2mUqaOjCmz95xg7
+         bv0sHO63pTbr2jiu3yclQE+uZEPrRJXwpyThy3Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robert Marko <robimarko@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Marc Gonzalez <mgonzalez@freebox.fr>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 04/98] arm64: dts: qcom: hk10: use "okay" instead of "ok"
+Subject: [PATCH 6.2 005/110] arm64: dts: meson-g12-common: specify full DMC range
 Date:   Mon, 24 Apr 2023 15:16:27 +0200
-Message-Id: <20230424131134.007302429@linuxfoundation.org>
+Message-Id: <20230424131136.336155077@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,77 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Marc Gonzalez <mgonzalez@freebox.fr>
 
-[ Upstream commit 7284a3943909606016128b79fb18dd107bc0fe26 ]
+[ Upstream commit aec4353114a408b3a831a22ba34942d05943e462 ]
 
-Use "okay" instead of "ok" in USB nodes as "ok" is deprecated.
+According to S905X2 Datasheet - Revision 07:
+DRAM Memory Controller (DMC) register area spans ff638000-ff63a000.
 
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221107092930.33325-1-robimarko@gmail.com
-Stable-dep-of: 1dc40551f206 ("arm64: dts: qcom: ipq8074-hk10: enable QMP device, not the PHY node")
+According to DeviceTree Specification - Release v0.4-rc1:
+simple-bus nodes do not require reg property.
+
+Fixes: 1499218c80c99a ("arm64: dts: move common G12A & G12B modes to meson-g12-common.dtsi")
+Signed-off-by: Marc Gonzalez <mgonzalez@freebox.fr>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20230327120932.2158389-2-mgonzalez@freebox.fr
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi b/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi
-index db4b87944cdf2..262b937e0bc62 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi
-@@ -22,7 +22,7 @@
- };
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+index c063a144e0e7b..ba36af9e20cf2 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+@@ -1571,10 +1571,9 @@
  
- &blsp1_spi1 {
--	status = "ok";
-+	status = "okay";
+ 			dmc: bus@38000 {
+ 				compatible = "simple-bus";
+-				reg = <0x0 0x38000 0x0 0x400>;
+ 				#address-cells = <2>;
+ 				#size-cells = <2>;
+-				ranges = <0x0 0x0 0x0 0x38000 0x0 0x400>;
++				ranges = <0x0 0x0 0x0 0x38000 0x0 0x2000>;
  
- 	flash@0 {
- 		#address-cells = <1>;
-@@ -34,33 +34,33 @@
- };
- 
- &blsp1_uart5 {
--	status = "ok";
-+	status = "okay";
- };
- 
- &pcie0 {
--	status = "ok";
-+	status = "okay";
- 	perst-gpios = <&tlmm 58 0x1>;
- };
- 
- &pcie1 {
--	status = "ok";
-+	status = "okay";
- 	perst-gpios = <&tlmm 61 0x1>;
- };
- 
- &pcie_phy0 {
--	status = "ok";
-+	status = "okay";
- };
- 
- &pcie_phy1 {
--	status = "ok";
-+	status = "okay";
- };
- 
- &qpic_bam {
--	status = "ok";
-+	status = "okay";
- };
- 
- &qpic_nand {
--	status = "ok";
-+	status = "okay";
- 
- 	nand@0 {
- 		reg = <0>;
+ 				canvas: video-lut@48 {
+ 					compatible = "amlogic,canvas";
 -- 
 2.39.2
 
