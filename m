@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0826ECE9B
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04966ECEC4
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbjDXNdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:33:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59612 "EHLO
+        id S232412AbjDXNfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:35:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232568AbjDXNde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:34 -0400
+        with ESMTP id S232427AbjDXNer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A714869F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84E883C9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1A1561E0A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7935C433D2;
-        Mon, 24 Apr 2023 13:33:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B655661E0A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD7ABC433EF;
+        Mon, 24 Apr 2023 13:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343196;
-        bh=IdxEnrIfq9hTKrt+8mXNMRtQp5DEACW2U8+nFUreq70=;
+        s=korg; t=1682343270;
+        bh=sDrfIErAicyDZUpipZ/r+VFClfAXtKMYjykpbQLNPe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cL/dQcWbHSjrlMz4mam8+t81O42MYVGaJxdWFdkskZZl2LTZlD8aDNUIh2dvP3zxr
-         0jzbWmXcBfBrAIIE4MDn0jvDo+IhkQHa70TWOxDrWptviYpplVbbjihl6aaD6/9UPw
-         qTigsfVqoB6CKDI6nnvhWSbrIjgtScrL8EQncxe4=
+        b=umTcFzSgzyuPcmLk8qeuo2QjH9HCVwhLdPLWbAE41g9g0uZkcRVHc06YquQPg0/Wc
+         SMxVfiud95TIPaxGXPJJDlOuiMmHoBQy6XbPcVERH5PEIhXoVX7ClUQSeXNPpJCoSN
+         c3x41JKQcCOwmLTLGpm9WJ7SE/gbSHa6CK9DmhKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Laight <David.Laight@aculab.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 6.2 100/110] PCI/MSI: Remove over-zealous hardware size check in pci_msix_validate_entries()
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 31/68] nilfs2: initialize unused bytes in segment summary blocks
 Date:   Mon, 24 Apr 2023 15:18:02 +0200
-Message-Id: <20230424131140.316756595@linuxfoundation.org>
+Message-Id: <20230424131128.849530958@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit e3c026be4d3ca046799fde55ccbae9d0f059fb93 upstream.
+commit ef832747a82dfbc22a3702219cc716f449b24e4a upstream.
 
-pci_msix_validate_entries() validates the entries array which is handed in
-by the caller for a MSI-X interrupt allocation. Aside of consistency
-failures it also detects a failure when the size of the MSI-X hardware table
-in the device is smaller than the size of the entries array.
+Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
+KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
+initialize "struct nilfs_binfo_dat"->bi_pad field").
 
-That's wrong for the case of range allocations where the caller provides
-the minimum and the maximum number of vectors to allocate, when the
-hardware size is greater or equal than the mininum, but smaller than the
-maximum.
+This is because the unused bytes at the end of each block in segment
+summaries are not initialized.  So this fixes the issue by padding the
+unused bytes with null bytes.
 
-Remove the hardware size check completely from that function and just
-ensure that the entires array up to the maximum size is consistent.
-
-The limitation and range checking versus the hardware size happens
-independently of that afterwards anyway because the entries array is
-optional.
-
-Fixes: 4644d22eb673 ("PCI/MSI: Validate MSI-X contiguous restriction early")
-Reported-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87v8i3sg62.ffs@tglx
+Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
+  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
+Cc: Alexander Potapenko <glider@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi/msi.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ fs/nilfs2/segment.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
-index 1f716624ca56..ef1d8857a51b 100644
---- a/drivers/pci/msi/msi.c
-+++ b/drivers/pci/msi/msi.c
-@@ -750,8 +750,7 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
- 	return ret;
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -435,6 +435,23 @@ static int nilfs_segctor_reset_segment_b
+ 	return 0;
  }
  
--static bool pci_msix_validate_entries(struct pci_dev *dev, struct msix_entry *entries,
--				      int nvec, int hwsize)
-+static bool pci_msix_validate_entries(struct pci_dev *dev, struct msix_entry *entries, int nvec)
++/**
++ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
++ * @sci: segment constructor object
++ *
++ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
++ * the current segment summary block.
++ */
++static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
++{
++	struct nilfs_segsum_pointer *ssp;
++
++	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
++	if (ssp->offset < ssp->bh->b_size)
++		memset(ssp->bh->b_data + ssp->offset, 0,
++		       ssp->bh->b_size - ssp->offset);
++}
++
+ static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
  {
- 	bool nogap;
- 	int i, j;
-@@ -762,10 +761,6 @@ static bool pci_msix_validate_entries(struct pci_dev *dev, struct msix_entry *en
- 	nogap = pci_msi_domain_supports(dev, MSI_FLAG_MSIX_CONTIGUOUS, DENY_LEGACY);
+ 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
+@@ -443,6 +460,7 @@ static int nilfs_segctor_feed_segment(st
+ 				* The current segment is filled up
+ 				* (internal code)
+ 				*/
++	nilfs_segctor_zeropad_segsum(sci);
+ 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
+ 	return nilfs_segctor_reset_segment_buffer(sci);
+ }
+@@ -547,6 +565,7 @@ static int nilfs_segctor_add_file_block(
+ 		goto retry;
+ 	}
+ 	if (unlikely(required)) {
++		nilfs_segctor_zeropad_segsum(sci);
+ 		err = nilfs_segbuf_extend_segsum(segbuf);
+ 		if (unlikely(err))
+ 			goto failed;
+@@ -1536,6 +1555,7 @@ static int nilfs_segctor_collect(struct
+ 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
+ 		sci->sc_stage = prev_stage;
+ 	}
++	nilfs_segctor_zeropad_segsum(sci);
+ 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
+ 	return 0;
  
- 	for (i = 0; i < nvec; i++) {
--		/* Entry within hardware limit? */
--		if (entries[i].entry >= hwsize)
--			return false;
--
- 		/* Check for duplicate entries */
- 		for (j = i + 1; j < nvec; j++) {
- 			if (entries[i].entry == entries[j].entry)
-@@ -805,7 +800,7 @@ int __pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries, int
- 	if (hwsize < 0)
- 		return hwsize;
- 
--	if (!pci_msix_validate_entries(dev, entries, nvec, hwsize))
-+	if (!pci_msix_validate_entries(dev, entries, nvec))
- 		return -EINVAL;
- 
- 	if (hwsize < nvec) {
--- 
-2.40.0
-
 
 
