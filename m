@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF7E16ECD93
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B626ECE1C
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232067AbjDXNYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+        id S232370AbjDXN3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:29:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232113AbjDXNYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:31 -0400
+        with ESMTP id S232417AbjDXN3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:29:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228DD4EE1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18CA16E8E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B16E162277
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C736FC433EF;
-        Mon, 24 Apr 2023 13:24:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA1E2622CD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090AAC433D2;
+        Mon, 24 Apr 2023 13:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342669;
-        bh=6fshdmpTvInoVnQjRBQ66SBVadwV04JODMRb0gT0C/U=;
+        s=korg; t=1682342935;
+        bh=qBTaYwrt2V73k97S4aKULoUNq+9QFKdrDVvysN9H0PQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qeh9ldQ0nrb5zZmuklJQc/yF1E0rUCJzuFl72PtSvLU3jmDvSk1u1npXMHSNEvDCl
-         v5zW58F7Uf+hkLJcp66x/c2HmAj8YeFYK1X3DOzVS9Ue0X6MonOb+Mu8fGqx1EG9LS
-         ua9BdiMKEFvdMRaLCseAvJfR8tT0A6n1/SHXPx0U=
+        b=p/2iFd5sG73mF+UF+umlTlOo5US1U/rsSNcjLUCwQXt+jhNnJFeiEn4Ykvx1H/2f7
+         Yhtw1FK4ZBAkXS50yJWJ5x7KykV7HhzAbVEP6KR2Ks+8iDGHaCh2gSWBZDmkT6bRnc
+         Ifa+TzHgiogTGSET2nXCitetXtWSlRb3A7q6pa0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miguel Ojeda <ojeda@kernel.org>,
-        Patrick Blass <patrickblass@mailbox.org>,
-        Vincenzo Palazzo <vincenzopalazzodev@gmail.com>,
+        patches@lists.linux.dev,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 13/98] rust: str: fix requierments->requirements typo
-Date:   Mon, 24 Apr 2023 15:16:36 +0200
-Message-Id: <20230424131134.386956205@linuxfoundation.org>
+Subject: [PATCH 6.2 015/110] regulator: fan53555: Explicitly include bits header
+Date:   Mon, 24 Apr 2023 15:16:37 +0200
+Message-Id: <20230424131136.684942188@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,37 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Blass <patrickblass@mailbox.org>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-[ Upstream commit 88e8c2ec4ab84f9f05ed5af9693a3972baf386c4 ]
+[ Upstream commit 4fb9a5060f73627303bc531ceaab1b19d0a24aef ]
 
-Fix a trivial spelling error in the `rust/kernel/str.rs` file.
+Since commit f2a9eb975ab2 ("regulator: fan53555: Add support for
+FAN53526") the driver makes use of the BIT() macro, but relies on the
+bits header being implicitly included.
 
-Fixes: 247b365dc8dc ("rust: add `kernel` crate")
-Reported-by: Miguel Ojeda <ojeda@kernel.org>
-Link: https://github.com/Rust-for-Linux/linux/issues/978
-Signed-off-by: Patrick Blass <patrickblass@mailbox.org>
-Reviewed-by: Vincenzo Palazzo <vincenzopalazzodev@gmail.com>
-[Reworded slightly]
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Explicitly pull the header in to avoid potential build failures in some
+configurations.
+
+While here, reorder include directives alphabetically.
+
+Fixes: f2a9eb975ab2 ("regulator: fan53555: Add support for FAN53526")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Link: https://lore.kernel.org/r/20230406171806.948290-3-cristian.ciocaltea@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- rust/kernel/str.rs | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/fan53555.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/rust/kernel/str.rs b/rust/kernel/str.rs
-index e45ff220ae50f..2c4b4bac28f42 100644
---- a/rust/kernel/str.rs
-+++ b/rust/kernel/str.rs
-@@ -29,7 +29,7 @@ impl RawFormatter {
-     /// If `pos` is less than `end`, then the region between `pos` (inclusive) and `end`
-     /// (exclusive) must be valid for writes for the lifetime of the returned [`RawFormatter`].
-     pub(crate) unsafe fn from_ptrs(pos: *mut u8, end: *mut u8) -> Self {
--        // INVARIANT: The safety requierments guarantee the type invariants.
-+        // INVARIANT: The safety requirements guarantee the type invariants.
-         Self {
-             beg: pos as _,
-             pos: pos as _,
+diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
+index 529963a7e4f52..45f07d2ad1c58 100644
+--- a/drivers/regulator/fan53555.c
++++ b/drivers/regulator/fan53555.c
+@@ -8,18 +8,19 @@
+ // Copyright (c) 2012 Marvell Technology Ltd.
+ // Yunfan Zhang <yfzhang@marvell.com>
+ 
++#include <linux/bits.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/param.h>
+-#include <linux/err.h>
+ #include <linux/platform_device.h>
++#include <linux/regmap.h>
+ #include <linux/regulator/driver.h>
++#include <linux/regulator/fan53555.h>
+ #include <linux/regulator/machine.h>
+ #include <linux/regulator/of_regulator.h>
+-#include <linux/of_device.h>
+-#include <linux/i2c.h>
+ #include <linux/slab.h>
+-#include <linux/regmap.h>
+-#include <linux/regulator/fan53555.h>
+ 
+ /* Voltage setting */
+ #define FAN53555_VSEL0		0x00
 -- 
 2.39.2
 
