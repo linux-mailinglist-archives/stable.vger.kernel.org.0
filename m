@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDCB66ECDFB
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CABE6ECEB0
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbjDXN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
+        id S232623AbjDXNeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232269AbjDXN2m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB986A79
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:26 -0700 (PDT)
+        with ESMTP id S232558AbjDXNdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FFE76A0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5256C61A70
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64FDDC433D2;
-        Mon, 24 Apr 2023 13:28:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B1AE61EA1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F96C4339C;
+        Mon, 24 Apr 2023 13:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342903;
-        bh=M/ivO5pI7G9LXL9+kVD7pmfUQ4U4ZOCF/yqIMrUNrRw=;
+        s=korg; t=1682343225;
+        bh=tQmjXt9Cc7Z6kWHWMyjev3Vj4rxIBivhPAu7q7T9ULg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=15vk2BwtYhsTANQTmr7PiCWr35XskyIOfTGviD68dmj4vlEGaSvGyjHVwRTVg769M
-         ZhQPd50vZpJBkNQtpvwbG2iPpxR0mQJBdFb6mhwA/xHBTpD70vt5PglGc3tcUjQsa+
-         lW6VJ0l4x6o+w+/Nh5paqEBUQtAMULd/aTvdRQwg=
+        b=MXN4SMNHxDQ7pG9iwL+VmfSPia7ljYGipDraMfLMmOUqSrhklfK5cpyu1s8vYy0L8
+         FkKb801fk+2ZdgFs/+oqITogIbv1pFTHcAgE8Uy60Xo+gQfWreLL8ymJym0QUJiv4k
+         9/08l99Jb1AgZkGzZD2dhxcTrt0cB2xX4rIgsqxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mostafa Saleh <smostafa@google.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oliver.upton@linux.dev>
-Subject: [PATCH 6.1 82/98] KVM: arm64: Make vcpu flag updates non-preemptible
+        patches@lists.linux.dev,
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Natalia Petrova <n.petrova@fintech.ru>
+Subject: [PATCH 5.10 14/68] mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
 Date:   Mon, 24 Apr 2023 15:17:45 +0200
-Message-Id: <20230424131137.054394553@linuxfoundation.org>
+Message-Id: <20230424131128.219540591@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,91 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-commit 35dcb3ac663a16510afc27ba2725d70c15e012a5 upstream.
+[ Upstream commit c0e73276f0fcbbd3d4736ba975d7dc7a48791b0c ]
 
-Per-vcpu flags are updated using a non-atomic RMW operation.
-Which means it is possible to get preempted between the read and
-write operations.
+Function mlxfw_mfa2_tlv_multi_get() returns NULL if 'tlv' in
+question does not pass checks in mlxfw_mfa2_tlv_payload_get(). This
+behaviour may lead to NULL pointer dereference in 'multi->total_len'.
+Fix this issue by testing mlxfw_mfa2_tlv_multi_get()'s return value
+against NULL.
 
-Another interesting thing to note is that preemption also updates
-flags, as we have some flag manipulation in both the load and put
-operations.
+Found by Linux Verification Center (linuxtesting.org) with static
+analysis tool SVACE.
 
-It is thus possible to lose information communicated by either
-load or put, as the preempted flag update will overwrite the flags
-when the thread is resumed. This is specially critical if either
-load or put has stored information which depends on the physical
-CPU the vcpu runs on.
-
-This results in really elusive bugs, and kudos must be given to
-Mostafa for the long hours of debugging, and finally spotting
-the problem.
-
-Fix it by disabling preemption during the RMW operation, which
-ensures that the state stays consistent. Also upgrade vcpu_get_flag
-path to use READ_ONCE() to make sure the field is always atomically
-accessed.
-
-Fixes: e87abb73e594 ("KVM: arm64: Add helpers to manipulate vcpu flags among a set")
-Reported-by: Mostafa Saleh <smostafa@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230418125737.2327972-1-maz@kernel.org
-Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
+Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20230417120718.52325-1-n.zhandarovich@fintech.ru
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/kvm_host.h |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -449,9 +449,22 @@ struct kvm_vcpu_arch {
- 	({							\
- 		__build_check_flag(v, flagset, f, m);		\
- 								\
--		v->arch.flagset & (m);				\
-+		READ_ONCE(v->arch.flagset) & (m);		\
- 	})
+diff --git a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
+index 017d68f1e1232..972c571b41587 100644
+--- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
++++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
+@@ -31,6 +31,8 @@ mlxfw_mfa2_tlv_next(const struct mlxfw_mfa2_file *mfa2_file,
  
-+/*
-+ * Note that the set/clear accessors must be preempt-safe in order to
-+ * avoid nesting them with load/put which also manipulate flags...
-+ */
-+#ifdef __KVM_NVHE_HYPERVISOR__
-+/* the nVHE hypervisor is always non-preemptible */
-+#define __vcpu_flags_preempt_disable()
-+#define __vcpu_flags_preempt_enable()
-+#else
-+#define __vcpu_flags_preempt_disable()	preempt_disable()
-+#define __vcpu_flags_preempt_enable()	preempt_enable()
-+#endif
-+
- #define __vcpu_set_flag(v, flagset, f, m)			\
- 	do {							\
- 		typeof(v->arch.flagset) *fset;			\
-@@ -459,9 +472,11 @@ struct kvm_vcpu_arch {
- 		__build_check_flag(v, flagset, f, m);		\
- 								\
- 		fset = &v->arch.flagset;			\
-+		__vcpu_flags_preempt_disable();			\
- 		if (HWEIGHT(m) > 1)				\
- 			*fset &= ~(m);				\
- 		*fset |= (f);					\
-+		__vcpu_flags_preempt_enable();			\
- 	} while (0)
+ 	if (tlv->type == MLXFW_MFA2_TLV_MULTI_PART) {
+ 		multi = mlxfw_mfa2_tlv_multi_get(mfa2_file, tlv);
++		if (!multi)
++			return NULL;
+ 		tlv_len = NLA_ALIGN(tlv_len + be16_to_cpu(multi->total_len));
+ 	}
  
- #define __vcpu_clear_flag(v, flagset, f, m)			\
-@@ -471,7 +486,9 @@ struct kvm_vcpu_arch {
- 		__build_check_flag(v, flagset, f, m);		\
- 								\
- 		fset = &v->arch.flagset;			\
-+		__vcpu_flags_preempt_disable();			\
- 		*fset &= ~(m);					\
-+		__vcpu_flags_preempt_enable();			\
- 	} while (0)
- 
- #define vcpu_get_flag(v, ...)	__vcpu_get_flag((v), __VA_ARGS__)
+-- 
+2.39.2
+
 
 
