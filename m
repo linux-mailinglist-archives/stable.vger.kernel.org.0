@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F136ECD68
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C261A6ECDC0
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbjDXNXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
+        id S232206AbjDXN0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232120AbjDXNXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B3D5242
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:52 -0700 (PDT)
+        with ESMTP id S232171AbjDXN0Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4CDD5FFA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D40861E8D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBB6C433D2;
-        Mon, 24 Apr 2023 13:22:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53AE66229C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68785C433EF;
+        Mon, 24 Apr 2023 13:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342571;
-        bh=aWZlkEGYhdWaxC+yANlPuJJ2zwW0m//lhVBSIEskhnA=;
+        s=korg; t=1682342782;
+        bh=7Tai9VoDSP3fnzBapK+Q5uGS9uodF8uxdlqNPTTUOZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQauSNWuN9R2f1bvrOzwBaNSfTtaV9IvBQY8wxnEeB5Q1+FTKCVIXKE7+xULZsiBF
-         Z7F1GFu+ZO4Lj+Tj/UUOATdLNgHcTN6GzNdk3ayTJGeed5ciw/piXa/JVCQpmIc+nG
-         mytPHaZe61AwRQVk8CZxNkYrspPrk3dDpVvQgl7k=
+        b=TBWfuolH0xFItfGTUIHBtVMgN58r/Z8X8ifW2XR7YUq8Aq69avY7QaT9O40TXOoyS
+         TEecXNCtALwXqqDZu5f/piiVw3cLs7SeBOLAjjit2b62c0iuugienjIs2uZz6ahP0P
+         KGM/DfZIFZSF1GAfE717kdYIU/JfD6xduRlDPP/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/39] scsi: megaraid_sas: Fix fw_crash_buffer_show()
+        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>
+Subject: [PATCH 6.1 56/98] LoongArch: Fix probing of the CRC32 feature
 Date:   Mon, 24 Apr 2023 15:17:19 +0200
-Message-Id: <20230424131123.663971811@linuxfoundation.org>
+Message-Id: <20230424131136.033362305@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,36 +52,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-[ Upstream commit 0808ed6ebbc292222ca069d339744870f6d801da ]
+commit df830336045db1246d3245d3737fee9939c5f731 upstream.
 
-If crash_dump_buf is not allocated then crash dump can't be available.
-Replace logical 'and' with 'or'.
+Not all LoongArch processors support CRC32 instructions. This feature
+is indicated by CPUCFG1.CRC32 (Bit25) but it is wrongly defined in the
+previous versions of the ISA manual (and so does in loongarch.h). The
+CRC32 feature is set unconditionally now, so fix it.
 
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230324135249.9733-1-thenzl@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BTW, expose the CRC32 feature in /proc/cpuinfo.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/loongarch/include/asm/cpu-features.h |    1 
+ arch/loongarch/include/asm/cpu.h          |   40 +++++++++++++++---------------
+ arch/loongarch/include/asm/loongarch.h    |    2 -
+ arch/loongarch/kernel/cpu-probe.c         |    7 ++++-
+ arch/loongarch/kernel/proc.c              |    1 
+ 5 files changed, 30 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index a261ce511e9ed..617148567d8d7 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -3235,7 +3235,7 @@ fw_crash_buffer_show(struct device *cdev,
+--- a/arch/loongarch/include/asm/cpu-features.h
++++ b/arch/loongarch/include/asm/cpu-features.h
+@@ -42,6 +42,7 @@
+ #define cpu_has_fpu		cpu_opt(LOONGARCH_CPU_FPU)
+ #define cpu_has_lsx		cpu_opt(LOONGARCH_CPU_LSX)
+ #define cpu_has_lasx		cpu_opt(LOONGARCH_CPU_LASX)
++#define cpu_has_crc32		cpu_opt(LOONGARCH_CPU_CRC32)
+ #define cpu_has_complex		cpu_opt(LOONGARCH_CPU_COMPLEX)
+ #define cpu_has_crypto		cpu_opt(LOONGARCH_CPU_CRYPTO)
+ #define cpu_has_lvz		cpu_opt(LOONGARCH_CPU_LVZ)
+--- a/arch/loongarch/include/asm/cpu.h
++++ b/arch/loongarch/include/asm/cpu.h
+@@ -78,25 +78,26 @@ enum cpu_type_enum {
+ #define CPU_FEATURE_FPU			3	/* CPU has FPU */
+ #define CPU_FEATURE_LSX			4	/* CPU has LSX (128-bit SIMD) */
+ #define CPU_FEATURE_LASX		5	/* CPU has LASX (256-bit SIMD) */
+-#define CPU_FEATURE_COMPLEX		6	/* CPU has Complex instructions */
+-#define CPU_FEATURE_CRYPTO		7	/* CPU has Crypto instructions */
+-#define CPU_FEATURE_LVZ			8	/* CPU has Virtualization extension */
+-#define CPU_FEATURE_LBT_X86		9	/* CPU has X86 Binary Translation */
+-#define CPU_FEATURE_LBT_ARM		10	/* CPU has ARM Binary Translation */
+-#define CPU_FEATURE_LBT_MIPS		11	/* CPU has MIPS Binary Translation */
+-#define CPU_FEATURE_TLB			12	/* CPU has TLB */
+-#define CPU_FEATURE_CSR			13	/* CPU has CSR */
+-#define CPU_FEATURE_WATCH		14	/* CPU has watchpoint registers */
+-#define CPU_FEATURE_VINT		15	/* CPU has vectored interrupts */
+-#define CPU_FEATURE_CSRIPI		16	/* CPU has CSR-IPI */
+-#define CPU_FEATURE_EXTIOI		17	/* CPU has EXT-IOI */
+-#define CPU_FEATURE_PREFETCH		18	/* CPU has prefetch instructions */
+-#define CPU_FEATURE_PMP			19	/* CPU has perfermance counter */
+-#define CPU_FEATURE_SCALEFREQ		20	/* CPU supports cpufreq scaling */
+-#define CPU_FEATURE_FLATMODE		21	/* CPU has flat mode */
+-#define CPU_FEATURE_EIODECODE		22	/* CPU has EXTIOI interrupt pin decode mode */
+-#define CPU_FEATURE_GUESTID		23	/* CPU has GuestID feature */
+-#define CPU_FEATURE_HYPERVISOR		24	/* CPU has hypervisor (running in VM) */
++#define CPU_FEATURE_CRC32		6	/* CPU has CRC32 instructions */
++#define CPU_FEATURE_COMPLEX		7	/* CPU has Complex instructions */
++#define CPU_FEATURE_CRYPTO		8	/* CPU has Crypto instructions */
++#define CPU_FEATURE_LVZ			9	/* CPU has Virtualization extension */
++#define CPU_FEATURE_LBT_X86		10	/* CPU has X86 Binary Translation */
++#define CPU_FEATURE_LBT_ARM		11	/* CPU has ARM Binary Translation */
++#define CPU_FEATURE_LBT_MIPS		12	/* CPU has MIPS Binary Translation */
++#define CPU_FEATURE_TLB			13	/* CPU has TLB */
++#define CPU_FEATURE_CSR			14	/* CPU has CSR */
++#define CPU_FEATURE_WATCH		15	/* CPU has watchpoint registers */
++#define CPU_FEATURE_VINT		16	/* CPU has vectored interrupts */
++#define CPU_FEATURE_CSRIPI		17	/* CPU has CSR-IPI */
++#define CPU_FEATURE_EXTIOI		18	/* CPU has EXT-IOI */
++#define CPU_FEATURE_PREFETCH		19	/* CPU has prefetch instructions */
++#define CPU_FEATURE_PMP			20	/* CPU has perfermance counter */
++#define CPU_FEATURE_SCALEFREQ		21	/* CPU supports cpufreq scaling */
++#define CPU_FEATURE_FLATMODE		22	/* CPU has flat mode */
++#define CPU_FEATURE_EIODECODE		23	/* CPU has EXTIOI interrupt pin decode mode */
++#define CPU_FEATURE_GUESTID		24	/* CPU has GuestID feature */
++#define CPU_FEATURE_HYPERVISOR		25	/* CPU has hypervisor (running in VM) */
  
- 	spin_lock_irqsave(&instance->crashdump_lock, flags);
- 	buff_offset = instance->fw_crash_buffer_offset;
--	if (!instance->crash_dump_buf &&
-+	if (!instance->crash_dump_buf ||
- 		!((instance->fw_crash_state == AVAILABLE) ||
- 		(instance->fw_crash_state == COPYING))) {
- 		dev_err(&instance->pdev->dev,
--- 
-2.39.2
-
+ #define LOONGARCH_CPU_CPUCFG		BIT_ULL(CPU_FEATURE_CPUCFG)
+ #define LOONGARCH_CPU_LAM		BIT_ULL(CPU_FEATURE_LAM)
+@@ -104,6 +105,7 @@ enum cpu_type_enum {
+ #define LOONGARCH_CPU_FPU		BIT_ULL(CPU_FEATURE_FPU)
+ #define LOONGARCH_CPU_LSX		BIT_ULL(CPU_FEATURE_LSX)
+ #define LOONGARCH_CPU_LASX		BIT_ULL(CPU_FEATURE_LASX)
++#define LOONGARCH_CPU_CRC32		BIT_ULL(CPU_FEATURE_CRC32)
+ #define LOONGARCH_CPU_COMPLEX		BIT_ULL(CPU_FEATURE_COMPLEX)
+ #define LOONGARCH_CPU_CRYPTO		BIT_ULL(CPU_FEATURE_CRYPTO)
+ #define LOONGARCH_CPU_LVZ		BIT_ULL(CPU_FEATURE_LVZ)
+--- a/arch/loongarch/include/asm/loongarch.h
++++ b/arch/loongarch/include/asm/loongarch.h
+@@ -117,7 +117,7 @@ static inline u32 read_cpucfg(u32 reg)
+ #define  CPUCFG1_EP			BIT(22)
+ #define  CPUCFG1_RPLV			BIT(23)
+ #define  CPUCFG1_HUGEPG			BIT(24)
+-#define  CPUCFG1_IOCSRBRD		BIT(25)
++#define  CPUCFG1_CRC32			BIT(25)
+ #define  CPUCFG1_MSGINT			BIT(26)
+ 
+ #define LOONGARCH_CPUCFG2		0x2
+--- a/arch/loongarch/kernel/cpu-probe.c
++++ b/arch/loongarch/kernel/cpu-probe.c
+@@ -94,13 +94,18 @@ static void cpu_probe_common(struct cpui
+ 	c->options = LOONGARCH_CPU_CPUCFG | LOONGARCH_CPU_CSR |
+ 		     LOONGARCH_CPU_TLB | LOONGARCH_CPU_VINT | LOONGARCH_CPU_WATCH;
+ 
+-	elf_hwcap = HWCAP_LOONGARCH_CPUCFG | HWCAP_LOONGARCH_CRC32;
++	elf_hwcap = HWCAP_LOONGARCH_CPUCFG;
+ 
+ 	config = read_cpucfg(LOONGARCH_CPUCFG1);
+ 	if (config & CPUCFG1_UAL) {
+ 		c->options |= LOONGARCH_CPU_UAL;
+ 		elf_hwcap |= HWCAP_LOONGARCH_UAL;
+ 	}
++	if (config & CPUCFG1_CRC32) {
++		c->options |= LOONGARCH_CPU_CRC32;
++		elf_hwcap |= HWCAP_LOONGARCH_CRC32;
++	}
++
+ 
+ 	config = read_cpucfg(LOONGARCH_CPUCFG2);
+ 	if (config & CPUCFG2_LAM) {
+--- a/arch/loongarch/kernel/proc.c
++++ b/arch/loongarch/kernel/proc.c
+@@ -76,6 +76,7 @@ static int show_cpuinfo(struct seq_file
+ 	if (cpu_has_fpu)	seq_printf(m, " fpu");
+ 	if (cpu_has_lsx)	seq_printf(m, " lsx");
+ 	if (cpu_has_lasx)	seq_printf(m, " lasx");
++	if (cpu_has_crc32)	seq_printf(m, " crc32");
+ 	if (cpu_has_complex)	seq_printf(m, " complex");
+ 	if (cpu_has_crypto)	seq_printf(m, " crypto");
+ 	if (cpu_has_lvz)	seq_printf(m, " lvz");
 
 
