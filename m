@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DFD6ECD97
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D076ECD11
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232069AbjDXNYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
+        id S231168AbjDXNUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232082AbjDXNYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED8C59E2
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:24:40 -0700 (PDT)
+        with ESMTP id S231951AbjDXNUI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FC84EEF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:19:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 437EC62298
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 543CAC433D2;
-        Mon, 24 Apr 2023 13:24:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8BBE621F1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB688C433EF;
+        Mon, 24 Apr 2023 13:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342679;
-        bh=iEnoOyrfJmVzWByObJ0iNeWO81kRO9kmFeUQPdN/R8c=;
+        s=korg; t=1682342391;
+        bh=Dk0087MjNMnAb6mmrt5pu3NZJZRoB50AXxNYUetIo5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJ2AxEIEKoEsdcYCfNvxx96mSkRVUbSB0kLnCV0xEFVr3FGBSB5hlgmsU1y9Vhwyn
-         WnZ5V8PP25GyCRKU5MxYjjomFx5B96/0tN9vEbX1oZhATuNHFgkzNpSElVWKT/5r9Z
-         VdobXtzs7/lU0DPrz58VjHtgGqQyGjoYEk+mJK3g=
+        b=sFtxZvOMce+yJJo0F0Bae7BfXic/970MvR9qpBxPZdASZ2ZiD9Hewc04FiuLHUzP4
+         t+68AHyxFvMCIYxUdvi+vcYb9+uhvANOs8rAQX4AefafiQN3ETECR5y/0yUSm1EHaj
+         GQP0iJC0kg/WUAkeHLozFzWepg84CTvFiKfs3ELE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 05/98] arm64: dts: qcom: ipq8074-hk10: enable QMP device, not the PHY node
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 5.15 14/73] i40e: fix i40e_setup_misc_vector() error handling
 Date:   Mon, 24 Apr 2023 15:16:28 +0200
-Message-Id: <20230424131134.038215374@linuxfoundation.org>
+Message-Id: <20230424131129.548609909@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,42 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit 1dc40551f206d20b7e46ea7dd538dcdd928451c6 ]
+[ Upstream commit c86c00c6935505929cc9adb29ddb85e48c71f828 ]
 
-Correct PCIe PHY enablement to refer the QMP device nodes rather than
-PHY device nodes. QMP nodes have 'status = "disabled"' property in the
-ipq8074.dtsi, while PHY nodes do not correspond to the actual device and
-do not have the status property.
+Add error handling of i40e_setup_misc_vector() in i40e_rebuild().
+In case interrupt vectors setup fails do not re-open vsi-s and
+do not bring up vf-s, we have no interrupts to serve a traffic
+anyway.
 
-Fixes: 1ed34da63a37 ("arm64: dts: qcom: Add board support for HK10")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230324021651.1799969-2-dmitry.baryshkov@linaro.org
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi b/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi
-index 262b937e0bc62..a695686afadfc 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi
-@@ -47,11 +47,11 @@
- 	perst-gpios = <&tlmm 61 0x1>;
- };
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index cafbabc687565..3ebd589e56b5b 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -10923,8 +10923,11 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 					     pf->hw.aq.asq_last_status));
+ 	}
+ 	/* reinit the misc interrupt */
+-	if (pf->flags & I40E_FLAG_MSIX_ENABLED)
++	if (pf->flags & I40E_FLAG_MSIX_ENABLED) {
+ 		ret = i40e_setup_misc_vector(pf);
++		if (ret)
++			goto end_unlock;
++	}
  
--&pcie_phy0 {
-+&pcie_qmp0 {
- 	status = "okay";
- };
- 
--&pcie_phy1 {
-+&pcie_qmp1 {
- 	status = "okay";
- };
- 
+ 	/* Add a filter to drop all Flow control frames from any VSI from being
+ 	 * transmitted. By doing so we stop a malicious VF from sending out
 -- 
 2.39.2
 
