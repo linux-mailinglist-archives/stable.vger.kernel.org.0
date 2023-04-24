@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A9F6ECDCC
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5174A6ECD76
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232223AbjDXN0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:26:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53440 "EHLO
+        id S232146AbjDXNXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232215AbjDXN0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99707618B
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:52 -0700 (PDT)
+        with ESMTP id S232034AbjDXNX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C334F59DB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 326ED622D7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F07C433EF;
-        Mon, 24 Apr 2023 13:26:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59413621EF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C142C433D2;
+        Mon, 24 Apr 2023 13:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342811;
-        bh=f+RfwfcYOEofk3mFyHM16hFlSGfFoGNS42yTFlfIl4U=;
+        s=korg; t=1682342600;
+        bh=W0+G7JCCa9E+xKCgvOsw7cNCZI/uAk2RgAcSNY+2Tr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwtXe4sJvHYEXuzcGkLeyqcTZ0AQnbxrjCguimw4dv+1mqINUnuulnNOSlHM/rVMv
-         Rbo67IK9syn9FbpnPGw5NVJK+is9wTMOFAnmLTajbMNIUAzBZPywpxOC4NNvbGEysN
-         2FQXHrUP5Q+o2h/Ft6MgXjKgA66Kk+xINz4KsUXM=
+        b=ZXh6bH1FYlxeT+G8ic5VOGCej+3gxBFesa/ehcHNR5Q9PGIRNz6UUFJGpX6I383Hm
+         6uhxqglnPDOzS6UA84OC+jC3ImojiyRCc5juPuQJIYiZ91wQk8jJRrEYnCDdmhNqmu
+         69UpEayCeNElOpmU7zRUWTfgDEflWlx+DmCA411M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bhavya Kapoor <b-kapoor@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.1 66/98] mmc: sdhci_am654: Set HIGH_SPEED_ENA for SDR12 and SDR25
+        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.4 26/39] MIPS: Define RUNTIME_DISCARD_EXIT in LD script
 Date:   Mon, 24 Apr 2023 15:17:29 +0200
-Message-Id: <20230424131136.396648676@linuxfoundation.org>
+Message-Id: <20230424131124.054902950@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,35 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhavya Kapoor <b-kapoor@ti.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-commit 2265098fd6a6272fde3fd1be5761f2f5895bd99a upstream.
+commit 6dcbd0a69c84a8ae7a442840a8cf6b1379dc8f16 upstream.
 
-Timing Information in Datasheet assumes that HIGH_SPEED_ENA=1 should be
-set for SDR12 and SDR25 modes. But sdhci_am654 driver clears
-HIGH_SPEED_ENA register. Thus, Modify sdhci_am654 to not clear
-HIGH_SPEED_ENA (HOST_CONTROL[2]) bit for SDR12 and SDR25 speed modes.
+MIPS's exit sections are discarded at runtime as well.
 
-Fixes: e374e87538f4 ("mmc: sdhci_am654: Clear HISPD_ENA in some lower speed modes")
-Signed-off-by: Bhavya Kapoor <b-kapoor@ti.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230317092711.660897-1-b-kapoor@ti.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes link error:
+`.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
+defined in discarded section `.exit.text' of fs/fuse/inode.o
+
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci_am654.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/mips/kernel/vmlinux.lds.S |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mmc/host/sdhci_am654.c
-+++ b/drivers/mmc/host/sdhci_am654.c
-@@ -351,8 +351,6 @@ static void sdhci_am654_write_b(struct s
- 		 */
- 		case MMC_TIMING_SD_HS:
- 		case MMC_TIMING_MMC_HS:
--		case MMC_TIMING_UHS_SDR12:
--		case MMC_TIMING_UHS_SDR25:
- 			val &= ~SDHCI_CTRL_HISPD;
- 		}
- 	}
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -10,6 +10,8 @@
+  */
+ #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
+ 
++#define RUNTIME_DISCARD_EXIT
++
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ #undef mips
 
 
