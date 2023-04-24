@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6A76ECF36
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C816ECF16
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232632AbjDXNjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
+        id S232664AbjDXNiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232680AbjDXNiy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:54 -0400
+        with ESMTP id S232659AbjDXNhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D337DAA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A727B83CB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D056461F10
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1DE2C433D2;
-        Mon, 24 Apr 2023 13:38:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79550623E3
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE7DC433D2;
+        Mon, 24 Apr 2023 13:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343503;
-        bh=VxlRdvRaKWGs2hp4JpaL5csVjfWIktAnD6+4t6eJlqE=;
+        s=korg; t=1682343444;
+        bh=wegdi/JDfRGu8EHJhCCM0Cv8OmE7QPWQ4UqhyOr5EPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8a5oUMDpB5g3sXHKWUDTi2df/4tpbA0hwIpvEa4vnzIV9sR6Xl/GTibICaVt7cev
-         QtHm5brHyypj/vmZ4ZSHKb37vBMLvv3g3oN7qwh2AbKwLsZzc09zoUNKHzdFWO05ZE
-         XrVMGy4d9YskLWjgW5nsLXf53fgIBmziGvGuyYvQ=
+        b=O1C+zmOnNsY8KhheRuqvdNlKTemzzdzQNt9KoQPx3BWsEUkK3tp+XJ50ttjf2Of7O
+         eSuUDewBzuSJR44cafdCzoCqa3eX2lLIaoxbmYwWoORPSW4/zj9tose7N+gelJNKcZ
+         Yeh5He4YCND+BYsWi/B16CM+mnGlkRH4HPGR5OCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 4.19 20/29] ext4: remove duplicate definition of ext4_xattr_ibody_inline_set()
-Date:   Mon, 24 Apr 2023 15:18:47 +0200
-Message-Id: <20230424131121.818078513@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 27/28] iio: adc: at91-sama5d2_adc: fix an error code in at91_adc_allocate_trigger()
+Date:   Mon, 24 Apr 2023 15:18:48 +0200
+Message-Id: <20230424131122.244541163@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
+In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
+References: <20230424131121.331252806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,126 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 310c097c2bdbea253d6ee4e064f3e65580ef93ac ]
+commit 73a428b37b9b538f8f8fe61caa45e7f243bab87c upstream.
 
-ext4_xattr_ibody_inline_set() & ext4_xattr_ibody_set() have the exact
-same definition.  Hence remove ext4_xattr_ibody_inline_set() and all
-its call references. Convert the callers of it to call
-ext4_xattr_ibody_set() instead.
+The at91_adc_allocate_trigger() function is supposed to return error
+pointers.  Returning a NULL will cause an Oops.
 
-[ Modified to preserve ext4_xattr_ibody_set() and remove
-  ext4_xattr_ibody_inline_set() instead. -- TYT ]
-
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/fd566b799bbbbe9b668eb5eecde5b5e319e3694f.1622685482.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Fixes: 5e1a1da0f8c9 ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Link: https://lore.kernel.org/r/5d728f9d-31d1-410d-a0b3-df6a63a2c8ba@kili.mountain
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inline.c |   11 +++++------
- fs/ext4/xattr.c  |   26 +-------------------------
- fs/ext4/xattr.h  |    6 +++---
- 3 files changed, 9 insertions(+), 34 deletions(-)
+ drivers/iio/adc/at91-sama5d2_adc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -206,7 +206,7 @@ out:
- /*
-  * write the buffer to the inline inode.
-  * If 'create' is set, we don't need to do the extra copy in the xattr
-- * value since it is already handled by ext4_xattr_ibody_inline_set.
-+ * value since it is already handled by ext4_xattr_ibody_set.
-  * That saves us one memcpy.
-  */
- static void ext4_write_inline_data(struct inode *inode, struct ext4_iloc *iloc,
-@@ -288,7 +288,7 @@ static int ext4_create_inline_data(handl
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -400,7 +400,7 @@ static struct iio_trigger *at91_adc_allo
+ 	trig = devm_iio_trigger_alloc(&indio->dev, "%s-dev%d-%s", indio->name,
+ 				      indio->id, trigger_name);
+ 	if (!trig)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
  
- 	BUG_ON(!is.s.not_found);
- 
--	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
-+	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 	if (error) {
- 		if (error == -ENOSPC)
- 			ext4_clear_inode_state(inode,
-@@ -360,7 +360,7 @@ static int ext4_update_inline_data(handl
- 	i.value = value;
- 	i.value_len = len;
- 
--	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
-+	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 	if (error)
- 		goto out;
- 
-@@ -433,7 +433,7 @@ static int ext4_destroy_inline_data_nolo
- 	if (error)
- 		goto out;
- 
--	error = ext4_xattr_ibody_inline_set(handle, inode, &i, &is);
-+	error = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 	if (error)
- 		goto out;
- 
-@@ -1977,8 +1977,7 @@ int ext4_inline_data_truncate(struct ino
- 			i.value = value;
- 			i.value_len = i_size > EXT4_MIN_INLINE_DATA_SIZE ?
- 					i_size - EXT4_MIN_INLINE_DATA_SIZE : 0;
--			err = ext4_xattr_ibody_inline_set(handle, inode,
--							  &i, &is);
-+			err = ext4_xattr_ibody_set(handle, inode, &i, &is);
- 			if (err)
- 				goto out_error;
- 		}
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2235,31 +2235,7 @@ int ext4_xattr_ibody_find(struct inode *
- 	return 0;
- }
- 
--int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
--				struct ext4_xattr_info *i,
--				struct ext4_xattr_ibody_find *is)
--{
--	struct ext4_xattr_ibody_header *header;
--	struct ext4_xattr_search *s = &is->s;
--	int error;
--
--	if (EXT4_I(inode)->i_extra_isize == 0)
--		return -ENOSPC;
--	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
--	if (error)
--		return error;
--	header = IHDR(inode, ext4_raw_inode(&is->iloc));
--	if (!IS_LAST_ENTRY(s->first)) {
--		header->h_magic = cpu_to_le32(EXT4_XATTR_MAGIC);
--		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
--	} else {
--		header->h_magic = cpu_to_le32(0);
--		ext4_clear_inode_state(inode, EXT4_STATE_XATTR);
--	}
--	return 0;
--}
--
--static int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
-+int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
- 				struct ext4_xattr_info *i,
- 				struct ext4_xattr_ibody_find *is)
- {
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -199,9 +199,9 @@ extern int ext4_xattr_ibody_find(struct
- extern int ext4_xattr_ibody_get(struct inode *inode, int name_index,
- 				const char *name,
- 				void *buffer, size_t buffer_size);
--extern int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
--				       struct ext4_xattr_info *i,
--				       struct ext4_xattr_ibody_find *is);
-+extern int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
-+				struct ext4_xattr_info *i,
-+				struct ext4_xattr_ibody_find *is);
- 
- extern struct mb_cache *ext4_xattr_create_cache(void);
- extern void ext4_xattr_destroy_cache(struct mb_cache *);
+ 	trig->dev.parent = indio->dev.parent;
+ 	iio_trigger_set_drvdata(trig, indio);
 
 
