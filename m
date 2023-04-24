@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6966ECD50
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C666ECD6C
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232088AbjDXNWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:22:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47456 "EHLO
+        id S232107AbjDXNXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:23:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232017AbjDXNWP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:15 -0400
+        with ESMTP id S232139AbjDXNXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF7C524F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E77103C35
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC3B76224E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06884C433EF;
-        Mon, 24 Apr 2023 13:21:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7CF461E88
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC2D4C433D2;
+        Mon, 24 Apr 2023 13:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342518;
-        bh=Xy04lTcwCXQA+V0WxsrcmIrehm6shhHmUmYBBUXXaTk=;
+        s=korg; t=1682342582;
+        bh=u5MAtom7aMBxXmGB0d/tRguCLrtjim4+5AOJ1HFaQ44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0PMaX3d7GYcZqS9Z/+dTVSYRg4bRc34RETWVnG/ClpoW1/x6EP/umlcCQKnBbvmy
-         9AuvQhgvYcfAY91FEGtxOSlhw0LDAqyYJRJHwQAjlFopwLjP9mj6ekRMzQZ946waD6
-         H4GiYxbstqFEQ5vQKEzK3b0ijC+lqRgPxMDk6qHQ=
+        b=DW2I4JJlvKKg+m/gTUQJCPkgM1Xm6Z5uVUxmn3DjMZXwYxOCJ/eXVMTnZacSALhDq
+         zLI4He/1lDHBor2v5uziaLeQEXWSojNjgdWhL8tG+31hRbo7GJRdIR6eGTTR3Bbg/b
+         D/39OCgDFWtvcYlnrNFlbnefpj8QVOqFaSeo6gjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        Shengjiu Wang <shengjiu.wang@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Natalia Petrova <n.petrova@fintech.ru>
-Subject: [PATCH 5.15 69/73] ASoC: fsl_asrc_dma: fix potential null-ptr-deref
+        patches@lists.linux.dev, Yanjun Zhang <zhangyanjun@cestc.cn>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Yanjun Zhang <zhangyanjun@cestc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 20/39] nvme-tcp: fix a possible UAF when failing to allocate an io queue
 Date:   Mon, 24 Apr 2023 15:17:23 +0200
-Message-Id: <20230424131131.637110688@linuxfoundation.org>
+Message-Id: <20230424131123.804550969@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +55,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 86a24e99c97234f87d9f70b528a691150e145197 upstream.
+[ Upstream commit 88eaba80328b31ef81813a1207b4056efd7006a6 ]
 
-dma_request_slave_channel() may return NULL which will lead to
-NULL pointer dereference error in 'tmp_chan->private'.
+When we allocate a nvme-tcp queue, we set the data_ready callback before
+we actually need to use it. This creates the potential that if a stray
+controller sends us data on the socket before we connect, we can trigger
+the io_work and start consuming the socket.
 
-Correct this behaviour by, first, switching from deprecated function
-dma_request_slave_channel() to dma_request_chan(). Secondly, enable
-sanity check for the resuling value of dma_request_chan().
-Also, fix description that follows the enacted changes and that
-concerns the use of dma_request_slave_channel().
+In this case reported: we failed to allocate one of the io queues, and
+as we start releasing the queues that we already allocated, we get
+a UAF [1] from the io_work which is running before it should really.
 
-Fixes: 706e2c881158 ("ASoC: fsl_asrc_dma: Reuse the dma channel if available in Back-End")
-Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
-Link: https://lore.kernel.org/r/20230417133242.53339-1-n.zhandarovich@fintech.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by setting the socket ops callbacks only before we start the
+queue, so that we can't accidentally schedule the io_work in the
+initialization phase before the queue started. While we are at it,
+rename nvme_tcp_restore_sock_calls to pair with nvme_tcp_setup_sock_ops.
+
+[1]:
+[16802.107284] nvme nvme4: starting error recovery
+[16802.109166] nvme nvme4: Reconnecting in 10 seconds...
+[16812.173535] nvme nvme4: failed to connect socket: -111
+[16812.173745] nvme nvme4: Failed reconnect attempt 1
+[16812.173747] nvme nvme4: Reconnecting in 10 seconds...
+[16822.413555] nvme nvme4: failed to connect socket: -111
+[16822.413762] nvme nvme4: Failed reconnect attempt 2
+[16822.413765] nvme nvme4: Reconnecting in 10 seconds...
+[16832.661274] nvme nvme4: creating 32 I/O queues.
+[16833.919887] BUG: kernel NULL pointer dereference, address: 0000000000000088
+[16833.920068] nvme nvme4: Failed reconnect attempt 3
+[16833.920094] #PF: supervisor write access in kernel mode
+[16833.920261] nvme nvme4: Reconnecting in 10 seconds...
+[16833.920368] #PF: error_code(0x0002) - not-present page
+[16833.921086] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
+[16833.921191] RIP: 0010:_raw_spin_lock_bh+0x17/0x30
+...
+[16833.923138] Call Trace:
+[16833.923271]  <TASK>
+[16833.923402]  lock_sock_nested+0x1e/0x50
+[16833.923545]  nvme_tcp_try_recv+0x40/0xa0 [nvme_tcp]
+[16833.923685]  nvme_tcp_io_work+0x68/0xa0 [nvme_tcp]
+[16833.923824]  process_one_work+0x1e8/0x390
+[16833.923969]  worker_thread+0x53/0x3d0
+[16833.924104]  ? process_one_work+0x390/0x390
+[16833.924240]  kthread+0x124/0x150
+[16833.924376]  ? set_kthread_struct+0x50/0x50
+[16833.924518]  ret_from_fork+0x1f/0x30
+[16833.924655]  </TASK>
+
+Reported-by: Yanjun Zhang <zhangyanjun@cestc.cn>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Tested-by: Yanjun Zhang <zhangyanjun@cestc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_asrc_dma.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/nvme/host/tcp.c | 46 +++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
---- a/sound/soc/fsl/fsl_asrc_dma.c
-+++ b/sound/soc/fsl/fsl_asrc_dma.c
-@@ -208,14 +208,19 @@ static int fsl_asrc_dma_hw_params(struct
- 		be_chan = soc_component_to_pcm(component_be)->chan[substream->stream];
- 		tmp_chan = be_chan;
- 	}
--	if (!tmp_chan)
--		tmp_chan = dma_request_slave_channel(dev_be, tx ? "tx" : "rx");
-+	if (!tmp_chan) {
-+		tmp_chan = dma_request_chan(dev_be, tx ? "tx" : "rx");
-+		if (IS_ERR(tmp_chan)) {
-+			dev_err(dev, "failed to request DMA channel for Back-End\n");
-+			return -EINVAL;
-+		}
-+	}
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 3169859cd3906..4250081595c14 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1387,22 +1387,7 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl,
+ 	if (ret)
+ 		goto err_init_connect;
  
- 	/*
- 	 * An EDMA DEV_TO_DEV channel is fixed and bound with DMA event of each
- 	 * peripheral, unlike SDMA channel that is allocated dynamically. So no
- 	 * need to configure dma_request and dma_request2, but get dma_chan of
--	 * Back-End device directly via dma_request_slave_channel.
-+	 * Back-End device directly via dma_request_chan.
- 	 */
- 	if (!asrc->use_edma) {
- 		/* Get DMA request of Back-End */
+-	queue->rd_enabled = true;
+ 	set_bit(NVME_TCP_Q_ALLOCATED, &queue->flags);
+-	nvme_tcp_init_recv_ctx(queue);
+-
+-	write_lock_bh(&queue->sock->sk->sk_callback_lock);
+-	queue->sock->sk->sk_user_data = queue;
+-	queue->state_change = queue->sock->sk->sk_state_change;
+-	queue->data_ready = queue->sock->sk->sk_data_ready;
+-	queue->write_space = queue->sock->sk->sk_write_space;
+-	queue->sock->sk->sk_data_ready = nvme_tcp_data_ready;
+-	queue->sock->sk->sk_state_change = nvme_tcp_state_change;
+-	queue->sock->sk->sk_write_space = nvme_tcp_write_space;
+-#ifdef CONFIG_NET_RX_BUSY_POLL
+-	queue->sock->sk->sk_ll_usec = 1;
+-#endif
+-	write_unlock_bh(&queue->sock->sk->sk_callback_lock);
+ 
+ 	return 0;
+ 
+@@ -1419,7 +1404,7 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl,
+ 	return ret;
+ }
+ 
+-static void nvme_tcp_restore_sock_calls(struct nvme_tcp_queue *queue)
++static void nvme_tcp_restore_sock_ops(struct nvme_tcp_queue *queue)
+ {
+ 	struct socket *sock = queue->sock;
+ 
+@@ -1434,7 +1419,7 @@ static void nvme_tcp_restore_sock_calls(struct nvme_tcp_queue *queue)
+ static void __nvme_tcp_stop_queue(struct nvme_tcp_queue *queue)
+ {
+ 	kernel_sock_shutdown(queue->sock, SHUT_RDWR);
+-	nvme_tcp_restore_sock_calls(queue);
++	nvme_tcp_restore_sock_ops(queue);
+ 	cancel_work_sync(&queue->io_work);
+ }
+ 
+@@ -1448,21 +1433,42 @@ static void nvme_tcp_stop_queue(struct nvme_ctrl *nctrl, int qid)
+ 	__nvme_tcp_stop_queue(queue);
+ }
+ 
++static void nvme_tcp_setup_sock_ops(struct nvme_tcp_queue *queue)
++{
++	write_lock_bh(&queue->sock->sk->sk_callback_lock);
++	queue->sock->sk->sk_user_data = queue;
++	queue->state_change = queue->sock->sk->sk_state_change;
++	queue->data_ready = queue->sock->sk->sk_data_ready;
++	queue->write_space = queue->sock->sk->sk_write_space;
++	queue->sock->sk->sk_data_ready = nvme_tcp_data_ready;
++	queue->sock->sk->sk_state_change = nvme_tcp_state_change;
++	queue->sock->sk->sk_write_space = nvme_tcp_write_space;
++#ifdef CONFIG_NET_RX_BUSY_POLL
++	queue->sock->sk->sk_ll_usec = 1;
++#endif
++	write_unlock_bh(&queue->sock->sk->sk_callback_lock);
++}
++
+ static int nvme_tcp_start_queue(struct nvme_ctrl *nctrl, int idx)
+ {
+ 	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
++	struct nvme_tcp_queue *queue = &ctrl->queues[idx];
+ 	int ret;
+ 
++	queue->rd_enabled = true;
++	nvme_tcp_init_recv_ctx(queue);
++	nvme_tcp_setup_sock_ops(queue);
++
+ 	if (idx)
+ 		ret = nvmf_connect_io_queue(nctrl, idx, false);
+ 	else
+ 		ret = nvmf_connect_admin_queue(nctrl);
+ 
+ 	if (!ret) {
+-		set_bit(NVME_TCP_Q_LIVE, &ctrl->queues[idx].flags);
++		set_bit(NVME_TCP_Q_LIVE, &queue->flags);
+ 	} else {
+-		if (test_bit(NVME_TCP_Q_ALLOCATED, &ctrl->queues[idx].flags))
+-			__nvme_tcp_stop_queue(&ctrl->queues[idx]);
++		if (test_bit(NVME_TCP_Q_ALLOCATED, &queue->flags))
++			__nvme_tcp_stop_queue(queue);
+ 		dev_err(nctrl->device,
+ 			"failed to connect queue: %d ret=%d\n", idx, ret);
+ 	}
+-- 
+2.39.2
+
 
 
