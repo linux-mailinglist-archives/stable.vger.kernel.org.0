@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE616ECD7D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C67F56ECE69
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbjDXNYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47262 "EHLO
+        id S232402AbjDXNcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232122AbjDXNXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2626659D6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:40 -0700 (PDT)
+        with ESMTP id S232351AbjDXNcG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B82F83D7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A77FD62255
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC68AC433D2;
-        Mon, 24 Apr 2023 13:23:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85ECF62332
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 934ECC433D2;
+        Mon, 24 Apr 2023 13:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342619;
-        bh=E1/FLRbMWKAKHeKK7eyU76UeBHn2ETFKXqwZ6wUQQH4=;
+        s=korg; t=1682343090;
+        bh=+QmIJHHZ3UfYSD/5qmYtWD3XEcZL6frmu7L73FE+u8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNoQ/WY9gIwRZexOfYcJJMU2Yg6QFilOMkxrZnlrK+q6Rgs3POjHm5vKjuzqkl0hM
-         azKhyhBiyI7YfQN6sSm2DHDMnUfRoS0m2mxtQIrohRIXddyXK8QcnwtpT8/3j5fN8T
-         3YxcmmSmQ6dstqQvf4SwXXRIgZ/iZPPHohgezVyM=
+        b=PjsbDDgLmTxHJuUKPgH82m+XePgiJvVU9majyQxVRvB4T5lVXyzjbnaO7v+Y2z9zq
+         lkDwk2IfVGyKQVhwoA04vIUIo9hdQXbjCtimYweCuGjT+FNtNH8ghTcPXXfp0dz2aa
+         i+dK9+TdysKjqy4krr72CRaYz5VIS+NYRcaUAe6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        patches@lists.linux.dev, Christoph Paasch <cpaasch@apple.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Matthieu Baerts <matthieu.baerts@tessares.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>
-Subject: [PATCH 5.4 33/39] inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.2 074/110] mptcp: fix accept vs worker race
 Date:   Mon, 24 Apr 2023 15:17:36 +0200
-Message-Id: <20230424131124.317671737@linuxfoundation.org>
+Message-Id: <20230424131139.193024450@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,112 +55,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit b5fc29233d28be7a3322848ebe73ac327559cdb9 upstream.
+commit 63740448a32eb662e05894425b47bcc5814136f4 upstream.
 
-After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
-in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
-sk->sk_destruct() by setting inet6_sock_destruct() to it to make
-sure we do not leak inet6-specific resources.
+The mptcp worker and mptcp_accept() can race, as reported by Christoph:
 
-Now we can remove unnecessary inet6_destroy_sock() calls in
-sk->sk_prot->destroy().
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 1 PID: 14351 at lib/refcount.c:25 refcount_warn_saturate+0x105/0x1b0 lib/refcount.c:25
+Modules linked in:
+CPU: 1 PID: 14351 Comm: syz-executor.2 Not tainted 6.3.0-rc1-gde5e8fd0123c #11
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
+RIP: 0010:refcount_warn_saturate+0x105/0x1b0 lib/refcount.c:25
+Code: 02 31 ff 89 de e8 1b f0 a7 ff 84 db 0f 85 6e ff ff ff e8 3e f5 a7 ff 48 c7 c7 d8 c7 34 83 c6 05 6d 2d 0f 02 01 e8 cb 3d 90 ff <0f> 0b e9 4f ff ff ff e8 1f f5 a7 ff 0f b6 1d 54 2d 0f 02 31 ff 89
+RSP: 0018:ffffc90000a47bf8 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88802eae98c0 RSI: ffffffff81097d4f RDI: 0000000000000001
+RBP: ffff88802e712180 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000001 R11: ffff88802eaea148 R12: ffff88802e712100
+R13: ffff88802e712a88 R14: ffff888005cb93a8 R15: ffff88802e712a88
+FS:  0000000000000000(0000) GS:ffff88803ed00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f277fd89120 CR3: 0000000035486002 CR4: 0000000000370ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __refcount_add include/linux/refcount.h:199 [inline]
+ __refcount_inc include/linux/refcount.h:250 [inline]
+ refcount_inc include/linux/refcount.h:267 [inline]
+ sock_hold include/net/sock.h:775 [inline]
+ __mptcp_close+0x4c6/0x4d0 net/mptcp/protocol.c:3051
+ mptcp_close+0x24/0xe0 net/mptcp/protocol.c:3072
+ inet_release+0x56/0xa0 net/ipv4/af_inet.c:429
+ __sock_release+0x51/0xf0 net/socket.c:653
+ sock_close+0x18/0x20 net/socket.c:1395
+ __fput+0x113/0x430 fs/file_table.c:321
+ task_work_run+0x96/0x100 kernel/task_work.c:179
+ exit_task_work include/linux/task_work.h:38 [inline]
+ do_exit+0x4fc/0x10c0 kernel/exit.c:869
+ do_group_exit+0x51/0xf0 kernel/exit.c:1019
+ get_signal+0x12b0/0x1390 kernel/signal.c:2859
+ arch_do_signal_or_restart+0x25/0x260 arch/x86/kernel/signal.c:306
+ exit_to_user_mode_loop kernel/entry/common.c:168 [inline]
+ exit_to_user_mode_prepare+0x131/0x1a0 kernel/entry/common.c:203
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+ syscall_exit_to_user_mode+0x19/0x40 kernel/entry/common.c:296
+ do_syscall_64+0x46/0x90 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
+RIP: 0033:0x7fec4b4926a9
+Code: Unable to access opcode bytes at 0x7fec4b49267f.
+RSP: 002b:00007fec49f9dd78 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
+RAX: fffffffffffffe00 RBX: 00000000006bc058 RCX: 00007fec4b4926a9
+RDX: 0000000000000000 RSI: 0000000000000080 RDI: 00000000006bc058
+RBP: 00000000006bc050 R08: 00000000007df998 R09: 00000000007df998
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000006bc05c
+R13: fffffffffffffea8 R14: 000000000000000b R15: 000000000001fe40
+ </TASK>
 
-DCCP and SCTP have their own sk->sk_destruct() function, so we
-change them separately in the following patches.
+The root cause is that the worker can force fallback to TCP the first
+mptcp subflow, actually deleting the unaccepted msk socket.
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+We can explicitly prevent the race delaying the unaccepted msk deletion
+at listener shutdown time. In case the closed subflow is later accepted,
+just drop the mptcp context and let the user-space deal with the
+paired mptcp socket.
+
+Fixes: b6985b9b8295 ("mptcp: use the workqueue to destroy unaccepted sockets")
+Cc: stable@vger.kernel.org
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Link: https://github.com/multipath-tcp/mptcp_net-next/issues/375
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Tested-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ping.c     |    6 ------
- net/ipv6/raw.c      |    2 --
- net/ipv6/tcp_ipv6.c |    8 +-------
- net/ipv6/udp.c      |    2 --
- net/l2tp/l2tp_ip6.c |    2 --
- 5 files changed, 1 insertion(+), 19 deletions(-)
+ net/mptcp/protocol.c |   68 +++++++++++++++++++++++++++++++++------------------
+ net/mptcp/protocol.h |    1 
+ net/mptcp/subflow.c  |   22 +++++++++-------
+ 3 files changed, 58 insertions(+), 33 deletions(-)
 
---- a/net/ipv6/ping.c
-+++ b/net/ipv6/ping.c
-@@ -22,11 +22,6 @@
- #include <linux/proc_fs.h>
- #include <net/ping.h>
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2316,7 +2316,26 @@ static void __mptcp_close_ssk(struct soc
+ 			      unsigned int flags)
+ {
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+-	bool need_push, dispose_it;
++	bool dispose_it, need_push = false;
++
++	/* If the first subflow moved to a close state before accept, e.g. due
++	 * to an incoming reset, mptcp either:
++	 * - if either the subflow or the msk are dead, destroy the context
++	 *   (the subflow socket is deleted by inet_child_forget) and the msk
++	 * - otherwise do nothing at the moment and take action at accept and/or
++	 *   listener shutdown - user-space must be able to accept() the closed
++	 *   socket.
++	 */
++	if (msk->in_accept_queue && msk->first == ssk) {
++		if (!sock_flag(sk, SOCK_DEAD) && !sock_flag(ssk, SOCK_DEAD))
++			return;
++
++		/* ensure later check in mptcp_worker() will dispose the msk */
++		sock_set_flag(sk, SOCK_DEAD);
++		lock_sock_nested(ssk, SINGLE_DEPTH_NESTING);
++		mptcp_subflow_drop_ctx(ssk);
++		goto out_release;
++	}
  
--static void ping_v6_destroy(struct sock *sk)
--{
--	inet6_destroy_sock(sk);
--}
--
- /* Compatibility glue so we can support IPv6 when it's compiled as a module */
- static int dummy_ipv6_recv_error(struct sock *sk, struct msghdr *msg, int len,
- 				 int *addr_len)
-@@ -170,7 +165,6 @@ struct proto pingv6_prot = {
- 	.owner =	THIS_MODULE,
- 	.init =		ping_init_sock,
- 	.close =	ping_close,
--	.destroy =	ping_v6_destroy,
- 	.connect =	ip6_datagram_connect_v6_only,
- 	.disconnect =	__udp_disconnect,
- 	.setsockopt =	ipv6_setsockopt,
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -1256,8 +1256,6 @@ static void raw6_destroy(struct sock *sk
- 	lock_sock(sk);
- 	ip6_flush_pending_frames(sk);
- 	release_sock(sk);
--
--	inet6_destroy_sock(sk);
- }
- 
- static int rawv6_init_sk(struct sock *sk)
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1848,12 +1848,6 @@ static int tcp_v6_init_sock(struct sock
- 	return 0;
- }
- 
--static void tcp_v6_destroy_sock(struct sock *sk)
--{
--	tcp_v4_destroy_sock(sk);
--	inet6_destroy_sock(sk);
--}
--
- #ifdef CONFIG_PROC_FS
- /* Proc filesystem TCPv6 sock list dumping. */
- static void get_openreq6(struct seq_file *seq,
-@@ -2046,7 +2040,7 @@ struct proto tcpv6_prot = {
- 	.accept			= inet_csk_accept,
- 	.ioctl			= tcp_ioctl,
- 	.init			= tcp_v6_init_sock,
--	.destroy		= tcp_v6_destroy_sock,
-+	.destroy		= tcp_v4_destroy_sock,
- 	.shutdown		= tcp_shutdown,
- 	.setsockopt		= tcp_setsockopt,
- 	.getsockopt		= tcp_getsockopt,
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1573,8 +1573,6 @@ void udpv6_destroy_sock(struct sock *sk)
- 			udp_encap_disable();
- 		}
+ 	dispose_it = !msk->subflow || ssk != msk->subflow->sk;
+ 	if (dispose_it)
+@@ -2352,18 +2371,6 @@ static void __mptcp_close_ssk(struct soc
+ 	if (!inet_csk(ssk)->icsk_ulp_ops) {
+ 		WARN_ON_ONCE(!sock_flag(ssk, SOCK_DEAD));
+ 		kfree_rcu(subflow, rcu);
+-	} else if (msk->in_accept_queue && msk->first == ssk) {
+-		/* if the first subflow moved to a close state, e.g. due to
+-		 * incoming reset and we reach here before inet_child_forget()
+-		 * the TCP stack could later try to close it via
+-		 * inet_csk_listen_stop(), or deliver it to the user space via
+-		 * accept().
+-		 * We can't delete the subflow - or risk a double free - nor let
+-		 * the msk survive - or will be leaked in the non accept scenario:
+-		 * fallback and let TCP cope with the subflow cleanup.
+-		 */
+-		WARN_ON_ONCE(sock_flag(ssk, SOCK_DEAD));
+-		mptcp_subflow_drop_ctx(ssk);
+ 	} else {
+ 		/* otherwise tcp will dispose of the ssk and subflow ctx */
+ 		if (ssk->sk_state == TCP_LISTEN) {
+@@ -2378,6 +2385,8 @@ static void __mptcp_close_ssk(struct soc
+ 		/* close acquired an extra ref */
+ 		__sock_put(ssk);
  	}
--
--	inet6_destroy_sock(sk);
++
++out_release:
+ 	release_sock(ssk);
+ 
+ 	sock_put(ssk);
+@@ -2432,21 +2441,14 @@ static void __mptcp_close_subflow(struct
+ 		mptcp_close_ssk(sk, ssk, subflow);
+ 	}
+ 
+-	/* if the MPC subflow has been closed before the msk is accepted,
+-	 * msk will never be accept-ed, close it now
+-	 */
+-	if (!msk->first && msk->in_accept_queue) {
+-		sock_set_flag(sk, SOCK_DEAD);
+-		inet_sk_state_store(sk, TCP_CLOSE);
+-	}
  }
  
- /*
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -268,8 +268,6 @@ static void l2tp_ip6_destroy_sock(struct
+-static bool mptcp_check_close_timeout(const struct sock *sk)
++static bool mptcp_should_close(const struct sock *sk)
+ {
+ 	s32 delta = tcp_jiffies32 - inet_csk(sk)->icsk_mtup.probe_timestamp;
+ 	struct mptcp_subflow_context *subflow;
  
- 	if (tunnel)
- 		l2tp_tunnel_delete(tunnel);
--
--	inet6_destroy_sock(sk);
+-	if (delta >= TCP_TIMEWAIT_LEN)
++	if (delta >= TCP_TIMEWAIT_LEN || mptcp_sk(sk)->in_accept_queue)
+ 		return true;
+ 
+ 	/* if all subflows are in closed status don't bother with additional
+@@ -2654,7 +2656,7 @@ static void mptcp_worker(struct work_str
+ 	 * even if it is orphaned and in FIN_WAIT2 state
+ 	 */
+ 	if (sock_flag(sk, SOCK_DEAD)) {
+-		if (mptcp_check_close_timeout(sk)) {
++		if (mptcp_should_close(sk)) {
+ 			inet_sk_state_store(sk, TCP_CLOSE);
+ 			mptcp_do_fastclose(sk);
+ 		}
+@@ -2901,6 +2903,14 @@ static void __mptcp_destroy_sock(struct
+ 	sock_put(sk);
  }
  
- static int l2tp_ip6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
++void __mptcp_unaccepted_force_close(struct sock *sk)
++{
++	sock_set_flag(sk, SOCK_DEAD);
++	inet_sk_state_store(sk, TCP_CLOSE);
++	mptcp_do_fastclose(sk);
++	__mptcp_destroy_sock(sk);
++}
++
+ static __poll_t mptcp_check_readable(struct mptcp_sock *msk)
+ {
+ 	/* Concurrent splices from sk_receive_queue into receive_queue will
+@@ -3728,6 +3738,18 @@ static int mptcp_stream_accept(struct so
+ 			if (!ssk->sk_socket)
+ 				mptcp_sock_graft(ssk, newsock);
+ 		}
++
++		/* Do late cleanup for the first subflow as necessary. Also
++		 * deal with bad peers not doing a complete shutdown.
++		 */
++		if (msk->first &&
++		    unlikely(inet_sk_state_load(msk->first) == TCP_CLOSE)) {
++			__mptcp_close_ssk(newsk, msk->first,
++					  mptcp_subflow_ctx(msk->first), 0);
++			if (unlikely(list_empty(&msk->conn_list)))
++				inet_sk_state_store(newsk, TCP_CLOSE);
++		}
++
+ 		release_sock(newsk);
+ 	}
+ 
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -634,6 +634,7 @@ void mptcp_sock_graft(struct sock *sk, s
+ struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
+ bool __mptcp_close(struct sock *sk, long timeout);
+ void mptcp_cancel_work(struct sock *sk);
++void __mptcp_unaccepted_force_close(struct sock *sk);
+ void mptcp_set_owner_r(struct sk_buff *skb, struct sock *sk);
+ 
+ bool mptcp_addresses_equal(const struct mptcp_addr_info *a,
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -722,9 +722,12 @@ void mptcp_subflow_drop_ctx(struct sock
+ 	if (!ctx)
+ 		return;
+ 
+-	subflow_ulp_fallback(ssk, ctx);
+-	if (ctx->conn)
+-		sock_put(ctx->conn);
++	list_del(&mptcp_subflow_ctx(ssk)->node);
++	if (inet_csk(ssk)->icsk_ulp_ops) {
++		subflow_ulp_fallback(ssk, ctx);
++		if (ctx->conn)
++			sock_put(ctx->conn);
++	}
+ 
+ 	kfree_rcu(ctx, rcu);
+ }
+@@ -1821,6 +1824,7 @@ void mptcp_subflow_queue_clean(struct so
+ 	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
+ 	struct mptcp_sock *msk, *next, *head = NULL;
+ 	struct request_sock *req;
++	struct sock *sk;
+ 
+ 	/* build a list of all unaccepted mptcp sockets */
+ 	spin_lock_bh(&queue->rskq_lock);
+@@ -1836,11 +1840,12 @@ void mptcp_subflow_queue_clean(struct so
+ 			continue;
+ 
+ 		/* skip if already in list */
+-		msk = mptcp_sk(subflow->conn);
++		sk = subflow->conn;
++		msk = mptcp_sk(sk);
+ 		if (msk->dl_next || msk == head)
+ 			continue;
+ 
+-		sock_hold(subflow->conn);
++		sock_hold(sk);
+ 		msk->dl_next = head;
+ 		head = msk;
+ 	}
+@@ -1854,16 +1859,13 @@ void mptcp_subflow_queue_clean(struct so
+ 	release_sock(listener_ssk);
+ 
+ 	for (msk = head; msk; msk = next) {
+-		struct sock *sk = (struct sock *)msk;
++		sk = (struct sock *)msk;
+ 
+ 		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 		next = msk->dl_next;
+ 		msk->dl_next = NULL;
+ 
+-		/* prevent the stack from later re-schedule the worker for
+-		 * this socket
+-		 */
+-		inet_sk_state_store(sk, TCP_CLOSE);
++		__mptcp_unaccepted_force_close(sk);
+ 		release_sock(sk);
+ 
+ 		/* lockdep will report a false positive ABBA deadlock
 
 
