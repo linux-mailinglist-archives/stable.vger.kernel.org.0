@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81ED06ECE59
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01256ECD4C
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbjDXNbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
+        id S231920AbjDXNWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232383AbjDXNbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:14 -0400
+        with ESMTP id S232055AbjDXNWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A697ABD
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD9255A1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64EDD62321
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75DACC433D2;
-        Mon, 24 Apr 2023 13:30:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66EAF6221E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78ECBC433D2;
+        Mon, 24 Apr 2023 13:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343048;
-        bh=zZGXykFC65S68cdngIsxyzHu2u7OF5koxtcAp0i79+8=;
+        s=korg; t=1682342507;
+        bh=VFBQkRXoFMtDfl9zLkTX692jLZiolvDNeBAtjuePkEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ToLsEj5IN7d6JDWTxpSxTiV8nnnHp9Pwc8Y9PAmHF1DnQOs6P8SwhLpzj5/ycq8/Z
-         JecTZwYvtc3z5xN6r6yxxXFR0dEh8ug+6UBAihjNe5BGVKORFEDqAmZTK/sFPPArn8
-         s6NsRVI0MR2tr70cVp/hw6eNrKin8EMH00octMuw=
+        b=klP2IXeSi86+fh+WsEY9P8QiKisXta4SWNEofU60mgI6J4wge8qR2jfdn1BlkQOoT
+         0hpxmGyMKCs7trDXAage0ymR4vQS/owEiwl5LiNS26wjaYkDb17muNcTy2GW0WfYQV
+         aIOOcNa2hIye5zfpIvD0CI70fuzzWQnU5nNHtufI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.2 057/110] iio: dac: ad5755: Add missing fwnode_handle_put()
+        patches@lists.linux.dev, thierry.reding@gmail.com,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.15 65/73] pwm: hibvt: Explicitly set .polarity in .get_state()
 Date:   Mon, 24 Apr 2023 15:17:19 +0200
-Message-Id: <20230424131138.433051854@linuxfoundation.org>
+Message-Id: <20230424131131.482851974@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: "Uwe Kleine-K�nig" <u.kleine-koenig@pengutronix.de>
 
-commit ffef73791574b8da872cfbf881d8e3e9955fc130 upstream.
+[ Upstream commit 6f57937980142715e927697a6ffd2050f38ed6f6 ]
 
-In ad5755_parse_fw(), we should add fwnode_handle_put()
-when break out of the iteration device_for_each_child_node()
-as it will automatically increase and decrease the refcounter.
+The driver only both polarities. Complete the implementation of
+.get_state() by setting .polarity according to the configured hardware
+state.
 
-Fixes: 3ac27afefd5d ("iio:dac:ad5755: Switch to generic firmware properties and drop pdata")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20230322035627.1856421-1-windhl@126.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: d09f00810850 ("pwm: Add PWM driver for HiSilicon BVT SOCs")
+Link: https://lore.kernel.org/r/20230228135508.1798428-2-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5755.c |    1 +
+ drivers/pwm/pwm-hibvt.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/iio/dac/ad5755.c
-+++ b/drivers/iio/dac/ad5755.c
-@@ -802,6 +802,7 @@ static struct ad5755_platform_data *ad57
- 	return pdata;
+--- a/drivers/pwm/pwm-hibvt.c
++++ b/drivers/pwm/pwm-hibvt.c
+@@ -146,6 +146,7 @@ static void hibvt_pwm_get_state(struct p
  
-  error_out:
-+	fwnode_handle_put(pp);
- 	devm_kfree(dev, pdata);
- 	return NULL;
+ 	value = readl(base + PWM_CTRL_ADDR(pwm->hwpwm));
+ 	state->enabled = (PWM_ENABLE_MASK & value);
++	state->polarity = (PWM_POLARITY_MASK & value) ? PWM_POLARITY_INVERSED : PWM_POLARITY_NORMAL;
  }
+ 
+ static int hibvt_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 
 
