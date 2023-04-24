@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDB66ECD61
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B18346ECD5A
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232048AbjDXNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48158 "EHLO
+        id S232031AbjDXNWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:22:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232103AbjDXNWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:50 -0400
+        with ESMTP id S232103AbjDXNWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D384355BA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65CA4EEB
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6923162254
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B40C433EF;
-        Mon, 24 Apr 2023 13:22:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B36962247
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F976C433D2;
+        Mon, 24 Apr 2023 13:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342555;
-        bh=A1fF48+r/hgG7duh7K8YxDuxyBzcC2aJnlWqhcOTwtI=;
+        s=korg; t=1682342539;
+        bh=xNCN//o4SOVOA6dcoBoQB18R8W+12RFRvS4M18bmmpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7ieo+Z6AajDzafDkzJ3cma6SD+jcCcO3sfugjMFXvA/3wYpxnBIlbxzUKhJpq+RU
-         ut6HxVz5lmFi27ly5uFI2Ujsx0fu/ZM6yHDnez+I0QdRBap9QCDTqec9xTCtlRcEzH
-         soCOEEwxtGCwjiA5GNXBiYXNc9m1lyRbmGysH8sE=
+        b=Z+RS6L54k983nNhdn+Jrk0NJQi3WdDRE17SWcbQZzG7zjYVD5tgK4RG6KOxc1n4ZF
+         mS4Nw46hGVPsQPL8JWR6rtoYRdcYsiDiKu5Brvw1jeaIP74ZbhX118CsKbeKFpXEVM
+         IqzMj8gLLaZ4SSxDPFoVa7XSfJ5pghV/In6HSBD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Gonzalez <mgonzalez@freebox.fr>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/39] arm64: dts: meson-g12-common: specify full DMC range
+        patches@lists.linux.dev,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Subject: [PATCH 5.15 51/73] sched/fair: Fixes for capacity inversion detection
 Date:   Mon, 24 Apr 2023 15:17:05 +0200
-Message-Id: <20230424131123.127288092@linuxfoundation.org>
+Message-Id: <20230424131130.894767727@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Gonzalez <mgonzalez@freebox.fr>
+From: Qais Yousef <qyousef@layalina.io>
 
-[ Upstream commit aec4353114a408b3a831a22ba34942d05943e462 ]
+commit da07d2f9c153e457e845d4dcfdd13568d71d18a4 upstream.
 
-According to S905X2 Datasheet - Revision 07:
-DRAM Memory Controller (DMC) register area spans ff638000-ff63a000.
+Traversing the Perf Domains requires rcu_read_lock() to be held and is
+conditional on sched_energy_enabled(). Ensure right protections applied.
 
-According to DeviceTree Specification - Release v0.4-rc1:
-simple-bus nodes do not require reg property.
+Also skip capacity inversion detection for our own pd; which was an
+error.
 
-Fixes: 1499218c80c99a ("arm64: dts: move common G12A & G12B modes to meson-g12-common.dtsi")
-Signed-off-by: Marc Gonzalez <mgonzalez@freebox.fr>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20230327120932.2158389-2-mgonzalez@freebox.fr
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 44c7b80bffc3 ("sched/fair: Detect capacity inversion")
+Reported-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20230112122708.330667-3-qyousef@layalina.io
+(cherry picked from commit da07d2f9c153e457e845d4dcfdd13568d71d18a4)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/sched/fair.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-index 937b27549d56d..a31b623fedb75 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-@@ -1376,10 +1376,9 @@
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8649,16 +8649,23 @@ static void update_cpu_capacity(struct s
+ 	 *   * Thermal pressure will impact all cpus in this perf domain
+ 	 *     equally.
+ 	 */
+-	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
++	if (sched_energy_enabled()) {
+ 		unsigned long inv_cap = capacity_orig - thermal_load_avg(rq);
+-		struct perf_domain *pd = rcu_dereference(rq->rd->pd);
++		struct perf_domain *pd;
  
- 			dmc: bus@38000 {
- 				compatible = "simple-bus";
--				reg = <0x0 0x38000 0x0 0x400>;
- 				#address-cells = <2>;
- 				#size-cells = <2>;
--				ranges = <0x0 0x0 0x0 0x38000 0x0 0x400>;
-+				ranges = <0x0 0x0 0x0 0x38000 0x0 0x2000>;
++		rcu_read_lock();
++
++		pd = rcu_dereference(rq->rd->pd);
+ 		rq->cpu_capacity_inverted = 0;
  
- 				canvas: video-lut@48 {
- 					compatible = "amlogic,canvas";
--- 
-2.39.2
-
+ 		for (; pd; pd = pd->next) {
+ 			struct cpumask *pd_span = perf_domain_span(pd);
+ 			unsigned long pd_cap_orig, pd_cap;
+ 
++			/* We can't be inverted against our own pd */
++			if (cpumask_test_cpu(cpu_of(rq), pd_span))
++				continue;
++
+ 			cpu = cpumask_any(pd_span);
+ 			pd_cap_orig = arch_scale_cpu_capacity(cpu);
+ 
+@@ -8683,6 +8690,8 @@ static void update_cpu_capacity(struct s
+ 				break;
+ 			}
+ 		}
++
++		rcu_read_unlock();
+ 	}
+ 
+ 	trace_sched_cpu_capacity_tp(rq);
 
 
