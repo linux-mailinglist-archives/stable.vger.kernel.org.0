@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2FD76ECE68
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E38C6ECEB5
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232455AbjDXNcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59730 "EHLO
+        id S232474AbjDXNeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232456AbjDXNcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:03 -0400
+        with ESMTP id S232512AbjDXNeK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB3883C4
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AEE97DAC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BDD96235A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D828C433EF;
-        Mon, 24 Apr 2023 13:31:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CF1F61E07
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B6CC433EF;
+        Mon, 24 Apr 2023 13:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343085;
-        bh=LvP7QrQe49AfyW2vov+5OvXDAGbRc/YpJZlTrayh36o=;
+        s=korg; t=1682343235;
+        bh=4gXVQtAcaW0FgitIlf8EbiYrPIpEIU7SBrpJE+zKxwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuGW/ojF0Zc8B7SlebiFka1DkJ8gXOZdJaL9K017jpQnBIsCg111L4DGeoMYP6wAo
-         q7YRvNd65+nKVLE/oAAXUR2dfIaIpPvR8zh4nOOttr3r8p3JIm7hdU8JNhZXfHpJEP
-         IaQxT82YEPy/PfSa53xVwlrqTHmnaRtesw4g6StY=
+        b=FISwYwzlAdWbAPMZqC9KHQ3PJlIooyoLf8RdKEQ9H3kdou01yMTpCpJFd1JZ3o8H9
+         dTQkDY+ZppBAGIhkM2jjsxLb4fbn7C9vFwNKm/3fA0S2ufYvnLlm0K1fIHVTmrDJRW
+         RgUBi8Pp8HhrJ/tpSLorctImETJQmB5eKj2ExJsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 072/110] nilfs2: initialize unused bytes in segment summary blocks
+        patches@lists.linux.dev, Marc Gonzalez <mgonzalez@freebox.fr>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 03/68] arm64: dts: meson-g12-common: specify full DMC range
 Date:   Mon, 24 Apr 2023 15:17:34 +0200
-Message-Id: <20230424131139.102282792@linuxfoundation.org>
+Message-Id: <20230424131127.802311032@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,80 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Marc Gonzalez <mgonzalez@freebox.fr>
 
-commit ef832747a82dfbc22a3702219cc716f449b24e4a upstream.
+[ Upstream commit aec4353114a408b3a831a22ba34942d05943e462 ]
 
-Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
-KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
-initialize "struct nilfs_binfo_dat"->bi_pad field").
+According to S905X2 Datasheet - Revision 07:
+DRAM Memory Controller (DMC) register area spans ff638000-ff63a000.
 
-This is because the unused bytes at the end of each block in segment
-summaries are not initialized.  So this fixes the issue by padding the
-unused bytes with null bytes.
+According to DeviceTree Specification - Release v0.4-rc1:
+simple-bus nodes do not require reg property.
 
-Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
-  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
-Cc: Alexander Potapenko <glider@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1499218c80c99a ("arm64: dts: move common G12A & G12B modes to meson-g12-common.dtsi")
+Signed-off-by: Marc Gonzalez <mgonzalez@freebox.fr>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20230327120932.2158389-2-mgonzalez@freebox.fr
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/segment.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -430,6 +430,23 @@ static int nilfs_segctor_reset_segment_b
- 	return 0;
- }
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+index c0defb36592d0..9dd9f7715fbe6 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+@@ -1604,10 +1604,9 @@
  
-+/**
-+ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
-+ * @sci: segment constructor object
-+ *
-+ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
-+ * the current segment summary block.
-+ */
-+static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
-+{
-+	struct nilfs_segsum_pointer *ssp;
-+
-+	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
-+	if (ssp->offset < ssp->bh->b_size)
-+		memset(ssp->bh->b_data + ssp->offset, 0,
-+		       ssp->bh->b_size - ssp->offset);
-+}
-+
- static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
- {
- 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
-@@ -438,6 +455,7 @@ static int nilfs_segctor_feed_segment(st
- 				* The current segment is filled up
- 				* (internal code)
- 				*/
-+	nilfs_segctor_zeropad_segsum(sci);
- 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
- 	return nilfs_segctor_reset_segment_buffer(sci);
- }
-@@ -542,6 +560,7 @@ static int nilfs_segctor_add_file_block(
- 		goto retry;
- 	}
- 	if (unlikely(required)) {
-+		nilfs_segctor_zeropad_segsum(sci);
- 		err = nilfs_segbuf_extend_segsum(segbuf);
- 		if (unlikely(err))
- 			goto failed;
-@@ -1531,6 +1550,7 @@ static int nilfs_segctor_collect(struct
- 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
- 		sci->sc_stage = prev_stage;
- 	}
-+	nilfs_segctor_zeropad_segsum(sci);
- 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
- 	return 0;
+ 			dmc: bus@38000 {
+ 				compatible = "simple-bus";
+-				reg = <0x0 0x38000 0x0 0x400>;
+ 				#address-cells = <2>;
+ 				#size-cells = <2>;
+-				ranges = <0x0 0x0 0x0 0x38000 0x0 0x400>;
++				ranges = <0x0 0x0 0x0 0x38000 0x0 0x2000>;
  
+ 				canvas: video-lut@48 {
+ 					compatible = "amlogic,canvas";
+-- 
+2.39.2
+
 
 
