@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B51546ECE71
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDCB66ECDFB
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232493AbjDXNcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
+        id S232270AbjDXN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232427AbjDXNcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:24 -0400
+        with ESMTP id S232269AbjDXN2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3626EA6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB986A79
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 227A162371
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E89C4339E;
-        Mon, 24 Apr 2023 13:31:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5256C61A70
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64FDDC433D2;
+        Mon, 24 Apr 2023 13:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343114;
-        bh=UGtWXl1fEbi6zraoCmAZhWXM/dKdC9Fm6Vfoa0OA/g8=;
+        s=korg; t=1682342903;
+        bh=M/ivO5pI7G9LXL9+kVD7pmfUQ4U4ZOCF/yqIMrUNrRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqpoQlzQP4vbKkPMge/TYjNKxLoQzY6jdKHtgJOiqCVfplnKHH1Hb6MRqgYzvuA8j
-         BUROknqQxbw5WrxRbrtcBwv5N/5Rd64NLE1ZNV1lmYQscg/PYx7ALPi3kfPZhtuWcG
-         iXImpt+CitgFWO4D3ccbewqn/tuiXGdGNwbf1n2c=
+        b=15vk2BwtYhsTANQTmr7PiCWr35XskyIOfTGviD68dmj4vlEGaSvGyjHVwRTVg769M
+         ZhQPd50vZpJBkNQtpvwbG2iPpxR0mQJBdFb6mhwA/xHBTpD70vt5PglGc3tcUjQsa+
+         lW6VJ0l4x6o+w+/Nh5paqEBUQtAMULd/aTvdRQwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.2 082/110] drm/amd/display: set dcn315 lb bpp to 48
-Date:   Mon, 24 Apr 2023 15:17:44 +0200
-Message-Id: <20230424131139.540369293@linuxfoundation.org>
+        patches@lists.linux.dev, Mostafa Saleh <smostafa@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Oliver Upton <oliver.upton@linux.dev>
+Subject: [PATCH 6.1 82/98] KVM: arm64: Make vcpu flag updates non-preemptible
+Date:   Mon, 24 Apr 2023 15:17:45 +0200
+Message-Id: <20230424131137.054394553@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 6d9240c46f7419aa3210353b5f52cc63da5a6440 upstream.
+commit 35dcb3ac663a16510afc27ba2725d70c15e012a5 upstream.
 
-[Why & How]
-Fix a typo for dcn315 line buffer bpp.
+Per-vcpu flags are updated using a non-atomic RMW operation.
+Which means it is possible to get preempted between the read and
+write operations.
 
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Another interesting thing to note is that preemption also updates
+flags, as we have some flag manipulation in both the load and put
+operations.
+
+It is thus possible to lose information communicated by either
+load or put, as the preempted flag update will overwrite the flags
+when the thread is resumed. This is specially critical if either
+load or put has stored information which depends on the physical
+CPU the vcpu runs on.
+
+This results in really elusive bugs, and kudos must be given to
+Mostafa for the long hours of debugging, and finally spotting
+the problem.
+
+Fix it by disabling preemption during the RMW operation, which
+ensures that the state stays consistent. Also upgrade vcpu_get_flag
+path to use READ_ONCE() to make sure the field is always atomically
+accessed.
+
+Fixes: e87abb73e594 ("KVM: arm64: Add helpers to manipulate vcpu flags among a set")
+Reported-by: Mostafa Saleh <smostafa@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230418125737.2327972-1-maz@kernel.org
+Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/kvm_host.h |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c
-@@ -222,7 +222,7 @@ struct _vcs_dpi_ip_params_st dcn3_15_ip
- 	.maximum_dsc_bits_per_component = 10,
- 	.dsc422_native_support = false,
- 	.is_line_buffer_bpp_fixed = true,
--	.line_buffer_fixed_bpp = 49,
-+	.line_buffer_fixed_bpp = 48,
- 	.line_buffer_size_bits = 789504,
- 	.max_line_buffer_lines = 12,
- 	.writeback_interface_buffer_size_kbytes = 90,
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -449,9 +449,22 @@ struct kvm_vcpu_arch {
+ 	({							\
+ 		__build_check_flag(v, flagset, f, m);		\
+ 								\
+-		v->arch.flagset & (m);				\
++		READ_ONCE(v->arch.flagset) & (m);		\
+ 	})
+ 
++/*
++ * Note that the set/clear accessors must be preempt-safe in order to
++ * avoid nesting them with load/put which also manipulate flags...
++ */
++#ifdef __KVM_NVHE_HYPERVISOR__
++/* the nVHE hypervisor is always non-preemptible */
++#define __vcpu_flags_preempt_disable()
++#define __vcpu_flags_preempt_enable()
++#else
++#define __vcpu_flags_preempt_disable()	preempt_disable()
++#define __vcpu_flags_preempt_enable()	preempt_enable()
++#endif
++
+ #define __vcpu_set_flag(v, flagset, f, m)			\
+ 	do {							\
+ 		typeof(v->arch.flagset) *fset;			\
+@@ -459,9 +472,11 @@ struct kvm_vcpu_arch {
+ 		__build_check_flag(v, flagset, f, m);		\
+ 								\
+ 		fset = &v->arch.flagset;			\
++		__vcpu_flags_preempt_disable();			\
+ 		if (HWEIGHT(m) > 1)				\
+ 			*fset &= ~(m);				\
+ 		*fset |= (f);					\
++		__vcpu_flags_preempt_enable();			\
+ 	} while (0)
+ 
+ #define __vcpu_clear_flag(v, flagset, f, m)			\
+@@ -471,7 +486,9 @@ struct kvm_vcpu_arch {
+ 		__build_check_flag(v, flagset, f, m);		\
+ 								\
+ 		fset = &v->arch.flagset;			\
++		__vcpu_flags_preempt_disable();			\
+ 		*fset &= ~(m);					\
++		__vcpu_flags_preempt_enable();			\
+ 	} while (0)
+ 
+ #define vcpu_get_flag(v, ...)	__vcpu_get_flag((v), __VA_ARGS__)
 
 
