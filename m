@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 768026ECD7F
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 971316ECEB8
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbjDXNYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
+        id S232538AbjDXNeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232216AbjDXNXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:53 -0400
+        with ESMTP id S232582AbjDXNe3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:34:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2DB5FCD
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE4D18A57
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 092036227B
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B7C0C4339B;
-        Mon, 24 Apr 2023 13:23:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 482516239D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7E6C433EF;
+        Mon, 24 Apr 2023 13:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342624;
-        bh=0A8WThsA5NUaDr7nby9OMCb3rxgxD2dvZgwWsQ3nc+w=;
+        s=korg; t=1682343243;
+        bh=5Q/alzVw3POn6zQY3MwBas8+2QDzrK6IIwvhPWzQx84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTiynTbeFAzRq5C+Fl8zT1yTXLtluwUb6hP5dHwJjJQHhPLpZvy+dAQHfcd4lR2M6
-         EaVwbGXwuFwN7lC2EYvLC/ZnmyE7JUtMNjfwrpnRf688wAZZgBoyWei8KSqQQIf+ah
-         GwvWYONQyB9AAewtc7u0d0FyvZxMIE+1alisC2h8=
+        b=vK6V3gXC4PVXivpTrtcpYkvQX26biyWYFVWsSpRtMABq2l3r54cfVXSEzvuYnNH2m
+         TR7R0Z0w8eylOgER5+dCYpCpUifZosNU8W2/yfvGMeb98oJlzRba9YxAEhlX9VjDmc
+         nPZW3oA5kR5pEJ/gipJN7Mq/w8cOLt+HdywyVWIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>
-Subject: [PATCH 5.4 34/39] dccp: Call inet6_destroy_sock() via sk->sk_destruct().
+        patches@lists.linux.dev,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 06/68] regulator: fan53555: Explicitly include bits header
 Date:   Mon, 24 Apr 2023 15:17:37 +0200
-Message-Id: <20230424131124.347658439@linuxfoundation.org>
+Message-Id: <20230424131127.927593076@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,117 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-commit 1651951ebea54970e0bda60c638fc2eee7a6218f upstream.
+[ Upstream commit 4fb9a5060f73627303bc531ceaab1b19d0a24aef ]
 
-After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
-in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
-sk->sk_destruct() by setting inet6_sock_destruct() to it to make
-sure we do not leak inet6-specific resources.
+Since commit f2a9eb975ab2 ("regulator: fan53555: Add support for
+FAN53526") the driver makes use of the BIT() macro, but relies on the
+bits header being implicitly included.
 
-DCCP sets its own sk->sk_destruct() in the dccp_init_sock(), and
-DCCPv6 socket shares it by calling the same init function via
-dccp_v6_init_sock().
+Explicitly pull the header in to avoid potential build failures in some
+configurations.
 
-To call inet6_sock_destruct() from DCCPv6 sk->sk_destruct(), we
-export it and set dccp_v6_sk_destruct() in the init function.
+While here, reorder include directives alphabetically.
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f2a9eb975ab2 ("regulator: fan53555: Add support for FAN53526")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Link: https://lore.kernel.org/r/20230406171806.948290-3-cristian.ciocaltea@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/dccp.h     |    1 +
- net/dccp/ipv6.c     |   15 ++++++++-------
- net/dccp/proto.c    |    8 +++++++-
- net/ipv6/af_inet6.c |    1 +
- 4 files changed, 17 insertions(+), 8 deletions(-)
+ drivers/regulator/fan53555.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/dccp/dccp.h
-+++ b/net/dccp/dccp.h
-@@ -288,6 +288,7 @@ int dccp_rcv_state_process(struct sock *
- int dccp_rcv_established(struct sock *sk, struct sk_buff *skb,
- 			 const struct dccp_hdr *dh, const unsigned int len);
+diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
+index aa426183b6a11..1af12074a75ab 100644
+--- a/drivers/regulator/fan53555.c
++++ b/drivers/regulator/fan53555.c
+@@ -8,18 +8,19 @@
+ // Copyright (c) 2012 Marvell Technology Ltd.
+ // Yunfan Zhang <yfzhang@marvell.com>
  
-+void dccp_destruct_common(struct sock *sk);
- int dccp_init_sock(struct sock *sk, const __u8 ctl_sock_initialized);
- void dccp_destroy_sock(struct sock *sk);
++#include <linux/bits.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/param.h>
+-#include <linux/err.h>
+ #include <linux/platform_device.h>
++#include <linux/regmap.h>
+ #include <linux/regulator/driver.h>
++#include <linux/regulator/fan53555.h>
+ #include <linux/regulator/machine.h>
+ #include <linux/regulator/of_regulator.h>
+-#include <linux/of_device.h>
+-#include <linux/i2c.h>
+ #include <linux/slab.h>
+-#include <linux/regmap.h>
+-#include <linux/regulator/fan53555.h>
  
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -1000,6 +1000,12 @@ static const struct inet_connection_sock
- #endif
- };
- 
-+static void dccp_v6_sk_destruct(struct sock *sk)
-+{
-+	dccp_destruct_common(sk);
-+	inet6_sock_destruct(sk);
-+}
-+
- /* NOTE: A lot of things set to zero explicitly by call to
-  *       sk_alloc() so need not be done here.
-  */
-@@ -1012,17 +1018,12 @@ static int dccp_v6_init_sock(struct sock
- 		if (unlikely(!dccp_v6_ctl_sock_initialized))
- 			dccp_v6_ctl_sock_initialized = 1;
- 		inet_csk(sk)->icsk_af_ops = &dccp_ipv6_af_ops;
-+		sk->sk_destruct = dccp_v6_sk_destruct;
- 	}
- 
- 	return err;
- }
- 
--static void dccp_v6_destroy_sock(struct sock *sk)
--{
--	dccp_destroy_sock(sk);
--	inet6_destroy_sock(sk);
--}
--
- static struct timewait_sock_ops dccp6_timewait_sock_ops = {
- 	.twsk_obj_size	= sizeof(struct dccp6_timewait_sock),
- };
-@@ -1045,7 +1046,7 @@ static struct proto dccp_v6_prot = {
- 	.accept		   = inet_csk_accept,
- 	.get_port	   = inet_csk_get_port,
- 	.shutdown	   = dccp_shutdown,
--	.destroy	   = dccp_v6_destroy_sock,
-+	.destroy	   = dccp_destroy_sock,
- 	.orphan_count	   = &dccp_orphan_count,
- 	.max_header	   = MAX_DCCP_HEADER,
- 	.obj_size	   = sizeof(struct dccp6_sock),
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -171,12 +171,18 @@ const char *dccp_packet_name(const int t
- 
- EXPORT_SYMBOL_GPL(dccp_packet_name);
- 
--static void dccp_sk_destruct(struct sock *sk)
-+void dccp_destruct_common(struct sock *sk)
- {
- 	struct dccp_sock *dp = dccp_sk(sk);
- 
- 	ccid_hc_tx_delete(dp->dccps_hc_tx_ccid, sk);
- 	dp->dccps_hc_tx_ccid = NULL;
-+}
-+EXPORT_SYMBOL_GPL(dccp_destruct_common);
-+
-+static void dccp_sk_destruct(struct sock *sk)
-+{
-+	dccp_destruct_common(sk);
- 	inet_sock_destruct(sk);
- }
- 
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -109,6 +109,7 @@ void inet6_sock_destruct(struct sock *sk
- 	inet6_cleanup_sock(sk);
- 	inet_sock_destruct(sk);
- }
-+EXPORT_SYMBOL_GPL(inet6_sock_destruct);
- 
- static int inet6_create(struct net *net, struct socket *sock, int protocol,
- 			int kern)
+ /* Voltage setting */
+ #define FAN53555_VSEL0		0x00
+-- 
+2.39.2
+
 
 
