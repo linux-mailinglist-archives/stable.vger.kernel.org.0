@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 339236ECE41
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7892A6ECD59
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232446AbjDXNa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:30:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
+        id S232135AbjDXNWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:22:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232388AbjDXNas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB21C7A8F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:12 -0700 (PDT)
+        with ESMTP id S232071AbjDXNWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70FDE5269
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53AB76230D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 601CBC433A0;
-        Mon, 24 Apr 2023 13:30:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C29162228
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C49C433EF;
+        Mon, 24 Apr 2023 13:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343003;
-        bh=cfJ073jZWuUKyB8yTPziOXBTwqVge2u8UtgBTT4+M2w=;
+        s=korg; t=1682342534;
+        bh=yBdfyn5nOnxEPBgiukEqv9eTSbVvU2JgPuc2MNVNOVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N26Ofn1FeiWedMFICgUlStL5vWMvCnlo2f4FcEe0cWdHbYpUnnnM8xAglCacz1Zx5
-         XAqiV4rK33q582cyK+SpAp+ErvPU4BU1xZw7PDTlANGQKTfWBWz9eoOdjJ4+qt0yB6
-         fYU6beXJsNt6CFXXohw1dHzcII/TKJdQaFm5bIqY=
+        b=EirAQ6K7sHO+a4L8wX/D5QO60lXCArCWjgFoLwJ3Umnhxj+ZjC2Yr4d/mZUWP1McS
+         v/kaLS90rD7sYCgn8wlQwsPhkuhYRLhGSeH1HSXdc+zLXPtuLR6xyiXH4zBAsswi3U
+         k9jquDXnZP9vxRBlMcqQ1XKufzOsc8igYv3cLoQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/110] selftests: sigaltstack: fix -Wuninitialized
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.15 49/73] sched/fair: Consider capacity inversion in util_fits_cpu()
 Date:   Mon, 24 Apr 2023 15:17:03 +0200
-Message-Id: <20230424131137.715389034@linuxfoundation.org>
+Message-Id: <20230424131130.821848422@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,95 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
+commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8 upstream.
 
-Building sigaltstack with clang via:
-$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
+We do consider thermal pressure in util_fits_cpu() for uclamp_min only.
+With the exception of the biggest cores which by definition are the max
+performance point of the system and all tasks by definition should fit.
 
-produces the following warning:
-  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
-  if (sp < (unsigned long)sstack ||
-      ^~
+Even under thermal pressure, the capacity of the biggest CPU is the
+highest in the system and should still fit every task. Except when it
+reaches capacity inversion point, then this is no longer true.
 
-Clang expects these to be declared at global scope; we've fixed this in
-the kernel proper by using the macro `current_stack_pointer`. This is
-defined in different headers for different target architectures, so just
-create a new header that defines the arch-specific register names for
-the stack pointer register, and define it for more targets (at least the
-ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
+We can handle this by using the inverted capacity as capacity_orig in
+util_fits_cpu(). Which not only addresses the problem above, but also
+ensure uclamp_max now considers the inverted capacity. Force fitting
+a task when a CPU is in this adverse state will contribute to making the
+thermal throttling last longer.
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-10-qais.yousef@arm.com
+(cherry picked from commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
- tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
- 2 files changed, 24 insertions(+), 6 deletions(-)
- create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
+ kernel/sched/fair.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-new file mode 100644
-index 0000000000000..ea9bdf3a90b16
---- /dev/null
-+++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#if __alpha__
-+register unsigned long sp asm("$30");
-+#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
-+register unsigned long sp asm("sp");
-+#elif __i386__
-+register unsigned long sp asm("esp");
-+#elif __loongarch64
-+register unsigned long sp asm("$sp");
-+#elif __ppc__
-+register unsigned long sp asm("r1");
-+#elif __s390x__
-+register unsigned long sp asm("%15");
-+#elif __sh__
-+register unsigned long sp asm("r15");
-+#elif __x86_64__
-+register unsigned long sp asm("rsp");
-+#elif __XTENSA__
-+register unsigned long sp asm("a1");
-+#else
-+#error "implement current_stack_pointer equivalent"
-+#endif
-diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
-index c53b070755b65..98d37cb744fb2 100644
---- a/tools/testing/selftests/sigaltstack/sas.c
-+++ b/tools/testing/selftests/sigaltstack/sas.c
-@@ -20,6 +20,7 @@
- #include <sys/auxv.h>
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4159,12 +4159,16 @@ static inline int util_fits_cpu(unsigned
+ 	 * For uclamp_max, we can tolerate a drop in performance level as the
+ 	 * goal is to cap the task. So it's okay if it's getting less.
+ 	 *
+-	 * In case of capacity inversion, which is not handled yet, we should
+-	 * honour the inverted capacity for both uclamp_min and uclamp_max all
+-	 * the time.
++	 * In case of capacity inversion we should honour the inverted capacity
++	 * for both uclamp_min and uclamp_max all the time.
+ 	 */
+-	capacity_orig = capacity_orig_of(cpu);
+-	capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
++	capacity_orig = cpu_in_capacity_inversion(cpu);
++	if (capacity_orig) {
++		capacity_orig_thermal = capacity_orig;
++	} else {
++		capacity_orig = capacity_orig_of(cpu);
++		capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
++	}
  
- #include "../kselftest.h"
-+#include "current_stack_pointer.h"
- 
- #ifndef SS_AUTODISARM
- #define SS_AUTODISARM  (1U << 31)
-@@ -46,12 +47,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
- 	stack_t stk;
- 	struct stk_data *p;
- 
--#if __s390x__
--	register unsigned long sp asm("%15");
--#else
--	register unsigned long sp asm("sp");
--#endif
--
- 	if (sp < (unsigned long)sstack ||
- 			sp >= (unsigned long)sstack + stack_size) {
- 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
--- 
-2.39.2
-
+ 	/*
+ 	 * We want to force a task to fit a cpu as implied by uclamp_max.
 
 
