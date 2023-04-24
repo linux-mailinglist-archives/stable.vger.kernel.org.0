@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A746ECE7D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B386ECD80
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232482AbjDXNdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:33:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59428 "EHLO
+        id S231868AbjDXNYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbjDXNco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:44 -0400
+        with ESMTP id S232052AbjDXNXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BED72A0
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3055BBE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E0F3622E1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35592C433EF;
-        Mon, 24 Apr 2023 13:31:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9702462277
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA0DC4339B;
+        Mon, 24 Apr 2023 13:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343093;
-        bh=yNf+6MgrW2TLuDgOW6ptHVlZmMXDPGptF4rVUsUo/sU=;
+        s=korg; t=1682342627;
+        bh=XGwq8GQxWLk+9uzGbp+aURTXhAaHwDgKbZH2ki201Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1GNRXbkAD9qPDZZrsNsMvWHChvhUbneEifmiHaP/eUn2nKABLL6iRIA9aefOtKno
-         O8OmWkPX56x16gJmxZ+qh2nVd4wZWVAb0vtWpJge9PWE6sOfPJeHwy61ykraS6nNtg
-         XbdyafzB/L12nBu+FnPOdQs3vMYzvmLcLVJkTvuo=
+        b=U+WstsmDh/fGziFnwbddA78snAab8Jgrlkavw0jEmW6fRrbGqtT11EFR0SyWUFOeb
+         dtY7qmJW8iJxo3Gq2dWC6+KISle8PhbHkky8j3vLZDvzV9jWfJDQz/NFJP4Zff6kaz
+         Z+gZmlSFbpYoqDFunuLyTLlNZVTcjQCDWWtg6nug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steve Chou <steve_chou@pesi.com.tw>,
-        Jiajian Ye <yejiajian2018@email.szu.edu.cn>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 075/110] tools/mm/page_owner_sort.c: fix TGID output when cull=tg is used
-Date:   Mon, 24 Apr 2023 15:17:37 +0200
-Message-Id: <20230424131139.230156417@linuxfoundation.org>
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>
+Subject: [PATCH 5.4 35/39] sctp: Call inet6_destroy_sock() via sk->sk_destruct().
+Date:   Mon, 24 Apr 2023 15:17:38 +0200
+Message-Id: <20230424131124.376290381@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Chou <steve_chou@pesi.com.tw>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 9235756885e865070c4be2facda75262dbd85967 upstream.
+commit 6431b0f6ff1633ae598667e4cdd93830074a03e8 upstream.
 
-When using cull option with 'tg' flag, the fprintf is using pid instead
-of tgid. It should use tgid instead.
+After commit d38afeec26ed ("tcp/udp: Call inet6_destroy_sock()
+in IPv6 sk->sk_destruct()."), we call inet6_destroy_sock() in
+sk->sk_destruct() by setting inet6_sock_destruct() to it to make
+sure we do not leak inet6-specific resources.
 
-Link: https://lkml.kernel.org/r/20230411034929.2071501-1-steve_chou@pesi.com.tw
-Fixes: 9c8a0a8e599f4a ("tools/vm/page_owner_sort.c: support for user-defined culling rules")
-Signed-off-by: Steve Chou <steve_chou@pesi.com.tw>
-Cc: Jiajian Ye <yejiajian2018@email.szu.edu.cn>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+SCTP sets its own sk->sk_destruct() in the sctp_init_sock(), and
+SCTPv6 socket reuses it as the init function.
+
+To call inet6_sock_destruct() from SCTPv6 sk->sk_destruct(), we
+set sctp_v6_destruct_sock() in a new init function.
+
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/vm/page_owner_sort.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/socket.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/tools/vm/page_owner_sort.c
-+++ b/tools/vm/page_owner_sort.c
-@@ -847,7 +847,7 @@ int main(int argc, char **argv)
- 			if (cull & CULL_PID || filter & FILTER_PID)
- 				fprintf(fout, ", PID %d", list[i].pid);
- 			if (cull & CULL_TGID || filter & FILTER_TGID)
--				fprintf(fout, ", TGID %d", list[i].pid);
-+				fprintf(fout, ", TGID %d", list[i].tgid);
- 			if (cull & CULL_COMM || filter & FILTER_COMM)
- 				fprintf(fout, ", task_comm_name: %s", list[i].comm);
- 			if (cull & CULL_ALLOCATOR) {
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -5167,13 +5167,17 @@ static void sctp_destroy_sock(struct soc
+ }
+ 
+ /* Triggered when there are no references on the socket anymore */
+-static void sctp_destruct_sock(struct sock *sk)
++static void sctp_destruct_common(struct sock *sk)
+ {
+ 	struct sctp_sock *sp = sctp_sk(sk);
+ 
+ 	/* Free up the HMAC transform. */
+ 	crypto_free_shash(sp->hmac);
++}
+ 
++static void sctp_destruct_sock(struct sock *sk)
++{
++	sctp_destruct_common(sk);
+ 	inet_sock_destruct(sk);
+ }
+ 
+@@ -9308,7 +9312,7 @@ void sctp_copy_sock(struct sock *newsk,
+ 	sctp_sk(newsk)->reuse = sp->reuse;
+ 
+ 	newsk->sk_shutdown = sk->sk_shutdown;
+-	newsk->sk_destruct = sctp_destruct_sock;
++	newsk->sk_destruct = sk->sk_destruct;
+ 	newsk->sk_family = sk->sk_family;
+ 	newsk->sk_protocol = IPPROTO_SCTP;
+ 	newsk->sk_backlog_rcv = sk->sk_prot->backlog_rcv;
+@@ -9539,11 +9543,20 @@ struct proto sctp_prot = {
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ 
+-#include <net/transp_v6.h>
+-static void sctp_v6_destroy_sock(struct sock *sk)
++static void sctp_v6_destruct_sock(struct sock *sk)
++{
++	sctp_destruct_common(sk);
++	inet6_sock_destruct(sk);
++}
++
++static int sctp_v6_init_sock(struct sock *sk)
+ {
+-	sctp_destroy_sock(sk);
+-	inet6_destroy_sock(sk);
++	int ret = sctp_init_sock(sk);
++
++	if (!ret)
++		sk->sk_destruct = sctp_v6_destruct_sock;
++
++	return ret;
+ }
+ 
+ struct proto sctpv6_prot = {
+@@ -9553,8 +9566,8 @@ struct proto sctpv6_prot = {
+ 	.disconnect	= sctp_disconnect,
+ 	.accept		= sctp_accept,
+ 	.ioctl		= sctp_ioctl,
+-	.init		= sctp_init_sock,
+-	.destroy	= sctp_v6_destroy_sock,
++	.init		= sctp_v6_init_sock,
++	.destroy	= sctp_destroy_sock,
+ 	.shutdown	= sctp_shutdown,
+ 	.setsockopt	= sctp_setsockopt,
+ 	.getsockopt	= sctp_getsockopt,
 
 
