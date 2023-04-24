@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66CC26ECE37
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4B16ECD25
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbjDXNaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:30:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58342 "EHLO
+        id S232010AbjDXNVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbjDXNaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A935D76AF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:53 -0700 (PDT)
+        with ESMTP id S231991AbjDXNUv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE9E527B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B8326232C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 253EAC433D2;
-        Mon, 24 Apr 2023 13:29:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18C3D6220D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B556C433EF;
+        Mon, 24 Apr 2023 13:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342969;
-        bh=tQmjXt9Cc7Z6kWHWMyjev3Vj4rxIBivhPAu7q7T9ULg=;
+        s=korg; t=1682342431;
+        bh=3rOnC9Pmb6xHeS8B47/8/ICny9UiuDz2w9ohlc4eejc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJzVbdv1ScNWILALNm7a++mqseBwF9gl03AYXZFY/0IVjdGVBmrE+4m9R0S6o/oDE
-         CUtfsVSSOYLNWrQ+QwpYFHQLJ90mwPpEUZMtT9YKszgj51K8EqxNpdIHz/Gpb67fFD
-         yuSDTSeRnrdUEedio47uqmFpoOe/c1r5JlTy6Lw4=
+        b=oErCLcqvj32FnEPw/hF1OeD6PVWhL+oXAdKmSNam4EgjhalCCopfStoR0UljYVMZC
+         W5A/777cYLWaoY571GhXQQ+qVnTV4PysMef1n2pfEwIVe0RQT3afzsTmYlAz2k5wIC
+         l/4V4wI2dZAvQiWdhyjcP/mwBuGxNdmGEJheqJTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Natalia Petrova <n.petrova@fintech.ru>
-Subject: [PATCH 6.2 027/110] mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
-Date:   Mon, 24 Apr 2023 15:16:49 +0200
-Message-Id: <20230424131137.154211982@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 5.15 36/73] rtmutex: Add acquire semantics for rtmutex lock acquisition slow path
+Date:   Mon, 24 Apr 2023 15:16:50 +0200
+Message-Id: <20230424131130.302297883@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,45 +55,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-[ Upstream commit c0e73276f0fcbbd3d4736ba975d7dc7a48791b0c ]
+commit 1c0908d8e441631f5b8ba433523cf39339ee2ba0 upstream.
 
-Function mlxfw_mfa2_tlv_multi_get() returns NULL if 'tlv' in
-question does not pass checks in mlxfw_mfa2_tlv_payload_get(). This
-behaviour may lead to NULL pointer dereference in 'multi->total_len'.
-Fix this issue by testing mlxfw_mfa2_tlv_multi_get()'s return value
-against NULL.
+Jan Kara reported the following bug triggering on 6.0.5-rt14 running dbench
+on XFS on arm64.
 
-Found by Linux Verification Center (linuxtesting.org) with static
-analysis tool SVACE.
+ kernel BUG at fs/inode.c:625!
+ Internal error: Oops - BUG: 0 [#1] PREEMPT_RT SMP
+ CPU: 11 PID: 6611 Comm: dbench Tainted: G            E   6.0.0-rt14-rt+ #1
+ pc : clear_inode+0xa0/0xc0
+ lr : clear_inode+0x38/0xc0
+ Call trace:
+  clear_inode+0xa0/0xc0
+  evict+0x160/0x180
+  iput+0x154/0x240
+  do_unlinkat+0x184/0x300
+  __arm64_sys_unlinkat+0x48/0xc0
+  el0_svc_common.constprop.4+0xe4/0x2c0
+  do_el0_svc+0xac/0x100
+  el0_svc+0x78/0x200
+  el0t_64_sync_handler+0x9c/0xc0
+  el0t_64_sync+0x19c/0x1a0
 
-Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
-Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20230417120718.52325-1-n.zhandarovich@fintech.ru
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It also affects 6.1-rc7-rt5 and affects a preempt-rt fork of 5.14 so this
+is likely a bug that existed forever and only became visible when ARM
+support was added to preempt-rt. The same problem does not occur on x86-64
+and he also reported that converting sb->s_inode_wblist_lock to
+raw_spinlock_t makes the problem disappear indicating that the RT spinlock
+variant is the problem.
+
+Which in turn means that RT mutexes on ARM64 and any other weakly ordered
+architecture are affected by this independent of RT.
+
+Will Deacon observed:
+
+  "I'd be more inclined to be suspicious of the slowpath tbh, as we need to
+   make sure that we have acquire semantics on all paths where the lock can
+   be taken. Looking at the rtmutex code, this really isn't obvious to me
+   -- for example, try_to_take_rt_mutex() appears to be able to return via
+   the 'takeit' label without acquire semantics and it looks like we might
+   be relying on the caller's subsequent _unlock_ of the wait_lock for
+   ordering, but that will give us release semantics which aren't correct."
+
+Sebastian Andrzej Siewior prototyped a fix that does work based on that
+comment but it was a little bit overkill and added some fences that should
+not be necessary.
+
+The lock owner is updated with an IRQ-safe raw spinlock held, but the
+spin_unlock does not provide acquire semantics which are needed when
+acquiring a mutex.
+
+Adds the necessary acquire semantics for lock owner updates in the slow path
+acquisition and the waiter bit logic.
+
+It successfully completed 10 iterations of the dbench workload while the
+vanilla kernel fails on the first iteration.
+
+[ bigeasy@linutronix.de: Initial prototype fix ]
+
+Fixes: 700318d1d7b38 ("locking/rtmutex: Use acquire/release semantics")
+Fixes: 23f78d4a03c5 ("[PATCH] pi-futex: rt mutex core")
+Reported-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221202100223.6mevpbl7i6x5udfd@techsingularity.net
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/locking/rtmutex.c     |   55 +++++++++++++++++++++++++++++++++++--------
+ kernel/locking/rtmutex_api.c |    6 ++--
+ 2 files changed, 49 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-index 017d68f1e1232..972c571b41587 100644
---- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-+++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
-@@ -31,6 +31,8 @@ mlxfw_mfa2_tlv_next(const struct mlxfw_mfa2_file *mfa2_file,
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -87,15 +87,31 @@ static inline int __ww_mutex_check_kill(
+  * set this bit before looking at the lock.
+  */
  
- 	if (tlv->type == MLXFW_MFA2_TLV_MULTI_PART) {
- 		multi = mlxfw_mfa2_tlv_multi_get(mfa2_file, tlv);
-+		if (!multi)
-+			return NULL;
- 		tlv_len = NLA_ALIGN(tlv_len + be16_to_cpu(multi->total_len));
- 	}
+-static __always_inline void
+-rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
++static __always_inline struct task_struct *
++rt_mutex_owner_encode(struct rt_mutex_base *lock, struct task_struct *owner)
+ {
+ 	unsigned long val = (unsigned long)owner;
  
--- 
-2.39.2
-
+ 	if (rt_mutex_has_waiters(lock))
+ 		val |= RT_MUTEX_HAS_WAITERS;
+ 
+-	WRITE_ONCE(lock->owner, (struct task_struct *)val);
++	return (struct task_struct *)val;
++}
++
++static __always_inline void
++rt_mutex_set_owner(struct rt_mutex_base *lock, struct task_struct *owner)
++{
++	/*
++	 * lock->wait_lock is held but explicit acquire semantics are needed
++	 * for a new lock owner so WRITE_ONCE is insufficient.
++	 */
++	xchg_acquire(&lock->owner, rt_mutex_owner_encode(lock, owner));
++}
++
++static __always_inline void rt_mutex_clear_owner(struct rt_mutex_base *lock)
++{
++	/* lock->wait_lock is held so the unlock provides release semantics. */
++	WRITE_ONCE(lock->owner, rt_mutex_owner_encode(lock, NULL));
+ }
+ 
+ static __always_inline void clear_rt_mutex_waiters(struct rt_mutex_base *lock)
+@@ -104,7 +120,8 @@ static __always_inline void clear_rt_mut
+ 			((unsigned long)lock->owner & ~RT_MUTEX_HAS_WAITERS);
+ }
+ 
+-static __always_inline void fixup_rt_mutex_waiters(struct rt_mutex_base *lock)
++static __always_inline void
++fixup_rt_mutex_waiters(struct rt_mutex_base *lock, bool acquire_lock)
+ {
+ 	unsigned long owner, *p = (unsigned long *) &lock->owner;
+ 
+@@ -170,8 +187,21 @@ static __always_inline void fixup_rt_mut
+ 	 * still set.
+ 	 */
+ 	owner = READ_ONCE(*p);
+-	if (owner & RT_MUTEX_HAS_WAITERS)
+-		WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
++	if (owner & RT_MUTEX_HAS_WAITERS) {
++		/*
++		 * See rt_mutex_set_owner() and rt_mutex_clear_owner() on
++		 * why xchg_acquire() is used for updating owner for
++		 * locking and WRITE_ONCE() for unlocking.
++		 *
++		 * WRITE_ONCE() would work for the acquire case too, but
++		 * in case that the lock acquisition failed it might
++		 * force other lockers into the slow path unnecessarily.
++		 */
++		if (acquire_lock)
++			xchg_acquire(p, owner & ~RT_MUTEX_HAS_WAITERS);
++		else
++			WRITE_ONCE(*p, owner & ~RT_MUTEX_HAS_WAITERS);
++	}
+ }
+ 
+ /*
+@@ -206,6 +236,13 @@ static __always_inline void mark_rt_mute
+ 		owner = *p;
+ 	} while (cmpxchg_relaxed(p, owner,
+ 				 owner | RT_MUTEX_HAS_WAITERS) != owner);
++
++	/*
++	 * The cmpxchg loop above is relaxed to avoid back-to-back ACQUIRE
++	 * operations in the event of contention. Ensure the successful
++	 * cmpxchg is visible.
++	 */
++	smp_mb__after_atomic();
+ }
+ 
+ /*
+@@ -1232,7 +1269,7 @@ static int __sched __rt_mutex_slowtryloc
+ 	 * try_to_take_rt_mutex() sets the lock waiters bit
+ 	 * unconditionally. Clean this up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 
+ 	return ret;
+ }
+@@ -1592,7 +1629,7 @@ static int __sched __rt_mutex_slowlock(s
+ 	 * try_to_take_rt_mutex() sets the waiter bit
+ 	 * unconditionally. We might have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	return ret;
+ }
+ 
+@@ -1702,7 +1739,7 @@ static void __sched rtlock_slowlock_lock
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally.
+ 	 * We might have to fix that up:
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	debug_rt_mutex_free_waiter(&waiter);
+ }
+ 
+--- a/kernel/locking/rtmutex_api.c
++++ b/kernel/locking/rtmutex_api.c
+@@ -245,7 +245,7 @@ void __sched rt_mutex_init_proxy_locked(
+ void __sched rt_mutex_proxy_unlock(struct rt_mutex_base *lock)
+ {
+ 	debug_rt_mutex_proxy_unlock(lock);
+-	rt_mutex_set_owner(lock, NULL);
++	rt_mutex_clear_owner(lock);
+ }
+ 
+ /**
+@@ -360,7 +360,7 @@ int __sched rt_mutex_wait_proxy_lock(str
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
+ 	 * have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, true);
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
+ 	return ret;
+@@ -416,7 +416,7 @@ bool __sched rt_mutex_cleanup_proxy_lock
+ 	 * try_to_take_rt_mutex() sets the waiter bit unconditionally. We might
+ 	 * have to fix that up.
+ 	 */
+-	fixup_rt_mutex_waiters(lock);
++	fixup_rt_mutex_waiters(lock, false);
+ 
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
 
 
