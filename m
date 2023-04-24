@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A99356ECD6D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7122F6ECDC5
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232083AbjDXNXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:23:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
+        id S232212AbjDXN0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232153AbjDXNXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:23:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8936C5B91
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:23:05 -0700 (PDT)
+        with ESMTP id S232213AbjDXN0h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4C6618B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AD6E61E8D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7956EC433EF;
-        Mon, 24 Apr 2023 13:23:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6732F6229C
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C4D8C433EF;
+        Mon, 24 Apr 2023 13:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342584;
-        bh=DPDY4dLUTQFSWfyffi7VSXhzq2fp9bKn4Z6f3hsXLJY=;
+        s=korg; t=1682342795;
+        bh=LvP7QrQe49AfyW2vov+5OvXDAGbRc/YpJZlTrayh36o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbMtfQbGjblpkm+o2z0aKgve3ymsvLyaEHhzV2hcFS9MdXW2hLL1q3jBkney0BjQY
-         Ig96zaR90c8vAVNzGYRfSrGkiCmKRoFoybkvEoL08YTYKR4qF6oZUhuv4Xr9pXvjjM
-         HF5qAnQtQUcvCYMKMzrFokfUYJ/iEbxm5hoH7lw4=
+        b=c3eeGubuplzpFeaAjfA0XF2J32apWmQ1eT6RFuY+EKPMViJv6klZcTkgVNPmMWlXA
+         8NPoQEXuLUHljOA6bQOR8Yihx3Kh/RrXWFlk6dC9k7Q7Yc15xC095TJIEDkC2klf5k
+         bbMBd3LJJpf3gmSm7oCCivLWB4Fe89+WsPh9D/h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/39] xen/netback: use same error messages for same errors
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 61/98] nilfs2: initialize unused bytes in segment summary blocks
 Date:   Mon, 24 Apr 2023 15:17:24 +0200
-Message-Id: <20230424131123.852713022@linuxfoundation.org>
+Message-Id: <20230424131136.225863657@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,42 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 2eca98e5b24d01c02b46c67be05a5f98cc9789b1 ]
+commit ef832747a82dfbc22a3702219cc716f449b24e4a upstream.
 
-Issue the same error message in case an illegal page boundary crossing
-has been detected in both cases where this is tested.
+Syzbot still reports uninit-value in nilfs_add_checksums_on_logs() for
+KMSAN enabled kernels after applying commit 7397031622e0 ("nilfs2:
+initialize "struct nilfs_binfo_dat"->bi_pad field").
 
-Suggested-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20230329080259.14823-1-jgross@suse.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is because the unused bytes at the end of each block in segment
+summaries are not initialized.  So this fixes the issue by padding the
+unused bytes with null bytes.
+
+Link: https://lkml.kernel.org/r/20230417173513.12598-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+048585f3f4227bb2b49b@syzkaller.appspotmail.com
+  Link: https://syzkaller.appspot.com/bug?extid=048585f3f4227bb2b49b
+Cc: Alexander Potapenko <glider@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/netback.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nilfs2/segment.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 3dfc5c66f1408..a3078755939e3 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -989,10 +989,8 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -430,6 +430,23 @@ static int nilfs_segctor_reset_segment_b
+ 	return 0;
+ }
  
- 		/* No crossing a page as the payload mustn't fragment. */
- 		if (unlikely((txreq.offset + txreq.size) > XEN_PAGE_SIZE)) {
--			netdev_err(queue->vif->dev,
--				   "txreq.offset: %u, size: %u, end: %lu\n",
--				   txreq.offset, txreq.size,
--				   (unsigned long)(txreq.offset&~XEN_PAGE_MASK) + txreq.size);
-+			netdev_err(queue->vif->dev, "Cross page boundary, txreq.offset: %u, size: %u\n",
-+				   txreq.offset, txreq.size);
- 			xenvif_fatal_tx_err(queue->vif);
- 			break;
- 		}
--- 
-2.39.2
-
++/**
++ * nilfs_segctor_zeropad_segsum - zero pad the rest of the segment summary area
++ * @sci: segment constructor object
++ *
++ * nilfs_segctor_zeropad_segsum() zero-fills unallocated space at the end of
++ * the current segment summary block.
++ */
++static void nilfs_segctor_zeropad_segsum(struct nilfs_sc_info *sci)
++{
++	struct nilfs_segsum_pointer *ssp;
++
++	ssp = sci->sc_blk_cnt > 0 ? &sci->sc_binfo_ptr : &sci->sc_finfo_ptr;
++	if (ssp->offset < ssp->bh->b_size)
++		memset(ssp->bh->b_data + ssp->offset, 0,
++		       ssp->bh->b_size - ssp->offset);
++}
++
+ static int nilfs_segctor_feed_segment(struct nilfs_sc_info *sci)
+ {
+ 	sci->sc_nblk_this_inc += sci->sc_curseg->sb_sum.nblocks;
+@@ -438,6 +455,7 @@ static int nilfs_segctor_feed_segment(st
+ 				* The current segment is filled up
+ 				* (internal code)
+ 				*/
++	nilfs_segctor_zeropad_segsum(sci);
+ 	sci->sc_curseg = NILFS_NEXT_SEGBUF(sci->sc_curseg);
+ 	return nilfs_segctor_reset_segment_buffer(sci);
+ }
+@@ -542,6 +560,7 @@ static int nilfs_segctor_add_file_block(
+ 		goto retry;
+ 	}
+ 	if (unlikely(required)) {
++		nilfs_segctor_zeropad_segsum(sci);
+ 		err = nilfs_segbuf_extend_segsum(segbuf);
+ 		if (unlikely(err))
+ 			goto failed;
+@@ -1531,6 +1550,7 @@ static int nilfs_segctor_collect(struct
+ 		nadd = min_t(int, nadd << 1, SC_MAX_SEGDELTA);
+ 		sci->sc_stage = prev_stage;
+ 	}
++	nilfs_segctor_zeropad_segsum(sci);
+ 	nilfs_segctor_truncate_segments(sci, sci->sc_curseg, nilfs->ns_sufile);
+ 	return 0;
+ 
 
 
