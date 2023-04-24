@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB376EC6C6
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 09:06:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6F16EC6CF
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 09:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231252AbjDXHG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 03:06:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
+        id S231262AbjDXHIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 03:08:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231131AbjDXHG1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 03:06:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE9E2D79
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 00:06:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C643A611D9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 07:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC1E9C433D2;
-        Mon, 24 Apr 2023 07:05:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682319958;
-        bh=q5RUj6O8OJYNRS3mZhwIK0BK5owh/KtrZX5Kykkc/4Q=;
-        h=Subject:To:Cc:From:Date:From;
-        b=sLpIPlH2CkMR6gCwTEk2VbJGwT0NBECjk71ZXKpfu9PPGK1u1mB+vwVIT/2GhWSba
-         w4+DS6efKuYmgCn9zuLqQKzyiiu8yGGcxS1qscyYLuJ7KGJk3Lr5450DDUgo26nYab
-         9pU02LIG+y2hK37RhlQgrYi3cGOIBAfEstmQekF0=
-Subject: FAILED: patch "[PATCH] mm/page_alloc: fix potential deadlock on zonelist_update_seq" failed to apply to 4.14-stable tree
-To:     penguin-kernel@I-love.SAKURA.ne.jp, akpm@linux-foundation.org,
-        david@redhat.com, ilpo.jarvinen@linux.intel.com,
-        john.ogness@linutronix.de, mgorman@techsingularity.net,
-        mhocko@suse.com, pmladek@suse.com, quic_pdaly@quicinc.com,
-        rostedt@goodmis.org, senozhatsky@chromium.org,
-        stable@vger.kernel.org,
-        syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Apr 2023 09:05:55 +0200
-Message-ID: <2023042455-skinless-muzzle-1c50@gregkh>
+        with ESMTP id S230415AbjDXHIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 03:08:16 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432AA1AC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 00:08:15 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pqqJ3-00075o-OA; Mon, 24 Apr 2023 09:08:13 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pqqJ2-00DQEb-8L; Mon, 24 Apr 2023 09:08:12 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pqqJ1-00Fld8-Ic; Mon, 24 Apr 2023 09:08:11 +0200
+Date:   Mon, 24 Apr 2023 09:07:57 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Munehisa Kamata <kamatam@amazon.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: stable-rc: 5.4: drivers/pwm/pwm-meson.c:313:25: error:
+ assignment of member 'polarity' in read-only object
+Message-ID: <20230424070757.walwm3q76a536556@pengutronix.de>
+References: <CA+G9fYuZdBJx8jF2STHzRZ8dw86awZ68OQen6bzgB=H+Z-tPAQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pdwmzgflt4h5e3aq"
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYuZdBJx8jF2STHzRZ8dw86awZ68OQen6bzgB=H+Z-tPAQ@mail.gmail.com>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,208 +59,128 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--pdwmzgflt4h5e3aq
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-To reproduce the conflict and resubmit, you may use the following commands:
+Hello,
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
-git checkout FETCH_HEAD
-git cherry-pick -x 1007843a91909a4995ee78a538f62d8665705b66
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023042455-skinless-muzzle-1c50@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
+On Mon, Apr 24, 2023 at 03:16:34AM +0530, Naresh Kamboju wrote:
+> Following build errors noticed on arm64 and arm while building stable-rc =
+5.4.
+>=20
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>=20
+> Build error:
+> -----------
+>   drivers/pwm/pwm-meson.c: In function 'meson_pwm_apply':
+>   drivers/pwm/pwm-meson.c:313:25: error: assignment of member
+> 'polarity' in read-only object
+>     313 |         state->polarity =3D PWM_POLARITY_NORMAL;
+>         |                         ^
+>   make[3]: *** [scripts/Makefile.build:262: drivers/pwm/pwm-meson.o] Erro=
+r 1
+>   make[3]: Target '__build' not remade because of errors.
+>   make[2]: *** [scripts/Makefile.build:497: drivers/pwm] Error 2
+>=20
+>=20
+> Suspected commit:
+> ------------
+>   pwm: meson: Explicitly set .polarity in .get_state()
+>   commit 8caa81eb950cb2e9d2d6959b37d853162d197f57 upstream.
 
-Possible dependencies:
+Thanks for the report. I sent a fix to that patch in reply to the patch
+being announced to be picked for 5.4.y, but failed to Cc you. I just
+replied to the mail, so it didn't even go to stable@vger.kernel.org.
 
-1007843a9190 ("mm/page_alloc: fix potential deadlock on zonelist_update_seq seqlock")
-3d36424b3b58 ("mm/page_alloc: fix race condition between build_all_zonelists and page allocation")
+For reference, here comes the fixed patch again, see below.
 
-thanks,
+Best regards
+Uwe
 
-greg k-h
+------->8--------
+=46rom: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+Date: Wed, 22 Mar 2023 22:45:44 +0100
+Subject: [PATCH] pwm: meson: Explicitly set .polarity in .get_state()
 
------------------- original commit in Linus's tree ------------------
+[ Upstream commit 8caa81eb950cb2e9d2d6959b37d853162d197f57 ]
 
-From 1007843a91909a4995ee78a538f62d8665705b66 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Tue, 4 Apr 2023 23:31:58 +0900
-Subject: [PATCH] mm/page_alloc: fix potential deadlock on zonelist_update_seq
- seqlock
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+The driver only supports normal polarity. Complete the implementation of
+=2Eget_state() by setting .polarity accordingly.
 
-syzbot is reporting circular locking dependency which involves
-zonelist_update_seq seqlock [1], for this lock is checked by memory
-allocation requests which do not need to be retried.
+This fixes a regression that was possible since commit c73a3107624d
+("pwm: Handle .get_state() failures") which stopped to zero-initialize
+the state passed to the .get_state() callback. This was reported at
+https://forum.odroid.com/viewtopic.php?f=3D177&t=3D46360 . While this was an
+unintended side effect, the real issue is the driver's callback not
+setting the polarity.
 
-One deadlock scenario is kmalloc(GFP_ATOMIC) from an interrupt handler.
+There is a complicating fact, that the .apply() callback fakes support
+for inversed polarity. This is not (and cannot) be matched by
+=2Eget_state(). As fixing this isn't easy, only point it out in a comment
+to prevent authors of other drivers from copying that approach.
 
-  CPU0
-  ----
-  __build_all_zonelists() {
-    write_seqlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount odd
-    // e.g. timer interrupt handler runs at this moment
-      some_timer_func() {
-        kmalloc(GFP_ATOMIC) {
-          __alloc_pages_slowpath() {
-            read_seqbegin(&zonelist_update_seq) {
-              // spins forever because zonelist_update_seq.seqcount is odd
-            }
-          }
-        }
-      }
-    // e.g. timer interrupt handler finishes
-    write_sequnlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount even
-  }
+Fixes: c375bcbaabdb ("pwm: meson: Read the full hardware state in meson_pwm=
+_get_state()")
+Reported-by: Munehisa Kamata <kamatam@amazon.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20230310191405.2606296-1-u.kleine-koenig@pe=
+ngutronix.de
+Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+---
+ drivers/pwm/pwm-meson.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This deadlock scenario can be easily eliminated by not calling
-read_seqbegin(&zonelist_update_seq) from !__GFP_DIRECT_RECLAIM allocation
-requests, for retry is applicable to only __GFP_DIRECT_RECLAIM allocation
-requests.  But Michal Hocko does not know whether we should go with this
-approach.
-
-Another deadlock scenario which syzbot is reporting is a race between
-kmalloc(GFP_ATOMIC) from tty_insert_flip_string_and_push_buffer() with
-port->lock held and printk() from __build_all_zonelists() with
-zonelist_update_seq held.
-
-  CPU0                                   CPU1
-  ----                                   ----
-  pty_write() {
-    tty_insert_flip_string_and_push_buffer() {
-                                         __build_all_zonelists() {
-                                           write_seqlock(&zonelist_update_seq);
-                                           build_zonelists() {
-                                             printk() {
-                                               vprintk() {
-                                                 vprintk_default() {
-                                                   vprintk_emit() {
-                                                     console_unlock() {
-                                                       console_flush_all() {
-                                                         console_emit_next_record() {
-                                                           con->write() = serial8250_console_write() {
-      spin_lock_irqsave(&port->lock, flags);
-      tty_insert_flip_string() {
-        tty_insert_flip_string_fixed_flag() {
-          __tty_buffer_request_room() {
-            tty_buffer_alloc() {
-              kmalloc(GFP_ATOMIC | __GFP_NOWARN) {
-                __alloc_pages_slowpath() {
-                  zonelist_iter_begin() {
-                    read_seqbegin(&zonelist_update_seq); // spins forever because zonelist_update_seq.seqcount is odd
-                                                             spin_lock_irqsave(&port->lock, flags); // spins forever because port->lock is held
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      spin_unlock_irqrestore(&port->lock, flags);
-                                                             // message is printed to console
-                                                             spin_unlock_irqrestore(&port->lock, flags);
-                                                           }
-                                                         }
-                                                       }
-                                                     }
-                                                   }
-                                                 }
-                                               }
-                                             }
-                                           }
-                                           write_sequnlock(&zonelist_update_seq);
-                                         }
-    }
-  }
-
-This deadlock scenario can be eliminated by
-
-  preventing interrupt context from calling kmalloc(GFP_ATOMIC)
-
-and
-
-  preventing printk() from calling console_flush_all()
-
-while zonelist_update_seq.seqcount is odd.
-
-Since Petr Mladek thinks that __build_all_zonelists() can become a
-candidate for deferring printk() [2], let's address this problem by
-
-  disabling local interrupts in order to avoid kmalloc(GFP_ATOMIC)
-
-and
-
-  disabling synchronous printk() in order to avoid console_flush_all()
-
-.
-
-As a side effect of minimizing duration of zonelist_update_seq.seqcount
-being odd by disabling synchronous printk(), latency at
-read_seqbegin(&zonelist_update_seq) for both !__GFP_DIRECT_RECLAIM and
-__GFP_DIRECT_RECLAIM allocation requests will be reduced.  Although, from
-lockdep perspective, not calling read_seqbegin(&zonelist_update_seq) (i.e.
-do not record unnecessary locking dependency) from interrupt context is
-still preferable, even if we don't allow calling kmalloc(GFP_ATOMIC)
-inside
-write_seqlock(&zonelist_update_seq)/write_sequnlock(&zonelist_update_seq)
-section...
-
-Link: https://lkml.kernel.org/r/8796b95c-3da3-5885-fddd-6ef55f30e4d3@I-love.SAKURA.ne.jp
-Fixes: 3d36424b3b58 ("mm/page_alloc: fix race condition between build_all_zonelists and page allocation")
-Link: https://lkml.kernel.org/r/ZCrs+1cDqPWTDFNM@alley [2]
-Reported-by: syzbot <syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com>
-  Link: https://syzkaller.appspot.com/bug?extid=223c7461c58c58a4cb10 [1]
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Cc: John Ogness <john.ogness@linutronix.de>
-Cc: Patrick Daly <quic_pdaly@quicinc.com>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7136c36c5d01..e8b4f294d763 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6632,7 +6632,21 @@ static void __build_all_zonelists(void *data)
- 	int nid;
- 	int __maybe_unused cpu;
- 	pg_data_t *self = data;
-+	unsigned long flags;
- 
+diff --git a/drivers/pwm/pwm-meson.c b/drivers/pwm/pwm-meson.c
+index 6245bbdb6e6c..3c81858a8261 100644
+--- a/drivers/pwm/pwm-meson.c
++++ b/drivers/pwm/pwm-meson.c
+@@ -168,6 +168,12 @@ static int meson_pwm_calc(struct meson_pwm *meson, str=
+uct pwm_device *pwm,
+ 	duty =3D state->duty_cycle;
+ 	period =3D state->period;
+=20
 +	/*
-+	 * Explicitly disable this CPU's interrupts before taking seqlock
-+	 * to prevent any IRQ handler from calling into the page allocator
-+	 * (e.g. GFP_ATOMIC) that could hit zonelist_iter_begin and livelock.
++	 * Note this is wrong. The result is an output wave that isn't really
++	 * inverted and so is wrongly identified by .get_state as normal.
++	 * Fixing this needs some care however as some machines might rely on
++	 * this.
 +	 */
-+	local_irq_save(flags);
-+	/*
-+	 * Explicitly disable this CPU's synchronous printk() before taking
-+	 * seqlock to prevent any printk() from trying to hold port->lock, for
-+	 * tty_insert_flip_string_and_push_buffer() on other CPU might be
-+	 * calling kmalloc(GFP_ATOMIC | __GFP_NOWARN) with port->lock held.
-+	 */
-+	printk_deferred_enter();
- 	write_seqlock(&zonelist_update_seq);
- 
- #ifdef CONFIG_NUMA
-@@ -6671,6 +6685,8 @@ static void __build_all_zonelists(void *data)
+ 	if (state->polarity =3D=3D PWM_POLARITY_INVERSED)
+ 		duty =3D period - duty;
+=20
+@@ -366,6 +372,7 @@ static void meson_pwm_get_state(struct pwm_chip *chip, =
+struct pwm_device *pwm,
+ 		state->period =3D 0;
+ 		state->duty_cycle =3D 0;
  	}
- 
- 	write_sequnlock(&zonelist_update_seq);
-+	printk_deferred_exit();
-+	local_irq_restore(flags);
++	state->polarity =3D PWM_POLARITY_NORMAL;
  }
- 
- static noinline void __init
+=20
+ static const struct pwm_ops meson_pwm_ops =3D {
+--=20
+2.39.2
 
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--pdwmzgflt4h5e3aq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmRGKrwACgkQj4D7WH0S
+/k4+wggAtqrbN38/LsXHvres745QnSZWGnPdXfyNlFjkhcon1cmCBaCBN+6UK2BS
+eBgSf8fFHqp1VdF6Jd55lJl6UTTy+Ah9Th3s5GamCXmS1lg2AEHs72uw7rsgp9kL
+xIIlGqfqU2G1RdIoPLmoxMTfmi48+9np7CQCZRZquiT6ESUQzvnXKnn1o6Exccr2
+v7OKSWTfx0Wj4um3zQyoz5g0+va2457IARQXyhKQn6F4uIAF9OMHQ1jfFDTod6RT
+v2rt887fR1AjE/yNMD7zxxn3YHPHRjWqIeJbTRIdg1aSb8xf9o6ht8541Jelcv7R
+fw6DcVYsTs5g5JcMw8nUWDEgZkFT7w==
+=x1IB
+-----END PGP SIGNATURE-----
+
+--pdwmzgflt4h5e3aq--
