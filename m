@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 666826ECF12
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF32A6ECF4D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232426AbjDXNh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38226 "EHLO
+        id S232792AbjDXNjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbjDXNho (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:44 -0400
+        with ESMTP id S232662AbjDXNjK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40AD193C8
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:37:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A659EFF
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21A3F623E5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37150C433D2;
-        Mon, 24 Apr 2023 13:36:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F19A9623BC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1381FC433D2;
+        Mon, 24 Apr 2023 13:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343402;
-        bh=gO+GdgzoIZYjyjSatOpE+L9B1XWj2PfSgMH+vHfqlEY=;
+        s=korg; t=1682343537;
+        bh=tX943alFEAj2EnDWYkla04r0Y4G6WHtovotRMKxqkaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acHh7+xL95GaLDaI4JUM1GiGLh+DWDeD5EATDZjTCBG1trJXfSxkLawubFLB93do6
-         HJflfcG//+4x8lWvkqGZJLqPs84OyJatpVXUIrnBTV8NUwGeaxnu8zeCgWC+3qs/ql
-         5SkshD8cPw2GvG4t0tuxpMJMGJAMBVI/t98KLrtY=
+        b=OuXcCkj9Hs6NqGFvpps07ZPGHQ2gQfi1vhT6AODOhyIAx5/XNCClvTpCAgFm95z+V
+         SmJqTHMtIZmLI7Lr+pEPW47q4sP2TrohVomkuHX8oLcPeo08CrWdoQUtl5xl7L8Ahq
+         EuwF5LB+ZoXiS27IqyV4Iwrm2cewMJ03rRDDp4tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/28] net: dsa: b53: mmap: add phy ops
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Natalia Petrova <n.petrova@fintech.ru>
+Subject: [PATCH 4.19 06/29] mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
 Date:   Mon, 24 Apr 2023 15:18:33 +0200
-Message-Id: <20230424131121.734824859@linuxfoundation.org>
+Message-Id: <20230424131121.365613893@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
-References: <20230424131121.331252806@linuxfoundation.org>
+In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
+References: <20230424131121.155649464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
+[ Upstream commit c0e73276f0fcbbd3d4736ba975d7dc7a48791b0c ]
 
-Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
-B53_PORT_MII_PAGE registers which hangs the device.
-This access should be done through the MDIO Mux bus controller.
+Function mlxfw_mfa2_tlv_multi_get() returns NULL if 'tlv' in
+question does not pass checks in mlxfw_mfa2_tlv_payload_get(). This
+behaviour may lead to NULL pointer dereference in 'multi->total_len'.
+Fix this issue by testing mlxfw_mfa2_tlv_multi_get()'s return value
+against NULL.
 
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Found by Linux Verification Center (linuxtesting.org) with static
+analysis tool SVACE.
+
+Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
+Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20230417120718.52325-1-n.zhandarovich@fintech.ru
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
-index ef63d24fef814..985eb0bbf7dbd 100644
---- a/drivers/net/dsa/b53/b53_mmap.c
-+++ b/drivers/net/dsa/b53/b53_mmap.c
-@@ -207,6 +207,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
+index 0094b92a233ba..31c0d6ee81b16 100644
+--- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
++++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c
+@@ -62,6 +62,8 @@ mlxfw_mfa2_tlv_next(const struct mlxfw_mfa2_file *mfa2_file,
  
-+static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
-+			       u16 *value)
-+{
-+	return -EIO;
-+}
-+
-+static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
-+				u16 value)
-+{
-+	return -EIO;
-+}
-+
- static const struct b53_io_ops b53_mmap_ops = {
- 	.read8 = b53_mmap_read8,
- 	.read16 = b53_mmap_read16,
-@@ -218,6 +230,8 @@ static const struct b53_io_ops b53_mmap_ops = {
- 	.write32 = b53_mmap_write32,
- 	.write48 = b53_mmap_write48,
- 	.write64 = b53_mmap_write64,
-+	.phy_read16 = b53_mmap_phy_read16,
-+	.phy_write16 = b53_mmap_phy_write16,
- };
+ 	if (tlv->type == MLXFW_MFA2_TLV_MULTI_PART) {
+ 		multi = mlxfw_mfa2_tlv_multi_get(mfa2_file, tlv);
++		if (!multi)
++			return NULL;
+ 		tlv_len = NLA_ALIGN(tlv_len + be16_to_cpu(multi->total_len));
+ 	}
  
- static int b53_mmap_probe(struct platform_device *pdev)
 -- 
 2.39.2
 
