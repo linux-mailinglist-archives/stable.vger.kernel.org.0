@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02AB46ECECB
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E896ECE90
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232586AbjDXNf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37454 "EHLO
+        id S232525AbjDXNdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:33:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232611AbjDXNfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:11 -0400
+        with ESMTP id S232531AbjDXNdX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4597A9C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:34:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA1183EA
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B941C62332
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:34:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFD88C433EF;
-        Mon, 24 Apr 2023 13:34:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1807962352
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29DB3C433D2;
+        Mon, 24 Apr 2023 13:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343291;
-        bh=WzjqRGY6nXFFFaf7uh7lafQkRYJ4BgoM7BWaZc60UC4=;
+        s=korg; t=1682343177;
+        bh=E5MLtgRyfqBoZdloFp77SgptROvj0OSsfz/NoVgW8Ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1a7N04LrMK6dBqo4QmvF3bae2706iT14/3wBzELWm8JBs8ldV/Mr1aaItEsu0wVlB
-         6semZ3QLvbUCifY8r9/h+mTb2Y0v1Bm+2kuGFEVA6G+JQM2h9DZAggT9jX6Lk3QGaN
-         IIvfURuUezwvs5SwgueJAmJWbrFEYd2H6nDgigEk=
+        b=HViSdYdJTdvmgmirAqpqyUcQ3yV/TNXXMEics06Px/aVs1IE03o8+eNolhYGXYZ+P
+         x3EjD6hNsLeXM8mbAN1iKovEX8hkLAhamhWKsACtacqe+2MJFbWA3wzSUZoZwe2jZb
+         LDu1HuHUr+tDhp3amwH4ZarC73QDLSMVajvfx3Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.10 38/68] sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.2 107/110] ASoC: SOF: pm: Tear down pipelines only if DSP was active
 Date:   Mon, 24 Apr 2023 15:18:09 +0200
-Message-Id: <20230424131129.130371538@linuxfoundation.org>
+Message-Id: <20230424131140.620199301@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-commit b759caa1d9f667b94727b2ad12589cbc4ce13a82 upstream.
+commit 0b186bb06198653d74a141902a7739e0bde20cf4 upstream.
 
-Use the new util_fits_cpu() to ensure migration margin and capacity
-pressure are taken into account correctly when uclamp is being used
-otherwise we will fail to consider CPUs as fitting in scenarios where
-they should.
+With PCI if the device was suspended it is brought back to full
+power and then suspended again.
 
-Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-5-qais.yousef@arm.com
-(cherry picked from commit b759caa1d9f667b94727b2ad12589cbc4ce13a82)
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+This doesn't happen when device is described via DT.
+
+We need to make sure that we tear down pipelines only if the device
+was previously active (thus the pipelines were setup).
+
+Otherwise, we can break the use_count:
+
+[  219.009743] sof-audio-of-imx8m 3b6e8000.dsp:
+sof_ipc3_tear_down_all_pipelines: widget PIPELINE.2.SAI3.IN is still in use: count -1
+
+and after this everything stops working.
+
+Fixes: d185e0689abc ("ASoC: SOF: pm: Always tear down pipelines before DSP suspend")
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Link: https://lore.kernel.org/r/20230405092655.19587-1-daniel.baluta@oss.nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/sof/pm.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6394,21 +6394,23 @@ static int select_idle_cpu(struct task_s
- static int
- select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
- {
--	unsigned long task_util, best_cap = 0;
-+	unsigned long task_util, util_min, util_max, best_cap = 0;
- 	int cpu, best_cpu = -1;
- 	struct cpumask *cpus;
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -183,6 +183,7 @@ static int sof_suspend(struct device *de
+ 	const struct sof_ipc_tplg_ops *tplg_ops = sdev->ipc->ops->tplg;
+ 	pm_message_t pm_state;
+ 	u32 target_state = snd_sof_dsp_power_target(sdev);
++	u32 old_state = sdev->dsp_power_state.state;
+ 	int ret;
  
- 	cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
- 	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
+ 	/* do nothing if dsp suspend callback is not set */
+@@ -192,7 +193,12 @@ static int sof_suspend(struct device *de
+ 	if (runtime_suspend && !sof_ops(sdev)->runtime_suspend)
+ 		return 0;
  
--	task_util = uclamp_task_util(p);
-+	task_util = task_util_est(p);
-+	util_min = uclamp_eff_value(p, UCLAMP_MIN);
-+	util_max = uclamp_eff_value(p, UCLAMP_MAX);
+-	if (tplg_ops && tplg_ops->tear_down_all_pipelines)
++	/* we need to tear down pipelines only if the DSP hardware is
++	 * active, which happens for PCI devices. if the device is
++	 * suspended, it is brought back to full power and then
++	 * suspended again
++	 */
++	if (tplg_ops && tplg_ops->tear_down_all_pipelines && (old_state == SOF_DSP_PM_D0))
+ 		tplg_ops->tear_down_all_pipelines(sdev, false);
  
- 	for_each_cpu_wrap(cpu, cpus, target) {
- 		unsigned long cpu_cap = capacity_of(cpu);
- 
- 		if (!available_idle_cpu(cpu) && !sched_idle_cpu(cpu))
- 			continue;
--		if (fits_capacity(task_util, cpu_cap))
-+		if (util_fits_cpu(task_util, util_min, util_max, cpu))
- 			return cpu;
- 
- 		if (cpu_cap > best_cap) {
+ 	if (sdev->fw_state != SOF_FW_BOOT_COMPLETE)
 
 
