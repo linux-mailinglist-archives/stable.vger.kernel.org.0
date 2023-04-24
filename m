@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 895426ECDE9
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A60B6ECD39
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232310AbjDXN2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
+        id S231997AbjDXNVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:21:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232274AbjDXN1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:27:54 -0400
+        with ESMTP id S232008AbjDXNVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20286A4F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:27:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FE95257
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:21:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC4F8622E5
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE439C4339B;
-        Mon, 24 Apr 2023 13:27:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 363A962230
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47F74C433EF;
+        Mon, 24 Apr 2023 13:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342859;
-        bh=YimFVwDeaW+TGuGRJmmcI1SbAKhZF5qTQM8vXf4U8XY=;
+        s=korg; t=1682342478;
+        bh=9qsBXT1RXKXnMQgwUxELknUgr6vmnV05+EAgaC7ZTgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnzDYhf3LVRvuivigppt+AtbnGBVpGQEiLCRQ0aImwqtXdm2+376N6PM6Kb+eskxs
-         oxYSpPbiBcbp+O4gmtcZT7dXF/hw+bCaavsumshEXCS9oXDxYM41qbpwmAROeBabZY
-         sHKanSrFuGeUR4hdGDzgjBXWH3ow3NsdRug5kuNQ=
+        b=iNg+y2apBHobIi1W2AfMarKuF6rUhZ4LPfuVDPNbvx8MtpZbdp6aZ8nQZzP9bLl9X
+         UOsMtbSESQQzmX+TyJSx02wTy7159UyMcBIv3y8gYDEVFYNnQXpgkPHvTnHZEOtf1v
+         eyaY5EjFYHmZTIriU0gcVbhl9G5rDumR5A+WnBuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brandon Nielsen <nielsenb@jetfuse.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 46/98] platform/x86: gigabyte-wmi: add support for X570S AORUS ELITE
+        patches@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>,
+        Yang Bo <yb203166@antfin.com>
+Subject: [PATCH 5.15 55/73] fuse: fix attr version comparison in fuse_read_update_size()
 Date:   Mon, 24 Apr 2023 15:17:09 +0200
-Message-Id: <20230424131135.656203901@linuxfoundation.org>
+Message-Id: <20230424131131.062487048@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 52f91e51944808d83dfe2d5582601b5e84e472cc ]
+commit 484ce65715b06aead8c4901f01ca32c5a240bc71 upstream.
 
-Add "X570S AORUS ELITE" to known working boards
+A READ request returning a short count is taken as indication of EOF, and
+the cached file size is modified accordingly.
 
-Reported-by: Brandon Nielsen <nielsenb@jetfuse.net>
-Link: https://lore.kernel.org/r/20230331014902.7864-1-nielsenb@jetfuse.net
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the attribute version checking to allow for changes to fc->attr_version
+on other inodes.
+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Yang Bo <yb203166@antfin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/fuse/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index 5e5b17c50eb67..2a426040f749e 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -161,6 +161,7 @@ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 GAMING X"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 I AORUS PRO WIFI"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570 UD"),
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("X570S AORUS ELITE"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("Z690M AORUS ELITE AX DDR4"),
- 	{ }
- };
--- 
-2.39.2
-
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -793,7 +793,7 @@ static void fuse_read_update_size(struct
+ 	struct fuse_inode *fi = get_fuse_inode(inode);
+ 
+ 	spin_lock(&fi->lock);
+-	if (attr_ver == fi->attr_version && size < inode->i_size &&
++	if (attr_ver >= fi->attr_version && size < inode->i_size &&
+ 	    !test_bit(FUSE_I_SIZE_UNSTABLE, &fi->state)) {
+ 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
+ 		i_size_write(inode, size);
 
 
