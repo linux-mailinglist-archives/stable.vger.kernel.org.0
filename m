@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 878C16ECD0D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F506ECE14
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbjDXNUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:20:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
+        id S232323AbjDXN3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231969AbjDXNUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 715A24ED1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:19:47 -0700 (PDT)
+        with ESMTP id S232362AbjDXN2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7386F65BE
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 709AC621EA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:19:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85B41C4339B;
-        Mon, 24 Apr 2023 13:19:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52A3B61FA5
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39B86C433D2;
+        Mon, 24 Apr 2023 13:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342385;
-        bh=4hlYpnYR717pOC86H4BWvffCjunQWYOidW+r4kOGk5o=;
+        s=korg; t=1682342919;
+        bh=VoQDVZS1Ewy9efJOxzoFRDeHlglB3ww6SqZnZ0L7Kno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQhF8u5Qcfy9r5PPiaHFDoLwlM+bl0rBDTKiOvX0ffjp+XsMtnAXqvJxNBLwGq+QE
-         5xM7xEJ/lDNEYtG0ZIn4/8Tc4el1I1hBLClps5HVzuIYvf99bLsDie7n/fImfUIty3
-         1ywdj1FK+TIehMjsMC1U6+6M2QMCl7IMqNGq4X0c=
+        b=vXXvd89zTwShvDQRQo3qS1J8MCrQE1dBw6SkCUn8baqHZKgQX44Lbs6ctC+zIYtyL
+         Z6E3oXzgu9UIxdL/ra0aR/2Sn4jXyr6pWn1VBLW8trPxwTy7i+3GWY9dG8+3d6cqfZ
+         n3VGkJs7trgdxTXIhGiX+PRfyhZED3XP38jH1Q0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Jianqun Xu <jay.xu@rock-chips.com>,
+        Sjoerd Simons <sjoerd@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 09/73] virtio_net: bugfix overflow inside xdp_linearize_page()
+Subject: [PATCH 6.2 001/110] ARM: dts: rockchip: fix a typo error for rk3288 spdif node
 Date:   Mon, 24 Apr 2023 15:16:23 +0200
-Message-Id: <20230424131129.384439241@linuxfoundation.org>
+Message-Id: <20230424131136.197254376@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,57 +57,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Jianqun Xu <jay.xu@rock-chips.com>
 
-[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
+[ Upstream commit 02c84f91adb9a64b75ec97d772675c02a3e65ed7 ]
 
-Here we copy the data from the original buf to the new page. But we
-not check that it may be overflow.
+Fix the address in the spdif node name.
 
-As long as the size received(including vnethdr) is greater than 3840
-(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
-
-And this is completely possible, as long as the MTU is large, such
-as 4096. In our test environment, this will cause crash. Since crash is
-caused by the written memory, it is meaningless, so I do not include it.
-
-Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 874e568e500a ("ARM: dts: rockchip: Add SPDIF transceiver for RK3288")
+Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+Reviewed-by: Sjoerd Simons <sjoerd@collabora.com>
+Link: https://lore.kernel.org/r/20230208091411.1603142-1-jay.xu@rock-chips.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 66ca2ea19ba60..8a380086ac257 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -679,8 +679,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 				       int page_off,
- 				       unsigned int *len)
- {
--	struct page *page = alloc_page(GFP_ATOMIC);
-+	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+	struct page *page;
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 2ca76b69add78..511ca864c1b2d 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -942,7 +942,7 @@
+ 		status = "disabled";
+ 	};
  
-+	if (page_off + *len + tailroom > PAGE_SIZE)
-+		return NULL;
-+
-+	page = alloc_page(GFP_ATOMIC);
- 	if (!page)
- 		return NULL;
- 
-@@ -688,7 +693,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 	page_off += *len;
- 
- 	while (--*num_buf) {
--		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 		unsigned int buflen;
- 		void *buf;
- 		int off;
+-	spdif: sound@ff88b0000 {
++	spdif: sound@ff8b0000 {
+ 		compatible = "rockchip,rk3288-spdif", "rockchip,rk3066-spdif";
+ 		reg = <0x0 0xff8b0000 0x0 0x10000>;
+ 		#sound-dai-cells = <0>;
 -- 
 2.39.2
 
