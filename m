@@ -2,41 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5931A6ECE8D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A113F6ECE8C
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbjDXNdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58988 "EHLO
+        id S232562AbjDXNdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:33:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232496AbjDXNdT (ORCPT
+        with ESMTP id S232346AbjDXNdT (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BA087AA4
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9077AA3
         for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC2DE6236F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED6BCC433EF;
-        Mon, 24 Apr 2023 13:32:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73B2562383
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E888C433EF;
+        Mon, 24 Apr 2023 13:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343172;
-        bh=PPwxJBYzorSjWbwgdGjfpnxbSvSYCmt3OflGBLHn93g=;
+        s=korg; t=1682343174;
+        bh=vHWxKxDUN3BMZcF9aMuJaenqi9baKzV2u3Gfzm0hxvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODu4LAUpKARmkyrldcdWqZnzxZcT6t82Dk3VZStvb+ilNuH8YjF/LRo/P4zpoUqzP
-         J+3lOrAySHaFxalZmxguRuuJRdv2X+LpKoTyGBfdEpMz4RYs6W4WKOP6kpR9aE7to9
-         FbDa5GUS+98ZtdC0Wh2nWhALmOCGPRU7H53bfDgs=
+        b=wtTi0MJe+w6K59Uz78AY7009aU+3LhB8nwUr81YnOl2EDLWiW5ukahUmaGtM075oU
+         G4xXpNK/2c8DaXz4BiUMwPvUsUNdhHkRsa7G7olLXthrx6LmCznyi957u+fBvutD0i
+         LrXGmjCLwUMROtP6jeDKLv1aUEFTv5MIc9qg2WZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Alexis=20Lothor=C3=A9?= <alexis.lothore@bootlin.com>,
-        Xu Yilun <yilun.xu@intel.com>
-Subject: [PATCH 6.2 105/110] fpga: bridge: properly initialize bridge device before populating children
-Date:   Mon, 24 Apr 2023 15:18:07 +0200
-Message-Id: <20230424131140.524234903@linuxfoundation.org>
+        syzbot <syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Michal Hocko <mhocko@suse.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Petr Mladek <pmladek@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        John Ogness <john.ogness@linutronix.de>,
+        Patrick Daly <quic_pdaly@quicinc.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 106/110] mm/page_alloc: fix potential deadlock on zonelist_update_seq seqlock
+Date:   Mon, 24 Apr 2023 15:18:08 +0200
+Message-Id: <20230424131140.571022096@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
 References: <20230424131136.142490414@linuxfoundation.org>
@@ -44,8 +54,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,53 +64,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexis Lothoré <alexis.lothore@bootlin.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit dc70eb868b9cd2ca01313e5a394e6ea001d513e9 upstream.
+commit 1007843a91909a4995ee78a538f62d8665705b66 upstream.
 
-The current code path can lead to warnings because of uninitialized device,
-which contains, as a consequence, uninitialized kobject. The uninitialized
-device is passed to of_platform_populate, which will at some point, while
-creating child device, try to get a reference on uninitialized parent,
-resulting in the following warning:
+syzbot is reporting circular locking dependency which involves
+zonelist_update_seq seqlock [1], for this lock is checked by memory
+allocation requests which do not need to be retried.
 
-kobject: '(null)' ((ptrval)): is not initialized, yet kobject_get() is
-being called.
+One deadlock scenario is kmalloc(GFP_ATOMIC) from an interrupt handler.
 
-The warning is observed after migrating a kernel 5.10.x to 6.1.x.
-Reverting commit 0d70af3c2530 ("fpga: bridge: Use standard dev_release for
-class driver") seems to remove the warning.
-This commit aggregates device_initialize() and device_add() into
-device_register() but this new call is done AFTER of_platform_populate
+  CPU0
+  ----
+  __build_all_zonelists() {
+    write_seqlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount odd
+    // e.g. timer interrupt handler runs at this moment
+      some_timer_func() {
+        kmalloc(GFP_ATOMIC) {
+          __alloc_pages_slowpath() {
+            read_seqbegin(&zonelist_update_seq) {
+              // spins forever because zonelist_update_seq.seqcount is odd
+            }
+          }
+        }
+      }
+    // e.g. timer interrupt handler finishes
+    write_sequnlock(&zonelist_update_seq); // makes zonelist_update_seq.seqcount even
+  }
 
-Fixes: 0d70af3c2530 ("fpga: bridge: Use standard dev_release for class driver")
-Signed-off-by: Alexis Lothoré <alexis.lothore@bootlin.com>
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-Link: https://lore.kernel.org/r/20230404133102.2837535-2-alexis.lothore@bootlin.com
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+This deadlock scenario can be easily eliminated by not calling
+read_seqbegin(&zonelist_update_seq) from !__GFP_DIRECT_RECLAIM allocation
+requests, for retry is applicable to only __GFP_DIRECT_RECLAIM allocation
+requests.  But Michal Hocko does not know whether we should go with this
+approach.
+
+Another deadlock scenario which syzbot is reporting is a race between
+kmalloc(GFP_ATOMIC) from tty_insert_flip_string_and_push_buffer() with
+port->lock held and printk() from __build_all_zonelists() with
+zonelist_update_seq held.
+
+  CPU0                                   CPU1
+  ----                                   ----
+  pty_write() {
+    tty_insert_flip_string_and_push_buffer() {
+                                         __build_all_zonelists() {
+                                           write_seqlock(&zonelist_update_seq);
+                                           build_zonelists() {
+                                             printk() {
+                                               vprintk() {
+                                                 vprintk_default() {
+                                                   vprintk_emit() {
+                                                     console_unlock() {
+                                                       console_flush_all() {
+                                                         console_emit_next_record() {
+                                                           con->write() = serial8250_console_write() {
+      spin_lock_irqsave(&port->lock, flags);
+      tty_insert_flip_string() {
+        tty_insert_flip_string_fixed_flag() {
+          __tty_buffer_request_room() {
+            tty_buffer_alloc() {
+              kmalloc(GFP_ATOMIC | __GFP_NOWARN) {
+                __alloc_pages_slowpath() {
+                  zonelist_iter_begin() {
+                    read_seqbegin(&zonelist_update_seq); // spins forever because zonelist_update_seq.seqcount is odd
+                                                             spin_lock_irqsave(&port->lock, flags); // spins forever because port->lock is held
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      spin_unlock_irqrestore(&port->lock, flags);
+                                                             // message is printed to console
+                                                             spin_unlock_irqrestore(&port->lock, flags);
+                                                           }
+                                                         }
+                                                       }
+                                                     }
+                                                   }
+                                                 }
+                                               }
+                                             }
+                                           }
+                                           write_sequnlock(&zonelist_update_seq);
+                                         }
+    }
+  }
+
+This deadlock scenario can be eliminated by
+
+  preventing interrupt context from calling kmalloc(GFP_ATOMIC)
+
+and
+
+  preventing printk() from calling console_flush_all()
+
+while zonelist_update_seq.seqcount is odd.
+
+Since Petr Mladek thinks that __build_all_zonelists() can become a
+candidate for deferring printk() [2], let's address this problem by
+
+  disabling local interrupts in order to avoid kmalloc(GFP_ATOMIC)
+
+and
+
+  disabling synchronous printk() in order to avoid console_flush_all()
+
+.
+
+As a side effect of minimizing duration of zonelist_update_seq.seqcount
+being odd by disabling synchronous printk(), latency at
+read_seqbegin(&zonelist_update_seq) for both !__GFP_DIRECT_RECLAIM and
+__GFP_DIRECT_RECLAIM allocation requests will be reduced.  Although, from
+lockdep perspective, not calling read_seqbegin(&zonelist_update_seq) (i.e.
+do not record unnecessary locking dependency) from interrupt context is
+still preferable, even if we don't allow calling kmalloc(GFP_ATOMIC)
+inside
+write_seqlock(&zonelist_update_seq)/write_sequnlock(&zonelist_update_seq)
+section...
+
+Link: https://lkml.kernel.org/r/8796b95c-3da3-5885-fddd-6ef55f30e4d3@I-love.SAKURA.ne.jp
+Fixes: 3d36424b3b58 ("mm/page_alloc: fix race condition between build_all_zonelists and page allocation")
+Link: https://lkml.kernel.org/r/ZCrs+1cDqPWTDFNM@alley [2]
+Reported-by: syzbot <syzbot+223c7461c58c58a4cb10@syzkaller.appspotmail.com>
+  Link: https://syzkaller.appspot.com/bug?extid=223c7461c58c58a4cb10 [1]
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Cc: John Ogness <john.ogness@linutronix.de>
+Cc: Patrick Daly <quic_pdaly@quicinc.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/fpga/fpga-bridge.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/page_alloc.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/fpga/fpga-bridge.c
-+++ b/drivers/fpga/fpga-bridge.c
-@@ -360,7 +360,6 @@ fpga_bridge_register(struct device *pare
- 	bridge->dev.parent = parent;
- 	bridge->dev.of_node = parent->of_node;
- 	bridge->dev.id = id;
--	of_platform_populate(bridge->dev.of_node, NULL, NULL, &bridge->dev);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6590,7 +6590,21 @@ static void __build_all_zonelists(void *
+ 	int nid;
+ 	int __maybe_unused cpu;
+ 	pg_data_t *self = data;
++	unsigned long flags;
  
- 	ret = dev_set_name(&bridge->dev, "br%d", id);
- 	if (ret)
-@@ -372,6 +371,8 @@ fpga_bridge_register(struct device *pare
- 		return ERR_PTR(ret);
++	/*
++	 * Explicitly disable this CPU's interrupts before taking seqlock
++	 * to prevent any IRQ handler from calling into the page allocator
++	 * (e.g. GFP_ATOMIC) that could hit zonelist_iter_begin and livelock.
++	 */
++	local_irq_save(flags);
++	/*
++	 * Explicitly disable this CPU's synchronous printk() before taking
++	 * seqlock to prevent any printk() from trying to hold port->lock, for
++	 * tty_insert_flip_string_and_push_buffer() on other CPU might be
++	 * calling kmalloc(GFP_ATOMIC | __GFP_NOWARN) with port->lock held.
++	 */
++	printk_deferred_enter();
+ 	write_seqlock(&zonelist_update_seq);
+ 
+ #ifdef CONFIG_NUMA
+@@ -6629,6 +6643,8 @@ static void __build_all_zonelists(void *
  	}
  
-+	of_platform_populate(bridge->dev.of_node, NULL, NULL, &bridge->dev);
-+
- 	return bridge;
+ 	write_sequnlock(&zonelist_update_seq);
++	printk_deferred_exit();
++	local_irq_restore(flags);
+ }
  
- error_device:
+ static noinline void __init
 
 
