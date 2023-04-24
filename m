@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 472686ECD5B
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65CBE6ECE45
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232062AbjDXNWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:22:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
+        id S232476AbjDXNbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:31:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232058AbjDXNWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:37 -0400
+        with ESMTP id S232416AbjDXNax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 538A95247
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 873F31B4
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F6486221E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33159C4339B;
-        Mon, 24 Apr 2023 13:22:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35DEC61F13
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45747C433EF;
+        Mon, 24 Apr 2023 13:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342542;
-        bh=n/w5OF3SZziTUVBEcMJfgelS+24erpL3mGQ9JlQEHsI=;
+        s=korg; t=1682343011;
+        bh=2mxQnyIbun5nh7sgVCBRUrrK5WNidCF0V7zcXrMZs5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IhH1nWQwCv4V3OlMV3b6uNfHYwGxdU4FqBi/YUq2gIM5VgmBIS/L36278YHCbA9fQ
-         HVfJWmzkNyX30Bpbs5U2BDh2tFYokIdB5h9x9mD3Eidt8Nn54cYnSVimhtFuwy89N0
-         A2tG8K0uHJHmJf8Mn79qMoJpPnK1PO4kMIj2jg8U=
+        b=nFaHeaiFtRgsgmoPxdmouDWzn9i5CnUDR+U0Lh8t2bTuXCJ5XpnHfmRDvUcK3PAIY
+         IjaAJ7MVa3jN6vCbet4sJ2B1b/EEwzZ2F21nwSmoxmQeuXTubCGdz9jhTLzauemn/w
+         TRDlWZYEmPdxCqRjWF98BoL+crozumHdeXu59uv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.15 52/73] MIPS: Define RUNTIME_DISCARD_EXIT in LD script
+        patches@lists.linux.dev,
+        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 044/110] net: dsa: b53: mmap: add phy ops
 Date:   Mon, 24 Apr 2023 15:17:06 +0200
-Message-Id: <20230424131130.937280442@linuxfoundation.org>
+Message-Id: <20230424131137.840269012@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Álvaro Fernández Rojas <noltari@gmail.com>
 
-commit 6dcbd0a69c84a8ae7a442840a8cf6b1379dc8f16 upstream.
+[ Upstream commit 45977e58ce65ed0459edc9a0466d9dfea09463f5 ]
 
-MIPS's exit sections are discarded at runtime as well.
+Implement phy_read16() and phy_write16() ops for B53 MMAP to avoid accessing
+B53_PORT_MII_PAGE registers which hangs the device.
+This access should be done through the MDIO Mux bus controller.
 
-Fixes link error:
-`.exit.text' referenced in section `__jump_table' of fs/fuse/inode.o:
-defined in discarded section `.exit.text' of fs/fuse/inode.o
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vmlinux.lds.S |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/dsa/b53/b53_mmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -15,6 +15,8 @@
- #define EMITS_PT_NOTE
- #endif
+diff --git a/drivers/net/dsa/b53/b53_mmap.c b/drivers/net/dsa/b53/b53_mmap.c
+index 70887e0aece33..d9434ed9450df 100644
+--- a/drivers/net/dsa/b53/b53_mmap.c
++++ b/drivers/net/dsa/b53/b53_mmap.c
+@@ -216,6 +216,18 @@ static int b53_mmap_write64(struct b53_device *dev, u8 page, u8 reg,
+ 	return 0;
+ }
  
-+#define RUNTIME_DISCARD_EXIT
++static int b53_mmap_phy_read16(struct b53_device *dev, int addr, int reg,
++			       u16 *value)
++{
++	return -EIO;
++}
 +
- #include <asm-generic/vmlinux.lds.h>
++static int b53_mmap_phy_write16(struct b53_device *dev, int addr, int reg,
++				u16 value)
++{
++	return -EIO;
++}
++
+ static const struct b53_io_ops b53_mmap_ops = {
+ 	.read8 = b53_mmap_read8,
+ 	.read16 = b53_mmap_read16,
+@@ -227,6 +239,8 @@ static const struct b53_io_ops b53_mmap_ops = {
+ 	.write32 = b53_mmap_write32,
+ 	.write48 = b53_mmap_write48,
+ 	.write64 = b53_mmap_write64,
++	.phy_read16 = b53_mmap_phy_read16,
++	.phy_write16 = b53_mmap_phy_write16,
+ };
  
- #undef mips
+ static int b53_mmap_probe_of(struct platform_device *pdev,
+-- 
+2.39.2
+
 
 
