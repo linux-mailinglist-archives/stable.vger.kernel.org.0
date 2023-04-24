@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C111B6ECF21
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF2A6ECEE9
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232601AbjDXNib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42320 "EHLO
+        id S232634AbjDXNgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbjDXNia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:30 -0400
+        with ESMTP id S232633AbjDXNf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:35:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56057282;
-        Mon, 24 Apr 2023 06:38:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F40308A63
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:35:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6784D62418;
-        Mon, 24 Apr 2023 13:37:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51EF9C433EF;
-        Mon, 24 Apr 2023 13:37:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBCD2623BC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF626C433EF;
+        Mon, 24 Apr 2023 13:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343468;
-        bh=yuoU+RSy/IR0u3ITPlDfylO1gXqoLJRoeX4t5n3Dy4Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=q/Nn1EJS/w3U3lGn8+jllYladJYhvDpt/7i8oIvEhmUgPsmP5M5AbckbqkVLywILX
-         rvOWnP1h3Dc4OROaMinckLdY7IMmGzXra532/r6A6lTnMEFiFgin3mS2u0bBcZIwQ6
-         ++ugY/YgtYrYtU4Q8d3tweCHrBv3NmDO4Lgjm7wU=
+        s=korg; t=1682343341;
+        bh=6Pl+e3U2TNSCXdvrEJYvpWbm/KdHYSPKB9hipob65zo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SWfBykFK4yaiXsIGGxhOkUW5V7AEIXjSmK0eXgW5JUw/ZOhrMwhUnY+F+LVTLtPaY
+         8aIJyVBKrmqCx81+oS19J5J9fqFahY/TwCx35iu8rA/oGKZcEPv6gtL/AKVfywT0K2
+         VWi7a2XFQ6UyNxyVlAmKH0bYhwcZCVVOBaQxKPj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 4.14 00/28] 4.14.314-rc1 review
+        patches@lists.linux.dev, Connor Kuehl <ckuehl@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Yang Bo <yb203166@antfin.com>
+Subject: [PATCH 5.10 50/68] virtiofs: split requests that exceed virtqueue size
 Date:   Mon, 24 Apr 2023 15:18:21 +0200
-Message-Id: <20230424131121.331252806@linuxfoundation.org>
+Message-Id: <20230424131129.589375128@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-MIME-Version: 1.0
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.314-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.314-rc1
-X-KernelTest-Deadline: 2023-04-26T13:11+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -63,161 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.314 release.
-There are 28 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Connor Kuehl <ckuehl@redhat.com>
 
-Responses should be made by Wed, 26 Apr 2023 13:11:11 +0000.
-Anything received after that time might be too late.
+commit a7f0d7aab0b4f3f0780b1f77356e2fe7202ac0cb upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.314-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+If an incoming FUSE request can't fit on the virtqueue, the request is
+placed onto a workqueue so a worker can try to resubmit it later where
+there will (hopefully) be space for it next time.
 
-thanks,
+This is fine for requests that aren't larger than a virtqueue's maximum
+capacity.  However, if a request's size exceeds the maximum capacity of the
+virtqueue (even if the virtqueue is empty), it will be doomed to a life of
+being placed on the workqueue, removed, discovered it won't fit, and placed
+on the workqueue yet again.
 
-greg k-h
+Furthermore, from section 2.6.5.3.1 (Driver Requirements: Indirect
+Descriptors) of the virtio spec:
 
--------------
-Pseudo-Shortlog of commits:
+  "A driver MUST NOT create a descriptor chain longer than the Queue
+  Size of the device."
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.314-rc1
+To fix this, limit the number of pages FUSE will use for an overall
+request.  This way, each request can realistically fit on the virtqueue
+when it is decomposed into a scattergather list and avoid violating section
+2.6.5.3.1 of the virtio spec.
 
-Ekaterina Orlova <vorobushek.ok@gmail.com>
-    ASN.1: Fix check for strdup() success
+Signed-off-by: Connor Kuehl <ckuehl@redhat.com>
+Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Yang Bo <yb203166@antfin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/fuse/fuse_i.h    |    3 +++
+ fs/fuse/inode.c     |    3 ++-
+ fs/fuse/virtio_fs.c |   19 +++++++++++++++++--
+ 3 files changed, 22 insertions(+), 3 deletions(-)
 
-Dan Carpenter <error27@gmail.com>
-    iio: adc: at91-sama5d2_adc: fix an error code in at91_adc_allocate_trigger()
-
-William Breathitt Gray <william.gray@linaro.org>
-    counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    sctp: Call inet6_destroy_sock() via sk->sk_destruct().
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    dccp: Call inet6_destroy_sock() via sk->sk_destruct().
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp/udp: Call inet6_destroy_sock() in IPv6 sk->sk_destruct().
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    udp: Call inet6_destroy_sock() in setsockopt(IPV6_ADDRFORM).
-
-Baokun Li <libaokun1@huawei.com>
-    ext4: fix use-after-free in ext4_xattr_set_entry
-
-Ritesh Harjani <riteshh@linux.ibm.com>
-    ext4: remove duplicate definition of ext4_xattr_ibody_inline_set()
-
-Tudor Ambarus <tudor.ambarus@linaro.org>
-    Revert "ext4: fix use-after-free in ext4_xattr_set_entry"
-
-Pingfan Liu <kernelfans@gmail.com>
-    x86/purgatory: Don't generate debug info for purgatory.ro
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    memstick: fix memory leak if card device is never registered
-
-Ryusuke Konishi <konishi.ryusuke@gmail.com>
-    nilfs2: initialize unused bytes in segment summary blocks
-
-Juergen Gross <jgross@suse.com>
-    xen/netback: use same error messages for same errors
-
-Heiko Carstens <hca@linux.ibm.com>
-    s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
-
-Álvaro Fernández Rojas <noltari@gmail.com>
-    net: dsa: b53: mmap: add phy ops
-
-Damien Le Moal <damien.lemoal@opensource.wdc.com>
-    scsi: core: Improve scsi_vpd_inquiry() checks
-
-Tomas Henzl <thenzl@redhat.com>
-    scsi: megaraid_sas: Fix fw_crash_buffer_show()
-
-Nick Desaulniers <ndesaulniers@google.com>
-    selftests: sigaltstack: fix -Wuninitialized
-
-Douglas Raillard <douglas.raillard@arm.com>
-    f2fs: Fix f2fs_truncate_partial_nodes ftrace event
-
-Sebastian Basierski <sebastianx.basierski@intel.com>
-    e1000e: Disable TSO on i219-LM card to increase speed
-
-Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-    mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
-
-Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-    i40e: fix i40e_setup_misc_vector() error handling
-
-Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-    i40e: fix accessing vsi->active_filters without holding lock
-
-Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-    virtio_net: bugfix overflow inside xdp_linearize_page()
-
-Gwangun Jung <exsociety@gmail.com>
-    net: sched: sch_qfq: prevent slab-out-of-bounds in qfq_activate_agg
-
-Jianqun Xu <jay.xu@rock-chips.com>
-    ARM: dts: rockchip: fix a typo error for rk3288 spdif node
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/rk3288.dtsi                      |  2 +-
- arch/s390/kernel/ptrace.c                          |  8 +---
- arch/x86/purgatory/Makefile                        |  3 ++
- drivers/iio/adc/at91-sama5d2_adc.c                 |  2 +-
- drivers/iio/counter/104-quad-8.c                   | 10 +----
- drivers/memstick/core/memstick.c                   |  5 ++-
- drivers/net/dsa/b53/b53_mmap.c                     | 14 ++++++
- drivers/net/ethernet/intel/e1000e/netdev.c         | 51 +++++++++++-----------
- drivers/net/ethernet/intel/i40e/i40e_main.c        |  9 ++--
- .../ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c |  2 +
- drivers/net/virtio_net.c                           |  7 ++-
- drivers/net/xen-netback/netback.c                  |  6 +--
- drivers/scsi/megaraid/megaraid_sas_base.c          |  2 +-
- drivers/scsi/scsi.c                                | 11 ++++-
- fs/ext4/inline.c                                   | 11 +++--
- fs/ext4/xattr.c                                    | 26 +----------
- fs/ext4/xattr.h                                    |  6 +--
- fs/nilfs2/segment.c                                | 20 +++++++++
- include/net/ipv6.h                                 |  2 +
- include/net/udp.h                                  |  2 +-
- include/net/udplite.h                              |  8 ----
- include/trace/events/f2fs.h                        |  2 +-
- net/dccp/dccp.h                                    |  1 +
- net/dccp/ipv6.c                                    | 15 ++++---
- net/dccp/proto.c                                   |  8 +++-
- net/ipv4/udp.c                                     |  9 ++--
- net/ipv4/udplite.c                                 |  8 ++++
- net/ipv6/af_inet6.c                                | 15 ++++++-
- net/ipv6/ipv6_sockglue.c                           | 20 ++++-----
- net/ipv6/ping.c                                    |  6 ---
- net/ipv6/raw.c                                     |  2 -
- net/ipv6/tcp_ipv6.c                                |  8 +---
- net/ipv6/udp.c                                     | 17 ++++++--
- net/ipv6/udp_impl.h                                |  1 +
- net/ipv6/udplite.c                                 |  9 +++-
- net/l2tp/l2tp_ip6.c                                |  2 -
- net/sched/sch_qfq.c                                | 13 +++---
- net/sctp/socket.c                                  | 29 ++++++++----
- scripts/asn1_compiler.c                            |  2 +-
- .../selftests/sigaltstack/current_stack_pointer.h  | 23 ++++++++++
- tools/testing/selftests/sigaltstack/sas.c          |  7 +--
- 42 files changed, 242 insertions(+), 166 deletions(-)
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -556,6 +556,9 @@ struct fuse_conn {
+ 	/** Maxmum number of pages that can be used in a single request */
+ 	unsigned int max_pages;
+ 
++	/** Constrain ->max_pages to this value during feature negotiation */
++	unsigned int max_pages_limit;
++
+ 	/** Input queue */
+ 	struct fuse_iqueue iq;
+ 
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -710,6 +710,7 @@ void fuse_conn_init(struct fuse_conn *fc
+ 	fc->pid_ns = get_pid_ns(task_active_pid_ns(current));
+ 	fc->user_ns = get_user_ns(user_ns);
+ 	fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
++	fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
+ 
+ 	INIT_LIST_HEAD(&fc->mounts);
+ 	list_add(&fm->fc_entry, &fc->mounts);
+@@ -1056,7 +1057,7 @@ static void process_init_reply(struct fu
+ 				fc->abort_err = 1;
+ 			if (arg->flags & FUSE_MAX_PAGES) {
+ 				fc->max_pages =
+-					min_t(unsigned int, FUSE_MAX_MAX_PAGES,
++					min_t(unsigned int, fc->max_pages_limit,
+ 					max_t(unsigned int, arg->max_pages, 1));
+ 			}
+ 			if (IS_ENABLED(CONFIG_FUSE_DAX) &&
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -18,6 +18,12 @@
+ #include <linux/uio.h>
+ #include "fuse_i.h"
+ 
++/* Used to help calculate the FUSE connection's max_pages limit for a request's
++ * size. Parts of the struct fuse_req are sliced into scattergather lists in
++ * addition to the pages used, so this can help account for that overhead.
++ */
++#define FUSE_HEADER_OVERHEAD    4
++
+ /* List of virtio-fs device instances and a lock for the list. Also provides
+  * mutual exclusion in device removal and mounting path
+  */
+@@ -1426,9 +1432,10 @@ static int virtio_fs_get_tree(struct fs_
+ {
+ 	struct virtio_fs *fs;
+ 	struct super_block *sb;
+-	struct fuse_conn *fc;
++	struct fuse_conn *fc = NULL;
+ 	struct fuse_mount *fm;
+-	int err;
++	unsigned int virtqueue_size;
++	int err = -EIO;
+ 
+ 	/* This gets a reference on virtio_fs object. This ptr gets installed
+ 	 * in fc->iq->priv. Once fuse_conn is going away, it calls ->put()
+@@ -1440,6 +1447,10 @@ static int virtio_fs_get_tree(struct fs_
+ 		return -EINVAL;
+ 	}
+ 
++	virtqueue_size = virtqueue_get_vring_size(fs->vqs[VQ_REQUEST].vq);
++	if (WARN_ON(virtqueue_size <= FUSE_HEADER_OVERHEAD))
++		goto out_err;
++
+ 	err = -ENOMEM;
+ 	fc = kzalloc(sizeof(struct fuse_conn), GFP_KERNEL);
+ 	if (!fc)
+@@ -1454,6 +1465,10 @@ static int virtio_fs_get_tree(struct fs_
+ 	fc->delete_stale = true;
+ 	fc->auto_submounts = true;
+ 
++	/* Tell FUSE to split requests that exceed the virtqueue's size */
++	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
++				    virtqueue_size - FUSE_HEADER_OVERHEAD);
++
+ 	fsc->s_fs_info = fm;
+ 	sb = sget_fc(fsc, virtio_fs_test_super, virtio_fs_set_super);
+ 	fuse_mount_put(fm);
 
 
