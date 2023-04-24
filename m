@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 307DB6ECDB5
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 498996ECD18
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232177AbjDXNZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:25:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52496 "EHLO
+        id S232009AbjDXNUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232187AbjDXNZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:55 -0400
+        with ESMTP id S231995AbjDXNU1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B495BAD
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E83527D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FB13622B7
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94228C433EF;
-        Mon, 24 Apr 2023 13:25:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 776156220D
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2DEC433D2;
+        Mon, 24 Apr 2023 13:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342753;
-        bh=5jjVwi/73iOinKJNbAS8/KqAvAgbsswdfkgFlrAdHpo=;
+        s=korg; t=1682342404;
+        bh=p75sflDLlEpgR3VxnPOI6GdWlxDyLRZMqnxgRx5CbEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxX2zGN4zE65e6OTCqo82s0jsLVyYf3KhtdmB69g/YpC5ndUzreuTPb8jjN0fq7SF
-         LYxONuniX6p+mhq+ZZFSjitTdUEOvJ4bF82W+UoXe1iWkPDTuZWfWNj2vKgS5KA2kV
-         0GP4H3n0/Hu0T5ylS7H9eSnFn2ARFC8orBUaH3c4=
+        b=RQtTGb5Xln7+2hL0ei6Nby7NObMjGdErLne2qT/I+ikCcyu8SYtkBObmwprScasCJ
+         UVc7UXuNhbv/JnXorFcdMXGuSqv82llzVJ3ZHJBsQ/vinw1DMXuhX8AVhp4wR0AQyP
+         k269eWvoYdfNFZ6pNhxj5b464MtpDUdk01uGIAn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 17/98] virtio_net: bugfix overflow inside xdp_linearize_page()
-Date:   Mon, 24 Apr 2023 15:16:40 +0200
-Message-Id: <20230424131134.562339529@linuxfoundation.org>
+Subject: [PATCH 5.15 27/73] platform/x86 (gigabyte-wmi): Add support for A320M-S2H V2
+Date:   Mon, 24 Apr 2023 15:16:41 +0200
+Message-Id: <20230424131130.022783714@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Frank Crawford <frank@crawford.emu.id.au>
 
-[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
+[ Upstream commit b7c994f8c35e916e27c60803bb21457bc1373500 ]
 
-Here we copy the data from the original buf to the new page. But we
-not check that it may be overflow.
+Add support for A320M-S2H V2.  Tested using module force_load option.
 
-As long as the size received(including vnethdr) is greater than 3840
-(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
-
-And this is completely possible, as long as the MTU is large, such
-as 4096. In our test environment, this will cause crash. Since crash is
-caused by the written memory, it is meaningless, so I do not include it.
-
-Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
+Acked-by: Thomas Weißschuh <linux@weissschuh.net>
+Link: https://lore.kernel.org/r/20230318091441.1240921-1-frank@crawford.emu.id.au
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/platform/x86/gigabyte-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 20b1b34a092ad..3f1883814ce21 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -724,8 +724,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 				       int page_off,
- 				       unsigned int *len)
- {
--	struct page *page = alloc_page(GFP_ATOMIC);
-+	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+	struct page *page;
+diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
+index 0163e912fafec..aea4f3144b68f 100644
+--- a/drivers/platform/x86/gigabyte-wmi.c
++++ b/drivers/platform/x86/gigabyte-wmi.c
+@@ -140,6 +140,7 @@ static u8 gigabyte_wmi_detect_sensor_usability(struct wmi_device *wdev)
+ 	}}
  
-+	if (page_off + *len + tailroom > PAGE_SIZE)
-+		return NULL;
-+
-+	page = alloc_page(GFP_ATOMIC);
- 	if (!page)
- 		return NULL;
- 
-@@ -733,7 +738,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 	page_off += *len;
- 
- 	while (--*num_buf) {
--		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 		unsigned int buflen;
- 		void *buf;
- 		int off;
+ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
++	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("A320M-S2H V2-CF"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H-CF"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H WIFI-CF"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
 -- 
 2.39.2
 
