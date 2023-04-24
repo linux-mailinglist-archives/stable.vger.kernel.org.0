@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B19506ECE5E
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC196ECDC4
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbjDXNbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
+        id S232209AbjDXN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232455AbjDXNbV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:21 -0400
+        with ESMTP id S232212AbjDXN0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8137295
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3855B5FD5
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A8E462343
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81658C433EF;
-        Mon, 24 Apr 2023 13:31:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C51C7622C2
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5376C433D2;
+        Mon, 24 Apr 2023 13:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343061;
-        bh=pSLEgiBTAklJYbE4HYfduuFlerRfQs5FSyiDJXNZXNE=;
+        s=korg; t=1682342793;
+        bh=VSVe3wCuYswIOk7rHrXb0nQdR5rTlsfIH0YCLcwz5kU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmohkWPy6RmILdS5MBI5NfyseSfcpOgcbS+ufESMT+kdIBUSO/C2ZqbhcXR+Heu0P
-         w0FeqUztfafqCC/9AptAacf2Adwpajqd4c1vDW37FSuKWkuu92if4X/6KWLC4bc7ka
-         YI2IeEaXgzzm7OuOR8tha9R/tABY1d0alUxwJHwM=
+        b=inFp/VDkeCEkNp/MqYLHF97SFkwqb9ctdhLz0zZv5bKsVIGPJ8FazjA5jGMidweoE
+         lVYkGBwy5bsJe8F1HurSxD8KaI/Y7vGRZTbocNjErMwKJMPHJvICzqKLEAdqMqI50w
+         fvqhHg06IEYmDhAWOeZ2wjX/9GlvnYslPA4EZ1q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Neal Gompa <neal@gompa.dev>,
-        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.2 061/110] btrfs: reinterpret async discard iops_limit=0 as no delay
+        patches@lists.linux.dev, Peng Zhang <zhangpeng.00@bytedance.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 60/98] maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
 Date:   Mon, 24 Apr 2023 15:17:23 +0200
-Message-Id: <20230424131138.595624714@linuxfoundation.org>
+Message-Id: <20230424131136.191537070@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: Peng Zhang <zhangpeng.00@bytedance.com>
 
-commit ef9cddfe57d86aac6b509b550136395669159b30 upstream.
+commit 1f5f12ece722aacea1769fb644f27790ede339dc upstream.
 
-Currently, a limit of 0 results in a hard coded metering over 6 hours.
-Since the default is a set limit, I suspect no one truly depends on this
-rather arbitrary setting. Repurpose it for an arguably more useful
-"unlimited" mode, where the delay is 0.
+In mas_alloc_nodes(), "node->node_count = 0" means to initialize the
+node_count field of the new node, but the node may not be a new node.  It
+may be a node that existed before and node_count has a value, setting it
+to 0 will cause a memory leak.  At this time, mas->alloc->total will be
+greater than the actual number of nodes in the linked list, which may
+cause many other errors.  For example, out-of-bounds access in
+mas_pop_node(), and mas_pop_node() may return addresses that should not be
+used.  Fix it by initializing node_count only for new nodes.
 
-Note that if block groups are too new, or go fully empty, there is still
-a delay associated with those conditions. Those delays implement
-heuristics for not trimming a region we are relatively likely to fully
-overwrite soon.
+Also, by the way, an if-else statement was removed to simplify the code.
 
-CC: stable@vger.kernel.org # 6.2+
-Reviewed-by: Neal Gompa <neal@gompa.dev>
-Signed-off-by: Boris Burkov <boris@bur.io>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lkml.kernel.org/r/20230411041005.26205-1-zhangpeng.00@bytedance.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/discard.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ lib/maple_tree.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/fs/btrfs/discard.c
-+++ b/fs/btrfs/discard.c
-@@ -56,8 +56,6 @@
- #define BTRFS_DISCARD_DELAY		(120ULL * NSEC_PER_SEC)
- #define BTRFS_DISCARD_UNUSED_DELAY	(10ULL * NSEC_PER_SEC)
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -1293,26 +1293,21 @@ static inline void mas_alloc_nodes(struc
+ 	node = mas->alloc;
+ 	node->request_count = 0;
+ 	while (requested) {
+-		max_req = MAPLE_ALLOC_SLOTS;
+-		if (node->node_count) {
+-			unsigned int offset = node->node_count;
+-
+-			slots = (void **)&node->slot[offset];
+-			max_req -= offset;
+-		} else {
+-			slots = (void **)&node->slot;
+-		}
+-
++		max_req = MAPLE_ALLOC_SLOTS - node->node_count;
++		slots = (void **)&node->slot[node->node_count];
+ 		max_req = min(requested, max_req);
+ 		count = mt_alloc_bulk(gfp, max_req, slots);
+ 		if (!count)
+ 			goto nomem_bulk;
  
--/* Target completion latency of discarding all discardable extents */
--#define BTRFS_DISCARD_TARGET_MSEC	(6 * 60 * 60UL * MSEC_PER_SEC)
- #define BTRFS_DISCARD_MIN_DELAY_MSEC	(1UL)
- #define BTRFS_DISCARD_MAX_DELAY_MSEC	(1000UL)
- #define BTRFS_DISCARD_MAX_IOPS		(1000U)
-@@ -577,6 +575,7 @@ void btrfs_discard_calc_delay(struct btr
- 	s32 discardable_extents;
- 	s64 discardable_bytes;
- 	u32 iops_limit;
-+	unsigned long min_delay = BTRFS_DISCARD_MIN_DELAY_MSEC;
- 	unsigned long delay;
- 
- 	discardable_extents = atomic_read(&discard_ctl->discardable_extents);
-@@ -607,13 +606,19 @@ void btrfs_discard_calc_delay(struct btr
- 	}
- 
- 	iops_limit = READ_ONCE(discard_ctl->iops_limit);
--	if (iops_limit)
++		if (node->node_count == 0) {
++			node->slot[0]->node_count = 0;
++			node->slot[0]->request_count = 0;
++		}
 +
-+	if (iops_limit) {
- 		delay = MSEC_PER_SEC / iops_limit;
--	else
--		delay = BTRFS_DISCARD_TARGET_MSEC / discardable_extents;
-+	} else {
-+		/*
-+		 * Unset iops_limit means go as fast as possible, so allow a
-+		 * delay of 0.
-+		 */
-+		delay = 0;
-+		min_delay = 0;
-+	}
- 
--	delay = clamp(delay, BTRFS_DISCARD_MIN_DELAY_MSEC,
--		      BTRFS_DISCARD_MAX_DELAY_MSEC);
-+	delay = clamp(delay, min_delay, BTRFS_DISCARD_MAX_DELAY_MSEC);
- 	discard_ctl->delay_ms = delay;
- 
- 	spin_unlock(&discard_ctl->lock);
+ 		node->node_count += count;
+ 		allocated += count;
+ 		node = node->slot[0];
+-		node->node_count = 0;
+-		node->request_count = 0;
+ 		requested -= count;
+ 	}
+ 	mas->alloc->total = allocated;
 
 
