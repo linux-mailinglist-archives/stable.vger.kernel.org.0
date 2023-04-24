@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E0A6ECE62
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2825E6ECDAC
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232494AbjDXNby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59558 "EHLO
+        id S232097AbjDXNZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbjDXNbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:37 -0400
+        with ESMTP id S232140AbjDXNZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9963C7ED1
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13AF5B85
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C40F6234E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69033C4339B;
-        Mon, 24 Apr 2023 13:31:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BE04622B1
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F283C433D2;
+        Mon, 24 Apr 2023 13:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343069;
-        bh=z6d+NNU8aDPUVxUHBLJiga/rU17DVbCyMBd+TvruJVA=;
+        s=korg; t=1682342732;
+        bh=cfJ073jZWuUKyB8yTPziOXBTwqVge2u8UtgBTT4+M2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uj6U5LipD0v4Hzp6mJ4s6S+TKcWc6g8P5xVQPOP2k5OxpVv/ExvkWiavDZpTa1PPk
-         ce0SQ5o91VbMBVOwhI1KPY9gKlBq68eKUiOp/J9soBPg6qpcpKdU+PVI2lYUUaW7xN
-         kcR4f3Z53vWeQmVevntFMpI2gIZqgZwXrgP0lM3g=
+        b=Ru07ZjO+Vc+RLbtMCiIhKWmPhPcFj+4ae2QWL1m1Sb130emkRYQFyNcYqrZtynbxx
+         P2BhBZWZ7AKw7eT56lVh7gIN8m+9grPMt7kbWpcNTfy2rqYmbi5/k5Z5PXx00N+VUY
+         LIZFhW/LRisbnK9qd6Kbvf0wOvNk4iOLjtrRn8Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Sebastian Basierski <sebastianx.basierski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 036/110] e1000e: Disable TSO on i219-LM card to increase speed
-Date:   Mon, 24 Apr 2023 15:16:58 +0200
-Message-Id: <20230424131137.509847090@linuxfoundation.org>
+Subject: [PATCH 6.1 36/98] selftests: sigaltstack: fix -Wuninitialized
+Date:   Mon, 24 Apr 2023 15:16:59 +0200
+Message-Id: <20230424131135.276788783@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,98 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Basierski <sebastianx.basierski@intel.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
+[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
 
-While using i219-LM card currently it was only possible to achieve
-about 60% of maximum speed due to regression introduced in Linux 5.8.
-This was caused by TSO not being disabled by default despite commit
-f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
-Fix that by disabling TSO during driver probe.
+Building sigaltstack with clang via:
+$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
 
-Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
-Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+produces the following warning:
+  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
+  if (sp < (unsigned long)sstack ||
+      ^~
+
+Clang expects these to be declared at global scope; we've fixed this in
+the kernel proper by using the macro `current_stack_pointer`. This is
+defined in different headers for different target architectures, so just
+create a new header that defines the arch-specific register names for
+the stack pointer register, and define it for more targets (at least the
+ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
+ tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+ create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 04acd1a992fa2..2146e7a137244 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5288,31 +5288,6 @@ static void e1000_watchdog_task(struct work_struct *work)
- 				ew32(TARC(0), tarc0);
- 			}
- 
--			/* disable TSO for pcie and 10/100 speeds, to avoid
--			 * some hardware issues
--			 */
--			if (!(adapter->flags & FLAG_TSO_FORCE)) {
--				switch (adapter->link_speed) {
--				case SPEED_10:
--				case SPEED_100:
--					e_info("10/100 speed: disabling TSO\n");
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--					break;
--				case SPEED_1000:
--					netdev->features |= NETIF_F_TSO;
--					netdev->features |= NETIF_F_TSO6;
--					break;
--				default:
--					/* oops */
--					break;
--				}
--				if (hw->mac.type == e1000_pch_spt) {
--					netdev->features &= ~NETIF_F_TSO;
--					netdev->features &= ~NETIF_F_TSO6;
--				}
--			}
--
- 			/* enable transmits in the hardware, need to do this
- 			 * after setting TARC(0)
- 			 */
-@@ -7529,6 +7504,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			    NETIF_F_RXCSUM |
- 			    NETIF_F_HW_CSUM);
- 
-+	/* disable TSO for pcie and 10/100 speeds to avoid
-+	 * some hardware issues and for i219 to fix transfer
-+	 * speed being capped at 60%
-+	 */
-+	if (!(adapter->flags & FLAG_TSO_FORCE)) {
-+		switch (adapter->link_speed) {
-+		case SPEED_10:
-+		case SPEED_100:
-+			e_info("10/100 speed: disabling TSO\n");
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+			break;
-+		case SPEED_1000:
-+			netdev->features |= NETIF_F_TSO;
-+			netdev->features |= NETIF_F_TSO6;
-+			break;
-+		default:
-+			/* oops */
-+			break;
-+		}
-+		if (hw->mac.type == e1000_pch_spt) {
-+			netdev->features &= ~NETIF_F_TSO;
-+			netdev->features &= ~NETIF_F_TSO6;
-+		}
-+	}
+diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+new file mode 100644
+index 0000000000000..ea9bdf3a90b16
+--- /dev/null
++++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +
- 	/* Set user-changeable features (subset of all device features) */
- 	netdev->hw_features = netdev->features;
- 	netdev->hw_features |= NETIF_F_RXFCS;
++#if __alpha__
++register unsigned long sp asm("$30");
++#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
++register unsigned long sp asm("sp");
++#elif __i386__
++register unsigned long sp asm("esp");
++#elif __loongarch64
++register unsigned long sp asm("$sp");
++#elif __ppc__
++register unsigned long sp asm("r1");
++#elif __s390x__
++register unsigned long sp asm("%15");
++#elif __sh__
++register unsigned long sp asm("r15");
++#elif __x86_64__
++register unsigned long sp asm("rsp");
++#elif __XTENSA__
++register unsigned long sp asm("a1");
++#else
++#error "implement current_stack_pointer equivalent"
++#endif
+diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
+index c53b070755b65..98d37cb744fb2 100644
+--- a/tools/testing/selftests/sigaltstack/sas.c
++++ b/tools/testing/selftests/sigaltstack/sas.c
+@@ -20,6 +20,7 @@
+ #include <sys/auxv.h>
+ 
+ #include "../kselftest.h"
++#include "current_stack_pointer.h"
+ 
+ #ifndef SS_AUTODISARM
+ #define SS_AUTODISARM  (1U << 31)
+@@ -46,12 +47,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
+ 	stack_t stk;
+ 	struct stk_data *p;
+ 
+-#if __s390x__
+-	register unsigned long sp asm("%15");
+-#else
+-	register unsigned long sp asm("sp");
+-#endif
+-
+ 	if (sp < (unsigned long)sstack ||
+ 			sp >= (unsigned long)sstack + stack_size) {
+ 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
 -- 
 2.39.2
 
