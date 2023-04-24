@@ -2,51 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C496ECD0C
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C886ECE3B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231952AbjDXNUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43616 "EHLO
+        id S232314AbjDXNa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:30:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231955AbjDXNT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:19:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAA8B49FF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:19:43 -0700 (PDT)
+        with ESMTP id S232340AbjDXNaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22D476B3;
+        Mon, 24 Apr 2023 06:29:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAA56615CE
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:19:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD731C433EF;
-        Mon, 24 Apr 2023 13:19:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B5FF62333;
+        Mon, 24 Apr 2023 13:29:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E812C4339B;
+        Mon, 24 Apr 2023 13:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342383;
-        bh=rrgMwhBWX7WjQMgGtpQgugqQdsnmu9dYRb5VXQSRRJ4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/0OQh4qBlA2uSz5E85OINbJFkYt6KZ8S2sJRnkqk/yvgWkU0Uh7oojvtL2dT4T7h
-         b/fL3N7pkfOf86k3TWtZGV7PigsQaTYU/3qW9RV/aX//DAj1/qjyroVIUvxfliSg4l
-         35t9KPJaW4uTFQrNxotcjjMfvvC/0Pv+ZIeaCaIQ=
+        s=korg; t=1682342995;
+        bh=5kQh/jnrQQsCW2tdbXAw3tgY2VMgTYw7NeJPw87F7eE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ozrDJonX0BJh/Z81W7NJMS0RcpnrC3nDtKTSA4qAWxA89TRWmGiXKPkt6o+P4UYJY
+         n+Cr2TcEpPP43aPGheQsQ8jfV9GMkfWxKqIrJ2rhFNHazZUkduXwmNDMxVvCYRU2TY
+         KHY5F5KUlPmPAJ5NNw4bCEXtqYNx7sfeeLAqulxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gwangun Jung <exsociety@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 08/73] net: sched: sch_qfq: prevent slab-out-of-bounds in qfq_activate_agg
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 6.2 000/110] 6.2.13-rc1 review
 Date:   Mon, 24 Apr 2023 15:16:22 +0200
-Message-Id: <20230424131129.351940248@linuxfoundation.org>
+Message-Id: <20230424131136.142490414@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.13-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-6.2.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 6.2.13-rc1
+X-KernelTest-Deadline: 2023-04-26T13:11+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,134 +63,491 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwangun Jung <exsociety@gmail.com>
+This is the start of the stable review cycle for the 6.2.13 release.
+There are 110 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 3037933448f60f9acb705997eae62013ecb81e0d ]
+Responses should be made by Wed, 26 Apr 2023 13:11:11 +0000.
+Anything received after that time might be too late.
 
-If the TCA_QFQ_LMAX value is not offered through nlattr, lmax is determined by the MTU value of the network device.
-The MTU of the loopback device can be set up to 2^31-1.
-As a result, it is possible to have an lmax value that exceeds QFQ_MIN_LMAX.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.13-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+and the diffstat can be found below.
 
-Due to the invalid lmax value, an index is generated that exceeds the QFQ_MAX_INDEX(=24) value, causing out-of-bounds read/write errors.
+thanks,
 
-The following reports a oob access:
+greg k-h
 
-[   84.582666] BUG: KASAN: slab-out-of-bounds in qfq_activate_agg.constprop.0 (net/sched/sch_qfq.c:1027 net/sched/sch_qfq.c:1060 net/sched/sch_qfq.c:1313)
-[   84.583267] Read of size 4 at addr ffff88810f676948 by task ping/301
-[   84.583686]
-[   84.583797] CPU: 3 PID: 301 Comm: ping Not tainted 6.3.0-rc5 #1
-[   84.584164] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-[   84.584644] Call Trace:
-[   84.584787]  <TASK>
-[   84.584906] dump_stack_lvl (lib/dump_stack.c:107 (discriminator 1))
-[   84.585108] print_report (mm/kasan/report.c:320 mm/kasan/report.c:430)
-[   84.585570] kasan_report (mm/kasan/report.c:538)
-[   84.585988] qfq_activate_agg.constprop.0 (net/sched/sch_qfq.c:1027 net/sched/sch_qfq.c:1060 net/sched/sch_qfq.c:1313)
-[   84.586599] qfq_enqueue (net/sched/sch_qfq.c:1255)
-[   84.587607] dev_qdisc_enqueue (net/core/dev.c:3776)
-[   84.587749] __dev_queue_xmit (./include/net/sch_generic.h:186 net/core/dev.c:3865 net/core/dev.c:4212)
-[   84.588763] ip_finish_output2 (./include/net/neighbour.h:546 net/ipv4/ip_output.c:228)
-[   84.589460] ip_output (net/ipv4/ip_output.c:430)
-[   84.590132] ip_push_pending_frames (./include/net/dst.h:444 net/ipv4/ip_output.c:126 net/ipv4/ip_output.c:1586 net/ipv4/ip_output.c:1606)
-[   84.590285] raw_sendmsg (net/ipv4/raw.c:649)
-[   84.591960] sock_sendmsg (net/socket.c:724 net/socket.c:747)
-[   84.592084] __sys_sendto (net/socket.c:2142)
-[   84.593306] __x64_sys_sendto (net/socket.c:2150)
-[   84.593779] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-[   84.593902] entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-[   84.594070] RIP: 0033:0x7fe568032066
-[   84.594192] Code: 0e 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 41 89 ca 64 8b 04 25 18 00 00 00 85 c09[ 84.594796] RSP: 002b:00007ffce388b4e8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+-------------
+Pseudo-Shortlog of commits:
 
-Code starting with the faulting instruction
-===========================================
-[   84.595047] RAX: ffffffffffffffda RBX: 00007ffce388cc70 RCX: 00007fe568032066
-[   84.595281] RDX: 0000000000000040 RSI: 00005605fdad6d10 RDI: 0000000000000003
-[   84.595515] RBP: 00005605fdad6d10 R08: 00007ffce388eeec R09: 0000000000000010
-[   84.595749] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000040
-[   84.595984] R13: 00007ffce388cc30 R14: 00007ffce388b4f0 R15: 0000001d00000001
-[   84.596218]  </TASK>
-[   84.596295]
-[   84.596351] Allocated by task 291:
-[   84.596467] kasan_save_stack (mm/kasan/common.c:46)
-[   84.596597] kasan_set_track (mm/kasan/common.c:52)
-[   84.596725] __kasan_kmalloc (mm/kasan/common.c:384)
-[   84.596852] __kmalloc_node (./include/linux/kasan.h:196 mm/slab_common.c:967 mm/slab_common.c:974)
-[   84.596979] qdisc_alloc (./include/linux/slab.h:610 ./include/linux/slab.h:731 net/sched/sch_generic.c:938)
-[   84.597100] qdisc_create (net/sched/sch_api.c:1244)
-[   84.597222] tc_modify_qdisc (net/sched/sch_api.c:1680)
-[   84.597357] rtnetlink_rcv_msg (net/core/rtnetlink.c:6174)
-[   84.597495] netlink_rcv_skb (net/netlink/af_netlink.c:2574)
-[   84.597627] netlink_unicast (net/netlink/af_netlink.c:1340 net/netlink/af_netlink.c:1365)
-[   84.597759] netlink_sendmsg (net/netlink/af_netlink.c:1942)
-[   84.597891] sock_sendmsg (net/socket.c:724 net/socket.c:747)
-[   84.598016] ____sys_sendmsg (net/socket.c:2501)
-[   84.598147] ___sys_sendmsg (net/socket.c:2557)
-[   84.598275] __sys_sendmsg (./include/linux/file.h:31 net/socket.c:2586)
-[   84.598399] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-[   84.598520] entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-[   84.598688]
-[   84.598744] The buggy address belongs to the object at ffff88810f674000
-[   84.598744]  which belongs to the cache kmalloc-8k of size 8192
-[   84.599135] The buggy address is located 2664 bytes to the right of
-[   84.599135]  allocated 7904-byte region [ffff88810f674000, ffff88810f675ee0)
-[   84.599544]
-[   84.599598] The buggy address belongs to the physical page:
-[   84.599777] page:00000000e638567f refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x10f670
-[   84.600074] head:00000000e638567f order:3 entire_mapcount:0 nr_pages_mapped:0 pincount:0
-[   84.600330] flags: 0x200000000010200(slab|head|node=0|zone=2)
-[   84.600517] raw: 0200000000010200 ffff888100043180 dead000000000122 0000000000000000
-[   84.600764] raw: 0000000000000000 0000000080020002 00000001ffffffff 0000000000000000
-[   84.601009] page dumped because: kasan: bad access detected
-[   84.601187]
-[   84.601241] Memory state around the buggy address:
-[   84.601396]  ffff88810f676800: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.601620]  ffff88810f676880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.601845] >ffff88810f676900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.602069]                                               ^
-[   84.602243]  ffff88810f676980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.602468]  ffff88810f676a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   84.602693] ==================================================================
-[   84.602924] Disabling lock debugging due to kernel taint
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 6.2.13-rc1
 
-Fixes: 3015f3d2a3cd ("pkt_sched: enable QFQ to support TSO/GSO")
-Reported-by: Gwangun Jung <exsociety@gmail.com>
-Signed-off-by: Gwangun Jung <exsociety@gmail.com>
-Acked-by: Jamal Hadi Salim<jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/sched/sch_qfq.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+Ekaterina Orlova <vorobushek.ok@gmail.com>
+    ASN.1: Fix check for strdup() success
 
-diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
-index 50e51c1322fc1..4c51aeb78f141 100644
---- a/net/sched/sch_qfq.c
-+++ b/net/sched/sch_qfq.c
-@@ -421,15 +421,16 @@ static int qfq_change_class(struct Qdisc *sch, u32 classid, u32 parentid,
- 	} else
- 		weight = 1;
- 
--	if (tb[TCA_QFQ_LMAX]) {
-+	if (tb[TCA_QFQ_LMAX])
- 		lmax = nla_get_u32(tb[TCA_QFQ_LMAX]);
--		if (lmax < QFQ_MIN_LMAX || lmax > (1UL << QFQ_MTU_SHIFT)) {
--			pr_notice("qfq: invalid max length %u\n", lmax);
--			return -EINVAL;
--		}
--	} else
-+	else
- 		lmax = psched_mtu(qdisc_dev(sch));
- 
-+	if (lmax < QFQ_MIN_LMAX || lmax > (1UL << QFQ_MTU_SHIFT)) {
-+		pr_notice("qfq: invalid max length %u\n", lmax);
-+		return -EINVAL;
-+	}
-+
- 	inv_w = ONE_FP / weight;
- 	weight = ONE_FP / inv_w;
- 
--- 
-2.39.2
+Chancel Liu <chancel.liu@nxp.com>
+    ASoC: fsl_sai: Fix pins setting for i.MX8QM platform
 
+Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+    ASoC: fsl_asrc_dma: fix potential null-ptr-deref
+
+Daniel Baluta <daniel.baluta@nxp.com>
+    ASoC: SOF: pm: Tear down pipelines only if DSP was active
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    mm/page_alloc: fix potential deadlock on zonelist_update_seq seqlock
+
+Alexis Lothoré <alexis.lothore@bootlin.com>
+    fpga: bridge: properly initialize bridge device before populating children
+
+Dan Carpenter <error27@gmail.com>
+    iio: adc: at91-sama5d2_adc: fix an error code in at91_adc_allocate_trigger()
+
+Soumya Negi <soumya.negi97@gmail.com>
+    Input: pegasus-notetaker - check pipe type when probing
+
+hrdl <git@hrdl.eu>
+    Input: cyttsp5 - fix sensing configuration data structure
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    gcc: disable '-Warray-bounds' for gcc-13 too
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Remove over-zealous hardware size check in pci_msix_validate_entries()
+
+Alyssa Ross <hi@alyssa.is>
+    purgatory: fix disabling debug info
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: Make WriteCombine configurable for ioremap()
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: Make -mstrict-align configurable
+
+Jiaxun Yang <jiaxun.yang@flygoat.com>
+    MIPS: Define RUNTIME_DISCARD_EXIT in LD script
+
+Dan Carpenter <dan.carpenter@linaro.org>
+    KVM: arm64: Fix buffer overflow in kvm_arm_set_fw_reg()
+
+Marc Zyngier <maz@kernel.org>
+    KVM: arm64: Make vcpu flag updates non-preemptible
+
+Paulo Alcantara <pc@manguebit.com>
+    cifs: avoid dup prefix path in dfs_get_automount_devname()
+
+Liam R. Howlett <Liam.Howlett@oracle.com>
+    mm/mmap: regression fix for unmapped_area{_topdown}
+
+Mel Gorman <mgorman@techsingularity.net>
+    mm: page_alloc: skip regions with hugetlbfs pages when allocating 1G pages
+
+Alexander Potapenko <glider@google.com>
+    mm: kmsan: handle alloc failures in kmsan_vmap_pages_range_noflush()
+
+Alexander Potapenko <glider@google.com>
+    mm: kmsan: handle alloc failures in kmsan_ioremap_page_range()
+
+Naoya Horiguchi <naoya.horiguchi@nec.com>
+    mm/huge_memory.c: warn with pr_warn_ratelimited instead of VM_WARN_ON_ONCE_FOLIO
+
+Peter Xu <peterx@redhat.com>
+    mm/khugepaged: check again on anon uffd-wp during isolation
+
+David Hildenbrand <david@redhat.com>
+    mm/userfaultfd: fix uffd-wp handling for THP migration entries
+
+Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+    mm: fix memory leak on mm_init error handling
+
+Sascha Hauer <s.hauer@pengutronix.de>
+    drm/rockchip: vop2: Use regcache_sync() to fix suspend/resume
+
+Sascha Hauer <s.hauer@pengutronix.de>
+    drm/rockchip: vop2: fix suspend/resume
+
+Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+    drm/amd/display: set dcn315 lb bpp to 48
+
+Alan Liu <HaoPing.Liu@amd.com>
+    drm/amdgpu: Fix desktop freezed after gpu-reset
+
+Ville Syrjälä <ville.syrjala@linux.intel.com>
+    drm/i915: Fix fast wake AUX sync len
+
+Bhavya Kapoor <b-kapoor@ti.com>
+    mmc: sdhci_am654: Set HIGH_SPEED_ENA for SDR12 and SDR25
+
+Baokun Li <libaokun1@huawei.com>
+    writeback, cgroup: fix null-ptr-deref write in bdi_split_work_to_wbs
+
+Ondrej Mosnacek <omosnace@redhat.com>
+    kernel/sys.c: fix and improve control flow in __sys_setres[ug]id()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    memstick: fix memory leak if card device is never registered
+
+Steve Chou <steve_chou@pesi.com.tw>
+    tools/mm/page_owner_sort.c: fix TGID output when cull=tg is used
+
+Paolo Abeni <pabeni@redhat.com>
+    mptcp: fix accept vs worker race
+
+Paolo Abeni <pabeni@redhat.com>
+    mptcp: stops worker on unaccepted sockets at listener close
+
+Ryusuke Konishi <konishi.ryusuke@gmail.com>
+    nilfs2: initialize unused bytes in segment summary blocks
+
+Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+    ASoC: SOF: ipc4-topology: Clarify bind failure caused by missing fw_module
+
+Peng Zhang <zhangpeng.00@bytedance.com>
+    maple_tree: fix a potential memory leak, OOB access, or other unpredictable bug
+
+Liam R. Howlett <Liam.Howlett@oracle.com>
+    maple_tree: fix mas_empty_area() search
+
+Liam R. Howlett <Liam.Howlett@oracle.com>
+    maple_tree: make maple state reusable after mas_empty_area_rev()
+
+Toke Høiland-Jørgensen <toke@toke.dk>
+    wifi: ath9k: Don't mark channelmap stack variable read-only in ath9k_mci_update_wlan_channels()
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: Mark 3 symbol exports as non-GPL
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: Fix probing of the CRC32 feature
+
+Tiezhu Yang <yangtiezhu@loongson.cn>
+    LoongArch: Check unwind_error() in arch_stack_walk()
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: module: set section addresses to 0x0
+
+David Gow <davidgow@google.com>
+    rust: kernel: Mark rust_fmt_argument as extern "C"
+
+Boris Burkov <boris@bur.io>
+    btrfs: reinterpret async discard iops_limit=0 as no delay
+
+Boris Burkov <boris@bur.io>
+    btrfs: set default discard iops_limit to 1000
+
+Andy Chi <andy.chi@canonical.com>
+    ALSA: hda/realtek: fix mute/micmute LEDs for a HP ProBook
+
+Brian Masney <bmasney@redhat.com>
+    iio: light: tsl2772: fix reading proximity-diodes from device tree
+
+Liang He <windhl@126.com>
+    iio: dac: ad5755: Add missing fwnode_handle_put()
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    Revert "ACPICA: Events: Support fixed PCIe wake event"
+
+Peter Xu <peterx@redhat.com>
+    Revert "userfaultfd: don't fail on unrecognized features"
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    pwm: Zero-initialize the pwm_state passed to driver's .get_state()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    mtd: spi-nor: fix memory leak when using debugfs_lookup()
+
+weiliang1503 <weiliang1503@gmail.com>
+    platform/x86: asus-nb-wmi: Add quirk_asus_tablet_mode to other ROG Flow X13 models
+
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: gigabyte-wmi: add support for X570S AORUS ELITE
+
+Juergen Gross <jgross@suse.com>
+    xen/netback: use same error messages for same errors
+
+Sagi Grimberg <sagi@grimberg.me>
+    nvme-tcp: fix a possible UAF when failing to allocate an io queue
+
+David Gow <davidgow@google.com>
+    drm: test: Fix 32-bit issue in drm_buddy_test
+
+David Gow <davidgow@google.com>
+    drm: buddy_allocator: Fix buddy allocator init on 32-bit systems
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/ptrace: fix PTRACE_GET_LAST_BREAK error handling
+
+Thomas Weißschuh <linux@weissschuh.net>
+    platform/x86: gigabyte-wmi: add support for B650 AORUS ELITE AX
+
+Álvaro Fernández Rojas <noltari@gmail.com>
+    net: dsa: b53: mmap: add phy ops
+
+Damien Le Moal <damien.lemoal@opensource.wdc.com>
+    scsi: core: Improve scsi_vpd_inquiry() checks
+
+Tomas Henzl <thenzl@redhat.com>
+    scsi: megaraid_sas: Fix fw_crash_buffer_show()
+
+Nick Desaulniers <ndesaulniers@google.com>
+    selftests: sigaltstack: fix -Wuninitialized
+
+Frank Crawford <frank@crawford.emu.id.au>
+    platform/x86 (gigabyte-wmi): Add support for A320M-S2H V2
+
+Dongliang Mu <dzm91@hust.edu.cn>
+    platform/x86/intel: vsec: Fix a memory leak in intel_vsec_add_aux
+
+Douglas Raillard <douglas.raillard@arm.com>
+    f2fs: Fix f2fs_truncate_partial_nodes ftrace event
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: bridge: switchdev: don't notify FDB entries with "master dynamic"
+
+Sebastian Basierski <sebastianx.basierski@intel.com>
+    e1000e: Disable TSO on i219-LM card to increase speed
+
+Vadim Fedorenko <vadfed@meta.com>
+    bnxt_en: fix free-runnig PHC mode
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    net: dsa: microchip: ksz8795: Correctly handle huge frame configuration
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Fix incorrect verifier pruning due to missing register precision taints
+
+Li Lanzhe <u202212060@hust.edu.cn>
+    spi: spi-rockchip: Fix missing unwind goto in rockchip_sfc_probe()
+
+Ido Schimmel <idosch@nvidia.com>
+    mlxsw: pci: Fix possible crash during initialization
+
+Alexander Aring <aahringo@redhat.com>
+    net: rpl: fix rpl header size calculation
+
+Ido Schimmel <idosch@nvidia.com>
+    bonding: Fix memory leak when changing bond type to Ethernet
+
+Huacai Chen <chenhuacai@kernel.org>
+    LoongArch: Fix build error if CONFIG_SUSPEND is not set
+
+Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+    mlxfw: fix null-ptr-deref in mlxfw_mfa2_tlv_next()
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Do not initialize PTP on older P3/P4 chips
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nf_tables: tighten netlink attribute requirements for catch-all elements
+
+Duoming Zhou <duoming@zju.edu.cn>
+    cxgb4: fix use after free bugs caused by circular dependency problem
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nf_tables: validate catch-all set elements
+
+Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+    i40e: fix i40e_setup_misc_vector() error handling
+
+Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+    i40e: fix accessing vsi->active_filters without holding lock
+
+Florian Westphal <fw@strlen.de>
+    netfilter: nf_tables: fix ifdef to also consider nf_tables=m
+
+Ding Hui <dinghui@sangfor.com.cn>
+    sfc: Fix use-after-free due to selftest_work
+
+Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+    virtio_net: bugfix overflow inside xdp_linearize_page()
+
+Gwangun Jung <exsociety@gmail.com>
+    net: sched: sch_qfq: prevent slab-out-of-bounds in qfq_activate_agg
+
+Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+    regulator: fan53555: Fix wrong TCS_SLEW_MASK
+
+Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+    regulator: fan53555: Explicitly include bits header
+
+Patrick Blass <patrickblass@mailbox.org>
+    rust: str: fix requierments->requirements typo
+
+Chen Aotian <chenaotian2@163.com>
+    netfilter: nf_tables: Modify nla_memdup's flag to GFP_KERNEL_ACCOUNT
+
+Florian Westphal <fw@strlen.de>
+    netfilter: br_netfilter: fix recent physdev match breakage
+
+Peng Fan <peng.fan@nxp.com>
+    arm64: dts: imx8mp-verdin: correct off-on-delay
+
+Peng Fan <peng.fan@nxp.com>
+    arm64: dts: imx8mm-verdin: correct off-on-delay
+
+Peng Fan <peng.fan@nxp.com>
+    arm64: dts: imx8mm-evk: correct pmic clock source
+
+Johan Hovold <johan+linaro@kernel.org>
+    arm64: dts: qcom: sc8280xp-pmics: fix pon compatible and registers
+
+Marc Gonzalez <mgonzalez@freebox.fr>
+    perf/amlogic: adjust register offsets
+
+Marc Gonzalez <mgonzalez@freebox.fr>
+    arm64: dts: meson-g12-common: resolve conflict between canvas & pmu
+
+Marc Gonzalez <mgonzalez@freebox.fr>
+    arm64: dts: meson-g12-common: specify full DMC range
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    arm64: dts: qcom: ipq8074-hk10: enable QMP device, not the PHY node
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    arm64: dts: qcom: ipq8074-hk01: enable QMP device, not the PHY node
+
+Dan Johansen <strit@manjaro.org>
+    arm64: dts: rockchip: Lower sd speed on rk3566-soquartz
+
+Jianqun Xu <jay.xu@rock-chips.com>
+    ARM: dts: rockchip: fix a typo error for rk3288 spdif node
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.rst    |  1 +
+ Documentation/admin-guide/kernel-parameters.txt    |  6 ++
+ Makefile                                           |  4 +-
+ arch/arm/boot/dts/rk3288.dtsi                      |  2 +-
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi  | 15 ++--
+ arch/arm64/boot/dts/freescale/imx8mm-evk.dtsi      |  2 +-
+ arch/arm64/boot/dts/freescale/imx8mm-verdin.dtsi   |  4 +-
+ .../boot/dts/freescale/imx8mp-verdin-dev.dtsi      |  2 +-
+ arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi   |  4 +-
+ arch/arm64/boot/dts/qcom/ipq8074-hk01.dts          |  4 +-
+ arch/arm64/boot/dts/qcom/ipq8074-hk10.dtsi         |  4 +-
+ arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi       |  5 +-
+ arch/arm64/boot/dts/rockchip/rk3566-soquartz.dtsi  |  2 +-
+ arch/arm64/include/asm/kvm_host.h                  | 19 ++++-
+ arch/arm64/kvm/hypercalls.c                        |  2 +
+ arch/loongarch/Kconfig                             | 35 ++++++++++
+ arch/loongarch/Makefile                            |  5 ++
+ arch/loongarch/include/asm/acpi.h                  |  3 +
+ arch/loongarch/include/asm/cpu-features.h          |  1 +
+ arch/loongarch/include/asm/cpu.h                   | 40 ++++++-----
+ arch/loongarch/include/asm/io.h                    |  4 +-
+ arch/loongarch/include/asm/loongarch.h             |  2 +-
+ arch/loongarch/include/asm/module.lds.h            |  8 +--
+ arch/loongarch/kernel/Makefile                     |  4 +-
+ arch/loongarch/kernel/cpu-probe.c                  |  9 ++-
+ arch/loongarch/kernel/proc.c                       |  1 +
+ arch/loongarch/kernel/setup.c                      | 21 ++++++
+ arch/loongarch/kernel/stacktrace.c                 |  2 +-
+ arch/loongarch/kernel/traps.c                      |  9 ++-
+ arch/loongarch/kernel/unwind.c                     |  1 +
+ arch/loongarch/kernel/unwind_prologue.c            |  4 +-
+ arch/loongarch/mm/init.c                           |  4 +-
+ arch/mips/kernel/vmlinux.lds.S                     |  2 +
+ arch/riscv/purgatory/Makefile                      |  4 +-
+ arch/s390/kernel/ptrace.c                          |  8 +--
+ arch/x86/purgatory/Makefile                        |  3 +-
+ drivers/acpi/acpica/evevent.c                      | 11 ---
+ drivers/acpi/acpica/hwsleep.c                      | 14 ----
+ drivers/acpi/acpica/utglobal.c                     |  4 --
+ drivers/fpga/fpga-bridge.c                         |  3 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c            |  3 +
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c | 17 ++++-
+ .../gpu/drm/amd/display/dc/dml/dcn31/dcn31_fpu.c   |  2 +-
+ drivers/gpu/drm/drm_buddy.c                        |  4 +-
+ drivers/gpu/drm/i915/display/intel_dp_aux.c        |  2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop2.c       |  4 ++
+ drivers/gpu/drm/tests/drm_buddy_test.c             |  3 +-
+ drivers/iio/adc/at91-sama5d2_adc.c                 |  2 +-
+ drivers/iio/dac/ad5755.c                           |  1 +
+ drivers/iio/light/tsl2772.c                        |  1 +
+ drivers/input/tablet/pegasus_notetaker.c           |  6 ++
+ drivers/input/touchscreen/cyttsp5.c                |  1 +
+ drivers/memstick/core/memstick.c                   |  5 +-
+ drivers/mmc/host/sdhci_am654.c                     |  2 -
+ drivers/mtd/spi-nor/core.c                         | 14 +++-
+ drivers/mtd/spi-nor/core.h                         |  2 +
+ drivers/mtd/spi-nor/debugfs.c                      | 11 ++-
+ drivers/net/bonding/bond_main.c                    |  7 +-
+ drivers/net/dsa/b53/b53_mmap.c                     | 14 ++++
+ drivers/net/dsa/microchip/ksz8795.c                |  2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  4 +-
+ .../net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c   |  2 +-
+ drivers/net/ethernet/intel/e1000e/netdev.c         | 51 +++++++-------
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |  9 ++-
+ .../ethernet/mellanox/mlxfw/mlxfw_mfa2_tlv_multi.c |  2 +
+ drivers/net/ethernet/mellanox/mlxsw/pci_hw.h       |  2 +-
+ drivers/net/ethernet/sfc/efx.c                     |  1 -
+ drivers/net/ethernet/sfc/efx_common.c              |  2 +
+ drivers/net/virtio_net.c                           |  8 ++-
+ drivers/net/wireless/ath/ath9k/mci.c               |  4 +-
+ drivers/net/xen-netback/netback.c                  |  6 +-
+ drivers/nvme/host/tcp.c                            | 46 +++++++------
+ drivers/pci/msi/msi.c                              |  9 +--
+ drivers/perf/amlogic/meson_g12_ddr_pmu.c           | 34 ++++-----
+ drivers/platform/x86/asus-nb-wmi.c                 |  3 +-
+ drivers/platform/x86/gigabyte-wmi.c                |  3 +
+ drivers/platform/x86/intel/vsec.c                  |  1 +
+ drivers/pwm/core.c                                 | 12 +++-
+ drivers/regulator/fan53555.c                       | 13 ++--
+ drivers/scsi/megaraid/megaraid_sas_base.c          |  2 +-
+ drivers/scsi/scsi.c                                | 11 ++-
+ drivers/spi/spi-rockchip-sfc.c                     |  2 +-
+ fs/btrfs/discard.c                                 | 21 +++---
+ fs/cifs/cifs_dfs_ref.c                             |  2 -
+ fs/cifs/dfs.h                                      | 22 ++++--
+ fs/fs-writeback.c                                  | 17 +++--
+ fs/nilfs2/segment.c                                | 20 ++++++
+ fs/userfaultfd.c                                   |  6 +-
+ include/acpi/actypes.h                             |  3 +-
+ include/linux/kmsan.h                              | 39 ++++++-----
+ include/linux/skbuff.h                             |  5 +-
+ include/net/netfilter/nf_tables.h                  |  4 ++
+ include/trace/events/f2fs.h                        |  2 +-
+ init/Kconfig                                       | 10 +--
+ kernel/bpf/verifier.c                              | 15 ++++
+ kernel/fork.c                                      |  1 +
+ kernel/sys.c                                       | 69 +++++++++++--------
+ lib/maple_tree.c                                   | 66 +++++++++---------
+ mm/backing-dev.c                                   | 12 +++-
+ mm/huge_memory.c                                   | 19 +++--
+ mm/khugepaged.c                                    |  4 ++
+ mm/kmsan/hooks.c                                   | 55 ++++++++++++---
+ mm/kmsan/shadow.c                                  | 27 +++++---
+ mm/mmap.c                                          | 48 +++++++++++--
+ mm/page_alloc.c                                    | 19 +++++
+ mm/vmalloc.c                                       | 10 ++-
+ net/bridge/br_netfilter_hooks.c                    | 17 +++--
+ net/bridge/br_switchdev.c                          | 11 +++
+ net/ipv6/rpl.c                                     |  3 +-
+ net/mptcp/protocol.c                               | 74 +++++++++++++-------
+ net/mptcp/protocol.h                               |  2 +
+ net/mptcp/subflow.c                                | 80 +++++++++++++++++++++-
+ net/netfilter/nf_tables_api.c                      | 69 ++++++++++++++++---
+ net/netfilter/nft_lookup.c                         | 36 ++--------
+ net/sched/sch_qfq.c                                | 13 ++--
+ rust/kernel/print.rs                               |  6 +-
+ rust/kernel/str.rs                                 |  2 +-
+ scripts/asn1_compiler.c                            |  2 +-
+ sound/pci/hda/patch_realtek.c                      |  1 +
+ sound/soc/fsl/fsl_asrc_dma.c                       | 11 ++-
+ sound/soc/fsl/fsl_sai.c                            |  2 +-
+ sound/soc/sof/ipc4-topology.c                      | 10 +--
+ sound/soc/sof/pm.c                                 |  8 ++-
+ .../selftests/sigaltstack/current_stack_pointer.h  | 23 +++++++
+ tools/testing/selftests/sigaltstack/sas.c          |  7 +-
+ tools/vm/page_owner_sort.c                         |  2 +-
+ 126 files changed, 1017 insertions(+), 466 deletions(-)
 
 
