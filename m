@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D09D6ECF34
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CFC6ECF15
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232684AbjDXNjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43016 "EHLO
+        id S232489AbjDXNiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232735AbjDXNix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285878A60
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:30 -0700 (PDT)
+        with ESMTP id S232648AbjDXNhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:37:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 176097EC7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 959576239C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4954C433D2;
-        Mon, 24 Apr 2023 13:38:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8DAE6241A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01943C433D2;
+        Mon, 24 Apr 2023 13:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343498;
-        bh=bPAgZwE/5D21mB31uoUwQmkOzveDTZ4x/oF0Avqsaf0=;
+        s=korg; t=1682343442;
+        bh=5FUd25ASJF/ek5WITRj8wRlyOGqGPlpEfmxw+JsEINE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ynuzlg7cnH+6H92qICgMzaXbXveSK5Jik4J/prlldUCsDdnUnwEc7mfs/C6Dw+Ll/
-         sNfpRFa01A8SB2vjO8zkkfwQG9OSKGAizNNVCCPe1k6JQB7Msw97T3qugmWY7nOINP
-         Bre/CpEMVqy1QuZ5BTO9DXHl0zVh753MmisjHpG0=
+        b=DuDZXt1thN6uTgT9gTk5Dr8ditO0bg8vEPht+8WbOkVP14j2ScKoCd+41qVSgWwmq
+         24jAuwpDLBhm7hkV286GUsf6wY1zAOcEZiyKQOzwxBhSHChdmgkxeFvM28/J7ba7a8
+         HKCJu0eID7dR/a2vLyTwcmbU/lpsSY3/kPbj8kGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "tytso@mit.edu, adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org,
-        linux-kernel@vger.kernel.org, joneslee@google.com, Tudor Ambarus" 
-        <tudor.ambarus@linaro.org>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 4.19 19/29] Revert "ext4: fix use-after-free in ext4_xattr_set_entry"
-Date:   Mon, 24 Apr 2023 15:18:46 +0200
-Message-Id: <20230424131121.787207430@linuxfoundation.org>
+        William Breathitt Gray <william.gray@linaro.org>
+Subject: [PATCH 4.14 26/28] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+Date:   Mon, 24 Apr 2023 15:18:47 +0200
+Message-Id: <20230424131122.206349494@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
+In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
+References: <20230424131121.331252806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,49 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@linaro.org>
+From: William Breathitt Gray <william.gray@linaro.org>
 
-This reverts commit bb8592efcf8ef2f62947745d3182ea05b5256a15 which is
-commit 67d7d8ad99beccd9fe92d585b87f1760dc9018e3 upstream.
+commit 4aa3b75c74603c3374877d5fd18ad9cc3a9a62ed upstream.
 
-The order in which patches are queued to stable matters. This patch
-has a logical dependency on commit 310c097c2bdbea253d6ee4e064f3e65580ef93ac
-upstream, and failing to queue the latter results in a null-ptr-deref
-reported at the Link below.
+The Counter (CNTR) register is 24 bits wide, but we can have an
+effective 25-bit count value by setting bit 24 to the XOR of the Borrow
+flag and Carry flag. The flags can be read from the FLAG register, but a
+race condition exists: the Borrow flag and Carry flag are instantaneous
+and could change by the time the count value is read from the CNTR
+register.
 
-In order to avoid conflicts on stable, revert the commit just so that we
-can queue its prerequisite patch first and then queue the same after.
+Since the race condition could result in an incorrect 25-bit count
+value, remove support for 25-bit count values from this driver;
+hard-coded maximum count values are replaced by a LS7267_CNTR_MAX define
+for consistency and clarity.
 
-Link: https://syzkaller.appspot.com/bug?extid=d5ebf56f3b1268136afd
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
+Cc: <stable@vger.kernel.org> # 6.1.x
+Cc: <stable@vger.kernel.org> # 6.2.x
+Link: https://lore.kernel.org/r/20230312231554.134858-1-william.gray@linaro.org/
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/iio/counter/104-quad-8.c |   10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2214,9 +2214,8 @@ int ext4_xattr_ibody_find(struct inode *
- 	struct ext4_inode *raw_inode;
- 	int error;
+--- a/drivers/iio/counter/104-quad-8.c
++++ b/drivers/iio/counter/104-quad-8.c
+@@ -64,9 +64,6 @@ static int quad8_read_raw(struct iio_dev
+ {
+ 	struct quad8_iio *const priv = iio_priv(indio_dev);
+ 	const int base_offset = priv->base + 2 * chan->channel;
+-	unsigned int flags;
+-	unsigned int borrow;
+-	unsigned int carry;
+ 	int i;
  
--	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
-+	if (EXT4_I(inode)->i_extra_isize == 0)
- 		return 0;
--
- 	raw_inode = ext4_raw_inode(&is->iloc);
- 	header = IHDR(inode, raw_inode);
- 	is->s.base = is->s.first = IFIRST(header);
-@@ -2244,9 +2243,8 @@ int ext4_xattr_ibody_inline_set(handle_t
- 	struct ext4_xattr_search *s = &is->s;
- 	int error;
+ 	switch (mask) {
+@@ -76,12 +73,7 @@ static int quad8_read_raw(struct iio_dev
+ 			return IIO_VAL_INT;
+ 		}
  
--	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
-+	if (EXT4_I(inode)->i_extra_isize == 0)
- 		return -ENOSPC;
+-		flags = inb(base_offset + 1);
+-		borrow = flags & BIT(0);
+-		carry = !!(flags & BIT(1));
 -
- 	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
- 	if (error)
- 		return error;
+-		/* Borrow XOR Carry effectively doubles count range */
+-		*val = (borrow ^ carry) << 24;
++		*val = 0;
+ 
+ 		/* Reset Byte Pointer; transfer Counter to Output Latch */
+ 		outb(0x11, base_offset + 1);
 
 
