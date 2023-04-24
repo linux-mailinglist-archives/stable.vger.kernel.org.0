@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2C36ECD1B
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 872056ECE28
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbjDXNUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
+        id S232324AbjDXN3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:29:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231982AbjDXNUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:32 -0400
+        with ESMTP id S232441AbjDXN3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:29:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D194C1F
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E147284
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 185B562208
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B14AC433D2;
-        Mon, 24 Apr 2023 13:20:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57E5E62309
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A869C4339B;
+        Mon, 24 Apr 2023 13:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342407;
-        bh=cfJ073jZWuUKyB8yTPziOXBTwqVge2u8UtgBTT4+M2w=;
+        s=korg; t=1682342953;
+        bh=WYyCN9lFizoYbavCZWCli1OAAiofi170MS/s6Zk//4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=epR+jLLyREUlDXjHLvyNkresctbrmfmlI4+I/BiF2YgFCi1MhiZmEu5RgNcBRr5es
-         nj+HLMA2ydpt3WskCbN9x9gzaL2mboel5EA5wqC1FCw1JDurfM0JzBCkIoF9MgzLMs
-         U/byNbkq+GVlcjZ5j5FMBAfjNn7ydOqYEyslG+3I=
+        b=zCoCqAP2KTs4ua8jPY0HSKaMrhhtzc4E96+tC7nWhtPgs70HnAFdcPLY6F3qvTHGb
+         WT3gNmYhJ/nQ7E+1VEQYCp7lPu1lTdkxyX3DtNI01KhI7YgZRJExiqxoaH9PdvRsX0
+         9C4my3Ljrikt3209BZOFO8Q3EmPUdEuy8He0Mj9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 28/73] selftests: sigaltstack: fix -Wuninitialized
-Date:   Mon, 24 Apr 2023 15:16:42 +0200
-Message-Id: <20230424131130.062574551@linuxfoundation.org>
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 6.2 021/110] i40e: fix accessing vsi->active_filters without holding lock
+Date:   Mon, 24 Apr 2023 15:16:43 +0200
+Message-Id: <20230424131136.920962049@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,93 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
+[ Upstream commit 8485d093b076e59baff424552e8aecfc5bd2d261 ]
 
-Building sigaltstack with clang via:
-$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
+Fix accessing vsi->active_filters without holding the mac_filter_hash_lock.
+Move vsi->active_filters = 0 inside critical section and
+move clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state) after the critical
+section to ensure the new filters from other threads can be added only after
+filters cleaning in the critical section is finished.
 
-produces the following warning:
-  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
-  if (sp < (unsigned long)sstack ||
-      ^~
-
-Clang expects these to be declared at global scope; we've fixed this in
-the kernel proper by using the macro `current_stack_pointer`. This is
-defined in different headers for different target architectures, so just
-create a new header that defines the arch-specific register names for
-the stack pointer register, and define it for more targets (at least the
-ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 278e7d0b9d68 ("i40e: store MAC/VLAN filters in a hash with the MAC Address as key")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
- tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
- 2 files changed, 24 insertions(+), 6 deletions(-)
- create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-new file mode 100644
-index 0000000000000..ea9bdf3a90b16
---- /dev/null
-+++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#if __alpha__
-+register unsigned long sp asm("$30");
-+#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
-+register unsigned long sp asm("sp");
-+#elif __i386__
-+register unsigned long sp asm("esp");
-+#elif __loongarch64
-+register unsigned long sp asm("$sp");
-+#elif __ppc__
-+register unsigned long sp asm("r1");
-+#elif __s390x__
-+register unsigned long sp asm("%15");
-+#elif __sh__
-+register unsigned long sp asm("r15");
-+#elif __x86_64__
-+register unsigned long sp asm("rsp");
-+#elif __XTENSA__
-+register unsigned long sp asm("a1");
-+#else
-+#error "implement current_stack_pointer equivalent"
-+#endif
-diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
-index c53b070755b65..98d37cb744fb2 100644
---- a/tools/testing/selftests/sigaltstack/sas.c
-+++ b/tools/testing/selftests/sigaltstack/sas.c
-@@ -20,6 +20,7 @@
- #include <sys/auxv.h>
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 8328139db3795..2e9a8ff90e0ca 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -14125,15 +14125,15 @@ static int i40e_add_vsi(struct i40e_vsi *vsi)
+ 		vsi->id = ctxt.vsi_number;
+ 	}
  
- #include "../kselftest.h"
-+#include "current_stack_pointer.h"
+-	vsi->active_filters = 0;
+-	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	vsi->active_filters = 0;
+ 	/* If macvlan filters already exist, force them to get loaded */
+ 	hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
+ 		f->state = I40E_FILTER_NEW;
+ 		f_count++;
+ 	}
+ 	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
  
- #ifndef SS_AUTODISARM
- #define SS_AUTODISARM  (1U << 31)
-@@ -46,12 +47,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
- 	stack_t stk;
- 	struct stk_data *p;
- 
--#if __s390x__
--	register unsigned long sp asm("%15");
--#else
--	register unsigned long sp asm("sp");
--#endif
--
- 	if (sp < (unsigned long)sstack ||
- 			sp >= (unsigned long)sstack + stack_size) {
- 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
+ 	if (f_count) {
+ 		vsi->flags |= I40E_VSI_FLAG_FILTER_CHANGED;
 -- 
 2.39.2
 
