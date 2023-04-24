@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F3D6ECD8D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A06A6ECE7B
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbjDXNYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:24:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
+        id S232475AbjDXNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232136AbjDXNYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:18 -0400
+        with ESMTP id S232539AbjDXNck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:32:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699404C2E;
-        Mon, 24 Apr 2023 06:24:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9CF07681
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:32:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 082C16227B;
-        Mon, 24 Apr 2023 13:24:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1823EC433D2;
-        Mon, 24 Apr 2023 13:24:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49FBF6236E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59551C433EF;
+        Mon, 24 Apr 2023 13:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342653;
-        bh=tCCynyrnIJfQB2Eg5feIoBHwGYY3Vk1ymQA+xiDetCg=;
+        s=korg; t=1682343106;
+        bh=D9Oza+T8TEviv2IjtcOS3/W6BGLVAA5KjeGkf207Pek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRnLfFMng7yaSUUz5GDhKJEEfXIA0+K8/aF3AVH5/9IB0k2yhTpTZjWY5cvubuyCK
-         LmaX1dmlE3rdWnbXqkgp6QX+cdC+0z/KkuCUqb03YdOkfbwwEpYkCKFN1GiPithvr0
-         VvP2CiLsdzlaFVJ/vnTxjMATjB62IwJadLT16I6U=
+        b=cQdGeyS7a7BdSWXUdppnPRPGUIcLwK2ZDdlxMdcKVKb+YFAPaCwzerZTyp/vtYDYy
+         sfC7Y5eJr4wTO4aPalo3VnmH3Ce6QZrt3JvTmRgeCb3aIsPp1CcNWjprcg6M2ntuCP
+         0sJsoKDhLxAEAh6ZMhCO/DIjA4u7AW3Xn21ByrWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ekaterina Orlova <vorobushek.ok@gmail.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        James Bottomley <jejb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>, keyrings@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 39/39] ASN.1: Fix check for strdup() success
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.2 080/110] drm/i915: Fix fast wake AUX sync len
 Date:   Mon, 24 Apr 2023 15:17:42 +0200
-Message-Id: <20230424131124.522123398@linuxfoundation.org>
+Message-Id: <20230424131139.447551361@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
-References: <20230424131123.040556994@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,40 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ekaterina Orlova <vorobushek.ok@gmail.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 5a43001c01691dcbd396541e6faa2c0077378f48 upstream.
+commit e1c71f8f918047ce822dc19b42ab1261ed259fd1 upstream.
 
-It seems there is a misprint in the check of strdup() return code that
-can lead to NULL pointer dereference.
+Fast wake should use 8 SYNC pulses for the preamble
+and 10-16 SYNC pulses for the precharge. Reduce our
+fast wake SYNC count to match the maximum value.
+We also use the maximum precharge length for normal
+AUX transactions.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: 4520c6a49af8 ("X.509: Add simple ASN.1 grammar compiler")
-Signed-off-by: Ekaterina Orlova <vorobushek.ok@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: James Bottomley <jejb@linux.ibm.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: keyrings@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org
-Link: https://lore.kernel.org/r/20230315172130.140-1-vorobushek.ok@gmail.com/
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230329172434.18744-1-ville.syrjala@linux.intel.com
+Reviewed-by: Jouni Högander <jouni.hogander@intel.com>
+(cherry picked from commit 605f7c73133341d4b762cbd9a22174cc22d4c38b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/asn1_compiler.c |    2 +-
+ drivers/gpu/drm/i915/display/intel_dp_aux.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/asn1_compiler.c
-+++ b/scripts/asn1_compiler.c
-@@ -625,7 +625,7 @@ int main(int argc, char **argv)
- 	p = strrchr(argv[1], '/');
- 	p = p ? p + 1 : argv[1];
- 	grammar_name = strdup(p);
--	if (!p) {
-+	if (!grammar_name) {
- 		perror(NULL);
- 		exit(1);
- 	}
+--- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
+@@ -166,7 +166,7 @@ static u32 skl_get_aux_send_ctl(struct i
+ 	      DP_AUX_CH_CTL_TIME_OUT_MAX |
+ 	      DP_AUX_CH_CTL_RECEIVE_ERROR |
+ 	      (send_bytes << DP_AUX_CH_CTL_MESSAGE_SIZE_SHIFT) |
+-	      DP_AUX_CH_CTL_FW_SYNC_PULSE_SKL(32) |
++	      DP_AUX_CH_CTL_FW_SYNC_PULSE_SKL(24) |
+ 	      DP_AUX_CH_CTL_SYNC_PULSE_SKL(32);
+ 
+ 	if (intel_tc_port_in_tbt_alt_mode(dig_port))
 
 
