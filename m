@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C15D6ECEA7
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F3D6ECD8D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232616AbjDXNeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:34:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33538 "EHLO
+        id S232112AbjDXNYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:24:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232502AbjDXNdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208FE6EA9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:35 -0700 (PDT)
+        with ESMTP id S232136AbjDXNYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:24:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699404C2E;
+        Mon, 24 Apr 2023 06:24:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 005DD62397
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14E28C433EF;
-        Mon, 24 Apr 2023 13:33:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 082C16227B;
+        Mon, 24 Apr 2023 13:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1823EC433D2;
+        Mon, 24 Apr 2023 13:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343214;
-        bh=ZEZ/Zg5gW+7FHAxs89+MxIqTxKovIxkPe8HUlTqmPh0=;
+        s=korg; t=1682342653;
+        bh=tCCynyrnIJfQB2Eg5feIoBHwGYY3Vk1ymQA+xiDetCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwTJdfqoCaWHvAcS3dElfolVpSkpm1BIkfEun0spfPECC0Rg2xxl/kVmpfm6Odcme
-         dMiCte4F5rO6e49MhGKkhodUUtDyl9cfLVNTkVmYGh4LyJ6Hpha9whgCwbal+9eMLB
-         MiTGUqfBRBLb22hI1dQeb35p/bfrFd4qfPaAK9Hk=
+        b=WRnLfFMng7yaSUUz5GDhKJEEfXIA0+K8/aF3AVH5/9IB0k2yhTpTZjWY5cvubuyCK
+         LmaX1dmlE3rdWnbXqkgp6QX+cdC+0z/KkuCUqb03YdOkfbwwEpYkCKFN1GiPithvr0
+         VvP2CiLsdzlaFVJ/vnTxjMATjB62IwJadLT16I6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Donglin Peng <pengdonglin@sangfor.com.cn>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Ding Hui <dinghui@sangfor.com.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Huang Cun <huangcun@sangfor.com.cn>
-Subject: [PATCH 5.10 10/68] sfc: Fix use-after-free due to selftest_work
-Date:   Mon, 24 Apr 2023 15:17:41 +0200
-Message-Id: <20230424131128.067714898@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Ekaterina Orlova <vorobushek.ok@gmail.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        James Bottomley <jejb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>, keyrings@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 39/39] ASN.1: Fix check for strdup() success
+Date:   Mon, 24 Apr 2023 15:17:42 +0200
+Message-Id: <20230424131124.522123398@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
-References: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131123.040556994@linuxfoundation.org>
+References: <20230424131123.040556994@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,90 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Hui <dinghui@sangfor.com.cn>
+From: Ekaterina Orlova <vorobushek.ok@gmail.com>
 
-[ Upstream commit a80bb8e7233b2ad6ff119646b6e33fb3edcec37b ]
+commit 5a43001c01691dcbd396541e6faa2c0077378f48 upstream.
 
-There is a use-after-free scenario that is:
+It seems there is a misprint in the check of strdup() return code that
+can lead to NULL pointer dereference.
 
-When the NIC is down, user set mac address or vlan tag to VF,
-the xxx_set_vf_mac() or xxx_set_vf_vlan() will invoke efx_net_stop()
-and efx_net_open(), since netif_running() is false, the port will not
-start and keep port_enabled false, but selftest_work is scheduled
-in efx_net_open().
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-If we remove the device before selftest_work run, the efx_stop_port()
-will not be called since the NIC is down, and then efx is freed,
-we will soon get a UAF in run_timer_softirq() like this:
-
-[ 1178.907941] ==================================================================
-[ 1178.907948] BUG: KASAN: use-after-free in run_timer_softirq+0xdea/0xe90
-[ 1178.907950] Write of size 8 at addr ff11001f449cdc80 by task swapper/47/0
-[ 1178.907950]
-[ 1178.907953] CPU: 47 PID: 0 Comm: swapper/47 Kdump: loaded Tainted: G           O     --------- -t - 4.18.0 #1
-[ 1178.907954] Hardware name: SANGFOR X620G40/WI2HG-208T1061A, BIOS SPYH051032-U01 04/01/2022
-[ 1178.907955] Call Trace:
-[ 1178.907956]  <IRQ>
-[ 1178.907960]  dump_stack+0x71/0xab
-[ 1178.907963]  print_address_description+0x6b/0x290
-[ 1178.907965]  ? run_timer_softirq+0xdea/0xe90
-[ 1178.907967]  kasan_report+0x14a/0x2b0
-[ 1178.907968]  run_timer_softirq+0xdea/0xe90
-[ 1178.907971]  ? init_timer_key+0x170/0x170
-[ 1178.907973]  ? hrtimer_cancel+0x20/0x20
-[ 1178.907976]  ? sched_clock+0x5/0x10
-[ 1178.907978]  ? sched_clock_cpu+0x18/0x170
-[ 1178.907981]  __do_softirq+0x1c8/0x5fa
-[ 1178.907985]  irq_exit+0x213/0x240
-[ 1178.907987]  smp_apic_timer_interrupt+0xd0/0x330
-[ 1178.907989]  apic_timer_interrupt+0xf/0x20
-[ 1178.907990]  </IRQ>
-[ 1178.907991] RIP: 0010:mwait_idle+0xae/0x370
-
-If the NIC is not actually brought up, there is no need to schedule
-selftest_work, so let's move invoking efx_selftest_async_start()
-into efx_start_all(), and it will be canceled by broughting down.
-
-Fixes: dd40781e3a4e ("sfc: Run event/IRQ self-test asynchronously when interface is brought up")
-Fixes: e340be923012 ("sfc: add ndo_set_vf_mac() function for EF10")
-Debugged-by: Huang Cun <huangcun@sangfor.com.cn>
-Cc: Donglin Peng <pengdonglin@sangfor.com.cn>
-Suggested-by: Martin Habets <habetsm.xilinx@gmail.com>
-Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4520c6a49af8 ("X.509: Add simple ASN.1 grammar compiler")
+Signed-off-by: Ekaterina Orlova <vorobushek.ok@gmail.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: James Bottomley <jejb@linux.ibm.com>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: keyrings@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org
+Link: https://lore.kernel.org/r/20230315172130.140-1-vorobushek.ok@gmail.com/
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/efx.c        | 1 -
- drivers/net/ethernet/sfc/efx_common.c | 2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ scripts/asn1_compiler.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
-index 5f064f185d553..7cf52fcdb3078 100644
---- a/drivers/net/ethernet/sfc/efx.c
-+++ b/drivers/net/ethernet/sfc/efx.c
-@@ -540,7 +540,6 @@ int efx_net_open(struct net_device *net_dev)
- 	else
- 		efx->state = STATE_NET_UP;
- 
--	efx_selftest_async_start(efx);
- 	return 0;
- }
- 
-diff --git a/drivers/net/ethernet/sfc/efx_common.c b/drivers/net/ethernet/sfc/efx_common.c
-index 1527678b241cf..476ef1c976375 100644
---- a/drivers/net/ethernet/sfc/efx_common.c
-+++ b/drivers/net/ethernet/sfc/efx_common.c
-@@ -542,6 +542,8 @@ void efx_start_all(struct efx_nic *efx)
- 	/* Start the hardware monitor if there is one */
- 	efx_start_monitor(efx);
- 
-+	efx_selftest_async_start(efx);
-+
- 	/* Link state detection is normally event-driven; we have
- 	 * to poll now because we could have missed a change
- 	 */
--- 
-2.39.2
-
+--- a/scripts/asn1_compiler.c
++++ b/scripts/asn1_compiler.c
+@@ -625,7 +625,7 @@ int main(int argc, char **argv)
+ 	p = strrchr(argv[1], '/');
+ 	p = p ? p + 1 : argv[1];
+ 	grammar_name = strdup(p);
+-	if (!p) {
++	if (!grammar_name) {
+ 		perror(NULL);
+ 		exit(1);
+ 	}
 
 
