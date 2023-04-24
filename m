@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E256ECD1C
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B756ECDBA
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbjDXNUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44600 "EHLO
+        id S232192AbjDXN0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232006AbjDXNUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:33 -0400
+        with ESMTP id S232190AbjDXN0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6BC4ECA
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C745FF4
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC7862207
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEAEDC433D2;
-        Mon, 24 Apr 2023 13:20:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4306622B7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8D4C433D2;
+        Mon, 24 Apr 2023 13:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342410;
-        bh=fJRQV3yE7yF8O17lnEYSmwfFwU14JDGA6zck7lrmxoU=;
+        s=korg; t=1682342767;
+        bh=7KbfGjzNmIWFk+zUV9wIBx5xikRJeYuYoog1CMAXKsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SdPjDx3fZkUD6l2+h8X7zGG2+d/R/P0k4An/sFLsMat2l+rvwUKwxNez4rwDqhZ+2
-         +tSQ8XBhtduEqT/kCE2rF9TpXPdMOSF1K4PlwX1Jcd3OJffivsKnUk3YC5Rmu97ipk
-         q4fc+doGJ352rxN8CPnr9gGAell7+/CU1233WY/I=
+        b=Q0u/cRP96rumvyWh+NUkWvTDKrt4fa5ZbbXtdplvxhS2M5LDZkUYxHl73bzeONdq8
+         bVmWBmdBxlY1fVllwoUrRS2/i6JSurzw0EaRuw66bSemPW5EpQjqyL0ztodgDxG5wz
+         uZie3hR2dngIFk9KvqoIGrNDkPGFU7JTZsM6BA0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 29/73] scsi: megaraid_sas: Fix fw_crash_buffer_show()
+        patches@lists.linux.dev,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
+Subject: [PATCH 6.1 20/98] i40e: fix accessing vsi->active_filters without holding lock
 Date:   Mon, 24 Apr 2023 15:16:43 +0200
-Message-Id: <20230424131130.091601849@linuxfoundation.org>
+Message-Id: <20230424131134.687832973@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 
-[ Upstream commit 0808ed6ebbc292222ca069d339744870f6d801da ]
+[ Upstream commit 8485d093b076e59baff424552e8aecfc5bd2d261 ]
 
-If crash_dump_buf is not allocated then crash dump can't be available.
-Replace logical 'and' with 'or'.
+Fix accessing vsi->active_filters without holding the mac_filter_hash_lock.
+Move vsi->active_filters = 0 inside critical section and
+move clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state) after the critical
+section to ensure the new filters from other threads can be added only after
+filters cleaning in the critical section is finished.
 
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230324135249.9733-1-thenzl@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 278e7d0b9d68 ("i40e: store MAC/VLAN filters in a hash with the MAC Address as key")
+Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 88e164e3d2eac..f7da1876e7a38 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -3302,7 +3302,7 @@ fw_crash_buffer_show(struct device *cdev,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index da0cf87d3a1ca..a3119a180a346 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -14098,15 +14098,15 @@ static int i40e_add_vsi(struct i40e_vsi *vsi)
+ 		vsi->id = ctxt.vsi_number;
+ 	}
  
- 	spin_lock_irqsave(&instance->crashdump_lock, flags);
- 	buff_offset = instance->fw_crash_buffer_offset;
--	if (!instance->crash_dump_buf &&
-+	if (!instance->crash_dump_buf ||
- 		!((instance->fw_crash_state == AVAILABLE) ||
- 		(instance->fw_crash_state == COPYING))) {
- 		dev_err(&instance->pdev->dev,
+-	vsi->active_filters = 0;
+-	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	vsi->active_filters = 0;
+ 	/* If macvlan filters already exist, force them to get loaded */
+ 	hash_for_each_safe(vsi->mac_filter_hash, bkt, h, f, hlist) {
+ 		f->state = I40E_FILTER_NEW;
+ 		f_count++;
+ 	}
+ 	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++	clear_bit(__I40E_VSI_OVERFLOW_PROMISC, vsi->state);
+ 
+ 	if (f_count) {
+ 		vsi->flags |= I40E_VSI_FLAG_FILTER_CHANGED;
 -- 
 2.39.2
 
