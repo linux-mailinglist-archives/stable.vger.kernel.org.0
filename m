@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2E06EC89D
+	by mail.lfdr.de (Postfix) with ESMTP id 922DB6EC89E
 	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 11:19:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbjDXJTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 05:19:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52588 "EHLO
+        id S230311AbjDXJTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 05:19:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231580AbjDXJTq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 05:19:46 -0400
+        with ESMTP id S230525AbjDXJTr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 05:19:47 -0400
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682B2E55
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 02:19:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4A3EE55
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 02:19:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1682327985; x=1713863985;
+  t=1682327986; x=1713863986;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=EzrK715aXbfeznXfKaDdlghScr9HpFRRrq58fDEKwhI=;
-  b=oVWpL0uqLinIGQJC02RYkpJOP0wLfuxlvrr+nB8fU0u6ZY9S0cIqbFJQ
-   50i3jaw8VAZroMhR6+2hTJK4XKCKI2CcdabMpTaulutpC4+9K0AtgCHVk
-   eqvppHkyets7+oNjbfqKgxIkAu5VNUVC+G9Fl5eK/OqjE2Mbw1QNgG9hK
-   KSWP669gdfcvLulTczpIXQheGi/HEDxSmP29xs7xduF2EtAjpV71tCIEJ
-   uJYk+CbN5cnTD4Di2w0b4Khtu2KhDfSmygNtIVHxEyXJ+9bVxHJGYMIiJ
-   a/J5abGPD69D+X0dPT+JbTRn2m/ck3LDHAJdgioQWF0jzPUEbtjaDxF1R
-   g==;
+  bh=PDB/D/Uus3TWuaDx7RnY/WE+jcpUCX8ikaGorGvngwo=;
+  b=RUsW7tIkkdzjQmwyuH8j2GL2th+FMEPdCLP+rfWdg9B73EY58caHcag2
+   asmVMAI93RTRgHHxQY5YSpAJAMbzpib4Q81ik5pn6G34cyww52I7ila8/
+   ab1btT3t35V3BfnGXzLQZg+Kw3AE81Tl/rqxnHszJLGJELLvUs3taWhO/
+   axkxDewnhfFPT4Mpnv65Z73u75sfLfWLmNtEb3vf75NVoemRzFtd3w1gH
+   ql9TS+wsGgsFT459etVfS4n47h56jBpHcO3fnqAala+53RB1jzgoja5Eq
+   Ra17z0YxJnI3qKteJ2fBLEbK4lMiFCGhP68at6yUY0hGqAuV1NXjb2NeR
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.99,222,1677567600"; 
-   d="scan'208";a="211939783"
+   d="scan'208";a="148580184"
 Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 24 Apr 2023 02:19:44 -0700
+  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 24 Apr 2023 02:19:45 -0700
 Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Mon, 24 Apr 2023 02:19:43 -0700
+ 15.1.2507.21; Mon, 24 Apr 2023 02:19:45 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex01.mchp-main.com
  (10.10.85.143) with Microsoft SMTP Server id 15.1.2507.21 via Frontend
- Transport; Mon, 24 Apr 2023 02:19:42 -0700
+ Transport; Mon, 24 Apr 2023 02:19:44 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <stable@vger.kernel.org>
 CC:     <conor@kernel.org>, <conor.dooley@microchip.com>,
@@ -47,14 +47,14 @@ CC:     <conor@kernel.org>, <conor.dooley@microchip.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>,
         Yang Yingliang <yangyingliang@huawei.com>
-Subject: [PATCH 5.15 v2 1/3] soc: sifive: l2_cache: fix missing iounmap() in error path in sifive_l2_init()
-Date:   Mon, 24 Apr 2023 10:19:02 +0100
-Message-ID: <20230424-antonym-petroleum-d9930af1e6c6@wendy>
+Subject: [PATCH 5.15 v2 2/3] soc: sifive: l2_cache: fix missing free_irq() in error path in sifive_l2_init()
+Date:   Mon, 24 Apr 2023 10:19:03 +0100
+Message-ID: <20230424-citizen-emphasis-df520424513a@wendy>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230424-slingshot-knelt-7a2f81b422a3@wendy>
 References: <20230424-slingshot-knelt-7a2f81b422a3@wendy>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1570; i=conor.dooley@microchip.com; h=from:subject:message-id; bh=cPNEP+92asCUtjXQgJiWcc0zhhQFsdVd8N+KtH4B1HI=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDClunm2vn/wue2vjIraJ84jFUg+h16vPTP5gPe2AUZbDdW0B sebmjlIWBjEOBlkxRZbE230tUuv/uOxw7nkLM4eVCWQIAxenAEyk5Rcjw2M1Je6ZJxnqPs2tyPcyLs v5ttl21TrzUlUV3bcchSmXZBkZLqx+JZTRUD/v5BzWBK53O+MXH71Sk2U8R9BqL8vMyOZCfgA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1284; i=conor.dooley@microchip.com; h=from:subject:message-id; bh=26e9aVpOtGFQve8A9adhJ/1c7VLROfen5yZTHuKkeWc=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDClunu3vlnIfFE2WubL0gukNtXd+q9PUfr5mW7HQ9sXlJTy9 kplPOkpZGMQ4GGTFFFkSb/e1SK3/47LDuectzBxWJpAhDFycAjCRWHeG/779e/wlZx+b9ZBp47JqfT H11QsubQwyiz7oxChp+G3+npWMDPc9Pq1hzDOx2B/x6MydgOlvDsgy7AlLS3n/kO1TtItZNAMA
 X-Developer-Key: i=conor.dooley@microchip.com; a=openpgp; fpr=F9ECA03CF54F12CD01F1655722E2C55B37CF380C
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -69,9 +69,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 73e770f085023da327dc9ffeb6cd96b0bb22d97e upstream.
+commit 756344e7cb1afbb87da8705c20384dddd0dea233 upstream.
 
-Add missing iounmap() before return error from sifive_l2_init().
+Add missing free_irq() before return error from sifive_l2_init().
 
 Fixes: a967a289f169 ("RISC-V: sifive_l2_cache: Add L2 cache controller driver for SiFive SoCs")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
@@ -80,42 +80,32 @@ Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 [conor: ccache -> l2_cache]
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- drivers/soc/sifive/sifive_l2_cache.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/soc/sifive/sifive_l2_cache.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/soc/sifive/sifive_l2_cache.c b/drivers/soc/sifive/sifive_l2_cache.c
-index 59640a1d0b28..483aeaf0d405 100644
+index 483aeaf0d405..1248127009f6 100644
 --- a/drivers/soc/sifive/sifive_l2_cache.c
 +++ b/drivers/soc/sifive/sifive_l2_cache.c
-@@ -212,7 +212,8 @@ static int __init sifive_l2_init(void)
- 	intr_num = of_property_count_u32_elems(np, "interrupts");
- 	if (!intr_num) {
- 		pr_err("L2CACHE: no interrupts property\n");
--		return -ENODEV;
-+		rc = -ENODEV;
-+		goto err_unmap;
- 	}
- 
- 	for (i = 0; i < intr_num; i++) {
-@@ -220,7 +221,7 @@ static int __init sifive_l2_init(void)
+@@ -221,7 +221,7 @@ static int __init sifive_l2_init(void)
  		rc = request_irq(g_irq[i], l2_int_handler, 0, "l2_ecc", NULL);
  		if (rc) {
  			pr_err("L2CACHE: Could not request IRQ %d\n", g_irq[i]);
--			return rc;
-+			goto err_unmap;
+-			goto err_unmap;
++			goto err_free_irq;
  		}
  	}
  
-@@ -233,5 +234,9 @@ static int __init sifive_l2_init(void)
- 	setup_sifive_debug();
+@@ -235,6 +235,9 @@ static int __init sifive_l2_init(void)
  #endif
  	return 0;
-+
-+err_unmap:
-+	iounmap(l2_base);
-+	return rc;
- }
- device_initcall(sifive_l2_init);
+ 
++err_free_irq:
++	while (--i >= 0)
++		free_irq(g_irq[i], NULL);
+ err_unmap:
+ 	iounmap(l2_base);
+ 	return rc;
 -- 
 2.39.2
 
