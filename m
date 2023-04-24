@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7226ECDF3
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D36E66ECE96
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232282AbjDXN2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
+        id S232539AbjDXNdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:33:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232270AbjDXN2h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:28:37 -0400
+        with ESMTP id S232560AbjDXNd3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:33:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 670C76A57
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:28:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144AD8690
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:33:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9730E615BB
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD9BC433D2;
-        Mon, 24 Apr 2023 13:28:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B82CB62332
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:33:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB8EBC433D2;
+        Mon, 24 Apr 2023 13:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342888;
-        bh=MyUoH/X7oQvxECshEf1qBDO57rFW1uTCmTA5sPUwDDo=;
+        s=korg; t=1682343188;
+        bh=/W9s31DHC7xP0Q+IyCK4NLGcdW4czDtsgWCdEtzKh/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qn0lx+LSAoNeCLCGgKo9jUYnUTsgoGO54prVtJa0YY0Qj3pnyV+DvUqPu1zyJQMa8
-         ChcspQWrhhR/VSQRy3a1zUKJevff9rpLN4DU3h1FSfj0UZnZntbLJs0C2VpyEIF6HP
-         /RTCeALrJQPuxm6A4ZDLve6HCkb4A0WmklfoPKRE=
+        b=EMZk132QcwXAv8QNVH1qmKXVROJbT5mfoNA+kC+8IPQp5krflQuCG/F8wBM7n1JTq
+         /7ugOjDAJmbcACoPDj4S4uxC5MCc6NArUwQcWmjudxfGDlTnKuD0DQGLsOtm7UZgA2
+         8rnSNw0Kdmz/JbjvKeLcVcSKvM632rsOakdIay04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        Shengjiu Wang <shengjiu.wang@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Natalia Petrova <n.petrova@fintech.ru>
-Subject: [PATCH 6.1 96/98] ASoC: fsl_asrc_dma: fix potential null-ptr-deref
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Huacai Chen <chenhuacai@loongson.cn>
+Subject: [PATCH 6.2 097/110] LoongArch: Make -mstrict-align configurable
 Date:   Mon, 24 Apr 2023 15:17:59 +0200
-Message-Id: <20230424131137.622262214@linuxfoundation.org>
+Message-Id: <20230424131140.190795824@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-References: <20230424131133.829259077@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +53,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit 86a24e99c97234f87d9f70b528a691150e145197 upstream.
+commit 41596803302d83a67a80dc1efef4e51ac46acabb upstream.
 
-dma_request_slave_channel() may return NULL which will lead to
-NULL pointer dereference error in 'tmp_chan->private'.
+Introduce Kconfig option ARCH_STRICT_ALIGN to make -mstrict-align be
+configurable.
 
-Correct this behaviour by, first, switching from deprecated function
-dma_request_slave_channel() to dma_request_chan(). Secondly, enable
-sanity check for the resuling value of dma_request_chan().
-Also, fix description that follows the enacted changes and that
-concerns the use of dma_request_slave_channel().
+Not all LoongArch cores support h/w unaligned access, we can use the
+-mstrict-align build parameter to prevent unaligned accesses.
 
-Fixes: 706e2c881158 ("ASoC: fsl_asrc_dma: Reuse the dma channel if available in Back-End")
-Co-developed-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
-Link: https://lore.kernel.org/r/20230417133242.53339-1-n.zhandarovich@fintech.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+CPUs with h/w unaligned access support:
+Loongson-2K2000/2K3000/3A5000/3C5000/3D5000.
+
+CPUs without h/w unaligned access support:
+Loongson-2K500/2K1000.
+
+This option is enabled by default to make the kernel be able to run on
+all LoongArch systems. But you can disable it manually if you want to
+run kernel only on systems with h/w unaligned access support in order to
+optimise for performance.
+
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/fsl_asrc_dma.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/loongarch/Kconfig         |   19 +++++++++++++++++++
+ arch/loongarch/Makefile        |    5 +++++
+ arch/loongarch/kernel/Makefile |    4 +++-
+ arch/loongarch/kernel/traps.c  |    9 +++++++--
+ 4 files changed, 34 insertions(+), 3 deletions(-)
 
---- a/sound/soc/fsl/fsl_asrc_dma.c
-+++ b/sound/soc/fsl/fsl_asrc_dma.c
-@@ -209,14 +209,19 @@ static int fsl_asrc_dma_hw_params(struct
- 		be_chan = soc_component_to_pcm(component_be)->chan[substream->stream];
- 		tmp_chan = be_chan;
- 	}
--	if (!tmp_chan)
--		tmp_chan = dma_request_slave_channel(dev_be, tx ? "tx" : "rx");
-+	if (!tmp_chan) {
-+		tmp_chan = dma_request_chan(dev_be, tx ? "tx" : "rx");
-+		if (IS_ERR(tmp_chan)) {
-+			dev_err(dev, "failed to request DMA channel for Back-End\n");
-+			return -EINVAL;
-+		}
-+	}
+--- a/arch/loongarch/Kconfig
++++ b/arch/loongarch/Kconfig
+@@ -94,6 +94,7 @@ config LOONGARCH
+ 	select HAVE_DYNAMIC_FTRACE_WITH_ARGS
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
+ 	select HAVE_EBPF_JIT
++	select HAVE_EFFICIENT_UNALIGNED_ACCESS if !ARCH_STRICT_ALIGN
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FAST_GUP
+ 	select HAVE_FTRACE_MCOUNT_RECORD
+@@ -441,6 +442,24 @@ config ARCH_IOREMAP
+ 	  protection support. However, you can enable LoongArch DMW-based
+ 	  ioremap() for better performance.
+ 
++config ARCH_STRICT_ALIGN
++	bool "Enable -mstrict-align to prevent unaligned accesses" if EXPERT
++	default y
++	help
++	  Not all LoongArch cores support h/w unaligned access, we can use
++	  -mstrict-align build parameter to prevent unaligned accesses.
++
++	  CPUs with h/w unaligned access support:
++	  Loongson-2K2000/2K3000/3A5000/3C5000/3D5000.
++
++	  CPUs without h/w unaligned access support:
++	  Loongson-2K500/2K1000.
++
++	  This option is enabled by default to make the kernel be able to run
++	  on all LoongArch systems. But you can disable it manually if you want
++	  to run kernel only on systems with h/w unaligned access support in
++	  order to optimise for performance.
++
+ config KEXEC
+ 	bool "Kexec system call"
+ 	select KEXEC_CORE
+--- a/arch/loongarch/Makefile
++++ b/arch/loongarch/Makefile
+@@ -91,10 +91,15 @@ KBUILD_CPPFLAGS += -DVMLINUX_LOAD_ADDRES
+ # instead of .eh_frame so we don't discard them.
+ KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
+ 
++ifdef CONFIG_ARCH_STRICT_ALIGN
+ # Don't emit unaligned accesses.
+ # Not all LoongArch cores support unaligned access, and as kernel we can't
+ # rely on others to provide emulation for these accesses.
+ KBUILD_CFLAGS += $(call cc-option,-mstrict-align)
++else
++# Optimise for performance on hardware supports unaligned access.
++KBUILD_CFLAGS += $(call cc-option,-mno-strict-align)
++endif
+ 
+ KBUILD_CFLAGS += -isystem $(shell $(CC) -print-file-name=include)
+ 
+--- a/arch/loongarch/kernel/Makefile
++++ b/arch/loongarch/kernel/Makefile
+@@ -8,13 +8,15 @@ extra-y		:= vmlinux.lds
+ obj-y		+= head.o cpu-probe.o cacheinfo.o env.o setup.o entry.o genex.o \
+ 		   traps.o irq.o idle.o process.o dma.o mem.o io.o reset.o switch.o \
+ 		   elf.o syscall.o signal.o time.o topology.o inst.o ptrace.o vdso.o \
+-		   alternative.o unaligned.o unwind.o
++		   alternative.o unwind.o
+ 
+ obj-$(CONFIG_ACPI)		+= acpi.o
+ obj-$(CONFIG_EFI) 		+= efi.o
+ 
+ obj-$(CONFIG_CPU_HAS_FPU)	+= fpu.o
+ 
++obj-$(CONFIG_ARCH_STRICT_ALIGN)	+= unaligned.o
++
+ ifdef CONFIG_FUNCTION_TRACER
+   ifndef CONFIG_DYNAMIC_FTRACE
+     obj-y += mcount.o ftrace.o
+--- a/arch/loongarch/kernel/traps.c
++++ b/arch/loongarch/kernel/traps.c
+@@ -371,9 +371,14 @@ int no_unaligned_warning __read_mostly =
+ 
+ asmlinkage void noinstr do_ale(struct pt_regs *regs)
+ {
+-	unsigned int *pc;
+ 	irqentry_state_t state = irqentry_enter(regs);
+ 
++#ifndef CONFIG_ARCH_STRICT_ALIGN
++	die_if_kernel("Kernel ale access", regs);
++	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)regs->csr_badvaddr);
++#else
++	unsigned int *pc;
++
+ 	perf_sw_event(PERF_COUNT_SW_ALIGNMENT_FAULTS, 1, regs, regs->csr_badvaddr);
  
  	/*
- 	 * An EDMA DEV_TO_DEV channel is fixed and bound with DMA event of each
- 	 * peripheral, unlike SDMA channel that is allocated dynamically. So no
- 	 * need to configure dma_request and dma_request2, but get dma_chan of
--	 * Back-End device directly via dma_request_slave_channel.
-+	 * Back-End device directly via dma_request_chan.
- 	 */
- 	if (!asrc->use_edma) {
- 		/* Get DMA request of Back-End */
+@@ -397,8 +402,8 @@ asmlinkage void noinstr do_ale(struct pt
+ sigbus:
+ 	die_if_kernel("Kernel ale access", regs);
+ 	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)regs->csr_badvaddr);
+-
+ out:
++#endif
+ 	irqentry_exit(regs, state);
+ }
+ 
 
 
