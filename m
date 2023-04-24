@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1CED6ECD2B
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2746ECE5F
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231963AbjDXNVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:21:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
+        id S232528AbjDXNbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:31:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231992AbjDXNVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:21:02 -0400
+        with ESMTP id S232461AbjDXNbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DFA55BF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AEEA7D8A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B875D621D9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C997BC433D2;
-        Mon, 24 Apr 2023 13:20:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B33162336
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DBF6C433D2;
+        Mon, 24 Apr 2023 13:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342447;
-        bh=CAY6dvryIBjk490gspnEFhpKuyrOitYWKoW4xe/B08k=;
+        s=korg; t=1682343064;
+        bh=ecAMf6qGg+IApvGm14X8LPM1kVNrVNVx6A9l323fbKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SZ+C8bjqZuWeWBGl1X/5I7itc1RQZO+sF4tLbQcAR8kg+Dnxx3IBtumljroxxmAw2
-         IA0r6xzU6kt34UjuCa64oJdUetzg6Qg/miAOUN+cKT34acdCPhWcwXIeOxrUbS3U2R
-         VrMmuThecpSuC2RjMNmMqPdUN8JIYlaUtq9kavPU=
+        b=mm29vvlJVPtE23vltfyRe2xyQ+3mIJQkhZytu2xz7SHPWOslGV+oZ9Ibp4AJRi2H6
+         uCNCvAVTaKwUam7OlMZ5sgqJeP2fbqiT1b0qU1fu9ZPQvNpkWJ0JWfWnDBCaxYXKuq
+         MiIYWFXgSidMiRtmj0wmQVz559IPtyzpdwsunyUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.15 42/73] drm/i915: Fix fast wake AUX sync len
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Simon Horman <simon.horman@corigine.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 034/110] net: dsa: microchip: ksz8795: Correctly handle huge frame configuration
 Date:   Mon, 24 Apr 2023 15:16:56 +0200
-Message-Id: <20230424131130.518891922@linuxfoundation.org>
+Message-Id: <20230424131137.427880445@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +59,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit e1c71f8f918047ce822dc19b42ab1261ed259fd1 upstream.
+[ Upstream commit 3d2f8f1f184c60508f7af3022536651d7ac2dd07 ]
 
-Fast wake should use 8 SYNC pulses for the preamble
-and 10-16 SYNC pulses for the precharge. Reduce our
-fast wake SYNC count to match the maximum value.
-We also use the maximum precharge length for normal
-AUX transactions.
+Because of the logic in place, SW_HUGE_PACKET can never be set.
+(If the first condition is true, then the 2nd one is also true, but is not
+executed)
 
-Cc: stable@vger.kernel.org
-Cc: Jouni Högander <jouni.hogander@intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230329172434.18744-1-ville.syrjala@linux.intel.com
-Reviewed-by: Jouni Högander <jouni.hogander@intel.com>
-(cherry picked from commit 605f7c73133341d4b762cbd9a22174cc22d4c38b)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change the logic and update each bit individually.
+
+Fixes: 29d1e85f45e0 ("net: dsa: microchip: ksz8: add MTU configuration support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/43107d9e8b5b8b05f0cbd4e1f47a2bb88c8747b2.1681755535.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp_aux.c |    2 +-
+ drivers/net/dsa/microchip/ksz8795.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dp_aux.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_aux.c
-@@ -167,7 +167,7 @@ static u32 skl_get_aux_send_ctl(struct i
- 	      DP_AUX_CH_CTL_TIME_OUT_MAX |
- 	      DP_AUX_CH_CTL_RECEIVE_ERROR |
- 	      (send_bytes << DP_AUX_CH_CTL_MESSAGE_SIZE_SHIFT) |
--	      DP_AUX_CH_CTL_FW_SYNC_PULSE_SKL(32) |
-+	      DP_AUX_CH_CTL_FW_SYNC_PULSE_SKL(24) |
- 	      DP_AUX_CH_CTL_SYNC_PULSE_SKL(32);
+diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+index 3fffd5da8d3b0..ffcad057d0650 100644
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -96,7 +96,7 @@ static int ksz8795_change_mtu(struct ksz_device *dev, int frame_size)
  
- 	if (intel_phy_is_tc(i915, phy) &&
+ 	if (frame_size > KSZ8_LEGAL_PACKET_SIZE)
+ 		ctrl2 |= SW_LEGAL_PACKET_DISABLE;
+-	else if (frame_size > KSZ8863_NORMAL_PACKET_SIZE)
++	if (frame_size > KSZ8863_NORMAL_PACKET_SIZE)
+ 		ctrl1 |= SW_HUGE_PACKET;
+ 
+ 	ret = ksz_rmw8(dev, REG_SW_CTRL_1, SW_HUGE_PACKET, ctrl1);
+-- 
+2.39.2
+
 
 
