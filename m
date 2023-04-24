@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 774BE6ECF51
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBBA6ECEF1
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232605AbjDXNjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43202 "EHLO
+        id S232573AbjDXNgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:36:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232642AbjDXNje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:34 -0400
+        with ESMTP id S232701AbjDXNgM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:36:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0EC93C9
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:39:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9A47D87
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:36:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51DD6245D
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:39:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF3EFC4339E;
-        Mon, 24 Apr 2023 13:39:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D7C0623E9
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:36:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B99EC4339B;
+        Mon, 24 Apr 2023 13:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343545;
-        bh=9sQTzdzQIRmdNZ+niKlHkq4sOuPXASqIJ/yStmcsx48=;
+        s=korg; t=1682343359;
+        bh=VFBQkRXoFMtDfl9zLkTX692jLZiolvDNeBAtjuePkEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jx+8t0Jmvf1YA1imUAZHaoyf6Nh03bY0fAb5sd+b4qULZusbtzyBfLhUWWLnU31zb
-         lNAmZh34Jd5w7mPw7Ee7zqWLFpnH0EXRTy8384QOEhdGQRntU7nh/qD2l7raalEXiY
-         0nAPwFC11iXLE38Ih8ccbCPuuhWuMgBaW8r+zdRQ=
+        b=msMP8vzYRm82TLbXVGcvm7llePKuuSzbNotJ7zRv56oWhHm4JrrShisXEuBl6VdcJ
+         v2AGO0veguAUT1hR6KZ3uj7SExAjPKF5CZ85teQHAEj9p9ojAKhU45OhdFqLnqGOGR
+         rJISRQATQ4OjVtmeWVtRjuf5kCYXQUSMg+oxGn/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonathan Denose <jdenose@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/29] Input: i8042 - add quirk for Fujitsu Lifebook A574/H
+        patches@lists.linux.dev, thierry.reding@gmail.com,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.10 65/68] pwm: hibvt: Explicitly set .polarity in .get_state()
 Date:   Mon, 24 Apr 2023 15:18:36 +0200
-Message-Id: <20230424131121.457556572@linuxfoundation.org>
+Message-Id: <20230424131130.113716221@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
+In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131127.653885914@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Denose <jdenose@chromium.org>
+From: "Uwe Kleine-K�nig" <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit f5bad62f9107b701a6def7cac1f5f65862219b83 ]
+[ Upstream commit 6f57937980142715e927697a6ffd2050f38ed6f6 ]
 
-Fujitsu Lifebook A574/H requires the nomux option to properly
-probe the touchpad, especially when waking from sleep.
+The driver only both polarities. Complete the implementation of
+.get_state() by setting .polarity according to the configured hardware
+state.
 
-Signed-off-by: Jonathan Denose <jdenose@google.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230303152623.45859-1-jdenose@google.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d09f00810850 ("pwm: Add PWM driver for HiSilicon BVT SOCs")
+Link: https://lore.kernel.org/r/20230228135508.1798428-2-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/pwm/pwm-hibvt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index b2ab20c16cc77..da2bf8259330e 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -605,6 +605,14 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
- 	},
-+	{
-+		/* Fujitsu Lifebook A574/H */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "FMVA0501PZ"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
-+	},
- 	{
- 		/* Gigabyte M912 */
- 		.matches = {
--- 
-2.39.2
-
+--- a/drivers/pwm/pwm-hibvt.c
++++ b/drivers/pwm/pwm-hibvt.c
+@@ -146,6 +146,7 @@ static void hibvt_pwm_get_state(struct p
+ 
+ 	value = readl(base + PWM_CTRL_ADDR(pwm->hwpwm));
+ 	state->enabled = (PWM_ENABLE_MASK & value);
++	state->polarity = (PWM_POLARITY_MASK & value) ? PWM_POLARITY_INVERSED : PWM_POLARITY_NORMAL;
+ }
+ 
+ static int hibvt_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 
 
