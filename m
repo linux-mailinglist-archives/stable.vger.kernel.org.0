@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 866116ECE33
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 802486ECD1D
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbjDXNaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:30:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58356 "EHLO
+        id S231969AbjDXNUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:20:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232429AbjDXNaF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:05 -0400
+        with ESMTP id S231956AbjDXNUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:20:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683DC7699
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:29:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C61C4C2B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:20:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BD696231E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:29:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151A6C433D2;
-        Mon, 24 Apr 2023 13:29:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AF40621FD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69AC5C433EF;
+        Mon, 24 Apr 2023 13:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342956;
-        bh=2UMk0WOIvmI3oShzGLBIT9ok6PyFuYEGkue6CLDMhAg=;
+        s=korg; t=1682342412;
+        bh=BhX8aFZNlLmTRTF+l3UNPof0eFjwX7T9kgq0qsBfOqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kn99o0OFH5mMepVGIqv01doaH9RTbXSKsWy5SjwMNanT0YJYK67nrOHRbsfpyJTQd
-         V2oELTHxgkWQkueesGkZFX0PdOEloriaK+jkvh2xAEEKjxqoYvrZXAK9Namw3/EVfn
-         sjLvH9A1TIN46JysyMIHlsIKbiwpfIodZIby/9BU=
+        b=JUk5nKvF2qrPupiujfbDXH5TNS+0IW0o2gy9pKjRQWQmtdH+5Q7FS+VJsjlzgbVBX
+         e28Xa1GjQ8f5H8acP5Ahyhh38DNLNADFSbQ1w4wTrMVniqzVKNdSnUkD7Uej02BM7x
+         gKyRc3CP2lg2yOcB6VYu9kuYZwpYq/NiauydEh4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com>
-Subject: [PATCH 6.2 022/110] i40e: fix i40e_setup_misc_vector() error handling
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 30/73] scsi: core: Improve scsi_vpd_inquiry() checks
 Date:   Mon, 24 Apr 2023 15:16:44 +0200
-Message-Id: <20230424131136.968571797@linuxfoundation.org>
+Message-Id: <20230424131130.121375183@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,41 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit c86c00c6935505929cc9adb29ddb85e48c71f828 ]
+[ Upstream commit f0aa59a33d2ac2267d260fe21eaf92500df8e7b4 ]
 
-Add error handling of i40e_setup_misc_vector() in i40e_rebuild().
-In case interrupt vectors setup fails do not re-open vsi-s and
-do not bring up vf-s, we have no interrupts to serve a traffic
-anyway.
+Some USB-SATA adapters have broken behavior when an unsupported VPD page is
+probed: Depending on the VPD page number, a 4-byte header with a valid VPD
+page number but with a 0 length is returned. Currently, scsi_vpd_inquiry()
+only checks that the page number is valid to determine if the page is
+valid, which results in receiving only the 4-byte header for the
+non-existent page. This error manifests itself very often with page 0xb9
+for the Concurrent Positioning Ranges detection done by sd_read_cpr(),
+resulting in the following error message:
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Pucha Himasekhar Reddy <himasekharx.reddy.pucha@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+sd 0:0:0:0: [sda] Invalid Concurrent Positioning Ranges VPD page
+
+Prevent such misleading error message by adding a check in
+scsi_vpd_inquiry() to verify that the page length is not 0.
+
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20230322022211.116327-1-damien.lemoal@opensource.wdc.com
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 2e9a8ff90e0ca..3ac7234a85bbb 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -11059,8 +11059,11 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
- 					     pf->hw.aq.asq_last_status));
- 	}
- 	/* reinit the misc interrupt */
--	if (pf->flags & I40E_FLAG_MSIX_ENABLED)
-+	if (pf->flags & I40E_FLAG_MSIX_ENABLED) {
- 		ret = i40e_setup_misc_vector(pf);
-+		if (ret)
-+			goto end_unlock;
-+	}
+diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
+index 4fc9466d820a7..a499a57150720 100644
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -323,11 +323,18 @@ static int scsi_vpd_inquiry(struct scsi_device *sdev, unsigned char *buffer,
+ 	if (result)
+ 		return -EIO;
  
- 	/* Add a filter to drop all Flow control frames from any VSI from being
- 	 * transmitted. By doing so we stop a malicious VF from sending out
+-	/* Sanity check that we got the page back that we asked for */
++	/*
++	 * Sanity check that we got the page back that we asked for and that
++	 * the page size is not 0.
++	 */
+ 	if (buffer[1] != page)
+ 		return -EIO;
+ 
+-	return get_unaligned_be16(&buffer[2]) + 4;
++	result = get_unaligned_be16(&buffer[2]);
++	if (!result)
++		return -EIO;
++
++	return result + 4;
+ }
+ 
+ /**
 -- 
 2.39.2
 
