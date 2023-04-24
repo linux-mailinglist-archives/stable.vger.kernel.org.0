@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B216ECD5D
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8354E6ECE44
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232038AbjDXNW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
+        id S232468AbjDXNbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:31:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232112AbjDXNWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:22:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008A65BAF
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:22:25 -0700 (PDT)
+        with ESMTP id S232415AbjDXNax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CDE6581
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B54B862256
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:22:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB883C433D2;
-        Mon, 24 Apr 2023 13:22:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA0C462336
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE481C433D2;
+        Mon, 24 Apr 2023 13:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682342545;
-        bh=0sCf5HCFZPZodz2GfqDV61a/BeVqGVnSzDvjal84/dI=;
+        s=korg; t=1682343014;
+        bh=myqHm/MN7G6R3HZTpB1HDaYKPLd2W5Hp9SmjuR0tUOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ssYnKNl5TuFghLgK7ydDTuxaq3liiGoSgQr0vVSCqiPfYyiZNtJDQIIRJEfYaL+y+
-         SGuUedZmja6mSrl+/Fg886ZRhZARkLB7YREnXiZu56L5/tbQyMptClJdkYUa5eqNWk
-         t6Xs5m06GD75Ngu99lcLWCUx2D0QVwfUoN2G0AAA=
+        b=G4fq7+OG8s1AuG8V/h4P6zxIW1gyLYFx2jFmsa+a8q0n13VRgk/zsxTR9aAqfgIpk
+         h5mWosm6Qc1xA75T2/ws5xcVynBY5pbjKZmrpiG2JM1r3gkSUsARz3xq7QWnrD7M47
+         A/UipMuSEZypZlaW3f7wlbwrSWvbWUTwVXWQE49E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 5.15 53/73] [PATCH v2 stable-5.10.y stable-5.15.y] docs: futex: Fix kernel-doc references after code split-up preparation
+        patches@lists.linux.dev,
+        got3nks <got3nks@users.noreply.github.com>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 045/110] platform/x86: gigabyte-wmi: add support for B650 AORUS ELITE AX
 Date:   Mon, 24 Apr 2023 15:17:07 +0200
-Message-Id: <20230424131130.977682874@linuxfoundation.org>
+Message-Id: <20230424131137.893445186@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
-References: <20230424131129.040707961@linuxfoundation.org>
+In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
+References: <20230424131136.142490414@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,55 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Salvatore Bonaccorso <carnil@debian.org>
+From: Thomas Weißschuh <linux@weissschuh.net>
 
-In upstream commit 77e52ae35463 ("futex: Move to kernel/futex/") the
-futex code from kernel/futex.c was moved into kernel/futex/core.c in
-preparation of the split-up of the implementation in various files.
+[ Upstream commit 441d901fbf669f6360566a4437b1e563b854de4a ]
 
-Point kernel-doc references to the new files as otherwise the
-documentation shows errors on build:
+This has been reported as working.
 
-    [...]
-    Error: Cannot open file ./kernel/futex.c
-    Error: Cannot open file ./kernel/futex.c
-    [...]
-    WARNING: kernel-doc './scripts/kernel-doc -rst -enable-lineno -sphinx-version 3.4.3 -internal ./kernel/futex.c' failed with return code 2
-
-There is no direct upstream commit for this change. It is made in
-analogy to commit bc67f1c454fb ("docs: futex: Fix kernel-doc
-references") applied as consequence of the restructuring of the futex
-code.
-
-Fixes: 77e52ae35463 ("futex: Move to kernel/futex/")
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: got3nks <got3nks@users.noreply.github.com>
+Link: https://github.com/t-8ch/linux-gigabyte-wmi-driver/issues/15#issuecomment-1483942966
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Link: https://lore.kernel.org/r/20230327-gigabyte-wmi-b650-elite-ax-v1-1-d4d645c21d0b@weissschuh.net
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/kernel-hacking/locking.rst                    |    2 +-
- Documentation/translations/it_IT/kernel-hacking/locking.rst |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/gigabyte-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/kernel-hacking/locking.rst
-+++ b/Documentation/kernel-hacking/locking.rst
-@@ -1352,7 +1352,7 @@ Mutex API reference
- Futex API reference
- ===================
- 
--.. kernel-doc:: kernel/futex.c
-+.. kernel-doc:: kernel/futex/core.c
-    :internal:
- 
- Further reading
---- a/Documentation/translations/it_IT/kernel-hacking/locking.rst
-+++ b/Documentation/translations/it_IT/kernel-hacking/locking.rst
-@@ -1396,7 +1396,7 @@ Riferimento per l'API dei Mutex
- Riferimento per l'API dei Futex
- ===============================
- 
--.. kernel-doc:: kernel/futex.c
-+.. kernel-doc:: kernel/futex/core.c
-    :internal:
- 
- Approfondimenti
+diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
+index 4dd39ab6ecfa2..5e5b17c50eb67 100644
+--- a/drivers/platform/x86/gigabyte-wmi.c
++++ b/drivers/platform/x86/gigabyte-wmi.c
+@@ -151,6 +151,7 @@ static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550I AORUS PRO AX"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550M AORUS PRO-P"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550M DS3H"),
++	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B650 AORUS ELITE AX"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B660 GAMING X DDR4"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B660I AORUS PRO DDR4"),
+ 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("Z390 I AORUS PRO WIFI-CF"),
+-- 
+2.39.2
+
 
 
