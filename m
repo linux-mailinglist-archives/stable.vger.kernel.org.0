@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 700B56ECF45
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188106ECF20
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:38:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232790AbjDXNjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
+        id S232415AbjDXNi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:38:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232793AbjDXNjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:39:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CCC9767
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:50 -0700 (PDT)
+        with ESMTP id S232589AbjDXNi3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:38:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5CEE6A5B
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:38:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15D376239C
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2517BC433D2;
-        Mon, 24 Apr 2023 13:38:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB48E62440
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:37:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD326C433EF;
+        Mon, 24 Apr 2023 13:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343529;
-        bh=n1QjoW+UKH6fRW7FMS5/dogPQnv0TvaqgEn8B2GCeH4=;
+        s=korg; t=1682343466;
+        bh=V5BQsr3kjpmrNU85YSATEXJCjRsQghWvapoHfDmbADI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYTEnUVBEWwn3Q1eQWO+9joNgYPh8U9F+GHpTsXflgg5lyQ8c6JKKlPYOusbi8t5I
-         7IeWEV6sBAiNqAyxhNWMs0A11fdlVkRTcymiKfWAIAHOClGi/0bg4N72cs+SV2NoiZ
-         B243pGGssmwth2V8No0v/cgaaAVriUpwFLU9pI38=
+        b=q2gEXG7Zc2p3b//qTELq9yNOCbwX3+ogk4rl/SjtawllNcmVQu880FMMRvpPqUnUv
+         XgaNflaBj7BLUio6Q1g0YRPUrnY/d0n/Yh5mNqcOciuwuiYnv2gBe5X/2qvOPrmlIw
+         7pbD5rbxm4HqLqeLj+nCAvTVIcKOH8f+LN72ueaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/29] virtio_net: bugfix overflow inside xdp_linearize_page()
+Subject: [PATCH 4.14 09/28] selftests: sigaltstack: fix -Wuninitialized
 Date:   Mon, 24 Apr 2023 15:18:30 +0200
-Message-Id: <20230424131121.273546556@linuxfoundation.org>
+Message-Id: <20230424131121.636558058@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131121.155649464@linuxfoundation.org>
-References: <20230424131121.155649464@linuxfoundation.org>
+In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
+References: <20230424131121.331252806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,57 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 853618d5886bf94812f31228091cd37d308230f7 ]
+[ Upstream commit 05107edc910135d27fe557267dc45be9630bf3dd ]
 
-Here we copy the data from the original buf to the new page. But we
-not check that it may be overflow.
+Building sigaltstack with clang via:
+$ ARCH=x86 make LLVM=1 -C tools/testing/selftests/sigaltstack/
 
-As long as the size received(including vnethdr) is greater than 3840
-(PAGE_SIZE -VIRTIO_XDP_HEADROOM). Then the memcpy will overflow.
+produces the following warning:
+  warning: variable 'sp' is uninitialized when used here [-Wuninitialized]
+  if (sp < (unsigned long)sstack ||
+      ^~
 
-And this is completely possible, as long as the MTU is large, such
-as 4096. In our test environment, this will cause crash. Since crash is
-caused by the written memory, it is meaningless, so I do not include it.
+Clang expects these to be declared at global scope; we've fixed this in
+the kernel proper by using the macro `current_stack_pointer`. This is
+defined in different headers for different target architectures, so just
+create a new header that defines the arch-specific register names for
+the stack pointer register, and define it for more targets (at least the
+ones that support current_stack_pointer/ARCH_HAS_CURRENT_STACK_POINTER).
 
-Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Link: https://lore.kernel.org/lkml/CA+G9fYsi3OOu7yCsMutpzKDnBMAzJBCPimBp86LhGBa0eCnEpA@mail.gmail.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ .../sigaltstack/current_stack_pointer.h       | 23 +++++++++++++++++++
+ tools/testing/selftests/sigaltstack/sas.c     |  7 +-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+ create mode 100644 tools/testing/selftests/sigaltstack/current_stack_pointer.h
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 406ef4cc636d4..0cd46735e3950 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -600,8 +600,13 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 				       int page_off,
- 				       unsigned int *len)
- {
--	struct page *page = alloc_page(GFP_ATOMIC);
-+	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+	struct page *page;
- 
-+	if (page_off + *len + tailroom > PAGE_SIZE)
-+		return NULL;
+diff --git a/tools/testing/selftests/sigaltstack/current_stack_pointer.h b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+new file mode 100644
+index 0000000000000..ea9bdf3a90b16
+--- /dev/null
++++ b/tools/testing/selftests/sigaltstack/current_stack_pointer.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +
-+	page = alloc_page(GFP_ATOMIC);
- 	if (!page)
- 		return NULL;
++#if __alpha__
++register unsigned long sp asm("$30");
++#elif __arm__ || __aarch64__ || __csky__ || __m68k__ || __mips__ || __riscv
++register unsigned long sp asm("sp");
++#elif __i386__
++register unsigned long sp asm("esp");
++#elif __loongarch64
++register unsigned long sp asm("$sp");
++#elif __ppc__
++register unsigned long sp asm("r1");
++#elif __s390x__
++register unsigned long sp asm("%15");
++#elif __sh__
++register unsigned long sp asm("r15");
++#elif __x86_64__
++register unsigned long sp asm("rsp");
++#elif __XTENSA__
++register unsigned long sp asm("a1");
++#else
++#error "implement current_stack_pointer equivalent"
++#endif
+diff --git a/tools/testing/selftests/sigaltstack/sas.c b/tools/testing/selftests/sigaltstack/sas.c
+index 228c2ae47687d..6069d97bf5063 100644
+--- a/tools/testing/selftests/sigaltstack/sas.c
++++ b/tools/testing/selftests/sigaltstack/sas.c
+@@ -19,6 +19,7 @@
+ #include <errno.h>
  
-@@ -609,7 +614,6 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 	page_off += *len;
+ #include "../kselftest.h"
++#include "current_stack_pointer.h"
  
- 	while (--*num_buf) {
--		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 		unsigned int buflen;
- 		void *buf;
- 		int off;
+ #ifndef SS_AUTODISARM
+ #define SS_AUTODISARM  (1U << 31)
+@@ -40,12 +41,6 @@ void my_usr1(int sig, siginfo_t *si, void *u)
+ 	stack_t stk;
+ 	struct stk_data *p;
+ 
+-#if __s390x__
+-	register unsigned long sp asm("%15");
+-#else
+-	register unsigned long sp asm("sp");
+-#endif
+-
+ 	if (sp < (unsigned long)sstack ||
+ 			sp >= (unsigned long)sstack + SIGSTKSZ) {
+ 		ksft_exit_fail_msg("SP is not on sigaltstack\n");
 -- 
 2.39.2
 
