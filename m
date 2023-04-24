@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75E5B6ECE4F
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48F66ECDA6
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232442AbjDXNbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59572 "EHLO
+        id S231964AbjDXNZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:25:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232440AbjDXNa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:57 -0400
+        with ESMTP id S232129AbjDXNZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:25:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8475C6EA6
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D14C45FD7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:25:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 219556234E
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 323F3C433D2;
-        Mon, 24 Apr 2023 13:30:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E4CB622A7
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86646C433D2;
+        Mon, 24 Apr 2023 13:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343027;
-        bh=7Z6bMx4oCwqkksV1dpSf/lzDQSmNYW3uK/vGMR70Z0M=;
+        s=korg; t=1682342716;
+        bh=ra1x4jsE2PCOofIpGDZKW4G2CG4QGuG3/rRMcXp79uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1qn6iah1JINYoo6bBNReYxWX3zmEboZTkB/YeA7nAHTwNW1u8gDHYUBwQM6yBLa+
-         1wXe7s0FMnFDtJdRJ6SWzMq6rQfv6iGJb2y6P3apW+maPVxYxrPcSVGhrWnAt1QiOv
-         7IHdi6oTvNgPVnGu2E6FRdniZuvcnlL+NEZQa+sE=
+        b=n/cBNi22mkyt8A7JJUEeAoAXQh5nnm8qSYAfsFeF0pA4ViQ1no4FRhq3+Jk+v5SVW
+         /fke8v9gsNYU3u36G9R5GwxOszW2XjtlI2l/sBo5e/pWC6LzWhWR4klfKz+nmecoSi
+         dfRHfNLkfUsAUEDSZEJNGWsL3rXaAGBkBWaombOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Lanzhe <u202212060@hust.edu.cn>,
-        Dongliang Mu <dzm91@hust.edu.cn>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Sebastian Basierski <sebastianx.basierski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 032/110] spi: spi-rockchip: Fix missing unwind goto in rockchip_sfc_probe()
+Subject: [PATCH 6.1 31/98] e1000e: Disable TSO on i219-LM card to increase speed
 Date:   Mon, 24 Apr 2023 15:16:54 +0200
-Message-Id: <20230424131137.343997955@linuxfoundation.org>
+Message-Id: <20230424131135.102945697@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +59,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Lanzhe <u202212060@hust.edu.cn>
+From: Sebastian Basierski <sebastianx.basierski@intel.com>
 
-[ Upstream commit 359f5b0d4e26b7a7bcc574d6148b31a17cefe47d ]
+[ Upstream commit 67d47b95119ad589b0a0b16b88b1dd9a04061ced ]
 
-If devm_request_irq() fails, then we are directly return 'ret' without
-clk_disable_unprepare(sfc->clk) and clk_disable_unprepare(sfc->hclk).
+While using i219-LM card currently it was only possible to achieve
+about 60% of maximum speed due to regression introduced in Linux 5.8.
+This was caused by TSO not being disabled by default despite commit
+f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround").
+Fix that by disabling TSO during driver probe.
 
-Fix this by changing direct return to a goto 'err_irq'.
-
-Fixes: 0b89fc0a367e ("spi: rockchip-sfc: add rockchip serial flash controller")
-Signed-off-by: Li Lanzhe <u202212060@hust.edu.cn>
-Reviewed-by: Dongliang Mu <dzm91@hust.edu.cn>
-Link: https://lore.kernel.org/r/20230419115030.6029-1-u202212060@hust.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f29801030ac6 ("e1000e: Disable TSO for buffer overrun workaround")
+Signed-off-by: Sebastian Basierski <sebastianx.basierski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230417205345.1030801-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip-sfc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 51 +++++++++++-----------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/spi/spi-rockchip-sfc.c b/drivers/spi/spi-rockchip-sfc.c
-index bd87d3c92dd33..69347b6bf60cd 100644
---- a/drivers/spi/spi-rockchip-sfc.c
-+++ b/drivers/spi/spi-rockchip-sfc.c
-@@ -632,7 +632,7 @@ static int rockchip_sfc_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(dev, "Failed to request irq\n");
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 55cf2f62bb308..db8e06157da29 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5293,31 +5293,6 @@ static void e1000_watchdog_task(struct work_struct *work)
+ 				ew32(TARC(0), tarc0);
+ 			}
  
--		return ret;
-+		goto err_irq;
- 	}
+-			/* disable TSO for pcie and 10/100 speeds, to avoid
+-			 * some hardware issues
+-			 */
+-			if (!(adapter->flags & FLAG_TSO_FORCE)) {
+-				switch (adapter->link_speed) {
+-				case SPEED_10:
+-				case SPEED_100:
+-					e_info("10/100 speed: disabling TSO\n");
+-					netdev->features &= ~NETIF_F_TSO;
+-					netdev->features &= ~NETIF_F_TSO6;
+-					break;
+-				case SPEED_1000:
+-					netdev->features |= NETIF_F_TSO;
+-					netdev->features |= NETIF_F_TSO6;
+-					break;
+-				default:
+-					/* oops */
+-					break;
+-				}
+-				if (hw->mac.type == e1000_pch_spt) {
+-					netdev->features &= ~NETIF_F_TSO;
+-					netdev->features &= ~NETIF_F_TSO6;
+-				}
+-			}
+-
+ 			/* enable transmits in the hardware, need to do this
+ 			 * after setting TARC(0)
+ 			 */
+@@ -7532,6 +7507,32 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			    NETIF_F_RXCSUM |
+ 			    NETIF_F_HW_CSUM);
  
- 	ret = rockchip_sfc_init(sfc);
++	/* disable TSO for pcie and 10/100 speeds to avoid
++	 * some hardware issues and for i219 to fix transfer
++	 * speed being capped at 60%
++	 */
++	if (!(adapter->flags & FLAG_TSO_FORCE)) {
++		switch (adapter->link_speed) {
++		case SPEED_10:
++		case SPEED_100:
++			e_info("10/100 speed: disabling TSO\n");
++			netdev->features &= ~NETIF_F_TSO;
++			netdev->features &= ~NETIF_F_TSO6;
++			break;
++		case SPEED_1000:
++			netdev->features |= NETIF_F_TSO;
++			netdev->features |= NETIF_F_TSO6;
++			break;
++		default:
++			/* oops */
++			break;
++		}
++		if (hw->mac.type == e1000_pch_spt) {
++			netdev->features &= ~NETIF_F_TSO;
++			netdev->features &= ~NETIF_F_TSO6;
++		}
++	}
++
+ 	/* Set user-changeable features (subset of all device features) */
+ 	netdev->hw_features = netdev->features;
+ 	netdev->hw_features |= NETIF_F_RXFCS;
 -- 
 2.39.2
 
