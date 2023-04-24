@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 160386ECE4E
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABDE6ECDCB
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:26:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232369AbjDXNbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59566 "EHLO
+        id S232221AbjDXN0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:26:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232408AbjDXNa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:30:56 -0400
+        with ESMTP id S232215AbjDXN0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:26:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F86E7A91
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:30:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F02C9619A
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:26:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70FEC62342
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85ED1C433EF;
-        Mon, 24 Apr 2023 13:30:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88DA4622D0
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E1FDC4339C;
+        Mon, 24 Apr 2023 13:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343024;
-        bh=LMdn5b8DYMjLIsno/r7MNoufviBpYbWA6uqi/1Vy1x8=;
+        s=korg; t=1682342809;
+        bh=lSOBpUnFu9VK1D1fFEX3s0tqrCknH4atbNI6skVNVjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKV3P0c4BkjwcXiPDPwWBObg+Ppc97xhsWhesoOEPBJGwVzol5xpW2H4d5cAjrjtO
-         MMx1U4j46KEqTM4EncwSNefXNhB2pVoCUywmOSY6uusk3XP/9uWoY6aRJM8PqqutLd
-         Aeg0Auzo5qStGpjuYDQWpCjf4n0HqQSRGML62l4k=
+        b=GbV9sC8tVtSg/qUFpAFNZnwLix9B5q82iOUYBoHIdPal4iNy9OXTZnuObLDj6ottR
+         iGKsybOR4pwBhHBqMGocPNRjCdfDvM8k/UoYoe1v3cU3l3v3R6XdDhmnbl+NLO9PoM
+         9mVEOpPjCjrw/C4u50w5Pp8nmBbngea5tnYHsspI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yanjun Zhang <zhangyanjun@cestc.cn>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Yanjun Zhang <zhangyanjun@cestc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 049/110] nvme-tcp: fix a possible UAF when failing to allocate an io queue
+        patches@lists.linux.dev,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Pratyush Yadav <pratyush@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org, Michael Walle <michael@walle.cc>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 48/98] mtd: spi-nor: fix memory leak when using debugfs_lookup()
 Date:   Mon, 24 Apr 2023 15:17:11 +0200
-Message-Id: <20230424131138.086722413@linuxfoundation.org>
+Message-Id: <20230424131135.738833650@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-References: <20230424131136.142490414@linuxfoundation.org>
+In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
+References: <20230424131133.829259077@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,155 +59,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 88eaba80328b31ef81813a1207b4056efd7006a6 ]
+[ Upstream commit ec738ca127d07ecac6afae36e2880341ec89150e ]
 
-When we allocate a nvme-tcp queue, we set the data_ready callback before
-we actually need to use it. This creates the potential that if a stray
-controller sends us data on the socket before we connect, we can trigger
-the io_work and start consuming the socket.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To solve this, remove the
+lookup and create the directory on the first device found, and then
+remove it when the module is unloaded.
 
-In this case reported: we failed to allocate one of the io queues, and
-as we start releasing the queues that we already allocated, we get
-a UAF [1] from the io_work which is running before it should really.
-
-Fix this by setting the socket ops callbacks only before we start the
-queue, so that we can't accidentally schedule the io_work in the
-initialization phase before the queue started. While we are at it,
-rename nvme_tcp_restore_sock_calls to pair with nvme_tcp_setup_sock_ops.
-
-[1]:
-[16802.107284] nvme nvme4: starting error recovery
-[16802.109166] nvme nvme4: Reconnecting in 10 seconds...
-[16812.173535] nvme nvme4: failed to connect socket: -111
-[16812.173745] nvme nvme4: Failed reconnect attempt 1
-[16812.173747] nvme nvme4: Reconnecting in 10 seconds...
-[16822.413555] nvme nvme4: failed to connect socket: -111
-[16822.413762] nvme nvme4: Failed reconnect attempt 2
-[16822.413765] nvme nvme4: Reconnecting in 10 seconds...
-[16832.661274] nvme nvme4: creating 32 I/O queues.
-[16833.919887] BUG: kernel NULL pointer dereference, address: 0000000000000088
-[16833.920068] nvme nvme4: Failed reconnect attempt 3
-[16833.920094] #PF: supervisor write access in kernel mode
-[16833.920261] nvme nvme4: Reconnecting in 10 seconds...
-[16833.920368] #PF: error_code(0x0002) - not-present page
-[16833.921086] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
-[16833.921191] RIP: 0010:_raw_spin_lock_bh+0x17/0x30
-...
-[16833.923138] Call Trace:
-[16833.923271]  <TASK>
-[16833.923402]  lock_sock_nested+0x1e/0x50
-[16833.923545]  nvme_tcp_try_recv+0x40/0xa0 [nvme_tcp]
-[16833.923685]  nvme_tcp_io_work+0x68/0xa0 [nvme_tcp]
-[16833.923824]  process_one_work+0x1e8/0x390
-[16833.923969]  worker_thread+0x53/0x3d0
-[16833.924104]  ? process_one_work+0x390/0x390
-[16833.924240]  kthread+0x124/0x150
-[16833.924376]  ? set_kthread_struct+0x50/0x50
-[16833.924518]  ret_from_fork+0x1f/0x30
-[16833.924655]  </TASK>
-
-Reported-by: Yanjun Zhang <zhangyanjun@cestc.cn>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Tested-by: Yanjun Zhang <zhangyanjun@cestc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Cc: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: Pratyush Yadav <pratyush@kernel.org>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: linux-mtd@lists.infradead.org
+Reviewed-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20230208160230.2179905-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 46 +++++++++++++++++++++++------------------
- 1 file changed, 26 insertions(+), 20 deletions(-)
+ drivers/mtd/spi-nor/core.c    | 14 +++++++++++++-
+ drivers/mtd/spi-nor/core.h    |  2 ++
+ drivers/mtd/spi-nor/debugfs.c | 11 ++++++++---
+ 3 files changed, 23 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 1ca52ac163c2f..2c15412649bab 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1605,22 +1605,7 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl, int qid)
- 	if (ret)
- 		goto err_init_connect;
- 
--	queue->rd_enabled = true;
- 	set_bit(NVME_TCP_Q_ALLOCATED, &queue->flags);
--	nvme_tcp_init_recv_ctx(queue);
--
--	write_lock_bh(&queue->sock->sk->sk_callback_lock);
--	queue->sock->sk->sk_user_data = queue;
--	queue->state_change = queue->sock->sk->sk_state_change;
--	queue->data_ready = queue->sock->sk->sk_data_ready;
--	queue->write_space = queue->sock->sk->sk_write_space;
--	queue->sock->sk->sk_data_ready = nvme_tcp_data_ready;
--	queue->sock->sk->sk_state_change = nvme_tcp_state_change;
--	queue->sock->sk->sk_write_space = nvme_tcp_write_space;
--#ifdef CONFIG_NET_RX_BUSY_POLL
--	queue->sock->sk->sk_ll_usec = 1;
--#endif
--	write_unlock_bh(&queue->sock->sk->sk_callback_lock);
- 
- 	return 0;
- 
-@@ -1640,7 +1625,7 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl, int qid)
- 	return ret;
- }
- 
--static void nvme_tcp_restore_sock_calls(struct nvme_tcp_queue *queue)
-+static void nvme_tcp_restore_sock_ops(struct nvme_tcp_queue *queue)
- {
- 	struct socket *sock = queue->sock;
- 
-@@ -1655,7 +1640,7 @@ static void nvme_tcp_restore_sock_calls(struct nvme_tcp_queue *queue)
- static void __nvme_tcp_stop_queue(struct nvme_tcp_queue *queue)
- {
- 	kernel_sock_shutdown(queue->sock, SHUT_RDWR);
--	nvme_tcp_restore_sock_calls(queue);
-+	nvme_tcp_restore_sock_ops(queue);
- 	cancel_work_sync(&queue->io_work);
- }
- 
-@@ -1673,21 +1658,42 @@ static void nvme_tcp_stop_queue(struct nvme_ctrl *nctrl, int qid)
- 	mutex_unlock(&queue->queue_lock);
- }
- 
-+static void nvme_tcp_setup_sock_ops(struct nvme_tcp_queue *queue)
-+{
-+	write_lock_bh(&queue->sock->sk->sk_callback_lock);
-+	queue->sock->sk->sk_user_data = queue;
-+	queue->state_change = queue->sock->sk->sk_state_change;
-+	queue->data_ready = queue->sock->sk->sk_data_ready;
-+	queue->write_space = queue->sock->sk->sk_write_space;
-+	queue->sock->sk->sk_data_ready = nvme_tcp_data_ready;
-+	queue->sock->sk->sk_state_change = nvme_tcp_state_change;
-+	queue->sock->sk->sk_write_space = nvme_tcp_write_space;
-+#ifdef CONFIG_NET_RX_BUSY_POLL
-+	queue->sock->sk->sk_ll_usec = 1;
-+#endif
-+	write_unlock_bh(&queue->sock->sk->sk_callback_lock);
-+}
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index cda57cb863089..75e694791d8d9 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -3272,7 +3272,19 @@ static struct spi_mem_driver spi_nor_driver = {
+ 	.remove = spi_nor_remove,
+ 	.shutdown = spi_nor_shutdown,
+ };
+-module_spi_mem_driver(spi_nor_driver);
 +
- static int nvme_tcp_start_queue(struct nvme_ctrl *nctrl, int idx)
++static int __init spi_nor_module_init(void)
++{
++	return spi_mem_driver_register(&spi_nor_driver);
++}
++module_init(spi_nor_module_init);
++
++static void __exit spi_nor_module_exit(void)
++{
++	spi_mem_driver_unregister(&spi_nor_driver);
++	spi_nor_debugfs_shutdown();
++}
++module_exit(spi_nor_module_exit);
+ 
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Huang Shijie <shijie8@gmail.com>");
+diff --git a/drivers/mtd/spi-nor/core.h b/drivers/mtd/spi-nor/core.h
+index d18dafeb020ab..00bf0d0e955a0 100644
+--- a/drivers/mtd/spi-nor/core.h
++++ b/drivers/mtd/spi-nor/core.h
+@@ -709,8 +709,10 @@ static inline struct spi_nor *mtd_to_spi_nor(struct mtd_info *mtd)
+ 
+ #ifdef CONFIG_DEBUG_FS
+ void spi_nor_debugfs_register(struct spi_nor *nor);
++void spi_nor_debugfs_shutdown(void);
+ #else
+ static inline void spi_nor_debugfs_register(struct spi_nor *nor) {}
++static inline void spi_nor_debugfs_shutdown(void) {}
+ #endif
+ 
+ #endif /* __LINUX_MTD_SPI_NOR_INTERNAL_H */
+diff --git a/drivers/mtd/spi-nor/debugfs.c b/drivers/mtd/spi-nor/debugfs.c
+index df76cb5de3f93..5f56b23205d8b 100644
+--- a/drivers/mtd/spi-nor/debugfs.c
++++ b/drivers/mtd/spi-nor/debugfs.c
+@@ -226,13 +226,13 @@ static void spi_nor_debugfs_unregister(void *data)
+ 	nor->debugfs_root = NULL;
+ }
+ 
++static struct dentry *rootdir;
++
+ void spi_nor_debugfs_register(struct spi_nor *nor)
  {
- 	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
-+	struct nvme_tcp_queue *queue = &ctrl->queues[idx];
+-	struct dentry *rootdir, *d;
++	struct dentry *d;
  	int ret;
  
-+	queue->rd_enabled = true;
-+	nvme_tcp_init_recv_ctx(queue);
-+	nvme_tcp_setup_sock_ops(queue);
-+
- 	if (idx)
- 		ret = nvmf_connect_io_queue(nctrl, idx);
- 	else
- 		ret = nvmf_connect_admin_queue(nctrl);
+-	/* Create rootdir once. Will never be deleted again. */
+-	rootdir = debugfs_lookup(SPI_NOR_DEBUGFS_ROOT, NULL);
+ 	if (!rootdir)
+ 		rootdir = debugfs_create_dir(SPI_NOR_DEBUGFS_ROOT, NULL);
  
- 	if (!ret) {
--		set_bit(NVME_TCP_Q_LIVE, &ctrl->queues[idx].flags);
-+		set_bit(NVME_TCP_Q_LIVE, &queue->flags);
- 	} else {
--		if (test_bit(NVME_TCP_Q_ALLOCATED, &ctrl->queues[idx].flags))
--			__nvme_tcp_stop_queue(&ctrl->queues[idx]);
-+		if (test_bit(NVME_TCP_Q_ALLOCATED, &queue->flags))
-+			__nvme_tcp_stop_queue(queue);
- 		dev_err(nctrl->device,
- 			"failed to connect queue: %d ret=%d\n", idx, ret);
- 	}
+@@ -247,3 +247,8 @@ void spi_nor_debugfs_register(struct spi_nor *nor)
+ 	debugfs_create_file("capabilities", 0444, d, nor,
+ 			    &spi_nor_capabilities_fops);
+ }
++
++void spi_nor_debugfs_shutdown(void)
++{
++	debugfs_remove(rootdir);
++}
 -- 
 2.39.2
 
