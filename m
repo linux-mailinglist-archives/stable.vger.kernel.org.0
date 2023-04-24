@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2746ECE5F
-	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D52496ECE61
+	for <lists+stable@lfdr.de>; Mon, 24 Apr 2023 15:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbjDXNbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 09:31:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
+        id S232371AbjDXNbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 09:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232461AbjDXNbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:22 -0400
+        with ESMTP id S232487AbjDXNbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 09:31:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AEEA7D8A
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534E27DAD
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 06:31:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B33162336
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DBF6C433D2;
-        Mon, 24 Apr 2023 13:31:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7B3C6231E
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 13:31:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB29AC433EF;
+        Mon, 24 Apr 2023 13:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682343064;
-        bh=ecAMf6qGg+IApvGm14X8LPM1kVNrVNVx6A9l323fbKk=;
+        s=korg; t=1682343067;
+        bh=CsZUTYThaUcUai9Mzhw0OJ1Z+IWYiXzIMD0q1IS2XQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mm29vvlJVPtE23vltfyRe2xyQ+3mIJQkhZytu2xz7SHPWOslGV+oZ9Ibp4AJRi2H6
-         uCNCvAVTaKwUam7OlMZ5sgqJeP2fbqiT1b0qU1fu9ZPQvNpkWJ0JWfWnDBCaxYXKuq
-         MiIYWFXgSidMiRtmj0wmQVz559IPtyzpdwsunyUE=
+        b=GqmPsTJEmQb93OzQZt3xSmjRt0FPjWcg0gjiUTcPROCCNXGnCXJwmCcJW22ea/aKk
+         pBBs0i5B8VahflzYk4wnsgbhzMtjrOELeTjC2MVTR/ibN/oATGOmQqq1RIWRl1PbBX
+         2rjH8JW9gZumwUnClyv84fvC15GwhJMsSbuIzbDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Simon Horman <simon.horman@corigine.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        patches@lists.linux.dev, Vadim Fedorenko <vadfed@meta.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 034/110] net: dsa: microchip: ksz8795: Correctly handle huge frame configuration
-Date:   Mon, 24 Apr 2023 15:16:56 +0200
-Message-Id: <20230424131137.427880445@linuxfoundation.org>
+Subject: [PATCH 6.2 035/110] bnxt_en: fix free-runnig PHC mode
+Date:   Mon, 24 Apr 2023 15:16:57 +0200
+Message-Id: <20230424131137.470340311@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
 References: <20230424131136.142490414@linuxfoundation.org>
@@ -59,42 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vadim Fedorenko <vadfed@meta.com>
 
-[ Upstream commit 3d2f8f1f184c60508f7af3022536651d7ac2dd07 ]
+[ Upstream commit 8c154d272c3e03b100baaf1df473f22a78fa403e ]
 
-Because of the logic in place, SW_HUGE_PACKET can never be set.
-(If the first condition is true, then the 2nd one is also true, but is not
-executed)
+The patch in fixes changed the way real-time mode is chosen for PHC on
+the NIC. Apparently there is one more use case of the check outside of
+ptp part of the driver which was not converted to the new macro and is
+making a lot of noise in free-running mode.
 
-Change the logic and update each bit individually.
-
-Fixes: 29d1e85f45e0 ("net: dsa: microchip: ksz8: add MTU configuration support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/43107d9e8b5b8b05f0cbd4e1f47a2bb88c8747b2.1681755535.git.christophe.jaillet@wanadoo.fr
+Fixes: 131db4991622 ("bnxt_en: reset PHC frequency in free-running mode")
+Signed-off-by: Vadim Fedorenko <vadfed@meta.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Link: https://lore.kernel.org/r/20230418202511.1544735-1-vadfed@meta.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz8795.c | 2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
-index 3fffd5da8d3b0..ffcad057d0650 100644
---- a/drivers/net/dsa/microchip/ksz8795.c
-+++ b/drivers/net/dsa/microchip/ksz8795.c
-@@ -96,7 +96,7 @@ static int ksz8795_change_mtu(struct ksz_device *dev, int frame_size)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index beab68e22e371..47617a95034c6 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -2388,7 +2388,7 @@ static int bnxt_async_event_process(struct bnxt *bp,
+ 	case ASYNC_EVENT_CMPL_EVENT_ID_PHC_UPDATE: {
+ 		switch (BNXT_EVENT_PHC_EVENT_TYPE(data1)) {
+ 		case ASYNC_EVENT_CMPL_PHC_UPDATE_EVENT_DATA1_FLAGS_PHC_RTC_UPDATE:
+-			if (bp->fw_cap & BNXT_FW_CAP_PTP_RTC) {
++			if (BNXT_PTP_USE_RTC(bp)) {
+ 				struct bnxt_ptp_cfg *ptp = bp->ptp_cfg;
+ 				u64 ns;
  
- 	if (frame_size > KSZ8_LEGAL_PACKET_SIZE)
- 		ctrl2 |= SW_LEGAL_PACKET_DISABLE;
--	else if (frame_size > KSZ8863_NORMAL_PACKET_SIZE)
-+	if (frame_size > KSZ8863_NORMAL_PACKET_SIZE)
- 		ctrl1 |= SW_HUGE_PACKET;
- 
- 	ret = ksz_rmw8(dev, REG_SW_CTRL_1, SW_HUGE_PACKET, ctrl1);
 -- 
 2.39.2
 
