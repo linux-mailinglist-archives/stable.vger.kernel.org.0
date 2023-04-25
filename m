@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CACB6EE7A8
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 20:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBEC96EE913
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 22:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234382AbjDYSno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 14:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42422 "EHLO
+        id S235354AbjDYUaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 16:30:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234055AbjDYSnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 14:43:43 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493FA16F30;
-        Tue, 25 Apr 2023 11:43:33 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id 98e67ed59e1d1-2472dc49239so5528600a91.1;
-        Tue, 25 Apr 2023 11:43:33 -0700 (PDT)
+        with ESMTP id S232214AbjDYUaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 16:30:23 -0400
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE07D333;
+        Tue, 25 Apr 2023 13:30:19 -0700 (PDT)
+Received: by mail-qt1-x832.google.com with SMTP id d75a77b69052e-3f0596e2c00so14104121cf.3;
+        Tue, 25 Apr 2023 13:30:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682448213; x=1685040213;
+        d=gmail.com; s=20221208; t=1682454618; x=1685046618;
         h=content-transfer-encoding:in-reply-to:content-language:references
          :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=seaqzbM0T/KT5lN1ikdO/NY3x70xGuSLmb6mU7SK/YM=;
-        b=KJUOKnpyLl12Ao33o+U9l4yG/YF2rQoOGSX8Ru0D3qtPj4GF8E+IZhAqBWCqWrurFF
-         oqaSQskVH8lS6fZFBhk72MqhveAxfMrksTsYEECFL6fl6NlJiDTILsvuCUMC4dk6Iu1O
-         CTJ6SYLuXah5HUGZiahuzPthpXw5rd1Q4uBBy138fSBbV5oCoCJz9f9BDKQAl7n3c8ja
-         g5EIrWT4+j0wrkY6yC6e25ukXTzaEzgJ1j2tnbc2qBqNUVKEolABunj/NtYC6iZxHC8D
-         1AkKSw7NOPAiNeQNMA6gJhoNN6rQUt4KwlYJrvcUaTwPA5jtHtbGzkM/AphoxFDs9KBN
-         TqfA==
+        bh=RXQsS7DdiSemVpvOd/+IAfNyN39Y2Q7DpC+A5PL+xNA=;
+        b=LvmYZzqI9WmhHAK/C0BbetjeKBmdMLaYDLV99Seog7ajhUKTDkWqE6PvrZdOvBvCXN
+         oC7VTli22EVS1ikyQt0522xLSWD12OSwHiooP9tL3rg71Aj3Xxon4nzhsTbLqsx5PO9r
+         VMgXUQ/GJPYsCCzsO05W/ZKXce93EqsMdOIhlt9B4XkVKAq10tRVyK3T6sP5cqkEPmtt
+         lja6E0MQDX094Fla9w69pA169SDGqRHsdf0Quxam31sFtdWwt6eXE9cowOcBHoN/l4Vz
+         HpslOs9fc+DSO8BONaDjoqbaAWwq65jBknxlbQbQZeQJ/Xvy2OqnPz+XDhgc9KGpaOnv
+         3qsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682448213; x=1685040213;
+        d=1e100.net; s=20221208; t=1682454618; x=1685046618;
         h=content-transfer-encoding:in-reply-to:content-language:references
          :cc:to:subject:from:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=seaqzbM0T/KT5lN1ikdO/NY3x70xGuSLmb6mU7SK/YM=;
-        b=PGRb/PYditni/xsGx/CzsowvMdNASmzKGS/k2upg/mHiEa2sxH6FDko3Clx1f34gJo
-         cs+BSj1c4wNSZlj+2BUauuT+LiXWlP0jLT3YTH/M5Dofd7sbs67sFiB4QAUg1MiAVnYq
-         Rdq/J+ordc+oBSgTTJT1rz8cuSycj8pKj74tYsCCpPwyWU5wuKFND+T9yDgKkRjghbLN
-         gh+pbBf4rdhogIf4ZXoM/5MCg348opQh4Y2+soY/ZoYXt1/2iIcqnrHp4lF88EvRsmeh
-         d/Adv0uKsU3LmcFw6KV05Ny1ffpUul/rh7ZIVFRYLIBBhq+/y1hUKBZmeDiT/7vpnz+K
-         WZSw==
-X-Gm-Message-State: AAQBX9c90Rt3pBfEoKqAC/D3PS0Hzr1GqevgumHKoCLt3L/jsldjQivK
-        t06TM2hiDTwU3vpv/HOAKE0PtAbtmA9WdA==
-X-Google-Smtp-Source: AKy350bSwSyUk4TsW4BLeOlQheixISlHJlK24ZtPBWlG9l5rQ9DJ9Nj1z/Y5lO4vM6WsXJgNa1OWaA==
-X-Received: by 2002:a17:90a:7783:b0:24b:5a08:5cb6 with SMTP id v3-20020a17090a778300b0024b5a085cb6mr17214810pjk.19.1682448212565;
-        Tue, 25 Apr 2023 11:43:32 -0700 (PDT)
+        bh=RXQsS7DdiSemVpvOd/+IAfNyN39Y2Q7DpC+A5PL+xNA=;
+        b=IBLB8AkjL4kbgKdmyWdOvKeo89LJF7ZijuDnYR0oP5ALAEsNQgWfwT0n/FUSKvkpbr
+         Hy4tJt4bbhYFONGqBSF66x97t5MFWYNLQqyrey1giOrXxpQcpizD/tP9HFik7K17p9Yu
+         lUb3hUDVqJ6d9FXETjSSYrG2iAwgCQiVQTv1hqxYjsxssC/C1hDFwHHP5bsFebPIADAF
+         QGJGkkvdPtV3qmFvzDaond2LvMMlZLZZ9EwqumkmUONmHHq2iojFZiEIWL0jLb+jkx6u
+         4p4CvK1Vj9zPmdXY0G6bKQmmsIk4aVoPkC+LoDRpInN7M1+WRrlPjB70r+SxhWSubeW1
+         Y4UQ==
+X-Gm-Message-State: AAQBX9egWEUBcsTMJJ6dWJDMaNW6PMfB2noeRQtamnm/3TRtz4/VdJDy
+        O5ljlxBjhdic7EZyUMSWsdA6u+1/oC6HfA==
+X-Google-Smtp-Source: AKy350ZE6zOs2gNMe9NE/LoM0KeCVhu1NrakcyKqVddHUGUANhpxJa8T2n3LZWhvQHdJ/Oj5Xgmi6w==
+X-Received: by 2002:a05:622a:101:b0:3e4:e8be:c3a4 with SMTP id u1-20020a05622a010100b003e4e8bec3a4mr30445538qtw.56.1682454618432;
+        Tue, 25 Apr 2023 13:30:18 -0700 (PDT)
 Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id pw12-20020a17090b278c00b00246ba2b48f3sm11843465pjb.3.2023.04.25.11.43.25
+        by smtp.googlemail.com with ESMTPSA id b2-20020ac812c2000000b003e8160cf93asm4716700qtj.80.2023.04.25.13.30.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Apr 2023 11:43:31 -0700 (PDT)
-Message-ID: <7b13bdf0-bb18-8f3e-0a4c-064ac47eb45e@gmail.com>
-Date:   Tue, 25 Apr 2023 11:43:24 -0700
+        Tue, 25 Apr 2023 13:30:17 -0700 (PDT)
+Message-ID: <37c7ce6e-4e01-9c5c-1c2f-ac55d06f0ec2@gmail.com>
+Date:   Tue, 25 Apr 2023 13:30:10 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.10.0
 From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.10 00/68] 5.10.179-rc1 review
+Subject: Re: [PATCH 5.15 00/73] 5.15.109-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
 Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
@@ -63,9 +63,9 @@ Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230424131127.653885914@linuxfoundation.org>
+References: <20230424131129.040707961@linuxfoundation.org>
 Content-Language: en-US
-In-Reply-To: <20230424131127.653885914@linuxfoundation.org>
+In-Reply-To: <20230424131129.040707961@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -80,9 +80,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 4/24/2023 6:17 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.179 release.
-> There are 68 patches in this series, all will be posted as a response
+On 4/24/2023 6:16 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.109 release.
+> There are 73 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -90,9 +90,9 @@ On 4/24/2023 6:17 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.179-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.109-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
 > and the diffstat can be found below.
 > 
 > thanks,
