@@ -2,69 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE80A6EE48B
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 17:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AF036EE4FD
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 17:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233959AbjDYPPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 11:15:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43596 "EHLO
+        id S234567AbjDYPvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 11:51:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234532AbjDYPO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 11:14:59 -0400
-Received: from mail-ua1-x930.google.com (mail-ua1-x930.google.com [IPv6:2607:f8b0:4864:20::930])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6FA13C28
-        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 08:14:55 -0700 (PDT)
-Received: by mail-ua1-x930.google.com with SMTP id a1e0cc1a2514c-77858d8dcb5so24894762241.1
-        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 08:14:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1682435695; x=1685027695;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NxnjgBH3r01yRypB6bVr6mXGG/d22cFoPAOaP3+DkyQ=;
-        b=sX9fstc651c4dzxNrdtuuYCdxtWWzyn1oTILxQYSwYl/Bm686GtL73Fz6Z05TiHA3b
-         T/7KS5t6bvMTlbHREPPlkGr/noKFqn1hggyBNrZS5l6sRPNwCUSrAFladtdP+gG74G9G
-         qTolbyUwN9pXt6nGfXhUEcjBJo54WlP8Wc6gQOJo5ca2GEK1vy6IPyOiKBoKiDX58VDh
-         TlkCYvYhOY24uEc1t0XW7YbSaYYYd+W01jFZCMmX2Cz/odEdfLXZGoHKA84h0e+bRhi1
-         7J90RTdp1NJjqcbfHFiOJpngBp1AM82CNock6JGkLq33JcdIKh3Vlg1VZYRRgCGzGJqJ
-         o64Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682435695; x=1685027695;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NxnjgBH3r01yRypB6bVr6mXGG/d22cFoPAOaP3+DkyQ=;
-        b=fwZgUpxR2h6QYGtd50k/SePnn1TgUDbztwc3yicVSSj8DMk+1eRIqinolPhYXDpOLw
-         WhFsgmiC3T+psuiR+VPKBO2Jh1PpCYXpKLS+umVyU1K60HU0SxSqTo2yQiFWn1/8u46C
-         PLTsEIWi6i5I1gJ3HAjFIA2uVgFHILC7wFCOYQlMTA8xzYttYWp0TcWiow9ucf0O+ycJ
-         VkCPC7N4H00qC+ozO7fRqiq65t7uC+eSPKlaYNveUsAA9HM4W7knlaaYiHQ6IideqcJ+
-         XuZNsTk/de/zdD4bjOtwFYQtkeE7OkEcBQZlvqHbMNW08/plpV9vORi5qZU7+QXvE8NL
-         HubA==
-X-Gm-Message-State: AAQBX9eLCWbZxHZ1lizYevJgxl3QxciXPXKcN1lgWGfvgcQrDgb2TelJ
-        I6nyGBYYy3//4WFeqR4EagweoQ4B7BVOHD2DdCAURQ==
-X-Google-Smtp-Source: AKy350bg7Ue4P+RG/HLejbUlXUJm67HzzN+QK6+EbTXGlSkS48R8MujxUMfMRYv9mKpWJoXo8gIE3C413ABXvEkZOUI=
-X-Received: by 2002:a1f:bf8d:0:b0:43f:e623:952 with SMTP id
- p135-20020a1fbf8d000000b0043fe6230952mr6045262vkf.2.1682435694610; Tue, 25
- Apr 2023 08:14:54 -0700 (PDT)
+        with ESMTP id S234452AbjDYPvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 11:51:18 -0400
+Received: from lelv0143.ext.ti.com (lelv0143.ext.ti.com [198.47.23.248])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D71146A1;
+        Tue, 25 Apr 2023 08:51:17 -0700 (PDT)
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 33PFp1KH033567;
+        Tue, 25 Apr 2023 10:51:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1682437861;
+        bh=SSssMoXAAJxbfWfqbEfPrBoPMvhumLnvZAIjsMtep2I=;
+        h=Date:From:To:CC:Subject:References:In-Reply-To;
+        b=bc+/2HovFNrOKwyIOZx8Hb3FS+uopXM8wRW1PpjUBrMJOBG6pjeD8UyuaOyV3XPNr
+         PCjM1A+0m1QMUHeg7cRVlxXzr8ttKM0CGQxAvxH8GxtMcvwgithLHjHgTTa/F4YXlu
+         vBQa8d0TSc4hDtQrqK4C2d9dOPygXe7qdSooW2Qc=
+Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 33PFp1bO028332
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 25 Apr 2023 10:51:01 -0500
+Received: from DLEE101.ent.ti.com (157.170.170.31) by DLEE112.ent.ti.com
+ (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16; Tue, 25
+ Apr 2023 10:51:01 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE101.ent.ti.com
+ (157.170.170.31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16 via
+ Frontend Transport; Tue, 25 Apr 2023 10:51:01 -0500
+Received: from localhost (ileaxei01-snat2.itg.ti.com [10.180.69.6])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 33PFp1Ej067247;
+        Tue, 25 Apr 2023 10:51:01 -0500
+Date:   Tue, 25 Apr 2023 10:51:01 -0500
+From:   Reid Tonking <reidt@ti.com>
+To:     Andi Shyti <andi.shyti@kernel.org>
+CC:     <tony@atomide.com>, <vigneshr@ti.com>, <aaro.koskinen@iki.fi>,
+        <jmkrzyszt@gmail.com>, <linux-omap@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH] i2c: omap: Fix standard mode false ACK readings
+Message-ID: <20230425155101.qqyvpfjdtqr3tlsh@reidt-t5600.dhcp.ti.com>
+References: <20230424195344.627861-1-reidt@ti.com>
+ <20230425124549.kdvfyvuy4uolvsr2@intel.intel>
+ <20230425145610.j3ljepycclr3i42t@reidt-t5600.dhcp.ti.com>
 MIME-Version: 1.0
-References: <20230424131136.142490414@linuxfoundation.org>
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Apr 2023 16:14:43 +0100
-Message-ID: <CA+G9fYs38=gG5tttigg_tngigDEqgXeA+QwqP2k25iUJnNrQgA@mail.gmail.com>
-Subject: Re: [PATCH 6.2 000/110] 6.2.13-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20230425145610.j3ljepycclr3i42t@reidt-t5600.dhcp.ti.com>
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,176 +65,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Apr 2023 at 14:29, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.2.13 release.
-> There are 110 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 26 Apr 2023 13:11:11 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.2.13-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.2.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+This is a resend to add stable list to cc as well as linux-i2c list
+which fell off somehow.
 
+On 09:56-20230425, Reid Tonking wrote:
+> Hi Andi,
+> 
+> On 14:45-20230425, Andi Shyti wrote:
+> > Hi Reid,
+> > 
+> > On Mon, Apr 24, 2023 at 02:53:44PM -0500, Reid Tonking wrote:
+> > > Using standard mode, rare false ACK responses were appearing with
+> > > i2cdetect tool. This was happening due to NACK interrupt triggering
+> > > ISR thread before register access interrupt was ready. Removing the
+> > > NACK interrupt's ability to trigger ISR thread lets register access
+> > > ready interrupt do this instead.
+> > > 
+> > > Fixes: 3b2f8f82dad7 ("i2c: omap: switch to threaded IRQ support")
+> > > 
+> > > Signed-off-by: Reid Tonking <reidt@ti.com>
+> > 
+> > please don't leave any space between Fixes and SoB.
+> > 
+> > Add also:
+> > 
+> > Cc: <stable@vger.kernel.org> # v3.7+
+> > 
+> > and Cc the stable list.
+> > 
+> > Andi
+> >
+> 
+> Thanks for the feedback, I'll make that change going forward.
+> 
+> -Reid
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 6.2.13-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-6.2.y
-* git commit: 9e5d20c139403093b3899c2aeac481792aed6826
-* git describe: v6.2.9-608-g9e5d20c13940
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.2.y/build/v6.2.9=
--608-g9e5d20c13940
-
-## Test Regressions (compared to v6.2.9-497-g7507bdf58f79)
-
-## Metric Regressions (compared to v6.2.9-497-g7507bdf58f79)
-
-## Test Fixes (compared to v6.2.9-497-g7507bdf58f79)
-
-## Metric Fixes (compared to v6.2.9-497-g7507bdf58f79)
-
-## Test result summary
-total: 194288, pass: 162649, fail: 3944, skip: 27389, xfail: 306
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 145 total, 142 passed, 3 failed
-* arm64: 54 total, 53 passed, 1 failed
-* i386: 41 total, 38 passed, 3 failed
-* mips: 30 total, 28 passed, 2 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 38 total, 36 passed, 2 failed
-* riscv: 26 total, 25 passed, 1 failed
-* s390: 16 total, 16 passed, 0 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 7 passed, 1 failed
-* x86_64: 46 total, 46 passed, 0 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-exec
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-user_events
-* kselftest-vDSO
-* kselftest-vm
-* kselftest-watchdog
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+-Reid
