@@ -2,112 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5736EDAF5
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 06:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F4D66EDB09
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 07:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbjDYErn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 00:47:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38888 "EHLO
+        id S229637AbjDYFIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 01:08:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbjDYErm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 00:47:42 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC477D97;
-        Mon, 24 Apr 2023 21:47:41 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id d2e1a72fcca58-63d4595d60fso32834320b3a.0;
-        Mon, 24 Apr 2023 21:47:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682398061; x=1684990061;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=x7mjglO56uGEvHM/CvZvHdpiKNwZ+e2uyMhpZBFkVkE=;
-        b=MpjvQVeZ615veQ0dfUI3iJ5IOrl6uKSOlWytx+XxtudP1sK6WMjBXatV8TIGG3I/fm
-         yThgFvFnZhY6ZLunhNy3wluje5OfvaOpU+juESYW/Gxy+Knglu3halQWwh3+Q8xWU7K3
-         8AfdpgNdKiPYUfRzMXilRf0OEIWFCUqknuNLVhmILeKbJc+nvWY8K3aV9lP5NjNIOdVr
-         JFchFa+J/ZAOuyy00QvCr7wilBp+6nMr1DjLnqQpCSmutPwRs29x0BPiFt2HsilRrUnN
-         Vl1OxmEj1KOg+oLu4RDl8D+29oBV6PChAL5pQAAIcmpB80svzuQNLGh4vdiKKpBsE5VU
-         GIZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682398061; x=1684990061;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=x7mjglO56uGEvHM/CvZvHdpiKNwZ+e2uyMhpZBFkVkE=;
-        b=CnQtnpmPhtNfr5ixCKYvPFSp7aTm3/jCdGz6JBOitMoLP/3PxJZcO0S6OR4LBNbM6/
-         8XgEAwYLhi9kqHbrsCmyrt8UALjezROo4vk5Q9YHHPWKaU4WYcCLiHNPbGy/2Xnbh/xu
-         9q/xfj+2hbZ819YTAOPyDx30J+jObKeb9q1/4bFW1Tkyiecnt5LrmU2UgoMvpGo3wTt6
-         YIR2hbthtPGija3toW+EL2g3YAMMjcNODjvE524dN+4O+1o9RIUJGgRt/x/B1rkfLugK
-         IBVfX8CUmmLuyhX3deQD7fYVJYmz6VM9+5ckcWpyqETMbp1vQz+oUJLsPZXOEXbFL8Hu
-         u9MA==
-X-Gm-Message-State: AAQBX9ci83gKgHZZ9Qm1Azu9NEyXImJ09GriROfNk3Lx8kf7RvaSzkml
-        9dtEtn4NiL2dbzUe36ukvWw=
-X-Google-Smtp-Source: AKy350bOJYJTKZrlXFCQ2GhNblEqkGfNZrl02hvCz7jUd069I2qflDI/W1W3D87dc8W+v4PbEoucfg==
-X-Received: by 2002:a05:6a20:3d01:b0:e4:b52:76c9 with SMTP id y1-20020a056a203d0100b000e40b5276c9mr19136264pzi.23.1682398060985;
-        Mon, 24 Apr 2023 21:47:40 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-73.three.co.id. [180.214.233.73])
-        by smtp.gmail.com with ESMTPSA id b6-20020a63d806000000b005143d3fa0e0sm7255731pgh.2.2023.04.24.21.47.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Apr 2023 21:47:40 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id AF54610692C; Tue, 25 Apr 2023 11:47:37 +0700 (WIB)
-Date:   Tue, 25 Apr 2023 11:47:37 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S231189AbjDYFIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 01:08:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C3183EC
+        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 22:08:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE76362162
+        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 05:08:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26FAC433D2;
+        Tue, 25 Apr 2023 05:08:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1682399308;
+        bh=dpj1nYk2Bp7BUPtmuwjB5CWpzDqpP8MQ/mlGDMqD3tg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eAndy201HXMR0ZPvlWjJTzg2wE6sC7gBC7Cr1lduLiOzSCjYwCOZnrt2XmEdupPy7
+         JABSafTLKhOwOZ5s3c7ifJ1yFqITpTzKWRpZz/BsF2W1WH4xfMq3xbXnCW3rJQAyIR
+         o/9oTCcLQA0JyMvhQOt4C1bv3HTpMbvSby+lDRl4=
+Date:   Tue, 25 Apr 2023 07:08:25 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mark Hasemeyer <markhas@chromium.org>
+Cc:     bhelgaas@google.com, kai.heng.feng@canonical.com,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/110] 6.2.13-rc1 review
-Message-ID: <ZEdbaUGIKPHEXvnA@debian.me>
-References: <20230424131136.142490414@linuxfoundation.org>
+Subject: Re: [PATCH] PCI:ASPM: Remove pcie_aspm_pm_state_change()
+Message-ID: <ZEdgSbX3AsaTNBLr@kroah.com>
+References: <2023042354-enjoyment-promoter-9d54@gregkh>
+ <20230424183536.808003-1-markhas@chromium.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="MH4cRJTFut+TrASo"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230424131136.142490414@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20230424183536.808003-1-markhas@chromium.org>
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Apr 24, 2023 at 12:35:36PM -0600, Mark Hasemeyer wrote:
+> > Odd, it does not apply cleanly, so how was this tested?  Can you please
+> > send the tested backport that you have so we know to get it correct?
+> 
+> Sorry about that. I had to apply a trivial backport as
+> `pci_set_low_power_state` does not exist in v5.15.  It was tested by using an
+> RTC wake in combination with using the sysfs to trigger a suspend:
+> ```
+> echo +5 > /sys/class/rtc/rtc0/wakealarm && echo freeze > /sys/power/state
+> ```
+> 
+> Patch below.
+> ------------------------------------
+> >From 5ca368f6918710bf491feee54e09a060de835d3f Mon Sep 17 00:00:00 2001
+> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Date: Mon, 11 Jul 2022 18:07:01 -0500
+> Subject: [PATCH] PCI/ASPM: Remove pcie_aspm_pm_state_change()
+> 
+> pcie_aspm_pm_state_change() was introduced at the inception of PCIe ASPM
+> code, but it can cause some issues. For instance, when ASPM config is
+> changed via sysfs, those changes won't persist across power state change
+> because pcie_aspm_pm_state_change() overwrites them.
+> 
+> Also, if the driver restores L1SS [1] after system resume, the restored
+> state will also be overwritten by pcie_aspm_pm_state_change().
+> 
+> Remove pcie_aspm_pm_state_change().  If there's any hardware that really
+> needs it to function, a quirk can be used instead.
+> 
+> [1] https://lore.kernel.org/linux-pci/20220201123536.12962-1-vidyas@nvidia.com/
+> Link: https://lore.kernel.org/r/20220509073639.2048236-1-kai.heng.feng@canonical.com
+> [bhelgaas: remove additional pcie_aspm_pm_state_change() call in
+> pci_set_low_power_state(), added by
+> 10aa5377fc8a ("PCI/PM: Split pci_raw_set_power_state()") and moved by
+> 7957d201456f ("PCI/PM: Relocate pci_set_low_power_state()")]
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+> Signed-off-by: Mark Hasemeyer <markhas@chromium.org>
+> ---
+>  drivers/pci/pci.c       |  3 ---
+>  drivers/pci/pci.h       |  2 --
+>  drivers/pci/pcie/aspm.c | 19 -------------------
+>  3 files changed, 24 deletions(-)
 
---MH4cRJTFut+TrASo
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What is the git commit id of this change in Linus's tree?
 
-On Mon, Apr 24, 2023 at 03:16:22PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.13 release.
-> There are 110 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+And can you send it as a stand-alone patch, not one that I have to
+hand-edit out of an email to use?  Doing that does not scale at the rate
+of change we currently deal with at all.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+thanks,
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---MH4cRJTFut+TrASo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZEdbaQAKCRD2uYlJVVFO
-o0y0AP9dlyjXe9nttqfxl7kJvhqc3A8CkAbFLQBjY7sF73NGggEAkI1axTBzxJN1
-LgTaekGueQ7GHTTcQRRO25m1DT/L4wg=
-=HiEO
------END PGP SIGNATURE-----
-
---MH4cRJTFut+TrASo--
+greg k-h
