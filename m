@@ -2,48 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4D66EDB09
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 07:08:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D8F6EDB72
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 08:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbjDYFIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 01:08:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41894 "EHLO
+        id S230314AbjDYGBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 02:01:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbjDYFIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 01:08:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C3183EC
-        for <stable@vger.kernel.org>; Mon, 24 Apr 2023 22:08:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE76362162
-        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 05:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26FAC433D2;
-        Tue, 25 Apr 2023 05:08:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1682399308;
-        bh=dpj1nYk2Bp7BUPtmuwjB5CWpzDqpP8MQ/mlGDMqD3tg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eAndy201HXMR0ZPvlWjJTzg2wE6sC7gBC7Cr1lduLiOzSCjYwCOZnrt2XmEdupPy7
-         JABSafTLKhOwOZ5s3c7ifJ1yFqITpTzKWRpZz/BsF2W1WH4xfMq3xbXnCW3rJQAyIR
-         o/9oTCcLQA0JyMvhQOt4C1bv3HTpMbvSby+lDRl4=
-Date:   Tue, 25 Apr 2023 07:08:25 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark Hasemeyer <markhas@chromium.org>
-Cc:     bhelgaas@google.com, kai.heng.feng@canonical.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] PCI:ASPM: Remove pcie_aspm_pm_state_change()
-Message-ID: <ZEdgSbX3AsaTNBLr@kroah.com>
-References: <2023042354-enjoyment-promoter-9d54@gregkh>
- <20230424183536.808003-1-markhas@chromium.org>
+        with ESMTP id S232823AbjDYGBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 02:01:34 -0400
+Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AFC5768A;
+        Mon, 24 Apr 2023 23:01:32 -0700 (PDT)
+Received: by mail-ua1-x934.google.com with SMTP id a1e0cc1a2514c-77115450b8fso3059734241.0;
+        Mon, 24 Apr 2023 23:01:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682402491; x=1684994491;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=u/QtXOE0evN6u5nDYY+j79dys0ARBBBVTD6zTkUWl1o=;
+        b=VyBLHzI3lbUTEeTSQWQ2Qwyub1Gd3J9MoMG+UanYep4hgcvGQwxw8wNQRr0yhUlOjL
+         YuEIkJenm/JM4AG+C0yrKmB6G/4tFrH+z+k2uGWvj7R8TG5ITsuONfqP1hggYq1x+A+c
+         0b2e85PT4+NkS0lwmN7FGLlfV34fMirKkGiiepRV1EEgw7WlO2CoGpb4BFL8qz0Lk5mU
+         uxguja9QRhqsKlHOTHqudMfuuCy0vwPvPuWy01PkEZ8mEL9Z7fQa3vLuSNz75Tv/0CJn
+         mvSvEWoj8tDmPEqFt1RMOE256Zsu5HoBD+wA5OOVG0N+9u5t89ULYSiKRqdmSSVPRozl
+         S+sA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682402491; x=1684994491;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=u/QtXOE0evN6u5nDYY+j79dys0ARBBBVTD6zTkUWl1o=;
+        b=leIpchaWlHVPkT3eVbo/vb4eIbFwE5xNDq/5wFxo/1eoIkEFsPY+MK10QP00N+Kmu6
+         nLOzWE14Qrgc9rdD7nBOUsuCjN6fdjV6Dd3psfLjoD0PGv27pN4XQZWvfSS5dShlfO/z
+         C2uu62Q9GNBK+1bovnfeqty+YAN+v4GZGvDFaZ1V7+VHUeEa6AulEb0/zWGUCvbLGu2c
+         KLMr36+JsYRXCBiMI7yJgznoyxTvvqf2otHGyqQ1+JdNxpmaNG6Wf0tKW4g6nlIX4UGL
+         sqfnt++pEBoVi+mfE0ttNv4RdKqLHCwQMs1qTTyzxWKqh29/s+wXLAzxW7lUjkuliADz
+         /caQ==
+X-Gm-Message-State: AAQBX9dUM1DyQ1sngIjpv4WW4ezzX59hh0m1DDfghgqdSFoPmcwayZtD
+        lwWNerG4UqOHct11c/QR4R1TiRBUTHEuy2vimF8=
+X-Google-Smtp-Source: AKy350aVfd3f4Es5Xsk1ghtpikyrFPuFZfLEQ2g1D2pgZ/Ep9mpheYWenLWKLdpRoKqtDD4IFfE2q955uxwRd5KmJOY=
+X-Received: by 2002:a05:6102:14a:b0:42c:543a:ab2a with SMTP id
+ a10-20020a056102014a00b0042c543aab2amr6296411vsr.35.1682402491632; Mon, 24
+ Apr 2023 23:01:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230424183536.808003-1-markhas@chromium.org>
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+References: <20230424163219.9250-1-jack@suse.cz>
+In-Reply-To: <20230424163219.9250-1-jack@suse.cz>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Tue, 25 Apr 2023 09:01:20 +0300
+Message-ID: <CAOQ4uxjamwMxOXb3j7D8j_KkHLosayn3dnRbGfso9SFfzkSdDg@mail.gmail.com>
+Subject: Re: [PATCH] inotify: Avoid reporting event with invalid wd
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+4a06d4373fd52f0b2f9c@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,56 +68,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 24, 2023 at 12:35:36PM -0600, Mark Hasemeyer wrote:
-> > Odd, it does not apply cleanly, so how was this tested?  Can you please
-> > send the tested backport that you have so we know to get it correct?
-> 
-> Sorry about that. I had to apply a trivial backport as
-> `pci_set_low_power_state` does not exist in v5.15.  It was tested by using an
-> RTC wake in combination with using the sysfs to trigger a suspend:
-> ```
-> echo +5 > /sys/class/rtc/rtc0/wakealarm && echo freeze > /sys/power/state
-> ```
-> 
-> Patch below.
-> ------------------------------------
-> >From 5ca368f6918710bf491feee54e09a060de835d3f Mon Sep 17 00:00:00 2001
-> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> Date: Mon, 11 Jul 2022 18:07:01 -0500
-> Subject: [PATCH] PCI/ASPM: Remove pcie_aspm_pm_state_change()
-> 
-> pcie_aspm_pm_state_change() was introduced at the inception of PCIe ASPM
-> code, but it can cause some issues. For instance, when ASPM config is
-> changed via sysfs, those changes won't persist across power state change
-> because pcie_aspm_pm_state_change() overwrites them.
-> 
-> Also, if the driver restores L1SS [1] after system resume, the restored
-> state will also be overwritten by pcie_aspm_pm_state_change().
-> 
-> Remove pcie_aspm_pm_state_change().  If there's any hardware that really
-> needs it to function, a quirk can be used instead.
-> 
-> [1] https://lore.kernel.org/linux-pci/20220201123536.12962-1-vidyas@nvidia.com/
-> Link: https://lore.kernel.org/r/20220509073639.2048236-1-kai.heng.feng@canonical.com
-> [bhelgaas: remove additional pcie_aspm_pm_state_change() call in
-> pci_set_low_power_state(), added by
-> 10aa5377fc8a ("PCI/PM: Split pci_raw_set_power_state()") and moved by
-> 7957d201456f ("PCI/PM: Relocate pci_set_low_power_state()")]
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> Signed-off-by: Mark Hasemeyer <markhas@chromium.org>
+On Mon, Apr 24, 2023 at 7:32=E2=80=AFPM Jan Kara <jack@suse.cz> wrote:
+>
+> When inotify_freeing_mark() races with inotify_handle_inode_event() it
+> can happen that inotify_handle_inode_event() sees that i_mark->wd got
+> already reset to -1 and reports this value to userspace which can
+> confuse the inotify listener. Avoid the problem by validating that wd is
+> sensible (and pretend the mark got removed before the event got
+> generated otherwise).
+>
+> CC: stable@vger.kernel.org
+> Fixes: 7e790dd5fc93 ("inotify: fix error paths in inotify_update_watch")
+> Reported-by: syzbot+4a06d4373fd52f0b2f9c@syzkaller.appspotmail.com
+> Signed-off-by: Jan Kara <jack@suse.cz>
+
+Makes sense.
+
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+
 > ---
->  drivers/pci/pci.c       |  3 ---
->  drivers/pci/pci.h       |  2 --
->  drivers/pci/pcie/aspm.c | 19 -------------------
->  3 files changed, 24 deletions(-)
-
-What is the git commit id of this change in Linus's tree?
-
-And can you send it as a stand-alone patch, not one that I have to
-hand-edit out of an email to use?  Doing that does not scale at the rate
-of change we currently deal with at all.
-
-thanks,
-
-greg k-h
+>  fs/notify/inotify/inotify_fsnotify.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+>
+> I plan to merge this fix through my tree.
+>
+> diff --git a/fs/notify/inotify/inotify_fsnotify.c b/fs/notify/inotify/ino=
+tify_fsnotify.c
+> index 49cfe2ae6d23..f86d12790cb1 100644
+> --- a/fs/notify/inotify/inotify_fsnotify.c
+> +++ b/fs/notify/inotify/inotify_fsnotify.c
+> @@ -65,7 +65,7 @@ int inotify_handle_inode_event(struct fsnotify_mark *in=
+ode_mark, u32 mask,
+>         struct fsnotify_event *fsn_event;
+>         struct fsnotify_group *group =3D inode_mark->group;
+>         int ret;
+> -       int len =3D 0;
+> +       int len =3D 0, wd;
+>         int alloc_len =3D sizeof(struct inotify_event_info);
+>         struct mem_cgroup *old_memcg;
+>
+> @@ -80,6 +80,13 @@ int inotify_handle_inode_event(struct fsnotify_mark *i=
+node_mark, u32 mask,
+>         i_mark =3D container_of(inode_mark, struct inotify_inode_mark,
+>                               fsn_mark);
+>
+> +       /*
+> +        * We can be racing with mark being detached. Don't report event =
+with
+> +        * invalid wd.
+> +        */
+> +       wd =3D READ_ONCE(i_mark->wd);
+> +       if (wd =3D=3D -1)
+> +               return 0;
+>         /*
+>          * Whoever is interested in the event, pays for the allocation. D=
+o not
+>          * trigger OOM killer in the target monitoring memcg as it may ha=
+ve
+> @@ -110,7 +117,7 @@ int inotify_handle_inode_event(struct fsnotify_mark *=
+inode_mark, u32 mask,
+>         fsn_event =3D &event->fse;
+>         fsnotify_init_event(fsn_event);
+>         event->mask =3D mask;
+> -       event->wd =3D i_mark->wd;
+> +       event->wd =3D wd;
+>         event->sync_cookie =3D cookie;
+>         event->name_len =3D len;
+>         if (len)
+> --
+> 2.35.3
+>
