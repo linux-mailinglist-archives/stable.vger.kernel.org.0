@@ -2,139 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D8F6EDB72
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 08:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A37B6EDBFD
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 08:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbjDYGBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 02:01:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
+        id S233086AbjDYG7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 02:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232823AbjDYGBe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 02:01:34 -0400
-Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AFC5768A;
-        Mon, 24 Apr 2023 23:01:32 -0700 (PDT)
-Received: by mail-ua1-x934.google.com with SMTP id a1e0cc1a2514c-77115450b8fso3059734241.0;
-        Mon, 24 Apr 2023 23:01:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682402491; x=1684994491;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u/QtXOE0evN6u5nDYY+j79dys0ARBBBVTD6zTkUWl1o=;
-        b=VyBLHzI3lbUTEeTSQWQ2Qwyub1Gd3J9MoMG+UanYep4hgcvGQwxw8wNQRr0yhUlOjL
-         YuEIkJenm/JM4AG+C0yrKmB6G/4tFrH+z+k2uGWvj7R8TG5ITsuONfqP1hggYq1x+A+c
-         0b2e85PT4+NkS0lwmN7FGLlfV34fMirKkGiiepRV1EEgw7WlO2CoGpb4BFL8qz0Lk5mU
-         uxguja9QRhqsKlHOTHqudMfuuCy0vwPvPuWy01PkEZ8mEL9Z7fQa3vLuSNz75Tv/0CJn
-         mvSvEWoj8tDmPEqFt1RMOE256Zsu5HoBD+wA5OOVG0N+9u5t89ULYSiKRqdmSSVPRozl
-         S+sA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682402491; x=1684994491;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u/QtXOE0evN6u5nDYY+j79dys0ARBBBVTD6zTkUWl1o=;
-        b=leIpchaWlHVPkT3eVbo/vb4eIbFwE5xNDq/5wFxo/1eoIkEFsPY+MK10QP00N+Kmu6
-         nLOzWE14Qrgc9rdD7nBOUsuCjN6fdjV6Dd3psfLjoD0PGv27pN4XQZWvfSS5dShlfO/z
-         C2uu62Q9GNBK+1bovnfeqty+YAN+v4GZGvDFaZ1V7+VHUeEa6AulEb0/zWGUCvbLGu2c
-         KLMr36+JsYRXCBiMI7yJgznoyxTvvqf2otHGyqQ1+JdNxpmaNG6Wf0tKW4g6nlIX4UGL
-         sqfnt++pEBoVi+mfE0ttNv4RdKqLHCwQMs1qTTyzxWKqh29/s+wXLAzxW7lUjkuliADz
-         /caQ==
-X-Gm-Message-State: AAQBX9dUM1DyQ1sngIjpv4WW4ezzX59hh0m1DDfghgqdSFoPmcwayZtD
-        lwWNerG4UqOHct11c/QR4R1TiRBUTHEuy2vimF8=
-X-Google-Smtp-Source: AKy350aVfd3f4Es5Xsk1ghtpikyrFPuFZfLEQ2g1D2pgZ/Ep9mpheYWenLWKLdpRoKqtDD4IFfE2q955uxwRd5KmJOY=
-X-Received: by 2002:a05:6102:14a:b0:42c:543a:ab2a with SMTP id
- a10-20020a056102014a00b0042c543aab2amr6296411vsr.35.1682402491632; Mon, 24
- Apr 2023 23:01:31 -0700 (PDT)
+        with ESMTP id S233180AbjDYG7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 02:59:48 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C24DAF32;
+        Mon, 24 Apr 2023 23:59:11 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33P6bE38015911;
+        Tue, 25 Apr 2023 06:58:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=OPwUhBfzRGsSut0j+vtqrGyiw75bGittZrZ7jEDKHnM=;
+ b=DETIV78NIACDm/1VNMPlmMgaSxE0CYr+sZADc7urtN9t8GfNKXcbzgod2Gb4ahz7Eroy
+ WxC85aVR2wvvulHPAPExynURxwGwQVvZ6N82qEQgICVXmBgNjwH0vlA3ZC8pITbAnbBh
+ ynMbK7/vcbkTo4sbAmn0ITz+a7NSqNo/mP9qx9f7Aq4Q7OYVWv5OlRIQSwptPgITBYoX
+ HmrC1h7k+5X7uPzVcgNAdzyPQFBveYYYBgTf1Fp5Db3r/PjDQYSjFBuNAya+nu543VNJ
+ Z049Pk3x0lixnUuT1p4T3hYdoMeEZc0OPrwLMYRKAW+pGo0RAhNkJI7dUqMpmXCPGGGM 4g== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q68b8ug73-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Apr 2023 06:58:47 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33ONa64n025920;
+        Tue, 25 Apr 2023 06:58:35 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3q47771jc5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Apr 2023 06:58:35 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33P6wXH129426206
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Apr 2023 06:58:33 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0B1402004E;
+        Tue, 25 Apr 2023 06:58:33 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9800420040;
+        Tue, 25 Apr 2023 06:58:30 +0000 (GMT)
+Received: from li-bd3f974c-2712-11b2-a85c-df1cec4d728e.ibm.com.com (unknown [9.43.101.201])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Apr 2023 06:58:30 +0000 (GMT)
+From:   Hari Bathini <hbathini@linux.ibm.com>
+To:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, bpf@vger.kernel.org
+Cc:     "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <songliubraving@fb.com>, stable@vger.kernel.org
+Subject: [PATCH v2] powerpc/bpf: populate extable entries only during the last pass
+Date:   Tue, 25 Apr 2023 12:28:29 +0530
+Message-Id: <20230425065829.18189-1-hbathini@linux.ibm.com>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-References: <20230424163219.9250-1-jack@suse.cz>
-In-Reply-To: <20230424163219.9250-1-jack@suse.cz>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Tue, 25 Apr 2023 09:01:20 +0300
-Message-ID: <CAOQ4uxjamwMxOXb3j7D8j_KkHLosayn3dnRbGfso9SFfzkSdDg@mail.gmail.com>
-Subject: Re: [PATCH] inotify: Avoid reporting event with invalid wd
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+4a06d4373fd52f0b2f9c@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IpL3BK40ps8ThY9uvWjjXDMg6YDdrrR7
+X-Proofpoint-ORIG-GUID: IpL3BK40ps8ThY9uvWjjXDMg6YDdrrR7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-25_03,2023-04-21_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
+ mlxlogscore=999 suspectscore=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304250060
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 24, 2023 at 7:32=E2=80=AFPM Jan Kara <jack@suse.cz> wrote:
->
-> When inotify_freeing_mark() races with inotify_handle_inode_event() it
-> can happen that inotify_handle_inode_event() sees that i_mark->wd got
-> already reset to -1 and reports this value to userspace which can
-> confuse the inotify listener. Avoid the problem by validating that wd is
-> sensible (and pretend the mark got removed before the event got
-> generated otherwise).
->
-> CC: stable@vger.kernel.org
-> Fixes: 7e790dd5fc93 ("inotify: fix error paths in inotify_update_watch")
-> Reported-by: syzbot+4a06d4373fd52f0b2f9c@syzkaller.appspotmail.com
-> Signed-off-by: Jan Kara <jack@suse.cz>
+Since commit 85e031154c7c ("powerpc/bpf: Perform complete extra passes
+to update addresses"), two additional passes are performed to avoid
+space and CPU time wastage on powerpc. But these extra passes led to
+WARN_ON_ONCE() hits in bpf_add_extable_entry() as extable entries are
+populated again, during the extra pass, without resetting the index.
+Fix it by resetting entry index before repopulating extable entries,
+if and when there is an additional pass.
 
-Makes sense.
+Fixes: 85e031154c7c ("powerpc/bpf: Perform complete extra passes to update addresses")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+---
+ arch/powerpc/net/bpf_jit_comp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_comp.c
+index e93aefcfb83f..37043dfc1add 100644
+--- a/arch/powerpc/net/bpf_jit_comp.c
++++ b/arch/powerpc/net/bpf_jit_comp.c
+@@ -101,6 +101,8 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
+ 		bpf_hdr = jit_data->header;
+ 		proglen = jit_data->proglen;
+ 		extra_pass = true;
++		/* During extra pass, ensure index is reset before repopulating extable entries */
++		cgctx.exentry_idx = 0;
+ 		goto skip_init_ctx;
+ 	}
+ 
+-- 
+2.40.0
 
-> ---
->  fs/notify/inotify/inotify_fsnotify.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
->
-> I plan to merge this fix through my tree.
->
-> diff --git a/fs/notify/inotify/inotify_fsnotify.c b/fs/notify/inotify/ino=
-tify_fsnotify.c
-> index 49cfe2ae6d23..f86d12790cb1 100644
-> --- a/fs/notify/inotify/inotify_fsnotify.c
-> +++ b/fs/notify/inotify/inotify_fsnotify.c
-> @@ -65,7 +65,7 @@ int inotify_handle_inode_event(struct fsnotify_mark *in=
-ode_mark, u32 mask,
->         struct fsnotify_event *fsn_event;
->         struct fsnotify_group *group =3D inode_mark->group;
->         int ret;
-> -       int len =3D 0;
-> +       int len =3D 0, wd;
->         int alloc_len =3D sizeof(struct inotify_event_info);
->         struct mem_cgroup *old_memcg;
->
-> @@ -80,6 +80,13 @@ int inotify_handle_inode_event(struct fsnotify_mark *i=
-node_mark, u32 mask,
->         i_mark =3D container_of(inode_mark, struct inotify_inode_mark,
->                               fsn_mark);
->
-> +       /*
-> +        * We can be racing with mark being detached. Don't report event =
-with
-> +        * invalid wd.
-> +        */
-> +       wd =3D READ_ONCE(i_mark->wd);
-> +       if (wd =3D=3D -1)
-> +               return 0;
->         /*
->          * Whoever is interested in the event, pays for the allocation. D=
-o not
->          * trigger OOM killer in the target monitoring memcg as it may ha=
-ve
-> @@ -110,7 +117,7 @@ int inotify_handle_inode_event(struct fsnotify_mark *=
-inode_mark, u32 mask,
->         fsn_event =3D &event->fse;
->         fsnotify_init_event(fsn_event);
->         event->mask =3D mask;
-> -       event->wd =3D i_mark->wd;
-> +       event->wd =3D wd;
->         event->sync_cookie =3D cookie;
->         event->name_len =3D len;
->         if (len)
-> --
-> 2.35.3
->
