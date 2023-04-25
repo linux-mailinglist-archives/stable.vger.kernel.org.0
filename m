@@ -2,241 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F966EE3FB
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 16:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE576EE41C
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 16:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234118AbjDYOdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 10:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43850 "EHLO
+        id S234220AbjDYOlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 10:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234127AbjDYOda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 10:33:30 -0400
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E68114442
-        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 07:33:22 -0700 (PDT)
-Received: by mail-ua1-x92f.google.com with SMTP id a1e0cc1a2514c-7756904cbabso3958210241.3
-        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 07:33:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1682433201; x=1685025201;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WQ2CLAjMPgKbOZe4brMjde1QLHkIgbVunV88zomi5KY=;
-        b=QSOxF8e2muGNZob7KuS75YfJBtMdxjOuLe46O21qktQ+fC1TxNejM/vKZelejgPkSJ
-         Z2cQVvS8kWWMKlVg5wlM5bsl5FzNx6n4HkbqFHmC0BS6FeJq2zVuSMnIPOCqdApDolC8
-         wrLd9RRJJapVfcfLySyGHOMmgG3TIGGmolWSzjlkSc1d63pgfiNQMRXc98EYnz/PlGgN
-         oJXqqtCY+nm0Y8FaMWXxO4XGUose6KR2aaYWwfe6Jb3bub7G2BlvBn9GLWAmiiTuLvts
-         osduTNr0RZZ7LksOlBptFLuAePl8noMgCOF653i/zNg8vCJFZP+WOsu0RBt0InLcYYH8
-         xUFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682433201; x=1685025201;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WQ2CLAjMPgKbOZe4brMjde1QLHkIgbVunV88zomi5KY=;
-        b=R7qQKtCJgxcMGUvVrNz3CyJpNzFKL2Vq8dwX1ZKVcXKVUlK95Cjxjbtgll6Dy5KkdR
-         0AmD4dL9FeW2wEzkGBTZ4/fPLgoQarwLZoanh+UbdoKvS9emUJ42bCDBANEwAYgphFLd
-         2QIgX9DCWaNjlqlXANPo3YtBkHpPAbKrM6Mg6weOHF/ZIG5dI9yY4YEnQ3eXs8QL06uv
-         wQmul0IOF7WGGEQ72Vhj/pqW5vFTIRz0tnz53BuiZ8GMCiRIjiiaM/8xr3SHT+2RAH/m
-         jkenVhoxlfqueQaGllydbDqo0rHruAZGpl7M2LPbnlrhBzrfMJ/BN1sVZ99d0iEXTJ9Q
-         jxOQ==
-X-Gm-Message-State: AAQBX9cjgMpLS27/ICVXK7COIgwz8MjNmRQpDhN5p2r3644omI0iS53V
-        raabikC3yLqudWxO3NnolDE5sqJpBmFpAICa9sUgFg==
-X-Google-Smtp-Source: AKy350YX6AwO0pQHfBFGLNBOTtx5pYpGmcG+rrY+6QopEdOgUNUrMvxAJKNFhncmK2TEboB273ZjpmyipgS8gxjrLrU=
-X-Received: by 2002:a1f:bd0f:0:b0:440:d7:da79 with SMTP id n15-20020a1fbd0f000000b0044000d7da79mr5766207vkf.2.1682433201450;
- Tue, 25 Apr 2023 07:33:21 -0700 (PDT)
+        with ESMTP id S234206AbjDYOls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 10:41:48 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20655E70;
+        Tue, 25 Apr 2023 07:41:46 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33PEdIE3019450;
+        Tue, 25 Apr 2023 14:41:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : subject :
+ to : cc : references : in-reply-to : mime-version : message-id :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=vRPRtK8KjcRKyKQy/fRSw1fzRpw6Z/d8aTjxblAzL1E=;
+ b=TY5CX6U1C2wytU3HZzFkrRifHR8Jy/mAbJlzPU28yYhikDTb4QYGrsgaTekuYXUuC3fn
+ Kcw5BDtpbOwWhQpSVstty9/LiW9n2z86rKpduEkgf6sceH6XxTncywzMlU+BYX6vG/8g
+ roUoR6h/kRK/SuUJ9kTxyT/WVpJpjMSvSz18Iu9P1azR1pTA6SpPaQU+pAgCacgyWWYm
+ p3n1mQJF2YGdTgtzJYoItlehcV5lqua4C3KteFGnYBotg4VQ5OYXYbIWqXiSQCkZFL2q
+ 8iObFtXwhDHE5XdQE/5jV4oC8fL0eseIm2KDJF29M3o64qDJTgXrpI5lSewkoWxzqLi6 0A== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q6gdr1e57-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Apr 2023 14:41:17 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33P9WuU1030934;
+        Tue, 25 Apr 2023 14:36:14 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3q47771gf8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Apr 2023 14:36:14 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33PEaCMp20120284
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Apr 2023 14:36:12 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6A8B220040;
+        Tue, 25 Apr 2023 14:36:12 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D443920043;
+        Tue, 25 Apr 2023 14:36:11 +0000 (GMT)
+Received: from localhost (unknown [9.43.63.166])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Apr 2023 14:36:11 +0000 (GMT)
+Date:   Tue, 25 Apr 2023 20:06:09 +0530
+From:   "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Subject: Re: [PATCH v2] powerpc/bpf: populate extable entries only during the
+ last pass
+To:     bpf@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Cc:     Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>, stable@vger.kernel.org
+References: <20230425065829.18189-1-hbathini@linux.ibm.com>
+In-Reply-To: <20230425065829.18189-1-hbathini@linux.ibm.com>
 MIME-Version: 1.0
-References: <20230424131133.829259077@linuxfoundation.org>
-In-Reply-To: <20230424131133.829259077@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Apr 2023 15:33:10 +0100
-Message-ID: <CA+G9fYvc__9umKyeMWk1mmO6K6hfCt=MDt3BTHpr_XfJc4HXXA@mail.gmail.com>
-Subject: Re: [PATCH 6.1 00/98] 6.1.26-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: astroid/4d6b06ad (https://github.com/astroidmail/astroid)
+Message-Id: <1682433035.4gm2n74mmz.naveen@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rNAs5dQ3hLvbVosu1utqWW6RXjlOPqBL
+X-Proofpoint-GUID: rNAs5dQ3hLvbVosu1utqWW6RXjlOPqBL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-25_07,2023-04-25_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=962 spamscore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ suspectscore=0 clxscore=1011 lowpriorityscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304250127
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Apr 2023 at 14:24, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.26 release.
-> There are 98 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 26 Apr 2023 13:11:11 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.1.26-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hari Bathini wrote:
+> Since commit 85e031154c7c ("powerpc/bpf: Perform complete extra passes
+> to update addresses"), two additional passes are performed to avoid
+> space and CPU time wastage on powerpc. But these extra passes led to
+> WARN_ON_ONCE() hits in bpf_add_extable_entry() as extable entries are
+> populated again, during the extra pass, without resetting the index.
+> Fix it by resetting entry index before repopulating extable entries,
+> if and when there is an additional pass.
+>=20
+> Fixes: 85e031154c7c ("powerpc/bpf: Perform complete extra passes to updat=
+e addresses")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+> ---
+>  arch/powerpc/net/bpf_jit_comp.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-## Build
-* kernel: 6.1.26-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-6.1.y
-* git commit: e4ff6ff54dea67f94036a357201b0f9807405cc6
-* git describe: v6.1.22-574-ge4ff6ff54dea
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.2=
-2-574-ge4ff6ff54dea
+- Naveen
 
-## Test Regressions (compared to v6.1.22-475-g45df5d9a8cbd)
-
-## Metric Regressions (compared to v6.1.22-475-g45df5d9a8cbd)
-
-## Test Fixes (compared to v6.1.22-475-g45df5d9a8cbd)
-
-## Metric Fixes (compared to v6.1.22-475-g45df5d9a8cbd)
-
-## Test result summary
-total: 155536, pass: 137480, fail: 4021, skip: 13697, xfail: 338
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 149 total, 148 passed, 1 failed
-* arm64: 52 total, 51 passed, 1 failed
-* i386: 39 total, 36 passed, 3 failed
-* mips: 30 total, 28 passed, 2 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 38 total, 36 passed, 2 failed
-* riscv: 16 total, 15 passed, 1 failed
-* s390: 16 total, 16 passed, 0 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 8 passed, 0 failed
-* x86_64: 44 total, 44 passed, 0 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* perf
-* rcutorture
-* timesync-off
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+>=20
+> diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_c=
+omp.c
+> index e93aefcfb83f..37043dfc1add 100644
+> --- a/arch/powerpc/net/bpf_jit_comp.c
+> +++ b/arch/powerpc/net/bpf_jit_comp.c
+> @@ -101,6 +101,8 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog =
+*fp)
+>  		bpf_hdr =3D jit_data->header;
+>  		proglen =3D jit_data->proglen;
+>  		extra_pass =3D true;
+> +		/* During extra pass, ensure index is reset before repopulating extabl=
+e entries */
+> +		cgctx.exentry_idx =3D 0;
+>  		goto skip_init_ctx;
+>  	}
+> =20
+> --=20
+> 2.40.0
+>=20
+>=20
