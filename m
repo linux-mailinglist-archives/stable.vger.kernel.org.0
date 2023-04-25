@@ -2,68 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C75496EE600
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 18:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB2246EE604
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 18:46:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234822AbjDYQqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 12:46:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39236 "EHLO
+        id S234583AbjDYQqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 12:46:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234809AbjDYQpx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 12:45:53 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B3316F13;
-        Tue, 25 Apr 2023 09:45:45 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-94f0dd117dcso873455066b.3;
-        Tue, 25 Apr 2023 09:45:45 -0700 (PDT)
+        with ESMTP id S234193AbjDYQqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 12:46:47 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3481616F09
+        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 09:46:40 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-63b5fca48bcso5050655b3a.0
+        for <stable@vger.kernel.org>; Tue, 25 Apr 2023 09:46:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682441143; x=1685033143;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=CbOvRoEUKSyfGhCu7C/NoXqYG19IKk52zJ9SBJ/R7g8=;
-        b=MRo7kFU3t+at2VOSzayEGWbwHHmEXpen/bcgV9GkLz8XacX2JmX7gQ3mkxvpurvdiv
-         473TFrKNtjdYHQcETkZQF8qjJhYQdP+z8uN84zaletSTX2sI0NZ0LTFJGTym0cmJM66l
-         RIKwRrUE2OyGUNHwWvPcyekHbzfX6Sy8MhTcr923dLKWtBUDor9UBPLg86gjSUNCajSL
-         p04QKXbFs64gRCYYIlHLmCOxIrGbRoPx1piTGC7oHs9j4whrChQsq4GomiEcXmI2aiJa
-         kV/UMsjNfVQf+WwzdN1bnTomo/kAAfFhUuk1jWxmG3/FQ2S/xQDmQJUfhqhV/kEaKkVB
-         EG0Q==
+        d=kernelci-org.20221208.gappssmtp.com; s=20221208; t=1682441199; x=1685033199;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=eza5PdWpInmBFExA8Sj/fJUAyMhpaoJw48tFr6ommB0=;
+        b=lmOykHpVKFfb5k7pUXQDylkBCM3jJSYwlr0iR+x+S5FKrzgh5tcXj0lWEeBG2h6djO
+         4ixXEzcJ2aMqy82ObmihUHF4XznmQnKMNcumJFm3O+8PeRV9hZ9jz5XEjEKrDEr6MA4F
+         JII64RJdfjMvLoqOPTn98LiTAUAeY3aI0m6kGGAAu9xjKA0dNS2+H/W1h9Bn7I1jNrFx
+         krj2p2YP0Uo85P784OfznjSr/e0lZp6YffNbhnWqFDrP/Mk+f8zkJXUbzvwOn6yPZdFE
+         5LvlFFXyv01SGm0IO8g1U/yW9gwzD8Da9hKT+fRN3jVikQvSqDz8AcY2qQEFciKHaBuZ
+         M7Hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682441143; x=1685033143;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20221208; t=1682441199; x=1685033199;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=CbOvRoEUKSyfGhCu7C/NoXqYG19IKk52zJ9SBJ/R7g8=;
-        b=Cov0owVNBk2vSbsUAbET1UsGZm/fscmjnXUTjXOwVcH0vHaAtiIFf/B6IVVUmut0yL
-         3GOHd9uB2PttmOhH/CSNpIGcYVBCk0+SySdics90+91hMawMdz0jLdGK/YeiJt3EwoQL
-         Sj+u/9+7j8fImidkPqYpOsySoDMISra9SiFGpUmaOMHWLEmETi8fVEF+LxTW3gCEX46s
-         BBDEfT1Z3YmkwN+ih0EZ/9r+dDSxRIwyd9krvbnmANJqr1rGk1viXTwdy9XaMGnyGC8s
-         4G4gZLjXFPO3Z+A7OM71ItLRfflysmj8SPKq/BHnJDHffer5pA+Cue/Q0sZCzMPYRL+G
-         J1Kg==
-X-Gm-Message-State: AAQBX9f7EehjrnZn7T5UdNWZaKI3+DCrxSSm3E27zDwBQU8gjzQZHrO+
-        desqNFDurdbCALcDDErEYxQ=
-X-Google-Smtp-Source: AKy350Yx5muNN+fiinUjUh1ezlUca6HMzS4jspwZNzhpBdA2gGx0pG8yUP58PLZ/3mOUkEqhJD8unQ==
-X-Received: by 2002:a17:907:c312:b0:94f:5e17:e80d with SMTP id tl18-20020a170907c31200b0094f5e17e80dmr14391434ejc.45.1682441143427;
-        Tue, 25 Apr 2023 09:45:43 -0700 (PDT)
-Received: from pc638.lan ([155.137.26.201])
-        by smtp.gmail.com with ESMTPSA id gz19-20020a170907a05300b0095076890fc1sm6978512ejc.1.2023.04.25.09.45.42
+        bh=eza5PdWpInmBFExA8Sj/fJUAyMhpaoJw48tFr6ommB0=;
+        b=Eta3oZaFivWf0nY8b5ieHUmtsg+/r15MoV8Ivl3/ZUD80cztAG8YynmFaZdPHJMT9G
+         gniWkAW8Z/pzMUxO5blUBQbguHkGdAm/Pa33DMxukRzU+NHzhVWTNgbheEkimDMUpN0v
+         xSHRXzA1mgJdlaQ3e5c2B40slV7kiSIQZbANIULAKwZYVMav2Xzp8i/l1EnaMy1AwTVD
+         8hLnTgIkUOyUGXWQq1FP3zwE/j53h0Al19eibLhv+0ZAR4duS1TD/YI6BiCpjvQVU60p
+         7WfcT4UgPB3sI/5rhtft+he0TDpJs8PmhGv69SHjRehZ2F+ys6fM1UzCVHla5qIQXHjW
+         /swQ==
+X-Gm-Message-State: AAQBX9eUT6FoUkah5CMFGJcO0Ye5r3EuAVkDqn07lLeCevwxWjvLIWrO
+        TozEO+9H9uuzO/u/4ssFla129fkFkrBkMuUkI9sgWdZw
+X-Google-Smtp-Source: AKy350aHimChfE/e3Y+TFGV6emPQnrxVgqS9b4E2kyA1jU5cINJd+BYoHjUZh1inVqDB7ER2zp0KhA==
+X-Received: by 2002:a05:6a20:7da5:b0:f2:fe09:bdba with SMTP id v37-20020a056a207da500b000f2fe09bdbamr7519671pzj.37.1682441199199;
+        Tue, 25 Apr 2023 09:46:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 145-20020a630797000000b0051815eae23esm8282691pgh.27.2023.04.25.09.46.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Apr 2023 09:45:43 -0700 (PDT)
-From:   "Uladzislau Rezki (Sony)" <urezki@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
-Cc:     RCU <rcu@vger.kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
-        Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>,
-        Ziwei Dai <ziwei.dai@unisoc.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>
-Subject: [PATCH 1/1] linux-6.2/rcu/kvfree: Avoid freeing new kfree_rcu() memory after old grace period
-Date:   Tue, 25 Apr 2023 18:45:41 +0200
-Message-Id: <20230425164541.423811-1-urezki@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        Tue, 25 Apr 2023 09:46:38 -0700 (PDT)
+Message-ID: <644803ee.630a0220.57b4f.0ce9@mx.google.com>
+Date:   Tue, 25 Apr 2023 09:46:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_PDS_OTHER_BAD_TLD,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.176-362-gfafbf80db7ca
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 83 runs,
+ 2 regressions (v5.10.176-362-gfafbf80db7ca)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -72,155 +72,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziwei Dai <ziwei.dai@unisoc.com>
+stable-rc/queue/5.10 baseline: 83 runs, 2 regressions (v5.10.176-362-gfafbf=
+80db7ca)
 
-commit 5da7cb193db32da783a3f3e77d8b639989321d48 upstream.
+Regressions Summary
+-------------------
 
-Memory passed to kvfree_rcu() that is to be freed is tracked by a
-per-CPU kfree_rcu_cpu structure, which in turn contains pointers
-to kvfree_rcu_bulk_data structures that contain pointers to memory
-that has not yet been handed to RCU, along with an kfree_rcu_cpu_work
-structure that tracks the memory that has already been handed to RCU.
-These structures track three categories of memory: (1) Memory for
-kfree(), (2) Memory for kvfree(), and (3) Memory for both that arrived
-during an OOM episode.  The first two categories are tracked in a
-cache-friendly manner involving a dynamically allocated page of pointers
-(the aforementioned kvfree_rcu_bulk_data structures), while the third
-uses a simple (but decidedly cache-unfriendly) linked list through the
-rcu_head structures in each block of memory.
+platform                     | arch   | lab           | compiler | defconfi=
+g                    | regressions
+-----------------------------+--------+---------------+----------+---------=
+---------------------+------------
+hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_d=
+efcon...6-chromebook | 1          =
 
-On a given CPU, these three categories are handled as a unit, with that
-CPU's kfree_rcu_cpu_work structure having one pointer for each of the
-three categories.  Clearly, new memory for a given category cannot be
-placed in the corresponding kfree_rcu_cpu_work structure until any old
-memory has had its grace period elapse and thus has been removed.  And
-the kfree_rcu_monitor() function does in fact check for this.
+hp-x360-14-G1-sona           | x86_64 | lab-collabora | gcc-10   | x86_64_d=
+efcon...6-chromebook | 1          =
 
-Except that the kfree_rcu_monitor() function checks these pointers one
-at a time.  This means that if the previous kfree_rcu() memory passed
-to RCU had only category 1 and the current one has only category 2, the
-kfree_rcu_monitor() function will send that current category-2 memory
-along immediately.  This can result in memory being freed too soon,
-that is, out from under unsuspecting RCU readers.
 
-To see this, consider the following sequence of events, in which:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.176-362-gfafbf80db7ca/plan/baseline/
 
-o	Task A on CPU 0 calls rcu_read_lock(), then uses "from_cset",
-	then is preempted.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.176-362-gfafbf80db7ca
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fafbf80db7caf604c7c90bec37b0e63529409afe =
 
-o	CPU 1 calls kfree_rcu(cset, rcu_head) in order to free "from_cset"
-	after a later grace period.  Except that "from_cset" is freed
-	right after the previous grace period ended, so that "from_cset"
-	is immediately freed.  Task A resumes and references "from_cset"'s
-	member, after which nothing good happens.
 
-In full detail:
 
-CPU 0					CPU 1
-----------------------			----------------------
-count_memcg_event_mm()
-|rcu_read_lock()  <---
-|mem_cgroup_from_task()
- |// css_set_ptr is the "from_cset" mentioned on CPU 1
- |css_set_ptr = rcu_dereference((task)->cgroups)
- |// Hard irq comes, current task is scheduled out.
+Test Regressions
+---------------- =
 
-					cgroup_attach_task()
-					|cgroup_migrate()
-					|cgroup_migrate_execute()
-					|css_set_move_task(task, from_cset, to_cset, true)
-					|cgroup_move_task(task, to_cset)
-					|rcu_assign_pointer(.., to_cset)
-					|...
-					|cgroup_migrate_finish()
-					|put_css_set_locked(from_cset)
-					|from_cset->refcount return 0
-					|kfree_rcu(cset, rcu_head) // free from_cset after new gp
-					|add_ptr_to_bulk_krc_lock()
-					|schedule_delayed_work(&krcp->monitor_work, ..)
 
-					kfree_rcu_monitor()
-					|krcp->bulk_head[0]'s work attached to krwp->bulk_head_free[]
-					|queue_rcu_work(system_wq, &krwp->rcu_work)
-					|if rwork->rcu.work is not in WORK_STRUCT_PENDING_BIT state,
-					|call_rcu(&rwork->rcu, rcu_work_rcufn) <--- request new gp
 
-					// There is a perious call_rcu(.., rcu_work_rcufn)
-					// gp end, rcu_work_rcufn() is called.
-					rcu_work_rcufn()
-					|__queue_work(.., rwork->wq, &rwork->work);
+platform                     | arch   | lab           | compiler | defconfi=
+g                    | regressions
+-----------------------------+--------+---------------+----------+---------=
+---------------------+------------
+hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_d=
+efcon...6-chromebook | 1          =
 
-					|kfree_rcu_work()
-					|krwp->bulk_head_free[0] bulk is freed before new gp end!!!
-					|The "from_cset" is freed before new gp end.
 
-// the task resumes some time later.
- |css_set_ptr->subsys[(subsys_id) <--- Caused kernel crash, because css_set_ptr is freed.
+  Details:     https://kernelci.org/test/plan/id/6447cd46e8874559132e868e
 
-This commit therefore causes kfree_rcu_monitor() to refrain from moving
-kfree_rcu() memory to the kfree_rcu_cpu_work structure until the RCU
-grace period has completed for all three categories.
+  Results:     6 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-362-gfafbf80db7ca/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-12b-ca0010nr-n4020-octopus.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-362-gfafbf80db7ca/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-12b-ca0010nr-n4020-octopus.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/x86/rootfs.cpio.gz =
 
-v2: Use helper function instead of inserted code block at kfree_rcu_monitor().
 
-[UR: backport to 6.2-stable]
-Fixes: 34c881745549 ("rcu: Support kfree_bulk() interface in kfree_rcu()")
-Fixes: 5f3c8d620447 ("rcu/tree: Maintain separate array for vmalloc ptrs")
-Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Signed-off-by: Ziwei Dai <ziwei.dai@unisoc.com>
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Tested-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
----
- kernel/rcu/tree.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index cf34a961821a..522129193771 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -3131,6 +3131,18 @@ need_offload_krc(struct kfree_rcu_cpu *krcp)
- 	return !!krcp->head;
- }
- 
-+static bool
-+need_wait_for_krwp_work(struct kfree_rcu_cpu_work *krwp)
-+{
-+	int i;
-+
-+	for (i = 0; i < FREE_N_CHANNELS; i++)
-+		if (krwp->bkvhead_free[i])
-+			return true;
-+
-+	return !!krwp->head_free;
-+}
-+
- static void
- schedule_delayed_monitor_work(struct kfree_rcu_cpu *krcp)
- {
-@@ -3162,14 +3174,13 @@ static void kfree_rcu_monitor(struct work_struct *work)
- 	for (i = 0; i < KFREE_N_BATCHES; i++) {
- 		struct kfree_rcu_cpu_work *krwp = &(krcp->krw_arr[i]);
- 
--		// Try to detach bkvhead or head and attach it over any
--		// available corresponding free channel. It can be that
--		// a previous RCU batch is in progress, it means that
--		// immediately to queue another one is not possible so
--		// in that case the monitor work is rearmed.
--		if ((krcp->bkvhead[0] && !krwp->bkvhead_free[0]) ||
--			(krcp->bkvhead[1] && !krwp->bkvhead_free[1]) ||
--				(krcp->head && !krwp->head_free)) {
-+		// Try to detach bulk_head or head and attach it, only when
-+		// all channels are free.  Any channel is not free means at krwp
-+		// there is on-going rcu work to handle krwp's free business.
-+		if (need_wait_for_krwp_work(krwp))
-+			continue;
-+
-+		if (need_offload_krc(krcp)) {
- 			// Channel 1 corresponds to the SLAB-pointer bulk path.
- 			// Channel 2 corresponds to vmalloc-pointer bulk path.
- 			for (j = 0; j < FREE_N_CHANNELS; j++) {
--- 
-2.30.2
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6447cd46e8874559132e8693
+        failing since 26 days (last pass: v5.10.176-61-g2332301f1fab4, firs=
+t fail: v5.10.176-104-g2b4187983740)
 
+    2023-04-25T12:53:17.657653  + <8>[   10.991946] <LAVA_SIGNAL_ENDRUN 0_d=
+mesg 10117264_1.4.2.3.1>
+
+    2023-04-25T12:53:17.658188  set +x
+
+    2023-04-25T12:53:17.763519  #
+
+    2023-04-25T12:53:17.764615  =
+
+
+    2023-04-25T12:53:17.866248  / # #export SHELL=3D/bin/sh
+
+    2023-04-25T12:53:17.866522  =
+
+
+    2023-04-25T12:53:17.967096  / # export SHELL=3D/bin/sh. /lava-10117264/=
+environment
+
+    2023-04-25T12:53:17.967367  =
+
+
+    2023-04-25T12:53:18.067992  / # . /lava-10117264/environment/lava-10117=
+264/bin/lava-test-runner /lava-10117264/1
+
+    2023-04-25T12:53:18.068289  =
+
+ =
+
+    ... (13 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch   | lab           | compiler | defconfi=
+g                    | regressions
+-----------------------------+--------+---------------+----------+---------=
+---------------------+------------
+hp-x360-14-G1-sona           | x86_64 | lab-collabora | gcc-10   | x86_64_d=
+efcon...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6447cd1b398bfe3e2b2e8605
+
+  Results:     6 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-362-gfafbf80db7ca/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-14-G1-sona.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
+-362-gfafbf80db7ca/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collab=
+ora/baseline-hp-x360-14-G1-sona.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6447cd1b398bfe3e2b2e860a
+        failing since 26 days (last pass: v5.10.176-61-g2332301f1fab4, firs=
+t fail: v5.10.176-104-g2b4187983740)
+
+    2023-04-25T12:52:29.196814  <8>[   12.062713] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 10117245_1.4.2.3.1>
+
+    2023-04-25T12:52:29.196896  + set +x
+
+    2023-04-25T12:52:29.301387  / # #
+
+    2023-04-25T12:52:29.401993  export SHELL=3D/bin/sh
+
+    2023-04-25T12:52:29.402200  #
+
+    2023-04-25T12:52:29.502748  / # export SHELL=3D/bin/sh. /lava-10117245/=
+environment
+
+    2023-04-25T12:52:29.502959  =
+
+
+    2023-04-25T12:52:29.603508  / # . /lava-10117245/environment/lava-10117=
+245/bin/lava-test-runner /lava-10117245/1
+
+    2023-04-25T12:52:29.603810  =
+
+
+    2023-04-25T12:52:29.608824  / # /lava-10117245/bin/lava-test-runner /la=
+va-10117245/1
+ =
+
+    ... (12 line(s) more)  =
+
+ =20
