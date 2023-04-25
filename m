@@ -2,90 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2DF6ED963
-	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 02:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3496ED976
+	for <lists+stable@lfdr.de>; Tue, 25 Apr 2023 03:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbjDYAqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Apr 2023 20:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
+        id S230254AbjDYBDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Apr 2023 21:03:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229872AbjDYAql (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 20:46:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EDB59CA;
-        Mon, 24 Apr 2023 17:46:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A20F620AA;
-        Tue, 25 Apr 2023 00:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D839BC433D2;
-        Tue, 25 Apr 2023 00:46:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1682383599;
-        bh=+qr4ONusJbqoWW6hCqya8fbiWqMGkDydQpxJxUyRNfo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrwM9F5yndFDH3wOW39f2+1chzS7om4r893EUqTAj43JUaqLxqKuZyFXqV3/+xsqr
-         Argg42Enc6mKX8gKaGb5o//tCQFmmxWEbgiwxBGIvSR6afSwtsyvgSY/VkRkiOpHfp
-         7AGyM4DOQDxkFfjBhgokAx7HfsXo6PbLwCjFPyJkn1nHNrSahV1CY7xBEL7ChUExYq
-         UH7m0agyvD8Ead3C+6e9XFbMbpDcr5+o+uhXadWgKTALYFT/Spx9+pHJEbYQh0oMpD
-         yvDOTl3q8cyxEK96GH/odwp6hNg9Y0DS5ahRdlnOGOosKlt//x5RL3rPdNrhKpaxcV
-         PAdAcInrdzEjw==
-From:   SeongJae Park <sj@kernel.org>
-To:     gregkh@linuxfoundation.org, sashal@kernel.org
-Cc:     stable@vger.kernel.org, sj@kernel.org, shuah@kernel.org,
-        sj38.park@gmail.com, akpm@linux-foundation.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        SeongJae Park <sjpark@amazon.de>
-Subject: Re: [PATCH v2] selftests/kselftest/runner/run_one(): Allow running non-executable files
-Date:   Tue, 25 Apr 2023 00:46:37 +0000
-Message-Id: <20230425004637.156064-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210810164534.25902-1-sj38.park@gmail.com>
-References: 
+        with ESMTP id S229822AbjDYBDy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Apr 2023 21:03:54 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F8E93E6;
+        Mon, 24 Apr 2023 18:03:51 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1a66e7a52d3so40552775ad.0;
+        Mon, 24 Apr 2023 18:03:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682384631; x=1684976631;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uU63uYraJHI8toeOh6onSgWIkE13niAeeyHZ610UQo0=;
+        b=stAJvkIEj7Td7QdUJIew8hYIOegUMfhFUqQ4pG7xO0mDcKx6wNKUj3n2RekU6nQqpq
+         1EolTCuSYmPx33Ra4kegm4XRIHoH6P/Rddg4y5xvWwaBZox3sk1X8PFeZG3qvp77i/Cp
+         VjN/g+P7iO0jc1QGDfEB1v5CMwEp6ULvqGOZENF5pAvihMGnC61GTsMAVw1gBuuYvBi3
+         pDvBLb0mDu2X+Nfvdj0gLvNP3ORt2WGm8ehazj1EBcS10VKtpOM4aIFrD01hxgjuIFFo
+         3rRGuS/02ZavHu0sn0oBWmXw6zy3+yOx6kWKQRfP0lyvawjqZwXVo43oHf238YXOroCR
+         +aLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682384631; x=1684976631;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uU63uYraJHI8toeOh6onSgWIkE13niAeeyHZ610UQo0=;
+        b=UiYYqiB5Y7e4ai3DhvUd07/liZ4jJGyR26K7uvJLdHG34FZtKI2sjs0KpNkMeA8yHd
+         i/oYb0SvGKcncsyJo2rK6eIhOwSZ+PHub6YjedEf0McIjgvODUyRQwaTaturofepzB5O
+         qc1Z6v3Pdde7KqiKlAnhlFyrVuZXsG7LCjeTsbSlVCao4PCWmJ+YdYIG7YJLY/Bk7wVj
+         cESq3eUif+w5IHkF2AqyIQN4keUJ2octKRtZHSc7cLIpYBUgt61j61Fju0EHummjccam
+         mY5DjJPkeF0XyOb2QmYm1O7d0YQ7MVoLC1nbc78BleyQOEguTJT1VkuUWSr+38Klno/V
+         XF0w==
+X-Gm-Message-State: AAQBX9ca3VG61DOJqGAfnGb49NrZ+03TcvhzoR3R7N0X20FafQnMczfC
+        duih8JHectCcw2uvhzUelmeU/G7CzrM=
+X-Google-Smtp-Source: AKy350YVGjlhBK4YxhTx5cYbwFRcDuLywoWA8lN+VCcTrFCWoLBzGoKl1ZDsyvqYz7qt5GxVk3mqyA==
+X-Received: by 2002:a17:902:dad0:b0:1a9:433e:41e7 with SMTP id q16-20020a170902dad000b001a9433e41e7mr15921845plx.43.1682384631156;
+        Mon, 24 Apr 2023 18:03:51 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c2-20020a170902d90200b001a6dc4a98f9sm7093837plz.195.2023.04.24.18.03.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Apr 2023 18:03:50 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 24 Apr 2023 18:03:48 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 4.14 00/28] 4.14.314-rc1 review
+Message-ID: <9621c9a1-ddb8-4478-91b6-4d77a923d778@roeck-us.net>
+References: <20230424131121.331252806@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230424131121.331252806@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg and Sasha,
-
-On Tue, 10 Aug 2021 16:45:34 +0000 SeongJae Park <sj38.park@gmail.com> wrote:
-
-> From: SeongJae Park <sjpark@amazon.de>
+On Mon, Apr 24, 2023 at 03:18:21PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.314 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> When running a test program, 'run_one()' checks if the program has the
-> execution permission and fails if it doesn't.  However, it's easy to
-> mistakenly missing the permission, as some common tools like 'diff'
-> don't support the permission change well[1].  Compared to that, making
-> mistakes in the test program's path would only rare, as those are
-> explicitly listed in 'TEST_PROGS'.  Therefore, it might make more sense
-> to resolve the situation on our own and run the program.
+> Responses should be made by Wed, 26 Apr 2023 13:11:11 +0000.
+> Anything received after that time might be too late.
 > 
-> For the reason, this commit makes the test program runner function to
-> still print the warning message but try parsing the interpreter of the
-> program and explicitly run it with the interpreter, in the case.
-> 
-> [1] https://lore.kernel.org/mm-commits/YRJisBs9AunccCD4@kroah.com/
-> 
-> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: SeongJae Park <sjpark@amazon.de>
 
-This patch has merged into the mainline by the commit 303f8e2d0200
-("selftests/kselftest/runner/run_one(): allow running non-executable files").
-However, this patch has not added to v5.15.y, while there are some selftests
-having no execution permission, including that for DAMON.  As a result, the
-selftests always fail unless this patch is manually applied.  Could you please
-add this patch to v5.15.y?  I confirmed this patch can cleanly cherry-picked on
-the latest v5.15.y.
+Build results:
+	total: 168 pass: 168 fail: 0
+Qemu test results:
+	total: 430 pass: 430 fail: 0
 
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Thanks,
-SJ
+Guenter
