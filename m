@@ -2,140 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC256EF965
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 19:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A766EF973
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 19:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238479AbjDZR3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Apr 2023 13:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54518 "EHLO
+        id S236276AbjDZRcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Apr 2023 13:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238587AbjDZR3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 13:29:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617CF83FA;
-        Wed, 26 Apr 2023 10:29:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F34BA63441;
-        Wed, 26 Apr 2023 17:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11EE7C433D2;
-        Wed, 26 Apr 2023 17:29:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1682530179;
-        bh=4K/gOer+QGjqHMQJATlyIp1MBELParfSmv57SyLuFJA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiE6OuWAUVo/BJELaCYkXpzLI5fIwkIjUNsI5JWP4YkDXwaw0vbheoPORQe/LagTY
-         mydsXKJAo4YBMNqPHYuvAcytRwL9+/BxLg2x010umHTF3xIHtpcE+CnvpXPRYAKbMU
-         FVlIRmrDyocQ+p6V22dj5XLnyNu+TtflM3d30Q/SYDcVPMxBn1sTwXu4eQn9AgpDM+
-         m69nDO+ZqpzZ+2XNQmktq5wS2lG4pRsfOha7chFVSkrCeT7xh4kpUIdUGDiro7mnC5
-         HDvThWf9vb5nzdODkNeBxAEWKDro4WC+4Y+d2v+pD7rnJS0DFLlu+AAiyjrL20LtGa
-         CNmahOEFV4ISQ==
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 2/2] tpm: Prevent hwrng from activating during resume
-Date:   Wed, 26 Apr 2023 20:29:28 +0300
-Message-Id: <20230426172928.3963287-3-jarkko@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230426172928.3963287-1-jarkko@kernel.org>
-References: <20230426172928.3963287-1-jarkko@kernel.org>
+        with ESMTP id S234770AbjDZRcI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 13:32:08 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5CABE;
+        Wed, 26 Apr 2023 10:32:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=public-files.de;
+        s=s31663417; t=1682530289; i=frank-w@public-files.de;
+        bh=GwRobiqv1qHp5RU7uxMCBJnYrMPL3FpHdLHoiVSsaRw=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=Ynmr3saC4iT4xsA2cYSZ05NnIP8XzKG1V0psslk61w24hDwQbkwfcyIvK7GDr4HRm
+         qKnq8HRq+0K0f7auvo5BfThrJfwswJMly83JGZKiGds3/fddIoSAthHgxHonhiqCkr
+         afQsGyGy4PlXj4DAZRWhsDSMzY7+4g77G22J/Q7DjQpdRkeKccVhx9dDXlRs+LoOzK
+         eDU+5AtMTO4BbLnhUYaCY+RoGnseTa/Y8g6fTZrO6ZZTGDxNAGuwcPYE/uk9VTyY5C
+         uHzbI3EsezbKxgI9BI8F5ULgFcaJ6p9SHGtyW0IK2s23Io2dQZDZSoMJO879Q1VIsB
+         H6P8A0wFTkoPQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [217.61.146.19] ([217.61.146.19]) by web-mail.gmx.net
+ (3c-app-gmx-bs05.server.lan [172.19.170.54]) (via HTTP); Wed, 26 Apr 2023
+ 19:31:29 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Message-ID: <trinity-bb65fd35-fe52-45d2-975c-230e504cc93f-1682530288982@3c-app-gmx-bs05>
+From:   Frank Wunderlich <frank-w@public-files.de>
+To:     =?UTF-8?Q?Ar=C4=B1n=C3=A7_=C3=9CNAL?= <arinc.unal@arinc9.com>
+Cc:     Frank Wunderlich <linux@fw-web.de>,
+        linux-mediatek@lists.infradead.org, Felix Fietkau <nbd@nbd.name>,
+        John Crispin <john@phrozen.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Mark Lee <Mark-MC.Lee@mediatek.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Russell King <linux@armlinux.org.uk>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org
+Subject: Aw: Re: [net v2] net: ethernet: mtk_eth_soc: drop generic vlan rx
+ offload, only use DSA untagging
+Content-Type: text/plain; charset=UTF-8
+Date:   Wed, 26 Apr 2023 19:31:29 +0200
+Importance: normal
+Sensitivity: Normal
+In-Reply-To: <61ea49b7-8a04-214d-ef02-3ef6181619e9@arinc9.com>
+References: <20230426172153.8352-1-linux@fw-web.de>
+ <61ea49b7-8a04-214d-ef02-3ef6181619e9@arinc9.com>
+Content-Transfer-Encoding: quoted-printable
+X-UI-Message-Type: mail
+X-Priority: 3
+X-Provags-ID: V03:K1:sfKj/0EyPG6sxAAmaIVKAX88w+UGhKLUJ8ltiFTLiTzen4a0Ujz1BDaHcYGDwLlsOr0+g
+ DhKQL0QqklHHQHJumYXj9f4OrvWwWOvttMODD8UUNTbxwnnoVTUB6XBSfQAFrDbfl2ySNqhMwqXc
+ iuDSz4V1SoQ7FRc6+NzPgJz5D5gQWyWVcg/kHTnBRX5ntKT3gT3561lhcQNU5b9XYcgYZRd6ANBj
+ Ds1hfb6sCWcMiMWf/kaJ+dRT7s2Lc5IDnp0fzQyQ2Lw0C+gCDz2XCiB7mc2S9R11b8wbmbCetKSR
+ pQ=
+UI-OutboundReport: notjunk:1;M01:P0:XZz2sY72ML8=;a16m+i1PJgczSaVFW4Bi1WoZCKJ
+ bU4Sw6mk+Nslc93fETkWifNuUOKGQ9HxuNA5SpHMig8TsNPkDADeeGEXsVAhuLTRvyHyXwlQm
+ k60cNN1Wt5uTNXrJp0wWgblXvahHEEalQA64QKy1eAwpDNTzRhm4N01bFVedyho9fZs/PU+bK
+ KflWe02buao1pJrN7oxlaQaku4EvYcCs/+7vv7HTp0/JDMui4173iwUWicwDGVDcNKH+CHkmJ
+ VUcUAHVrrWvYMPLYBsEI30RFImCGeNMKjNTfDZ1Di7BlWY2zoZEkdg791z23iqXKhQKBYjprC
+ btOCn1dqw+h9U4+1CCIrxWzC6j9SXhJqsZehh36fyu3rkq8yXSP2iU2hAsBN7UqmtLgEnQUQS
+ AEsNmBEYCAA5ExvSWANB2UMa4VLs6Hm+pKZCM99HWtFNOu1vcOc421D8FGAKCftT3NO5w6zqD
+ i4dYz60FFn8N2cXS1FbRkF9xgH4u1tmtP9BfVZ0ZNat0K/BNO7mq5j3HTTbJsQUIpt4Gk/6CA
+ smWTTMG526A0/d26WGfpDbB1ook2ouBq8eOuoXTJYRTEsYeljaymRhuYmD/mFg0PEqeHryPkM
+ 7CJR4QvfhSavt2QYiTidHutBDHrW/3QPyAUuRnPREHUvQnd0f1POsrD/WSqfqQar2dPjQ4PNb
+ BJjTRMUyCp92giVZeDTWm7YITaWNt3QDI6DTgnUhthcRNQTTu+flToTMtZyhW7fxFGEzGDyk1
+ a5BxqFKBqEu3qnRmQTZ6cgFJviLUZ8GdB73IEI2VQe6j8c2V+rhNpTjr7qhFw7EX/nE+dwnkq
+ XnA5mwqNbm0853lmblTRY7jw==
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Set TPM_CHIP_FLAG_SUSPENDED in tpm_pm_suspend() and reset in
-tpm_pm_resume(). While the flag is set, tpm_hwrng() gives back zero bytes.
-This prevents hwrng from racing during resume.
 
-Cc: stable@vger.kernel.org
-Fixes: 6e592a065d51 ("tpm: Move Linux RNG connection to hwrng")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
- drivers/char/tpm/tpm-chip.c      |  4 ++++
- drivers/char/tpm/tpm-interface.c | 10 ++++++++++
- include/linux/tpm.h              | 13 +++++++------
- 3 files changed, 21 insertions(+), 6 deletions(-)
+> Gesendet: Mittwoch, 26=2E April 2023 um 19:25 Uhr
+> Von: "Ar=C4=B1n=C3=A7 =C3=9CNAL" <arinc=2Eunal@arinc9=2Ecom>
+> On 26/04/2023 20:21, Frank Wunderlich wrote:
+> > From: Felix Fietkau <nbd@nbd=2Ename>
+> >=20
+> > Through testing I found out that hardware vlan rx offload support seem=
+s to
+> > have some hardware issues=2E At least when using multiple MACs and whe=
+n
+> > receiving tagged packets on the secondary MAC, the hardware can someti=
+mes
+> > start to emit wrong tags on the first MAC as well=2E
+> >=20
+> > In order to avoid such issues, drop the feature configuration and use
+> > the offload feature only for DSA hardware untagging on MT7621/MT7622
+> > devices where this feature works properly=2E
+> >=20
+> > Fixes: 08666cbb7dd5 ("net: ethernet: mtk_eth_soc: add support for conf=
+iguring vlan rx offload")
+> > Tested-by: Frank Wunderlich <frank-w@public-files=2Ede>
+> > Signed-off-by: Felix Fietkau <nbd@nbd=2Ename>
+> > Signed-off-by: Frank Wunderlich <frank-w@public-files=2Ede>
+> > Tested-by: Ar=C4=B1n=C3=A7 =C3=9CNAL <arinc=2Eunal@arinc9=2Ecom>
+>=20
+> I'm confused by this=2E What is HW-vlan-untagging, and which SoCs do you=
+=20
+> think this patch would break this feature? How can I utilise this=20
+> feature on Linux so I can confirm whether it works or not?
 
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 6fdfa65a00c3..6f5ee27aeda1 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -572,6 +572,10 @@ static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
- {
- 	struct tpm_chip *chip = container_of(rng, struct tpm_chip, hwrng);
- 
-+	/* Give back zero bytes, as TPM chip has not yet fully resumed: */
-+	if (chip->flags & TPM_CHIP_FLAG_SUSPENDED)
-+		return 0;
-+
- 	return tpm_get_random(chip, data, max);
- }
- 
-diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
-index 7e513b771832..0f941cb32eb1 100644
---- a/drivers/char/tpm/tpm-interface.c
-+++ b/drivers/char/tpm/tpm-interface.c
-@@ -412,6 +412,8 @@ int tpm_pm_suspend(struct device *dev)
- 	}
- 
- suspended:
-+	chip->flags |= TPM_CHIP_FLAG_SUSPENDED;
-+
- 	if (rc)
- 		dev_err(dev, "Ignoring error %d while suspending\n", rc);
- 	return 0;
-@@ -429,6 +431,14 @@ int tpm_pm_resume(struct device *dev)
- 	if (chip == NULL)
- 		return -ENODEV;
- 
-+	chip->flags &= ~TPM_CHIP_FLAG_SUSPENDED;
-+
-+	/*
-+	 * Guarantee that SUSPENDED is written last, so that hwrng does not
-+	 * activate before the chip has been fully resumed.
-+	 */
-+	wmb();
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(tpm_pm_resume);
-diff --git a/include/linux/tpm.h b/include/linux/tpm.h
-index 4dc97b9f65fb..d7073dc45444 100644
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -274,13 +274,14 @@ enum tpm2_cc_attrs {
- #define TPM_VID_ATML     0x1114
- 
- enum tpm_chip_flags {
--	TPM_CHIP_FLAG_TPM2		= BIT(1),
--	TPM_CHIP_FLAG_IRQ		= BIT(2),
--	TPM_CHIP_FLAG_VIRTUAL		= BIT(3),
--	TPM_CHIP_FLAG_HAVE_TIMEOUTS	= BIT(4),
--	TPM_CHIP_FLAG_ALWAYS_POWERED	= BIT(5),
-+	TPM_CHIP_FLAG_SUSPENDED			= BIT(0),
-+	TPM_CHIP_FLAG_TPM2			= BIT(1),
-+	TPM_CHIP_FLAG_IRQ			= BIT(2),
-+	TPM_CHIP_FLAG_VIRTUAL			= BIT(3),
-+	TPM_CHIP_FLAG_HAVE_TIMEOUTS		= BIT(4),
-+	TPM_CHIP_FLAG_ALWAYS_POWERED		= BIT(5),
- 	TPM_CHIP_FLAG_FIRMWARE_POWER_MANAGED	= BIT(6),
--	TPM_CHIP_FLAG_FIRMWARE_UPGRADE	= BIT(7),
-+	TPM_CHIP_FLAG_FIRMWARE_UPGRADE		= BIT(7),
- };
- 
- #define to_tpm_chip(d) container_of(d, struct tpm_chip, dev)
--- 
-2.39.2
+the feature itself breaks vlan on mac of bpi-r3
 
+1 mac is connected to switch and uses dsa tags, the other mac is directly =
+accessible and vlan-tag
+there is stripped by this feature=2E
+
+with this patch i can use vlans on the "standalone" mac again (see tagged =
+packets incoming)=2E
+
+regards Frank
