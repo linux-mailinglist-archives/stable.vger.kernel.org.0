@@ -2,114 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA696EF952
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 19:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD5F26EF964
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 19:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234751AbjDZR0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Apr 2023 13:26:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
+        id S238345AbjDZR3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Apr 2023 13:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238345AbjDZR0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 13:26:49 -0400
-Received: from sender3-op-o19.zoho.com (sender3-op-o19.zoho.com [136.143.184.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C1A7A98;
-        Wed, 26 Apr 2023 10:26:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1682529964; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=kaxaqzuagDTmsGBF7wJshv8q1kJ8czNH1mwRTjieorUoa+YQQ2NiMBzZ8binM9p4cipWt36bZfg2FP8qPTYIhDSih5ztveZJTvQXwyHSoth9R+vxMto+e/4iBp76k8N+nNlaz89BHulZwOPlpKQbvlugki1kMIBsTSTW0jBXkqI=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1682529964; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=RT/owfhTxJeu2QuP6rH9YfYIno23f9H7utc/KQpP2W4=; 
-        b=CqLik37rZc5tAltgBP7aBXSLtCk5LDYyb3QtukTCLcOyvFYPZEx9L8Tg+uqQCV1RpJAjDB5cVXUqHsWu8YjKS/SvlcQND9eCbu/64JVMCQ2NdLRO5tdPTwb/SSrsdgyq548ZwijLF4Qw30j2oxDE1rgaCw89CfdPthAl3QZYVYA=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=arinc9.com;
-        spf=pass  smtp.mailfrom=arinc.unal@arinc9.com;
-        dmarc=pass header.from=<arinc.unal@arinc9.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1682529964;
-        s=zmail; d=arinc9.com; i=arinc.unal@arinc9.com;
-        h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-        bh=RT/owfhTxJeu2QuP6rH9YfYIno23f9H7utc/KQpP2W4=;
-        b=Fo0RE1Cci2Ywwtk/6uu30TkSUE3fZnQFb47MADPf+iIr2YYNV8J3GsyDDhCwfvYU
-        bK1BvGatid0y/QCgjXexl8UvWMeu5pEp52dLACqzoVAoT8vsTIgPdJhOoc1ikInsyjZ
-        79E9JdPSWNiQxDRAgnRMG1eA1HDEsEGzd1LioZjY=
-Received: from [10.10.10.3] (149.91.1.15 [149.91.1.15]) by mx.zohomail.com
-        with SMTPS id 1682529963036952.8466533209543; Wed, 26 Apr 2023 10:26:03 -0700 (PDT)
-Message-ID: <61ea49b7-8a04-214d-ef02-3ef6181619e9@arinc9.com>
-Date:   Wed, 26 Apr 2023 20:25:47 +0300
+        with ESMTP id S233678AbjDZR3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 13:29:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4425EBE;
+        Wed, 26 Apr 2023 10:29:37 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D76856232F;
+        Wed, 26 Apr 2023 17:29:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAEE3C433EF;
+        Wed, 26 Apr 2023 17:29:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1682530176;
+        bh=dcW/YGcfbxh1/KUv8M6Wk49tlitkkdIukS6SS0m9pEQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=T0d38LH2IrCAUzZ3Ljnkpq7lWYQ10iQ7lD0UNtxp3dtB1QhtTGKYwRMaVwe+Q383d
+         r32hskaz+qbLvPgwaj5D6xRl9HRWAGOGcyBjsinyo4WyEeBSF7Lthir2RCTXtnR57m
+         XFRTFKUUB2Uob7VCrAlDqRFlBSyO9Nq+S+LDnHZWnOKfU5KtwfeQf6Ug2EDa9AHU0e
+         KVCEFaVuck9yig1f7nyW2026ZzDYJlwZ5zoAxTja2kR53ExIRld5CRf995ZyChBKTV
+         Ac0jLjllKJqr+Pm85FC/34lFX67KmHeZ+Hy0MOnDS/AdWa48QuixooT1BKCLE6+6qi
+         LotndTosOc+FQ==
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc:     stable@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 1/2] tpm_tis: Use tpm_chip_{start,stop} decoration inside tpm_tis_resume
+Date:   Wed, 26 Apr 2023 20:29:27 +0300
+Message-Id: <20230426172928.3963287-2-jarkko@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230426172928.3963287-1-jarkko@kernel.org>
+References: <20230426172928.3963287-1-jarkko@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [net v2] net: ethernet: mtk_eth_soc: drop generic vlan rx
- offload, only use DSA untagging
-To:     Frank Wunderlich <linux@fw-web.de>,
-        linux-mediatek@lists.infradead.org
-Cc:     Felix Fietkau <nbd@nbd.name>, John Crispin <john@phrozen.org>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Mark Lee <Mark-MC.Lee@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Russell King <linux@armlinux.org.uk>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>
-References: <20230426172153.8352-1-linux@fw-web.de>
-Content-Language: en-US
-From:   =?UTF-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>
-In-Reply-To: <20230426172153.8352-1-linux@fw-web.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
-X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/04/2023 20:21, Frank Wunderlich wrote:
-> From: Felix Fietkau <nbd@nbd.name>
-> 
-> Through testing I found out that hardware vlan rx offload support seems to
-> have some hardware issues. At least when using multiple MACs and when
-> receiving tagged packets on the secondary MAC, the hardware can sometimes
-> start to emit wrong tags on the first MAC as well.
-> 
-> In order to avoid such issues, drop the feature configuration and use
-> the offload feature only for DSA hardware untagging on MT7621/MT7622
-> devices where this feature works properly.
-> 
-> Fixes: 08666cbb7dd5 ("net: ethernet: mtk_eth_soc: add support for configuring vlan rx offload")
-> Tested-by: Frank Wunderlich <frank-w@public-files.de>
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-> Tested-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-> ---
-> v2:
-> - changed commit message to drop "only one MAC used" phrase based on
->    Arincs comments
-> - fixed too long line in commit description and add empty line after
->    declaration
-> - add fixes tag
-> 
-> used felix Patch as base and ported up to 6.3-rc6
-> 
-> it basicly reverts changes from vladimirs patch
-> 
-> 1a3245fe0cf8 net: ethernet: mtk_eth_soc: fix DSA TX tag hwaccel for switch port 0
-> 
-> tested this on bananapi-r3 on non-dsa gmac1 and dsa eth0 (wan).
-> on both vlan is working, but maybe it breaks HW-vlan-untagging
+Before sending a TPM command, CLKRUN protocol must be disabled. This is not
+done in the case of tpm1_do_selftest() call site inside tpm_tis_resume().
 
-I'm confused by this. What is HW-vlan-untagging, and which SoCs do you 
-think this patch would break this feature? How can I utilise this 
-feature on Linux so I can confirm whether it works or not?
+Address this by decorating the calls with tpm_chip_{start,stop}, which arm
+and disarm the TPM chip for transmission, and take care of disabling and
+re-enabling CLKRUN, among other things.
 
-Arınç
+Cc: stable@vger.kernel.org
+Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/linux-integrity/CS68AWILHXS4.3M36M1EKZLUMS@suppilovahvero/
+Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+ drivers/char/tpm/tpm_tis_core.c | 43 +++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index c2421162cf34..73707026e358 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -1209,25 +1209,20 @@ static void tpm_tis_reenable_interrupts(struct tpm_chip *chip)
+ 	u32 intmask;
+ 	int rc;
+ 
+-	if (chip->ops->clk_enable != NULL)
+-		chip->ops->clk_enable(chip, true);
+-
+-	/* reenable interrupts that device may have lost or
+-	 * BIOS/firmware may have disabled
++	/*
++	 * Re-enable interrupts that device may have lost or BIOS/firmware may
++	 * have disabled.
+ 	 */
+ 	rc = tpm_tis_write8(priv, TPM_INT_VECTOR(priv->locality), priv->irq);
+-	if (rc < 0)
+-		goto out;
++	if (rc < 0) {
++		dev_err(&chip->dev, "Setting IRQ failed.\n");
++		return;
++	}
+ 
+ 	intmask = priv->int_mask | TPM_GLOBAL_INT_ENABLE;
+-
+-	tpm_tis_write32(priv, TPM_INT_ENABLE(priv->locality), intmask);
+-
+-out:
+-	if (chip->ops->clk_enable != NULL)
+-		chip->ops->clk_enable(chip, false);
+-
+-	return;
++	rc = tpm_tis_write32(priv, TPM_INT_ENABLE(priv->locality), intmask);
++	if (rc < 0)
++		dev_err(&chip->dev, "Enabling interrupts failed.\n");
+ }
+ 
+ int tpm_tis_resume(struct device *dev)
+@@ -1235,27 +1230,27 @@ int tpm_tis_resume(struct device *dev)
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = tpm_tis_request_locality(chip, 0);
+-	if (ret < 0)
++	ret = tpm_chip_start(chip);
++	if (ret)
+ 		return ret;
+ 
+ 	if (chip->flags & TPM_CHIP_FLAG_IRQ)
+ 		tpm_tis_reenable_interrupts(chip);
+ 
+-	ret = tpm_pm_resume(dev);
+-	if (ret)
+-		goto out;
+-
+ 	/*
+ 	 * TPM 1.2 requires self-test on resume. This function actually returns
+ 	 * an error code but for unknown reason it isn't handled.
+ 	 */
+ 	if (!(chip->flags & TPM_CHIP_FLAG_TPM2))
+ 		tpm1_do_selftest(chip);
+-out:
+-	tpm_tis_relinquish_locality(chip, 0);
+ 
+-	return ret;
++	tpm_chip_stop(chip);
++
++	ret = tpm_pm_resume(dev);
++	if (ret)
++		return ret;
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(tpm_tis_resume);
+ #endif
+-- 
+2.39.2
+
