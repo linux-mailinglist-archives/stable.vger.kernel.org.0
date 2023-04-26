@@ -2,76 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C936EED72
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 07:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74DB96EED79
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 07:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239147AbjDZFKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Apr 2023 01:10:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S239126AbjDZFQ6 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 26 Apr 2023 01:16:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbjDZFKe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 01:10:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A8F271F;
-        Tue, 25 Apr 2023 22:10:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA202632CC;
-        Wed, 26 Apr 2023 05:10:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27568C433D2;
-        Wed, 26 Apr 2023 05:10:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1682485833;
-        bh=D8jVwqPWYpV+QASfiyG3ATYpzbA1cgRTfhXgLMfZqkw=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=pGOIerkE12nmZPC3Rqxpys4Vgd2arehfJ2FHCa1c5t1BlxUjhDV+120E8nzlZstWn
-         lX6GnUURw+I5rP7w5MZQC3vanvdLYodCTRSpsotrUNEMklEp28vhU3UTyMiJxzjNpl
-         fTnLhglpd7jWOKntqop4JEHDzWY3Ip3HyFwcxV/PkkUJBUMLcnt1KG2wPgSC0mBIxd
-         gSMSr5ObOY+bHTQJoqslGDx4qkuXdV3M9Xgb6aAoWpUYDYqcgeob5eV9Z/HqBQfSeH
-         nvbl18AnVyvtL5KEQDixpH6UOo6M0nlj0/EG/WISgZkx3zDpnjtwpN9duj1VanK+9o
-         jNmzKSGsnjx9g==
-From:   Kalle Valo <kvalo@kernel.org>
-To:     Ping-Ke Shih <pkshih@realtek.com>
-Cc:     <stable@vger.kernel.org>, <Larry.Finger@lwfinger.net>,
-        <linux-wireless@vger.kernel.org>
-Subject: Re: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1 caused by access null page
+        with ESMTP id S229537AbjDZFQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 01:16:57 -0400
+Received: from rtits2.realtek.com.tw (rtits2.realtek.com [211.75.126.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7257AE77;
+        Tue, 25 Apr 2023 22:16:56 -0700 (PDT)
+Authenticated-By: 
+X-SpamFilter-By: ArmorX SpamTrap 5.77 with qID 33Q5GeAS2024798, This message is accepted by code: ctloc85258
+Received: from mail.realtek.com (rtexh36505.realtek.com.tw[172.21.6.25])
+        by rtits2.realtek.com.tw (8.15.2/2.81/5.90) with ESMTPS id 33Q5GeAS2024798
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=OK);
+        Wed, 26 Apr 2023 13:16:40 +0800
+Received: from RTEXMBS06.realtek.com.tw (172.21.6.99) by
+ RTEXH36505.realtek.com.tw (172.21.6.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.32; Wed, 26 Apr 2023 13:16:42 +0800
+Received: from RTEXMBS04.realtek.com.tw (172.21.6.97) by
+ RTEXMBS06.realtek.com.tw (172.21.6.99) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Wed, 26 Apr 2023 13:16:42 +0800
+Received: from RTEXMBS04.realtek.com.tw ([fe80::e138:e7f1:4709:ff4d]) by
+ RTEXMBS04.realtek.com.tw ([fe80::e138:e7f1:4709:ff4d%5]) with mapi id
+ 15.01.2375.007; Wed, 26 Apr 2023 13:16:42 +0800
+From:   Ping-Ke Shih <pkshih@realtek.com>
+To:     Kalle Valo <kvalo@kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Larry.Finger@lwfinger.net" <Larry.Finger@lwfinger.net>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>
+Subject: RE: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1 caused by access null page
+Thread-Topic: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1
+ caused by access null page
+Thread-Index: AQHZd/Hz8jfIqQlRsk2YCNNYFfVAca89Cv/9gAAArBA=
+Date:   Wed, 26 Apr 2023 05:16:41 +0000
+Message-ID: <b1c5e4f89ba843cd958f569547caa8e5@realtek.com>
 References: <20230426034737.24870-1-pkshih@realtek.com>
-Date:   Wed, 26 Apr 2023 08:10:27 +0300
-In-Reply-To: <20230426034737.24870-1-pkshih@realtek.com> (Ping-Ke Shih's
-        message of "Wed, 26 Apr 2023 11:47:37 +0800")
-Message-ID: <87r0s7teik.fsf@kernel.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+ <87r0s7teik.fsf@kernel.org>
+In-Reply-To: <87r0s7teik.fsf@kernel.org>
+Accept-Language: en-US, zh-TW
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.21.69.188]
+x-kse-serverinfo: RTEXMBS06.realtek.com.tw, 9
+x-kse-antispam-interceptor-info: fallback
+x-kse-antivirus-interceptor-info: fallback
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-KSE-ServerInfo: RTEXH36505.realtek.com.tw, 9
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-KSE-Antivirus-Interceptor-Info: fallback
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ping-Ke Shih <pkshih@realtek.com> writes:
 
-> Though SER can recover this case, traffic can get stuck for a while. Fix it
-> by adjusting page quota to avoid hardware access null page of CMAC/DMAC.
->
-> Fixes: a1cb097168fa ("wifi: rtw89: 8852b: configure DLE mem")
-> Fixes: 3e870b481733 ("wifi: rtw89: 8852b: add HFC quota arrays")
-> Cc: stable@vger.kernel.org
-> Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
-> Link: https://github.com/lwfinger/rtw89/issues/226#issuecomment-1520776761
-> Link: https://github.com/lwfinger/rtw89/issues/240
-> Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-> ---
-> v2: add Fixes, Cc and Tested-by tags suggested by Larry.
 
-Should this go to wireless tree for v6.4?
+> -----Original Message-----
+> From: Kalle Valo <kvalo@kernel.org>
+> Sent: Wednesday, April 26, 2023 1:10 PM
+> To: Ping-Ke Shih <pkshih@realtek.com>
+> Cc: stable@vger.kernel.org; Larry.Finger@lwfinger.net; linux-wireless@vger.kernel.org
+> Subject: Re: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1 caused by access null page
+> 
+> Ping-Ke Shih <pkshih@realtek.com> writes:
+> 
+> > Though SER can recover this case, traffic can get stuck for a while. Fix it
+> > by adjusting page quota to avoid hardware access null page of CMAC/DMAC.
+> >
+> > Fixes: a1cb097168fa ("wifi: rtw89: 8852b: configure DLE mem")
+> > Fixes: 3e870b481733 ("wifi: rtw89: 8852b: add HFC quota arrays")
+> > Cc: stable@vger.kernel.org
+> > Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+> > Link: https://github.com/lwfinger/rtw89/issues/226#issuecomment-1520776761
+> > Link: https://github.com/lwfinger/rtw89/issues/240
+> > Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+> > ---
+> > v2: add Fixes, Cc and Tested-by tags suggested by Larry.
+> 
+> Should this go to wireless tree for v6.4?
+> 
 
--- 
-https://patchwork.kernel.org/project/linux-wireless/list/
+Yes, please take it to v6.4. People can get stable connection with this fix.
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+Thank you
+Ping-Ke
+
