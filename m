@@ -2,129 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A766EF973
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 19:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 577136EF97F
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 19:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236276AbjDZRcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Apr 2023 13:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56924 "EHLO
+        id S234557AbjDZRgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Apr 2023 13:36:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234770AbjDZRcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 13:32:08 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5CABE;
-        Wed, 26 Apr 2023 10:32:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=public-files.de;
-        s=s31663417; t=1682530289; i=frank-w@public-files.de;
-        bh=GwRobiqv1qHp5RU7uxMCBJnYrMPL3FpHdLHoiVSsaRw=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=Ynmr3saC4iT4xsA2cYSZ05NnIP8XzKG1V0psslk61w24hDwQbkwfcyIvK7GDr4HRm
-         qKnq8HRq+0K0f7auvo5BfThrJfwswJMly83JGZKiGds3/fddIoSAthHgxHonhiqCkr
-         afQsGyGy4PlXj4DAZRWhsDSMzY7+4g77G22J/Q7DjQpdRkeKccVhx9dDXlRs+LoOzK
-         eDU+5AtMTO4BbLnhUYaCY+RoGnseTa/Y8g6fTZrO6ZZTGDxNAGuwcPYE/uk9VTyY5C
-         uHzbI3EsezbKxgI9BI8F5ULgFcaJ6p9SHGtyW0IK2s23Io2dQZDZSoMJO879Q1VIsB
-         H6P8A0wFTkoPQ==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [217.61.146.19] ([217.61.146.19]) by web-mail.gmx.net
- (3c-app-gmx-bs05.server.lan [172.19.170.54]) (via HTTP); Wed, 26 Apr 2023
- 19:31:29 +0200
-MIME-Version: 1.0
-Message-ID: <trinity-bb65fd35-fe52-45d2-975c-230e504cc93f-1682530288982@3c-app-gmx-bs05>
-From:   Frank Wunderlich <frank-w@public-files.de>
-To:     =?UTF-8?Q?Ar=C4=B1n=C3=A7_=C3=9CNAL?= <arinc.unal@arinc9.com>
-Cc:     Frank Wunderlich <linux@fw-web.de>,
-        linux-mediatek@lists.infradead.org, Felix Fietkau <nbd@nbd.name>,
-        John Crispin <john@phrozen.org>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Mark Lee <Mark-MC.Lee@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Russell King <linux@armlinux.org.uk>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        stable@vger.kernel.org
-Subject: Aw: Re: [net v2] net: ethernet: mtk_eth_soc: drop generic vlan rx
+        with ESMTP id S233597AbjDZRgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 13:36:37 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBCDBE
+        for <stable@vger.kernel.org>; Wed, 26 Apr 2023 10:36:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1682530597; x=1714066597;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=tezNWOvQJSSxdI7I83KAUWXgOP6teNa3hTONMUyH7aI=;
+  b=H1Ry13YyHR7gnnzdGmZbuhW6TbzOTATDOEnxgZGzA3sNPij+yljPDuNs
+   eOaMpzDcip9j9y2M74gt02BAJIJbZtt31vObBnxtlZXp5Cbq7WyrsQJiI
+   bj7I9DhmL7tMTWErxaaxdiEEuQPSq+J1uf6tEEFsWG8qIlByooCV2Vh7j
+   yKJEgEcFfYoDQRnS5y8i6HS7d5fS3Xu5XF7/4lCeidFq257EshmRRLfhr
+   8pX0lC3orWOmt9Yijy/jEb+A5Cv2clEfF0vz6Nh03C+MhRgeuja/b+XQO
+   1cAiiZs7nwiEz0R0Mi723eFOnfKffKZKjs8a5wbrvAe+2iQ/oTKzkrViP
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10692"; a="326789113"
+X-IronPort-AV: E=Sophos;i="5.99,228,1677571200"; 
+   d="scan'208";a="326789113"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2023 10:34:48 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10692"; a="1023717610"
+X-IronPort-AV: E=Sophos;i="5.99,228,1677571200"; 
+   d="scan'208";a="1023717610"
+Received: from lkp-server01.sh.intel.com (HELO 041f065c1b1b) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 26 Apr 2023 10:34:47 -0700
+Received: from kbuild by 041f065c1b1b with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1prj2U-0000PG-1P;
+        Wed, 26 Apr 2023 17:34:46 +0000
+Date:   Thu, 27 Apr 2023 01:34:01 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Frank Wunderlich <linux@fw-web.de>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [net v2] net: ethernet: mtk_eth_soc: drop generic vlan rx
  offload, only use DSA untagging
-Content-Type: text/plain; charset=UTF-8
-Date:   Wed, 26 Apr 2023 19:31:29 +0200
-Importance: normal
-Sensitivity: Normal
-In-Reply-To: <61ea49b7-8a04-214d-ef02-3ef6181619e9@arinc9.com>
-References: <20230426172153.8352-1-linux@fw-web.de>
- <61ea49b7-8a04-214d-ef02-3ef6181619e9@arinc9.com>
-Content-Transfer-Encoding: quoted-printable
-X-UI-Message-Type: mail
-X-Priority: 3
-X-Provags-ID: V03:K1:sfKj/0EyPG6sxAAmaIVKAX88w+UGhKLUJ8ltiFTLiTzen4a0Ujz1BDaHcYGDwLlsOr0+g
- DhKQL0QqklHHQHJumYXj9f4OrvWwWOvttMODD8UUNTbxwnnoVTUB6XBSfQAFrDbfl2ySNqhMwqXc
- iuDSz4V1SoQ7FRc6+NzPgJz5D5gQWyWVcg/kHTnBRX5ntKT3gT3561lhcQNU5b9XYcgYZRd6ANBj
- Ds1hfb6sCWcMiMWf/kaJ+dRT7s2Lc5IDnp0fzQyQ2Lw0C+gCDz2XCiB7mc2S9R11b8wbmbCetKSR
- pQ=
-UI-OutboundReport: notjunk:1;M01:P0:XZz2sY72ML8=;a16m+i1PJgczSaVFW4Bi1WoZCKJ
- bU4Sw6mk+Nslc93fETkWifNuUOKGQ9HxuNA5SpHMig8TsNPkDADeeGEXsVAhuLTRvyHyXwlQm
- k60cNN1Wt5uTNXrJp0wWgblXvahHEEalQA64QKy1eAwpDNTzRhm4N01bFVedyho9fZs/PU+bK
- KflWe02buao1pJrN7oxlaQaku4EvYcCs/+7vv7HTp0/JDMui4173iwUWicwDGVDcNKH+CHkmJ
- VUcUAHVrrWvYMPLYBsEI30RFImCGeNMKjNTfDZ1Di7BlWY2zoZEkdg791z23iqXKhQKBYjprC
- btOCn1dqw+h9U4+1CCIrxWzC6j9SXhJqsZehh36fyu3rkq8yXSP2iU2hAsBN7UqmtLgEnQUQS
- AEsNmBEYCAA5ExvSWANB2UMa4VLs6Hm+pKZCM99HWtFNOu1vcOc421D8FGAKCftT3NO5w6zqD
- i4dYz60FFn8N2cXS1FbRkF9xgH4u1tmtP9BfVZ0ZNat0K/BNO7mq5j3HTTbJsQUIpt4Gk/6CA
- smWTTMG526A0/d26WGfpDbB1ook2ouBq8eOuoXTJYRTEsYeljaymRhuYmD/mFg0PEqeHryPkM
- 7CJR4QvfhSavt2QYiTidHutBDHrW/3QPyAUuRnPREHUvQnd0f1POsrD/WSqfqQar2dPjQ4PNb
- BJjTRMUyCp92giVZeDTWm7YITaWNt3QDI6DTgnUhthcRNQTTu+flToTMtZyhW7fxFGEzGDyk1
- a5BxqFKBqEu3qnRmQTZ6cgFJviLUZ8GdB73IEI2VQe6j8c2V+rhNpTjr7qhFw7EX/nE+dwnkq
- XnA5mwqNbm0853lmblTRY7jw==
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <ZElgif1TKL9cMVOk@afc780e125e2>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230426172153.8352-1-linux@fw-web.de>
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-> Gesendet: Mittwoch, 26=2E April 2023 um 19:25 Uhr
-> Von: "Ar=C4=B1n=C3=A7 =C3=9CNAL" <arinc=2Eunal@arinc9=2Ecom>
-> On 26/04/2023 20:21, Frank Wunderlich wrote:
-> > From: Felix Fietkau <nbd@nbd=2Ename>
-> >=20
-> > Through testing I found out that hardware vlan rx offload support seem=
-s to
-> > have some hardware issues=2E At least when using multiple MACs and whe=
-n
-> > receiving tagged packets on the secondary MAC, the hardware can someti=
-mes
-> > start to emit wrong tags on the first MAC as well=2E
-> >=20
-> > In order to avoid such issues, drop the feature configuration and use
-> > the offload feature only for DSA hardware untagging on MT7621/MT7622
-> > devices where this feature works properly=2E
-> >=20
-> > Fixes: 08666cbb7dd5 ("net: ethernet: mtk_eth_soc: add support for conf=
-iguring vlan rx offload")
-> > Tested-by: Frank Wunderlich <frank-w@public-files=2Ede>
-> > Signed-off-by: Felix Fietkau <nbd@nbd=2Ename>
-> > Signed-off-by: Frank Wunderlich <frank-w@public-files=2Ede>
-> > Tested-by: Ar=C4=B1n=C3=A7 =C3=9CNAL <arinc=2Eunal@arinc9=2Ecom>
->=20
-> I'm confused by this=2E What is HW-vlan-untagging, and which SoCs do you=
-=20
-> think this patch would break this feature? How can I utilise this=20
-> feature on Linux so I can confirm whether it works or not?
+Thanks for your patch.
 
-the feature itself breaks vlan on mac of bpi-r3
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-1 mac is connected to switch and uses dsa tags, the other mac is directly =
-accessible and vlan-tag
-there is stripped by this feature=2E
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [net v2] net: ethernet: mtk_eth_soc: drop generic vlan rx offload, only use DSA untagging
+Link: https://lore.kernel.org/stable/20230426172153.8352-1-linux%40fw-web.de
 
-with this patch i can use vlans on the "standalone" mac again (see tagged =
-packets incoming)=2E
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-regards Frank
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
+
