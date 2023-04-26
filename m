@@ -2,104 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D73A6EF86B
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 18:28:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8A06EF891
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 18:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbjDZQ2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Apr 2023 12:28:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42914 "EHLO
+        id S229653AbjDZQls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Apr 2023 12:41:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229937AbjDZQ2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 12:28:01 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2062.outbound.protection.outlook.com [40.107.244.62])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A004F769E
-        for <stable@vger.kernel.org>; Wed, 26 Apr 2023 09:28:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=T1m9bzo8BQaItSorCWRtYwS1mdpX5qDr2LCh9453j6bwJm1kYsuY4dJA2rkeCntMHw9nFymhCD3dWd5TEFNuhUGhOjZH3DlVK7xMpAiyRUdpNklvYBycZloevwirag8qFk52D/2TecfY5ESTGcspBqgYrDTgcgFVymUfZCJ+/3wG8sAKzNftdEnEfXW2elTEAO64JS2ygZjIDxIGrvEJDNDN7t6u1DwwuxmXajCdX+B0Tc80ufRu4z0waVK8PHTlJlLuIdTdC8UR2pJ010MKvr8zaoxPzs7ulmnwQ1zRMwIatZ62j/zLx97Cx+9Tylb5vdBFCranajAWJwf1ze9c9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ylb7n5VioOAdBS8yah+fIR8ZVC8bAiBDTShHZo1BJdQ=;
- b=DBO2UNrj+s380BUbcz+L7wSn4JhEzRLzFBKnRPYwZzBVTZIYt/bUdFjcht3dOQ3tbH9Tt6KCMJzfuqXDDZ2tNpbjP1moIsxUnjDWjBW4vBUQ6p3lizdHm0gew8xvgGwryPTSnWKir2m2p4MqwbyyI8ZTuOPDZvZE9mmsCFrT/pU8yqqSnOrajRxFlhgoyKJ+8OTgeCDMp6iP0CroepkgjxYBtnZHESLE8aqBJ2RwfXYZ/ULhCwjp4Q2aK94v+tYpVRDi34+cbTnK5VRQ9zba0Z3P81FFHuAN0q6Jog5RU4nDjhTQEfJmqiwc4FscZ6wZ1BpnZaVqFYYxkXW01FwOEQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ylb7n5VioOAdBS8yah+fIR8ZVC8bAiBDTShHZo1BJdQ=;
- b=DSxd52h27M8g3H58e0wH8FtIZABHb5/zaVEJy4609g35qAG0L1ceuE6qGl13xEBgDXnoA0KoZ0Tnf3ctcfYq+TJUxg76/DXBn0oPn0uI4UEFZq6pmC6aB8G43um5VjjPI6yYeL4q7zBmtBU5VnBkEd50V1dlOwmgAkC12PznwiI=
-Received: from DS7PR03CA0175.namprd03.prod.outlook.com (2603:10b6:5:3b2::30)
- by SJ1PR12MB6364.namprd12.prod.outlook.com (2603:10b6:a03:452::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.33; Wed, 26 Apr
- 2023 16:27:55 +0000
-Received: from DS1PEPF0000E63B.namprd02.prod.outlook.com
- (2603:10b6:5:3b2:cafe::37) by DS7PR03CA0175.outlook.office365.com
- (2603:10b6:5:3b2::30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.21 via Frontend
- Transport; Wed, 26 Apr 2023 16:27:55 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB03.amd.com; pr=C
-Received: from SATLEXMB03.amd.com (165.204.84.17) by
- DS1PEPF0000E63B.mail.protection.outlook.com (10.167.17.73) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6340.19 via Frontend Transport; Wed, 26 Apr 2023 16:27:55 +0000
-Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 26 Apr
- 2023 11:27:54 -0500
-Received: from alan-new-dev.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server id 15.1.2375.34 via Frontend
- Transport; Wed, 26 Apr 2023 11:27:50 -0500
-From:   Alan Liu <HaoPing.Liu@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
-        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
-        <Aurabindo.Pillai@amd.com>, <qingqing.zhuo@amd.com>,
-        <roman.li@amd.com>, <wayne.lin@amd.com>, <stylon.wang@amd.com>,
-        <solomon.chiu@amd.com>, <pavle.kotarac@amd.com>,
-        <agustin.gutierrez@amd.com>, Leo Chen <sancchen@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        "Mario Limonciello" <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        <stable@vger.kernel.org>, Alan Liu <HaoPing.Liu@amd.com>
-Subject: [PATCH 2/8] drm/amd/display: Change default Z8 watermark values
-Date:   Thu, 27 Apr 2023 00:27:06 +0800
-Message-ID: <20230426162712.895717-3-HaoPing.Liu@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230426162712.895717-1-HaoPing.Liu@amd.com>
-References: <20230426162712.895717-1-HaoPing.Liu@amd.com>
+        with ESMTP id S229915AbjDZQlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 12:41:47 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C316A40E9
+        for <stable@vger.kernel.org>; Wed, 26 Apr 2023 09:41:46 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1a6c5acf6ccso56105125ad.3
+        for <stable@vger.kernel.org>; Wed, 26 Apr 2023 09:41:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20221208.gappssmtp.com; s=20221208; t=1682527305; x=1685119305;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=LkmEtvWHp4zGZyBfsec30m+xYNEVSzk/K5SuIBuhJJY=;
+        b=WJuvzOTbVvut774r/E20q7Hvarx55DuETcpYa58oTbtWrv1hOW8i1eq9iVxNtCqLK/
+         Oxsc3obsVFuBUVoGCHMYmCKfi41P3qPHwIGjk9WdnEHjS2lg4uSxRFECbjrFwUOXHrQV
+         Irq6xaXC1s8ZvuYWJrVDrqW5hoNjVN1vq7w9SaxVze9bgPAItbf41Lk1wUuIRu6CeyFm
+         zYJmAm1GaapYxJXKltN785b262GBC4VpC+8KS6MIS8C6elUZSdhBSxxdHKF1Vqv+Czo5
+         h0a3i/2899sYDY0dr3gbIhbpyIL9aGUrfebLoSFsRf8d8A+nhe0jePvwt3rSvKWrSfZZ
+         op/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682527305; x=1685119305;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LkmEtvWHp4zGZyBfsec30m+xYNEVSzk/K5SuIBuhJJY=;
+        b=T/xQ41W9bHsRd7V/BkajTwIaS/H7Ajq9XW3/jSsxS8LGv2T08VEKh7IXIu1lHkVri8
+         nhw20R+ICsJK9TxtpN27WXn3CmwbtxwzXC5M8Xu4OhSDGrO3ml8t6Q/yf0WWTwpvN9gc
+         25b2d5waqvXbkvz/RUfq8pc88+FnczVaKOxr0HUbr4aZ9Gpe4v2G+0VGfQM28DdtjA40
+         ldSnwww5MaykoDVfqVefrqt38y9N4Bo+vopCytvkajx9UFjbAf+0P+utcjSWlq2O/K8w
+         fcKvWvTvu1PQKzAFucyVBdJZHb/xCe9dWKlDmNdE9/hUNnmZMV6OCwHD3N0Blntxll4A
+         DjXg==
+X-Gm-Message-State: AAQBX9edJWQXaWkHiV2suFWNzS/3RbuoM0omziLvSKG+Pnh9xGbU1OJ/
+        aZYA6sKvnXPDawwMZnOtx31KhodEOtmmCgYISNv63g==
+X-Google-Smtp-Source: AKy350bgOMGa5pU8758jujruYgeb8FFb4+D7cat4QUeOapM7s5L2PHBdM+fR7XEXt8LDOcOBDv4YxQ==
+X-Received: by 2002:a17:903:2348:b0:1a6:413c:4a3e with SMTP id c8-20020a170903234800b001a6413c4a3emr26991391plh.5.1682527305471;
+        Wed, 26 Apr 2023 09:41:45 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id iw2-20020a170903044200b0019a91895cdfsm10187622plb.50.2023.04.26.09.41.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Apr 2023 09:41:44 -0700 (PDT)
+Message-ID: <64495448.170a0220.bc4fa.4cf8@mx.google.com>
+Date:   Wed, 26 Apr 2023 09:41:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS1PEPF0000E63B:EE_|SJ1PR12MB6364:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7a3ffd0a-76da-41ee-de54-08db467330b8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Vgw6/jx3BOWJExeEeHdDPKacniNCF61vwCy2rP7QTus1jqXgcl6VzT4FKj5RM6Q0s/RsPeWYvN5iphAWZO5iZyQiwU23mSiBupuSmRb8M7Yxb84MOt4OHO91lausxxcuKJEIqgFApL1d81ITQjz1EFMa567rHb6RMBz+oViXodUNO61G4pgGOGS0RzWA4jWK27+vJ5+bTcVIqEnu6WlZyh7gbw2AkSN/CtDLH8ztK3sNP67PzUVHKyr+aHm1yiKqwez15TRfCkWa1gLusMxbcGqFnWgo9+iqX08ydanc+V/J36rH1xgsG887Se9fEpmxiBqf5pyk1+Gc74wsq1TukduSbAI3Mdu/Pl4oQb7SCVx0bA3l9UECsrFOAJND3nSmQN2iE7sdmU1n1UUBhGclq0rtrFEsno0V6Oc3dt7V2CCoqe8ZT5qwwP/IryDya+wDsi+TpvemcnPxD/SQduw9ox/GpTqWA+AwteqOK3srjCdEYQbNDiQ1NadEiOavqHtefHF/51iSA4VpCg7MowdzUbTdBjHiG4Dp3TfFd25gAE0htyySBT8ufzjOcXCbS8+mJC+i7fkmGZn1f23qqnBvoh0Y6XjSmBdQHOa7fumxe63oVZPZ+trkXFXxs4YFOmaoJ6ScMBfsJJG5zYbRpg2xfc67MR8ZKoBvpj3qJuOAEruHwMOp2Y8XRpttELrC4TruTCSxUIte0f0BvNXDb94MQ7nFEFYJdlq6Vx7M4Hvuag4=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(376002)(346002)(136003)(451199021)(40470700004)(36840700001)(46966006)(1076003)(26005)(356005)(40480700001)(336012)(426003)(2616005)(83380400001)(36756003)(36860700001)(47076005)(82740400003)(186003)(40460700003)(70206006)(81166007)(54906003)(86362001)(70586007)(6916009)(478600001)(8676002)(8936002)(7696005)(5660300002)(41300700001)(2906002)(82310400005)(4326008)(6666004)(316002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Apr 2023 16:27:55.4881
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7a3ffd0a-76da-41ee-de54-08db467330b8
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DS1PEPF0000E63B.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6364
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no autolearn_force=no
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v5.10.179
+X-Kernelci-Report-Type: test
+Subject: stable/linux-5.10.y baseline: 85 runs, 2 regressions (v5.10.179)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -107,37 +71,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Chen <sancchen@amd.com>
+stable/linux-5.10.y baseline: 85 runs, 2 regressions (v5.10.179)
 
-[Why & How]
-Previous Z8 watermark values were causing flickering and OTC underflow.
-Updating Z8 watermark values based on the measurement.
+Regressions Summary
+-------------------
 
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Acked-by: Alan Liu <HaoPing.Liu@amd.com>
-Signed-off-by: Leo Chen <sancchen@amd.com>
----
- drivers/gpu/drm/amd/display/dc/dml/dcn314/dcn314_fpu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+platform                     | arch   | lab           | compiler | defconfi=
+g                    | regressions
+-----------------------------+--------+---------------+----------+---------=
+---------------------+------------
+hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_d=
+efcon...6-chromebook | 1          =
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn314/dcn314_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn314/dcn314_fpu.c
-index 19370b872a91..1d00eb9e73c6 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn314/dcn314_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn314/dcn314_fpu.c
-@@ -149,8 +149,8 @@ static struct _vcs_dpi_soc_bounding_box_st dcn3_14_soc = {
- 	.num_states = 5,
- 	.sr_exit_time_us = 16.5,
- 	.sr_enter_plus_exit_time_us = 18.5,
--	.sr_exit_z8_time_us = 210.0,
--	.sr_enter_plus_exit_z8_time_us = 310.0,
-+	.sr_exit_z8_time_us = 268.0,
-+	.sr_enter_plus_exit_z8_time_us = 393.0,
- 	.writeback_latency_us = 12.0,
- 	.dram_channel_width_bytes = 4,
- 	.round_trip_ping_latency_dcfclk_cycles = 106,
--- 
-2.34.1
+r8a7743-iwg20d-q7            | arm    | lab-cip       | gcc-10   | shmobile=
+_defconfig           | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.179/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.179
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      f1b32fda06d2cfb8eea9680b0ba7a8b0d5b81eeb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch   | lab           | compiler | defconfi=
+g                    | regressions
+-----------------------------+--------+---------------+----------+---------=
+---------------------+------------
+hp-x360-12b-c...4020-octopus | x86_64 | lab-collabora | gcc-10   | x86_64_d=
+efcon...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/64491fdd620dfd60e62e8619
+
+  Results:     6 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.179/=
+x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-hp-x36=
+0-12b-ca0010nr-n4020-octopus.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.179/=
+x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-hp-x36=
+0-12b-ca0010nr-n4020-octopus.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/64491fdd620dfd60e62e861e
+        failing since 21 days (last pass: v5.10.176, first fail: v5.10.177)
+
+    2023-04-26T12:57:48.562522  + set +x
+
+    2023-04-26T12:57:48.568957  <8>[   10.907404] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 10130810_1.4.2.3.1>
+
+    2023-04-26T12:57:48.673771  / # #
+
+    2023-04-26T12:57:48.774443  export SHELL=3D/bin/sh
+
+    2023-04-26T12:57:48.774654  #
+
+    2023-04-26T12:57:48.875205  / # export SHELL=3D/bin/sh. /lava-10130810/=
+environment
+
+    2023-04-26T12:57:48.875422  =
+
+
+    2023-04-26T12:57:48.975972  / # . /lava-10130810/environment/lava-10130=
+810/bin/lava-test-runner /lava-10130810/1
+
+    2023-04-26T12:57:48.976267  =
+
+
+    2023-04-26T12:57:48.981200  / # /lava-10130810/bin/lava-test-runner /la=
+va-10130810/1
+ =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch   | lab           | compiler | defconfi=
+g                    | regressions
+-----------------------------+--------+---------------+----------+---------=
+---------------------+------------
+r8a7743-iwg20d-q7            | arm    | lab-cip       | gcc-10   | shmobile=
+_defconfig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/64491eea628b6216972e85eb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.179/=
+arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.179/=
+arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230414.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/64491eea628b6216972e8=
+5ec
+        failing since 34 days (last pass: v5.10.175, first fail: v5.10.176) =
+
+ =20
