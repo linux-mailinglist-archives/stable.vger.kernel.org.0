@@ -2,103 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DB96EED79
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 07:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D84E56EEE29
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 08:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239126AbjDZFQ6 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 26 Apr 2023 01:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46010 "EHLO
+        id S230435AbjDZGRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Apr 2023 02:17:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbjDZFQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 01:16:57 -0400
-Received: from rtits2.realtek.com.tw (rtits2.realtek.com [211.75.126.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7257AE77;
-        Tue, 25 Apr 2023 22:16:56 -0700 (PDT)
-Authenticated-By: 
-X-SpamFilter-By: ArmorX SpamTrap 5.77 with qID 33Q5GeAS2024798, This message is accepted by code: ctloc85258
-Received: from mail.realtek.com (rtexh36505.realtek.com.tw[172.21.6.25])
-        by rtits2.realtek.com.tw (8.15.2/2.81/5.90) with ESMTPS id 33Q5GeAS2024798
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=OK);
-        Wed, 26 Apr 2023 13:16:40 +0800
-Received: from RTEXMBS06.realtek.com.tw (172.21.6.99) by
- RTEXH36505.realtek.com.tw (172.21.6.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.32; Wed, 26 Apr 2023 13:16:42 +0800
-Received: from RTEXMBS04.realtek.com.tw (172.21.6.97) by
- RTEXMBS06.realtek.com.tw (172.21.6.99) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Wed, 26 Apr 2023 13:16:42 +0800
-Received: from RTEXMBS04.realtek.com.tw ([fe80::e138:e7f1:4709:ff4d]) by
- RTEXMBS04.realtek.com.tw ([fe80::e138:e7f1:4709:ff4d%5]) with mapi id
- 15.01.2375.007; Wed, 26 Apr 2023 13:16:42 +0800
-From:   Ping-Ke Shih <pkshih@realtek.com>
-To:     Kalle Valo <kvalo@kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Larry.Finger@lwfinger.net" <Larry.Finger@lwfinger.net>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>
-Subject: RE: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1 caused by access null page
-Thread-Topic: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1
- caused by access null page
-Thread-Index: AQHZd/Hz8jfIqQlRsk2YCNNYFfVAca89Cv/9gAAArBA=
-Date:   Wed, 26 Apr 2023 05:16:41 +0000
-Message-ID: <b1c5e4f89ba843cd958f569547caa8e5@realtek.com>
-References: <20230426034737.24870-1-pkshih@realtek.com>
- <87r0s7teik.fsf@kernel.org>
-In-Reply-To: <87r0s7teik.fsf@kernel.org>
-Accept-Language: en-US, zh-TW
-Content-Language: zh-TW
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [172.21.69.188]
-x-kse-serverinfo: RTEXMBS06.realtek.com.tw, 9
-x-kse-antispam-interceptor-info: fallback
-x-kse-antivirus-interceptor-info: fallback
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S239390AbjDZGR3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Apr 2023 02:17:29 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292FB2684;
+        Tue, 25 Apr 2023 23:17:29 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id 41be03b00d2f7-524c7deb811so508144a12.1;
+        Tue, 25 Apr 2023 23:17:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682489848; x=1685081848;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=54QT2qvIeWHdzjZ4EieSD34moWDamE7VGmQ7alnRC98=;
+        b=sF+P8bb8uMhYrTOmSX99gvg7Hru+61Rlk2NYSAmxAbzFaHJ9SIj7+SjR0pxefdjN5r
+         hFt9x6840LiGIIMysJkU+WbnAdwbMxBdQRsv/pQrZFRnzdw7LUC+D7MPgj8wTiFc/CuG
+         KkXY6/Ys64F/aPaHUC3zG+MRUxVRpg53YaqUDLsd15CspB+8+5RQaMlfn4SbQfjNu0kS
+         dbIa5Kkbv2TcP2OsDQiaFCYdjxrqsfpR7tTz+JtD37h9tS3/rUfWxdRwIjanZySnRYYf
+         uONLqV8nBibPXcOKjU5MrwR8k7x5nIpa3dAiDegXDvl8HbdhPmjxIEtceUBAHzPpomst
+         xVtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682489848; x=1685081848;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=54QT2qvIeWHdzjZ4EieSD34moWDamE7VGmQ7alnRC98=;
+        b=g34gNDosekFQ8xDn5M0aPVynUl8zVcrvNpvdlWZU8I5P56zWJFhHNjNs0lb2vbgCK+
+         XKydpOkpMJq/66gegmAapQMN1C9kUiuzt657JywO0sFKygQgD9T+sRmTEwDrcqebywV9
+         CYZPThI81U0FfaTQkyQJRl90He4yApG7z6pEVshUAss7vN16DU/2MB1lOZNvipaFsvEy
+         B9IlktWyr24lH9C6rHVycPHGFJ8/eFKcxoi+i337RPh5b6Ti65yPWIMDQRN5giTmpgmT
+         wVSpv+1DRQyBrqGxT1tYnsmqyCm8OSsdIBPc1VFQJ7ZzS6sX2vXD8A7ol8CD2kSWLj3z
+         tjTQ==
+X-Gm-Message-State: AAQBX9fHww3yQuqEedx1h6MOfl5vSzLRGvsJrPHNPv5d3e2Rw3XtllHv
+        IdnOUe4PJ9xuaGFgDEt7P78=
+X-Google-Smtp-Source: AKy350aycLnLbKLXtxd6n+hL6qzyM3+dfBPm8y7nLsLJ95s7tYOugYfR14+YBfg9XJq9kFbAi7tIog==
+X-Received: by 2002:a05:6a20:1608:b0:c0:2875:9e8c with SMTP id l8-20020a056a20160800b000c028759e8cmr25435942pzj.1.1682489848305;
+        Tue, 25 Apr 2023 23:17:28 -0700 (PDT)
+Received: from olv-ct-22.c.googlers.com.com (217.108.125.34.bc.googleusercontent.com. [34.125.108.217])
+        by smtp.gmail.com with ESMTPSA id i23-20020aa796f7000000b0063f0068cf6csm7034692pfq.198.2023.04.25.23.17.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Apr 2023 23:17:27 -0700 (PDT)
+From:   Chia-I Wu <olvaffe@gmail.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] drm/amdgpu: add a missing lock for AMDGPU_SCHED
+Date:   Tue, 25 Apr 2023 23:17:14 -0700
+Message-ID: <20230426061718.755586-1-olvaffe@gmail.com>
+X-Mailer: git-send-email 2.40.1.495.gc816e09b53d-goog
 MIME-Version: 1.0
-X-KSE-AntiSpam-Interceptor-Info: fallback
-X-KSE-ServerInfo: RTEXH36505.realtek.com.tw, 9
-X-KSE-AntiSpam-Interceptor-Info: fallback
-X-KSE-Antivirus-Interceptor-Info: fallback
-X-KSE-AntiSpam-Interceptor-Info: fallback
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+mgr->ctx_handles should be protected by mgr->lock.
 
+v2: improve commit message
 
-> -----Original Message-----
-> From: Kalle Valo <kvalo@kernel.org>
-> Sent: Wednesday, April 26, 2023 1:10 PM
-> To: Ping-Ke Shih <pkshih@realtek.com>
-> Cc: stable@vger.kernel.org; Larry.Finger@lwfinger.net; linux-wireless@vger.kernel.org
-> Subject: Re: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1 caused by access null page
-> 
-> Ping-Ke Shih <pkshih@realtek.com> writes:
-> 
-> > Though SER can recover this case, traffic can get stuck for a while. Fix it
-> > by adjusting page quota to avoid hardware access null page of CMAC/DMAC.
-> >
-> > Fixes: a1cb097168fa ("wifi: rtw89: 8852b: configure DLE mem")
-> > Fixes: 3e870b481733 ("wifi: rtw89: 8852b: add HFC quota arrays")
-> > Cc: stable@vger.kernel.org
-> > Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
-> > Link: https://github.com/lwfinger/rtw89/issues/226#issuecomment-1520776761
-> > Link: https://github.com/lwfinger/rtw89/issues/240
-> > Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-> > ---
-> > v2: add Fixes, Cc and Tested-by tags suggested by Larry.
-> 
-> Should this go to wireless tree for v6.4?
-> 
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Yes, please take it to v6.4. People can get stable connection with this fix.
-
-Thank you
-Ping-Ke
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c
+index e9b45089a28a6..863b2a34b2d64 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_sched.c
+@@ -38,6 +38,7 @@ static int amdgpu_sched_process_priority_override(struct amdgpu_device *adev,
+ {
+ 	struct fd f = fdget(fd);
+ 	struct amdgpu_fpriv *fpriv;
++	struct amdgpu_ctx_mgr *mgr;
+ 	struct amdgpu_ctx *ctx;
+ 	uint32_t id;
+ 	int r;
+@@ -51,8 +52,11 @@ static int amdgpu_sched_process_priority_override(struct amdgpu_device *adev,
+ 		return r;
+ 	}
+ 
+-	idr_for_each_entry(&fpriv->ctx_mgr.ctx_handles, ctx, id)
++	mgr = &fpriv->ctx_mgr;
++	mutex_lock(&mgr->lock);
++	idr_for_each_entry(&mgr->ctx_handles, ctx, id)
+ 		amdgpu_ctx_priority_override(ctx, priority);
++	mutex_unlock(&mgr->lock);
+ 
+ 	fdput(f);
+ 	return 0;
+-- 
+2.40.1.495.gc816e09b53d-goog
 
