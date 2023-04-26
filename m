@@ -2,145 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C4606EEC86
-	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 04:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 504E66EECD0
+	for <lists+stable@lfdr.de>; Wed, 26 Apr 2023 05:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239034AbjDZC6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Apr 2023 22:58:40 -0400
-Received: from shards.monkeyblade.net ([23.128.96.9]:36634 "EHLO
-        mail.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230435AbjDZC6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 22:58:39 -0400
-Received: from [IPV6:2620:137:e001:0:c663:d265:4cca:c19] (unknown [IPv6:2620:137:e001:0:c663:d265:4cca:c19])
-        by mail.monkeyblade.net (Postfix) with ESMTPSA id C5DFA8420026;
-        Tue, 25 Apr 2023 19:58:37 -0700 (PDT)
-Message-ID: <e3d77a20-fd14-5846-5d46-de2db69af45b@eaglescrag.net>
-Date:   Tue, 25 Apr 2023 19:58:36 -0700
+        id S239029AbjDZDsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Apr 2023 23:48:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239000AbjDZDsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Apr 2023 23:48:13 -0400
+Received: from rtits2.realtek.com.tw (rtits2.realtek.com [211.75.126.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2FA1BE;
+        Tue, 25 Apr 2023 20:48:09 -0700 (PDT)
+Authenticated-By: 
+X-SpamFilter-By: ArmorX SpamTrap 5.77 with qID 33Q3lqXC3005654, This message is accepted by code: ctloc85258
+Received: from mail.realtek.com (rtexh36506.realtek.com.tw[172.21.6.27])
+        by rtits2.realtek.com.tw (8.15.2/2.81/5.90) with ESMTPS id 33Q3lqXC3005654
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=OK);
+        Wed, 26 Apr 2023 11:47:53 +0800
+Received: from RTEXMBS04.realtek.com.tw (172.21.6.97) by
+ RTEXH36506.realtek.com.tw (172.21.6.27) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.17; Wed, 26 Apr 2023 11:47:54 +0800
+Received: from [127.0.1.1] (172.21.69.188) by RTEXMBS04.realtek.com.tw
+ (172.21.6.97) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.7; Wed, 26 Apr
+ 2023 11:47:54 +0800
+From:   Ping-Ke Shih <pkshih@realtek.com>
+To:     <kvalo@kernel.org>
+CC:     <stable@vger.kernel.org>, <Larry.Finger@lwfinger.net>,
+        <linux-wireless@vger.kernel.org>
+Subject: [PATCH v2] wifi: rtw89: 8852b: adjust quota to avoid SER L1 caused by access null page
+Date:   Wed, 26 Apr 2023 11:47:37 +0800
+Message-ID: <20230426034737.24870-1-pkshih@realtek.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v5] ring-buffer: Ensure proper resetting of atomic
- variables in ring_buffer_reset_online_cpus
-Content-Language: en-MW
-To:     Steven Rostedt <rostedt@goodmis.org>,
-        "Tze-nan.Wu" <Tze-nan.Wu@mediatek.com>
-Cc:     mhiramat@kernel.org, bobule.chang@mediatek.com,
-        cheng-jui.wang@mediatek.com, wsd_upstream@mediatek.com,
-        stable@vger.kernel.org, npiggin@gmail.com,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-References: <20230426010446.10753-1-Tze-nan.Wu@mediatek.com>
- <20230425211737.757208b3@gandalf.local.home>
-From:   John 'Warthog9' Hawley <warthog9@eaglescrag.net>
-In-Reply-To: <20230425211737.757208b3@gandalf.local.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.2 (mail.monkeyblade.net [0.0.0.0]); Tue, 25 Apr 2023 19:58:38 -0700 (PDT)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [172.21.69.188]
+X-ClientProxiedBy: RTEXMBS02.realtek.com.tw (172.21.6.95) To
+ RTEXMBS04.realtek.com.tw (172.21.6.97)
+X-KSE-ServerInfo: RTEXMBS04.realtek.com.tw, 9
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-KSE-Antivirus-Interceptor-Info: fallback
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ran afoul of the taboo filters:
+Though SER can recover this case, traffic can get stuck for a while. Fix it
+by adjusting page quota to avoid hardware access null page of CMAC/DMAC.
 
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-         From:   Tze-nan.Wu<Tze-nan.Wu@mediatek.com>
-                                   ^-missing end of mailbox
+Fixes: a1cb097168fa ("wifi: rtw89: 8852b: configure DLE mem")
+Fixes: 3e870b481733 ("wifi: rtw89: 8852b: add HFC quota arrays")
+Cc: stable@vger.kernel.org
+Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+Link: https://github.com/lwfinger/rtw89/issues/226#issuecomment-1520776761
+Link: https://github.com/lwfinger/rtw89/issues/240
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+---
+v2: add Fixes, Cc and Tested-by tags suggested by Larry.
+---
+ drivers/net/wireless/realtek/rtw89/mac.c      |  4 +++
+ drivers/net/wireless/realtek/rtw89/mac.h      |  2 ++
+ drivers/net/wireless/realtek/rtw89/rtw8852b.c | 28 +++++++++----------
+ 3 files changed, 20 insertions(+), 14 deletions(-)
 
-I've seen a few of these but I've been unable to replicate the problem. 
-I've a suspicion but so far been unable to prove the theory on what's wrong.
+diff --git a/drivers/net/wireless/realtek/rtw89/mac.c b/drivers/net/wireless/realtek/rtw89/mac.c
+index b8019cfc11b20..512de491a064b 100644
+--- a/drivers/net/wireless/realtek/rtw89/mac.c
++++ b/drivers/net/wireless/realtek/rtw89/mac.c
+@@ -1425,6 +1425,8 @@ const struct rtw89_mac_size_set rtw89_mac_size = {
+ 	.wde_size4 = {RTW89_WDE_PG_64, 0, 4096,},
+ 	/* PCIE 64 */
+ 	.wde_size6 = {RTW89_WDE_PG_64, 512, 0,},
++	/* 8852B PCIE SCC */
++	.wde_size7 = {RTW89_WDE_PG_64, 510, 2,},
+ 	/* DLFW */
+ 	.wde_size9 = {RTW89_WDE_PG_64, 0, 1024,},
+ 	/* 8852C DLFW */
+@@ -1449,6 +1451,8 @@ const struct rtw89_mac_size_set rtw89_mac_size = {
+ 	.wde_qt4 = {0, 0, 0, 0,},
+ 	/* PCIE 64 */
+ 	.wde_qt6 = {448, 48, 0, 16,},
++	/* 8852B PCIE SCC */
++	.wde_qt7 = {446, 48, 0, 16,},
+ 	/* 8852C DLFW */
+ 	.wde_qt17 = {0, 0, 0,  0,},
+ 	/* 8852C PCIE SCC */
+diff --git a/drivers/net/wireless/realtek/rtw89/mac.h b/drivers/net/wireless/realtek/rtw89/mac.h
+index a8d9847ef0b49..6ba633ccdd037 100644
+--- a/drivers/net/wireless/realtek/rtw89/mac.h
++++ b/drivers/net/wireless/realtek/rtw89/mac.h
+@@ -792,6 +792,7 @@ struct rtw89_mac_size_set {
+ 	const struct rtw89_dle_size wde_size0;
+ 	const struct rtw89_dle_size wde_size4;
+ 	const struct rtw89_dle_size wde_size6;
++	const struct rtw89_dle_size wde_size7;
+ 	const struct rtw89_dle_size wde_size9;
+ 	const struct rtw89_dle_size wde_size18;
+ 	const struct rtw89_dle_size wde_size19;
+@@ -804,6 +805,7 @@ struct rtw89_mac_size_set {
+ 	const struct rtw89_wde_quota wde_qt0;
+ 	const struct rtw89_wde_quota wde_qt4;
+ 	const struct rtw89_wde_quota wde_qt6;
++	const struct rtw89_wde_quota wde_qt7;
+ 	const struct rtw89_wde_quota wde_qt17;
+ 	const struct rtw89_wde_quota wde_qt18;
+ 	const struct rtw89_ple_quota ple_qt4;
+diff --git a/drivers/net/wireless/realtek/rtw89/rtw8852b.c b/drivers/net/wireless/realtek/rtw89/rtw8852b.c
+index eaa2ea0586bc6..6da1b603a9a95 100644
+--- a/drivers/net/wireless/realtek/rtw89/rtw8852b.c
++++ b/drivers/net/wireless/realtek/rtw89/rtw8852b.c
+@@ -18,25 +18,25 @@
+ 	RTW8852B_FW_BASENAME "-" __stringify(RTW8852B_FW_FORMAT_MAX) ".bin"
+ 
+ static const struct rtw89_hfc_ch_cfg rtw8852b_hfc_chcfg_pcie[] = {
+-	{5, 343, grp_0}, /* ACH 0 */
+-	{5, 343, grp_0}, /* ACH 1 */
+-	{5, 343, grp_0}, /* ACH 2 */
+-	{5, 343, grp_0}, /* ACH 3 */
++	{5, 341, grp_0}, /* ACH 0 */
++	{5, 341, grp_0}, /* ACH 1 */
++	{4, 342, grp_0}, /* ACH 2 */
++	{4, 342, grp_0}, /* ACH 3 */
+ 	{0, 0, grp_0}, /* ACH 4 */
+ 	{0, 0, grp_0}, /* ACH 5 */
+ 	{0, 0, grp_0}, /* ACH 6 */
+ 	{0, 0, grp_0}, /* ACH 7 */
+-	{4, 344, grp_0}, /* B0MGQ */
+-	{4, 344, grp_0}, /* B0HIQ */
++	{4, 342, grp_0}, /* B0MGQ */
++	{4, 342, grp_0}, /* B0HIQ */
+ 	{0, 0, grp_0}, /* B1MGQ */
+ 	{0, 0, grp_0}, /* B1HIQ */
+ 	{40, 0, 0} /* FWCMDQ */
+ };
+ 
+ static const struct rtw89_hfc_pub_cfg rtw8852b_hfc_pubcfg_pcie = {
+-	448, /* Group 0 */
++	446, /* Group 0 */
+ 	0, /* Group 1 */
+-	448, /* Public Max */
++	446, /* Public Max */
+ 	0 /* WP threshold */
+ };
+ 
+@@ -49,13 +49,13 @@ static const struct rtw89_hfc_param_ini rtw8852b_hfc_param_ini_pcie[] = {
+ };
+ 
+ static const struct rtw89_dle_mem rtw8852b_dle_mem_pcie[] = {
+-	[RTW89_QTA_SCC] = {RTW89_QTA_SCC, &rtw89_mac_size.wde_size6,
+-			   &rtw89_mac_size.ple_size6, &rtw89_mac_size.wde_qt6,
+-			   &rtw89_mac_size.wde_qt6, &rtw89_mac_size.ple_qt18,
++	[RTW89_QTA_SCC] = {RTW89_QTA_SCC, &rtw89_mac_size.wde_size7,
++			   &rtw89_mac_size.ple_size6, &rtw89_mac_size.wde_qt7,
++			   &rtw89_mac_size.wde_qt7, &rtw89_mac_size.ple_qt18,
+ 			   &rtw89_mac_size.ple_qt58},
+-	[RTW89_QTA_WOW] = {RTW89_QTA_WOW, &rtw89_mac_size.wde_size6,
+-			   &rtw89_mac_size.ple_size6, &rtw89_mac_size.wde_qt6,
+-			   &rtw89_mac_size.wde_qt6, &rtw89_mac_size.ple_qt18,
++	[RTW89_QTA_WOW] = {RTW89_QTA_WOW, &rtw89_mac_size.wde_size7,
++			   &rtw89_mac_size.ple_size6, &rtw89_mac_size.wde_qt7,
++			   &rtw89_mac_size.wde_qt7, &rtw89_mac_size.ple_qt18,
+ 			   &rtw89_mac_size.ple_qt_52b_wow},
+ 	[RTW89_QTA_DLFW] = {RTW89_QTA_DLFW, &rtw89_mac_size.wde_size9,
+ 			    &rtw89_mac_size.ple_size8, &rtw89_mac_size.wde_qt4,
+-- 
+2.25.1
 
-- John
-
-On 4/25/23 18:17, Steven Rostedt wrote:
-> 
-> For some reason, this email did not make it to
-> linux-trace-kernel@vger.kernel.org, and therefore did not make it into
-> patchwork?
-> 
-> John?
-> 
-> -- Steve
-> 
-> 
-> On Wed, 26 Apr 2023 09:04:44 +0800
-> Tze-nan.Wu <Tze-nan.Wu@mediatek.com> wrote:
-> 
->> From: "Tze-nan Wu" <Tze-nan.Wu@mediatek.com>
->>
->> In ring_buffer_reset_online_cpus, the buffer_size_kb write operation
->> may permanently fail if the cpu_online_mask changes between two
->> for_each_online_buffer_cpu loops. The number of increases and decreases
->> on both cpu_buffer->resize_disabled and cpu_buffer->record_disabled may be
->> inconsistent, causing some CPUs to have non-zero values for these atomic
->> variables after the function returns.
->>
->> This issue can be reproduced by "echo 0 > trace" while hotplugging cpu.
->> After reproducing success, we can find out buffer_size_kb will not be
->> functional anymore.
->>
->> To prevent leaving 'resize_disabled' and 'record_disabled' non-zero after
->> ring_buffer_reset_online_cpus returns, we ensure that each atomic variable
->> has been set up before atomic_sub() to it.
->>
->> Cc: stable@vger.kernel.org
->> Cc: npiggin@gmail.com
->> Fixes: b23d7a5f4a07 ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
->> Reviewed-by: Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
->> Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
->> ---
->> Changes from v4 to v5: https://lore.kernel.org/lkml/20230412112401.25081-1-Tze-nan.Wu@mediatek.com/
->>    - Move the define before the function
->> ---
->>   kernel/trace/ring_buffer.c | 16 +++++++++++++---
->>   1 file changed, 13 insertions(+), 3 deletions(-)
->>
->> diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
->> index 76a2d91eecad..253ef85a9ec3 100644
->> --- a/kernel/trace/ring_buffer.c
->> +++ b/kernel/trace/ring_buffer.c
->> @@ -5345,6 +5345,9 @@ void ring_buffer_reset_cpu(struct trace_buffer *buffer, int cpu)
->>   }
->>   EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
->>   
->> +/* Flag to ensure proper resetting of atomic variables */
->> +#define RESET_BIT	(1 << 30)
->> +
->>   /**
->>    * ring_buffer_reset_online_cpus - reset a ring buffer per CPU buffer
->>    * @buffer: The ring buffer to reset a per cpu buffer of
->> @@ -5361,20 +5364,27 @@ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
->>   	for_each_online_buffer_cpu(buffer, cpu) {
->>   		cpu_buffer = buffer->buffers[cpu];
->>   
->> -		atomic_inc(&cpu_buffer->resize_disabled);
->> +		atomic_add(RESET_BIT, &cpu_buffer->resize_disabled);
->>   		atomic_inc(&cpu_buffer->record_disabled);
->>   	}
->>   
->>   	/* Make sure all commits have finished */
->>   	synchronize_rcu();
->>   
->> -	for_each_online_buffer_cpu(buffer, cpu) {
->> +	for_each_buffer_cpu(buffer, cpu) {
->>   		cpu_buffer = buffer->buffers[cpu];
->>   
->> +		/*
->> +		 * If a CPU came online during the synchronize_rcu(), then
->> +		 * ignore it.
->> +		 */
->> +		if (!(atomic_read(&cpu_buffer->resize_disabled) & RESET_BIT))
->> +			continue;
->> +
->>   		reset_disabled_cpu_buffer(cpu_buffer);
->>   
->>   		atomic_dec(&cpu_buffer->record_disabled);
->> -		atomic_dec(&cpu_buffer->resize_disabled);
->> +		atomic_sub(RESET_BIT, &cpu_buffer->resize_disabled);
->>   	}
->>   
->>   	mutex_unlock(&buffer->mutex);
-> 
